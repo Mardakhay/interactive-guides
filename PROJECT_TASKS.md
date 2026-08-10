@@ -35,11 +35,15 @@
 - [x] Create shared hooks (useMediaQuery, useDebounce)
 - [x] Git commit: `feat: initialize project architecture`
 
-### M2: Static Data Layer
-- [ ] Define content type schemas (Course, Lesson, Quiz, LearningPath)
-- [ ] Create sample course JSON with lessons
-- [ ] Create data loader utilities (lib/)
-- [ ] Git commit: `feat: add static content data layer`
+### M2: Content Foundation
+- [x] Define TypeScript types (Category, Lesson, LessonDifficulty, LessonStatus)
+- [x] Create Zod validation schemas for categories and lessons
+- [x] Create categories.json with 9 categories (Start Here, Web Basics, JavaScript, React, UI/Design, Tooling, Quality, Security, Data)
+- [x] Create lessons.json with 30 realistic sample lessons across all categories
+- [x] Create data access utilities (getCategories, getCategoryById, getLessons, getLessonById, getLessonsByCategory, getCatalog)
+- [x] Create content feature module (src/features/content/)
+- [x] Build catalog page displaying categories with lesson counts and descriptions
+- [x] Git commit: `feat: create content foundation and catalog`
 
 ---
 
@@ -153,5 +157,5 @@
 | 3     | M6–M9      | User Features            |
 | 4     | M10–M13    | Discovery & Polish       |
 
-**Current Milestone:** M2 — Static Data Layer
-**Last Completed:** M1 — Project Initialization
+**Current Milestone:** M3 — Course Catalog (filtering)
+**Last Completed:** M2 — Content Foundation
