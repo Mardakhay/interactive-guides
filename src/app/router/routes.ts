@@ -1,7 +1,7 @@
 export const ROUTES = {
   DASHBOARD: '/',
   COURSES: '/courses',
-  COURSE_DETAIL: '/courses/:courseId',
+  COURSE_DETAIL: '/courses/:categoryId',
   LESSON_VIEWER: '/lessons/:lessonId',
   LEARNING_PATHS: '/paths',
   LEARNING_PATH_DETAIL: '/paths/:pathId',
@@ -18,3 +18,11 @@ export const ROUTE_PATHS = {
   NOTES: '/notes',
   SEARCH: '/search',
 } as const;
+
+export function coursePath(categoryId: string): string {
+  return `/courses/${categoryId}`;
+}
+
+export function lessonPath(lessonId: string): string {
+  return `/lessons/${lessonId}`;
+}

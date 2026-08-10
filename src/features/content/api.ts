@@ -42,3 +42,25 @@ export function getCatalog(): CatalogCategory[] {
 export function getTotalLessonCount(): number {
   return lessons.length;
 }
+
+export interface LessonNavigationResult {
+  previous: Lesson | null;
+  next: Lesson | null;
+}
+
+export function getAdjacentLessons(lessonId: string): LessonNavigationResult {
+  const lesson = lessons.find((l) => l.id === lessonId);
+  if (!lesson) return { previous: null, next: null };
+
+  const categoryLessons = lessons
+    .filter((l) => l.categoryId === lesson.categoryId)
+    .sort((a, b) => a.order - b.order);
+
+  const index = categoryLessons.findIndex((l) => l.id === lessonId);
+  if (index === -1) return { previous: null, next: null };
+
+  return {
+    previous: index > 0 ? (categoryLessons[index - 1] ?? null) : null,
+    next: index < categoryLessons.length - 1 ? (categoryLessons[index + 1] ?? null) : null,
+  };
+}

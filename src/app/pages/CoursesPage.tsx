@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { getCatalog, getTotalLessonCount } from '@/features/content';
 import { Card, Badge } from '@/components/ui';
+import { coursePath } from '@/app/router/routes';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Compass,
@@ -45,7 +46,7 @@ export default function CoursesPage() {
         {catalog.map((category) => {
           const Icon = ICON_MAP[category.icon] ?? Compass;
           return (
-            <Link key={category.id} to={`/courses/${category.id}`}>
+            <Link key={category.id} to={coursePath(category.id)}>
               <Card interactive className="group h-full p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600">

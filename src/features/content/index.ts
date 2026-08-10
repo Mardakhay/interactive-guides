@@ -8,4 +8,8 @@ export {
   getLessonsByCategory,
   getCatalog,
   getTotalLessonCount,
+  getAdjacentLessons,
+  type LessonNavigationResult,
 } from './api';
+export { getCategoryIcon } from './icons';
+export { LessonSidebarTree, LessonMetadata, LessonNavigation } from './components';
