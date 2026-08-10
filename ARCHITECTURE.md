@@ -1,22 +1,30 @@
-# Interactive Guides — Architecture Plan
+# Interactive Guides — Architecture Plan (MVP)
 
 ## 1. Overview
 
 Interactive Guides is a learning platform that transforms interactive HTML lessons into structured courses. Users can track their progress, bookmark lessons, take notes, complete quizzes, search across content, and follow guided learning paths.
 
-### Core Capabilities
+### MVP Scope
 
-| Capability        | Description                                                            |
-|-------------------|------------------------------------------------------------------------|
-| Course Catalog    | Browse structured courses containing ordered lessons                   |
-| Lesson Viewer     | Render interactive HTML lessons with embedded activities               |
-| Progress Tracking | Per-user completion state for lessons and courses                      |
-| Bookmarks         | Save lessons for quick access                                          |
-| Notes             | Annotate lessons with personal notes                                   |
-| Quiz Engine       | Knowledge checks embedded in or associated with lessons                |
-| Search            | Full-text search across lessons, courses, and notes                    |
-| Learning Paths    | Curated sequences of courses with guided progression                   |
-| Dashboard         | Personalized overview of progress, bookmarks, and recommendations     |
+The first version is a **local-first single-user application** with no backend, no authentication, and no remote storage. All persistence happens in the browser via `localStorage`. Lesson and course content is sourced from local JSON files bundled with the app.
+
+| Capability        | MVP Status | Persistence           |
+|-------------------|------------|-----------------------|
+| Course Catalog    | Yes        | Local JSON (static)   |
+| Lesson Viewer     | Yes        | Local JSON (static)   |
+| Progress Tracking | Yes        | localStorage          |
+| Bookmarks         | Yes        | localStorage          |
+| Notes             | Yes        | localStorage          |
+| Quiz Engine       | Yes        | localStorage (results)|
+| Search            | Yes        | In-memory over JSON   |
+| Learning Paths    | Yes        | Local JSON (static)   |
+| Dashboard         | Yes        | Derived from above    |
+| Authentication    | No         | —                     |
+| Multi-user        | No         | —                     |
+
+### Scalability Path
+
+The architecture is designed so a Supabase backend can be layered in later without rewriting the UI or application layers. Data access is isolated behind repository-style modules (`api.ts` / `lib/`), so swapping localStorage for Supabase is a change in one layer, not a refactor across the app.
 
 ---
 
@@ -29,10 +37,10 @@ Interactive Guides is a learning platform that transforms interactive HTML lesso
 | Styling             | Tailwind CSS                                 |
 | Routing             | React Router v6                              |
 | State Management    | Zustand                                      |
-| Backend / Database  | Supabase (Postgres, Auth, Storage, Edge Fn)  |
-| Data Validation     | Zod (runtime validation of API/DB responses) |
+| Data Source         | Local JSON files (courses, lessons, quizzes) |
+| Persistence         | localStorage (progress, bookmarks, notes)    |
+| Data Validation     | Zod (runtime validation of JSON + storage)   |
 | Icons               | lucide-react                                 |
-| Testing             | Vitest + React Testing Library               |
 
 ---
 
@@ -48,22 +56,22 @@ Interactive Guides is a learning platform that transforms interactive HTML lesso
 ├──────────────────────────────────────────────┤
 │                 Domain Layer                  │  Types, business rules, models
 ├──────────────────────────────────────────────┤
-│            Infrastructure Layer               │  Supabase client, API access
+│            Infrastructure Layer               │  JSON loaders, localStorage repos
 └──────────────────────────────────────────────┘
 ```
 
-- **UI Layer** — Presentational components and pages. No direct database access.
-- **Application Layer** — Zustand stores and custom hooks that orchestrate data flow and hold UI state. Components talk to stores, never to Supabase directly.
-- **Domain Layer** — Shared TypeScript types, enums, and pure business logic (validation helpers, completion calculators). No external dependencies.
-- **Infrastructure Layer** — Supabase client initialization and repository functions that encapsulate all database queries. The only layer that imports `@supabase/supabase-js`.
+- **UI Layer** — Presentational components and pages. No direct data access.
+- **Application Layer** — Zustand stores and custom hooks that orchestrate data flow and hold UI state. Components talk to stores, never to storage or JSON directly.
+- **Domain Layer** — Shared TypeScript types, enums, and pure business logic. No external dependencies.
+- **Infrastructure Layer** — JSON content loaders and localStorage repository functions. The only layer that reads `localStorage` or imports content JSON. When Supabase is added later, this is the only layer that changes.
 
 ### Dependency Rule
 
-Dependencies always point inward. The UI layer depends on the application layer; the application layer depends on the domain and infrastructure layers; the domain layer depends on nothing. This keeps business logic testable and swappable.
+Dependencies always point inward. The UI layer depends on the application layer; the application layer depends on the domain and infrastructure layers; the domain layer depends on nothing.
 
 ### Feature-Based Organization
 
-Each feature (courses, lessons, bookmarks, etc.) is a self-contained vertical slice containing its own components, hooks, types, and store slice. Cross-feature communication happens through shared stores and types, not direct imports between feature folders.
+Each feature (courses, lessons, bookmarks, etc.) is a self-contained vertical slice containing its own components, hooks, types, and store. Cross-feature communication happens through shared stores and types, not direct imports between feature folders.
 
 ---
 
@@ -75,66 +83,51 @@ interactive-guides/
 │   └── favicon.svg
 ├── src/
 │   ├── app/                          # Application shell and global configuration
-│   │   ├── App.tsx                   # Root component, mounts providers + router
-│   │   ├── providers/
-│   │   │   ├── QueryProvider.tsx     # (future) React Query provider if needed
-│   │   │   └── ThemeProvider.tsx     # Theme context (light/dark)
-│   │   └── router/
-│   │       ├── index.tsx             # Router configuration, route definitions
-│   │       └── routes.ts             # Route path constants
+│   │   ├── App.tsx                   # Root component, mounts router
+│   │   ├── router/
+│   │   │   ├── index.tsx             # Router configuration, route definitions
+│   │   │   └── routes.ts             # Route path constants
+│   │   └── pages/                    # Route-level page components
+│   │       ├── DashboardPage.tsx
+│   │       ├── CoursesPage.tsx
+│   │       ├── CourseDetailPage.tsx
+│   │       ├── LessonViewerPage.tsx
+│   │       ├── BookmarksPage.tsx
+│   │       ├── NotesPage.tsx
+│   │       ├── SearchPage.tsx
+│   │       └── NotFoundPage.tsx
 │   │
 │   ├── features/                     # Feature modules — vertical slices
-│   │   ├── auth/
-│   │   │   ├── components/           # SignIn, SignUp, AuthGuard
-│   │   │   ├── hooks/
-│   │   │   ├── store.ts              # Zustand auth store
-│   │   │   └── types.ts
 │   │   ├── courses/
-│   │   │   ├── components/           # CourseCard, CourseList, CourseDetail
+│   │   │   ├── components/
 │   │   │   ├── hooks/
 │   │   │   ├── store.ts
-│   │   │   ├── api.ts                # Supabase queries for courses
+│   │   │   ├── api.ts                # Loads course JSON
 │   │   │   └── types.ts
 │   │   ├── lessons/
-│   │   │   ├── components/           # LessonViewer, LessonNav, LessonSidebar
+│   │   │   ├── components/
 │   │   │   ├── hooks/
 │   │   │   ├── store.ts
-│   │   │   ├── api.ts
+│   │   │   ├── api.ts                # Loads lesson JSON
 │   │   │   └── types.ts
 │   │   ├── progress/
-│   │   │   ├── components/           # ProgressBar, ProgressIndicator
-│   │   │   ├── hooks/
-│   │   │   ├── store.ts
-│   │   │   ├── api.ts
+│   │   │   ├── store.ts              # localStorage-backed
 │   │   │   └── types.ts
 │   │   ├── bookmarks/
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   ├── store.ts
-│   │   │   ├── api.ts
+│   │   │   ├── store.ts              # localStorage-backed
 │   │   │   └── types.ts
 │   │   ├── notes/
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   ├── store.ts
-│   │   │   ├── api.ts
+│   │   │   ├── store.ts              # localStorage-backed
 │   │   │   └── types.ts
 │   │   ├── quizzes/
-│   │   │   ├── components/           # QuizRenderer, QuizQuestion, QuizResult
-│   │   │   ├── hooks/
+│   │   │   ├── components/
 │   │   │   ├── store.ts
-│   │   │   ├── api.ts
 │   │   │   └── types.ts
 │   │   ├── search/
-│   │   │   ├── components/           # SearchBar, SearchResults
-│   │   │   ├── hooks/
 │   │   │   ├── store.ts
-│   │   │   ├── api.ts
 │   │   │   └── types.ts
 │   │   └── dashboard/
-│   │       ├── components/
-│   │       ├── hooks/
-│   │       └── store.ts
+│   │       └── components/
 │   │
 │   ├── components/                   # Shared UI components — cross-feature reuse
 │   │   ├── ui/                       # Design system primitives
@@ -142,7 +135,6 @@ interactive-guides/
 │   │   │   ├── Card.tsx
 │   │   │   ├── Input.tsx
 │   │   │   ├── Badge.tsx
-│   │   │   ├── Modal.tsx
 │   │   │   ├── Spinner.tsx
 │   │   │   └── index.ts              # Barrel export
 │   │   ├── layout/                   # Structural layout components
@@ -157,32 +149,36 @@ interactive-guides/
 │   │       └── index.ts
 │   │
 │   ├── stores/                       # Global Zustand stores (cross-feature)
-│   │   └── uiStore.ts                # Sidebar open/close, theme, active modal
+│   │   └── uiStore.ts                # Sidebar open/close, theme
 │   │
 │   ├── lib/                          # Infrastructure + utilities
-│   │   ├── supabase.ts               # Supabase client initialization
+│   │   ├── storage.ts                # localStorage repository helpers
 │   │   ├── utils.ts                  # cn() class merge, formatters
 │   │   ├── constants.ts              # App-wide constants, nav items
-│   │   └── validation.ts             # Zod schemas
+│   │   └── validation.ts             # Zod schemas (added with content features)
+│   │
+│   ├── data/                         # Static JSON content (source of truth)
+│   │   ├── courses.json
+│   │   ├── lessons/
+│   │   │   └── *.json
+│   │   └── learning-paths.json
 │   │
 │   ├── types/                        # Shared domain types (cross-feature)
-│   │   ├── database.ts               # Supabase generated types
-│   │   └── common.ts                 # Shared types (PaginatedResult, etc.)
+│   │   └── common.ts                 # Shared types (NavItem, Result, etc.)
 │   │
 │   ├── hooks/                        # Shared custom hooks (cross-feature)
 │   │   ├── useMediaQuery.ts
-│   │   ├── useDebounce.ts
-│   │   └── useLocalStorage.ts
+│   │   └── useDebounce.ts
 │   │
-│   └── styles/
-│       └── index.css                 # Tailwind directives + global styles
-│
-├── supabase/
-│   └── functions/                    # Edge functions (if needed later)
+│   ├── styles/
+│   │   └── index.css                 # Tailwind directives + global styles
+│   │
+│   └── main.tsx                      # Vite entry point
 │
 ├── index.html
 ├── vite.config.ts
 ├── tsconfig.json
+├── tsconfig.node.json
 ├── tailwind.config.ts
 ├── postcss.config.js
 ├── package.json
@@ -196,46 +192,40 @@ interactive-guides/
 
 | Folder        | Purpose                                                                 |
 |---------------|-------------------------------------------------------------------------|
-| `app/`        | Application-level wiring: providers, router config. The composition root. |
-| `features/`   | Self-contained feature modules. Each is a vertical slice with its own components, hooks, store, API access, and types. Features don't import from each other directly — they communicate through shared types and the store layer. |
+| `app/`        | Application-level wiring: router config and route-level page components. The composition root. |
+| `features/`   | Self-contained feature modules. Each is a vertical slice with its own components, hooks, store, API access, and types. Features don't import from each other directly. |
 | `components/` | Design system primitives and layout components shared across features. Anything used by 2+ features lives here. |
-| `stores/`     | Global stores that span features (e.g., UI state like sidebar toggle, theme). Feature-specific stores live inside `features/<name>/store.ts`. |
-| `lib/`        | Infrastructure layer: Supabase client, utility functions, constants, validation schemas. The only place that knows about Supabase connection details. |
+| `stores/`     | Global stores that span features (e.g., UI state like sidebar toggle). Feature-specific stores live inside `features/<name>/store.ts`. |
+| `lib/`        | Infrastructure layer: localStorage helpers, utility functions, constants. The only place that reads/writes `localStorage`. |
+| `data/`       | Static JSON content — the source of truth for courses, lessons, quizzes, and learning paths. |
 | `types/`      | Shared domain types used across feature boundaries. Feature-internal types stay in `features/<name>/types.ts`. |
-| `hooks/`      | Generic hooks not tied to any feature (useMediaQuery, useDebounce). Feature-specific hooks stay in their feature folder. |
+| `hooks/`      | Generic hooks not tied to any feature (useMediaQuery, useDebounce). |
 
 ---
 
-## 5. Data Model (Supabase)
+## 5. Data Strategy
 
-### Entity Relationship
+### Content (Static)
 
-```
-profiles ──< lesson_progress >── lessons
-profiles ──< bookmarks >── lessons
-profiles ──< notes >── lessons
-profiles ──< quiz_results >── quizzes
-courses ──< lessons
-courses ──< learning_path_courses >── learning_paths
-lessons ──< quizzes
-```
+Courses, lessons, quizzes, and learning paths are stored as JSON files in `src/data/`. These are imported directly by feature `api.ts` modules. Vite handles JSON imports natively. This is the source of truth for all educational content.
 
-### Tables
+### User State (localStorage)
 
-| Table                    | Purpose                                                        |
-|--------------------------|----------------------------------------------------------------|
-| `profiles`               | User display name, avatar URL, created_at (1:1 with auth.users)|
-| `courses`                | Title, description, category, difficulty, estimated hours      |
-| `lessons`                | Title, slug, HTML content, order, course_id, duration_minutes  |
-| `learning_paths`         | Curated sequences: title, description                          |
-| `learning_path_courses`  | Junction: learning_path_id, course_id, order                   |
-| `quizzes`                | Questions (JSONB), lesson_id, passing_score                    |
-| `lesson_progress`        | user_id, lesson_id, status (in_progress/completed), completed_at|
-| `bookmarks`              | user_id, lesson_id, created_at (unique pair)                   |
-| `notes`                  | user_id, lesson_id, content, created_at, updated_at            |
-| `quiz_results`           | user_id, quiz_id, score, answers (JSONB), passed, attempted_at |
+| Key                        | Shape                                   |
+|----------------------------|-----------------------------------------|
+| `ig:progress`              | `{ [lessonId]: { status, completedAt } }` |
+| `ig:bookmarks`             | `{ [lessonId]: { createdAt } }`          |
+| `ig:notes`                 | `{ [lessonId]: { content, updatedAt } }` |
+| `ig:last-lesson`           | `lessonId`                              |
 
-All tables use RLS with `auth.uid()` ownership checks. Seed data (courses, lessons, quizzes) is readable by all authenticated users; user-specific data (progress, bookmarks, notes, quiz_results) is scoped to the owner.
+All localStorage access is funneled through `lib/storage.ts`, which provides typed read/write helpers with Zod validation and graceful fallbacks for corrupted/missing data. Stores hydrate from localStorage on initialization and persist on every change via Zustand middleware.
+
+### Future Supabase Migration
+
+When authentication and multi-user support are added, only the infrastructure layer changes:
+- `lib/storage.ts` → `lib/supabase.ts` + feature `api.ts` files
+- Stores swap `localStorage` persistence for Supabase queries
+- UI and application layers remain unchanged
 
 ---
 
@@ -243,35 +233,26 @@ All tables use RLS with `auth.uid()` ownership checks. Seed data (courses, lesso
 
 ### Zustand Store Architecture
 
-Each feature owns its store. Stores are the application layer — components call store actions, stores call infrastructure-layer API functions.
+Each feature owns its store. Stores are the application layer — components call store actions, stores call infrastructure-layer functions.
 
 ```
-Component → Store Action → API Function (lib/) → Supabase
+Component → Store Action → api.ts (JSON) / storage.ts (localStorage)
                 ↓
-         Updates local state
+         Updates local state + persists
                 ↓
          Component re-renders
 ```
 
 | Store                  | Responsibility                                              |
 |------------------------|-------------------------------------------------------------|
-| `authStore`            | Session, user profile, sign in / sign out                   |
+| `uiStore`              | Sidebar open/closed (mobile), theme                         |
 | `courseStore`          | Catalog list, current course, loading states                |
 | `lessonStore`          | Current lesson, lesson list within course, navigation       |
 | `progressStore`        | Per-lesson completion map, course completion percentage     |
 | `bookmarkStore`        | Bookmarked lesson IDs, add/remove                           |
 | `notesStore`           | Notes per lesson, create/edit/delete                        |
-| `quizStore`            | Current quiz state, answers, score, submission              |
+| `quizStore`            | Current quiz state, answers, score                          |
 | `searchStore`          | Query string, results, filters, loading                     |
-| `uiStore`              | Sidebar open/closed (mobile), theme, active modals          |
-
-### Why Zustand (not Redux/Context)
-
-- Minimal boilerplate — no actions/reducers/dispatch
-- Selectors prevent unnecessary re-renders
-- Stores can be composed without a provider tree
-- TypeScript-friendly out of the box
-- Each feature owns its store, keeping coupling low
 
 ---
 
@@ -288,11 +269,9 @@ Component → Store Action → API Function (lib/) → Supabase
 | `/bookmarks`                  | BookmarksPage        | Saved lessons                         |
 | `/notes`                      | NotesPage            | All notes, filterable by lesson       |
 | `/search`                     | SearchPage           | Search results with filters           |
-| `/profile`                    | ProfilePage          | User settings, progress summary       |
-| `/signin`                     | SignInPage           | Authentication (outside app layout)  |
-| `/signup`                     | SignUpPage           | Registration (outside app layout)    |
+| `*`                           | NotFoundPage         | 404 fallback                          |
 
-Protected routes redirect to `/signin` when unauthenticated. Auth routes redirect to `/` when already authenticated.
+No auth routes or protected routes in the MVP — the app is single-user and fully open.
 
 ---
 
@@ -304,21 +283,20 @@ Six color ramps (primary, secondary, accent, success, warning, error) plus neutr
 
 ### Typography
 
-- **Headings:** Inter (or system fallback) — 600 weight, 120% line-height
-- **Body:** Inter (or system fallback) — 400 weight, 150% line-height
+- **Headings & Body:** Inter (system fallback) — 600 weight for headings (120% line-height), 400 weight for body (150% line-height)
 - **Code:** JetBrains Mono — for lesson code blocks
 
 Maximum 3 font weights per page (400, 500, 600).
 
 ### Spacing
 
-8px base unit. Tailwind's spacing scale aligns: `gap-2` = 8px, `gap-4` = 16px, etc.
+8px base unit via Tailwind's spacing scale.
 
 ### Responsive Breakpoints
 
 Mobile-first. Breakpoints: `sm` (640px), `md` (768px), `lg` (1024px), `xl` (1280px).
 
-- Mobile: single column, bottom navigation or hamburger sidebar
+- Mobile: single column, hamburger-triggered sidebar drawer
 - Tablet: sidebar collapses to icons, content widens
 - Desktop: persistent sidebar, full content area
 
@@ -326,42 +304,35 @@ Mobile-first. Breakpoints: `sm` (640px), `md` (768px), `lg` (1024px), `xl` (1280
 
 ## 9. Implementation Roadmap
 
-### Phase 1 — Foundation (Milestones 1–3)
+### Phase 1 — Foundation
 
 | Milestone | Deliverable                              |
 |-----------|------------------------------------------|
-| M1        | Project initialization: Vite + React + TypeScript + Tailwind + strict mode |
-| M2        | Application shell: AppLayout, Sidebar, TopBar, responsive navigation, routing skeleton |
-| M3        | Supabase client setup, database schema migration (all tables + RLS), shared types |
+| M1        | Project initialization: Vite + React + TS strict + Tailwind + Router + Zustand + path aliases + folder structure + layout system + theme foundation + empty routes |
+| M2        | Static data layer: JSON content schema, course/lesson JSON, data loader utilities |
 
-### Phase 2 — Content & Viewing (Milestones 4–6)
-
-| Milestone | Deliverable                              |
-|-----------|------------------------------------------|
-| M4        | Course catalog: course listing page with cards, filters by category/difficulty |
-| M5        | Course detail page: lesson list with progress indicators, course metadata |
-| M6        | Lesson viewer: renders interactive HTML, prev/next navigation, table of contents |
-
-### Phase 3 — User Features (Milestones 7–10)
+### Phase 2 — Content & Viewing
 
 | Milestone | Deliverable                              |
 |-----------|------------------------------------------|
-| M7        | Progress tracking: mark lessons complete, course progress bar, dashboard integration |
-| M8        | Bookmarks: toggle bookmarks from lesson view, bookmarks page, remove bookmarks |
-| M9        | Notes: create/edit/delete notes on lessons, notes listing page with filters |
-| M10       | Quiz engine: render questions, capture answers, score, save results, retry |
+| M3        | Course catalog: course listing page with cards, filters |
+| M4        | Course detail page: lesson list, course metadata |
+| M5        | Lesson viewer: renders interactive HTML, prev/next, table of contents |
 
-### Phase 4 — Discovery & Polish (Milestones 11–13)
-
-| Milestone | Deliverable                              |
-|-----------|------------------------------------------|
-| M11       | Search: full-text search across lessons/courses/notes, result filters, debounced input |
-| M12       | Learning paths: curated course sequences, path detail, path progress |
-| M13       | Dashboard: progress overview, continue learning, recent activity, recommendations |
-
-### Phase 5 — Hardening (Milestones 14–15)
+### Phase 3 — User Features
 
 | Milestone | Deliverable                              |
 |-----------|------------------------------------------|
-| M14       | Accessibility audit: keyboard navigation, ARIA labels, focus management, color contrast |
-| M15       | Performance & polish: lazy-loaded routes, skeleton loaders, empty states, error boundaries, responsive design pass |
+| M6        | Progress tracking: mark complete, progress bars, dashboard |
+| M7        | Bookmarks: toggle, bookmarks page, remove |
+| M8        | Notes: create/edit/delete, notes listing |
+| M9        | Quiz engine: render, score, save results, retry |
+
+### Phase 4 — Discovery & Polish
+
+| Milestone | Deliverable                              |
+|-----------|------------------------------------------|
+| M10       | Search: full-text across JSON content, filters, debounce |
+| M11       | Learning paths: curated sequences, path progress |
+| M12       | Dashboard: progress overview, continue learning, recommendations |
+| M13       | Accessibility & performance: keyboard nav, ARIA, lazy routes, skeletons, error boundaries |
