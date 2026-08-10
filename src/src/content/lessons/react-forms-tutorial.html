@@ -1,0 +1,2652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React Forms & Validation — Interactive Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161d;
+    --surface2: #1a1e28;
+    --surface3: #21263300;
+    --border: #2a2f3d;
+    --border2: #353b4d;
+    --text: #e8eaf0;
+    --muted: #7a8099;
+    --accent: #5b8fff;
+    --accent2: #7c5cff;
+    --green: #3ecf8e;
+    --red: #ff5f72;
+    --yellow: #f5c542;
+    --orange: #ff8c42;
+    --cyan: #38bdf8;
+    --glow: rgba(91, 143, 255, 0.15);
+    --mono: 'DM Mono', monospace;
+    --sans: 'Syne', sans-serif;
+    --serif: 'Inter', 'Segoe UI', Arial, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ── Background grain ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Sidebar nav ── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    z-index: 100;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .sidebar-logo .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .sidebar-logo h2 {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 4px;
+    line-height: 1.3;
+  }
+
+  .nav-section {
+    padding: 0 12px;
+    margin-bottom: 4px;
+  }
+
+  .nav-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 8px 8px 4px;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    color: var(--muted);
+    text-decoration: none;
+    font-family: var(--sans);
+    font-size: 12.5px;
+    font-weight: 600;
+    transition: all 0.15s;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: var(--text);
+    background: var(--surface2);
+  }
+
+  .nav-link.active { color: var(--accent); }
+
+  .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border2);
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .nav-link.active .nav-dot { background: var(--accent); }
+
+  /* Progress bar */
+  .progress-bar {
+    margin: 0 20px 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .progress-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .progress-track {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* ── Main content ── */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 80px 60px 60px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(91,143,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 28px; height: 1px;
+    background: var(--accent);
+  }
+
+  .hero h1 {
+    font-family: var(--sans);
+    font-size: clamp(36px, 4vw, 56px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-desc {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .hero-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 20px;
+  }
+
+  .hero-badge span { color: var(--text); }
+
+  /* ── Section ── */
+  section {
+    padding: 64px 60px;
+    border-bottom: 1px solid var(--border);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  h2.section-title {
+    font-family: var(--sans);
+    font-size: clamp(24px, 3vw, 34px);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 28px;
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-family: var(--sans);
+    font-size: 18px;
+    font-weight: 700;
+    margin: 32px 0 14px;
+    color: var(--text);
+  }
+
+  p { margin-bottom: 16px; color: #c0c4d4; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .card:hover {
+    border-color: var(--border2);
+    transform: translateY(-1px);
+  }
+
+  .card-accent {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+
+  .card-accent.blue { background: var(--accent); }
+  .card-accent.purple { background: var(--accent2); }
+  .card-accent.green { background: var(--green); }
+  .card-accent.red { background: var(--red); }
+  .card-accent.yellow { background: var(--yellow); }
+  .card-accent.orange { background: var(--orange); }
+  .card-accent.cyan { background: var(--cyan); }
+
+  .card h4 {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+
+  .card p { margin-bottom: 0; font-size: 14.5px; }
+
+  /* ── Grid ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  /* ── Callout boxes ── */
+  .callout {
+    display: flex;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 10px;
+    margin: 24px 0;
+    font-size: 14.5px;
+    border: 1px solid;
+  }
+
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  .callout.tip {
+    background: rgba(62,207,142,0.06);
+    border-color: rgba(62,207,142,0.2);
+    color: #a8f0cc;
+  }
+
+  .callout.warning {
+    background: rgba(245,197,66,0.06);
+    border-color: rgba(245,197,66,0.2);
+    color: #f5d77a;
+  }
+
+  .callout.danger {
+    background: rgba(255,95,114,0.06);
+    border-color: rgba(255,95,114,0.2);
+    color: #ff9aaa;
+  }
+
+  .callout.info {
+    background: rgba(56,189,248,0.06);
+    border-color: rgba(56,189,248,0.2);
+    color: #7dd3fc;
+  }
+
+  /* ── Code blocks ── */
+  .code-block {
+    background: #0a0c10;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 20px 0;
+    font-family: var(--mono);
+    font-size: 13.5px;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .code-dots { display: flex; gap: 6px; }
+
+  .code-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  .code-dot:nth-child(1) { background: #ff5f57; }
+  .code-dot:nth-child(2) { background: #febc2e; }
+  .code-dot:nth-child(3) { background: #28c840; }
+
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    line-height: 1.7;
+    color: #abb2bf;
+  }
+
+  .kw { color: #c678dd; }
+  .fn { color: #61afef; }
+  .str { color: #98c379; }
+  .cm { color: #5c6370; font-style: italic; }
+  .num { color: #d19a66; }
+  .tag { color: #e06c75; }
+  .attr { color: #d19a66; }
+  .val { color: #98c379; }
+  .jsx { color: #abb2bf; }
+  .hook { color: #56b6c2; }
+
+  /* ── Comparison table ── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 24px 0;
+  }
+
+  .compare-table th {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 2px solid var(--border2);
+    color: var(--text);
+  }
+
+  .compare-table th:nth-child(2) { color: var(--accent); }
+  .compare-table th:nth-child(3) { color: var(--accent2); }
+
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: #bcc3d8;
+    vertical-align: middle;
+  }
+
+  .compare-table td:first-child {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .badge.green { background: rgba(62,207,142,0.12); color: var(--green); }
+  .badge.yellow { background: rgba(245,197,66,0.12); color: var(--yellow); }
+  .badge.blue { background: rgba(91,143,255,0.12); color: var(--accent); }
+  .badge.purple { background: rgba(124,92,255,0.12); color: var(--accent2); }
+  .badge.red { background: rgba(255,95,114,0.12); color: var(--red); }
+
+  /* ── Analogy box ── */
+  .analogy {
+    background: linear-gradient(135deg, rgba(91,143,255,0.06), rgba(124,92,255,0.06));
+    border: 1px solid rgba(91,143,255,0.2);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 24px 0;
+  }
+
+  .analogy-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .analogy-label::before {
+    content: '💡';
+  }
+
+  .analogy p { margin-bottom: 8px; color: #bcc3d8; font-size: 15px; }
+  .analogy p:last-child { margin-bottom: 0; }
+  .analogy strong { color: var(--text); }
+
+  /* ── Flow diagram ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    margin: 24px 0;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+
+  .flow-step {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 600;
+    min-width: 120px;
+  }
+
+  .flow-step small {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 3px;
+  }
+
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--accent);
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── Use case pills ── */
+  .use-cases {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .use-case {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13.5px;
+    font-family: var(--sans);
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* ── Quiz ── */
+  .quiz-container {
+    margin: 24px 0;
+  }
+
+  .quiz-q {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .quiz-q .q-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .quiz-q .q-text {
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 18px;
+    line-height: 1.4;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .quiz-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--surface2);
+    font-family: var(--serif);
+  }
+
+  .quiz-option:hover { border-color: var(--accent); background: rgba(91,143,255,0.06); }
+
+  .quiz-option.correct { border-color: var(--green); background: rgba(62,207,142,0.08); color: #a8f0cc; }
+  .quiz-option.incorrect { border-color: var(--red); background: rgba(255,95,114,0.08); color: #ff9aaa; }
+  .quiz-option.disabled { cursor: not-allowed; pointer-events: none; }
+
+  .quiz-option .opt-letter {
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .quiz-option.correct .opt-letter { background: var(--green); color: #0d2218; }
+  .quiz-option.incorrect .opt-letter { background: var(--red); color: #2d0810; }
+
+  .quiz-feedback {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    display: none;
+  }
+
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: rgba(62,207,142,0.08); border: 1px solid rgba(62,207,142,0.2); color: #a8f0cc; }
+  .quiz-feedback.incorrect { background: rgba(255,95,114,0.08); border: 1px solid rgba(255,95,114,0.2); color: #ff9aaa; }
+
+  /* ── Practice exercises ── */
+  .exercise {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .exercise-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .exercise-header:hover { background: var(--surface2); }
+
+  .exercise-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .exercise-num {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #0a0c10;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .exercise-name {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .exercise-diff {
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  .exercise-body {
+    padding: 20px;
+    display: none;
+  }
+
+  .exercise-body.open { display: block; }
+
+  .exercise-toggle {
+    font-size: 18px;
+    color: var(--muted);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .exercise-toggle.open { transform: rotate(180deg); }
+
+  /* ── Best practices list ── */
+  .bp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .bp-item {
+    display: flex;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 14.5px;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+
+  .bp-item:hover { border-color: var(--border2); }
+
+  .bp-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .bp-content { flex: 1; }
+  .bp-content strong { display: block; font-family: var(--sans); font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .bp-content p { margin-bottom: 0; font-size: 13.5px; color: var(--muted); }
+
+  /* ── Summary ── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    text-align: center;
+  }
+
+  .summary-card .icon { font-size: 32px; margin-bottom: 12px; }
+
+  .summary-card h4 {
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .summary-card p { font-size: 13px; color: var(--muted); margin-bottom: 0; }
+
+  /* ── Score display ── */
+  .score-display {
+    display: none;
+    text-align: center;
+    padding: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-top: 24px;
+  }
+
+  .score-display.show { display: block; }
+
+  .score-number {
+    font-family: var(--sans);
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .score-label {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0a0c10;
+  }
+
+  .btn-primary:hover { background: #7aabff; transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+
+  .btn-sm { padding: 6px 14px; font-size: 12px; }
+
+  /* ── Show/hide answer ── */
+  .show-answer-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 12px;
+  }
+
+  .show-answer-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  .answer-reveal {
+    display: none;
+    margin-top: 12px;
+    padding: 14px;
+    background: rgba(62,207,142,0.06);
+    border: 1px solid rgba(62,207,142,0.15);
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: #a8f0cc;
+  }
+
+  .answer-reveal.open { display: block; }
+
+  /* ── Tag chip ── */
+  .chip {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    margin: 2px;
+  }
+
+  /* ── Validation diagram ── */
+  .val-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 24px 0;
+  }
+
+  .val-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .val-label {
+    width: 120px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .val-bar {
+    flex: 1;
+    height: 36px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    gap: 8px;
+  }
+
+  /* ── Scrollspy ── */
+  section { scroll-margin-top: 20px; }
+
+
+  /* ── Mobile nav toggle ── */
+  .mobile-nav-toggle {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(19, 22, 29, 0.92);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 201;
+    backdrop-filter: blur(10px);
+  }
+
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 150;
+  }
+
+  .nav-link[aria-current="true"] {
+    color: var(--accent);
+    background: var(--surface2);
+  }
+
+  .nav-link:focus-visible,
+  .mobile-nav-toggle:focus-visible,
+  .exercise-header:focus-visible,
+  .show-answer-btn:focus-visible,
+  .btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .mobile-nav-toggle { display: inline-flex; align-items: center; justify-content: center; }
+    .sidebar {
+      transform: translateX(-100%);
+      width: min(82vw, 300px);
+      box-shadow: 12px 0 32px rgba(0, 0, 0, 0.35);
+    }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-backdrop.show { display: block; }
+    .main { margin-left: 0; }
+    section { padding: 40px 24px; }
+    .hero { padding: 68px 24px 32px; }
+    .grid-2, .grid-3, .summary-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Code inline ── */
+  code {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: rgba(255,255,255,0.07);
+    padding: 2px 7px;
+    border-radius: 4px;
+    color: var(--cyan);
+  }
+
+  /* ── Section divider ── */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 32px 0;
+  }
+
+  .section-divider::before, .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-divider span {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ── Mistake cards ── */
+  .mistake {
+    background: rgba(255,95,114,0.04);
+    border: 1px solid rgba(255,95,114,0.15);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+
+  .mistake-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .mistake-icon { font-size: 18px; }
+
+  .mistake-title {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 700;
+    color: #ff9aaa;
+  }
+
+  .mistake-fix {
+    background: rgba(62,207,142,0.06);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    color: #a8f0cc;
+    margin-top: 10px;
+    font-family: var(--mono);
+  }
+
+  /* ── Quiz score bar ── */
+  #quiz-section .btn-primary { margin-top: 20px; }
+
+  /* ── Strategy timeline ── */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+    margin: 24px 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 8px; bottom: 8px;
+    width: 1px;
+    background: var(--border2);
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 28px;
+  }
+
+  .timeline-item:last-child { margin-bottom: 0; }
+
+  .timeline-dot {
+    position: absolute;
+    left: -24px;
+    top: 6px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+  }
+
+  .timeline-dot.blue { background: var(--accent); }
+  .timeline-dot.purple { background: var(--accent2); }
+  .timeline-dot.green { background: var(--green); }
+
+  .timeline-title {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .timeline-desc {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 0;
+  }
+
+  /* ── Hook form visual ── */
+  .hook-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin: 16px 0;
+  }
+
+  .hook-table th {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hook-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: #bcc3d8;
+    vertical-align: top;
+  }
+
+  .hook-table td:first-child { font-family: var(--mono); font-size: 12.5px; color: var(--cyan); }
+
+</style>
+</head>
+
+<body>
+
+<button class="mobile-nav-toggle" id="mobile-nav-toggle" type="button"
+        aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
+  ☰
+</button>
+<div class="sidebar-backdrop" id="sidebar-backdrop" hidden></div>
+
+<!-- ════ SIDEBAR ════ -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="tag">// interactive course</div>
+    <h2>React Forms &<br>Validation</h2>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Foundations</div>
+    <button type="button" class="nav-link" data-target="intro"><span class="nav-dot"></span> Introduction</button>
+    <button type="button" class="nav-link" data-target="overview"><span class="nav-dot"></span> Two Approaches</button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Components</div>
+    <button type="button" class="nav-link" data-target="controlled"><span class="nav-dot"></span> Controlled</button>
+    <button type="button" class="nav-link" data-target="uncontrolled"><span class="nav-dot"></span> Uncontrolled</button>
+    <button type="button" class="nav-link" data-target="comparison"><span class="nav-dot"></span> Comparison</button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Validation</div>
+    <button type="button" class="nav-link" data-target="validation-intro"><span class="nav-dot"></span> Validation Basics</button>
+    <button type="button" class="nav-link" data-target="html5"><span class="nav-dot"></span> HTML5 Validation</button>
+    <button type="button" class="nav-link" data-target="custom"><span class="nav-dot"></span> Custom Validation</button>
+    <button type="button" class="nav-link" data-target="rhf"><span class="nav-dot"></span> React Hook Form</button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Mastery</div>
+    <button type="button" class="nav-link" data-target="best-practices"><span class="nav-dot"></span> Best Practices</button>
+    <button type="button" class="nav-link" data-target="mistakes"><span class="nav-dot"></span> Common Mistakes</button>
+    <button type="button" class="nav-link" data-target="summary"><span class="nav-dot"></span> Summary</button>
+    <button type="button" class="nav-link" data-target="quiz-section"><span class="nav-dot"></span> Quiz</button>
+    <button type="button" class="nav-link" data-target="practice"><span class="nav-dot"></span> Practice</button>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-label">
+      <span>Progress</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="prog-fill"></div>
+    </div>
+  </div>
+</nav>
+
+<!-- ════ MAIN ════ -->
+<main class="main">
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-eyebrow">React Fundamentals</div>
+  <h1>Forms &amp; <span>Validation</span></h1>
+  <p class="hero-desc">
+    A complete beginner-friendly guide to handling forms in React — from basic controlled inputs to full validation with React Hook Form.
+  </p>
+  <div class="hero-meta">
+    <div class="hero-badge">📚 <span>13 sections</span></div>
+    <div class="hero-badge">🧠 <span>10 quiz questions</span></div>
+    <div class="hero-badge">🧪 <span>5 exercises</span></div>
+    <div class="hero-badge">⏱ <span>~45 min read</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECTION 1 — INTRODUCTION
+══════════════════════════════════════════ -->
+<section id="intro">
+  <div class="section-num">01 — Introduction</div>
+  <h2 class="section-title">Why Are Forms Important?</h2>
+
+  <p>Forms are the <strong>primary way your application receives data from users</strong>. Almost every real-world web app relies on forms — from logging in, to searching, to buying products online. If you want to build anything useful, you need to understand forms.</p>
+
+  <p>Think about how often you fill out forms every day: logging into Gmail, searching on Google, paying on Amazon. All of that is powered by form inputs. In React, we have powerful tools to make this experience smooth and reliable.</p>
+
+  <h3>Real-World Form Use Cases</h3>
+
+  <div class="grid-2">
+    <div class="use-cases">
+      <div class="use-case">🔐 Login / Register</div>
+      <div class="use-case">🔍 Search &amp; Filters</div>
+      <div class="use-case">👤 Profile editing</div>
+      <div class="use-case">💳 Payment &amp; address forms</div>
+      <div class="use-case">💬 Feedback &amp; comments</div>
+    </div>
+    <div class="card">
+      <div class="card-accent blue"></div>
+      <h4>What we'll cover</h4>
+      <p>By the end of this course, you'll understand how to build forms in React using two different approaches (controlled and uncontrolled), validate user input, and use the industry-standard React Hook Form library.</p>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-icon">💡</span>
+    <div><strong>Beginner tip:</strong> Don't worry if this feels like a lot. Forms in React follow a consistent pattern — once you understand the logic behind controlled components, everything else clicks into place.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION 2 — TWO APPROACHES
+══════════════════════════════════════════ -->
+<section id="overview">
+  <div class="section-num">02 — Overview</div>
+  <h2 class="section-title">Two Approaches to Forms</h2>
+
+  <p>In React, there are two main ways to work with form inputs. Understanding the difference between them is the foundation of everything else in this course.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-accent blue"></div>
+      <h4>✅ Controlled — Recommended</h4>
+      <p>React state manages the form data. Every keystroke updates state, and the input always shows what's in state. React is in full control.</p>
+      <br>
+      <span class="badge blue">useState</span>
+      <span class="badge blue">onChange</span>
+      <span class="badge blue">value prop</span>
+    </div>
+    <div class="card">
+      <div class="card-accent purple"></div>
+      <h4>⚡ Uncontrolled — Less Common</h4>
+      <p>The browser's DOM manages the form data. You only read the value when you need it (e.g., on submit). React steps back and lets the DOM do its thing.</p>
+      <br>
+      <span class="badge purple">useRef</span>
+      <span class="badge purple">defaultValue</span>
+      <span class="badge purple">ref.current.value</span>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <div class="analogy-label">Real-world analogy</div>
+    <p><strong>Controlled = You're steering the wheel.</strong> You know exactly where the car is at all times. Every turn is deliberate, and you have full control. If anything goes wrong, you immediately notice.</p>
+    <p><strong>Uncontrolled = Autopilot.</strong> You set the destination and let the car drive. You only check in when you need to — like when you arrive. It's hands-off but you lose moment-to-moment awareness.</p>
+    <p>For most real-world forms, you want to be <em>in control</em>.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION 3 — CONTROLLED COMPONENTS
+══════════════════════════════════════════ -->
+<section id="controlled">
+  <div class="section-num">03 — Deep Dive</div>
+  <h2 class="section-title">Controlled Components</h2>
+
+  <p>A <strong>controlled component</strong> is a form input whose value is always synchronized with React state. React becomes the "single source of truth" — meaning the input on screen always exactly matches what's stored in state.</p>
+
+  <h3>How It Works</h3>
+
+  <div class="flow">
+    <div class="flow-step">User types<small>keystroke event</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">onChange fires<small>event handler</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">setState called<small>updates state</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Re-render<small>input shows new value</small></div>
+  </div>
+
+  <p>The four key rules of controlled components:</p>
+
+  <div class="bp-list">
+    <div class="bp-item">
+      <span class="bp-icon">1️⃣</span>
+      <div class="bp-content">
+        <strong>Input value is stored with <code>useState</code></strong>
+        <p>You create a state variable to hold the input's current value.</p>
+      </div>
+    </div>
+    <div class="bp-item">
+      <span class="bp-icon">2️⃣</span>
+      <div class="bp-content">
+        <strong>Every change is caught with <code>onChange</code></strong>
+        <p>The <code>onChange</code> event fires on every keystroke, calling your handler function.</p>
+      </div>
+    </div>
+    <div class="bp-item">
+      <span class="bp-icon">3️⃣</span>
+      <div class="bp-content">
+        <strong>The <code>value</code> prop is bound to state</strong>
+        <p>The input element receives its value from state via the <code>value</code> prop. This "locks" the input to React's control.</p>
+      </div>
+    </div>
+    <div class="bp-item">
+      <span class="bp-icon">4️⃣</span>
+      <div class="bp-content">
+        <strong>React becomes the Single Source of Truth</strong>
+        <p>The value in the input and the value in state are always identical — perfectly in sync.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <span class="callout-icon">ℹ️</span>
+    <div><strong>Single Source of Truth</strong> means there's only ONE place where the data lives — React state. This makes your data predictable and easy to debug.</div>
+  </div>
+
+  <h3>Basic Example — Single Input</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <div class="code-title">ControlledInput.jsx</div>
+    </div>
+    <pre><span class="kw">function</span> <span class="fn">ControlledInput</span>() {
+  <span class="cm">// Step 1: Create state to hold the input's value</span>
+  <span class="kw">const</span> [name, setName] = <span class="hook">useState</span>(<span class="str">''</span>);
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;input</span>
+        <span class="attr">type</span>=<span class="val">"text"</span>
+        <span class="attr">value</span>=<span class="val">{name}</span>          <span class="cm">// Step 3: Bind value to state</span>
+        <span class="attr">onChange</span>=<span class="val">{(e) =&gt; setName(e.target.value)}</span>  <span class="cm">// Step 2: Update state on change</span>
+        <span class="attr">placeholder</span>=<span class="val">"Enter your name"</span>
+      <span class="tag">/&gt;</span>
+      <span class="tag">&lt;p&gt;</span>Hello, <span class="val">{name}</span>!<span class="tag">&lt;/p&gt;</span>   <span class="cm">// State is always in sync</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</pre>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-icon">🔍</span>
+    <div><strong>Try this mentally:</strong> When you type "A", <code>onChange</code> fires with <code>e.target.value = "A"</code>. That calls <code>setName("A")</code>, which updates state, which causes React to re-render, which sets the input's value to "A". It all happens in milliseconds!</div>
+  </div>
+
+  <h3>Multi-Field Form with a Single State Object</h3>
+
+  <p>For forms with multiple fields (like a signup form), you don't want to create a separate <code>useState</code> for every single field. Instead, use <strong>one state object</strong> with all the fields:</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <div class="code-title">SignupForm.jsx</div>
+    </div>
+    <pre><span class="kw">function</span> <span class="fn">SignupForm</span>() {
+  <span class="cm">// One state object for all fields</span>
+  <span class="kw">const</span> [formData, setFormData] = <span class="hook">useState</span>({
+    name: <span class="str">''</span>,
+    email: <span class="str">''</span>,
+    password: <span class="str">''</span>
+  });
+
+  <span class="cm">// One generic handler for ALL fields</span>
+  <span class="kw">const</span> <span class="fn">handleChange</span> = (e) => {
+    <span class="kw">const</span> { name, value } = e.target;  <span class="cm">// Destructure name and value</span>
+    <span class="cm">// Spread the existing state, then override the changed field</span>
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  <span class="kw">const</span> <span class="fn">handleSubmit</span> = (e) => {
+    e.<span class="fn">preventDefault</span>();  <span class="cm">// Prevent page reload!</span>
+    console.<span class="fn">log</span>(formData);  <span class="cm">// All field values are here</span>
+  };
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;form</span> <span class="attr">onSubmit</span>=<span class="val">{handleSubmit}</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;input</span> <span class="attr">name</span>=<span class="val">"name"</span>     <span class="attr">value</span>=<span class="val">{formData.name}</span>     <span class="attr">onChange</span>=<span class="val">{handleChange}</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;input</span> <span class="attr">name</span>=<span class="val">"email"</span>    <span class="attr">value</span>=<span class="val">{formData.email}</span>    <span class="attr">onChange</span>=<span class="val">{handleChange}</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;input</span> <span class="attr">name</span>=<span class="val">"password"</span> <span class="attr">value</span>=<span class="val">{formData.password}</span> <span class="attr">onChange</span>=<span class="val">{handleChange}</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="val">"submit"</span><span class="tag">&gt;</span>Sign Up<span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/form&gt;</span>
+  );
+}</pre>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-icon">🔑</span>
+    <div><strong>The trick:</strong> The <code>name</code> attribute on each input matches the key in the state object. The <code>[name]: value</code> syntax (computed property name) dynamically updates whichever field changed. One handler covers all fields!</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION 4 — UNCONTROLLED COMPONENTS
+══════════════════════════════════════════ -->
+<section id="uncontrolled">
+  <div class="section-num">04 — Alternative Approach</div>
+  <h2 class="section-title">Uncontrolled Components</h2>
+
+  <p>In an uncontrolled component, the <strong>browser's DOM itself stores the input value</strong> — not React state. You use a <code>ref</code> (reference) to reach into the DOM and read the value whenever you need it, typically on form submission.</p>
+
+  <h3>How It Works</h3>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-accent purple"></div>
+      <h4>What changes?</h4>
+      <p>✔ No <code>value</code> prop on the input<br>
+         ✔ Use <code>defaultValue</code> instead of <code>value</code><br>
+         ✔ No <code>onChange</code> needed<br>
+         ✔ Read value via <code>ref.current.value</code></p>
+    </div>
+    <div class="card">
+      <div class="card-accent green"></div>
+      <h4>What's different internally?</h4>
+      <p>React doesn't "know" what the user is typing. The input lives in the DOM, outside React's awareness. No re-renders happen on each keystroke.</p>
+    </div>
+  </div>
+
+  <h3>Example</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <div class="code-title">UncontrolledInput.jsx</div>
+    </div>
+    <pre><span class="kw">function</span> <span class="fn">UncontrolledInput</span>() {
+  <span class="cm">// useRef creates a reference to a DOM element</span>
+  <span class="kw">const</span> nameRef = <span class="hook">useRef</span>(<span class="kw">null</span>);
+
+  <span class="kw">const</span> <span class="fn">handleSubmit</span> = (e) => {
+    e.<span class="fn">preventDefault</span>();
+    <span class="cm">// Only read the value when we need it (on submit)</span>
+    <span class="kw">const</span> value = nameRef.current.value;
+    console.<span class="fn">log</span>(<span class="str">'Name:'</span>, value);
+  };
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;form</span> <span class="attr">onSubmit</span>=<span class="val">{handleSubmit}</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;input</span>
+        <span class="attr">ref</span>=<span class="val">{nameRef}</span>              <span class="cm">// Connect ref to this input</span>
+        <span class="attr">defaultValue</span>=<span class="val">"John"</span>       <span class="cm">// Initial value (not controlled)</span>
+        <span class="attr">type</span>=<span class="val">"text"</span>
+      <span class="tag">/&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="val">"submit"</span><span class="tag">&gt;</span>Submit<span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/form&gt;</span>
+  );
+}</pre>
+  </div>
+
+  <div class="callout warning">
+    <span class="callout-icon">⚠️</span>
+    <div>
+      <strong>Limitations of uncontrolled components:</strong>
+      <ul style="margin-top:6px;padding-left:18px;line-height:1.8;">
+        <li>Real-time validation (showing errors as you type) becomes very difficult</li>
+        <li>Not recommended for forms with many fields</li>
+        <li>Harder to programmatically reset or pre-fill values</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <span class="callout-icon">📌</span>
+    <div><strong>When to use uncontrolled:</strong> File upload inputs (where you can't control the value anyway), or extremely simple single-field forms where performance is the only concern.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION 5 — COMPARISON
+══════════════════════════════════════════ -->
+<section id="comparison">
+  <div class="section-num">05 — Side by Side</div>
+  <h2 class="section-title">Controlled vs Uncontrolled</h2>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>✅ Controlled</th>
+        <th>⚡ Uncontrolled</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Data stored in</td>
+        <td>React state (<code>useState</code>)</td>
+        <td>The DOM itself</td>
+      </tr>
+      <tr>
+        <td>How to read value</td>
+        <td>State variable (<code>name</code>)</td>
+        <td><code>ref.current.value</code></td>
+      </tr>
+      <tr>
+        <td>Re-renders on typing</td>
+        <td><span class="badge yellow">Yes, every keystroke</span></td>
+        <td><span class="badge green">No re-renders</span></td>
+      </tr>
+      <tr>
+        <td>Real-time validation</td>
+        <td><span class="badge green">Easy ✔</span></td>
+        <td><span class="badge red">Difficult ✗</span></td>
+      </tr>
+      <tr>
+        <td>Performance</td>
+        <td>Can slow with many inputs</td>
+        <td><span class="badge green">Faster</span></td>
+      </tr>
+      <tr>
+        <td>Best used for</td>
+        <td>Most real-world forms</td>
+        <td>File uploads, simple one-off inputs</td>
+      </tr>
+      <tr>
+        <td>Integration with libraries</td>
+        <td><span class="badge green">Excellent</span></td>
+        <td><span class="badge yellow">Limited</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="analogy">
+    <div class="analogy-label">The Golden Rule</div>
+    <p><strong>Default to Controlled components.</strong> Unless you have a specific performance bottleneck you've measured, or you're dealing with file inputs, controlled components are the right choice. They're more predictable, debuggable, and compatible with the React ecosystem.</p>
+    <p>React Hook Form (which we'll cover later) gets the best of both worlds: controlled-style validation with uncontrolled-style performance.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION 6 — VALIDATION INTRO
+══════════════════════════════════════════ -->
+<section id="validation-intro">
+  <div class="section-num">06 — Form Validation</div>
+  <h2 class="section-title">Why Validate User Input?</h2>
+
+  <p><strong>Form validation</strong> means checking that the data a user enters is correct, complete, and safe before processing it. Without validation, your app would accept garbage data, crash on bad inputs, or open security holes.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-accent red"></div>
+      <h4>🔒 Security</h4>
+      <p>Prevent attacks like SQL injection (malicious database commands) and XSS (malicious scripts). Validation is your first line of defence.</p>
+    </div>
+    <div class="card">
+      <div class="card-accent green"></div>
+      <h4>📊 Data Quality</h4>
+      <p>Ensure that email addresses look like emails, phone numbers have the right format, and passwords meet minimum requirements before they reach your database.</p>
+    </div>
+    <div class="card">
+      <div class="card-accent blue"></div>
+      <h4>✨ User Experience (UX)</h4>
+      <p>Immediate feedback ("this email is invalid") is far better than a confusing error after form submission. Good validation guides users to success.</p>
+    </div>
+    <div class="card">
+      <div class="card-accent yellow"></div>
+      <h4>⚡ Server Load</h4>
+      <p>Catching errors on the client (browser) means bad data never reaches your server, saving bandwidth and processing time.</p>
+    </div>
+  </div>
+
+  <div class="callout danger">
+    <span class="callout-icon">🚨</span>
+    <div><strong>Critical rule:</strong> Client-side validation (in React) is for UX only. It can be bypassed by anyone with basic browser tools. <strong>Always validate again on the server</strong> for security.</div>
+  </div>
+
+  <h3>The Two Types of Validation</h3>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-accent cyan"></div>
+      <h4>🌐 Client-Side Validation</h4>
+      <p>Runs in the browser, in your React code. Fast feedback for users. Never trust this alone for security.</p>
+      <br><span class="chip">HTML5 attributes</span> <span class="chip">React state</span> <span class="chip">Library rules</span>
+    </div>
+    <div class="card">
+      <div class="card-accent orange"></div>
+      <h4>🔧 Server-Side Validation</h4>
+      <p>Runs on your backend (Node.js, Python, etc.). This is the security layer. Always mandatory.</p>
+      <br><span class="chip">Express.js</span> <span class="chip">Joi / Zod</span> <span class="chip">Django</span>
+    </div>
+  </div>
+
+  <h3>When to Validate? — Three Strategies</h3>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot blue"></div>
+      <div class="timeline-title">onChange — Real-time (every keystroke)</div>
+      <p class="timeline-desc">Validates as the user types. Great for password strength meters. Can feel intrusive for short fields (shows "invalid email" when they've only typed "j").</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot purple"></div>
+      <div class="timeline-title">onBlur — On field exit (most popular)</div>
+      <p class="timeline-desc">Validates when the user leaves a field (clicks away or presses Tab). Feels natural — gives the user time to finish typing before showing an error.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot green"></div>
+      <div class="timeline-title">onSubmit — On form submission</div>
+      <p class="timeline-desc">Only validates when the user clicks Submit. Simplest to implement, but gives no feedback until the end. Best for very short forms.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION 7 — HTML5 VALIDATION
+══════════════════════════════════════════ -->
+<section id="html5">
+  <div class="section-num">07 — Built-in</div>
+  <h2 class="section-title">HTML5 Built-in Validation</h2>
+
+  <p>Before writing any JavaScript, HTML5 gives you free validation through attributes on your input elements. The browser handles the error messages automatically.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-accent blue"></div>
+      <h4><code>required</code></h4>
+      <p>Field cannot be empty. The browser won't submit the form until this is filled in.</p>
+    </div>
+    <div class="card">
+      <div class="card-accent blue"></div>
+      <h4><code>type="email"</code></h4>
+      <p>Browser validates that the value looks like an email address (<code>x@x.x</code> format).</p>
+    </div>
+    <div class="card">
+      <div class="card-accent green"></div>
+      <h4><code>minLength / maxLength</code></h4>
+      <p>Sets minimum and maximum character counts. Great for passwords and usernames.</p>
+    </div>
+    <div class="card">
+      <div class="card-accent yellow"></div>
+      <h4><code>pattern</code></h4>
+      <p>A Regular Expression (RegEx) that the input must match. Powerful but complex.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <div class="code-title">HTML5 validation attributes</div>
+    </div>
+    <pre><span class="tag">&lt;form&gt;</span>
+  <span class="cm">{ /* Email — required + must be valid email format */ }</span>
+  <span class="tag">&lt;input</span>
+    <span class="attr">type</span>=<span class="val">"email"</span>
+    <span class="attr">required</span>
+    <span class="attr">placeholder</span>=<span class="val">"your@email.com"</span>
+  <span class="tag">/&gt;</span>
+
+  <span class="cm">{ /* Password — required, minimum 8 chars, must have a number */ }</span>
+  <span class="tag">&lt;input</span>
+    <span class="attr">type</span>=<span class="val">"password"</span>
+    <span class="attr">required</span>
+    <span class="attr">minLength</span>=<span class="val">{8}</span>
+    <span class="attr">pattern</span>=<span class="val">"(?=.*\d).{8,}"</span>   <span class="cm">// Must include at least one digit</span>
+  <span class="tag">/&gt;</span>
+
+  <span class="cm">{ /* Phone — must match pattern XXX-XXX-XXXX */ }</span>
+  <span class="tag">&lt;input</span>
+    <span class="attr">type</span>=<span class="val">"tel"</span>
+    <span class="attr">pattern</span>=<span class="val">"[0-9]{3}-[0-9]{3}-[0-9]{4}"</span>
+    <span class="attr">placeholder</span>=<span class="val">"555-123-4567"</span>
+  <span class="tag">/&gt;</span>
+<span class="tag">&lt;/form&gt;</span></pre>
+  </div>
+
+  <div class="callout warning">
+    <span class="callout-icon">⚠️</span>
+    <div><strong>Limitation:</strong> HTML5 validation can be bypassed in React if you call <code>e.preventDefault()</code> without adding your own checks. You also can't easily customize the error message styling. That's why custom validation exists.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION 8 — CUSTOM VALIDATION
+══════════════════════════════════════════ -->
+<section id="custom">
+  <div class="section-num">08 — Custom Logic</div>
+  <h2 class="section-title">Custom Validation in React</h2>
+
+  <p>Custom validation gives you full control: you decide what's valid, what the error message says, and when to show it. The pattern involves three things working together: an <strong>errors state</strong>, a <strong>validate function</strong>, and <strong>conditional rendering</strong> of error messages.</p>
+
+  <h3>The Pattern</h3>
+
+  <div class="flow">
+    <div class="flow-step">User fills form<small>types / blurs</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">validate()<small>runs your rules</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">setErrors()<small>updates errors state</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Show errors<small>conditional render</small></div>
+  </div>
+
+  <h3>Full Example with Custom Validation</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <div class="code-title">CustomValidation.jsx</div>
+    </div>
+    <pre><span class="kw">function</span> <span class="fn">SignupWithValidation</span>() {
+  <span class="kw">const</span> [formData, setFormData] = <span class="hook">useState</span>({ email: <span class="str">''</span>, password: <span class="str">''</span> });
+  <span class="kw">const</span> [errors, setErrors] = <span class="hook">useState</span>({});  <span class="cm">// Stores error messages</span>
+
+  <span class="cm">// Your validation rules as a function</span>
+  <span class="kw">const</span> <span class="fn">validate</span> = (data) => {
+    <span class="kw">const</span> newErrors = {};
+
+    <span class="kw">if</span> (!data.email) {
+      newErrors.email = <span class="str">'Email is required'</span>;
+    } <span class="kw">else if</span> (!data.email.<span class="fn">includes</span>(<span class="str">'@'</span>)) {
+      newErrors.email = <span class="str">'Please enter a valid email address'</span>;
+    }
+
+    <span class="kw">if</span> (!data.password) {
+      newErrors.password = <span class="str">'Password is required'</span>;
+    } <span class="kw">else if</span> (data.password.length < <span class="num">8</span>) {
+      newErrors.password = <span class="str">'Password must be at least 8 characters'</span>;
+    }
+
+    <span class="kw">return</span> newErrors;  <span class="cm">// { email: 'message', password: 'message' }</span>
+  };
+
+  <span class="kw">const</span> <span class="fn">handleSubmit</span> = (e) => {
+    e.<span class="fn">preventDefault</span>();
+    <span class="kw">const</span> validationErrors = <span class="fn">validate</span>(formData);
+
+    <span class="kw">if</span> (Object.<span class="fn">keys</span>(validationErrors).length > <span class="num">0</span>) {
+      setErrors(validationErrors);  <span class="cm">// Show errors</span>
+      <span class="kw">return</span>;  <span class="cm">// Stop — don't submit</span>
+    }
+    <span class="cm">// No errors — proceed with submission!</span>
+    console.<span class="fn">log</span>(<span class="str">'Submitting:'</span>, formData);
+  };
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;form</span> <span class="attr">onSubmit</span>=<span class="val">{handleSubmit}</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;input</span>
+        <span class="attr">type</span>=<span class="val">"email"</span>
+        <span class="attr">name</span>=<span class="val">"email"</span>
+        <span class="attr">value</span>=<span class="val">{formData.email}</span>
+        <span class="attr">onChange</span>=<span class="val">{handleChange}</span>
+      <span class="tag">/&gt;</span>
+      <span class="cm">{ /* Conditionally show error below the field */ }</span>
+      {errors.email &amp;&amp; <span class="tag">&lt;span</span> <span class="attr">style</span>=<span class="val">{{color: 'red'}}</span><span class="tag">&gt;</span>{errors.email}<span class="tag">&lt;/span&gt;</span>}
+
+      <span class="tag">&lt;input</span>
+        <span class="attr">type</span>=<span class="val">"password"</span>
+        <span class="attr">name</span>=<span class="val">"password"</span>
+        <span class="attr">value</span>=<span class="val">{formData.password}</span>
+        <span class="attr">onChange</span>=<span class="val">{handleChange}</span>
+      <span class="tag">/&gt;</span>
+      {errors.password &amp;&amp; <span class="tag">&lt;span</span> <span class="attr">style</span>=<span class="val">{{color: 'red'}}</span><span class="tag">&gt;</span>{errors.password}<span class="tag">&lt;/span&gt;</span>}
+
+      <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="val">"submit"</span><span class="tag">&gt;</span>Sign Up<span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/form&gt;</span>
+  );
+}</pre>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-icon">💡</span>
+    <div><strong>The <code>&&</code> trick:</strong> In React, <code>{errors.email && &lt;span&gt;...&lt;/span&gt;}</code> means "only render the span IF <code>errors.email</code> is truthy." If the string is empty or undefined, nothing renders. This is called conditional rendering.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION 9 — REACT HOOK FORM
+══════════════════════════════════════════ -->
+<section id="rhf">
+  <div class="section-num">09 — Industry Standard</div>
+  <h2 class="section-title">React Hook Form</h2>
+
+  <p><strong>React Hook Form (RHF)</strong> is the most popular form library in the React ecosystem. It solves all the pain points of manual form management: boilerplate code, re-render performance, and complex validation logic — all in one small, well-designed package.</p>
+
+  <div class="analogy">
+    <div class="analogy-label">Why use it?</div>
+    <p><strong>Without RHF:</strong> You write useState for every field, a handleChange function, a validate function, an errors state, and wire it all up manually. That's a lot of repetitive code.</p>
+    <p><strong>With RHF:</strong> You call <code>useForm()</code>, use <code>register()</code> on each field, and validation rules live right on the field. No boilerplate. No re-renders on every keystroke.</p>
+  </div>
+
+  <h3>Core API</h3>
+
+  <table class="hook-table">
+    <thead>
+      <tr>
+        <th>API</th>
+        <th>What it does</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>useForm()</td>
+        <td>Initializes the form — returns all the tools you need</td>
+        <td><code>const { register, handleSubmit, formState } = useForm()</code></td>
+      </tr>
+      <tr>
+        <td>register()</td>
+        <td>Connects an input to the form + adds validation rules</td>
+        <td><code>&lt;input {...register('email', { required: true })} /&gt;</code></td>
+      </tr>
+      <tr>
+        <td>handleSubmit()</td>
+        <td>Wraps your submit function — only calls it if validation passes</td>
+        <td><code>&lt;form onSubmit={handleSubmit(onSubmit)}&gt;</code></td>
+      </tr>
+      <tr>
+        <td>formState.errors</td>
+        <td>Object containing validation errors for each field</td>
+        <td><code>{errors.email && &lt;p&gt;{errors.email.message}&lt;/p&gt;}</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Complete RHF Example</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <div class="code-title">LoginForm.jsx — with React Hook Form</div>
+    </div>
+    <pre><span class="kw">import</span> { useForm } <span class="kw">from</span> <span class="str">'react-hook-form'</span>;
+
+<span class="kw">function</span> <span class="fn">LoginForm</span>() {
+  <span class="kw">const</span> {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting }
+  } = <span class="fn">useForm</span>();
+
+  <span class="kw">const</span> <span class="fn">onSubmit</span> = (data) => {
+    <span class="cm">// Only called if all validations pass!</span>
+    <span class="cm">// 'data' contains all field values automatically</span>
+    console.<span class="fn">log</span>(data);  <span class="cm">// { email: 'x@y.com', password: '...' }</span>
+  };
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;form</span> <span class="attr">onSubmit</span>=<span class="val">{handleSubmit(onSubmit)}</span><span class="tag">&gt;</span>
+
+      <span class="tag">&lt;div&gt;</span>
+        <span class="tag">&lt;label&gt;</span>Email<span class="tag">&lt;/label&gt;</span>
+        <span class="tag">&lt;input</span>
+          <span class="attr">type</span>=<span class="val">"email"</span>
+          {<span class="cm">/* register() connects field + adds validation rules inline */</span>}
+          {...register(<span class="str">'email'</span>, {
+            required: <span class="str">'Email is required'</span>,
+            pattern: {
+              value: <span class="val">/^[^\s@]+@[^\s@]+\.[^\s@]+$/</span>,
+              message: <span class="str">'Please enter a valid email'</span>
+            }
+          })}
+        <span class="tag">/&gt;</span>
+        {errors.email &amp;&amp; <span class="tag">&lt;p</span> <span class="attr">className</span>=<span class="val">"error"</span><span class="tag">&gt;</span>{errors.email.message}<span class="tag">&lt;/p&gt;</span>}
+      <span class="tag">&lt;/div&gt;</span>
+
+      <span class="tag">&lt;div&gt;</span>
+        <span class="tag">&lt;label&gt;</span>Password<span class="tag">&lt;/label&gt;</span>
+        <span class="tag">&lt;input</span>
+          <span class="attr">type</span>=<span class="val">"password"</span>
+          {...register(<span class="str">'password'</span>, {
+            required: <span class="str">'Password is required'</span>,
+            minLength: {
+              value: <span class="num">8</span>,
+              message: <span class="str">'Password must be at least 8 characters'</span>
+            }
+          })}
+        <span class="tag">/&gt;</span>
+        {errors.password &amp;&amp; <span class="tag">&lt;p</span> <span class="attr">className</span>=<span class="val">"error"</span><span class="tag">&gt;</span>{errors.password.message}<span class="tag">&lt;/p&gt;</span>}
+      <span class="tag">&lt;/div&gt;</span>
+
+      <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="val">"submit"</span> <span class="attr">disabled</span>=<span class="val">{isSubmitting}</span><span class="tag">&gt;</span>
+        {isSubmitting ? <span class="str">'Logging in...'</span> : <span class="str">'Log In'</span>}
+      <span class="tag">&lt;/button&gt;</span>
+
+    <span class="tag">&lt;/form&gt;</span>
+  );
+}</pre>
+  </div>
+
+  <h3>Why RHF Gets the Best of Both Worlds</h3>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-accent green"></div>
+      <h4>⚡ Uncontrolled Performance</h4>
+      <p>Internally, RHF uses refs (not state) for inputs. This means <strong>no re-render on every keystroke</strong> — much faster for large forms.</p>
+    </div>
+    <div class="card">
+      <div class="card-accent blue"></div>
+      <h4>✅ Controlled Convenience</h4>
+      <p>You still get real-time validation feedback, easy error access, and all the DX (developer experience) benefits of knowing what's in every field.</p>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-icon">📦</span>
+    <div><strong>Install:</strong> <code>npm install react-hook-form</code> — it has zero dependencies and is under 10kb. The most downloaded form library in the React ecosystem.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION 10 — BEST PRACTICES
+══════════════════════════════════════════ -->
+<section id="best-practices">
+  <div class="section-num">10 — Professional Standards</div>
+  <h2 class="section-title">Best Practices</h2>
+
+  <p>Following these practices will make your forms more accessible, user-friendly, and maintainable.</p>
+
+  <div class="bp-list">
+    <div class="bp-item">
+      <span class="bp-icon">📍</span>
+      <div class="bp-content">
+        <strong>Show errors directly below the relevant input</strong>
+        <p>Don't show all errors in a list at the top or bottom of the form. Users don't know which field the error refers to unless it's right next to the field.</p>
+      </div>
+    </div>
+    <div class="bp-item">
+      <span class="bp-icon">👁️</span>
+      <div class="bp-content">
+        <strong>Use <code>onBlur</code> for validation trigger</strong>
+        <p>Validate when the user leaves a field, not on every keystroke. Showing "invalid email" when someone has only typed two letters is frustrating.</p>
+      </div>
+    </div>
+    <div class="bp-item">
+      <span class="bp-icon">🚫</span>
+      <div class="bp-content">
+        <strong>Disable the submit button while submitting</strong>
+        <p>Prevent double submissions by disabling the button when the form is being processed. Show a loading state so the user knows something is happening.</p>
+      </div>
+    </div>
+    <div class="bp-item">
+      <span class="bp-icon">🏷️</span>
+      <div class="bp-content">
+        <strong>Always use <code>&lt;label&gt;</code> elements</strong>
+        <p>Labels make forms accessible to screen readers and allow users to click the label to focus the input. Use <code>htmlFor</code> in React (same as HTML's <code>for</code>).</p>
+      </div>
+    </div>
+    <div class="bp-item">
+      <span class="bp-icon">🌐</span>
+      <div class="bp-content">
+        <strong>Always validate on the server too</strong>
+        <p>Client-side validation is bypassed easily. Never trust it alone. Your backend must validate all incoming data independently.</p>
+      </div>
+    </div>
+    <div class="bp-item">
+      <span class="bp-icon">♿</span>
+      <div class="bp-content">
+        <strong>Use <code>aria-describedby</code> for error messages</strong>
+        <p>Link error messages to inputs with ARIA attributes so screen readers announce them to visually impaired users.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION 11 — COMMON MISTAKES
+══════════════════════════════════════════ -->
+<section id="mistakes">
+  <div class="section-num">11 — Watch Out</div>
+  <h2 class="section-title">Common Mistakes</h2>
+
+  <div class="mistake">
+    <div class="mistake-top">
+      <span class="mistake-icon">❌</span>
+      <div class="mistake-title">Forgetting <code>e.preventDefault()</code></div>
+    </div>
+    <p style="color:#bcc3d8;font-size:14px;">HTML forms, by default, reload the page when submitted. This destroys all your React state. You <em>must</em> call <code>e.preventDefault()</code> in your <code>onSubmit</code> handler.</p>
+    <div class="mistake-fix">✅ Fix: const handleSubmit = (e) => { e.preventDefault(); /* your logic */ }</div>
+  </div>
+
+  <div class="mistake">
+    <div class="mistake-top">
+      <span class="mistake-icon">❌</span>
+      <div class="mistake-title">Mixing Controlled and Uncontrolled</div>
+    </div>
+    <p style="color:#bcc3d8;font-size:14px;">Using both a <code>value</code> prop and a <code>ref</code> on the same input, or switching between having and not having a <code>value</code> prop. This causes React warnings and unpredictable behavior.</p>
+    <div class="mistake-fix">✅ Fix: Choose one approach. If you have <code>value={...}</code>, also have <code>onChange={...}</code>. If you're using refs, use <code>defaultValue</code>, not <code>value</code>.</div>
+  </div>
+
+  <div class="mistake">
+    <div class="mistake-top">
+      <span class="mistake-icon">❌</span>
+      <div class="mistake-title">Initializing state with <code>undefined</code></div>
+    </div>
+    <p style="color:#bcc3d8;font-size:14px;">If you do <code>useState()</code> (no argument), the initial value is <code>undefined</code>. Setting <code>value={undefined}</code> on an input makes React treat it as uncontrolled. Later when you set it to a string, React warns about switching from uncontrolled to controlled.</p>
+    <div class="mistake-fix">✅ Fix: Always initialize string fields with an empty string: useState('')</div>
+  </div>
+
+  <div class="mistake">
+    <div class="mistake-top">
+      <span class="mistake-icon">❌</span>
+      <div class="mistake-title">Showing all errors immediately on load</div>
+    </div>
+    <p style="color:#bcc3d8;font-size:14px;">Running validation on component mount makes every field show an error before the user has typed anything. This is hostile UX.</p>
+    <div class="mistake-fix">✅ Fix: Only show errors after the user has interacted with a field (touched it). Track a "touched" state or use onBlur.</div>
+  </div>
+
+  <div class="mistake">
+    <div class="mistake-top">
+      <span class="mistake-icon">❌</span>
+      <div class="mistake-title">Not handling server-side errors</div>
+    </div>
+    <p style="color:#bcc3d8;font-size:14px;">Showing only client-side errors means users won't know about backend issues like "email already taken" or "invalid credentials." These must be displayed in the form too.</p>
+    <div class="mistake-fix">✅ Fix: After an API call, check for server errors and set them into your errors state: setErrors({ email: 'This email is already registered' })</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION 12 — SUMMARY
+══════════════════════════════════════════ -->
+<section id="summary">
+  <div class="section-num">12 — Recap</div>
+  <h2 class="section-title">Summary</h2>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="icon">🎛️</div>
+      <h4>Controlled</h4>
+      <p>State + onChange. React owns the data. Best for most forms. Enables real-time validation.</p>
+    </div>
+    <div class="summary-card">
+      <div class="icon">🔗</div>
+      <h4>Uncontrolled</h4>
+      <p>Refs + DOM. No re-renders. Use for file inputs or when performance is critical.</p>
+    </div>
+    <div class="summary-card">
+      <div class="icon">✅</div>
+      <h4>Validation</h4>
+      <p>HTML5 built-ins + custom React logic. Always validate server-side too. onBlur is the sweet spot.</p>
+    </div>
+    <div class="summary-card">
+      <div class="icon">📦</div>
+      <h4>React Hook Form</h4>
+      <p>Industry standard. Best of both worlds: performance of uncontrolled, UX of controlled.</p>
+    </div>
+    <div class="summary-card">
+      <div class="icon">🛡️</div>
+      <h4>Security</h4>
+      <p>Client-side is for UX only. Server-side validation is mandatory — always.</p>
+    </div>
+    <div class="summary-card">
+      <div class="icon">✨</div>
+      <h4>Good UX</h4>
+      <p>Show errors near fields, validate on blur, disable submit during loading, use labels always.</p>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-icon">🚀</span>
+    <div><strong>Your learning path:</strong> Start with controlled components + manual validation to understand how it works. Once comfortable, move to React Hook Form for all real projects — it'll save you hours of boilerplate.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION 13 — QUIZ
+══════════════════════════════════════════ -->
+<section id="quiz-section">
+  <div class="section-num">13 — Test Yourself</div>
+  <h2 class="section-title">Quiz</h2>
+  <p>Answer all 10 questions to test your understanding. Your score is shown at the end.</p>
+
+  <div class="quiz-container" id="quiz">
+
+    <!-- Q1 -->
+    <div class="quiz-q" data-q="1">
+      <div class="q-label">Question 01 / 10</div>
+      <div class="q-text">What is the main purpose of forms in a React application?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 1)"><span class="opt-letter">A</span> To display data fetched from an API</div>
+        <div class="quiz-option" data-correct="true"  onclick="answer(this, 1)"><span class="opt-letter">B</span> To collect data from the user</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 1)"><span class="opt-letter">C</span> To navigate between pages</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 1)"><span class="opt-letter">D</span> To style components</div>
+      </div>
+      <div class="quiz-feedback" id="fb1"></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-q" data-q="2">
+      <div class="q-label">Question 02 / 10</div>
+      <div class="q-text">In a controlled component, where is the form input's value stored?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 2)"><span class="opt-letter">A</span> In the browser's localStorage</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 2)"><span class="opt-letter">B</span> In the DOM element directly</div>
+        <div class="quiz-option" data-correct="true"  onclick="answer(this, 2)"><span class="opt-letter">C</span> In React state (useState)</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 2)"><span class="opt-letter">D</span> In a useRef reference</div>
+      </div>
+      <div class="quiz-feedback" id="fb2"></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-q" data-q="3">
+      <div class="q-label">Question 03 / 10</div>
+      <div class="q-text">Which hook is used to read values in an uncontrolled component?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 3)"><span class="opt-letter">A</span> useState</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 3)"><span class="opt-letter">B</span> useEffect</div>
+        <div class="quiz-option" data-correct="true"  onclick="answer(this, 3)"><span class="opt-letter">C</span> useRef</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 3)"><span class="opt-letter">D</span> useCallback</div>
+      </div>
+      <div class="quiz-feedback" id="fb3"></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-q" data-q="4">
+      <div class="q-label">Question 04 / 10</div>
+      <div class="q-text">What does <code>e.preventDefault()</code> do in a form's onSubmit handler?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 4)"><span class="opt-letter">A</span> Clears all form inputs</div>
+        <div class="quiz-option" data-correct="true"  onclick="answer(this, 4)"><span class="opt-letter">B</span> Prevents the default browser behavior of reloading the page</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 4)"><span class="opt-letter">C</span> Validates all form fields automatically</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 4)"><span class="opt-letter">D</span> Sends the form data to the server</div>
+      </div>
+      <div class="quiz-feedback" id="fb4"></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-q" data-q="5">
+      <div class="q-label">Question 05 / 10</div>
+      <div class="q-text">Which validation strategy is considered the most user-friendly for most fields?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 5)"><span class="opt-letter">A</span> onChange (validate on every keystroke)</div>
+        <div class="quiz-option" data-correct="true"  onclick="answer(this, 5)"><span class="opt-letter">B</span> onBlur (validate when leaving the field)</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 5)"><span class="opt-letter">C</span> onMount (validate when component loads)</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 5)"><span class="opt-letter">D</span> Never validate on client-side</div>
+      </div>
+      <div class="quiz-feedback" id="fb5"></div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="quiz-q" data-q="6">
+      <div class="q-label">Question 06 / 10</div>
+      <div class="q-text">True or False: Client-side validation in React is sufficient to protect your app from malicious data.</div>
+      <div class="quiz-options">
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 6)"><span class="opt-letter">A</span> True — React validation is very secure</div>
+        <div class="quiz-option" data-correct="true"  onclick="answer(this, 6)"><span class="opt-letter">B</span> False — Server-side validation is always required too</div>
+      </div>
+      <div class="quiz-feedback" id="fb6"></div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="quiz-q" data-q="7">
+      <div class="q-label">Question 07 / 10</div>
+      <div class="q-text">What happens if you initialize a controlled input's state with <code>undefined</code> instead of <code>''</code>?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 7)"><span class="opt-letter">A</span> The input shows "undefined" as placeholder text</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 7)"><span class="opt-letter">B</span> Nothing different happens</div>
+        <div class="quiz-option" data-correct="true"  onclick="answer(this, 7)"><span class="opt-letter">C</span> React treats it as uncontrolled, causing a warning when state is later set</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 7)"><span class="opt-letter">D</span> The form refuses to submit</div>
+      </div>
+      <div class="quiz-feedback" id="fb7"></div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="quiz-q" data-q="8">
+      <div class="q-label">Question 08 / 10</div>
+      <div class="q-text">What does the <code>register()</code> function from React Hook Form do?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 8)"><span class="opt-letter">A</span> Creates a new user account</div>
+        <div class="quiz-option" data-correct="true"  onclick="answer(this, 8)"><span class="opt-letter">B</span> Connects an input to the form and attaches validation rules</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 8)"><span class="opt-letter">C</span> Sends the form data to the server</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 8)"><span class="opt-letter">D</span> Resets all form fields to their default values</div>
+      </div>
+      <div class="quiz-feedback" id="fb8"></div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="quiz-q" data-q="9">
+      <div class="q-label">Question 09 / 10</div>
+      <div class="q-text">Which scenario is the best use case for an uncontrolled component?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 9)"><span class="opt-letter">A</span> A complex multi-step registration form</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 9)"><span class="opt-letter">B</span> A form that needs real-time password strength feedback</div>
+        <div class="quiz-option" data-correct="true"  onclick="answer(this, 9)"><span class="opt-letter">C</span> A simple file upload input</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 9)"><span class="opt-letter">D</span> A form with 10 text fields and validation</div>
+      </div>
+      <div class="quiz-feedback" id="fb9"></div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="quiz-q" data-q="10">
+      <div class="q-label">Question 10 / 10</div>
+      <div class="q-text">Which HTML5 attribute would you use to ensure a field matches a specific format (like a phone number pattern)?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 10)"><span class="opt-letter">A</span> format</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 10)"><span class="opt-letter">B</span> validate</div>
+        <div class="quiz-option" data-correct="true"  onclick="answer(this, 10)"><span class="opt-letter">C</span> pattern</div>
+        <div class="quiz-option" data-correct="false" onclick="answer(this, 10)"><span class="opt-letter">D</span> match</div>
+      </div>
+      <div class="quiz-feedback" id="fb10"></div>
+    </div>
+
+  </div>
+
+  <button class="btn btn-primary" onclick="showScore()" id="score-btn" style="display:none">See My Score 🎯</button>
+
+  <div class="score-display" id="score-display">
+    <div class="score-number" id="score-num">0/10</div>
+    <div class="score-label" id="score-msg">—</div>
+    <button class="btn btn-ghost" onclick="resetQuiz()" style="margin-top:16px">Retake Quiz ↺</button>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION 14 — PRACTICE
+══════════════════════════════════════════ -->
+<section id="practice">
+  <div class="section-num">14 — Practice</div>
+  <h2 class="section-title">Practice Exercises</h2>
+  <p>Work through these challenges to solidify your understanding. Expand each one to see the task and hint.</p>
+
+  <!-- Exercise 1 -->
+  <div class="exercise">
+    <div class="exercise-header" onclick="toggleExercise(this)">
+      <div class="exercise-title">
+        <div class="exercise-num">1</div>
+        <div class="exercise-name">Build a Controlled Name Input</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="badge green exercise-diff">Beginner</span>
+        <span class="exercise-toggle">▾</span>
+      </div>
+    </div>
+    <div class="exercise-body">
+      <h4>Task</h4>
+      <p>Create a React component with a single text input. As the user types their name, display "Hello, [name]!" below the input in real-time. The greeting should update on every keystroke.</p>
+
+      <h4>Requirements</h4>
+      <ul style="padding-left:20px;line-height:2;color:#bcc3d8;font-size:14px;">
+        <li>Use <code>useState</code> to store the name</li>
+        <li>Use a controlled input (value + onChange)</li>
+        <li>Show a greeting paragraph that updates live</li>
+        <li>If the name is empty, show "Hello, stranger!" instead</li>
+      </ul>
+
+      <button class="show-answer-btn" onclick="toggleAnswer(this)">Show Hint</button>
+      <div class="answer-reveal">
+        <strong>Hint:</strong> Your JSX might look like this:<br><br>
+        <code style="display:block;font-size:12px;line-height:1.8;">
+          const [name, setName] = useState('');<br>
+          &lt;input value={name} onChange={(e) => setName(e.target.value)} /&gt;<br>
+          &lt;p&gt;Hello, {name || 'stranger'}!&lt;/p&gt;
+        </code>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exercise 2 -->
+  <div class="exercise">
+    <div class="exercise-header" onclick="toggleExercise(this)">
+      <div class="exercise-title">
+        <div class="exercise-num">2</div>
+        <div class="exercise-name">Multi-Field Registration Form</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="badge blue exercise-diff">Intermediate</span>
+        <span class="exercise-toggle">▾</span>
+      </div>
+    </div>
+    <div class="exercise-body">
+      <h4>Task</h4>
+      <p>Build a sign-up form with four fields: name, email, password, and confirm password. Use a single state object for all fields. On submit, log the form data to the console.</p>
+
+      <h4>Requirements</h4>
+      <ul style="padding-left:20px;line-height:2;color:#bcc3d8;font-size:14px;">
+        <li>One <code>useState</code> object for all 4 fields</li>
+        <li>One <code>handleChange</code> function that handles all inputs (use the <code>name</code> attribute trick)</li>
+        <li>Call <code>e.preventDefault()</code> on submit</li>
+        <li>Log the full formData object on submit</li>
+      </ul>
+
+      <button class="show-answer-btn" onclick="toggleAnswer(this)">Show Hint</button>
+      <div class="answer-reveal">
+        <strong>Key insight:</strong> Use <code>const { name, value } = e.target</code> in your handler and <code>setFormData(prev => ({...prev, [name]: value}))</code>. The <code>[name]</code> dynamically targets the right field!
+      </div>
+    </div>
+  </div>
+
+  <!-- Exercise 3 -->
+  <div class="exercise">
+    <div class="exercise-header" onclick="toggleExercise(this)">
+      <div class="exercise-title">
+        <div class="exercise-num">3</div>
+        <div class="exercise-name">Add Validation to Your Form</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="badge blue exercise-diff">Intermediate</span>
+        <span class="exercise-toggle">▾</span>
+      </div>
+    </div>
+    <div class="exercise-body">
+      <h4>Task</h4>
+      <p>Take your form from Exercise 2 and add custom validation. Show clear error messages below each field. Only proceed with submission if all validation passes.</p>
+
+      <h4>Validation rules</h4>
+      <ul style="padding-left:20px;line-height:2;color:#bcc3d8;font-size:14px;">
+        <li>Name: required, minimum 2 characters</li>
+        <li>Email: required, must contain "@"</li>
+        <li>Password: required, minimum 8 characters</li>
+        <li>Confirm password: must match the password field</li>
+      </ul>
+
+      <button class="show-answer-btn" onclick="toggleAnswer(this)">Show Hint</button>
+      <div class="answer-reveal">
+        <strong>Pattern:</strong> Create a separate <code>const [errors, setErrors] = useState({})</code>. Write a <code>validate(formData)</code> function that returns an errors object. In onSubmit, call validate, and if the errors object has any keys, setErrors and return early. Below each input: <code>{errors.fieldName && &lt;p style={{color:'red'}}&gt;{errors.fieldName}&lt;/p&gt;}</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exercise 4 -->
+  <div class="exercise">
+    <div class="exercise-header" onclick="toggleExercise(this)">
+      <div class="exercise-title">
+        <div class="exercise-num">4</div>
+        <div class="exercise-name">Convert to React Hook Form</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="badge purple exercise-diff">Advanced</span>
+        <span class="exercise-toggle">▾</span>
+      </div>
+    </div>
+    <div class="exercise-body">
+      <h4>Task</h4>
+      <p>Take the form you built in Exercise 3 and convert it to use React Hook Form. Remove all manual state management and replace it with <code>useForm()</code>, <code>register()</code>, and <code>handleSubmit()</code>.</p>
+
+      <h4>Requirements</h4>
+      <ul style="padding-left:20px;line-height:2;color:#bcc3d8;font-size:14px;">
+        <li>Install <code>react-hook-form</code></li>
+        <li>Remove <code>useState</code> for form data and errors</li>
+        <li>Use <code>register()</code> with validation rules on each input</li>
+        <li>Use <code>formState.errors</code> to display error messages</li>
+        <li>The submit button should say "Submitting..." when <code>isSubmitting</code> is true</li>
+      </ul>
+
+      <button class="show-answer-btn" onclick="toggleAnswer(this)">Show Hint</button>
+      <div class="answer-reveal">
+        <strong>Starter:</strong><br>
+        <code style="font-size:12px;display:block;line-height:1.8;">
+          const { register, handleSubmit, formState: {errors} } = useForm();<br>
+          &lt;input {...register('name', { required: 'Name is required', minLength: {value: 2, message: 'Min 2 chars'} })} /&gt;<br>
+          {errors.name && &lt;p&gt;{errors.name.message}&lt;/p&gt;}
+        </code>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exercise 5 -->
+  <div class="exercise">
+    <div class="exercise-header" onclick="toggleExercise(this)">
+      <div class="exercise-title">
+        <div class="exercise-num">5</div>
+        <div class="exercise-name">Debug the Broken Form</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="badge yellow exercise-diff">Challenge</span>
+        <span class="exercise-toggle">▾</span>
+      </div>
+    </div>
+    <div class="exercise-body">
+      <h4>Task</h4>
+      <p>The form below has 3 bugs. Find and fix them all:</p>
+
+      <div class="code-block" style="margin-top:0">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <div class="code-title">BuggyForm.jsx — find the bugs!</div>
+        </div>
+        <pre><span class="kw">function</span> <span class="fn">BuggyForm</span>() {
+  <span class="kw">const</span> [email, setEmail] = <span class="hook">useState</span>();     <span class="cm">// Bug 1 🐛</span>
+
+  <span class="kw">const</span> <span class="fn">handleSubmit</span> = (e) => {             <span class="cm">// Bug 2 🐛</span>
+    console.<span class="fn">log</span>(<span class="str">'Submitted'</span>, email);
+  };
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;form</span> <span class="attr">onSubmit</span>=<span class="val">{handleSubmit}</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;input</span>
+        <span class="attr">value</span>=<span class="val">{email}</span>
+        <span class="cm">// Bug 3 🐛 — something important is missing here</span>
+      <span class="tag">/&gt;</span>
+      <span class="tag">&lt;button&gt;</span>Submit<span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/form&gt;</span>
+  );
+}</pre>
+      </div>
+
+      <button class="show-answer-btn" onclick="toggleAnswer(this)">Reveal Bugs</button>
+      <div class="answer-reveal">
+        <strong>🐛 Bug 1:</strong> <code>useState()</code> should be <code>useState('')</code> — initialize with an empty string, not undefined.<br><br>
+        <strong>🐛 Bug 2:</strong> Missing <code>e.preventDefault()</code> — the page will reload on submit, losing all state.<br><br>
+        <strong>🐛 Bug 3:</strong> Missing <code>onChange</code> handler — without it, the input is read-only (controlled input with no way to update it).
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</main>
+
+
+<script>
+(() => {
+  // ── Quiz logic ──
+  let answeredCount = 0;
+  let correctCount = 0;
+  const totalQuestions = 10;
+
+  const feedbacks = {
+    1: { correct: "Correct! Forms are the primary way to collect data from users.", wrong: "Not quite. Forms are specifically designed to collect user input." },
+    2: { correct: "Correct! In controlled components, React state (useState) is the single source of truth.", wrong: "Not quite. In controlled components, the value lives in React state, bound via the value prop." },
+    3: { correct: "Correct! useRef lets you grab a reference to a DOM element and read its value.", wrong: "Not quite. useRef is the hook used to reference DOM elements in uncontrolled components." },
+    4: { correct: "Correct! Without this, the browser performs a full page reload, destroying all React state.", wrong: "Not quite. e.preventDefault() stops the browser's default behavior of reloading the page on form submit." },
+    5: { correct: "Correct! onBlur is the sweet spot — gives the user time to finish typing before showing an error.", wrong: "Not quite. onBlur (when leaving a field) is generally the most user-friendly approach." },
+    6: { correct: "Correct! Client-side validation can be bypassed by anyone. Server-side validation is always mandatory.", wrong: "Not quite. Client-side validation can easily be bypassed with browser dev tools." },
+    7: { correct: "Correct! undefined makes React treat the input as uncontrolled, causing a warning when you later set it to a string.", wrong: "Not quite. undefined causes React to treat the input as uncontrolled, then warn when switching to controlled." },
+    8: { correct: "Correct! register() both connects the input to the form and allows you to define validation rules inline.", wrong: "Not quite. register() in React Hook Form registers the input with the form system and attaches validation." },
+    9: { correct: "Correct! File inputs can't have their value controlled by React anyway, making them natural candidates for useRef.", wrong: "Not quite. File inputs are the classic use case since their value can't be programmatically set." },
+    10: { correct: "Correct! The pattern attribute accepts a Regular Expression that the input value must match.", wrong: "Not quite. The pattern attribute lets you define a RegEx that the input must satisfy." }
+  };
+
+  const sidebar = document.querySelector('.sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  const toggleBtn = document.getElementById('mobile-nav-toggle');
+  const navLinks = Array.from(document.querySelectorAll('.nav-link[data-target]'));
+  const sections = Array.from(document.querySelectorAll('section[id]'));
+  const sectionMap = new Map(sections.map(section => [section.id, section]));
+  let rafPending = false;
+  let activeSectionId = '';
+
+  function answer(el, qNum) {
+    const questionEl = el.closest('.quiz-q');
+    if (questionEl.dataset.answered) return;
+    questionEl.dataset.answered = 'true';
+
+    const options = questionEl.querySelectorAll('.quiz-option');
+    options.forEach(opt => {
+      opt.classList.add('disabled');
+      if (opt.dataset.correct === 'true') opt.classList.add('correct');
+    });
+
+    const isCorrect = el.dataset.correct === 'true';
+    if (!isCorrect) el.classList.add('incorrect');
+
+    const fb = document.getElementById('fb' + qNum);
+    fb.textContent = isCorrect ? '✅ ' + feedbacks[qNum].correct : '❌ ' + feedbacks[qNum].wrong;
+    fb.className = 'quiz-feedback show ' + (isCorrect ? 'correct' : 'incorrect');
+
+    answeredCount++;
+    if (isCorrect) correctCount++;
+
+    if (answeredCount === totalQuestions) {
+      document.getElementById('score-btn').style.display = 'inline-flex';
+    }
+  }
+
+  function showScore() {
+    const pct = totalQuestions ? Math.round((correctCount / totalQuestions) * 100) : 0;
+    const msgs = [
+      [0, 40, "Keep going! Review the material and try again."],
+      [40, 70, "Good effort! A few things to revisit."],
+      [70, 90, "Well done! You've got a solid grasp of the concepts."],
+      [90, 101, "Excellent! You're ready to build real React forms. 🚀"]
+    ];
+    const msg = msgs.find(([lo, hi]) => pct >= lo && pct < hi)?.[2] || "Nice work!";
+    document.getElementById('score-num').textContent = correctCount + '/' + totalQuestions;
+    document.getElementById('score-msg').textContent = pct + '% — ' + msg;
+    document.getElementById('score-display').classList.add('show');
+    document.getElementById('score-btn').style.display = 'none';
+    updateProgress(100);
+  }
+
+  function resetQuiz() {
+    answeredCount = 0;
+    correctCount = 0;
+    document.querySelectorAll('.quiz-q').forEach(q => {
+      delete q.dataset.answered;
+      q.querySelectorAll('.quiz-option').forEach(opt => {
+        opt.className = 'quiz-option';
+      });
+      q.querySelectorAll('.quiz-feedback').forEach(fb => {
+        fb.className = 'quiz-feedback';
+      });
+    });
+    document.getElementById('score-display').classList.remove('show');
+    document.getElementById('score-btn').style.display = 'none';
+    updateProgressFromScroll();
+  }
+
+  // ── Exercise toggles ──
+  function toggleExercise(header) {
+    const body = header.nextElementSibling;
+    const toggle = header.querySelector('.exercise-toggle');
+    body.classList.toggle('open');
+    toggle.classList.toggle('open');
+  }
+
+  function toggleAnswer(btn) {
+    const reveal = btn.nextElementSibling;
+    if (!btn.dataset.originalLabel) {
+      btn.dataset.originalLabel = btn.textContent;
+    }
+    reveal.classList.toggle('open');
+    btn.textContent = reveal.classList.contains('open') ? 'Hide ↑' : btn.dataset.originalLabel;
+  }
+
+  // ── Sidebar nav ──
+  function setSidebarOpen(open) {
+    if (!sidebar || !backdrop || !toggleBtn) return;
+    sidebar.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    backdrop.hidden = !open;
+    toggleBtn.setAttribute('aria-expanded', String(open));
+    document.body.style.overflow = open ? 'hidden' : '';
+    toggleBtn.textContent = open ? '✕' : '☰';
+    toggleBtn.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+  }
+
+  function navTo(id) {
+    const el = sectionMap.get(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (window.matchMedia('(max-width: 900px)').matches) setSidebarOpen(false);
+    }
+  }
+
+  function updateProgress(pct) {
+    const safePct = Number.isFinite(pct) ? Math.max(0, Math.min(100, pct)) : 0;
+    document.getElementById('prog-fill').style.width = safePct + '%';
+    document.getElementById('prog-pct').textContent = Math.round(safePct) + '%';
+  }
+
+  function updateProgressFromScroll() {
+    const scrollTop = window.scrollY || window.pageYOffset || 0;
+    const docH = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const pct = (scrollTop / docH) * 100;
+    updateProgress(Math.min(pct, 99));
+  }
+
+  function setActiveSection(id) {
+    if (!id || id === activeSectionId) return;
+    activeSectionId = id;
+    navLinks.forEach(link => {
+      const active = link.dataset.target === id;
+      link.classList.toggle('active', active);
+      link.setAttribute('aria-current', active ? 'true' : 'false');
+    });
+  }
+
+  function updateActiveSection() {
+    const scrollPos = window.scrollY + 140;
+    let current = sections[0]?.id || '';
+    for (const section of sections) {
+      if (scrollPos >= section.offsetTop) current = section.id;
+    }
+    setActiveSection(current);
+  }
+
+  function scheduleScrollUpdate() {
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(() => {
+      rafPending = false;
+      updateProgressFromScroll();
+      updateActiveSection();
+    });
+  }
+
+  // Events
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => navTo(link.dataset.target));
+  });
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      const isOpen = sidebar.classList.contains('open');
+      setSidebarOpen(!isOpen);
+    });
+  }
+
+  if (backdrop) {
+    backdrop.addEventListener('click', () => setSidebarOpen(false));
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setSidebarOpen(false);
+  });
+
+  window.addEventListener('scroll', scheduleScrollUpdate, { passive: true });
+  window.addEventListener('resize', () => {
+    updateProgressFromScroll();
+    updateActiveSection();
+    if (!window.matchMedia('(max-width: 900px)').matches) setSidebarOpen(false);
+  });
+
+  window.addEventListener('load', () => {
+    updateProgressFromScroll();
+    updateActiveSection();
+  });
+
+  // Make inline handlers work if they are still referenced in the HTML
+  window.answer = answer;
+  window.showScore = showScore;
+  window.resetQuiz = resetQuiz;
+  window.toggleExercise = toggleExercise;
+  window.toggleAnswer = toggleAnswer;
+  window.navTo = navTo;
+  window.updateProgress = updateProgress;
+})();
+</script>
+
+</body>
+</html>

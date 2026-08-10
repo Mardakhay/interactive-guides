@@ -1,0 +1,2080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frontend Architecture & Planning — A Deep Dive</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #080810;
+    --bg2: #0d0d1a;
+    --bg3: #12121f;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(120,100,255,0.35);
+    --text: #e8e8f0;
+    --muted: #6b6b85;
+    --accent1: #7c6cfc;
+    --accent2: #38bdf8;
+    --accent3: #a78bfa;
+    --accent4: #34d399;
+    --accent5: #fb923c;
+    --grad1: linear-gradient(135deg, #7c6cfc, #38bdf8);
+    --grad2: linear-gradient(135deg, #a78bfa, #7c6cfc);
+    --grad3: linear-gradient(135deg, #38bdf8, #34d399);
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --display: 'Syne', sans-serif;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: .6;
+  }
+
+  /* ── GLOWS ── */
+  .glow-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: .15;
+  }
+  .glow-orb-1 { width: 600px; height: 600px; background: var(--accent1); top: -200px; left: -100px; }
+  .glow-orb-2 { width: 500px; height: 500px; background: var(--accent2); bottom: 10%; right: -150px; }
+  .glow-orb-3 { width: 400px; height: 400px; background: var(--accent4); top: 40%; left: 30%; opacity: .07; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(8,8,16,0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--display);
+    font-size: 1rem;
+    font-weight: 700;
+    background: var(--grad1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -.02em;
+  }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: .82rem;
+    font-weight: 500;
+    transition: color .2s;
+    letter-spacing: .02em;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; position: relative; z-index: 1; }
+
+  section { padding: 6rem 0; }
+  section + section { padding-top: 2rem; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-top: 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    background: rgba(124,108,252,.12);
+    border: 1px solid rgba(124,108,252,.25);
+    color: var(--accent3);
+    padding: .35rem .9rem;
+    border-radius: 100px;
+    font-size: .78rem;
+    font-weight: 500;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .hero-tag::before { content: '◆'; font-size: .6rem; }
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -.03em;
+    margin-bottom: 1.5rem;
+  }
+  .h1-grad {
+    background: var(--grad1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-desc {
+    color: var(--muted);
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    max-width: 480px;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .7rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-size: .9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .2s;
+    border: none;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--grad1);
+    color: white;
+  }
+  .btn-primary:hover { opacity: .85; transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-ghost:hover { border-color: var(--border-hover); background: rgba(124,108,252,.08); }
+
+  /* Architecture diagram in hero */
+  .hero-visual {
+    position: relative;
+  }
+  .arch-diagram {
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+  }
+  .arch-layer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: .8rem 1rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: .5rem;
+    font-family: var(--mono);
+    font-size: .8rem;
+    font-weight: 500;
+    border: 1px solid transparent;
+    cursor: default;
+    transition: all .2s;
+    position: relative;
+  }
+  .arch-layer:hover {
+    transform: translateX(4px);
+  }
+  .arch-layer .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .arch-layer .label { flex: 1; }
+  .arch-layer .badge {
+    font-size: .7rem;
+    padding: .2rem .5rem;
+    border-radius: 4px;
+    opacity: .6;
+  }
+  .layer-app    { background: rgba(124,108,252,.1); border-color: rgba(124,108,252,.2); }
+  .layer-app .dot { background: #7c6cfc; }
+  .layer-pages  { background: rgba(56,189,248,.08); border-color: rgba(56,189,248,.15); }
+  .layer-pages .dot { background: #38bdf8; }
+  .layer-feat   { background: rgba(167,139,250,.08); border-color: rgba(167,139,250,.15); }
+  .layer-feat .dot { background: #a78bfa; }
+  .layer-ent    { background: rgba(52,211,153,.07); border-color: rgba(52,211,153,.12); }
+  .layer-ent .dot { background: #34d399; }
+  .layer-shared { background: rgba(251,146,60,.07); border-color: rgba(251,146,60,.12); }
+  .layer-shared .dot { background: #fb923c; }
+  .arch-arrow {
+    text-align: center;
+    color: var(--muted);
+    font-size: .75rem;
+    margin-bottom: .3rem;
+    margin-top: -.1rem;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-eyebrow {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent1);
+    margin-bottom: .75rem;
+  }
+  h2 {
+    font-family: var(--display);
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: -.03em;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+  h3 {
+    font-family: var(--display);
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: -.02em;
+    margin-bottom: .75rem;
+  }
+  .section-lead {
+    color: var(--muted);
+    font-size: 1.05rem;
+    max-width: 600px;
+    margin-bottom: 3rem;
+    line-height: 1.7;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    transition: border-color .2s, transform .2s;
+  }
+  .card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+  }
+  .card-grid { display: grid; gap: 1.25rem; }
+  .card-grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .card-grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  .card p { color: var(--muted); font-size: .92rem; line-height: 1.7; }
+
+  /* ── CODE BLOCKS ── */
+  .code-block {
+    background: #0a0a14;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    font-family: var(--mono);
+    font-size: .82rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    position: relative;
+  }
+  .code-block::before {
+    content: attr(data-lang);
+    position: absolute;
+    top: .75rem;
+    right: 1rem;
+    font-size: .68rem;
+    color: var(--muted);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .code-block .c-keyword { color: #c084fc; }
+  .code-block .c-string  { color: #86efac; }
+  .code-block .c-comment { color: #4b5563; font-style: italic; }
+  .code-block .c-func    { color: #60a5fa; }
+  .code-block .c-var     { color: #f0abfc; }
+  .code-block .c-type    { color: #34d399; }
+  .code-block .c-path    { color: #fb923c; }
+  .code-block .c-op      { color: #94a3b8; }
+
+  /* ── TABS ── */
+  .tabs { margin-bottom: 3rem; }
+  .tab-list {
+    display: flex;
+    gap: .5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    padding-bottom: 0;
+  }
+  .tab-btn {
+    padding: .65rem 1.25rem;
+    font-family: var(--sans);
+    font-size: .85rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--accent3);
+    border-bottom-color: var(--accent1);
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fadeIn .3s ease; }
+
+  /* ── ACCORDION ── */
+  .accordion { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .accordion + .accordion { margin-top: 1px; }
+  .accordion-item { border-bottom: 1px solid var(--border); }
+  .accordion-item:last-child { border-bottom: none; }
+  .accordion-btn {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 1.25rem 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: .95rem;
+    font-weight: 500;
+    transition: background .2s;
+  }
+  .accordion-btn:hover { background: rgba(255,255,255,.02); }
+  .accordion-icon {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: rgba(124,108,252,.15);
+    color: var(--accent1);
+    font-size: .75rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: transform .25s;
+    font-weight: 700;
+  }
+  .accordion-btn.open .accordion-icon { transform: rotate(45deg); }
+  .accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .35s cubic-bezier(0.4,0,0.2,1), padding .25s;
+    padding: 0 1.5rem;
+    color: var(--muted);
+    font-size: .92rem;
+    line-height: 1.75;
+  }
+  .accordion-body.open {
+    max-height: 1200px;
+    padding: 0 1.5rem 1.25rem;
+  }
+
+  /* ── TOOLTIP ── */
+  [data-tip] { position: relative; cursor: help; text-decoration: underline dotted rgba(124,108,252,.5); }
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e1e35;
+    border: 1px solid var(--border-hover);
+    color: var(--text);
+    font-size: .75rem;
+    line-height: 1.5;
+    padding: .5rem .85rem;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    max-width: 260px;
+    white-space: normal;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .2s;
+    z-index: 50;
+    font-family: var(--sans);
+    font-style: normal;
+    text-decoration: none;
+  }
+  [data-tip]:hover::after { opacity: 1; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+    margin: 1.5rem 0;
+  }
+  .flow-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: .6rem 1.1rem;
+    font-size: .82rem;
+    font-family: var(--mono);
+    font-weight: 500;
+    cursor: default;
+    transition: all .2s;
+  }
+  .flow-box:hover {
+    border-color: var(--accent1);
+    color: var(--accent3);
+    transform: translateY(-2px);
+  }
+  .flow-arrow { color: var(--muted); font-size: 1rem; }
+
+  /* ── STRUCTURE TREE ── */
+  .tree {
+    font-family: var(--mono);
+    font-size: .82rem;
+    line-height: 2;
+    background: #09090f;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem 2rem;
+  }
+  .tree .dir { color: var(--accent2); }
+  .tree .file { color: var(--muted); }
+  .tree .comment { color: #3d3d5c; }
+  .tree .highlight { color: var(--accent4); }
+  .tree-line { display: flex; gap: .5rem; }
+  .tree-prefix { color: #2d2d4a; user-select: none; }
+
+  /* ── BADGE PILLS ── */
+  .badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .3rem .75rem;
+    border-radius: 100px;
+    font-size: .75rem;
+    font-weight: 500;
+    font-family: var(--mono);
+  }
+  .pill-purple { background: rgba(124,108,252,.15); color: var(--accent3); border: 1px solid rgba(124,108,252,.25); }
+  .pill-blue   { background: rgba(56,189,248,.1);  color: var(--accent2); border: 1px solid rgba(56,189,248,.2); }
+  .pill-green  { background: rgba(52,211,153,.1);  color: var(--accent4); border: 1px solid rgba(52,211,153,.2); }
+  .pill-orange { background: rgba(251,146,60,.1);  color: var(--accent5); border: 1px solid rgba(251,146,60,.2); }
+
+  /* ── CHECKLIST ── */
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex;
+    gap: .75rem;
+    padding: .6rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: .92rem;
+    color: var(--muted);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before {
+    content: '✓';
+    color: var(--accent4);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: .05rem;
+  }
+
+  /* ── QUOTE ── */
+  .callout {
+    background: rgba(124,108,252,.07);
+    border-left: 3px solid var(--accent1);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 1.1rem 1.5rem;
+    margin: 1.5rem 0;
+    color: var(--muted);
+    font-style: italic;
+    font-size: .95rem;
+  }
+  .callout strong { color: var(--accent3); font-style: normal; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4rem 0;
+  }
+
+  /* ── PROGRESS STEPS ── */
+  .steps { counter-reset: step; display: flex; flex-direction: column; gap: 0; }
+  .step {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 1.5rem;
+    position: relative;
+    padding-bottom: 2.5rem;
+  }
+  .step:last-child { padding-bottom: 0; }
+  .step::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 48px;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+  .step:last-child::before { display: none; }
+  .step-num {
+    counter-increment: step;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display);
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--accent3);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .step-content { padding-top: .75rem; }
+  .step-content h4 {
+    font-family: var(--display);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: .5rem;
+  }
+  .step-content p { color: var(--muted); font-size: .9rem; }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  .compare-table th {
+    text-align: left;
+    padding: .75rem 1rem;
+    background: var(--bg3);
+    color: var(--muted);
+    font-weight: 500;
+    font-family: var(--mono);
+    font-size: .75rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-table td {
+    padding: .85rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    vertical-align: top;
+  }
+  .compare-table tr:hover td { background: rgba(255,255,255,.02); }
+  .compare-table .good { color: var(--accent4); }
+  .compare-table .warn { color: var(--accent5); }
+  .compare-table .bad  { color: #f87171; }
+  .compare-table .name { color: var(--text); font-weight: 500; font-family: var(--mono); }
+
+  /* ── PROGRESS BAR ── */
+  .prog-item { margin-bottom: 1rem; }
+  .prog-label { display: flex; justify-content: space-between; font-size: .82rem; color: var(--muted); margin-bottom: .4rem; }
+  .prog-track { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+  .prog-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--grad1);
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* ── GRID 2-COL ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media(max-width: 768px) {
+    .two-col { grid-template-columns: 1fr; }
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-visual { display: none; }
+    nav { padding: 0 1rem; }
+    .nav-links { display: none; }
+  }
+
+  /* ── PATTERN VISUAL ── */
+  .pattern-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: .8rem;
+  }
+  .pattern-box svg { max-width: 100%; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .animate-in {
+    opacity: 0;
+    animation: slideUp .6s ease forwards;
+  }
+  .delay-1 { animation-delay: .1s; }
+  .delay-2 { animation-delay: .2s; }
+  .delay-3 { animation-delay: .3s; }
+  .delay-4 { animation-delay: .4s; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem 0;
+    text-align: center;
+    color: var(--muted);
+    font-size: .82rem;
+    position: relative;
+    z-index: 1;
+  }
+  footer strong { color: var(--accent3); }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .7s ease, transform .7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── MINI MAP ── */
+  .import-flow {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    align-items: flex-start;
+  }
+  .import-row {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    font-family: var(--mono);
+    font-size: .8rem;
+  }
+  .import-badge {
+    padding: .3rem .75rem;
+    border-radius: 6px;
+    font-weight: 600;
+    min-width: 80px;
+    text-align: center;
+  }
+  .import-arrow { color: var(--muted); }
+  .import-rule { color: #2d2d5a; font-size: .75rem; }
+
+  /* ── ANTI-PATTERN ITEM ── */
+  .anti-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-sm);
+    background: rgba(248,113,113,.05);
+    border: 1px solid rgba(248,113,113,.12);
+    margin-bottom: .75rem;
+    align-items: flex-start;
+  }
+  .anti-item .icon { font-size: 1.1rem; flex-shrink: 0; margin-top: .1rem; }
+  .anti-item .text { font-size: .88rem; color: var(--muted); }
+  .anti-item .text strong { color: #fca5a5; display: block; margin-bottom: .25rem; }
+
+  .good-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-sm);
+    background: rgba(52,211,153,.05);
+    border: 1px solid rgba(52,211,153,.1);
+    margin-bottom: .75rem;
+    align-items: flex-start;
+  }
+  .good-item .icon { font-size: 1.1rem; flex-shrink: 0; margin-top: .1rem; }
+  .good-item .text { font-size: .88rem; color: var(--muted); }
+  .good-item .text strong { color: var(--accent4); display: block; margin-bottom: .25rem; }
+
+  /* scroll indicator */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .4rem;
+    color: var(--muted);
+    font-size: .72rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    animation: bob 2s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+  .scroll-indicator .line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--accent1), transparent);
+  }
+
+  /* ── STAGGER CHILDREN ── */
+  .stagger > * { opacity:0; transform:translateY(16px); transition: opacity .5s ease, transform .5s ease; }
+  .stagger.visible > *:nth-child(1) { opacity:1;transform:none;transition-delay:.05s }
+  .stagger.visible > *:nth-child(2) { opacity:1;transform:none;transition-delay:.12s }
+  .stagger.visible > *:nth-child(3) { opacity:1;transform:none;transition-delay:.19s }
+  .stagger.visible > *:nth-child(4) { opacity:1;transform:none;transition-delay:.26s }
+  .stagger.visible > *:nth-child(5) { opacity:1;transform:none;transition-delay:.33s }
+  .stagger.visible > *:nth-child(6) { opacity:1;transform:none;transition-delay:.4s }
+</style>
+
+<style>
+  /* --- FIXES & POLISH --- */
+  section { scroll-margin-top: 84px; }
+  .container, .card, .tree, .code-block, .pattern-box, .arch-diagram, .accordion, .compare-table {
+    min-width: 0;
+  }
+  .two-col > * { min-width: 0; }
+  .code-block, .tree, .compare-table, .flow-box {
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+  .code-block {
+    white-space: pre-wrap;
+    line-height: 1.75;
+  }
+  .compare-table {
+    table-layout: fixed;
+  }
+  .compare-table td, .compare-table th {
+    word-break: break-word;
+  }
+  .nav-links {
+    max-width: 70vw;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a.active {
+    color: var(--text);
+  }
+  @media (max-width: 768px) {
+    nav {
+      padding: 0 .75rem;
+      gap: .75rem;
+    }
+    .nav-links {
+      display: flex;
+      gap: .9rem;
+      max-width: 100%;
+      padding-bottom: .15rem;
+      mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+    }
+    .nav-links a {
+      font-size: .76rem;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+    .hero-visual {
+      display: block;
+    }
+    .arch-diagram {
+      padding: 1rem;
+    }
+    .hero-grid {
+      gap: 2rem;
+    }
+    .step {
+      grid-template-columns: 40px 1fr;
+      gap: 1rem;
+    }
+    .step::before {
+      left: 20px;
+    }
+    .step-num {
+      width: 40px;
+      height: 40px;
+      font-size: .82rem;
+    }
+    [data-tip]::after {
+      max-width: 80vw;
+      white-space: normal;
+    }
+  }
+</style>
+
+</head>
+<body>
+
+<!-- Atmosphere -->
+<div class="glow-orb glow-orb-1"></div>
+<div class="glow-orb glow-orb-2"></div>
+<div class="glow-orb glow-orb-3"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">⬡ FE Architecture</div>
+  <div class="nav-links">
+    <a href="#why">Why Structure</a>
+    <a href="#patterns">Patterns</a>
+    <a href="#structure">File Tree</a>
+    <a href="#planning">Planning</a>
+    <a href="#ecosystem">Ecosystem</a>
+    <a href="#best-practices">Best Practices</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="animate-in">
+        <div class="hero-tag">Mini Course — Frontend Architecture</div>
+        <h1>Build apps that<br><span class="h1-grad">scale with you</span></h1>
+        <p class="hero-desc">A practical, senior-engineer guide to structuring frontend codebases — from small prototypes to large-team products. Translated &amp; expanded from core architecture principles.</p>
+        <div class="hero-cta">
+          <a href="#why" class="btn btn-primary">▶ Start Learning</a>
+          <a href="#structure" class="btn btn-ghost">↗ Jump to File Tree</a>
+        </div>
+      </div>
+      <div class="hero-visual animate-in delay-2">
+        <div class="arch-diagram">
+          <div style="font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-bottom:1.2rem;letter-spacing:.08em;text-transform:uppercase;">FSD-Lite Layer Stack</div>
+
+          <div class="arch-layer layer-app">
+            <div class="dot"></div>
+            <span class="label">app/</span>
+            <span class="badge" style="background:rgba(124,108,252,.15);color:#a78bfa">Router · Providers</span>
+          </div>
+          <div class="arch-arrow">↓ imports only ↓</div>
+          <div class="arch-layer layer-pages">
+            <div class="dot"></div>
+            <span class="label">pages/</span>
+            <span class="badge" style="background:rgba(56,189,248,.1);color:#38bdf8">URL Composition</span>
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-layer layer-feat">
+            <div class="dot"></div>
+            <span class="label">features/</span>
+            <span class="badge" style="background:rgba(167,139,250,.1);color:#a78bfa">auth · cart · checkout</span>
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-layer layer-ent">
+            <div class="dot"></div>
+            <span class="label">entities/</span>
+            <span class="badge" style="background:rgba(52,211,153,.1);color:#34d399">product · user</span>
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-layer layer-shared">
+            <div class="dot"></div>
+            <span class="label">shared/</span>
+            <span class="badge" style="background:rgba(251,146,60,.1);color:#fb923c">ui · lib · api · hooks</span>
+          </div>
+
+          <div style="margin-top:1.2rem;padding:.75rem;background:rgba(124,108,252,.06);border-radius:8px;font-family:var(--mono);font-size:.73rem;color:var(--muted);">
+            <span style="color:var(--accent4);">Rule:</span> imports flow top → bottom only. Never reverse.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <div class="line"></div>
+    scroll
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- WHY STRUCTURE -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section id="why">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-eyebrow">01 — Foundation</span>
+      <h2>Why Structure Matters</h2>
+      <p class="section-lead">Structure is the set of rules that defines where things live and who may touch them. Without it, every growing codebase eventually becomes an archaeology project.</p>
+    </div>
+
+    <div class="card-grid card-grid-3 stagger reveal">
+      <div class="card">
+        <div class="card-icon" style="background:rgba(124,108,252,.12);">🔍</div>
+        <h3>Discoverability</h3>
+        <p>A new developer should be able to find any feature file within 60 seconds. Clear naming conventions and predictable folder placement make orientation trivial — not an onboarding challenge.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(56,189,248,.1);">🧩</div>
+        <h3>Module Boundaries</h3>
+        <p>Each feature is self-contained. A change to the <code style="color:var(--accent2);font-family:var(--mono);font-size:.8rem">cart</code> feature shouldn't break <code style="color:var(--accent2);font-family:var(--mono);font-size:.8rem">auth</code>. Clear boundaries prevent invisible coupling.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(52,211,153,.1);">📈</div>
+        <h3>Scalability</h3>
+        <p>Structure preserves order as the project grows. What works at 5 files can collapse at 500. Planning the architecture early is far cheaper than refactoring later under deadline pressure.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="two-col reveal">
+      <div>
+        <h3>The problems without structure</h3>
+        <div class="accordion">
+          <div class="accordion-item">
+            <button class="accordion-btn" aria-expanded="false" onclick="toggleAccordion(this)">
+              <span>Spaghetti imports — changes have invisible ripple effects</span>
+              <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-body">
+              <p>When any file can import any other file, you create invisible dependencies. Changing a utility in <code style="font-family:var(--mono);color:var(--accent2)">shared/</code> can crash five unrelated features. Without enforced import direction, the dependency graph becomes a plate of spaghetti.</p>
+              <br>
+              <div class="flow">
+                <span class="flow-box" style="border-color:rgba(248,113,113,.3);color:#fca5a5">Cart</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-box" style="border-color:rgba(248,113,113,.3);color:#fca5a5">Auth</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-box" style="border-color:rgba(248,113,113,.3);color:#fca5a5">Utils</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-box" style="border-color:rgba(248,113,113,.3);color:#fca5a5">Cart ❌</span>
+              </div>
+              <p style="font-size:.8rem;color:var(--muted)">Circular dependency: Cart → Auth → Utils → Cart. This breaks at build time or causes subtle runtime bugs.</p>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <button class="accordion-btn" aria-expanded="false" onclick="toggleAccordion(this)">
+              <span>Name collisions and ambiguity at scale</span>
+              <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-body">
+              <p>In a flat <code style="font-family:var(--mono);color:var(--accent2)">components/</code> directory, you eventually get <code style="font-family:var(--mono);color:var(--accent2)">Button.tsx</code>, <code style="font-family:var(--mono);color:var(--accent2)">ButtonNew.tsx</code>, <code style="font-family:var(--mono);color:var(--accent2)">ButtonV2.tsx</code>. No one knows which is canonical. Feature folders solve this: the button inside <code style="font-family:var(--mono);color:var(--accent2)">features/auth/ui/</code> is unambiguously the auth-specific button.</p>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <button class="accordion-btn" aria-expanded="false" onclick="toggleAccordion(this)">
+              <span>Dead code accumulation</span>
+              <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-body">
+              <p>Without colocation, deleting a feature leaves orphan files scattered across the tree — CSS files with no component, hooks no one calls, API functions long-superseded. Colocation means deleting a folder deletes everything that belongs to it.</p>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <button class="accordion-btn" aria-expanded="false" onclick="toggleAccordion(this)">
+              <span>Shared vocabulary breaks down across the team</span>
+              <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-body">
+              <p>When different developers interpret "where does this go?" differently, PRs become debates. A documented, agreed-upon architecture is a shared language. It's also the difference between 10-minute onboarding and 10-day onboarding.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3>Three goals of good structure</h3>
+        <ul class="checklist">
+          <li><strong>Readability</strong> — a developer unfamiliar with the codebase can find any feature file in under a minute. Folder names match the business domain, not technical abstractions.</li>
+          <li><strong>Module boundaries</strong> — each feature encapsulates its own UI, logic, and API calls. The public API (what it exports) is small and intentional.</li>
+          <li><strong>Scalability</strong> — the system should still make sense at 10× the current file count. Structure is a growth multiplier, not a constraint.</li>
+        </ul>
+        <div class="callout">
+          <strong>Senior tip:</strong> "This decision framework is the map. The territory (Router, React Hook Form, Context) is covered separately — the architecture layer is where everything connects."
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- ARCHITECTURE PATTERNS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section id="patterns" style="padding-top:2rem">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-eyebrow">02 — Patterns</span>
+      <h2>Architecture Patterns</h2>
+      <p class="section-lead">Different scales and teams call for different patterns. Understanding the trade-offs is more important than picking "the right one."</p>
+    </div>
+
+    <div class="tabs reveal">
+      <div class="tab-list" role="tablist" aria-label="Architecture patterns">
+        <button class="tab-btn active" role="tab" aria-selected="true" onclick="switchTab(event,'flat')">Flat / Classic</button>
+        <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab(event,'feature')">Feature-Based</button>
+        <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab(event,'layered')">Layered / Slices</button>
+        <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab(event,'fsd')">FSD (Advanced)</button>
+      </div>
+
+      <!-- FLAT -->
+      <div class="tab-panel active" id="tab-flat" role="tabpanel" aria-hidden="false">
+        <div class="two-col">
+          <div>
+            <h3>Flat component structure</h3>
+            <p style="color:var(--muted);margin-bottom:1rem;font-size:.92rem">The traditional approach: every component lives in one <code style="font-family:var(--mono);color:var(--accent2)">components/</code> directory. Fine for prototypes, painful at scale.</p>
+            <div class="tree">
+              <div class="tree-line"><span class="tree-prefix">├─</span><span class="dir">src/</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="dir">components/</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  ├─</span><span class="file">Button.tsx</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  ├─</span><span class="file">LoginForm.tsx</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  ├─</span><span class="file">CartDrawer.tsx</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  ├─</span><span class="file">ProductCard.tsx</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  └─</span><span class="file">... (eventually 80+ files)</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="file">App.tsx</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  └─</span><span class="file">index.tsx</span></div>
+            </div>
+          </div>
+          <div>
+            <h3>Verdict</h3>
+            <table class="compare-table" style="margin-bottom:1.5rem">
+              <tr><th>Aspect</th><th>Rating</th></tr>
+              <tr><td>Setup speed</td><td class="good">✓ Fastest</td></tr>
+              <tr><td>Discoverability (small)</td><td class="good">✓ Good</td></tr>
+              <tr><td>Discoverability (large)</td><td class="bad">✗ Terrible</td></tr>
+              <tr><td>Team scalability</td><td class="bad">✗ Poor</td></tr>
+              <tr><td>Refactor cost</td><td class="warn">~ Medium</td></tr>
+            </table>
+            <div class="callout">Use flat structure for: demos, side projects under ~20 components, or a single-developer prototype you'll refactor before shipping.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEATURE -->
+      <div class="tab-panel" id="tab-feature" role="tabpanel" hidden aria-hidden="true">
+        <div class="two-col">
+          <div>
+            <h3>Feature folder structure</h3>
+            <p style="color:var(--muted);margin-bottom:1rem;font-size:.92rem">Each business domain gets its own folder containing UI, API calls, and hooks. The feature is the unit of organisation.</p>
+            <div class="tree">
+              <div class="tree-line"><span class="tree-prefix">├─</span><span class="dir">src/</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="dir">features/</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  ├─</span><span class="dir">auth/</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  │  ├─</span><span class="dir">ui/</span><span class="file"> LoginForm.tsx</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  │  ├─</span><span class="dir">api/</span><span class="file"> login.ts</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  │  └─</span><span class="dir">model/</span><span class="file"> useAuth.ts</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  ├─</span><span class="dir">cart/</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  │  ├─</span><span class="dir">ui/</span><span class="file"> CartDrawer.tsx</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  │  ├─</span><span class="dir">api/</span><span class="file"> cartApi.ts</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  │  └─</span><span class="dir">model/</span><span class="file"> useCart.ts</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  └─</span><span class="dir">checkout/ ...</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  └─</span><span class="dir">shared/</span><span class="file"> ui/ lib/ hooks/</span></div>
+            </div>
+          </div>
+          <div>
+            <h3>Key principles</h3>
+            <ul class="checklist">
+              <li>Each feature imports only from <code style="font-family:var(--mono);color:var(--accent2)">shared/</code> — never from another feature directly.</li>
+              <li>The <code style="font-family:var(--mono);color:var(--accent2)">index.ts</code> barrel in each feature defines the public API — internal files stay private.</li>
+              <li>Deleting a feature means deleting one folder, with zero orphan files.</li>
+              <li>Teams can "own" features — reducing merge conflicts and cognitive load.</li>
+            </ul>
+            <div class="callout"><strong>Best for:</strong> Teams of 2–10+ developers shipping a real product. The most common production pattern in 2024.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAYERED -->
+      <div class="tab-panel" id="tab-layered" role="tabpanel" hidden aria-hidden="true">
+        <div class="two-col">
+          <div>
+            <h3>Layered / Slice architecture</h3>
+            <p style="color:var(--muted);margin-bottom:1rem;font-size:.92rem">Extends feature-based with explicit layers: <em>app</em>, <em>pages</em>, <em>widgets</em>, <em>features</em>, <em>entities</em>, <em>shared</em>. Each layer may only import from layers below it.</p>
+            <div class="import-flow">
+              <div class="import-row">
+                <span class="import-badge" style="background:rgba(124,108,252,.15);color:#a78bfa">app/</span>
+                <span class="import-arrow">←</span>
+                <span class="import-rule">root, providers, global router</span>
+              </div>
+              <div class="import-row" style="padding-left:1rem">
+                <span style="color:var(--muted)">↓</span>
+              </div>
+              <div class="import-row">
+                <span class="import-badge" style="background:rgba(56,189,248,.1);color:#38bdf8">pages/</span>
+                <span class="import-arrow">←</span>
+                <span class="import-rule">URL = composition layer</span>
+              </div>
+              <div class="import-row" style="padding-left:1rem">
+                <span style="color:var(--muted)">↓</span>
+              </div>
+              <div class="import-row">
+                <span class="import-badge" style="background:rgba(167,139,250,.1);color:#a78bfa">widgets/</span>
+                <span class="import-arrow">←</span>
+                <span class="import-rule">large UI blocks (DashboardShell)</span>
+              </div>
+              <div class="import-row" style="padding-left:1rem">
+                <span style="color:var(--muted)">↓</span>
+              </div>
+              <div class="import-row">
+                <span class="import-badge" style="background:rgba(167,139,250,.1);color:#c084fc">features/</span>
+                <span class="import-arrow">←</span>
+                <span class="import-rule">business logic flows</span>
+              </div>
+              <div class="import-row" style="padding-left:1rem">
+                <span style="color:var(--muted)">↓</span>
+              </div>
+              <div class="import-row">
+                <span class="import-badge" style="background:rgba(52,211,153,.1);color:#34d399">entities/</span>
+                <span class="import-arrow">←</span>
+                <span class="import-rule">product, user (single domain)</span>
+              </div>
+              <div class="import-row" style="padding-left:1rem">
+                <span style="color:var(--muted)">↓</span>
+              </div>
+              <div class="import-row">
+                <span class="import-badge" style="background:rgba(251,146,60,.1);color:#fb923c">shared/</span>
+                <span class="import-arrow">←</span>
+                <span class="import-rule">primitives, api client, constants</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3>The import rule (enforced)</h3>
+            <p style="color:var(--muted);font-size:.92rem;margin-bottom:1rem">Each layer only imports from layers below it. Same-level slices may NOT cross-import — orchestration happens in the layer above.</p>
+            <div class="code-block" data-lang="eslint">
+<span class="c-comment">// .eslintrc.js — enforce the rule</span>
+<span class="c-keyword">rules</span>: {
+  <span class="c-string">"import/no-restricted-paths"</span>: [<span class="c-string">"error"</span>, {
+    zones: [
+      {
+        <span class="c-comment">// features cannot import from pages</span>
+        target: <span class="c-string">"./src/features"</span>,
+        from: <span class="c-string">"./src/pages"</span>
+      },
+      {
+        <span class="c-comment">// shared cannot import from features</span>
+        target: <span class="c-string">"./src/shared"</span>,
+        from: <span class="c-string">"./src/features"</span>
+      }
+    ]
+  }]
+}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FSD -->
+      <div class="tab-panel" id="tab-fsd" role="tabpanel" hidden aria-hidden="true">
+        <div class="two-col">
+          <div>
+            <h3>Feature-Sliced Design (FSD)</h3>
+            <p style="color:var(--muted);margin-bottom:1rem;font-size:.92rem">An open standard for large-scale React applications. Every slice has a public API (barrel), and same-layer slices never touch each other.</p>
+            <div class="tree">
+              <div class="tree-line"><span class="tree-prefix">├─</span><span class="dir">src/</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="dir">app/</span><span class="comment">           # Init, providers, global router</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="dir">pages/</span><span class="comment">         # Route = composition only</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="dir">widgets/</span><span class="comment">       # Complex self-sufficient UI blocks</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="dir">features/</span><span class="comment">      # Business processes</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │  └─</span><span class="dir">auth/</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │     ├─</span><span class="highlight">index.ts</span><span class="comment">   # Public API ← IMPORTANT</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │     ├─</span><span class="dir">ui/</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │     ├─</span><span class="dir">model/</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │     ├─</span><span class="dir">api/</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  │     └─</span><span class="dir">lib/</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="dir">entities/</span><span class="comment">      # Domain models (product, user)</span></div>
+              <div class="tree-line"><span class="tree-prefix">│  └─</span><span class="dir">shared/</span></div>
+              <div class="tree-line"><span class="tree-prefix">│     ├─</span><span class="dir">ui/</span><span class="comment">  lib/  api/  config/</span></div>
+            </div>
+          </div>
+          <div>
+            <h3>When to use FSD</h3>
+            <ul class="checklist" style="margin-bottom:1.5rem">
+              <li>Large teams (5+ developers) on a long-lived product.</li>
+              <li>Multiple business domains that need clear ownership.</li>
+              <li>You need to enforce import rules via linting (not just convention).</li>
+              <li>The product will grow — you're building infrastructure, not a prototype.</li>
+            </ul>
+            <div class="callout"><strong>Important:</strong> FSD adds overhead. For a small team or MVP, start with feature folders and evolve. The official spec is at <strong>feature-sliced.design</strong>.</div>
+            <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+              <span class="badge-pill pill-green">✓ Enforced by lint</span>
+              <span class="badge-pill pill-blue">✓ Public APIs</span>
+              <span class="badge-pill pill-orange">⚠ High overhead</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tabs -->
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- COLOCATION + BARRELS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section id="colocation" style="padding-top:1rem">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-eyebrow">03 — Colocation</span>
+      <h2>Keep related files close</h2>
+      <p class="section-lead">Colocation means the test, style, and hook for a component all live in the same directory. Change one thing, find everything in one place.</p>
+    </div>
+
+    <div class="two-col reveal">
+      <div>
+        <h3>Without colocation</h3>
+        <div class="tree">
+          <div class="tree-line"><span class="tree-prefix">├─</span><span class="dir">components/</span><span class="file"> ProductCard.tsx</span></div>
+          <div class="tree-line"><span class="tree-prefix">├─</span><span class="dir">styles/</span><span class="file">    ProductCard.module.css</span></div>
+          <div class="tree-line"><span class="tree-prefix">├─</span><span class="dir">hooks/</span><span class="file">     useProductCard.ts</span></div>
+          <div class="tree-line"><span class="tree-prefix">└─</span><span class="dir">tests/</span><span class="file">     ProductCard.test.tsx</span></div>
+        </div>
+        <p style="color:var(--muted);margin-top:1rem;font-size:.88rem">⚠ Four files in four places. Delete the component → three orphans remain.</p>
+      </div>
+      <div>
+        <h3>With colocation ✓</h3>
+        <div class="tree">
+          <div class="tree-line"><span class="tree-prefix">└─</span><span class="dir">ProductCard/</span></div>
+          <div class="tree-line"><span class="tree-prefix">   ├─</span><span class="highlight">ProductCard.tsx</span></div>
+          <div class="tree-line"><span class="tree-prefix">   ├─</span><span class="file">ProductCard.test.tsx</span></div>
+          <div class="tree-line"><span class="tree-prefix">   ├─</span><span class="file">ProductCard.module.css</span></div>
+          <div class="tree-line"><span class="tree-prefix">   └─</span><span class="file">useProductCard.ts</span></div>
+        </div>
+        <p style="color:var(--muted);margin-top:1rem;font-size:.88rem">✓ One folder = one concern. Delete folder → everything gone. IDE navigation instant.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="reveal">
+      <h3 style="margin-bottom:1.5rem">Barrel files — <code style="font-family:var(--mono);color:var(--accent2);font-size:.9rem">index.ts</code></h3>
+      <div class="two-col">
+        <div>
+          <p style="color:var(--muted);font-size:.92rem;margin-bottom:1rem">A barrel re-exports everything the module wants to expose, giving external consumers a clean import path.</p>
+          <div class="code-block" data-lang="ts">
+<span class="c-comment">// features/auth/index.ts (barrel)</span>
+<span class="c-keyword">export</span> { LoginForm } <span class="c-keyword">from</span> <span class="c-string">'./ui/LoginForm'</span>;
+<span class="c-keyword">export</span> { useAuth } <span class="c-keyword">from</span> <span class="c-string">'./model/useAuth'</span>;
+<span class="c-keyword">export type</span> { AuthUser } <span class="c-keyword">from</span> <span class="c-string">'./model/types'</span>;
+
+<span class="c-comment">// ✗ NOT exported — stays private:</span>
+<span class="c-comment">// ./api/refreshToken.ts</span>
+<span class="c-comment">// ./ui/OAuthButton.tsx</span>
+          </div>
+          <div class="code-block" data-lang="tsx" style="margin-top:.75rem">
+<span class="c-comment">// Consumer — clean import</span>
+<span class="c-keyword">import</span> { LoginForm, useAuth } <span class="c-keyword">from</span> <span class="c-string">'@/features/auth'</span>;
+
+<span class="c-comment">// NOT: import LoginForm from '@/features/auth/ui/LoginForm'</span>
+          </div>
+        </div>
+        <div>
+          <h3>Barrel trade-offs</h3>
+          <div class="good-item">
+            <span class="icon">✅</span>
+            <div class="text">
+              <strong>Clean imports</strong>
+              Consumers never need to know internal structure. Move files within the feature without breaking consumers.
+            </div>
+          </div>
+          <div class="good-item">
+            <span class="icon">✅</span>
+            <div class="text">
+              <strong>Explicit public API</strong>
+              If it's not in the barrel, it's private. This is enforced by convention (and can be enforced by lint).
+            </div>
+          </div>
+          <div class="anti-item">
+            <span class="icon">⚠️</span>
+            <div class="text">
+              <strong>Circular dependency risk</strong>
+              A → B (via barrel) → A creates a circular import. Always import from <em>below</em> in the layer hierarchy.
+            </div>
+          </div>
+          <div class="anti-item">
+            <span class="icon">⚠️</span>
+            <div class="text">
+              <strong>Tree-shaking in some bundlers</strong>
+              Over-exporting from barrels can confuse some bundlers. Keep barrels shallow and avoid re-exporting entire third-party libraries.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- FULL FILE TREE -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section id="structure" style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-eyebrow">04 — Reference</span>
+      <h2>Scalable project structure</h2>
+      <p class="section-lead">The reference tree for a large React application using layered architecture. Every folder has a single clear responsibility.</p>
+    </div>
+
+    <div class="two-col reveal">
+      <div>
+        <div class="tree">
+          <div class="tree-line"><span class="tree-prefix"></span><span class="dir">src/</span></div>
+          <div class="tree-line"><span class="tree-prefix">├─</span><span class="dir">app/</span><span class="comment">                 # App shell</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="file">router.tsx</span><span class="comment">       # Route definitions</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="file">providers.tsx</span><span class="comment">    # Global context wrappers</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  └─</span><span class="file">App.tsx</span></div>
+          <div class="tree-line"><span class="tree-prefix">│</span></div>
+          <div class="tree-line"><span class="tree-prefix">├─</span><span class="dir">pages/</span><span class="comment">               # One file per route</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="file">HomePage.tsx</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="file">ProductPage.tsx</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  └─</span><span class="file">CheckoutPage.tsx</span></div>
+          <div class="tree-line"><span class="tree-prefix">│</span></div>
+          <div class="tree-line"><span class="tree-prefix">├─</span><span class="dir">features/</span><span class="comment">            # Business domain</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="dir">auth/</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  │  ├─</span><span class="highlight">index.ts</span><span class="comment">       # Public API</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  │  ├─</span><span class="dir">ui/</span><span class="file">            LoginForm.tsx</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  │  ├─</span><span class="dir">api/</span><span class="file">           authApi.ts</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  │  └─</span><span class="dir">model/</span><span class="file">         useAuth.ts</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="dir">cart/ ...</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  └─</span><span class="dir">checkout/ ...</span></div>
+          <div class="tree-line"><span class="tree-prefix">│</span></div>
+          <div class="tree-line"><span class="tree-prefix">├─</span><span class="dir">entities/</span><span class="comment">            # Domain models</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  ├─</span><span class="dir">product/</span><span class="file">         ProductCard.tsx, types.ts</span></div>
+          <div class="tree-line"><span class="tree-prefix">│  └─</span><span class="dir">user/</span><span class="file">            UserAvatar.tsx, types.ts</span></div>
+          <div class="tree-line"><span class="tree-prefix">│</span></div>
+          <div class="tree-line"><span class="tree-prefix">└─</span><span class="dir">shared/</span><span class="comment">              # No domain knowledge</span></div>
+          <div class="tree-line"><span class="tree-prefix">   ├─</span><span class="dir">ui/</span><span class="file">              Button, Input, Modal ...</span></div>
+          <div class="tree-line"><span class="tree-prefix">   ├─</span><span class="dir">hooks/</span><span class="file">          useDebounce, useLocalStorage</span></div>
+          <div class="tree-line"><span class="tree-prefix">   ├─</span><span class="dir">api/</span><span class="file">            httpClient.ts</span></div>
+          <div class="tree-line"><span class="tree-prefix">   ├─</span><span class="dir">lib/</span><span class="file">            formatters, validators</span></div>
+          <div class="tree-line"><span class="tree-prefix">   └─</span><span class="dir">config/</span><span class="file">         constants, env</span></div>
+        </div>
+      </div>
+      <div>
+        <h3>Layer responsibilities</h3>
+        <div style="display:flex;flex-direction:column;gap:.75rem;margin-bottom:2rem">
+          <div class="card" style="padding:1rem 1.25rem;">
+            <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.4rem">
+              <span class="badge-pill pill-purple">app/</span>
+            </div>
+            <p>Root layout, router, global state providers. <strong>No business logic.</strong> This wires everything together.</p>
+          </div>
+          <div class="card" style="padding:1rem 1.25rem;">
+            <span class="badge-pill pill-blue" style="margin-bottom:.4rem;display:inline-block">pages/</span>
+            <p>One file per URL. Pages are <strong>pure composition</strong> — they pull in features and widgets and arrange them. No data fetching logic here.</p>
+          </div>
+          <div class="card" style="padding:1rem 1.25rem;">
+            <span class="badge-pill" style="background:rgba(167,139,250,.15);color:#a78bfa;border:1px solid rgba(167,139,250,.25);margin-bottom:.4rem;display:inline-flex;padding:.3rem .75rem;border-radius:100px;font-size:.75rem;font-weight:500;font-family:var(--mono)">features/</span>
+            <p>Business processes: auth, cart, checkout. Each feature owns its own UI, API, and state logic. The most important layer.</p>
+          </div>
+          <div class="card" style="padding:1rem 1.25rem;">
+            <span class="badge-pill pill-green" style="margin-bottom:.4rem;display:inline-block">shared/</span>
+            <p>Project-agnostic primitives. A Button component here knows nothing about products or users. If it does, it's in the wrong place.</p>
+          </div>
+        </div>
+        <div class="callout">
+          <strong>Decision rule:</strong> Ask "does this know about a specific business domain?" — if yes, it belongs in <code style="font-family:var(--mono);color:var(--accent3)">features/</code> or <code style="font-family:var(--mono);color:var(--accent3)">entities/</code>. If no, <code style="font-family:var(--mono);color:var(--accent3)">shared/</code>.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PLANNING PROCESS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section id="planning">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-eyebrow">05 — Process</span>
+      <h2>UI planning before you code</h2>
+      <p class="section-lead">Great architecture starts on paper (or a whiteboard). Code before planning is like building without blueprints — fast to start, expensive to fix.</p>
+    </div>
+
+    <div class="two-col reveal" style="margin-bottom:3rem">
+      <div>
+        <h3>The 3-step UI planning method</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h4>Screen map + data sources</h4>
+              <p>List every screen with its URL. For each screen, identify the primary data source — which component fetches the data and from where. This prevents "data waterfalls" later.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h4>Break down: layout → section → atom</h4>
+              <p>Start with the outermost container (shell, sidebar, header). Then identify logical sections (filter panel, product list, detail pane). Finally, identify repeating primitives that belong in <code style="font-family:var(--mono);color:var(--accent2)">shared/ui/</code>.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h4>Plan all UI states</h4>
+              <p>For every data-driven UI, define four states: <span data-tip="Spinner or skeleton screens that match the final layout">loading</span>, <span data-tip="Empty list with a CTA or helpful message">empty</span>, <span data-tip="Retry button + user-friendly message, never 'undefined is not a function'">error</span>, success. Skipping these means TODO comments that never get resolved.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3>State planning</h3>
+        <p style="color:var(--muted);font-size:.92rem;margin-bottom:1.25rem">Before writing a single <code style="font-family:var(--mono);color:var(--accent2)">useState</code>, categorise every piece of state.</p>
+        <table class="compare-table">
+          <tr>
+            <th>State Type</th>
+            <th>Lives In</th>
+            <th>Tool</th>
+          </tr>
+          <tr>
+            <td class="name">Server data</td>
+            <td>Query cache</td>
+            <td class="good">TanStack Query</td>
+          </tr>
+          <tr>
+            <td class="name">Global UI</td>
+            <td>Store</td>
+            <td class="good">Zustand / Context</td>
+          </tr>
+          <tr>
+            <td class="name">Form state</td>
+            <td>Form library</td>
+            <td class="good">React Hook Form</td>
+          </tr>
+          <tr>
+            <td class="name">Local UI</td>
+            <td>Component</td>
+            <td class="good">useState</td>
+          </tr>
+          <tr>
+            <td class="name">URL state</td>
+            <td>Address bar</td>
+            <td class="good">useSearchParams</td>
+          </tr>
+        </table>
+        <div class="callout" style="margin-top:1rem">The most common mistake: putting server data into <code style="font-family:var(--mono);color:var(--accent3)">useState + useEffect</code> when React Query would handle caching, background refetching, and error states for free.</div>
+      </div>
+    </div>
+
+    <!-- WIREFRAME + USER FLOW -->
+    <div class="reveal">
+      <h3 style="margin-bottom:1.5rem">Wireframe thinking + user flow</h3>
+      <div class="two-col">
+        <div>
+          <p style="color:var(--muted);font-size:.92rem;margin-bottom:1rem">A wireframe doesn't need to be pretty. It needs to answer: where is the nav, where is the content, where are the CTAs. Structure first, pixels later.</p>
+
+          <!-- ASCII wireframe -->
+          <div class="code-block" data-lang="wireframe">
+            <pre>
+            ┌─────────────────────────────────────┐
+            │ NAVBAR      [Logo]   [Nav]  [CTA]   │
+            ├────────────┬────────────────────────┤
+            │            │                        │
+            │ SIDEBAR    │    PRODUCT LIST        │
+            │            │   ┌───┐ ┌───┐ ┌───┐    │
+            │ Filters    │   │   │ │   │ │   │    │
+            │ Categories │   └───┘ └───┘ └───┘    │
+            │ Price      │   ┌───┐ ┌───┐ ┌───┐    │
+            │            │   │   │ │   │ │   │    │
+            │            │   └───┘ └───┘ └───┘    │
+            ├────────────┴────────────────────────┤
+            │              PAGINATION             │
+            └─────────────────────────────────────┘
+           </pre>
+          </div>
+        </div>
+        <div>
+          <p style="color:var(--muted);font-size:.92rem;margin-bottom:1rem">A user flow maps each decision point and screen transition. Translating this to React means mapping flows to route changes and UI state transitions.</p>
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;">
+            <!-- SVG flow diagram -->
+            <svg viewBox="0 0 340 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'JetBrains Mono',monospace;">
+              <!-- boxes -->
+              <rect x="110" y="10" width="120" height="36" rx="8" fill="rgba(124,108,252,.15)" stroke="rgba(124,108,252,.35)" stroke-width="1"/>
+              <text x="170" y="32" text-anchor="middle" fill="#a78bfa" font-size="11">Landing Page</text>
+
+              <rect x="110" y="80" width="120" height="36" rx="8" fill="rgba(56,189,248,.1)" stroke="rgba(56,189,248,.25)" stroke-width="1"/>
+              <text x="170" y="102" text-anchor="middle" fill="#38bdf8" font-size="11">Product List</text>
+
+              <rect x="10" y="150" width="110" height="36" rx="8" fill="rgba(167,139,250,.1)" stroke="rgba(167,139,250,.2)" stroke-width="1"/>
+              <text x="65" y="172" text-anchor="middle" fill="#a78bfa" font-size="11">Login / Auth</text>
+
+              <rect x="220" y="150" width="110" height="36" rx="8" fill="rgba(52,211,153,.1)" stroke="rgba(52,211,153,.2)" stroke-width="1"/>
+              <text x="275" y="172" text-anchor="middle" fill="#34d399" font-size="11">Product Detail</text>
+
+              <rect x="110" y="220" width="120" height="36" rx="8" fill="rgba(251,146,60,.1)" stroke="rgba(251,146,60,.2)" stroke-width="1"/>
+              <text x="170" y="242" text-anchor="middle" fill="#fb923c" font-size="11">Checkout</text>
+
+              <!-- arrows -->
+              <line x1="170" y1="46" x2="170" y2="78" stroke="#3d3d60" stroke-width="1" marker-end="url(#arr)"/>
+              <line x1="120" y1="116" x2="75" y2="148" stroke="#3d3d60" stroke-width="1" marker-end="url(#arr)"/>
+              <line x1="220" y1="116" x2="260" y2="148" stroke="#3d3d60" stroke-width="1" marker-end="url(#arr)"/>
+              <line x1="65" y1="186" x2="145" y2="218" stroke="#3d3d60" stroke-width="1" marker-end="url(#arr)"/>
+              <line x1="275" y1="186" x2="205" y2="218" stroke="#3d3d60" stroke-width="1" marker-end="url(#arr)"/>
+
+              <!-- labels -->
+              <text x="10" y="128" fill="#4b5563" font-size="9">not logged in</text>
+              <text x="258" y="128" fill="#4b5563" font-size="9">click item</text>
+
+              <defs>
+                <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+                  <path d="M0,0 L0,6 L6,3 z" fill="#3d3d60"/>
+                </marker>
+              </defs>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- COMPONENT STRATEGY -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section id="components" style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-eyebrow">06 — Components</span>
+      <h2>Component strategy</h2>
+      <p class="section-lead">Not all components are created equal. Separating "smart" data containers from "dumb" presentational components is the fastest route to reusability and testability.</p>
+    </div>
+
+    <div class="card-grid card-grid-3 stagger reveal">
+      <div class="card" style="border-color:rgba(124,108,252,.25)">
+        <div class="card-icon" style="background:rgba(124,108,252,.12)">🗺️</div>
+        <h3>Page / Route Component</h3>
+        <p>Tied to a URL. Its job is <strong>composition only</strong> — it assembles features and shared components. It may trigger top-level data loading (via loader or query) but delegates everything else.</p>
+        <br>
+        <div class="code-block" data-lang="tsx" style="font-size:.75rem;padding:1rem;">
+<span class="c-keyword">export default function</span> <span class="c-func">ProductPage</span>() {
+  <span class="c-keyword">return</span> (
+    &lt;<span class="c-type">Shell</span>&gt;
+      &lt;<span class="c-type">FilterBar</span> /&gt;
+      &lt;<span class="c-type">ProductGrid</span> /&gt;
+    &lt;/<span class="c-type">Shell</span>&gt;
+  );
+}
+        </div>
+      </div>
+      <div class="card" style="border-color:rgba(56,189,248,.2)">
+        <div class="card-icon" style="background:rgba(56,189,248,.1)">🧠</div>
+        <h3>Container (Smart)</h3>
+        <p>Handles data fetching, side effects, and state. Passes results down as props. Usually not directly reusable — it's purpose-built for one feature.</p>
+        <br>
+        <div class="code-block" data-lang="tsx" style="font-size:.75rem;padding:1rem;">
+<span class="c-keyword">function</span> <span class="c-func">ProductGridContainer</span>() {
+  <span class="c-keyword">const</span> { data, isLoading } =
+    <span class="c-func">useProducts</span>();
+
+  <span class="c-keyword">if</span> (isLoading) <span class="c-keyword">return</span> &lt;<span class="c-type">Skeleton</span> /&gt;;
+  <span class="c-keyword">return</span> &lt;<span class="c-type">ProductGrid</span> items={data} /&gt;;
+}
+        </div>
+      </div>
+      <div class="card" style="border-color:rgba(52,211,153,.15)">
+        <div class="card-icon" style="background:rgba(52,211,153,.1)">🎨</div>
+        <h3>Presentational (Dumb)</h3>
+        <p>Takes props, renders UI. No side effects, no fetching. This is the component you put in Storybook, the one that's easy to test, the one that can be reused anywhere.</p>
+        <br>
+        <div class="code-block" data-lang="tsx" style="font-size:.75rem;padding:1rem;">
+<span class="c-keyword">function</span> <span class="c-func">ProductGrid</span>({
+  items
+}: { items: <span class="c-type">Product</span>[] }) {
+  <span class="c-keyword">return</span> (
+    &lt;<span class="c-type">Grid</span>&gt;
+      {items.map(i =&gt;
+        &lt;<span class="c-type">ProductCard</span> key={i.id} {...i}/&gt;)}
+    &lt;/<span class="c-type">Grid</span>&gt;
+  );
+}
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:3rem">
+      <h3 style="margin-bottom:1rem">The "rule of three" for abstraction</h3>
+      <div class="two-col">
+        <div>
+          <div class="anti-item">
+            <span class="icon">❌</span>
+            <div class="text">
+              <strong>Premature abstraction</strong>
+              You see a component used twice, immediately move it to <code style="font-family:var(--mono);color:#fca5a5">shared/</code> and add 12 props for flexibility. Now both consumers are shaped around the abstraction instead of their own needs. Wait.
+            </div>
+          </div>
+          <div class="anti-item">
+            <span class="icon">❌</span>
+            <div class="text">
+              <strong>"Uber-prop" components</strong>
+              A component with 20 props to handle every edge case is not reusable — it's a micro-framework. If you need that many props, consider composition patterns instead.
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="good-item">
+            <span class="icon">✅</span>
+            <div class="text">
+              <strong>Duplicate first, then extract</strong>
+              Copy the component twice. On the third usage, the shared shape becomes obvious. Extract then. This is the "rule of three."
+            </div>
+          </div>
+          <div class="good-item">
+            <span class="icon">✅</span>
+            <div class="text">
+              <strong>Composition over configuration</strong>
+              Instead of a <code style="font-family:var(--mono);color:var(--accent4)">Modal</code> with 15 props, export <code style="font-family:var(--mono);color:var(--accent4)">Modal.Header</code>, <code style="font-family:var(--mono);color:var(--accent4)">Modal.Body</code>, <code style="font-family:var(--mono);color:var(--accent4)">Modal.Footer</code>. Consumers assemble what they need.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- REACT ECOSYSTEM -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section id="ecosystem">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-eyebrow">07 — Ecosystem</span>
+      <h2>React ecosystem map</h2>
+      <p class="section-lead">The ecosystem is vast. This is the curated list of packages a senior developer reaches for — and why each one earns its place.</p>
+    </div>
+
+    <div class="card-grid card-grid-2 stagger reveal">
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem">
+          <div class="card-icon" style="background:rgba(56,189,248,.1);margin:0">🧭</div>
+          <div>
+            <h3 style="margin:0">react-router</h3>
+            <span class="badge-pill pill-blue" style="margin-top:.3rem;display:inline-flex">Routing</span>
+          </div>
+        </div>
+        <p>Maps URLs to UI components. Supports nested routes, dynamic segments (<code style="font-family:var(--mono);color:var(--accent2);font-size:.8rem">:productId</code>), and data loaders that fetch before rendering. The browser's back button works correctly because history is managed properly.</p>
+        <div class="code-block" data-lang="tsx" style="margin-top:1rem;font-size:.78rem;">
+<span class="c-keyword">const</span> router = <span class="c-func">createBrowserRouter</span>([
+  {
+    path: <span class="c-string">"/"</span>,
+    element: &lt;<span class="c-type">Shell</span> /&gt;,
+    children: [
+      { path: <span class="c-string">"products/:id"</span>, element: &lt;<span class="c-type">ProductPage</span> /&gt; }
+    ]
+  }
+]);
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem">
+          <div class="card-icon" style="background:rgba(124,108,252,.12);margin:0">⚡</div>
+          <div>
+            <h3 style="margin:0">TanStack Query</h3>
+            <span class="badge-pill pill-purple" style="margin-top:.3rem;display:inline-flex">Server State</span>
+          </div>
+        </div>
+        <p>Manages all server-sourced data: caching, background refetching, stale-while-revalidate, and error states. Eliminates the <code style="font-family:var(--mono);color:var(--accent2);font-size:.8rem">useEffect + useState</code> data-fetching pattern that litters most codebases.</p>
+        <div class="code-block" data-lang="tsx" style="margin-top:1rem;font-size:.78rem;">
+<span class="c-keyword">const</span> { data, isLoading, error } = <span class="c-func">useQuery</span>({
+  queryKey: [<span class="c-string">'products'</span>, filters],
+  queryFn: () =&gt; <span class="c-func">fetchProducts</span>(filters),
+  staleTime: <span class="c-var">5 * 60 * 1000</span>, <span class="c-comment">// 5 min cache</span>
+});
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem">
+          <div class="card-icon" style="background:rgba(52,211,153,.1);margin:0">📝</div>
+          <div>
+            <h3 style="margin:0">React Hook Form</h3>
+            <span class="badge-pill pill-green" style="margin-top:.3rem;display:inline-flex">Forms</span>
+          </div>
+        </div>
+        <p>Handles complex forms with minimal re-renders. Uses uncontrolled inputs by default, integrates with Zod/Yup for schema validation, and binds errors directly to fields. Replace 200 lines of hand-rolled form logic with 20.</p>
+        <div class="code-block" data-lang="tsx" style="margin-top:1rem;font-size:.78rem;">
+<span class="c-keyword">const</span> { register, handleSubmit, formState } =
+  <span class="c-func">useForm</span>({ resolver: <span class="c-func">zodResolver</span>(schema) });
+
+&lt;<span class="c-type">input</span> {...<span class="c-func">register</span>(<span class="c-string">"email"</span>)} /&gt;
+&lt;<span class="c-type">p</span>&gt;{formState.errors.email?.message}&lt;/<span class="c-type">p</span>&gt;
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem">
+          <div class="card-icon" style="background:rgba(251,146,60,.1);margin:0">🐻</div>
+          <div>
+            <h3 style="margin:0">Zustand</h3>
+            <span class="badge-pill pill-orange" style="margin-top:.3rem;display:inline-flex">Client State</span>
+          </div>
+        </div>
+        <p>Minimal global state store. Avoids Context's re-render avalanches. Use it for UI-only global state: theme, sidebar open/closed, shopping cart, notifications. Server state belongs in TanStack Query — not here.</p>
+        <div class="code-block" data-lang="tsx" style="margin-top:1rem;font-size:.78rem;">
+<span class="c-keyword">const</span> useCartStore = <span class="c-func">create</span>&lt;<span class="c-type">CartStore</span>&gt;()(<span class="c-var">set</span> =&gt; ({
+  items: [],
+  add: (item) =&gt; <span class="c-func">set</span>(s =&gt; ({
+    items: [...s.items, item]
+  }))
+}));
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem">
+          <div class="card-icon" style="background:rgba(167,139,250,.1);margin:0">🎨</div>
+          <div>
+            <h3 style="margin:0">shadcn/ui + Radix</h3>
+            <span class="badge-pill pill-purple" style="margin-top:.3rem;display:inline-flex">UI Components</span>
+          </div>
+        </div>
+        <p>Not an npm package — you copy components <em>into</em> your repo. Built on accessible Radix primitives + Tailwind. You own the code: customise freely without fighting library constraints. The new default for greenfield projects.</p>
+        <ul class="checklist" style="margin-top:.75rem">
+          <li>Full accessibility (ARIA, keyboard nav, focus trap)</li>
+          <li>Your code — no version lock-in</li>
+          <li>Tailwind-based, easy to restyle</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem">
+          <div class="card-icon" style="background:rgba(56,189,248,.1);margin:0">🧪</div>
+          <div>
+            <h3 style="margin:0">Vitest + Testing Library</h3>
+            <span class="badge-pill pill-blue" style="margin-top:.3rem;display:inline-flex">Testing</span>
+          </div>
+        </div>
+        <p>Vitest uses the same Vite config as your app — no Jest migration pain. Testing Library tests the component from the user's perspective: <code style="font-family:var(--mono);color:var(--accent2);font-size:.8rem">screen.getByRole</code> over <code style="font-family:var(--mono);color:var(--accent2);font-size:.8rem">querySelector</code>. Tests survive refactoring because they test behaviour, not implementation.</p>
+        <div class="code-block" data-lang="tsx" style="margin-top:1rem;font-size:.78rem;">
+<span class="c-func">test</span>(<span class="c-string">'submits login form'</span>, <span class="c-keyword">async</span> () =&gt; {
+  <span class="c-func">render</span>(&lt;<span class="c-type">LoginForm</span> /&gt;);
+  <span class="c-keyword">await</span> userEvent.<span class="c-func">type</span>(
+    screen.<span class="c-func">getByLabelText</span>(<span class="c-string">/email/i</span>), <span class="c-string">'a@b.com'</span>
+  );
+  <span class="c-keyword">await</span> userEvent.<span class="c-func">click</span>(screen.<span class="c-func">getByRole</span>(<span class="c-string">'button'</span>));
+  <span class="c-func">expect</span>(mockLogin).<span class="c-func">toHaveBeenCalled</span>();
+});
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- BEST PRACTICES -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section id="best-practices">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-eyebrow">08 — Best Practices</span>
+      <h2>What senior devs do differently</h2>
+      <p class="section-lead">Architecture is only as good as the habits that maintain it. These are the patterns that separate a codebase that ages well from one that becomes legacy on day 60.</p>
+    </div>
+
+    <!-- performance -->
+    <div class="reveal" style="margin-bottom:3rem">
+      <h3 style="margin-bottom:1.25rem">⚡ Performance</h3>
+      <div class="card-grid card-grid-2">
+        <div class="card">
+          <h3>Code splitting at the route level</h3>
+          <p style="margin-bottom:1rem">Lazy-load page components so the initial bundle only contains what the user sees first.</p>
+          <div class="code-block" data-lang="tsx" style="font-size:.78rem;">
+<span class="c-keyword">const</span> <span class="c-var">CheckoutPage</span> = <span class="c-func">lazy</span>(
+  () =&gt; <span class="c-keyword">import</span>(<span class="c-string">'./pages/CheckoutPage'</span>)
+);
+
+<span class="c-comment">// React Router 6 data router does this</span>
+<span class="c-comment">// automatically with lazy() option</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Memoisation — use sparingly</h3>
+          <p style="margin-bottom:1rem"><code style="font-family:var(--mono);color:var(--accent2);font-size:.8rem">useMemo</code> and <code style="font-family:var(--mono);color:var(--accent2);font-size:.8rem">useCallback</code> have a cost (memory, complexity). Profile first, optimise second. The most effective optimisation is avoiding unnecessary renders by splitting components at the right boundaries.</p>
+          <ul class="checklist">
+            <li>Use <code style="font-family:var(--mono);color:var(--accent2);font-size:.8rem">memo()</code> only when profiling shows a real problem</li>
+            <li>TanStack Query's built-in caching is free performance</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- anti-patterns -->
+    <div class="reveal" style="margin-bottom:3rem">
+      <h3 style="margin-bottom:1.25rem">🚫 Anti-patterns to avoid</h3>
+      <div class="two-col">
+        <div>
+          <div class="anti-item">
+            <span class="icon">❌</span>
+            <div class="text">
+              <strong>Everything in App.tsx</strong>
+              One 800-line file that is router, state, API fetcher, and layout. Untestable, unreadable, unmergeable.
+            </div>
+          </div>
+          <div class="anti-item">
+            <span class="icon">❌</span>
+            <div class="text">
+              <strong>Prop drilling 5 levels deep</strong>
+              Passing data through 5 components that don't use it. Use Context, Zustand, or component composition to lift state correctly.
+            </div>
+          </div>
+          <div class="anti-item">
+            <span class="icon">❌</span>
+            <div class="text">
+              <strong>Server state in useEffect + useState</strong>
+              <code style="font-family:var(--mono);color:#fca5a5;font-size:.78rem">useEffect(() => { fetch(...).then(setData) }, [])</code> everywhere. This is exactly what TanStack Query replaces — with caching, loading states, and deduplication.
+            </div>
+          </div>
+          <div class="anti-item">
+            <span class="icon">❌</span>
+            <div class="text">
+              <strong>Skipping the "empty" and "error" UI states</strong>
+              Planning only the "success" state leaves your app looking broken to real users. Design all four states from the start.
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 style="margin-bottom:1rem">When to reach for what</h3>
+          <table class="compare-table">
+            <tr><th>Situation</th><th>Solution</th></tr>
+            <tr><td>Multiple pages/URLs</td><td class="good">react-router</td></tr>
+            <tr><td>API data with caching</td><td class="good">TanStack Query</td></tr>
+            <tr><td>Complex form + validation</td><td class="good">react-hook-form + zod</td></tr>
+            <tr><td>Global UI state</td><td class="good">Zustand or Context</td></tr>
+            <tr><td>Animation</td><td class="good">framer-motion</td></tr>
+            <tr><td>Small prototype</td><td class="warn">useState + fetch</td></tr>
+            <tr><td>20+ component library</td><td class="good">shadcn/ui</td></tr>
+          </table>
+          <div class="callout" style="margin-top:1rem">
+            <strong>Guiding question:</strong> "Does this tool solve a real problem I have <em>right now</em>, or am I adding complexity to feel productive?"
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- scalability bars -->
+    <div class="reveal">
+      <h3 style="margin-bottom:1.5rem">Scalability factors</h3>
+      <div id="prog-container">
+        <div class="prog-item">
+          <div class="prog-label"><span>Clear module boundaries</span><span>Essential</span></div>
+          <div class="prog-track"><div class="prog-fill" data-width="95"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span>Typed API contracts (TypeScript)</span><span>Critical</span></div>
+          <div class="prog-track"><div class="prog-fill" data-width="90"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span>Automated testing coverage</span><span>Important</span></div>
+          <div class="prog-track"><div class="prog-fill" data-width="80"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span>Documented architectural decisions</span><span>Important</span></div>
+          <div class="prog-track"><div class="prog-fill" data-width="75"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span>CI/CD lint + type check gates</span><span>Recommended</span></div>
+          <div class="prog-track"><div class="prog-fill" data-width="70"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span>Component documentation (Storybook)</span><span>Nice to have</span></div>
+          <div class="prog-track"><div class="prog-fill" data-width="55"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- QUICK REFERENCE -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section style="background:var(--bg2);border-top:1px solid var(--border)">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-eyebrow">09 — Cheat Sheet</span>
+      <h2>Quick reference</h2>
+      <p class="section-lead">Bookmark this. The key decisions and rules in one glance.</p>
+    </div>
+
+    <div class="card-grid card-grid-3 reveal">
+      <div class="card">
+        <h3>Import direction rule</h3>
+        <div class="flow" style="flex-direction:column;align-items:flex-start;gap:.4rem;margin-top:.75rem">
+          <div class="flow-box" style="font-size:.75rem;width:100%;text-align:center;border-color:rgba(124,108,252,.3);color:var(--accent3)">app/ (can import any)</div>
+          <div style="color:var(--muted);font-size:.85rem;padding-left:45%">↓</div>
+          <div class="flow-box" style="font-size:.75rem;width:100%;text-align:center;border-color:rgba(56,189,248,.25);color:var(--accent2)">pages/</div>
+          <div style="color:var(--muted);font-size:.85rem;padding-left:45%">↓</div>
+          <div class="flow-box" style="font-size:.75rem;width:100%;text-align:center;border-color:rgba(167,139,250,.25);color:var(--accent3)">features/ widgets/</div>
+          <div style="color:var(--muted);font-size:.85rem;padding-left:45%">↓</div>
+          <div class="flow-box" style="font-size:.75rem;width:100%;text-align:center;border-color:rgba(52,211,153,.2);color:var(--accent4)">entities/</div>
+          <div style="color:var(--muted);font-size:.85rem;padding-left:45%">↓</div>
+          <div class="flow-box" style="font-size:.75rem;width:100%;text-align:center;border-color:rgba(251,146,60,.2);color:var(--accent5)">shared/ (imported by all)</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>State decision tree</h3>
+        <ul class="checklist" style="margin-top:.75rem">
+          <li>From server? → <strong style="color:var(--accent2)">TanStack Query</strong></li>
+          <li>Form input? → <strong style="color:var(--accent4)">React Hook Form</strong></li>
+          <li>Global UI? → <strong style="color:var(--accent3)">Zustand</strong></li>
+          <li>In URL? → <strong style="color:var(--accent5)">useSearchParams</strong></li>
+          <li>Component only? → <strong style="color:var(--accent2)">useState</strong></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Planning checklist</h3>
+        <ul class="checklist" style="margin-top:.75rem">
+          <li>Screen map + URL for every page</li>
+          <li>Wireframe layout before code</li>
+          <li>User flow for each key journey</li>
+          <li>4 UI states per data component</li>
+          <li>State categorisation before writing</li>
+          <li>Import rule decided + linted</li>
+          <li>Barrel / public API per feature</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <p style="margin-bottom:.5rem">Built as an educational reference. Architecture decisions are context-dependent — always adapt to your team's needs.</p>
+    <p>Made with ♥ using <strong>Vanilla HTML/CSS/JS</strong> · <strong>FSD-Lite patterns</strong> · <strong>DM Sans + Syne + JetBrains Mono</strong></p>
+  </div>
+</footer>
+
+<script>
+/* ── TABS ── */
+function switchTab(e, id) {
+  const allBtns = document.querySelectorAll('.tab-btn');
+  const allPanels = document.querySelectorAll('.tab-panel');
+  allBtns.forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-selected', 'false');
+  });
+  allPanels.forEach(p => {
+    p.classList.remove('active');
+    p.setAttribute('hidden', 'true');
+    p.setAttribute('aria-hidden', 'true');
+  });
+
+  const btn = e.currentTarget || e.target;
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected', 'true');
+
+  const panel = document.getElementById('tab-' + id);
+  panel.classList.add('active');
+  panel.removeAttribute('hidden');
+  panel.setAttribute('aria-hidden', 'false');
+}
+
+/* ── ACCORDION ── */
+function toggleAccordion(btn) {
+  const body = btn.nextElementSibling;
+  const isOpen = btn.classList.contains('open');
+  const parent = btn.closest('.accordion');
+  parent.querySelectorAll('.accordion-btn').forEach(b => {
+    b.classList.remove('open');
+    b.setAttribute('aria-expanded', 'false');
+    b.nextElementSibling.classList.remove('open');
+  });
+  if (!isOpen) {
+    btn.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+    body.classList.add('open');
+  }
+}
+
+/* ── SCROLL REVEAL ── */
+const reveals = document.querySelectorAll('.reveal, .stagger');
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+reveals.forEach(r => revealObs.observe(r));
+
+/* ── PROGRESS BARS (on scroll) ── */
+const progContainer = document.getElementById('prog-container');
+const progObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.prog-fill').forEach(fill => {
+        const w = fill.getAttribute('data-width');
+        fill.style.width = w + '%';
+      });
+      progObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.2 });
+if (progContainer) progObs.observe(progContainer);
+
+/* ── NAV ACTIVE ON SCROLL ── */
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+
+function setActiveNav() {
+  let cur = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 120) cur = s.id;
+  });
+  navLinks.forEach(a => {
+    const isActive = a.getAttribute('href') === '#' + cur;
+    a.classList.toggle('active', isActive);
+    a.setAttribute('aria-current', isActive ? 'page' : 'false');
+  });
+}
+window.addEventListener('scroll', setActiveNav, { passive: true });
+window.addEventListener('load', setActiveNav);
+setActiveNav();
+</script>
+</body>
+</html>

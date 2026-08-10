@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>npm · TypeScript · React</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#07080f;--bg2:#0c0d1c;--bg3:#10112a;--panel:#0d0f1f;
+  --border:rgba(100,120,255,0.13);--border2:rgba(100,120,255,0.22);
+  --cyan:#00e5ff;--coral:#ff4d6d;--yellow:#ffd166;--green:#06ffa5;--purple:#b388ff;--orange:#ff9f43;
+  --text:#dde0f0;--muted:#6a6f94;--light:#a0a6c8;
+  --font-head:'Syne',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+  --font-prose:'Syne',sans-serif;
+  --font-code:'JetBrains Mono',monospace;
+  --r:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.7;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(100,120,255,0.25);border-radius:3px}
+
+/* NOISE */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.5}
+
+/* SIDEBAR */
+#sidebar{position:fixed;left:0;top:0;bottom:0;width:258px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100}
+.sb-logo{padding:26px 22px 18px;border-bottom:1px solid var(--border)}
+.sb-badge{font-family:var(--font-code);font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.18);padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:10px}
+.sb-logo h1{font-family:var(--font-head);font-size:17px;font-weight:800;line-height:1.25;color:#fff}
+.sb-nav{flex:1;padding:14px 0;overflow-y:auto}
+.sb-label{font-family:var(--font-code);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:10px 22px 5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 22px;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--muted);transition:all .2s;border-left:2px solid transparent}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.025)}
+.nav-item.active{color:var(--cyan);border-left-color:var(--cyan);background:rgba(0,229,255,.04)}
+.nav-item .ni{font-size:15px;width:20px;text-align:center}
+.nav-item .nck{margin-left:auto;width:17px;height:17px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;transition:all .3s}
+.nav-item.done .nck{background:var(--green);border-color:var(--green);color:#000}
+.sb-prog{padding:14px 22px 22px;border-top:1px solid var(--border)}
+.sb-prog-lbl{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:7px;font-family:var(--font-code)}
+.sb-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.sb-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:2px;transition:width .5s ease;width:0%}
+
+/* SCORE */
+#score-badge{position:fixed;top:18px;right:18px;background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:9px 16px;display:flex;align-items:center;gap:10px;font-family:var(--font-code);font-size:12px;z-index:200}
+#score-badge .s-lbl{color:var(--muted)}
+#score-badge .s-val{color:var(--yellow);font-weight:700;font-size:13px}
+
+/* MAIN */
+#main{margin-left:258px;min-height:100vh}
+
+/* SECTION */
+.section{display:none;animation:fadeUp .3s ease}
+.section.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.sec-wrap{padding:48px 56px 90px;max-width:1060px}
+
+/* HERO */
+#hero{padding:70px 56px 52px;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+#hero::after{content:'';position:absolute;top:-120px;right:-60px;width:520px;height:520px;background:radial-gradient(circle,rgba(0,229,255,.055) 0%,transparent 70%);pointer-events:none}
+#hero::before{content:'';position:absolute;bottom:-40px;left:300px;width:360px;height:360px;background:radial-gradient(circle,rgba(179,136,255,.04) 0%,transparent 70%);pointer-events:none}
+.hero-tag{font-family:var(--font-code);font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.hero-tag::before{content:'';display:inline-block;width:28px;height:1px;background:var(--cyan)}
+.hero-h{font-family:var(--font-head);font-size:clamp(34px,3.8vw,54px);font-weight:800;line-height:1.06;color:#fff;margin-bottom:18px}
+.hero-h .c{color:var(--coral)}.hero-h .t{color:var(--cyan)}.hero-h .r{color:var(--yellow)}
+.hero-lead{font-family:var(--font-prose);font-size:17px;color:var(--light);max-width:580px;line-height:1.75;margin-bottom:32px;font-style:italic}
+.hero-chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{font-family:var(--font-code);font-size:10.5px;padding:5px 13px;border-radius:20px;border:1px solid;font-weight:500;letter-spacing:.04em}
+.ch-c{border-color:rgba(0,229,255,.28);color:var(--cyan);background:rgba(0,229,255,.05)}
+.ch-r{border-color:rgba(255,77,109,.28);color:var(--coral);background:rgba(255,77,109,.05)}
+.ch-y{border-color:rgba(255,209,102,.28);color:var(--yellow);background:rgba(255,209,102,.05)}
+.ch-g{border-color:rgba(6,255,165,.28);color:var(--green);background:rgba(6,255,165,.05)}
+.ch-p{border-color:rgba(179,136,255,.28);color:var(--purple);background:rgba(179,136,255,.05)}
+
+/* SECTION HEADER */
+.sec-head{display:flex;align-items:center;gap:16px;margin-bottom:38px;padding-bottom:22px;border-bottom:1px solid var(--border)}
+.sec-icon{width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.si-npm{background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.2)}
+.si-ts{background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.18)}
+.si-react{background:rgba(179,136,255,.08);border:1px solid rgba(179,136,255,.18)}
+.si-tools{background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.18)}
+.sec-head-txt h2{font-family:var(--font-head);font-size:24px;font-weight:800;color:#fff;margin-bottom:3px}
+.sec-head-txt p{font-size:12px;color:var(--muted);font-family:var(--font-code)}
+
+/* PROSE */
+.prose-section{margin-bottom:36px}
+.prose-section h3{font-family:var(--font-head);font-size:18px;font-weight:700;color:#fff;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.prose-section h3 .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-c{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.dot-r{background:var(--coral);box-shadow:0 0 8px var(--coral)}
+.dot-y{background:var(--yellow);box-shadow:0 0 8px var(--yellow)}
+.dot-g{background:var(--green);box-shadow:0 0 8px var(--green)}
+.dot-p{background:var(--purple);box-shadow:0 0 8px var(--purple)}
+.dot-o{background:var(--orange);box-shadow:0 0 8px var(--orange)}
+
+.prose{font-family:var(--font-prose);font-size:15.5px;color:var(--light);line-height:1.85;margin-bottom:16px}
+.prose strong{color:var(--text);font-weight:600;font-style:normal}
+.prose em{color:var(--cyan);font-style:italic}
+.prose + .prose{margin-top:-4px}
+.prose a{color:var(--cyan);text-decoration:none;border-bottom:1px solid rgba(0,229,255,.3)}
+
+.lead-quote{border-left:3px solid var(--cyan);padding:12px 20px;margin:20px 0;background:rgba(0,229,255,.04);border-radius:0 10px 10px 0}
+.lead-quote p{font-family:var(--font-prose);font-size:15px;color:var(--light);font-style:italic;line-height:1.7}
+
+/* CALLOUT */
+.callout{display:flex;gap:14px;align-items:flex-start;padding:16px 20px;border-radius:12px;margin:18px 0;line-height:1.65}
+.callout .ico{font-size:18px;flex-shrink:0;margin-top:1px}
+.callout-body{flex:1}
+.callout-body strong{display:block;margin-bottom:4px;font-size:13.5px;font-weight:700}
+.callout-body p{font-size:13.5px;line-height:1.65}
+.cl-tip{background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.15);color:rgba(180,220,228,.9)}
+.cl-tip strong{color:var(--cyan)}
+.cl-warn{background:rgba(255,209,102,.05);border:1px solid rgba(255,209,102,.18);color:rgba(220,190,130,.9)}
+.cl-warn strong{color:var(--yellow)}
+.cl-err{background:rgba(255,77,109,.05);border:1px solid rgba(255,77,109,.15);color:rgba(220,165,175,.9)}
+.cl-err strong{color:var(--coral)}
+.cl-ok{background:rgba(6,255,165,.04);border:1px solid rgba(6,255,165,.15);color:rgba(170,220,195,.9)}
+.cl-ok strong{color:var(--green)}
+
+/* TWO-COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:18px 0}
+.two-col.trio{grid-template-columns:1fr 1fr 1fr}
+
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:border-color .2s}
+.card:hover{border-color:var(--border2)}
+.card-h{font-family:var(--font-head);font-size:13.5px;font-weight:700;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-p{font-size:13.5px;color:var(--muted);line-height:1.7}
+
+/* CONCEPT TABLE */
+.c-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0}
+.c-table th{text-align:left;padding:9px 14px;font-family:var(--font-code);font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+.c-table td{padding:10px 14px;border-bottom:1px solid rgba(100,120,255,.07);vertical-align:top}
+.c-table tr:last-child td{border-bottom:none}
+.c-table tr:hover td{background:rgba(255,255,255,.015)}
+
+/* CODE */
+.code-block{background:#060810;border:1px solid rgba(100,120,255,.12);border-radius:12px;overflow:hidden;margin:16px 0;font-family:var(--font-code);font-size:12.5px;line-height:1.75}
+.cb-head{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:rgba(255,255,255,.025);border-bottom:1px solid rgba(100,120,255,.1)}
+.cb-fname{font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+.cb-lang{font-size:9.5px;padding:2px 8px;border-radius:8px;background:rgba(0,229,255,.09);color:var(--cyan);border:1px solid rgba(0,229,255,.18)}
+.code-block pre{padding:16px 20px;overflow-x:auto;white-space:pre}
+
+/* Syntax */
+.kw{color:#c792ea}.fn{color:#82aaff}.str{color:#c3e88d}.num{color:#f78c6c}
+.cmt{color:#4a5568;font-style:italic}.tp{color:var(--cyan)}.op{color:#89ddff}
+.pn{color:var(--text)}.prop{color:#ffcb6b}.tag{color:var(--coral)}.attr{color:var(--yellow)}
+
+/* INLINE CODE */
+ic{font-family:var(--font-code);font-size:12px;background:rgba(100,120,255,.1);border:1px solid rgba(100,120,255,.15);padding:1px 6px;border-radius:5px;color:var(--cyan)}
+
+/* STEP LIST */
+.steps{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(100,120,255,.07)}
+.step:last-child{border-bottom:none}
+.step-n{width:28px;height:28px;border-radius:8px;background:rgba(0,229,255,.09);border:1px solid rgba(0,229,255,.18);display:flex;align-items:center;justify-content:center;font-family:var(--font-code);font-size:11px;font-weight:700;color:var(--cyan);flex-shrink:0;margin-top:1px}
+.step strong{color:var(--text);font-size:14px;display:block;margin-bottom:4px}
+.step p,.step .prose{color:var(--muted);font-size:13.5px;font-family:var(--font-body);font-style:normal;line-height:1.65}
+
+/* COMPARISON */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin:16px 0}
+.compare-col{padding:20px}
+.compare-col:first-child{border-right:1px solid var(--border);background:rgba(255,77,109,.03)}
+.compare-col:last-child{background:rgba(6,255,165,.02)}
+.compare-label{font-family:var(--font-code);font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;display:block}
+.cmp-bad{color:var(--coral)}.cmp-good{color:var(--green)}
+
+/* QUIZ */
+.quiz-box{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:30px;margin:36px 0}
+.quiz-box h3{font-family:var(--font-head);font-size:18px;font-weight:800;color:#fff;margin-bottom:26px;display:flex;align-items:center;gap:10px}
+.quiz-box h3::before{content:'⚡';font-size:18px}
+.q-item{margin-bottom:26px;padding-bottom:26px;border-bottom:1px solid var(--border)}
+.q-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.q-num{font-family:var(--font-code);font-size:10px;color:var(--cyan);font-weight:700;display:block;margin-bottom:6px;letter-spacing:.1em}
+.q-text{font-size:14.5px;font-weight:500;color:var(--text);margin-bottom:14px;line-height:1.5}
+.q-opts{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.q-opt{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;font-size:13px;line-height:1.4;transition:all .18s;background:transparent;color:var(--text);text-align:left;font-family:var(--font-body);width:100%}
+.q-opt:hover:not(.dis){border-color:rgba(0,229,255,.3);background:rgba(0,229,255,.04);color:#fff}
+.q-opt .ol{width:20px;height:20px;border-radius:6px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;font-family:var(--font-code);font-size:10px;font-weight:700;flex-shrink:0;color:var(--muted)}
+.q-opt.correct{border-color:var(--green)!important;background:rgba(6,255,165,.07)!important;color:#fff!important}
+.q-opt.correct .ol{background:var(--green);color:#000}
+.q-opt.wrong{border-color:var(--coral)!important;background:rgba(255,77,109,.07)!important;color:var(--muted)!important}
+.q-opt.wrong .ol{background:var(--coral);color:#fff}
+.q-opt.show-ok{border-color:rgba(6,255,165,.3)!important;background:rgba(6,255,165,.04)!important}
+.q-opt.dis{cursor:default;pointer-events:none}
+.q-fb{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:13px;display:none;gap:7px;align-items:flex-start;line-height:1.6}
+.q-fb.show{display:flex}
+.q-fb.ok{background:rgba(6,255,165,.07);border:1px solid rgba(6,255,165,.18);color:rgba(170,220,195,.9)}
+.q-fb.fail{background:rgba(255,77,109,.07);border:1px solid rgba(255,77,109,.18);color:rgba(220,165,175,.9)}
+
+/* EXERCISE */
+.exercise{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin:26px 0}
+.ex-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.ex-badge{font-family:var(--font-code);font-size:9.5px;font-weight:700;letter-spacing:.1em;color:var(--cyan);background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.18);padding:3px 10px;border-radius:20px}
+.ex-title{font-family:var(--font-head);font-size:15px;font-weight:700;color:#fff}
+.ex-body{padding:22px}
+.ex-desc{font-size:13.5px;color:var(--muted);margin-bottom:14px;line-height:1.7}
+.ex-desc ul{margin:8px 0 8px 18px;display:flex;flex-direction:column;gap:4px}
+.ex-desc li{font-size:13px;color:var(--muted)}
+.ex-desc li::marker{color:var(--cyan)}
+.code-ta{width:100%;min-height:130px;background:#060810;border:1px solid var(--border);border-radius:9px;padding:13px 17px;font-family:var(--font-code);font-size:12.5px;line-height:1.7;color:#c3e88d;resize:vertical;outline:none;transition:border-color .2s;margin:12px 0}
+.code-ta:focus{border-color:rgba(0,229,255,.3);box-shadow:0 0 0 3px rgba(0,229,255,.05)}
+.ex-actions{display:flex;gap:10px}
+.btn{padding:9px 18px;border-radius:8px;font-family:var(--font-code);font-size:11.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;border:1.5px solid;transition:all .2s}
+.btn-ghost{background:transparent;border-color:var(--border2);color:var(--muted)}
+.btn-ghost:hover{border-color:rgba(255,255,255,.2);color:var(--text)}
+.sol{display:none;margin-top:14px;background:#060810;border:1px solid rgba(6,255,165,.18);border-radius:9px;overflow:hidden}
+.sol.open{display:block}
+.sol-head{padding:7px 15px;background:rgba(6,255,165,.05);border-bottom:1px solid rgba(6,255,165,.1);font-family:var(--font-code);font-size:9.5px;color:var(--green);letter-spacing:.1em;font-weight:700;text-transform:uppercase}
+.sol pre{padding:16px 20px;font-family:var(--font-code);font-size:12.5px;line-height:1.7;color:#c3e88d;overflow-x:auto;white-space:pre}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:36px 0}
+
+/* SEC NAV */
+.sec-nav{display:flex;justify-content:space-between;align-items:center;margin-top:48px;padding-top:26px;border-top:1px solid var(--border)}
+.snb{display:flex;align-items:center;gap:9px;padding:11px 22px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font-code);font-size:11.5px;font-weight:600;cursor:pointer;transition:all .2s}
+.snb:hover{border-color:rgba(0,229,255,.3);color:var(--cyan);background:rgba(0,229,255,.04)}
+.snb.primary{background:var(--cyan);border-color:var(--cyan);color:#000}
+.snb.primary:hover{background:#00c8e8;box-shadow:0 0 22px rgba(0,229,255,.28);color:#000}
+
+/* FINISH */
+.finish-card{background:linear-gradient(135deg,rgba(6,255,165,.07),rgba(0,229,255,.05));border:1px solid rgba(6,255,165,.2);border-radius:18px;padding:36px;text-align:center;margin:28px 0}
+.finish-card .fi{font-size:42px;margin-bottom:14px}
+.finish-card h3{font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--green);margin-bottom:8px}
+.finish-card p{color:var(--muted);font-size:14px;line-height:1.7;max-width:480px;margin:0 auto}
+
+/* CHAPTER OVERVIEW CARDS */
+.ch-cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:28px 0}
+.ch-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px;cursor:pointer;transition:all .22s;position:relative;overflow:hidden}
+.ch-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s}
+.ch-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.ch-card-num{font-family:var(--font-code);font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px;display:block}
+.ch-card h3{font-family:var(--font-head);font-size:16px;font-weight:800;color:#fff;margin-bottom:8px}
+.ch-card p{font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:14px}
+.ch-tags{display:flex;flex-wrap:wrap;gap:6px}
+.ch-tag{font-family:var(--font-code);font-size:10px;padding:3px 9px;border-radius:20px;border:1px solid var(--border);color:var(--muted)}
+
+@media(max-width:900px){#sidebar{display:none}#main{margin-left:0}.two-col,.ch-cards{grid-template-columns:1fr}.q-opts{grid-template-columns:1fr}.sec-wrap{padding:24px 18px 60px}#hero{padding:36px 18px}}
+</style>
+</head>
+<body>
+
+<div id="score-badge">
+  <span class="s-lbl">Score</span>
+  <span class="s-val" id="sv">0 / 0</span>
+</div>
+
+<aside id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-badge">Interactive Course</div>
+    <h1>NPM TYPESCRIPT REACT</h1>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-label">Chapters</div>
+    <div class="nav-item active" data-s="home" onclick="show('home',this)"><span class="ni">🏠</span>Overview<span class="nck"></span></div>
+    <div class="nav-item" data-s="nodejs" onclick="show('nodejs',this)"><span class="ni">📦</span>Node.js & npm<span class="nck"></span></div>
+    <div class="nav-item" data-s="typescript" onclick="show('typescript',this)"><span class="ni">🔷</span>TypeScript<span class="nck"></span></div>
+    <div class="nav-item" data-s="react" onclick="show('react',this)"><span class="ni">⚛️</span>React<span class="nck"></span></div>
+    <div class="nav-item" data-s="tooling" onclick="show('tooling',this)"><span class="ni">🛠️</span>Tooling<span class="nck"></span></div>
+  </nav>
+  <div class="sb-prog">
+    <div class="sb-prog-lbl"><span>Progress</span><span id="pct">0%</span></div>
+    <div class="sb-track"><div class="sb-fill" id="fill"></div></div>
+  </div>
+</aside>
+
+<main id="main">
+
+<!-- ══════════════ HOME ══════════════ -->
+<section id="home" class="section active">
+  <div id="hero">
+    <p class="hero-tag">Modern Frontend Development</p>
+    <h1 class="hero-h">Master <span class="c">npm</span>,<br><span class="t">TypeScript</span> &<br><span class="r">React</span></h1>
+    <p class="hero-lead">A hands-on course covering everything you need to build modern web applications — from installing packages to writing type-safe, component-driven UIs.</p>
+    <div class="hero-chips">
+      <span class="chip ch-r">📦 npm & yarn</span>
+      <span class="chip ch-c">🔷 TypeScript basics</span>
+      <span class="chip ch-y">⚛️ React components</span>
+      <span class="chip ch-g">🛠️ Vite & ESLint</span>
+      <span class="chip ch-p">🔄 Hooks & State</span>
+      <span class="chip ch-c">🧩 Props & JSX</span>
+    </div>
+  </div>
+  <div class="sec-wrap">
+    <div class="prose-section">
+      <h3><span class="dot dot-c"></span>What you'll learn</h3>
+      <p class="prose">This course takes you from zero to confident with the three tools that every modern frontend developer uses every single day. You don't need any prior experience with these tools — just a basic understanding of JavaScript.</p>
+      <p class="prose">We'll start with <strong>Node.js and npm</strong>, the foundation that every other tool is built on. Then we'll layer in <strong>TypeScript</strong>, which makes your JavaScript safer and easier to maintain. Finally we'll cover <strong>React</strong>, the most widely-used library for building user interfaces, and the <strong>tooling</strong> that ties it all together in a professional workflow.</p>
+      <p class="prose">Each chapter includes <em>real explanations</em> of why things work the way they do — not just syntax — plus interactive quizzes and coding exercises to test your understanding.</p>
+    </div>
+
+    <div class="ch-cards">
+      <div class="ch-card" onclick="show('nodejs',document.querySelector('[data-s=nodejs]'))">
+        <span class="ch-card-num" style="color:var(--coral)">Chapter 01</span>
+        <h3>Node.js & npm</h3>
+        <p>Understand the JavaScript runtime that powers all modern dev tools, and how npm lets you install, manage, and share code packages.</p>
+        <div class="ch-tags"><span class="ch-tag">Node.js</span><span class="ch-tag">npm install</span><span class="ch-tag">package.json</span><span class="ch-tag">semver</span></div>
+      </div>
+      <div class="ch-card" onclick="show('typescript',document.querySelector('[data-s=typescript]'))">
+        <span class="ch-card-num" style="color:var(--cyan)">Chapter 02</span>
+        <h3>TypeScript</h3>
+        <p>Add static types to JavaScript so your editor catches bugs before your code even runs. Learn types, interfaces, generics, and more.</p>
+        <div class="ch-tags"><span class="ch-tag">Types</span><span class="ch-tag">Interfaces</span><span class="ch-tag">Generics</span><span class="ch-tag">tsconfig</span></div>
+      </div>
+      <div class="ch-card" onclick="show('react',document.querySelector('[data-s=react]'))">
+        <span class="ch-card-num" style="color:var(--purple)">Chapter 03</span>
+        <h3>React</h3>
+        <p>Build UIs from small reusable pieces called components. Learn JSX, props, state management with hooks, and how React re-renders work.</p>
+        <div class="ch-tags"><span class="ch-tag">Components</span><span class="ch-tag">JSX</span><span class="ch-tag">useState</span><span class="ch-tag">useEffect</span></div>
+      </div>
+      <div class="ch-card" onclick="show('tooling',document.querySelector('[data-s=tooling]'))">
+        <span class="ch-card-num" style="color:var(--yellow)">Chapter 04</span>
+        <h3>Modern Tooling</h3>
+        <p>Set up a professional workflow with Vite for lightning-fast builds, ESLint for code quality, Prettier for formatting, and Vitest for testing.</p>
+        <div class="ch-tags"><span class="ch-tag">Vite</span><span class="ch-tag">ESLint</span><span class="ch-tag">Prettier</span><span class="ch-tag">Vitest</span></div>
+      </div>
+    </div>
+
+    <div class="callout cl-tip">
+      <span class="ico">💡</span>
+      <div class="callout-body"><strong>How to use this course</strong><p>Read each section carefully — the explanations matter as much as the code. Then take the quiz at the bottom of each chapter. Green checkmarks appear in the sidebar as you complete each quiz. Exercises have a "Show Solution" button — try writing it yourself first!</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ NODE.JS & NPM ══════════════ -->
+<section id="nodejs" class="section">
+  <div class="sec-wrap">
+    <div class="sec-head">
+      <div class="sec-icon si-npm">📦</div>
+      <div class="sec-head-txt"><h2>Node.js & npm</h2><p>Chapter 01 · Runtime, package management, project structure</p></div>
+    </div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-r"></span>What is Node.js?</h3>
+      <p class="prose">JavaScript was originally designed to run only inside web browsers — it could manipulate the DOM, respond to clicks, and talk to servers, but it couldn't do anything outside that browser sandbox. <strong>Node.js changed everything</strong>. Released in 2009, Node.js is a JavaScript runtime built on Chrome's V8 engine that lets you run JavaScript anywhere: on your laptop, a server, inside automated scripts, or as part of a build pipeline.</p>
+      <p class="prose">This is important because almost every modern frontend tool you'll encounter — Vite, Webpack, TypeScript, ESLint, Jest — is itself a Node.js program. When you type <ic>npm run dev</ic>, you're using Node.js to start a local development server. You're not writing server-side applications, but you're depending on Node.js as <em>the engine that powers your tools</em>.</p>
+      <p class="prose">Node.js also ships with <strong>npm (Node Package Manager)</strong> built in. Think of npm as an app store for code libraries: over two million open-source packages are available, and you can install any of them into your project with a single command.</p>
+    </div>
+
+    <div class="callout cl-tip">
+      <span class="ico">💡</span>
+      <div class="callout-body"><strong>npm vs npx</strong><p><ic>npm</ic> installs packages and saves them to your project. <ic>npx</ic> runs a package once without permanently installing it — perfect for one-time project scaffolding tools like <ic>create-vite</ic>.</p></div>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-head"><span class="cb-fname">terminal — verify your installation</span><span class="cb-lang">bash</span></div>
+      <pre><code><span class="cmt"># Check your Node.js version (should be v18+ or v20+)</span>
+<span class="fn">node</span> --version     <span class="cmt"># v20.11.0</span>
+<span class="fn">npm</span> --version      <span class="cmt"># 10.2.4</span>
+
+<span class="cmt"># You can run JavaScript directly in the Node.js REPL</span>
+<span class="fn">node</span>
+<span class="op">></span> console.<span class="fn">log</span>(<span class="str">'Hello from Node!'</span>)
+Hello from Node!
+
+<span class="cmt"># Or run a .js file</span>
+<span class="fn">node</span> app.js</code></pre>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-y"></span>package.json — Your Project's Passport</h3>
+      <p class="prose">Every npm project has a file called <ic>package.json</ic> at its root. This is the single source of truth for your project: it records your project name and version, lists every library your project depends on, and defines shortcut commands (called scripts) you can run. Think of it as your project's <em>passport and instruction manual combined</em>.</p>
+      <p class="prose">You create it by running <ic>npm init -y</ic> in an empty folder. The <ic>-y</ic> flag means "yes to all defaults" — skip the interactive wizard. Once created, npm will automatically update this file whenever you install or remove packages.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-head"><span class="cb-fname">package.json — annotated example</span><span class="cb-lang">json</span></div>
+      <pre><code><span class="pn">{</span>
+  <span class="prop">"name"</span><span class="op">:</span> <span class="str">"my-app"</span>,           <span class="cmt">// project name (lowercase, no spaces)</span>
+  <span class="prop">"version"</span><span class="op">:</span> <span class="str">"1.0.0"</span>,        <span class="cmt">// your app's version</span>
+  <span class="prop">"scripts"</span><span class="op">:</span> <span class="pn">{</span>               <span class="cmt">// shortcuts you can run with "npm run ..."</span>
+    <span class="prop">"dev"</span><span class="op">:</span> <span class="str">"vite"</span>,            <span class="cmt">// npm run dev  → starts the dev server</span>
+    <span class="prop">"build"</span><span class="op">:</span> <span class="str">"vite build"</span>,    <span class="cmt">// npm run build → creates production files</span>
+    <span class="prop">"test"</span><span class="op">:</span> <span class="str">"vitest"</span>          <span class="cmt">// npm run test  → runs your tests</span>
+  <span class="pn">}</span>,
+  <span class="prop">"dependencies"</span><span class="op">:</span> <span class="pn">{</span>         <span class="cmt">// ← packages your app needs IN PRODUCTION</span>
+    <span class="prop">"react"</span><span class="op">:</span> <span class="str">"^18.3.0"</span>,
+    <span class="prop">"react-dom"</span><span class="op">:</span> <span class="str">"^18.3.0"</span>,
+    <span class="prop">"axios"</span><span class="op">:</span> <span class="str">"^1.7.0"</span>
+  <span class="pn">}</span>,
+  <span class="prop">"devDependencies"</span><span class="op">:</span> <span class="pn">{</span>      <span class="cmt">// ← packages used ONLY during development</span>
+    <span class="prop">"typescript"</span><span class="op">:</span> <span class="str">"^5.4.0"</span>,
+    <span class="prop">"vite"</span><span class="op">:</span> <span class="str">"^5.2.0"</span>,
+    <span class="prop">"eslint"</span><span class="op">:</span> <span class="str">"^8.57.0"</span>
+  <span class="pn">}</span>
+<span class="pn">}</span></code></pre>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-g"></span>dependencies vs devDependencies</h3>
+      <p class="prose">This distinction trips up many beginners, but it's simple: <strong>dependencies</strong> are packages your application needs to actually run in production — things like React, which renders your UI, or axios, which makes HTTP requests. <strong>devDependencies</strong> are tools you only need while you're developing — things like TypeScript (which compiles away before shipping), ESLint (which checks your code), and Vite (your dev server and build tool).</p>
+      <p class="prose">In practice, the difference matters for deployment size and build optimization. Your production bundle only includes <ic>dependencies</ic>. When a user visits your app, they never download TypeScript itself — it's already been compiled away. Use <ic>npm install react</ic> for production packages and <ic>npm install -D typescript</ic> for dev tools.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-h"><span class="dot dot-g"></span>dependencies</div>
+        <p class="card-p" style="margin-bottom:12px">Code your application needs to run in the browser or server. Shipped to your users.</p>
+        <div class="code-block" style="margin:0">
+          <pre><code><span class="fn">npm</span> install react
+<span class="fn">npm</span> install axios
+<span class="fn">npm</span> install react-router-dom</code></pre>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><span class="dot dot-y"></span>devDependencies</div>
+        <p class="card-p" style="margin-bottom:12px">Tools that help you build and check your code. Never shipped to users.</p>
+        <div class="code-block" style="margin:0">
+          <pre><code><span class="fn">npm</span> install <span class="op">-D</span> typescript
+<span class="fn">npm</span> install <span class="op">-D</span> vite
+<span class="fn">npm</span> install <span class="op">-D</span> eslint</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-c"></span>Semantic Versioning — What Those Numbers Mean</h3>
+      <p class="prose">Every package version follows a pattern: <strong>MAJOR.MINOR.PATCH</strong> (e.g. <ic>18.3.1</ic>). A <em>MAJOR</em> bump means breaking changes — code that worked before might not work after. A <em>MINOR</em> bump adds new features while staying backward-compatible. A <em>PATCH</em> bump fixes bugs without changing any API.</p>
+      <p class="prose">The <ic>^</ic> symbol before a version (called a "caret") tells npm: "install this version or any newer version that doesn't change the major number." So <ic>"react": "^18.3.0"</ic> means "give me React 18.anything, but don't jump to React 19." This lets you safely receive bug fixes and new features automatically without risking a breaking upgrade.</p>
+    </div>
+
+    <table class="c-table">
+      <thead><tr><th>Symbol</th><th>Name</th><th>Example</th><th>What it allows</th></tr></thead>
+      <tbody>
+        <tr><td><ic>^18.3.0</ic></td><td>Caret</td><td>"^18.3.0"</td><td>Updates to 18.x.x — minor and patch. Most common.</td></tr>
+        <tr><td><ic>~18.3.0</ic></td><td>Tilde</td><td>"~18.3.0"</td><td>Updates to 18.3.x — patch only. More conservative.</td></tr>
+        <tr><td><ic>18.3.0</ic></td><td>Exact</td><td>"18.3.0"</td><td>Only exactly this version. Locked down.</td></tr>
+        <tr><td><ic>*</ic></td><td>Wildcard</td><td>"*"</td><td>Any version. Avoid in production — too risky.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-r"></span>node_modules and Why You Never Commit It</h3>
+      <p class="prose">When you run <ic>npm install</ic>, npm creates a folder called <ic>node_modules/</ic> and downloads every dependency (and their dependencies, and their dependencies' dependencies...) into it. This folder can easily contain thousands of files and hundreds of megabytes — even for small projects.</p>
+      <p class="prose">This is why you <strong>never commit node_modules to Git</strong>. Instead, you commit your <ic>package.json</ic> and <ic>package-lock.json</ic>, and anyone who clones your repo just runs <ic>npm install</ic> to regenerate the folder. The <ic>package-lock.json</ic> is crucial here — it records the exact version of every single package that was installed, so everyone on the team gets identical dependencies, not just similar ones.</p>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <div class="code-block">
+          <div class="cb-head"><span class="cb-fname">.gitignore</span><span class="cb-lang">text</span></div>
+          <pre><code>node_modules/    <span class="cmt"># NEVER commit this</span>
+dist/            <span class="cmt"># built output</span>
+.env             <span class="cmt"># secret keys!</span>
+.DS_Store        <span class="cmt"># macOS junk</span>
+*.log            <span class="cmt"># log files</span></code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="callout cl-err" style="margin:0 0 12px 0">
+          <span class="ico">🚫</span>
+          <div class="callout-body"><strong>Never push node_modules</strong><p>It defeats the purpose of version control and bloats your repo by hundreds of MB.</p></div>
+        </div>
+        <div class="callout cl-ok" style="margin:0">
+          <span class="ico">✅</span>
+          <div class="callout-body"><strong>Always commit package-lock.json</strong><p>This guarantees reproducible installs across your whole team and CI.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-p"></span>npm vs yarn — Which Should You Use?</h3>
+      <p class="prose">Both npm and yarn do the same job: they install packages from the registry, track versions, and run scripts. <strong>Yarn</strong> was created by Facebook in 2016 because npm was slow and had some reliability issues at the time. Since then, npm has caught up significantly and is now very fast and reliable.</p>
+      <p class="prose">For learning, use <strong>npm</strong> — it ships with Node.js, requires no extra installation, and 99% of tutorials use it. The commands are almost identical; the only real differences are syntax details like <ic>yarn add</ic> vs <ic>npm install</ic>. You can switch in 10 minutes once you understand the concepts.</p>
+    </div>
+
+    <table class="c-table">
+      <thead><tr><th>Action</th><th>npm</th><th>yarn</th></tr></thead>
+      <tbody>
+        <tr><td>Install all packages</td><td><ic>npm install</ic></td><td><ic>yarn</ic></td></tr>
+        <tr><td>Add a package</td><td><ic>npm install react</ic></td><td><ic>yarn add react</ic></td></tr>
+        <tr><td>Add dev dependency</td><td><ic>npm install -D vite</ic></td><td><ic>yarn add -D vite</ic></td></tr>
+        <tr><td>Remove a package</td><td><ic>npm uninstall react</ic></td><td><ic>yarn remove react</ic></td></tr>
+        <tr><td>Run a script</td><td><ic>npm run dev</ic></td><td><ic>yarn dev</ic></td></tr>
+        <tr><td>Lock file</td><td><ic>package-lock.json</ic></td><td><ic>yarn.lock</ic></td></tr>
+      </tbody>
+    </table>
+
+    <!-- QUIZ -->
+    <div class="quiz-box">
+      <h3>Chapter 1 Quiz — npm & Node.js</h3>
+      <div class="q-item" id="q1">
+        <span class="q-num">Q 1 OF 4</span>
+        <p class="q-text">Which command installs a package as a devDependency?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q1',false)"><span class="ol">A</span>npm install typescript</button>
+          <button class="q-opt" onclick="ans(this,'q1',true)"><span class="ol">B</span>npm install -D typescript</button>
+          <button class="q-opt" onclick="ans(this,'q1',false)"><span class="ol">C</span>npm install --global typescript</button>
+          <button class="q-opt" onclick="ans(this,'q1',false)"><span class="ol">D</span>npm add-dev typescript</button>
+        </div>
+        <div class="q-fb" id="q1-fb"></div>
+      </div>
+      <div class="q-item" id="q2">
+        <span class="q-num">Q 2 OF 4</span>
+        <p class="q-text">Why should you commit <ic>package-lock.json</ic> to git, but NOT <ic>node_modules/</ic>?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q2',false)"><span class="ol">A</span>npm requires the lock file to be in the repo to work</button>
+          <button class="q-opt" onclick="ans(this,'q2',false)"><span class="ol">B</span>The lock file contains your API keys</button>
+          <button class="q-opt" onclick="ans(this,'q2',true)"><span class="ol">C</span>The lock file ensures everyone installs exact same versions; node_modules is too large and regenerated by npm install</button>
+          <button class="q-opt" onclick="ans(this,'q2',false)"><span class="ol">D</span>To back up node_modules in a smaller form</button>
+        </div>
+        <div class="q-fb" id="q2-fb"></div>
+      </div>
+      <div class="q-item" id="q3">
+        <span class="q-num">Q 3 OF 4</span>
+        <p class="q-text">What does <ic>"react": "^18.3.0"</ic> mean in package.json?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q3',false)"><span class="ol">A</span>Only exactly version 18.3.0 is allowed</button>
+          <button class="q-opt" onclick="ans(this,'q3',true)"><span class="ol">B</span>Allow updates to 18.x.x (minor and patch) but not to version 19</button>
+          <button class="q-opt" onclick="ans(this,'q3',false)"><span class="ol">C</span>Allow only patch updates (18.3.x)</button>
+          <button class="q-opt" onclick="ans(this,'q3',false)"><span class="ol">D</span>Any version of React is allowed</button>
+        </div>
+        <div class="q-fb" id="q3-fb"></div>
+      </div>
+      <div class="q-item" id="q4">
+        <span class="q-num">Q 4 OF 4</span>
+        <p class="q-text">What is the key difference between <ic>npm install create-vite</ic> and <ic>npx create-vite my-app</ic>?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q4',false)"><span class="ol">A</span>npx permanently installs create-vite globally on your system</button>
+          <button class="q-opt" onclick="ans(this,'q4',false)"><span class="ol">B</span>npx only works with packages already installed locally</button>
+          <button class="q-opt" onclick="ans(this,'q4',true)"><span class="ol">C</span>npx downloads and runs the tool once without permanently installing it</button>
+          <button class="q-opt" onclick="ans(this,'q4',false)"><span class="ol">D</span>npx is just a shorter alias for npm install</button>
+        </div>
+        <div class="q-fb" id="q4-fb"></div>
+      </div>
+    </div>
+
+    <!-- EXERCISE -->
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-badge">EXERCISE 01</span><span class="ex-title">Write a complete package.json</span></div>
+      <div class="ex-body">
+        <p class="ex-desc">Create a valid <ic>package.json</ic> for a project called <strong>weather-app</strong> at version <strong>1.0.0</strong>. It should have <ic>react</ic> and <ic>axios</ic> as regular dependencies, <ic>typescript</ic> and <ic>vite</ic> as devDependencies, and <ic>dev</ic>, <ic>build</ic>, and <ic>preview</ic> scripts.</p>
+        <textarea class="code-ta">{
+  "name": "___",
+  "version": "___",
+  "scripts": { "dev": "___", "build": "___", "preview": "___" },
+  "dependencies": {},
+  "devDependencies": {}
+}</textarea>
+        <div class="ex-actions"><button class="btn btn-ghost" onclick="sol('s1')">👁 Show Solution</button></div>
+        <div class="sol" id="s1"><div class="sol-head">✓ SOLUTION</div><pre>{
+  "name": "weather-app",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "axios": "^1.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vite": "^5.2.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "@types/react": "^18.3.0"
+  }
+}</pre></div>
+      </div>
+    </div>
+
+    <div class="sec-nav"><div></div><button class="snb primary" onclick="show('typescript',document.querySelector('[data-s=typescript]'))">Next: TypeScript →</button></div>
+  </div>
+</section>
+
+<!-- ══════════════ TYPESCRIPT ══════════════ -->
+<section id="typescript" class="section">
+  <div class="sec-wrap">
+    <div class="sec-head">
+      <div class="sec-icon si-ts">🔷</div>
+      <div class="sec-head-txt"><h2>TypeScript</h2><p>Chapter 02 · Static typing, interfaces, generics, utility types</p></div>
+    </div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-r"></span>The Problem TypeScript Solves</h3>
+      <p class="prose">JavaScript is a <strong>dynamically typed language</strong> — meaning the type of a variable (string, number, object…) is determined at runtime, not when you write the code. This makes JavaScript very flexible and quick to write, but it creates a whole category of subtle bugs that only appear when your code is actually running, sometimes in production, sometimes with specific user input.</p>
+      <p class="prose">Imagine you write a function that expects a user object and reads <ic>user.name</ic>. If someone accidentally passes a number instead of an object, JavaScript just says <ic>undefined</ic> — no warning, no error, just silently wrong behavior. <strong>TypeScript catches this the moment you write it</strong>, before you even save the file.</p>
+      <p class="prose">TypeScript is a <em>superset of JavaScript</em> — meaning every valid JavaScript file is also valid TypeScript. You gradually add types on top of the code you already know. It compiles down to plain JavaScript before running in browsers, so there's no performance cost at runtime — types only exist at development time.</p>
+    </div>
+
+    <div class="compare">
+      <div class="compare-col">
+        <span class="compare-label cmp-bad">❌ JavaScript — bug discovered at runtime</span>
+        <div class="code-block" style="margin:0">
+          <pre><code><span class="kw">function</span> <span class="fn">greet</span>(<span class="pn">name</span>) {
+  <span class="kw">return</span> <span class="str">'Hello, '</span> <span class="op">+</span> name.<span class="fn">toUpperCase</span>();
+}
+
+<span class="fn">greet</span>(<span class="num">42</span>);
+<span class="cmt">// 💥 TypeError at runtime</span>
+<span class="cmt">// name.toUpperCase is not a function</span>
+
+<span class="fn">greet</span>();
+<span class="cmt">// 💥 TypeError at runtime</span>
+<span class="cmt">// Cannot read properties of undefined</span></code></pre>
+        </div>
+      </div>
+      <div class="compare-col">
+        <span class="compare-label cmp-good">✅ TypeScript — caught while you type</span>
+        <div class="code-block" style="margin:0">
+          <pre><code><span class="kw">function</span> <span class="fn">greet</span>(<span class="pn">name</span><span class="op">:</span> <span class="tp">string</span>)<span class="op">:</span> <span class="tp">string</span> {
+  <span class="kw">return</span> <span class="str">'Hello, '</span> <span class="op">+</span> name.<span class="fn">toUpperCase</span>();
+}
+
+<span class="fn">greet</span>(<span class="num">42</span>);
+<span class="cmt">// ❌ Error: Argument of type 'number'</span>
+<span class="cmt">//    is not assignable to type 'string'</span>
+
+<span class="fn">greet</span>(<span class="str">'Alice'</span>); <span class="cmt">// ✅ "Hello, ALICE"</span></code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-c"></span>Primitive Types — The Building Blocks</h3>
+      <p class="prose">You add types to variables with a colon after the variable name: <ic>let age: number = 25</ic>. TypeScript has three primitive types that mirror JavaScript's: <strong>number</strong> for all numeric values (integers and decimals), <strong>string</strong> for text, and <strong>boolean</strong> for true/false. You also have <strong>arrays</strong>, written as <ic>number[]</ic> or <ic>Array&lt;number&gt;</ic>.</p>
+      <p class="prose">One of TypeScript's smartest features is <strong>type inference</strong> — you don't always have to write the type explicitly. When you write <ic>let city = 'Berlin'</ic>, TypeScript sees the string value and automatically infers that <ic>city</ic> is a <ic>string</ic>. If you later try to assign <ic>city = 42</ic>, TypeScript will catch the error even though you never wrote <ic>: string</ic>. Only add type annotations when inference can't figure it out — like empty arrays or function parameters.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-head"><span class="cb-fname">primitive-types.ts</span><span class="cb-lang">ts</span></div>
+      <pre><code><span class="cmt">// Explicit type annotations</span>
+<span class="kw">let</span> <span class="pn">age</span><span class="op">:</span> <span class="tp">number</span> <span class="op">=</span> <span class="num">25</span>;
+<span class="kw">let</span> <span class="pn">name</span><span class="op">:</span> <span class="tp">string</span> <span class="op">=</span> <span class="str">'Alice'</span>;
+<span class="kw">let</span> <span class="pn">isAdmin</span><span class="op">:</span> <span class="tp">boolean</span> <span class="op">=</span> <span class="kw">false</span>;
+
+<span class="cmt">// Arrays</span>
+<span class="kw">let</span> <span class="pn">scores</span><span class="op">:</span> <span class="tp">number</span>[] <span class="op">=</span> [<span class="num">95</span>, <span class="num">87</span>, <span class="num">92</span>];
+<span class="kw">let</span> <span class="pn">names</span><span class="op">:</span> <span class="tp">string</span>[] <span class="op">=</span> [<span class="str">'Alice'</span>, <span class="str">'Bob'</span>];
+
+<span class="cmt">// Type inference — TypeScript figures it out from the value</span>
+<span class="kw">let</span> <span class="pn">city</span> <span class="op">=</span> <span class="str">'Berlin'</span>;   <span class="cmt">// inferred as string — no annotation needed</span>
+<span class="pn">city</span> <span class="op">=</span> <span class="num">42</span>;             <span class="cmt">// ❌ Error: Type 'number' not assignable to 'string'</span>
+
+<span class="cmt">// Union types — value can be one of several types</span>
+<span class="kw">let</span> <span class="pn">id</span><span class="op">:</span> <span class="tp">string</span> <span class="op">|</span> <span class="tp">number</span>;
+<span class="pn">id</span> <span class="op">=</span> <span class="str">'abc-123'</span>;  <span class="cmt">// ✅</span>
+<span class="pn">id</span> <span class="op">=</span> <span class="num">42</span>;          <span class="cmt">// ✅</span>
+<span class="pn">id</span> <span class="op">=</span> <span class="kw">true</span>;        <span class="cmt">// ❌ not in the union</span>
+
+<span class="cmt">// Literal union types — only specific values allowed</span>
+<span class="kw">type</span> <span class="tp">Status</span> <span class="op">=</span> <span class="str">'loading'</span> <span class="op">|</span> <span class="str">'success'</span> <span class="op">|</span> <span class="str">'error'</span>;
+<span class="kw">let</span> <span class="pn">status</span><span class="op">:</span> <span class="tp">Status</span> <span class="op">=</span> <span class="str">'loading'</span>;  <span class="cmt">// ✅</span>
+<span class="pn">status</span> <span class="op">=</span> <span class="str">'pending'</span>;              <span class="cmt">// ❌ 'pending' is not in the type</span></code></pre>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-p"></span>Interfaces — Describing the Shape of Objects</h3>
+      <p class="prose">Most of the data in real applications is structured as objects: a user with a name and email, a product with a price and category, an API response with data and a status code. <strong>Interfaces</strong> are how TypeScript describes the shape an object must have. They're like a contract: if you say a variable has type <ic>User</ic>, TypeScript will ensure it has all the required properties with the correct types.</p>
+      <p class="prose">Properties marked with <ic>?</ic> are <strong>optional</strong> — they can be present or absent without causing an error. Properties marked with <ic>readonly</ic> can be set when the object is first created but can never be changed afterwards. Interfaces can also <strong>extend</strong> other interfaces, inheriting all their properties — perfect for creating <ic>Admin</ic> as a more specific version of <ic>User</ic>.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-head"><span class="cb-fname">interfaces.ts</span><span class="cb-lang">ts</span></div>
+      <pre><code><span class="kw">interface</span> <span class="tp">User</span> <span class="pn">{</span>
+  <span class="prop">id</span><span class="op">:</span> <span class="tp">number</span>;                         <span class="cmt">// required</span>
+  <span class="prop">name</span><span class="op">:</span> <span class="tp">string</span>;                        <span class="cmt">// required</span>
+  <span class="prop">email</span><span class="op">:</span> <span class="tp">string</span>;                       <span class="cmt">// required</span>
+  <span class="prop">age</span><span class="op">?:</span> <span class="tp">number</span>;                        <span class="cmt">// optional — can be omitted</span>
+  <span class="kw">readonly</span> <span class="prop">createdAt</span><span class="op">:</span> <span class="tp">Date</span>;           <span class="cmt">// set once, cannot be changed</span>
+  <span class="prop">role</span><span class="op">:</span> <span class="str">'admin'</span> <span class="op">|</span> <span class="str">'user'</span> <span class="op">|</span> <span class="str">'guest'</span>;   <span class="cmt">// literal union</span>
+<span class="pn">}</span>
+
+<span class="cmt">// Extending — Admin inherits all User properties, then adds more</span>
+<span class="kw">interface</span> <span class="tp">Admin</span> <span class="kw">extends</span> <span class="tp">User</span> <span class="pn">{</span>
+  <span class="prop">permissions</span><span class="op">:</span> <span class="tp">string</span>[];
+  <span class="prop">lastLogin</span><span class="op">:</span> <span class="tp">Date</span>;
+<span class="pn">}</span>
+
+<span class="cmt">// Using the interface — TypeScript checks all required fields</span>
+<span class="kw">const</span> <span class="pn">user</span><span class="op">:</span> <span class="tp">User</span> <span class="op">=</span> <span class="pn">{</span>
+  <span class="prop">id</span><span class="op">:</span> <span class="num">1</span>, <span class="prop">name</span><span class="op">:</span> <span class="str">'Alice'</span>, <span class="prop">email</span><span class="op">:</span> <span class="str">'alice@dev.com'</span>,
+  <span class="prop">createdAt</span><span class="op">:</span> <span class="kw">new</span> <span class="fn">Date</span>(), <span class="prop">role</span><span class="op">:</span> <span class="str">'user'</span>
+<span class="pn">}</span>;
+<span class="pn">user</span>.<span class="prop">createdAt</span> <span class="op">=</span> <span class="kw">new</span> <span class="fn">Date</span>(); <span class="cmt">// ❌ Error: cannot assign to readonly</span></code></pre>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-y"></span>Generics — Types That Work With Any Type</h3>
+      <p class="prose">Generics solve a fundamental problem: what if you want to write a function that works with any type of data, but you still want TypeScript to know and check what type it's working with? The naive solution is to use <ic>any</ic> — but that turns off type checking entirely and you lose all the benefits of TypeScript.</p>
+      <p class="prose">Generics let you write a <strong>type placeholder</strong> (conventionally called <ic>T</ic>) that gets filled in with the real type when the function is called. It's like a blank that gets filled in. The key insight is: <em>you write the logic once, TypeScript applies the correct types each time it's used.</em> This is especially useful for API response wrappers, utility functions like <ic>filter</ic> or <ic>find</ic>, and custom React hooks.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-head"><span class="cb-fname">generics.ts</span><span class="cb-lang">ts</span></div>
+      <pre><code><span class="cmt">// Problem: using 'any' loses all type information</span>
+<span class="kw">function</span> <span class="fn">firstItem</span>(<span class="pn">arr</span><span class="op">:</span> <span class="tp">any</span>[])<span class="op">:</span> <span class="tp">any</span> <span class="pn">{</span>
+  <span class="kw">return</span> <span class="pn">arr</span>[<span class="num">0</span>];
+<span class="pn">}</span>
+<span class="kw">const</span> <span class="pn">x</span> <span class="op">=</span> <span class="fn">firstItem</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]); <span class="cmt">// x is 'any' — no autocomplete, no safety 😕</span>
+
+<span class="cmt">// Solution: use a generic type parameter T</span>
+<span class="kw">function</span> <span class="fn">firstItem</span>&lt;<span class="tp">T</span>&gt;(<span class="pn">arr</span><span class="op">:</span> <span class="tp">T</span>[])<span class="op">:</span> <span class="tp">T</span> <span class="pn">{</span>
+  <span class="kw">return</span> <span class="pn">arr</span>[<span class="num">0</span>];
+<span class="pn">}</span>
+<span class="kw">const</span> <span class="pn">num</span> <span class="op">=</span> <span class="fn">firstItem</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]);       <span class="cmt">// num is 'number' ✅</span>
+<span class="kw">const</span> <span class="pn">str</span> <span class="op">=</span> <span class="fn">firstItem</span>([<span class="str">'a'</span>, <span class="str">'b'</span>, <span class="str">'c'</span>]); <span class="cmt">// str is 'string' ✅</span>
+
+<span class="cmt">// Real-world use: typed API response wrapper</span>
+<span class="kw">interface</span> <span class="tp">ApiResponse</span>&lt;<span class="tp">T</span>&gt; <span class="pn">{</span>
+  <span class="prop">data</span><span class="op">:</span> <span class="tp">T</span>;
+  <span class="prop">status</span><span class="op">:</span> <span class="tp">number</span>;
+  <span class="prop">message</span><span class="op">:</span> <span class="tp">string</span>;
+<span class="pn">}</span>
+
+<span class="cmt">// Used with different data shapes — T is replaced each time</span>
+<span class="kw">type</span> <span class="tp">UserResponse</span>  <span class="op">=</span> <span class="tp">ApiResponse</span>&lt;<span class="tp">User</span>&gt;;      <span class="cmt">// data: User</span>
+<span class="kw">type</span> <span class="tp">PostsResponse</span> <span class="op">=</span> <span class="tp">ApiResponse</span>&lt;<span class="tp">Post</span>[]&gt;;    <span class="cmt">// data: Post[]</span>
+
+<span class="cmt">// Generic async fetch function</span>
+<span class="kw">async function</span> <span class="fn">fetchApi</span>&lt;<span class="tp">T</span>&gt;(<span class="pn">url</span><span class="op">:</span> <span class="tp">string</span>)<span class="op">:</span> <span class="tp">Promise</span>&lt;<span class="tp">T</span>&gt; <span class="pn">{</span>
+  <span class="kw">const</span> <span class="pn">res</span> <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetch</span>(<span class="pn">url</span>);
+  <span class="kw">return</span> <span class="pn">res</span>.<span class="fn">json</span>() <span class="kw">as</span> <span class="tp">T</span>;
+<span class="pn">}</span>
+<span class="kw">const</span> <span class="pn">user</span> <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetchApi</span>&lt;<span class="tp">User</span>&gt;(<span class="str">'/api/user/1'</span>); <span class="cmt">// user is User ✅</span></code></pre>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-g"></span>Utility Types — Transforming Existing Types</h3>
+      <p class="prose">TypeScript includes a set of built-in "utility types" that transform existing types into new ones. Instead of rewriting similar interfaces over and over, you derive new types from existing ones. For example, you might have a full <ic>User</ic> interface, but when creating a new user the <ic>id</ic> doesn't exist yet — <ic>Omit&lt;User, 'id'&gt;</ic> gives you a version without it. This keeps your types in sync automatically when you update the base interface.</p>
+    </div>
+
+    <table class="c-table">
+      <thead><tr><th>Utility Type</th><th>What it does</th><th>Example result</th></tr></thead>
+      <tbody>
+        <tr><td><ic>Partial&lt;T&gt;</ic></td><td>Makes all properties optional</td><td>Good for update/patch operations</td></tr>
+        <tr><td><ic>Required&lt;T&gt;</ic></td><td>Makes all properties required (removes ?)</td><td>When you need every field filled in</td></tr>
+        <tr><td><ic>Pick&lt;T, K&gt;</ic></td><td>Keep only the listed properties</td><td><ic>Pick&lt;User, 'id' | 'name'&gt;</ic></td></tr>
+        <tr><td><ic>Omit&lt;T, K&gt;</ic></td><td>Remove the listed properties</td><td><ic>Omit&lt;User, 'password'&gt;</ic></td></tr>
+        <tr><td><ic>Readonly&lt;T&gt;</ic></td><td>Prevents any mutation</td><td>Config objects, constants</td></tr>
+        <tr><td><ic>Record&lt;K, V&gt;</ic></td><td>Creates a dictionary/map type</td><td><ic>Record&lt;string, User&gt;</ic></td></tr>
+      </tbody>
+    </table>
+
+    <!-- QUIZ -->
+    <div class="quiz-box">
+      <h3>Chapter 2 Quiz — TypeScript</h3>
+      <div class="q-item" id="q5">
+        <span class="q-num">Q 1 OF 4</span>
+        <p class="q-text">Which TypeScript utility type makes all properties of an interface optional?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q5',false)"><span class="ol">A</span>Required&lt;T&gt;</button>
+          <button class="q-opt" onclick="ans(this,'q5',true)"><span class="ol">B</span>Partial&lt;T&gt;</button>
+          <button class="q-opt" onclick="ans(this,'q5',false)"><span class="ol">C</span>Pick&lt;T, K&gt;</button>
+          <button class="q-opt" onclick="ans(this,'q5',false)"><span class="ol">D</span>Readonly&lt;T&gt;</button>
+        </div>
+        <div class="q-fb" id="q5-fb"></div>
+      </div>
+      <div class="q-item" id="q6">
+        <span class="q-num">Q 2 OF 4</span>
+        <p class="q-text">You write <ic>let city = 'Berlin'</ic> and then try <ic>city = 42</ic>. What happens even without an explicit type annotation?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q6',false)"><span class="ol">A</span>TypeScript allows it since there's no annotation</button>
+          <button class="q-opt" onclick="ans(this,'q6',true)"><span class="ol">B</span>TypeScript infers city is a string and gives an error on city = 42</button>
+          <button class="q-opt" onclick="ans(this,'q6',false)"><span class="ol">C</span>TypeScript treats city as 'any' so no error occurs</button>
+          <button class="q-opt" onclick="ans(this,'q6',false)"><span class="ol">D</span>A runtime error is thrown</button>
+        </div>
+        <div class="q-fb" id="q6-fb"></div>
+      </div>
+      <div class="q-item" id="q7">
+        <span class="q-num">Q 3 OF 4</span>
+        <p class="q-text">Why use generics instead of <ic>any</ic>? (e.g., <ic>function get&lt;T&gt;(arr: T[]): T</ic> vs <ic>function get(arr: any[]): any</ic>)</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q7',false)"><span class="ol">A</span>Generics improve runtime performance</button>
+          <button class="q-opt" onclick="ans(this,'q7',false)"><span class="ol">B</span>They are equivalent — just different syntax</button>
+          <button class="q-opt" onclick="ans(this,'q7',true)"><span class="ol">C</span>Generics preserve type information so the caller gets proper type checking and autocomplete</button>
+          <button class="q-opt" onclick="ans(this,'q7',false)"><span class="ol">D</span>Generics allow the function to accept more types than any</button>
+        </div>
+        <div class="q-fb" id="q7-fb"></div>
+      </div>
+      <div class="q-item" id="q8">
+        <span class="q-num">Q 4 OF 4</span>
+        <p class="q-text">What does <ic>age?: number</ic> mean in a TypeScript interface?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q8',false)"><span class="ol">A</span>age can be null or a number</button>
+          <button class="q-opt" onclick="ans(this,'q8',true)"><span class="ol">B</span>age is optional — objects of this type may or may not include it</button>
+          <button class="q-opt" onclick="ans(this,'q8',false)"><span class="ol">C</span>age is readonly</button>
+          <button class="q-opt" onclick="ans(this,'q8',false)"><span class="ol">D</span>age must be a positive number</button>
+        </div>
+        <div class="q-fb" id="q8-fb"></div>
+      </div>
+    </div>
+
+    <!-- EXERCISE -->
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-badge">EXERCISE 02</span><span class="ex-title">Define a Product interface + derived types</span></div>
+      <div class="ex-body">
+        <p class="ex-desc">Define a TypeScript interface <strong>Product</strong> with: <ic>id</ic> (number), <ic>name</ic> (string), <ic>price</ic> (number), <ic>category</ic> as a literal union <ic>"electronics" | "clothing" | "food"</ic>, optional <ic>description</ic> (string), and <ic>inStock</ic> (boolean). Then create a <ic>CreateProduct</ic> type using a utility type (no id needed at creation), and a <ic>laptop</ic> variable.</p>
+        <textarea class="code-ta">interface Product {
+  // fill in fields...
+}
+
+// Use a utility type — new products don't have an id yet
+type CreateProduct = ???;
+
+const laptop: Product = {
+  // fill in...
+};</textarea>
+        <div class="ex-actions"><button class="btn btn-ghost" onclick="sol('s2')">👁 Show Solution</button></div>
+        <div class="sol" id="s2"><div class="sol-head">✓ SOLUTION</div><pre>interface Product {
+  id: number;
+  name: string;
+  price: number;
+  category: "electronics" | "clothing" | "food";
+  description?: string;  // optional
+  inStock: boolean;
+}
+
+// Omit removes 'id' since a new product doesn't have one yet
+type CreateProduct = Omit&lt;Product, 'id'&gt;;
+
+const laptop: Product = {
+  id: 1,
+  name: "MacBook Pro",
+  price: 1999,
+  category: "electronics",
+  description: "M3 Pro chip, 18GB unified memory",
+  inStock: true
+};
+
+// CreateProduct would be used like this:
+const newItem: CreateProduct = {
+  name: "Headphones",
+  price: 199,
+  category: "electronics",
+  inStock: true
+  // no id needed!
+};</pre></div>
+      </div>
+    </div>
+
+    <div class="sec-nav">
+      <button class="snb" onclick="show('nodejs',document.querySelector('[data-s=nodejs]'))">← npm</button>
+      <button class="snb primary" onclick="show('react',document.querySelector('[data-s=react]'))">Next: React →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ REACT ══════════════ -->
+<section id="react" class="section">
+  <div class="sec-wrap">
+    <div class="sec-head">
+      <div class="sec-icon si-react">⚛️</div>
+      <div class="sec-head-txt"><h2>React</h2><p>Chapter 03 · Components, JSX, hooks, state, props, rendering</p></div>
+    </div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-p"></span>What is React and Why Does It Exist?</h3>
+      <p class="prose">Before React, building interactive UIs meant manually manipulating the DOM — finding elements by ID, updating their text, adding and removing CSS classes. This gets complicated fast. You have to track what state your app is in, decide which parts of the UI need to change, and write the code to change them. With 10 features, this is manageable. With 100, it becomes a bug-ridden mess.</p>
+      <p class="prose">React introduces a fundamentally different mental model: <strong>your UI is a function of your data (state)</strong>. You describe what the UI <em>should look like</em> given some data, and React handles making the real DOM match that description. When data changes, React figures out the minimal set of DOM updates needed and applies them automatically. You stop thinking about "how do I update this button" and start thinking "what does the button look like when <ic>isLiked</ic> is true?"</p>
+      <p class="prose">React uses a <strong>Virtual DOM</strong> — a lightweight JavaScript object that represents the real DOM. When state changes, React creates a new virtual DOM, compares it to the previous one (called "diffing"), and only updates the parts of the real DOM that actually changed. This makes updates very efficient.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-c"></span>Components — The Building Blocks</h3>
+      <p class="prose">Everything in React is a <strong>component</strong> — a JavaScript function that accepts some input (called props) and returns JSX describing what should appear on screen. Components can be as small as a single button or as large as an entire page. The power is in <em>composing</em> them: a <ic>ProductCard</ic> uses a <ic>Button</ic> and a <ic>Badge</ic>; a <ic>ProductList</ic> renders many <ic>ProductCard</ic>s; an <ic>App</ic> holds a <ic>Header</ic>, a <ic>ProductList</ic>, and a <ic>Footer</ic>.</p>
+      <p class="prose">Component names must start with a capital letter. This is how React distinguishes them from regular HTML elements — <ic>&lt;button&gt;</ic> is HTML, <ic>&lt;Button&gt;</ic> is your component. Each component is independent and reusable: you can render <ic>&lt;UserCard name="Alice" /&gt;</ic> and <ic>&lt;UserCard name="Bob" /&gt;</ic> side by side, and they each manage their own state independently.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-head"><span class="cb-fname">components.tsx — composing components together</span><span class="cb-lang">tsx</span></div>
+      <pre><code><span class="cmt">// Each component is a self-contained function</span>
+<span class="kw">function</span> <span class="fn">Badge</span>(<span class="pn">{ text }</span><span class="op">:</span> <span class="pn">{</span> <span class="prop">text</span><span class="op">:</span> <span class="tp">string</span> <span class="pn">}</span>) <span class="pn">{</span>
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tag">span</span> <span class="attr">className</span><span class="op">=</span><span class="str">"badge"</span><span class="op">&gt;</span><span class="pn">{text}</span><span class="op">&lt;/</span><span class="tag">span</span><span class="op">&gt;</span>;
+<span class="pn">}</span>
+
+<span class="kw">interface</span> <span class="tp">UserCardProps</span> <span class="pn">{</span>
+  <span class="prop">name</span><span class="op">:</span> <span class="tp">string</span>;
+  <span class="prop">role</span><span class="op">:</span> <span class="tp">string</span>;
+  <span class="prop">isOnline</span><span class="op">?:</span> <span class="tp">boolean</span>;  <span class="cmt">// optional prop</span>
+<span class="pn">}</span>
+
+<span class="kw">function</span> <span class="fn">UserCard</span>(<span class="pn">{ name, role, isOnline = false }</span><span class="op">:</span> <span class="tp">UserCardProps</span>) <span class="pn">{</span>
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tag">div</span> <span class="attr">className</span><span class="op">=</span><span class="str">"user-card"</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tag">h3</span><span class="op">&gt;</span><span class="pn">{name}</span><span class="op">&lt;/</span><span class="tag">h3</span><span class="op">&gt;</span>
+      <span class="fn">Badge</span> <span class="attr">text</span><span class="op">={role}</span> <span class="op">/&gt;</span>     <span class="cmt">// using Badge inside UserCard</span>
+      <span class="pn">{isOnline</span> <span class="op">&amp;&amp;</span> <span class="op">&lt;</span><span class="tag">span</span><span class="op">&gt;</span>🟢 Online<span class="op">&lt;/</span><span class="tag">span</span><span class="op">&gt;}</span>   <span class="cmt">// conditional rendering</span>
+    <span class="op">&lt;/</span><span class="tag">div</span><span class="op">&gt;</span>
+  );
+<span class="pn">}</span>
+
+<span class="cmt">// Parent composes children — note capital letter names</span>
+<span class="kw">function</span> <span class="fn">App</span>() <span class="pn">{</span>
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tag">div</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="fn">UserCard</span> <span class="attr">name</span><span class="op">=</span><span class="str">"Alice"</span> <span class="attr">role</span><span class="op">=</span><span class="str">"Engineer"</span> <span class="attr">isOnline</span><span class="op">={true}</span> <span class="op">/&gt;</span>
+      <span class="op">&lt;</span><span class="fn">UserCard</span> <span class="attr">name</span><span class="op">=</span><span class="str">"Bob"</span>   <span class="attr">role</span><span class="op">=</span><span class="str">"Designer"</span> <span class="op">/&gt;</span>
+    <span class="op">&lt;/</span><span class="tag">div</span><span class="op">&gt;</span>
+  );
+<span class="pn">}</span></code></pre>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-y"></span>JSX — Writing HTML Inside JavaScript</h3>
+      <p class="prose">JSX looks like HTML, but it's actually JavaScript. When you write <ic>&lt;h1&gt;Hello&lt;/h1&gt;</ic> inside a function, Babel/TypeScript transforms it into <ic>React.createElement('h1', null, 'Hello')</ic> before it runs. This transformation happens automatically — you never see it.</p>
+      <p class="prose">The key difference from HTML: use <ic>className</ic> instead of <ic>class</ic> (since <ic>class</ic> is a reserved word in JavaScript), use <ic>htmlFor</ic> instead of <ic>for</ic>, and self-close empty elements with <ic>/&gt;</ic>. JavaScript expressions go inside <ic>{curly braces}</ic> — you can put any valid JavaScript expression there: variable references, ternary operators, function calls, and more. You <em>cannot</em> use regular if/else statements directly, but you can use ternaries or the <ic>&amp;&amp;</ic> short-circuit operator for conditional rendering.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-head"><span class="cb-fname">jsx-rules.tsx — common patterns explained</span><span class="cb-lang">tsx</span></div>
+      <pre><code><span class="kw">function</span> <span class="fn">App</span>() <span class="pn">{</span>
+  <span class="kw">const</span> <span class="pn">username</span> <span class="op">=</span> <span class="str">'Alice'</span>;
+  <span class="kw">const</span> <span class="pn">isLoggedIn</span> <span class="op">=</span> <span class="kw">true</span>;
+  <span class="kw">const</span> <span class="pn">messageCount</span> <span class="op">=</span> <span class="num">5</span>;
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tag">div</span> <span class="attr">className</span><span class="op">=</span><span class="str">"app"</span><span class="op">&gt;</span>                     <span class="cmt">// className, not class!</span>
+
+      <span class="cmt">// Embed any JS expression in { }</span>
+      <span class="op">&lt;</span><span class="tag">h1</span><span class="op">&gt;</span>Welcome, <span class="pn">{username}</span>!<span class="op">&lt;/</span><span class="tag">h1</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tag">p</span><span class="op">&gt;</span>2 + 2 = <span class="pn">{</span><span class="num">2</span> <span class="op">+</span> <span class="num">2</span><span class="pn">}</span><span class="op">&lt;/</span><span class="tag">p</span><span class="op">&gt;</span>
+
+      <span class="cmt">// Ternary for if/else rendering</span>
+      <span class="pn">{isLoggedIn</span>
+        <span class="op">?</span> <span class="op">&lt;</span><span class="tag">p</span><span class="op">&gt;</span>You are logged in ✅<span class="op">&lt;/</span><span class="tag">p</span><span class="op">&gt;</span>
+        <span class="op">:</span> <span class="op">&lt;</span><span class="tag">p</span><span class="op">&gt;</span>Please log in<span class="op">&lt;/</span><span class="tag">p</span><span class="op">&gt;</span>
+      <span class="pn">}</span>
+
+      <span class="cmt">// && for "show only if truthy"</span>
+      <span class="pn">{messageCount</span> <span class="op">&gt;</span> <span class="num">0</span> <span class="op">&amp;&amp;</span> <span class="op">&lt;</span><span class="tag">span</span><span class="op">&gt;</span><span class="pn">{messageCount}</span> new messages<span class="op">&lt;/</span><span class="tag">span</span><span class="op">&gt;}</span>
+
+      <span class="cmt">// Inline styles use JS objects — note double {{ }}</span>
+      <span class="op">&lt;</span><span class="tag">p</span> <span class="attr">style</span><span class="op">={{</span> <span class="prop">color</span><span class="op">:</span> <span class="str">'blue'</span>, <span class="prop">fontSize</span><span class="op">:</span> <span class="num">18</span> <span class="op">}}&gt;</span>Styled text<span class="op">&lt;/</span><span class="tag">p</span><span class="op">&gt;</span>
+
+      <span class="cmt">// Self-closing for elements with no children</span>
+      <span class="op">&lt;</span><span class="tag">img</span> <span class="attr">src</span><span class="op">=</span><span class="str">"avatar.png"</span> <span class="attr">alt</span><span class="op">=</span><span class="str">"User"</span> <span class="op">/&gt;</span>
+      <span class="op">&lt;</span><span class="tag">input</span> <span class="attr">type</span><span class="op">=</span><span class="str">"text"</span> <span class="op">/&gt;</span>
+
+    <span class="op">&lt;/</span><span class="tag">div</span><span class="op">&gt;</span>
+  );
+<span class="pn">}</span></code></pre>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-g"></span>useState — Managing Component State</h3>
+      <p class="prose">State is data that <em>belongs to a component and can change over time</em>. When state changes, React automatically re-renders the component to reflect the new data. The <ic>useState</ic> hook is how you add state to a function component.</p>
+      <p class="prose">You call <ic>useState(initialValue)</ic> and it returns an array with two things: the current value, and a setter function. You always destructure them: <ic>const [count, setCount] = useState(0)</ic>. There is one critical rule that catches every beginner: <strong>never mutate state directly</strong>. Writing <ic>count = count + 1</ic> changes the variable but React doesn't know about it and won't re-render. You must always call the setter: <ic>setCount(count + 1)</ic>. The setter triggers a re-render with the new value.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-head"><span class="cb-fname">Counter.tsx — useState explained in detail</span><span class="cb-lang">tsx</span></div>
+      <pre><code><span class="kw">import</span> { <span class="fn">useState</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Counter</span>() <span class="pn">{</span>
+  <span class="cmt">// useState(0) sets the initial value to 0</span>
+  <span class="cmt">// count  → the current value (READ ONLY — never mutate directly!)</span>
+  <span class="cmt">// setCount → call this to update count and trigger a re-render</span>
+  <span class="kw">const</span> [<span class="pn">count</span>, <span class="pn">setCount</span>] <span class="op">=</span> <span class="fn">useState</span>&lt;<span class="tp">number</span>&gt;(<span class="num">0</span>);
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tag">div</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tag">h2</span><span class="op">&gt;</span>Count: <span class="pn">{count}</span><span class="op">&lt;/</span><span class="tag">h2</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tag">button</span> <span class="attr">onClick</span><span class="op">={</span>() <span class="op">=&gt;</span> <span class="fn">setCount</span>(<span class="pn">count</span> <span class="op">+</span> <span class="num">1</span>)<span class="op">}&gt;</span>+<span class="op">&lt;/</span><span class="tag">button</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tag">button</span> <span class="attr">onClick</span><span class="op">={</span>() <span class="op">=&gt;</span> <span class="fn">setCount</span>(<span class="pn">count</span> <span class="op">-</span> <span class="num">1</span>)<span class="op">}&gt;</span>-<span class="op">&lt;/</span><span class="tag">button</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tag">button</span> <span class="attr">onClick</span><span class="op">={</span>() <span class="op">=&gt;</span> <span class="fn">setCount</span>(<span class="num">0</span>)<span class="op">}&gt;</span>Reset<span class="op">&lt;/</span><span class="tag">button</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tag">div</span><span class="op">&gt;</span>
+  );
+<span class="pn">}</span>
+
+<span class="cmt">// ❌ WRONG — React won't re-render because it doesn't know count changed</span>
+<span class="cmt">// count = count + 1;</span>
+
+<span class="cmt">// ✅ CORRECT — calling the setter schedules a re-render</span>
+<span class="cmt">// setCount(count + 1);</span></code></pre>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-r"></span>useEffect — Running Code After Render</h3>
+      <p class="prose">Some code doesn't belong in the render cycle — things like fetching data from an API, setting up subscriptions, or updating the page title. These are called <strong>side effects</strong> because they affect something outside the component's render output. The <ic>useEffect</ic> hook is how you handle them.</p>
+      <p class="prose">useEffect takes two arguments: a function to run, and a <strong>dependency array</strong> that controls when it runs. An <em>empty array</em> <ic>[]</ic> means "run once when the component first appears on screen" — perfect for initial data fetching. An array with values like <ic>[userId]</ic> means "re-run every time <ic>userId</ic> changes" — perfect for loading new data when a selection changes. No array at all means "run after every single render" which is rarely what you want.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-head"><span class="cb-fname">UserProfile.tsx — fetching data with useEffect</span><span class="cb-lang">tsx</span></div>
+      <pre><code><span class="kw">import</span> { <span class="fn">useState</span>, <span class="fn">useEffect</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">interface</span> <span class="tp">User</span> <span class="pn">{</span> <span class="prop">id</span><span class="op">:</span> <span class="tp">number</span>; <span class="prop">name</span><span class="op">:</span> <span class="tp">string</span>; <span class="prop">email</span><span class="op">:</span> <span class="tp">string</span> <span class="pn">}</span>
+
+<span class="kw">function</span> <span class="fn">UserProfile</span>(<span class="pn">{ userId }</span><span class="op">:</span> <span class="pn">{</span> <span class="prop">userId</span><span class="op">:</span> <span class="tp">number</span> <span class="pn">}</span>) <span class="pn">{</span>
+  <span class="kw">const</span> [<span class="pn">user</span>, <span class="pn">setUser</span>]       <span class="op">=</span> <span class="fn">useState</span>&lt;<span class="tp">User</span> <span class="op">|</span> <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+  <span class="kw">const</span> [<span class="pn">loading</span>, <span class="pn">setLoading</span>] <span class="op">=</span> <span class="fn">useState</span>(<span class="kw">true</span>);
+  <span class="kw">const</span> [<span class="pn">error</span>, <span class="pn">setError</span>]     <span class="op">=</span> <span class="fn">useState</span>&lt;<span class="tp">string</span> <span class="op">|</span> <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() <span class="op">=&gt;</span> <span class="pn">{</span>
+    <span class="pn">setLoading</span>(<span class="kw">true</span>);          <span class="cmt">// reset loading when userId changes</span>
+    <span class="fn">fetch</span>(<span class="str">`/api/users/${userId}`</span>)
+      .<span class="fn">then</span>(<span class="pn">r</span> <span class="op">=&gt;</span> <span class="pn">r</span>.<span class="fn">json</span>())
+      .<span class="fn">then</span>(<span class="pn">data</span> <span class="op">=&gt;</span> <span class="pn">{</span> <span class="pn">setUser</span>(<span class="pn">data</span>); <span class="pn">setLoading</span>(<span class="kw">false</span>); <span class="pn">}</span>)
+      .<span class="fn">catch</span>(() <span class="op">=&gt;</span> <span class="pn">{</span> <span class="pn">setError</span>(<span class="str">'Failed to load'</span>); <span class="pn">setLoading</span>(<span class="kw">false</span>); <span class="pn">}</span>);
+  <span class="pn">}</span>, [<span class="pn">userId</span>]); <span class="cmt">// ← runs again whenever userId changes</span>
+
+  <span class="kw">if</span> (<span class="pn">loading</span>) <span class="kw">return</span> <span class="op">&lt;</span><span class="tag">p</span><span class="op">&gt;</span>Loading...<span class="op">&lt;/</span><span class="tag">p</span><span class="op">&gt;</span>;
+  <span class="kw">if</span> (<span class="pn">error</span>)   <span class="kw">return</span> <span class="op">&lt;</span><span class="tag">p</span><span class="op">&gt;</span>Error: <span class="pn">{error}</span><span class="op">&lt;/</span><span class="tag">p</span><span class="op">&gt;</span>;
+  <span class="kw">if</span> (<span class="op">!</span><span class="pn">user</span>)   <span class="kw">return</span> <span class="kw">null</span>;
+
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tag">div</span><span class="op">&gt;&lt;</span><span class="tag">h1</span><span class="op">&gt;</span><span class="pn">{user.name}</span><span class="op">&lt;/</span><span class="tag">h1</span><span class="op">&gt;&lt;</span><span class="tag">p</span><span class="op">&gt;</span><span class="pn">{user.email}</span><span class="op">&lt;/</span><span class="tag">p</span><span class="op">&gt;&lt;/</span><span class="tag">div</span><span class="op">&gt;</span>;
+<span class="pn">}</span></code></pre>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-o"></span>Rendering Lists with .map()</h3>
+      <p class="prose">When you have an array of data and want to render a component for each item, you use JavaScript's <ic>.map()</ic> method inside JSX. This transforms an array of data objects into an array of JSX elements. There is one non-negotiable rule: <strong>every element in a list must have a unique <ic>key</ic> prop</strong>. React uses the key to track which items have been added, removed, or reordered between renders. Without keys, React may get confused and produce incorrect updates. Always use a stable unique identifier like a database ID — never use the array index as a key unless the list never changes order.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-head"><span class="cb-fname">ProductList.tsx — rendering arrays</span><span class="cb-lang">tsx</span></div>
+      <pre><code><span class="kw">interface</span> <span class="tp">Product</span> <span class="pn">{</span> <span class="prop">id</span><span class="op">:</span> <span class="tp">number</span>; <span class="prop">name</span><span class="op">:</span> <span class="tp">string</span>; <span class="prop">price</span><span class="op">:</span> <span class="tp">number</span> <span class="pn">}</span>
+
+<span class="kw">function</span> <span class="fn">ProductList</span>() <span class="pn">{</span>
+  <span class="kw">const</span> <span class="pn">products</span><span class="op">:</span> <span class="tp">Product</span>[] <span class="op">=</span> [
+    <span class="pn">{</span> <span class="prop">id</span><span class="op">:</span> <span class="num">1</span>, <span class="prop">name</span><span class="op">:</span> <span class="str">'Phone'</span>, <span class="prop">price</span><span class="op">:</span> <span class="num">999</span> <span class="pn">}</span>,
+    <span class="pn">{</span> <span class="prop">id</span><span class="op">:</span> <span class="num">2</span>, <span class="prop">name</span><span class="op">:</span> <span class="str">'Laptop'</span>, <span class="prop">price</span><span class="op">:</span> <span class="num">1499</span> <span class="pn">}</span>,
+    <span class="pn">{</span> <span class="prop">id</span><span class="op">:</span> <span class="num">3</span>, <span class="prop">name</span><span class="op">:</span> <span class="str">'Headphones'</span>, <span class="prop">price</span><span class="op">:</span> <span class="num">199</span> <span class="pn">}</span>,
+  ];
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tag">ul</span><span class="op">&gt;</span>
+      <span class="pn">{products.</span><span class="fn">map</span>(<span class="pn">product</span> <span class="op">=&gt;</span> (
+        <span class="cmt">// key must be unique and stable — use the database ID</span>
+        <span class="op">&lt;</span><span class="tag">li</span> <span class="attr">key</span><span class="op">={product.id}&gt;</span>
+          <span class="op">&lt;</span><span class="tag">strong</span><span class="op">&gt;</span><span class="pn">{product.name}</span><span class="op">&lt;/</span><span class="tag">strong</span><span class="op">&gt;</span> — <span class="pn">{product.price}</span> USD
+        <span class="op">&lt;/</span><span class="tag">li</span><span class="op">&gt;</span>
+      ))<span class="pn">}</span>
+    <span class="op">&lt;/</span><span class="tag">ul</span><span class="op">&gt;</span>
+  );
+<span class="pn">}</span></code></pre>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="quiz-box">
+      <h3>Chapter 3 Quiz — React</h3>
+      <div class="q-item" id="q9">
+        <span class="q-num">Q 1 OF 5</span>
+        <p class="q-text">You have <ic>const [count, setCount] = useState(0)</ic>. Why is writing <ic>count = count + 1</ic> wrong?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q9',false)"><span class="ol">A</span>It causes an infinite loop</button>
+          <button class="q-opt" onclick="ans(this,'q9',true)"><span class="ol">B</span>React doesn't know the variable changed, so it won't re-render the component</button>
+          <button class="q-opt" onclick="ans(this,'q9',false)"><span class="ol">C</span>count is undefined after useState</button>
+          <button class="q-opt" onclick="ans(this,'q9',false)"><span class="ol">D</span>useState variables are read-only due to TypeScript</button>
+        </div>
+        <div class="q-fb" id="q9-fb"></div>
+      </div>
+      <div class="q-item" id="q10">
+        <span class="q-num">Q 2 OF 5</span>
+        <p class="q-text">What is the purpose of the <ic>key</ic> prop when rendering a list with <ic>.map()</ic>?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q10',false)"><span class="ol">A</span>It styles list items with a CSS class</button>
+          <button class="q-opt" onclick="ans(this,'q10',true)"><span class="ol">B</span>It helps React track which items were added, changed, or removed for efficient DOM updates</button>
+          <button class="q-opt" onclick="ans(this,'q10',false)"><span class="ol">C</span>It gives the item a keyboard shortcut</button>
+          <button class="q-opt" onclick="ans(this,'q10',false)"><span class="ol">D</span>It is required by JavaScript's .map() method</button>
+        </div>
+        <div class="q-fb" id="q10-fb"></div>
+      </div>
+      <div class="q-item" id="q11">
+        <span class="q-num">Q 3 OF 5</span>
+        <p class="q-text">What does <ic>useEffect(() =&gt; { fetchData() }, [])</ic> do — specifically the empty <ic>[]</ic> dependency array?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q11',false)"><span class="ol">A</span>The effect never runs</button>
+          <button class="q-opt" onclick="ans(this,'q11',true)"><span class="ol">B</span>The effect runs exactly once when the component first mounts</button>
+          <button class="q-opt" onclick="ans(this,'q11',false)"><span class="ol">C</span>The effect runs after every render</button>
+          <button class="q-opt" onclick="ans(this,'q11',false)"><span class="ol">D</span>The effect runs only when the component unmounts</button>
+        </div>
+        <div class="q-fb" id="q11-fb"></div>
+      </div>
+      <div class="q-item" id="q12">
+        <span class="q-num">Q 4 OF 5</span>
+        <p class="q-text">In JSX, what is the correct way to embed the JavaScript variable <ic>username</ic> in the output?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q12',false)"><span class="ol">A</span>&lt;p&gt;&#123;&#123; username &#125;&#125;&lt;/p&gt; (double curly like Vue)</button>
+          <button class="q-opt" onclick="ans(this,'q12',true)"><span class="ol">B</span>&lt;p&gt;&#123; username &#125;&lt;/p&gt; (single curly braces)</button>
+          <button class="q-opt" onclick="ans(this,'q12',false)"><span class="ol">C</span>&lt;p&gt;$(username)&lt;/p&gt; (template literal syntax)</button>
+          <button class="q-opt" onclick="ans(this,'q12',false)"><span class="ol">D</span>&lt;p v-bind="username"&gt;&lt;/p&gt;</button>
+        </div>
+        <div class="q-fb" id="q12-fb"></div>
+      </div>
+      <div class="q-item" id="q13">
+        <span class="q-num">Q 5 OF 5</span>
+        <p class="q-text">What is the correct Vite template for scaffolding a React + TypeScript project?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q13',false)"><span class="ol">A</span>npx create-vite my-app --template react</button>
+          <button class="q-opt" onclick="ans(this,'q13',true)"><span class="ol">B</span>npx create-vite my-app --template react-ts</button>
+          <button class="q-opt" onclick="ans(this,'q13',false)"><span class="ol">C</span>npx create-vite my-app --template typescript</button>
+          <button class="q-opt" onclick="ans(this,'q13',false)"><span class="ol">D</span>npm init react-ts my-app</button>
+        </div>
+        <div class="q-fb" id="q13-fb"></div>
+      </div>
+    </div>
+
+    <!-- EXERCISE -->
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-badge">EXERCISE 03</span><span class="ex-title">Build a Toggle + SearchableList component</span></div>
+      <div class="ex-body">
+        <p class="ex-desc">Create two components: <br><br><strong>1. Toggle</strong> — has boolean state <ic>isOn</ic>. Renders a button showing "Turn On" or "Turn Off" that flips the state. Change the button's background color (green = on, red = off).<br><br><strong>2. SearchableList</strong> — accepts <ic>items: string[]</ic> as a prop. Renders a text input and filters the list in real-time as the user types (case-insensitive).</p>
+        <textarea class="code-ta" style="min-height:180px">// Component 1: Toggle
+function Toggle() {
+  const [isOn, setIsOn] = useState(false);
+  return (
+    <button style={{ background: ___ }} onClick={___}>
+      {___}
+    </button>
+  );
+}
+
+// Component 2: SearchableList
+interface SearchableListProps { items: string[]; }
+function SearchableList({ items }: SearchableListProps) {
+  const [query, setQuery] = useState('');
+  const filtered = ___; // derive filtered list from items + query
+  return (
+    <div>
+      <input value={query} onChange={___} placeholder="Search..." />
+      <ul>{/* render filtered */}</ul>
+    </div>
+  );
+}</textarea>
+        <div class="ex-actions"><button class="btn btn-ghost" onclick="sol('s3')">👁 Show Solution</button></div>
+        <div class="sol" id="s3"><div class="sol-head">✓ SOLUTION</div><pre>import { useState } from 'react';
+
+// Component 1: Toggle
+function Toggle() {
+  const [isOn, setIsOn] = useState(false);
+  return (
+    &lt;button
+      style={{
+        background: isOn ? '#06ffa5' : '#ff4d6d',
+        color: isOn ? '#000' : '#fff',
+        padding: '10px 24px',
+        border: 'none',
+        borderRadius: '8px',
+        fontWeight: 'bold',
+        cursor: 'pointer'
+      }}
+      onClick={() => setIsOn(!isOn)}
+    &gt;
+      {isOn ? 'Turn Off' : 'Turn On'}
+    &lt;/button&gt;
+  );
+}
+
+// Component 2: SearchableList
+interface SearchableListProps {
+  items: string[];
+}
+
+function SearchableList({ items }: SearchableListProps) {
+  const [query, setQuery] = useState('');
+
+  // .filter() returns only items that include the query (case-insensitive)
+  const filtered = items.filter(item =>
+    item.toLowerCase().includes(query.toLowerCase())
+  );
+
+  return (
+    &lt;div&gt;
+      &lt;input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search..."
+      /&gt;
+      &lt;ul&gt;
+        {filtered.map((item, index) => (
+          &lt;li key={index}&gt;{item}&lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+      &lt;p&gt;{filtered.length} result(s)&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Usage:
+// &lt;SearchableList items={['Apple', 'Banana', 'Avocado', 'Blueberry']} /&gt;</pre></div>
+      </div>
+    </div>
+
+    <div class="sec-nav">
+      <button class="snb" onclick="show('typescript',document.querySelector('[data-s=typescript]'))">← TypeScript</button>
+      <button class="snb primary" onclick="show('tooling',document.querySelector('[data-s=tooling]'))">Next: Tooling →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ TOOLING ══════════════ -->
+<section id="tooling" class="section">
+  <div class="sec-wrap">
+    <div class="sec-head">
+      <div class="sec-icon si-tools">🛠️</div>
+      <div class="sec-head-txt"><h2>Modern Tooling</h2><p>Chapter 04 · Vite, ESLint, Prettier, Vitest — the professional workflow</p></div>
+    </div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-y"></span>Vite — Why Your Dev Server Should Be Instant</h3>
+      <p class="prose">For years, Webpack was the standard build tool. It works, but it has a fundamental design problem: it has to bundle your <em>entire application</em> — reading all files, resolving all imports, combining everything — before it can show you anything. On a large project this can take 30–60 seconds just to start the dev server. Every time you save a file, it re-bundles a large chunk of the app before the browser updates.</p>
+      <p class="prose"><strong>Vite</strong> (French for "fast") takes a completely different approach. Modern browsers support ES Modules natively — they can import files directly from the server one by one. Vite exploits this: the dev server starts instantly (it doesn't bundle anything), and when you request a page, it serves only the files that page actually needs, transforming them on-demand. When you save a file, only that file is re-sent — not the whole app. This is called <strong>Hot Module Replacement (HMR)</strong> and it's what makes modern development feel magical: you save a file and the browser updates in milliseconds, without losing your app's current state.</p>
+      <p class="prose">For production, Vite uses Rollup under the hood to bundle everything into optimized files — tree-shaken, minified, and split for efficient loading. You get the best of both worlds: instant development and optimized production builds.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-head"><span class="cb-fname">vite.config.ts — fully annotated</span><span class="cb-lang">ts</span></div>
+      <pre><code><span class="kw">import</span> { <span class="fn">defineConfig</span> } <span class="kw">from</span> <span class="str">'vite'</span>;
+<span class="kw">import</span> <span class="fn">react</span> <span class="kw">from</span> <span class="str">'@vitejs/plugin-react'</span>;  <span class="cmt">// JSX transform + fast refresh</span>
+<span class="kw">import</span> <span class="fn">path</span> <span class="kw">from</span> <span class="str">'path'</span>;
+
+<span class="kw">export default</span> <span class="fn">defineConfig</span>(<span class="pn">{</span>
+  <span class="prop">plugins</span><span class="op">:</span> [<span class="fn">react</span>()],            <span class="cmt">// enables React JSX and Fast Refresh</span>
+
+  <span class="prop">resolve</span><span class="op">:</span> <span class="pn">{</span>
+    <span class="prop">alias</span><span class="op">:</span> <span class="pn">{</span>
+      <span class="str">'@'</span><span class="op">:</span> <span class="fn">path</span>.<span class="fn">resolve</span>(<span class="pn">__dirname</span>, <span class="str">'./src'</span>)
+      <span class="cmt">// now: import Button from '@/components/Button'</span>
+      <span class="cmt">// instead of: import Button from '../../components/Button'</span>
+    <span class="pn">}</span>
+  <span class="pn">}</span>,
+
+  <span class="prop">server</span><span class="op">:</span> <span class="pn">{</span>
+    <span class="prop">port</span><span class="op">:</span> <span class="num">3000</span>,       <span class="cmt">// dev server URL: http://localhost:3000</span>
+    <span class="prop">open</span><span class="op">:</span> <span class="kw">true</span>,       <span class="cmt">// auto-open browser when you run npm run dev</span>
+    <span class="prop">proxy</span><span class="op">:</span> <span class="pn">{</span>
+      <span class="str">'/api'</span><span class="op">:</span> <span class="str">'http://localhost:8080'</span>
+      <span class="cmt">// requests to /api/users → forwarded to backend server</span>
+      <span class="cmt">// avoids CORS errors during development</span>
+    <span class="pn">}</span>
+  <span class="pn">}</span>,
+
+  <span class="prop">build</span><span class="op">:</span> <span class="pn">{</span>
+    <span class="prop">outDir</span><span class="op">:</span> <span class="str">'dist'</span>,   <span class="cmt">// output folder for npm run build</span>
+    <span class="prop">sourcemap</span><span class="op">:</span> <span class="kw">true</span>   <span class="cmt">// include source maps for debugging production</span>
+  <span class="pn">}</span>
+<span class="pn">}</span>);</code></pre>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-c"></span>ESLint — Your Automated Code Reviewer</h3>
+      <p class="prose">ESLint is a <strong>static analysis tool</strong> — it reads your code without running it and flags problems. Think of it as a tireless colleague who reviews every line you write and immediately points out: unused variables you forgot to remove, <ic>any</ic> types you accidentally left in, React hook calls that violate the rules of hooks, and dozens of other patterns that indicate bugs or code smell.</p>
+      <p class="prose">ESLint is configured via a rules file, and you can extend pre-built "rulesets" — collections of rules vetted by experts. The TypeScript ruleset catches type-related issues; the React hooks ruleset enforces that hooks are only called at the top level of components (a requirement React has for hooks to work correctly). You can set rules to <ic>"warn"</ic> (highlight in yellow but don't fail) or <ic>"error"</ic> (fail your CI pipeline).</p>
+    </div>
+
+    <div class="two-col">
+      <div class="code-block" style="margin:0">
+        <div class="cb-head"><span class="cb-fname">.eslintrc.json</span><span class="cb-lang">json</span></div>
+        <pre><code><span class="pn">{</span>
+  <span class="prop">"extends"</span><span class="op">:</span> [
+    <span class="str">"eslint:recommended"</span>,
+    <span class="str">"plugin:@typescript-eslint/recommended"</span>,
+    <span class="str">"plugin:react-hooks/recommended"</span>
+  ],
+  <span class="prop">"rules"</span><span class="op">:</span> <span class="pn">{</span>
+    <span class="prop">"no-console"</span><span class="op">:</span> <span class="str">"warn"</span>,
+    <span class="prop">"@typescript-eslint/no-explicit-any"</span><span class="op">:</span> <span class="str">"error"</span>,
+    <span class="prop">"@typescript-eslint/no-unused-vars"</span><span class="op">:</span> <span class="str">"error"</span>,
+    <span class="prop">"react-hooks/rules-of-hooks"</span><span class="op">:</span> <span class="str">"error"</span>,
+    <span class="prop">"react-hooks/exhaustive-deps"</span><span class="op">:</span> <span class="str">"warn"</span>
+  <span class="pn">}</span>
+<span class="pn">}</span></code></pre>
+      </div>
+      <div>
+        <div class="callout cl-tip" style="margin-bottom:14px">
+          <span class="ico">💡</span>
+          <div class="callout-body"><strong>ESLint vs Prettier</strong><p>ESLint catches <em>code quality</em> issues — things that could cause bugs or make code hard to maintain. Prettier only handles <em>formatting</em> — whitespace, line breaks, quote style. They don't overlap, and you should use both.</p></div>
+        </div>
+        <div class="callout cl-ok">
+          <span class="ico">✅</span>
+          <div class="callout-body"><strong>Run ESLint in CI</strong><p>Add <ic>"lint": "eslint src"</ic> to your scripts and run it in your CI pipeline so broken code can never be merged.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-p"></span>Prettier — End the Formatting Wars</h3>
+      <p class="prose">Prettier is an <strong>opinionated code formatter</strong>. "Opinionated" means it makes its own formatting decisions and applies them consistently — you configure a few high-level options (tabs or spaces, print width, semicolons), and Prettier handles everything else. You stop thinking about how to format code and just write it; Prettier fixes it automatically on save.</p>
+      <p class="prose">The real value of Prettier is in teams. Without it, code reviews get filled with comments about formatting — two-space vs four-space indentation, trailing commas, quote style. These debates waste time and cause friction. With Prettier, <em>the entire codebase looks like one person wrote it</em>, automatically, forever. Once configured, you should never manually format code again — just let Prettier handle it.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="code-block" style="margin:0">
+        <div class="cb-head"><span class="cb-fname">.prettierrc</span><span class="cb-lang">json</span></div>
+        <pre><code><span class="pn">{</span>
+  <span class="prop">"semi"</span><span class="op">:</span> <span class="kw">true</span>,          <span class="cmt">// semicolons at end of lines</span>
+  <span class="prop">"singleQuote"</span><span class="op">:</span> <span class="kw">false</span>,   <span class="cmt">// use double quotes</span>
+  <span class="prop">"tabWidth"</span><span class="op">:</span> <span class="num">2</span>,         <span class="cmt">// 2-space indentation</span>
+  <span class="prop">"trailingComma"</span><span class="op">:</span> <span class="str">"es5"</span>,<span class="cmt">// trailing commas where valid</span>
+  <span class="prop">"printWidth"</span><span class="op">:</span> <span class="num">80</span>,      <span class="cmt">// wrap lines at 80 chars</span>
+  <span class="prop">"arrowParens"</span><span class="op">:</span> <span class="str">"always"</span> <span class="cmt">// always (x) => not x =></span>
+<span class="pn">}</span></code></pre>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-h"><span class="dot dot-p"></span>Before Prettier</div>
+          <div class="code-block" style="margin:8px 0 0 0">
+            <pre><code><span class="cmt">// different styles everywhere</span>
+<span class="kw">const</span> <span class="pn">x</span>=<span class="num">1</span>
+<span class="kw">function</span> <span class="fn">foo</span> (<span class="pn">a</span>,<span class="pn">b</span>){
+<span class="kw">return</span> <span class="pn">a</span><span class="op">+</span><span class="pn">b</span>}</code></pre>
+          </div>
+          <div class="card-h" style="margin-top:14px"><span class="dot dot-g"></span>After Prettier</div>
+          <div class="code-block" style="margin:8px 0 0 0">
+            <pre><code><span class="cmt">// consistent, readable</span>
+<span class="kw">const</span> <span class="pn">x</span> <span class="op">=</span> <span class="num">1</span>;
+<span class="kw">function</span> <span class="fn">foo</span>(<span class="pn">a</span>, <span class="pn">b</span>) <span class="pn">{</span>
+  <span class="kw">return</span> <span class="pn">a</span> <span class="op">+</span> <span class="pn">b</span>;
+<span class="pn">}</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-g"></span>Vitest — Testing Your Components</h3>
+      <p class="prose">Testing means writing code that checks your code works correctly. This sounds circular, but it's genuinely valuable: tests let you change your code with confidence. If you refactor a function and all tests still pass, you know you didn't break anything. If tests fail, you know immediately and exactly what broke — without having to manually click through the entire app.</p>
+      <p class="prose"><strong>Vitest</strong> is a testing framework built specifically for Vite projects. It's compatible with the Jest API (the most popular testing framework) so most Jest tutorials and docs apply directly. Combined with <strong>Testing Library</strong>, you can render React components and interact with them just like a user would — clicking buttons, filling in inputs, and asserting that the right text appears on screen. This approach ("test behavior, not implementation") means your tests remain valid even when you refactor the internals.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-head"><span class="cb-fname">Toggle.test.tsx — testing by user behavior</span><span class="cb-lang">tsx</span></div>
+      <pre><code><span class="kw">import</span> { <span class="fn">render</span>, <span class="fn">screen</span>, <span class="fn">fireEvent</span> } <span class="kw">from</span> <span class="str">'@testing-library/react'</span>;
+<span class="kw">import</span> { <span class="fn">describe</span>, <span class="fn">it</span>, <span class="fn">expect</span>, <span class="fn">vi</span> } <span class="kw">from</span> <span class="str">'vitest'</span>;
+<span class="kw">import</span> { <span class="fn">Toggle</span> } <span class="kw">from</span> <span class="str">'./Toggle'</span>;
+
+<span class="fn">describe</span>(<span class="str">'Toggle component'</span>, () <span class="op">=&gt;</span> <span class="pn">{</span>
+
+  <span class="fn">it</span>(<span class="str">'shows "Turn On" by default'</span>, () <span class="op">=&gt;</span> <span class="pn">{</span>
+    <span class="fn">render</span>(<span class="op">&lt;</span><span class="fn">Toggle</span> <span class="op">/&gt;</span>);
+    <span class="cmt">// getByText finds an element with this text — fails if not found</span>
+    <span class="fn">expect</span>(<span class="fn">screen</span>.<span class="fn">getByText</span>(<span class="str">'Turn On'</span>)).<span class="fn">toBeInTheDocument</span>();
+  <span class="pn">}</span>);
+
+  <span class="fn">it</span>(<span class="str">'shows "Turn Off" after clicking the button'</span>, () <span class="op">=&gt;</span> <span class="pn">{</span>
+    <span class="fn">render</span>(<span class="op">&lt;</span><span class="fn">Toggle</span> <span class="op">/&gt;</span>);
+    <span class="fn">fireEvent</span>.<span class="fn">click</span>(<span class="fn">screen</span>.<span class="fn">getByText</span>(<span class="str">'Turn On'</span>)); <span class="cmt">// simulate click</span>
+    <span class="fn">expect</span>(<span class="fn">screen</span>.<span class="fn">getByText</span>(<span class="str">'Turn Off'</span>)).<span class="fn">toBeInTheDocument</span>();
+  <span class="pn">}</span>);
+
+  <span class="fn">it</span>(<span class="str">'calls an onToggle callback with the new state'</span>, () <span class="op">=&gt;</span> <span class="pn">{</span>
+    <span class="kw">const</span> <span class="pn">handleToggle</span> <span class="op">=</span> <span class="fn">vi</span>.<span class="fn">fn</span>(); <span class="cmt">// mock function tracks calls</span>
+    <span class="fn">render</span>(<span class="op">&lt;</span><span class="fn">Toggle</span> <span class="attr">onToggle</span><span class="op">={handleToggle}</span> <span class="op">/&gt;</span>);
+    <span class="fn">fireEvent</span>.<span class="fn">click</span>(<span class="fn">screen</span>.<span class="fn">getByRole</span>(<span class="str">'button'</span>));
+    <span class="fn">expect</span>(<span class="pn">handleToggle</span>).<span class="fn">toHaveBeenCalledWith</span>(<span class="kw">true</span>);
+  <span class="pn">}</span>);
+
+<span class="pn">}</span>);</code></pre>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="prose-section">
+      <h3><span class="dot dot-r"></span>Putting It All Together — Project Setup Checklist</h3>
+      <p class="prose">Here is the complete setup process for a professional React + TypeScript project from scratch. Every step below is something you'll repeat many times in your career.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step"><span class="step-n">1</span><div><strong>Scaffold with Vite</strong><p>Run <ic>npm create vite@latest my-app --template react-ts</ic>. This creates the folder structure, installs React and TypeScript, and configures everything.</p></div></div>
+      <div class="step"><span class="step-n">2</span><div><strong>Install dependencies</strong><p>Run <ic>cd my-app && npm install</ic>. This downloads all packages listed in package.json into node_modules/.</p></div></div>
+      <div class="step"><span class="step-n">3</span><div><strong>Install ESLint and Prettier</strong><p>Run <ic>npm install -D eslint prettier @typescript-eslint/eslint-plugin eslint-plugin-react-hooks</ic>. Create config files for each.</p></div></div>
+      <div class="step"><span class="step-n">4</span><div><strong>Add testing</strong><p>Run <ic>npm install -D vitest @testing-library/react @testing-library/jest-dom</ic>. Add <ic>"test": "vitest"</ic> to your scripts.</p></div></div>
+      <div class="step"><span class="step-n">5</span><div><strong>Create .gitignore</strong><p>Add <ic>node_modules/</ic>, <ic>dist/</ic>, <ic>.env</ic>, and <ic>.DS_Store</ic>. This ensures you never accidentally commit generated files.</p></div></div>
+      <div class="step"><span class="step-n">6</span><div><strong>Start developing</strong><p>Run <ic>npm run dev</ic>. Your app is live at <ic>http://localhost:5173</ic> with hot module replacement enabled.</p></div></div>
+    </div>
+
+    <table class="c-table" style="margin-top:28px">
+      <thead><tr><th>Tool</th><th>What it does</th><th>Install command</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Vite</strong></td><td>Dev server + production build. Instant HMR.</td><td><ic>npm create vite@latest</ic></td></tr>
+        <tr><td><strong>ESLint</strong></td><td>Static analysis — finds bugs and bad patterns in your code.</td><td><ic>npm install -D eslint</ic></td></tr>
+        <tr><td><strong>Prettier</strong></td><td>Auto-formats your code to a consistent style.</td><td><ic>npm install -D prettier</ic></td></tr>
+        <tr><td><strong>Vitest</strong></td><td>Unit and integration testing, Vite-native and Jest-compatible.</td><td><ic>npm install -D vitest</ic></td></tr>
+        <tr><td><strong>Testing Library</strong></td><td>Render and interact with React components in tests.</td><td><ic>npm install -D @testing-library/react</ic></td></tr>
+      </tbody>
+    </table>
+
+    <!-- QUIZ -->
+    <div class="quiz-box">
+      <h3>Chapter 4 Quiz — Tooling</h3>
+      <div class="q-item" id="q14">
+        <span class="q-num">Q 1 OF 4</span>
+        <p class="q-text">Why is Vite's development server so much faster than traditional webpack-based setups?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q14',false)"><span class="ol">A</span>It compiles TypeScript faster using a custom compiler</button>
+          <button class="q-opt" onclick="ans(this,'q14',true)"><span class="ol">B</span>It serves files as native ES modules without bundling — the browser requests only what it needs</button>
+          <button class="q-opt" onclick="ans(this,'q14',false)"><span class="ol">C</span>It skips TypeScript type checking during development</button>
+          <button class="q-opt" onclick="ans(this,'q14',false)"><span class="ol">D</span>It uses Rollup which is faster than webpack</button>
+        </div>
+        <div class="q-fb" id="q14-fb"></div>
+      </div>
+      <div class="q-item" id="q15">
+        <span class="q-num">Q 2 OF 4</span>
+        <p class="q-text">A colleague says "ESLint and Prettier do the same thing." How would you correct them?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q15',false)"><span class="ol">A</span>They're right — both tools catch bugs and format code</button>
+          <button class="q-opt" onclick="ans(this,'q15',true)"><span class="ol">B</span>ESLint catches code quality issues and bugs; Prettier only handles formatting. They serve different purposes and complement each other</button>
+          <button class="q-opt" onclick="ans(this,'q15',false)"><span class="ol">C</span>Prettier is the modern replacement for ESLint</button>
+          <button class="q-opt" onclick="ans(this,'q15',false)"><span class="ol">D</span>ESLint only works with JavaScript, Prettier works with TypeScript</button>
+        </div>
+        <div class="q-fb" id="q15-fb"></div>
+      </div>
+      <div class="q-item" id="q16">
+        <span class="q-num">Q 3 OF 4</span>
+        <p class="q-text">What does <ic>vi.fn()</ic> create in a Vitest test?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q16',false)"><span class="ol">A</span>A virtual component for testing without a real DOM</button>
+          <button class="q-opt" onclick="ans(this,'q16',true)"><span class="ol">B</span>A mock function that records every call made to it, so you can assert it was called with the right arguments</button>
+          <button class="q-opt" onclick="ans(this,'q16',false)"><span class="ol">C</span>A fixture that automatically generates test data</button>
+          <button class="q-opt" onclick="ans(this,'q16',false)"><span class="ol">D</span>A utility that renders a component in isolation</button>
+        </div>
+        <div class="q-fb" id="q16-fb"></div>
+      </div>
+      <div class="q-item" id="q17">
+        <span class="q-num">Q 4 OF 4</span>
+        <p class="q-text">What is Hot Module Replacement (HMR) and why is it useful?</p>
+        <div class="q-opts">
+          <button class="q-opt" onclick="ans(this,'q17',false)"><span class="ol">A</span>It automatically restarts the server when you change a config file</button>
+          <button class="q-opt" onclick="ans(this,'q17',false)"><span class="ol">B</span>It replaces old code in production deployments automatically</button>
+          <button class="q-opt" onclick="ans(this,'q17',true)"><span class="ol">C</span>It updates only the changed module in the browser without a full reload, preserving your app's current state</button>
+          <button class="q-opt" onclick="ans(this,'q17',false)"><span class="ol">D</span>It splits your code into smaller chunks for faster loading</button>
+        </div>
+        <div class="q-fb" id="q17-fb"></div>
+      </div>
+    </div>
+
+    <!-- EXERCISE -->
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-badge">EXERCISE 04</span><span class="ex-title">Complete vite.config.ts + npm scripts</span></div>
+      <div class="ex-body">
+        <p class="ex-desc">Write a complete <ic>vite.config.ts</ic> that uses the React plugin, sets a <ic>@</ic> path alias pointing to <ic>./src</ic>, configures the dev server on port <ic>4000</ic> with auto-open, and proxies <ic>/api</ic> to <ic>http://localhost:3001</ic>. Also write the <ic>scripts</ic> object in package.json with <ic>dev</ic>, <ic>build</ic>, <ic>preview</ic>, <ic>lint</ic>, and <ic>test</ic> commands.</p>
+        <textarea class="code-ta">// vite.config.ts
+import { defineConfig } from 'vite';
+// what else do you need to import?
+
+export default defineConfig({
+  // plugins, resolve.alias, server, build?
+});
+
+// package.json scripts section:
+// "scripts": {  ...  }</textarea>
+        <div class="ex-actions"><button class="btn btn-ghost" onclick="sol('s4')">👁 Show Solution</button></div>
+        <div class="sol" id="s4"><div class="sol-head">✓ SOLUTION</div><pre>// vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  },
+
+  server: {
+    port: 4000,
+    open: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true
+      }
+    }
+  },
+
+  build: {
+    outDir: 'dist',
+    sourcemap: true
+  }
+});
+
+// package.json scripts section:
+"scripts": {
+  "dev":     "vite",
+  "build":   "vite build",
+  "preview": "vite preview",
+  "lint":    "eslint src --ext .ts,.tsx",
+  "test":    "vitest"
+}</pre></div>
+      </div>
+    </div>
+
+    <!-- FINISH CARD -->
+    <div class="finish-card">
+      <div class="fi">🏆</div>
+      <h3>Course Complete!</h3>
+      <p>You've covered the full modern frontend stack — Node.js, npm, TypeScript, React, and professional tooling. You now have the foundation to build real, production-grade web applications. Keep building things and the concepts will solidify quickly.</p>
+    </div>
+
+    <div class="sec-nav">
+      <button class="snb" onclick="show('react',document.querySelector('[data-s=react]'))">← React</button>
+      <button class="snb primary" onclick="show('home',document.querySelector('[data-s=home]'))">🏠 Back to Overview</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ── State
+let score=0,total=0;
+const answered={};
+const chapterQ={nodejs:['q1','q2','q3','q4'],typescript:['q5','q6','q7','q8'],react:['q9','q10','q11','q12','q13'],tooling:['q14','q15','q16','q17']};
+const explain={
+  q1:'Correct! The <code>-D</code> flag saves to devDependencies. Without it, the package goes into regular dependencies.',
+  q2:'Correct! The lock file is small and records exact versions; node_modules is huge but regenerated from it using npm install.',
+  q3:'Correct! The caret ^ allows minor (18.x) and patch (18.3.x) updates but never a major version bump to 19.',
+  q4:'Correct! npx downloads and executes the package temporarily — no permanent installation, so your global environment stays clean.',
+  q5:'Correct! Partial&lt;T&gt; makes every property in T optional, useful for update/patch operations.',
+  q6:'Correct! TypeScript infers the type from the initial value. Once inferred as string, assigning a number is an error.',
+  q7:'Correct! Generics preserve the type information — the caller gets a properly-typed return value with full autocomplete.',
+  q8:'Correct! The ? means the property is optional — the object can be created without providing that field.',
+  q9:'Correct! React only re-renders when you call the setter function. Direct mutation is invisible to React.',
+  q10:'Correct! React uses the key to efficiently reconcile list changes — it tracks identity, not position.',
+  q11:'Correct! An empty dependency array means "run once on mount" — perfect for one-time data fetching.',
+  q12:'Correct! Single curly braces {expression} embed any JavaScript expression into JSX output.',
+  q13:'Correct! The --template react-ts flag scaffolds with React and TypeScript pre-configured by Vite.',
+  q14:'Correct! Vite exploits native browser ES Modules — no bundling step needed in dev, so startup is instant.',
+  q15:'Correct! ESLint = code quality and bug detection. Prettier = formatting only. They complement each other perfectly.',
+  q16:'Correct! vi.fn() creates a mock function — it tracks how many times it was called and with what arguments.',
+  q17:'Correct! HMR replaces only the changed module in the running browser without a full reload, preserving app state.'
+};
+
+function show(id,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(el)el.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function ans(btn,qId,ok){
+  if(answered[qId])return;
+  answered[qId]=true;total++;
+  const item=document.getElementById(qId);
+  const opts=item.querySelectorAll('.q-opt');
+  opts.forEach(o=>{
+    o.classList.add('dis');
+    if(o===btn&&ok) o.classList.add('correct');
+    else if(o===btn&&!ok) o.classList.add('wrong');
+    if(o!==btn&&o.onclick&&o.onclick.toString().includes(',true)')) o.classList.add('show-ok');
+  });
+  if(ok)score++;
+  document.getElementById('sv').textContent=score+' / '+total;
+  const fb=document.getElementById(qId+'-fb');
+  fb.className='q-fb show '+(ok?'ok':'fail');
+  fb.innerHTML=(ok?'✅ ':'❌ ')+(ok?explain[qId]:'Not quite — check the highlighted correct answer above.');
+  checkDone();updateProg();
+}
+
+function checkDone(){
+  Object.entries(chapterQ).forEach(([ch,qs])=>{
+    if(qs.every(q=>answered[q])){
+      const el=document.querySelector('[data-s="'+ch+'"]');
+      if(el&&!el.classList.contains('done')){el.classList.add('done');el.querySelector('.nck').textContent='✓';}
+    }
+  });
+}
+
+function updateProg(){
+  const tot=Object.values(chapterQ).flat().length;
+  const done=Object.keys(answered).length;
+  const p=Math.round(done/tot*100);
+  document.getElementById('fill').style.width=p+'%';
+  document.getElementById('pct').textContent=p+'%';
+}
+
+function sol(id){
+  const el=document.getElementById(id);
+  el.classList.toggle('open');
+}
+</script>
+</body>
+</html>

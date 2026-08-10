@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Internet Fundamentals</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232635;
+    --border: #2e3248;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --accent3: #ff6b6b;
+    --text: #e8eaf6;
+    --muted: #8b92b8;
+    --card: #1e2133;
+    --sidebar-w: 260px;
+    --radius: 12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;line-height:1.7;}
+
+  /* ── SIDEBAR ── */
+  #sidebar{
+    position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;
+    background:var(--surface);border-right:1px solid var(--border);
+    overflow-y:auto;z-index:100;padding:24px 0;
+    transition:transform .3s ease;
+  }
+  #sidebar h2{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);padding:0 20px 10px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+  .nav-section{margin-bottom:4px;}
+  .nav-item{display:block;padding:8px 20px;font-size:.85rem;color:var(--muted);
+    text-decoration:none;border-left:3px solid transparent;transition:all .2s;cursor:pointer;}
+  .nav-item:hover,.nav-item.active{color:var(--text);border-left-color:var(--accent);background:rgba(108,99,255,.08);}
+  .nav-sub{display:block;padding:5px 20px 5px 32px;font-size:.78rem;color:var(--muted);
+    text-decoration:none;transition:all .2s;cursor:pointer;}
+  .nav-sub:hover{color:var(--accent2);}
+  .sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+  .sidebar-logo span{font-size:1.1rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .sidebar-logo small{display:block;font-size:.72rem;color:var(--muted);margin-top:2px;}
+
+  /* ── MAIN ── */
+  #main{margin-left:var(--sidebar-w);flex:1;padding:40px 48px;max-width:calc(100% - var(--sidebar-w));}
+
+  /* ── HERO ── */
+  .hero{background:linear-gradient(135deg,#1a1d27 0%,#0f1117 60%,#1a1020 100%);
+    border:1px solid var(--border);border-radius:var(--radius);padding:52px 48px;margin-bottom:48px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;
+    background:radial-gradient(circle,rgba(108,99,255,.15) 0%,transparent 70%);border-radius:50%;}
+  .hero::after{content:'';position:absolute;bottom:-60px;left:100px;width:200px;height:200px;
+    background:radial-gradient(circle,rgba(0,212,170,.1) 0%,transparent 70%);border-radius:50%;}
+  .hero h1{font-size:2.6rem;font-weight:800;line-height:1.2;margin-bottom:12px;
+    background:linear-gradient(135deg,#fff 0%,var(--accent) 60%,var(--accent2) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative;z-index:1;}
+  .hero p{font-size:1.05rem;color:var(--muted);max-width:600px;position:relative;z-index:1;}
+  .hero-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;position:relative;z-index:1;}
+  .badge{padding:5px 14px;border-radius:20px;font-size:.75rem;font-weight:600;
+    border:1px solid;letter-spacing:.04em;}
+  .badge.purple{color:var(--accent);border-color:rgba(108,99,255,.4);background:rgba(108,99,255,.1);}
+  .badge.teal{color:var(--accent2);border-color:rgba(0,212,170,.4);background:rgba(0,212,170,.1);}
+  .badge.red{color:var(--accent3);border-color:rgba(255,107,107,.4);background:rgba(255,107,107,.1);}
+
+  /* ── SECTIONS ── */
+  section{margin-bottom:56px;scroll-margin-top:24px;}
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+  .section-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;flex-shrink:0;}
+  .icon-purple{background:rgba(108,99,255,.15);color:var(--accent);}
+  .icon-teal{background:rgba(0,212,170,.15);color:var(--accent2);}
+  .icon-red{background:rgba(255,107,107,.15);color:var(--accent3);}
+  .icon-yellow{background:rgba(255,193,7,.15);color:#ffc107;}
+  .icon-blue{background:rgba(33,150,243,.15);color:#2196f3;}
+  h2.sec-title{font-size:1.5rem;font-weight:700;}
+  h3.sub-title{font-size:1.1rem;font-weight:600;color:var(--text);margin:24px 0 12px;}
+  p{color:#c5c9e0;margin-bottom:12px;}
+
+  /* ── CARDS ── */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:16px;}
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:16px;}
+  .term-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:18px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+  .term-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));transform:scaleX(0);
+    transform-origin:left;transition:transform .3s;}
+  .term-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,99,255,.15);}
+  .term-card:hover::before{transform:scaleX(1);}
+  .term-card h4{font-size:.85rem;font-weight:700;color:var(--accent);margin-bottom:6px;letter-spacing:.04em;}
+  .term-card p{font-size:.82rem;color:var(--muted);margin:0;line-height:1.5;}
+
+  /* ── TABLE ── */
+  .styled-table{width:100%;border-collapse:collapse;font-size:.875rem;}
+  .styled-table th{background:rgba(108,99,255,.12);color:var(--accent);font-weight:600;
+    padding:12px 16px;text-align:left;border-bottom:2px solid var(--border);}
+  .styled-table td{padding:12px 16px;border-bottom:1px solid var(--border);color:#c5c9e0;}
+  .styled-table tr:hover td{background:rgba(255,255,255,.02);}
+  .styled-table tr:last-child td{border-bottom:none;}
+  .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    overflow:hidden;margin-bottom:20px;}
+
+  /* ── CODE ── */
+  code{background:rgba(108,99,255,.15);color:#a78bfa;padding:2px 8px;border-radius:4px;font-size:.85em;font-family:'Courier New',monospace;}
+
+  /* ── PROTOCOL PILLS ── */
+  .proto-list{display:flex;flex-direction:column;gap:14px;}
+  .proto-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 20px;display:flex;gap:14px;align-items:flex-start;transition:border-color .2s;}
+  .proto-item:hover{border-color:var(--accent);}
+  .proto-tag{min-width:64px;padding:4px 10px;border-radius:6px;font-size:.75rem;font-weight:700;
+    text-align:center;letter-spacing:.05em;}
+  .tag-purple{background:rgba(108,99,255,.2);color:var(--accent);}
+  .tag-teal{background:rgba(0,212,170,.2);color:var(--accent2);}
+  .tag-red{background:rgba(255,107,107,.2);color:var(--accent3);}
+  .tag-yellow{background:rgba(255,193,7,.2);color:#ffc107;}
+  .tag-blue{background:rgba(33,150,243,.2);color:#2196f3;}
+  .proto-item h4{font-size:.9rem;font-weight:600;margin-bottom:4px;}
+  .proto-item p{font-size:.83rem;margin:0;color:var(--muted);}
+
+  /* ── DNS STEPS ── */
+  .dns-steps{counter-reset:step;}
+  .dns-step{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--border);
+    cursor:pointer;transition:all .2s;align-items:flex-start;}
+  .dns-step:last-child{border-bottom:none;}
+  .dns-step:hover .step-content{color:var(--text);}
+  .dns-step:hover .step-num{background:var(--accent);color:#fff;}
+  .step-num{min-width:32px;height:32px;border-radius:50%;background:var(--surface2);
+    border:2px solid var(--border);display:flex;align-items:center;justify-content:center;
+    font-size:.8rem;font-weight:700;color:var(--accent);transition:all .2s;flex-shrink:0;margin-top:2px;}
+  .step-content{font-size:.87rem;color:var(--muted);line-height:1.5;transition:color .2s;}
+  .step-content strong{color:var(--text);display:block;margin-bottom:2px;}
+  .dns-step.active .step-num{background:var(--accent);color:#fff;box-shadow:0 0 12px rgba(108,99,255,.5);}
+  .dns-step.active .step-content{color:var(--text);}
+
+  /* ── HTTP TIMELINE ── */
+  .http-timeline{position:relative;padding-left:32px;}
+  .http-timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;
+    width:2px;background:linear-gradient(180deg,var(--accent),var(--accent2));}
+  .http-entry{position:relative;margin-bottom:24px;cursor:pointer;}
+  .http-entry::before{content:'';position:absolute;left:-28px;top:6px;width:12px;height:12px;
+    border-radius:50%;background:var(--accent);border:2px solid var(--bg);
+    box-shadow:0 0 8px rgba(108,99,255,.5);transition:all .2s;}
+  .http-entry:hover::before{background:var(--accent2);box-shadow:0 0 12px rgba(0,212,170,.6);transform:scale(1.3);}
+  .http-year{font-size:.75rem;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;}
+  .http-entry h4{font-size:.95rem;font-weight:700;margin-bottom:6px;}
+  .http-body{font-size:.83rem;color:var(--muted);max-height:0;overflow:hidden;transition:max-height .4s ease;}
+  .http-entry.open .http-body{max-height:500px;}
+  .http-features{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;}
+  .feat-pill{padding:3px 10px;border-radius:12px;font-size:.72rem;background:rgba(108,99,255,.1);
+    color:var(--accent);border:1px solid rgba(108,99,255,.25);}
+  .expand-hint{font-size:.72rem;color:var(--muted);margin-top:4px;}
+
+  /* ── IP SECTION ── */
+  .ip-example{display:flex;gap:12px;margin:16px 0;flex-wrap:wrap;}
+  .ip-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 20px;flex:1;min-width:200px;}
+  .ip-box .label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+    margin-bottom:8px;}
+  .ip-box code{font-size:.9rem;display:block;background:transparent;padding:0;color:var(--accent2);}
+
+  /* ── HOSTING TABLE ── */
+  .host-badge{padding:3px 10px;border-radius:10px;font-size:.72rem;font-weight:600;}
+  .hb-basic{background:rgba(255,193,7,.1);color:#ffc107;}
+  .hb-good{background:rgba(0,212,170,.1);color:var(--accent2);}
+  .hb-excellent{background:rgba(108,99,255,.1);color:var(--accent);}
+  .hb-high{background:rgba(33,150,243,.1);color:#2196f3;}
+
+  /* ── BROWSER DIAGRAM ── */
+  .browser-diagram{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin:16px 0;}
+  .browser-comp{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px;text-align:center;transition:all .25s;cursor:default;}
+  .browser-comp:hover{border-color:var(--accent2);background:rgba(0,212,170,.04);}
+  .browser-comp .comp-icon{font-size:1.6rem;margin-bottom:8px;}
+  .browser-comp h4{font-size:.82rem;font-weight:700;margin-bottom:4px;color:var(--accent2);}
+  .browser-comp p{font-size:.75rem;color:var(--muted);margin:0;}
+
+  /* ── HANDSHAKE VISUAL ── */
+  .handshake{display:flex;gap:0;align-items:stretch;margin:16px 0;}
+  .hs-side{flex:1;text-align:center;padding:16px;background:var(--card);border:1px solid var(--border);}
+  .hs-side:first-child{border-radius:var(--radius) 0 0 var(--radius);}
+  .hs-side:last-child{border-radius:0 var(--radius) var(--radius) 0;}
+  .hs-middle{flex:2;display:flex;flex-direction:column;justify-content:center;padding:8px;background:var(--surface2);}
+  .hs-side h4{font-size:.82rem;font-weight:700;color:var(--accent);}
+  .hs-arrow{text-align:center;padding:6px;font-size:.8rem;color:var(--muted);}
+  .hs-arrow span{color:var(--accent2);font-weight:600;}
+  .arrow-line{display:flex;align-items:center;gap:8px;justify-content:center;}
+  .arr{color:var(--accent);font-size:1rem;}
+
+  /* ── TLS SECTION ── */
+  .tls-steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin:16px 0;}
+  .tls-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px;transition:all .25s;}
+  .tls-card:hover{border-color:var(--accent3);}
+  .tls-num{font-size:.75rem;font-weight:700;color:var(--accent3);margin-bottom:6px;letter-spacing:.06em;}
+  .tls-card h4{font-size:.88rem;font-weight:700;margin-bottom:6px;}
+  .tls-card p{font-size:.8rem;color:var(--muted);margin:0;}
+
+  /* ── DNS TYPES ── */
+  .dns-server-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin:16px 0;}
+  .dns-server-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:24px;position:relative;overflow:hidden;transition:all .25s;}
+  .dns-server-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.3);}
+  .dns-server-card .order{position:absolute;top:12px;right:12px;width:24px;height:24px;
+    border-radius:50%;background:var(--accent);color:#fff;font-size:.7rem;font-weight:700;
+    display:flex;align-items:center;justify-content:center;}
+  .dns-server-card h4{font-size:.88rem;font-weight:700;color:var(--accent2);margin-bottom:6px;}
+  .dns-server-card p{font-size:.8rem;color:var(--muted);margin:0;}
+
+  /* ── CACHING ── */
+  .cache-flow{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:16px 0;}
+  .cache-node{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:12px 16px;font-size:.8rem;text-align:center;transition:all .2s;cursor:pointer;}
+  .cache-node:hover{border-color:var(--accent);color:var(--accent);}
+  .cache-node .cn-icon{font-size:1.2rem;margin-bottom:4px;}
+  .cache-node h5{font-size:.78rem;font-weight:700;}
+  .cache-arrow{color:var(--muted);font-size:1.2rem;}
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+  /* ── MOBILE ── */
+  #burger{display:none;position:fixed;top:16px;left:16px;z-index:200;
+    background:var(--surface);border:1px solid var(--border);border-radius:8px;
+    padding:8px 10px;cursor:pointer;color:var(--text);font-size:1.1rem;}
+  @media(max-width:768px){
+    #sidebar{transform:translateX(-100%);}
+    #sidebar.open{transform:translateX(0);}
+    #main{margin-left:0;padding:20px 18px;max-width:100%;}
+    #burger{display:block;}
+    .hero h1{font-size:1.8rem;}
+    .hero{padding:32px 24px;}
+  }
+
+  /* Progress bar */
+  #progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));
+    z-index:999;transition:width .1s;}
+
+  /* Tooltip */
+  [data-tip]{position:relative;}
+  [data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;
+    transform:translateX(-50%);background:#1e2133;border:1px solid var(--border);padding:6px 10px;
+    border-radius:6px;font-size:.75rem;color:var(--text);white-space:nowrap;z-index:50;
+    box-shadow:0 4px 14px rgba(0,0,0,.4);}
+
+  .highlight-box{background:rgba(0,212,170,.06);border:1px solid rgba(0,212,170,.2);
+    border-radius:var(--radius);padding:16px 20px;margin:16px 0;}
+  .highlight-box p{margin:0;font-size:.87rem;}
+  .highlight-box strong{color:var(--accent2);}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<button id="burger" onclick="toggleSidebar()">☰</button>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <span>🌐 Internet Fundamentals</span>
+    <small>Interactive Study Guide</small>
+  </div>
+  <h2>Contents</h2>
+  <a class="nav-item" onclick="scrollTo('intro')">What is the Internet</a>
+  <a class="nav-item" onclick="scrollTo('how')">How the Internet Works</a>
+  <a class="nav-item" onclick="scrollTo('terms')">Core Terminology</a>
+  <a class="nav-item" onclick="scrollTo('protocols')">Network Protocols</a>
+  <a class="nav-sub" onclick="scrollTo('core-proto')">Core Protocols</a>
+  <a class="nav-item" onclick="scrollTo('ip')">IP Addresses & Domain Names</a>
+  <a class="nav-sub" onclick="scrollTo('ipv4v6')">IPv4 vs IPv6</a>
+  <a class="nav-item" onclick="scrollTo('dns')">DNS</a>
+  <a class="nav-sub" onclick="scrollTo('dns-types')">Server Types</a>
+  <a class="nav-sub" onclick="scrollTo('dns-steps')">DNS Lookup Steps</a>
+  <a class="nav-sub" onclick="scrollTo('dns-cache')">Caching</a>
+  <a class="nav-item" onclick="scrollTo('http')">HTTP & HTTPS</a>
+  <a class="nav-sub" onclick="scrollTo('http-evo')">Evolution of HTTP</a>
+  <a class="nav-item" onclick="scrollTo('tls')">SSL / TLS</a>
+  <a class="nav-item" onclick="scrollTo('tcp')">TCP/IP in Dev</a>
+  <a class="nav-sub" onclick="scrollTo('ports')">Ports</a>
+  <a class="nav-item" onclick="scrollTo('hosting')">Web Hosting</a>
+  <a class="nav-item" onclick="scrollTo('browser')">Web Browsers</a>
+  <a class="nav-sub" onclick="scrollTo('render')">Rendering Engines</a>
+  <a class="nav-sub" onclick="scrollTo('security')">Browser Security</a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main id="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>Internet Fundamentals</h1>
+    <p>A complete interactive guide to how the internet works — from packets and protocols to browsers and hosting.</p>
+    <div class="hero-badges">
+      <span class="badge purple">Protocols</span>
+      <span class="badge teal">DNS</span>
+      <span class="badge purple">HTTP / HTTPS</span>
+      <span class="badge red">SSL / TLS</span>
+      <span class="badge teal">Web Hosting</span>
+      <span class="badge purple">Browsers</span>
+    </div>
+  </div>
+
+  <!-- WHAT IS THE INTERNET -->
+  <section id="intro">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🌐</div>
+      <h2 class="sec-title">What is the Internet</h2>
+    </div>
+    <p>A <strong>network</strong> is a group of computers or devices connected to each other. The <strong>internet</strong> is a network of networks — when individual home, office, and institutional networks are all connected together, they form the global internet.</p>
+    <p>The internet was developed in the <strong>late 1960s</strong> by the United States Department of Defense as a decentralized communication system. Today it serves billions of users worldwide and forms the foundation upon which every modern software application is built.</p>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="section-header">
+      <div class="section-icon icon-teal">⚙️</div>
+      <h2 class="sec-title">How the Internet Works</h2>
+    </div>
+    <p>At a high level, the internet connects devices through a set of <strong>standardized protocols</strong> that define how information is exchanged and ensure data is transmitted reliably and securely.</p>
+    <div class="card">
+      <p style="margin:0;">The core of the internet is a global network of interconnected <strong>routers</strong>, which direct traffic between devices and systems. When you send data, it is broken into small units called <strong>packets</strong>. Each packet travels through a series of routers until it reaches its destination, where the packets are reassembled into the original message.</p>
+    </div>
+  </section>
+
+  <!-- CORE TERMINOLOGY -->
+  <section id="terms">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">📖</div>
+      <h2 class="sec-title">Core Terminology</h2>
+    </div>
+    <p>Hover over any card to highlight it. Click to pin a definition.</p>
+    <div class="card-grid">
+      <div class="term-card"><h4>Packet</h4><p>A small unit of data transmitted over the internet</p></div>
+      <div class="term-card"><h4>Router</h4><p>A device that directs packets between different networks</p></div>
+      <div class="term-card"><h4>IP Address</h4><p>A unique identifier assigned to each device on a network</p></div>
+      <div class="term-card"><h4>Domain Name</h4><p>A human-readable name used to identify a website (e.g., <code>google.com</code>)</p></div>
+      <div class="term-card"><h4>DNS</h4><p>Domain Name System; translates domain names into IP addresses</p></div>
+      <div class="term-card"><h4>HTTP</h4><p>Hypertext Transfer Protocol; transfers data between clients and servers</p></div>
+      <div class="term-card"><h4>HTTPS</h4><p>An encrypted version of HTTP using SSL/TLS</p></div>
+      <div class="term-card"><h4>SSL / TLS</h4><p>Protocols that provide secure, encrypted communication</p></div>
+      <div class="term-card"><h4>Bandwidth</h4><p>The volume of data that can be transferred per second</p></div>
+      <div class="term-card"><h4>Latency</h4><p>The time delay for data to travel between source and destination</p></div>
+    </div>
+  </section>
+
+  <!-- PROTOCOLS -->
+  <section id="protocols">
+    <div class="section-header">
+      <div class="section-icon icon-purple">📡</div>
+      <h2 class="sec-title">Network Protocols</h2>
+    </div>
+    <p>A <strong>protocol</strong> is a set of rules and standards defining how information is exchanged between devices. Protocols allow devices from different manufacturers to communicate seamlessly.</p>
+    <h3 class="sub-title" id="core-proto">Core Protocols</h3>
+    <div class="proto-list">
+      <div class="proto-item">
+        <span class="proto-tag tag-purple">IP</span>
+        <div><h4>Internet Protocol</h4><p>Routes packets to their correct destination using IP addresses. Every device on the internet is assigned an IP address used to identify and locate it.</p></div>
+      </div>
+      <div class="proto-item">
+        <span class="proto-tag tag-teal">TCP</span>
+        <div><h4>Transmission Control Protocol</h4><p>Ensures packets are delivered reliably, in the correct order, and without errors. Establishes a formal connection (via handshake) before data transfer begins.</p></div>
+      </div>
+      <div class="proto-item">
+        <span class="proto-tag tag-red">UDP</span>
+        <div><h4>User Datagram Protocol</h4><p>A faster but less reliable alternative to TCP. Suitable for real-time applications such as video streaming and online gaming where speed is prioritized over guaranteed delivery.</p></div>
+      </div>
+      <div class="proto-item">
+        <span class="proto-tag tag-yellow">DNS</span>
+        <div><h4>Domain Name System</h4><p>Translates human-readable domain names into machine-readable IP addresses.</p></div>
+      </div>
+      <div class="proto-item">
+        <span class="proto-tag tag-blue">HTTP/S</span>
+        <div><h4>Hypertext Transfer Protocol (Secure)</h4><p>Defines how content is requested and delivered between web clients and servers. HTTPS adds TLS encryption.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IP ADDRESSES -->
+  <section id="ip">
+    <div class="section-header">
+      <div class="section-icon icon-teal">🔢</div>
+      <h2 class="sec-title">IP Addresses &amp; Domain Names</h2>
+    </div>
+    <p>An <strong>IP address</strong> is a unique numerical identifier assigned to every device on a network. It ensures data packets are routed to the correct destination.</p>
+    <div id="ipv4v6" class="ip-example">
+      <div class="ip-box">
+        <div class="label" style="color:var(--accent);">IPv4</div>
+        <code>192.168.1.1</code>
+        <p style="font-size:.78rem;color:var(--muted);margin-top:8px;margin-bottom:0;">Four numbers separated by periods. Supports ~4.3 billion unique addresses — a limit now effectively exhausted.</p>
+      </div>
+      <div class="ip-box">
+        <div class="label" style="color:var(--accent2);">IPv6</div>
+        <code>2400:cb00:2048:1::c629:d7a2</code>
+        <p style="font-size:.78rem;color:var(--muted);margin-top:8px;margin-bottom:0;">Alphanumeric notation supporting an exponentially larger address space for modern devices.</p>
+      </div>
+    </div>
+    <h3 class="sub-title">Domain Names</h3>
+    <p>Domain names are human-readable identifiers for websites (e.g., <code>google.com</code>). Because computers communicate using IP addresses, the <strong>Domain Name System (DNS)</strong> is responsible for translating domain names into IP addresses.</p>
+  </section>
+
+  <!-- DNS -->
+  <section id="dns">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">📚</div>
+      <h2 class="sec-title">Domain Name System (DNS)</h2>
+    </div>
+    <div class="highlight-box">
+      <p>🔖 <strong>DNS is often described as the phonebook of the internet.</strong> It translates human-readable domain names into the IP addresses machines require. Without DNS, users would need to memorize a numerical IP address for every website they visit.</p>
+    </div>
+
+    <h3 class="sub-title" id="dns-types">The Four DNS Server Types</h3>
+    <div class="dns-server-grid">
+      <div class="dns-server-card"><div class="order">1</div><h4>DNS Recursor</h4><p>Receives queries from client applications (like a browser) and makes further requests to fully resolve the query.</p></div>
+      <div class="dns-server-card"><div class="order">2</div><h4>Root Nameserver</h4><p>First stop in the resolution chain. Doesn't know the final IP but directs the recursor to the appropriate TLD nameserver.</p></div>
+      <div class="dns-server-card"><div class="order">3</div><h4>TLD Nameserver</h4><p>Handles the last segment of a domain (e.g., <code>.com</code>, <code>.org</code>). Directs the recursor to the authoritative nameserver.</p></div>
+      <div class="dns-server-card"><div class="order">4</div><h4>Authoritative Nameserver</h4><p>Final stop. Holds the actual DNS record and returns the corresponding IP address to the recursor.</p></div>
+    </div>
+
+    <h3 class="sub-title" id="dns-steps">The DNS Lookup: 8 Steps</h3>
+    <p style="font-size:.83rem;color:var(--muted);">Click each step to highlight it.</p>
+    <div class="card">
+      <div class="dns-steps">
+        <div class="dns-step" onclick="toggleStep(this)">
+          <div class="step-num">1</div>
+          <div class="step-content"><strong>Browser → DNS Recursor</strong>User enters a domain name. The query is sent to a DNS recursive resolver.</div>
+        </div>
+        <div class="dns-step" onclick="toggleStep(this)">
+          <div class="step-num">2</div>
+          <div class="step-content"><strong>Recursor → Root Nameserver</strong>The resolver queries a DNS root nameserver.</div>
+        </div>
+        <div class="dns-step" onclick="toggleStep(this)">
+          <div class="step-num">3</div>
+          <div class="step-content"><strong>Root → TLD Reference</strong>The root server responds with the address of the relevant TLD nameserver (e.g., <code>.com</code>).</div>
+        </div>
+        <div class="dns-step" onclick="toggleStep(this)">
+          <div class="step-num">4</div>
+          <div class="step-content"><strong>Recursor → TLD Nameserver</strong>The resolver queries the TLD nameserver.</div>
+        </div>
+        <div class="dns-step" onclick="toggleStep(this)">
+          <div class="step-num">5</div>
+          <div class="step-content"><strong>TLD → Authoritative Reference</strong>The TLD server responds with the address of the domain's authoritative nameserver.</div>
+        </div>
+        <div class="dns-step" onclick="toggleStep(this)">
+          <div class="step-num">6</div>
+          <div class="step-content"><strong>Recursor → Authoritative Nameserver</strong>The resolver queries the authoritative nameserver.</div>
+        </div>
+        <div class="dns-step" onclick="toggleStep(this)">
+          <div class="step-num">7</div>
+          <div class="step-content"><strong>IP Address Returned</strong>The authoritative nameserver returns the IP address for the domain.</div>
+        </div>
+        <div class="dns-step" onclick="toggleStep(this)">
+          <div class="step-num">8</div>
+          <div class="step-content"><strong>Browser Makes HTTP Request</strong>The resolver passes the IP address to the browser, which now makes an HTTP request to the web server.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-title" id="dns-cache">DNS Caching</h3>
+    <p>DNS records are cached at multiple levels to reduce lookup times. Each record is stored for a duration defined by a <strong>Time-to-Live (TTL)</strong> value set by the domain owner.</p>
+    <div class="cache-flow">
+      <div class="cache-node" onclick="this.style.borderColor='var(--accent)'">
+        <div class="cn-icon">🖥️</div><h5>Browser Cache</h5>
+        <p style="font-size:.7rem;color:var(--muted);margin:0;">First stop. Eliminates full lookup on repeat visits.</p>
+      </div>
+      <div class="cache-arrow">→</div>
+      <div class="cache-node" onclick="this.style.borderColor='var(--accent)'">
+        <div class="cn-icon">💻</div><h5>OS Cache</h5>
+        <p style="font-size:.7rem;color:var(--muted);margin:0;">OS stub resolver checks local cache next.</p>
+      </div>
+      <div class="cache-arrow">→</div>
+      <div class="cache-node" onclick="this.style.borderColor='var(--accent)'">
+        <div class="cn-icon">🔄</div><h5>ISP Resolver Cache</h5>
+        <p style="font-size:.7rem;color:var(--muted);margin:0;">Forwarded to ISP's recursive resolver if local caches miss.</p>
+      </div>
+      <div class="cache-arrow">→</div>
+      <div class="cache-node" onclick="this.style.borderColor='var(--accent)'">
+        <div class="cn-icon">🌍</div><h5>Upstream Servers</h5>
+        <p style="font-size:.7rem;color:var(--muted);margin:0;">Full DNS resolution if all caches miss.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HTTP -->
+  <section id="http">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🔗</div>
+      <h2 class="sec-title">HTTP &amp; HTTPS</h2>
+    </div>
+    <p><strong>HTTP (Hypertext Transfer Protocol)</strong> is a TCP/IP-based, application-layer protocol that standardizes how clients and servers communicate. By default, HTTP operates on <code>TCP port 80</code>.</p>
+
+    <h3 class="sub-title" id="http-evo">Evolution of HTTP</h3>
+    <p style="font-size:.83rem;color:var(--muted);">Click any version to expand its details.</p>
+    <div class="http-timeline">
+      <div class="http-entry" onclick="toggleHttp(this)">
+        <div class="http-year">1991</div>
+        <h4>HTTP/0.9</h4>
+        <div class="expand-hint">▸ Click to expand</div>
+        <div class="http-body">
+          <p>The original version. Supported only one method — <strong>GET</strong> — and responses were limited to raw HTML. No headers, no status codes, no other content types. Connection closed after each response.</p>
+        </div>
+      </div>
+      <div class="http-entry" onclick="toggleHttp(this)">
+        <div class="http-year">1996</div>
+        <h4>HTTP/1.0</h4>
+        <div class="expand-hint">▸ Click to expand</div>
+        <div class="http-body">
+          <p>Introduced headers, status codes, multiple content types, and new methods (POST, HEAD). A major limitation: each request required a <strong>new TCP connection</strong> with a full three-way handshake — SYN → SYN-ACK → ACK.</p>
+          <div class="handshake">
+            <div class="hs-side"><h4>Client</h4></div>
+            <div class="hs-middle">
+              <div class="hs-arrow"><div class="arrow-line"><span>SYN</span><span class="arr">→</span></div></div>
+              <div class="hs-arrow"><div class="arrow-line"><span class="arr">←</span><span>SYN-ACK</span></div></div>
+              <div class="hs-arrow"><div class="arrow-line"><span>ACK</span><span class="arr">→</span></div></div>
+            </div>
+            <div class="hs-side"><h4>Server</h4></div>
+          </div>
+          <p style="font-size:.8rem;color:var(--muted);">A page loading 20 resources required 20 separate TCP connections, each with this overhead.</p>
+        </div>
+      </div>
+      <div class="http-entry" onclick="toggleHttp(this)">
+        <div class="http-year">1997</div>
+        <h4>HTTP/1.1</h4>
+        <div class="expand-hint">▸ Click to expand</div>
+        <div class="http-body">
+          <div class="http-features">
+            <span class="feat-pill">Persistent Connections</span>
+            <span class="feat-pill">Pipelining</span>
+            <span class="feat-pill">Chunked Transfer</span>
+            <span class="feat-pill">PUT / PATCH / DELETE</span>
+            <span class="feat-pill">Host Header</span>
+          </div>
+          <p style="margin-top:10px;">Connections remain open by default. A notable limitation: <strong>head-of-line blocking</strong> — a slow or large request blocks all subsequent requests queued behind it in the same pipeline.</p>
+        </div>
+      </div>
+      <div class="http-entry" onclick="toggleHttp(this)">
+        <div class="http-year">2015</div>
+        <h4>HTTP/2</h4>
+        <div class="expand-hint">▸ Click to expand</div>
+        <div class="http-body">
+          <div class="http-features">
+            <span class="feat-pill">Binary Protocol</span>
+            <span class="feat-pill">Multiplexing</span>
+            <span class="feat-pill">HPACK Header Compression</span>
+            <span class="feat-pill">Server Push</span>
+            <span class="feat-pill">Request Prioritization</span>
+            <span class="feat-pill">TLS Effectively Mandatory</span>
+          </div>
+          <p style="margin-top:10px;">Data is transmitted as binary frames. Multiple requests and responses are <strong>interleaved asynchronously</strong> over a single TCP connection, eliminating head-of-line blocking.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">HTTPS</h3>
+    <div class="card">
+      <p style="margin:0;"><strong>HTTPS (HTTP Secure)</strong> is the encrypted version of HTTP. It uses SSL/TLS to encrypt all data between client and server, protecting credentials, session tokens, and payment data from interception. HTTPS operates on <code>TCP port 443</code>. Browsers indicate a secure connection with a padlock icon in the address bar.</p>
+    </div>
+  </section>
+
+  <!-- TLS -->
+  <section id="tls">
+    <div class="section-header">
+      <div class="section-icon icon-red">🔒</div>
+      <h2 class="sec-title">SSL / TLS</h2>
+    </div>
+    <p><strong>SSL (Secure Sockets Layer)</strong> and its successor <strong>TLS (Transport Layer Security)</strong> are cryptographic protocols that provide secure, encrypted communication. SSL is deprecated — TLS is the current standard, though "SSL" is still used informally.</p>
+    <div class="tls-steps">
+      <div class="tls-card">
+        <div class="tls-num">STEP 1 — CERTIFICATES</div>
+        <h4>Certificate Verification</h4>
+        <p>TLS certificates are issued by trusted Certificate Authorities (CAs). They contain the server's public key and identity info, allowing the client to verify it's communicating with the legitimate server.</p>
+      </div>
+      <div class="tls-card">
+        <div class="tls-num">STEP 2 — HANDSHAKE</div>
+        <h4>TLS Handshake</h4>
+        <p>Client and server negotiate the encryption algorithm, verify the certificate, and exchange keys — all before any application data is transmitted.</p>
+      </div>
+      <div class="tls-card">
+        <div class="tls-num">STEP 3 — ENCRYPTION</div>
+        <h4>Encrypted Data Transfer</h4>
+        <p>Once the handshake is complete, all data is encrypted using the agreed cipher. Content is unreadable to any third party intercepting the connection.</p>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p>✅ <strong>Best Practice:</strong> Enforce TLS version 1.2 or higher, maintain valid certificates, and follow current configuration best practices for any application transmitting sensitive data.</p>
+    </div>
+  </section>
+
+  <!-- TCP/IP -->
+  <section id="tcp">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🔌</div>
+      <h2 class="sec-title">TCP/IP in Application Development</h2>
+    </div>
+    <h3 class="sub-title" id="ports">Ports</h3>
+    <p>A <strong>port</strong> is a numerical identifier specifying which application or service on a device should receive incoming data. Ports allow a single device to run multiple networked services simultaneously.</p>
+    <div class="table-wrap">
+      <table class="styled-table">
+        <thead><tr><th>Protocol</th><th>Port</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>HTTP</code></td><td><strong>80</strong></td><td>Hypertext Transfer Protocol</td></tr>
+          <tr><td><code>HTTPS</code></td><td><strong>443</strong></td><td>HTTP over TLS encryption</td></tr>
+          <tr><td><code>FTP</code></td><td><strong>21</strong></td><td>File Transfer Protocol</td></tr>
+          <tr><td><code>SMTP</code></td><td><strong>25</strong></td><td>Simple Mail Transfer Protocol</td></tr>
+          <tr><td><code>SSH</code></td><td><strong>22</strong></td><td>Secure Shell — encrypted remote access</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3 class="sub-title">Sockets &amp; Connections</h3>
+    <p>A <strong>socket</strong> is the combination of an IP address and a port number, representing a specific communication endpoint. A TCP connection is established between two sockets — one on the client, one on the server — through the three-way handshake. Common application-layer protocols built on TCP/IP include <strong>HTTP</strong>, <strong>FTP</strong>, and <strong>SMTP</strong>.</p>
+  </section>
+
+  <!-- HOSTING -->
+  <section id="hosting">
+    <div class="section-header">
+      <div class="section-icon icon-teal">🖥️</div>
+      <h2 class="sec-title">Web Hosting</h2>
+    </div>
+    <p>Web hosting is a service that allocates storage space on a server for a website's files, making them accessible via the internet through a domain name and IP address. When a visitor enters a domain name, DNS resolves it to the host server's IP address, and the server delivers the requested files via HTTP.</p>
+    <h3 class="sub-title">Server Resources</h3>
+    <div class="card-grid">
+      <div class="term-card"><h4>CPU</h4><p>Handles all server-side processing. Greater power enables faster page generation.</p></div>
+      <div class="term-card"><h4>RAM</h4><p>Manages data actively in use. More memory supports higher concurrent requests.</p></div>
+      <div class="term-card"><h4>Storage</h4><p>Determines how much content can be hosted. SSDs and NVMe reduce retrieval times.</p></div>
+      <div class="term-card"><h4>Bandwidth</h4><p>Volume of data transferable per unit time. Insufficient bandwidth causes slowdowns under traffic.</p></div>
+    </div>
+    <h3 class="sub-title">Types of Web Hosting</h3>
+    <div class="table-wrap">
+      <table class="styled-table">
+        <thead><tr><th>Type</th><th>Performance</th><th>Control</th><th>Scalability</th><th>Best For</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Shared</strong></td><td><span class="host-badge hb-basic">Basic</span></td><td>Limited</td><td>Low</td><td>Beginners, small sites, blogs</td></tr>
+          <tr><td><strong>VPS</strong></td><td><span class="host-badge hb-good">Good</span></td><td>Partial (root access)</td><td>Medium</td><td>Growing sites, developers</td></tr>
+          <tr><td><strong>Dedicated</strong></td><td><span class="host-badge hb-excellent">Excellent</span></td><td>Full</td><td>Low (manual)</td><td>High-traffic, enterprise</td></tr>
+          <tr><td><strong>Cloud</strong></td><td><span class="host-badge hb-high">High</span></td><td>Full</td><td>Very High</td><td>Scalable apps, SaaS</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- BROWSERS -->
+  <section id="browser">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🌍</div>
+      <h2 class="sec-title">Web Browsers</h2>
+    </div>
+    <p>A <strong>web browser</strong> is a software application that enables users to access, retrieve, and display content from the World Wide Web. In the client-server model, the browser is the client — it sends HTTP requests to web servers and renders returned HTML, CSS, and JavaScript into visual, interactive pages.</p>
+    <p>The major browsers today are <strong>Google Chrome</strong>, <strong>Mozilla Firefox</strong>, <strong>Apple Safari</strong>, and <strong>Microsoft Edge</strong>.</p>
+
+    <h3 class="sub-title">How a Browser Processes a Request</h3>
+    <div class="proto-list">
+      <div class="proto-item"><span class="proto-tag tag-purple">1</span><div><h4>DNS Lookup</h4><p>Browser checks its DNS cache; if no record exists, performs a full DNS lookup to resolve the domain to an IP address.</p></div></div>
+      <div class="proto-item"><span class="proto-tag tag-teal">2</span><div><h4>TCP + TLS Handshake</h4><p>Browser establishes a TCP connection with the server. For HTTPS, a TLS handshake is completed before any data is sent.</p></div></div>
+      <div class="proto-item"><span class="proto-tag tag-yellow">3</span><div><h4>HTTP GET Request</h4><p>Browser sends an HTTP GET request for the resource.</p></div></div>
+      <div class="proto-item"><span class="proto-tag tag-blue">4</span><div><h4>Server Response</h4><p>Server returns an HTTP response containing the HTML document.</p></div></div>
+      <div class="proto-item"><span class="proto-tag tag-red">5</span><div><h4>Rendering Pipeline</h4><p>Rendering engine parses HTML → builds DOM. Processes CSS → builds CSSOM. Combines both into a render tree, calculates layout, and paints the final result to screen.</p></div></div>
+      <div class="proto-item"><span class="proto-tag tag-purple">6</span><div><h4>JavaScript Execution</h4><p>JS files are fetched and executed by the JavaScript engine, which can modify the DOM and CSSOM dynamically after the initial page load.</p></div></div>
+    </div>
+
+    <h3 class="sub-title" id="render">Rendering Engines</h3>
+    <div class="table-wrap">
+      <table class="styled-table">
+        <thead><tr><th>Engine</th><th>Used By</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Blink</strong></td><td>Google Chrome, Microsoft Edge, Opera</td></tr>
+          <tr><td><strong>WebKit</strong></td><td>Apple Safari</td></tr>
+          <tr><td><strong>Gecko</strong></td><td>Mozilla Firefox</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub-title">Browser Components</h3>
+    <div class="browser-diagram">
+      <div class="browser-comp"><div class="comp-icon">🖱️</div><h4>User Interface</h4><p>Address bar, navigation buttons, tabs</p></div>
+      <div class="browser-comp"><div class="comp-icon">🎨</div><h4>Rendering Engine</h4><p>Parses HTML/CSS, builds DOM, produces visual output</p></div>
+      <div class="browser-comp"><div class="comp-icon">📶</div><h4>Networking</h4><p>Fetches resources via HTTP/HTTPS</p></div>
+      <div class="browser-comp"><div class="comp-icon">⚡</div><h4>JavaScript Engine</h4><p>V8 (Chrome), SpiderMonkey (Firefox). Enables dynamic DOM manipulation.</p></div>
+      <div class="browser-comp"><div class="comp-icon">🛡️</div><h4>Security</h4><p>HTTPS enforcement, sandboxing, privacy controls</p></div>
+    </div>
+
+    <h3 class="sub-title" id="security">Browser Security</h3>
+    <div class="proto-list">
+      <div class="proto-item"><span class="proto-tag tag-teal">HTTPS</span><div><h4>HTTPS Enforcement</h4><p>Modern browsers warn users on unencrypted HTTP connections and block mixed content — HTTP resources loaded within an HTTPS page.</p></div></div>
+      <div class="proto-item"><span class="proto-tag tag-purple">🏖️</span><div><h4>Sandboxing</h4><p>Each browser tab runs in an isolated process. Code in one tab cannot access the OS, other tabs, or other applications.</p></div></div>
+      <div class="proto-item"><span class="proto-tag tag-yellow">🔐</span><div><h4>Privacy Controls</h4><p>Block third-party cookies, manage per-site permissions, clear browsing data. Private browsing mode retains no history, cookies, or form data after the session ends.</p></div></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const scrollTop = document.documentElement.scrollTop;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = (scrollTop / docHeight) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+});
+
+// Scroll + active nav
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+}
+
+// Active nav on scroll
+const sections = document.querySelectorAll('section[id]');
+const navItems = document.querySelectorAll('.nav-item');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 80) current = s.id;
+  });
+  navItems.forEach(n => {
+    n.classList.remove('active');
+    const onclick = n.getAttribute('onclick') || '';
+    if (onclick.includes("'"+current+"'")) n.classList.add('active');
+  });
+});
+
+// DNS steps toggle
+function toggleStep(el) {
+  el.classList.toggle('active');
+}
+
+// HTTP timeline toggle
+function toggleHttp(el) {
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.http-entry').forEach(e => {
+    e.classList.remove('open');
+    e.querySelector('.expand-hint').textContent = '▸ Click to expand';
+  });
+  if (!isOpen) {
+    el.classList.add('open');
+    el.querySelector('.expand-hint').textContent = '▾ Collapse';
+  }
+}
+
+// Mobile sidebar
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+</script>
+</body>
+</html>

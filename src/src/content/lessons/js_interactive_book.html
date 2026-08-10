@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>JavaScript Interactive Book</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--sidebar:#161b27;--card:#1e2535;--border:#2d3748;
+  --accent:#4f9eff;--accent2:#7c3aed;--green:#22c55e;--red:#ef4444;
+  --yellow:#f59e0b;--text:#e2e8f0;--muted:#94a3b8;--code-bg:#111827;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:15px}
+
+/* SIDEBAR */
+nav{width:270px;min-width:270px;background:var(--sidebar);border-right:1px solid var(--border);padding:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden}
+.nav-header{padding:20px 16px 12px;border-bottom:1px solid var(--border)}
+.nav-header h1{font-size:17px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+.nav-header p{font-size:12px;color:var(--muted);margin-top:4px}
+.nav-scroll{overflow-y:auto;flex:1;padding:10px 8px 20px}
+.nav-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 8px 4px}
+nav a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;font-size:13px;color:#cbd5e1;text-decoration:none;margin-bottom:1px;transition:all .15s}
+nav a:hover{background:rgba(79,158,255,.12);color:#fff}
+nav a.active{background:rgba(79,158,255,.2);color:var(--accent)}
+.badge{margin-left:auto;font-size:10px;background:rgba(79,158,255,.2);color:var(--accent);padding:1px 6px;border-radius:10px}
+.progress-bar-wrap{padding:12px 16px;border-top:1px solid var(--border)}
+.progress-label{font-size:11px;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+.progress-bar{background:var(--border);border-radius:4px;height:6px}
+.progress-fill{height:6px;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s}
+
+/* MAIN */
+main{flex:1;overflow-y:auto;padding:28px 32px 80px}
+.hero{background:linear-gradient(135deg,rgba(79,158,255,.15),rgba(124,58,237,.15));border:1px solid rgba(79,158,255,.3);border-radius:12px;padding:24px;margin-bottom:28px}
+.hero h2{font-size:22px;font-weight:700;color:#fff;margin-bottom:6px}
+.hero p{color:var(--muted);font-size:14px;line-height:1.6}
+.hero-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chip{font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,.07);color:var(--muted);border:1px solid var(--border)}
+
+/* SECTIONS */
+section{display:none;animation:fadeIn .2s ease}
+section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:20px;font-weight:700;color:#fff;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.section-subtitle{color:var(--muted);font-size:13px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:18px}
+.card h3{font-size:14px;font-weight:600;color:#fff;margin-bottom:10px}
+.card p{font-size:13px;color:#cbd5e1;line-height:1.7;margin-bottom:10px}
+.card p:last-child{margin-bottom:0}
+.card ul,.card ol{padding-left:18px;font-size:13px;color:#cbd5e1;line-height:1.8}
+
+/* CODE */
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-family:'JetBrains Mono',Menlo,monospace;font-size:12.5px;line-height:1.65;color:#e2e8f0;margin-top:10px;margin-bottom:10px}
+.kw{color:#c792ea}.fn{color:#82aaff}.str{color:#c3e88d}.num{color:#f78c6c}.cmt{color:#546e7a;font-style:italic}.op{color:#89ddff}
+
+/* EDITOR */
+.editor-block{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:12px}
+.editor-toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03)}
+.editor-label{font-size:12px;color:var(--muted)}
+.editor-btns{display:flex;gap:6px}
+textarea.code-area{width:100%;min-height:110px;background:transparent;border:none;padding:12px 16px;font-family:'JetBrains Mono',Menlo,monospace;font-size:12.5px;color:#e2e8f0;resize:vertical;outline:none;line-height:1.65}
+.output-panel{border-top:1px solid var(--border);padding:10px 16px;min-height:30px;font-family:'JetBrains Mono',Menlo,monospace;font-size:12px;color:#a8d8a8;white-space:pre-wrap}
+.output-panel.error{color:#f87171}
+.output-panel.empty{color:var(--muted);font-style:italic}
+
+/* BUTTONS */
+btn,button{cursor:pointer;border:none;outline:none}
+.btn-run{background:var(--accent);color:#fff;padding:5px 14px;border-radius:5px;font-size:12px;font-weight:600;transition:background .15s}
+.btn-run:hover{background:#3b8de0}
+.btn-reset{background:rgba(255,255,255,.07);color:var(--muted);padding:5px 10px;border-radius:5px;font-size:12px;transition:background .15s}
+.btn-reset:hover{background:rgba(255,255,255,.12);color:#fff}
+
+/* QUIZ */
+.quiz-card{background:rgba(79,158,255,.06);border:1px solid rgba(79,158,255,.25);border-radius:10px;padding:18px;margin-top:14px}
+.quiz-card h4{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.quiz-q{font-size:13px;color:#e2e8f0;margin-bottom:10px;line-height:1.6}
+.quiz-options label{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:12.5px;color:#cbd5e1;transition:background .15s;margin-bottom:4px;border:1px solid transparent}
+.quiz-options label:hover{background:rgba(79,158,255,.1)}
+.quiz-options input[type=radio]{margin-top:2px;accent-color:var(--accent)}
+.btn-check{background:var(--accent2);color:#fff;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:600;margin-top:8px}
+.btn-check:hover{background:#6d28d9}
+.quiz-result{margin-top:10px;padding:8px 12px;border-radius:6px;font-size:12.5px;font-weight:500;display:none}
+.quiz-result.correct{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--green);display:block}
+.quiz-result.wrong{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--red);display:block}
+
+/* INFO BOXES */
+.info-box{border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;line-height:1.6}
+.info-box.tip{background:rgba(34,197,94,.08);border-left:3px solid var(--green);color:#86efac}
+.info-box.warn{background:rgba(245,158,11,.08);border-left:3px solid var(--yellow);color:#fcd34d}
+.info-box.note{background:rgba(79,158,255,.08);border-left:3px solid var(--accent);color:#93c5fd}
+
+/* NAV ARROWS */
+.section-nav{display:flex;justify-content:space-between;margin-top:28px;padding-top:16px;border-top:1px solid var(--border)}
+.nav-btn{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:var(--card);border:1px solid var(--border);font-size:13px;color:#cbd5e1;cursor:pointer;transition:all .15s}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent)}
+.nav-btn:disabled{opacity:.3;cursor:default;pointer-events:none}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px}
+.data-table th{background:rgba(255,255,255,.06);color:var(--muted);padding:8px 12px;text-align:left;font-weight:600;border-bottom:1px solid var(--border)}
+.data-table td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.04);color:#cbd5e1}
+.data-table tr:last-child td{border-bottom:none}
+.data-table code{background:rgba(255,255,255,.07);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11.5px;color:#c792ea}
+
+code.inline{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px;color:#c792ea}
+
+@media(max-width:900px){nav{width:220px;min-width:220px}main{padding:16px 12px 60px}}
+@media(max-width:680px){body{flex-direction:column}nav{position:relative;width:100%;height:auto;max-height:240px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-header">
+    <h1>📘 İnteractive JS Book</h1>
+  </div>
+  <div class="nav-scroll">
+    <div class="nav-section-label">Basics</div>
+    <a href="#" data-sec="intro" class="active">🚀 Introduction</a>
+    <a href="#" data-sec="variables">📦 Variables & Types</a>
+    <a href="#" data-sec="operators">🔢 Operators</a>
+    <a href="#" data-sec="conditionals">🔀 Conditionals</a>
+    <a href="#" data-sec="functions">⚙️ Functions</a>
+    <a href="#" data-sec="scope">🔭 Scope</a>
+    <a href="#" data-sec="arrays">📋 Arrays</a>
+    <a href="#" data-sec="loops">🔁 Loops</a>
+    <a href="#" data-sec="iterators">🔄 Iterators</a>
+    <a href="#" data-sec="objects">🗂️ Objects</a>
+    <a href="#" data-sec="classes">🏗️ Classes</a>
+    <div class="nav-section-label">Intermediate</div>
+    <a href="#" data-sec="promises">🤝 Promises</a>
+    <a href="#" data-sec="asyncawait">⚡ Async / Await</a>
+    <a href="#" data-sec="fetch">🌐 Fetch & Requests</a>
+    <a href="#" data-sec="errors">🐛 Errors & Debugging</a>
+    <a href="#" data-sec="modules">📦 Modules</a>
+    <div class="nav-section-label">Advanced</div>
+    <a href="#" data-sec="destructuring">🔓 Destructuring</a>
+    <a href="#" data-sec="spreadrest">💨 Spread & Rest</a>
+    <a href="#" data-sec="optional">🛡️ Optional Chaining</a>
+    <a href="#" data-sec="mapssets">🗺️ Maps & Sets</a>
+    <a href="#" data-sec="closures">🔒 Closures</a>
+    <a href="#" data-sec="prototypes">🧬 Prototypes</a>
+    <a href="#" data-sec="callbind">🎯 call / apply / bind</a>
+    <a href="#" data-sec="generators">🔮 Generators</a>
+    <a href="#" data-sec="dom">🌳 DOM</a>
+    <a href="#" data-sec="events">🖱️ Events</a>
+    <a href="#" data-sec="memory">🧠 Memory</a>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-label"><span>Progress</span><span id="prog-text">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+</nav>
+
+<main>
+
+<!-- INTRO -->
+<section id="sec-intro" class="active">
+  <div class="hero">
+    <h2>Welcome to interactive JavaScript Book 📘</h2>
+    <p>Read the explanation, run the code, answer quizzes, and track your progress as you go from basics to advanced JavaScript.</p>
+    <div class="hero-chips">
+      <span class="chip">22 Topics</span><span class="chip">Live code editor</span><span class="chip">Quizzes</span>
+    </div>
+  </div>
+  <div class="card">
+    <h3>What is JavaScript?</h3>
+    <p>JavaScript is a versatile programming language widely used for web development to create interactive and dynamic web pages. Beyond the web, it extends to server-side, mobile, and desktop applications.</p>
+    <p>It covers basics to advanced concepts like asynchronous programming and DOM manipulation.</p>
+  </div>
+  <div class="card">
+    <h3>Console & Logging</h3>
+    <p>The <code class="inline">console</code> object provides built-in methods to debug and log information. The <code class="inline">.log()</code> method prints output to the console.</p>
+    <pre><span class="cmt">// Prints 1 to the console</span>
+console.log(<span class="num">1</span>);
+console.log(<span class="str">"Hello, JavaScript!"</span>);</pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Try it — edit and run</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">console.log("Hello, World!");
+console.log(42);
+console.log(true);</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Comments</h3>
+    <p>JavaScript supports two types of comments:</p>
+    <pre><span class="cmt">// Single-line comment</span>
+
+<span class="cmt">/*
+  Multi-line comment
+  None of this code runs!
+  console.log(99);
+*/</span>
+console.log(<span class="num">5</span>); <span class="cmt">// This runs</span></pre>
+  </div>
+  <div class="quiz-card">
+    <h4>🧠 Quick Check</h4>
+    <div class="quiz-q">Which method do you use to print a value to the browser console?</div>
+    <div class="quiz-options">
+      <label><input type="radio" name="q-intro" value="a"> print()</label>
+      <label><input type="radio" name="q-intro" value="b"> console.log()</label>
+      <label><input type="radio" name="q-intro" value="c"> log.console()</label>
+    </div>
+    <button class="btn-check" data-correct="b" data-name="q-intro">Check</button>
+    <div class="quiz-result"></div>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" disabled>← Previous</button>
+    <button class="nav-btn" data-next="variables">Next: Variables →</button>
+  </div>
+</section>
+
+<!-- VARIABLES -->
+<section id="sec-variables">
+  <div class="section-title">📦 Variables &amp; Types</div>
+  <div class="section-subtitle">How to store and work with data in JavaScript</div>
+  <div class="card">
+    <h3>The 8 Data Types</h3>
+    <table class="data-table">
+      <tr><th>Type</th><th>Example</th><th>Notes</th></tr>
+      <tr><td>Number</td><td><code>4</code>, <code>23.42</code></td><td>Integers & floats</td></tr>
+      <tr><td>BigInt</td><td><code>1234567890n</code></td><td>Larger than 2⁵³−1</td></tr>
+      <tr><td>String</td><td><code>'Hello'</code></td><td>Text data</td></tr>
+      <tr><td>Boolean</td><td><code>true</code>, <code>false</code></td><td>Logic values</td></tr>
+      <tr><td>Null</td><td><code>null</code></td><td>Intentional absence</td></tr>
+      <tr><td>Undefined</td><td><code>undefined</code></td><td>No assigned value</td></tr>
+      <tr><td>Symbol</td><td><code>Symbol('id')</code></td><td>Unique identifiers</td></tr>
+      <tr><td>Object</td><td><code>{}</code>, <code>[]</code></td><td>Complex data</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>var, let, const</h3>
+    <pre><span class="cmt">// var — old way, avoid it</span>
+<span class="kw">var</span> myName = <span class="str">'Arya'</span>;
+
+<span class="cmt">// let — can be reassigned</span>
+<span class="kw">let</span> meal = <span class="str">'Enchiladas'</span>;
+meal = <span class="str">'Burrito'</span>; <span class="cmt">// OK</span>
+
+<span class="cmt">// const — cannot be reassigned</span>
+<span class="kw">const</span> pi = <span class="num">3.14</span>;
+<span class="cmt">// pi = 3; // TypeError!</span></pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Practice variables</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">let age = 25;
+const name = "Mardakhay";
+let isStudent = true;
+
+console.log(name + " is " + age + " years old.");
+console.log("Student?", isStudent);
+console.log(typeof age);    // number
+console.log(typeof name);   // string</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Template Literals (ES6)</h3>
+    <pre><span class="kw">const</span> myPet = <span class="str">'armadillo'</span>;
+console.log(`I own a pet ${myPet}.`);
+<span class="cmt">// Output: I own a pet armadillo.</span></pre>
+  </div>
+  <div class="card">
+    <h3>Math Assignment Operators</h3>
+    <pre><span class="kw">let</span> w = <span class="num">4</span>;
+w += <span class="num">1</span>;  <span class="cmt">// w = w + 1  → 5</span>
+w -= <span class="num">2</span>;  <span class="cmt">// w = w - 2  → 3</span>
+w *= <span class="num">3</span>;  <span class="cmt">// w = w * 3  → 9</span>
+w++;       <span class="cmt">// increment → 10</span>
+w--;       <span class="cmt">// decrement → 9</span></pre>
+  </div>
+  <div class="quiz-card">
+    <h4>🧠 Quick Check</h4>
+    <div class="quiz-q">Which keyword creates a variable that CANNOT be reassigned?</div>
+    <div class="quiz-options">
+      <label><input type="radio" name="q-var" value="a"> var</label>
+      <label><input type="radio" name="q-var" value="b"> let</label>
+      <label><input type="radio" name="q-var" value="c"> const</label>
+    </div>
+    <button class="btn-check" data-correct="c" data-name="q-var">Check</button>
+    <div class="quiz-result"></div>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="intro">← Intro</button>
+    <button class="nav-btn" data-next="operators">Next: Operators →</button>
+  </div>
+</section>
+
+<!-- OPERATORS -->
+<section id="sec-operators">
+  <div class="section-title">🔢 Operators</div>
+  <div class="section-subtitle">Perform calculations and comparisons</div>
+  <div class="card">
+    <h3>Arithmetic Operators</h3>
+    <pre>console.log(<span class="num">3</span> + <span class="num">4</span>);  <span class="cmt">// 7  — Addition</span>
+console.log(<span class="num">5</span> - <span class="num">1</span>);  <span class="cmt">// 4  — Subtraction</span>
+console.log(<span class="num">4</span> * <span class="num">2</span>);  <span class="cmt">// 8  — Multiplication</span>
+console.log(<span class="num">9</span> / <span class="num">3</span>);  <span class="cmt">// 3  — Division</span>
+console.log(<span class="num">11</span> % <span class="num">3</span>); <span class="cmt">// 2  — Remainder (modulo)</span></pre>
+  </div>
+  <div class="card">
+    <h3>Comparison Operators</h3>
+    <table class="data-table">
+      <tr><th>Operator</th><th>Meaning</th><th>Example → Result</th></tr>
+      <tr><td><code>&lt;</code></td><td>Less than</td><td><code>3 &lt; 5</code> → true</td></tr>
+      <tr><td><code>&gt;</code></td><td>Greater than</td><td><code>5 &gt; 3</code> → true</td></tr>
+      <tr><td><code>&lt;=</code></td><td>Less than or equal</td><td><code>3 &lt;= 3</code> → true</td></tr>
+      <tr><td><code>&gt;=</code></td><td>Greater or equal</td><td><code>5 &gt;= 5</code> → true</td></tr>
+      <tr><td><code>===</code></td><td>Strict equal</td><td><code>5 === 5</code> → true</td></tr>
+      <tr><td><code>!==</code></td><td>Not equal</td><td><code>5 !== 3</code> → true</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Logical Operators</h3>
+    <pre><span class="cmt">// AND (&&) — both must be true</span>
+console.log(<span class="kw">true</span> && <span class="kw">true</span>);   <span class="cmt">// true</span>
+console.log(<span class="kw">true</span> && <span class="kw">false</span>);  <span class="cmt">// false</span>
+
+<span class="cmt">// OR (||) — at least one must be true</span>
+console.log(<span class="kw">false</span> || <span class="kw">true</span>);  <span class="cmt">// true</span>
+
+<span class="cmt">// NOT (!) — inverts the value</span>
+console.log(!<span class="kw">true</span>);          <span class="cmt">// false</span></pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Try operators</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">console.log(10 + 5);   // ?
+console.log(10 % 3);   // ?
+console.log(10 > 5 && 3 < 7);  // both true?
+console.log(typeof 42);         // data type?</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Built-in Math Object</h3>
+    <pre>Math.random();                    <span class="cmt">// 0–1</span>
+Math.floor(Math.random() * <span class="num">50</span>);   <span class="cmt">// 0–49</span>
+Math.ceil(<span class="num">4.2</span>);                  <span class="cmt">// 5</span>
+Math.round(<span class="num">4.5</span>);                 <span class="cmt">// 5</span>
+Math.abs(-<span class="num">10</span>);                   <span class="cmt">// 10</span></pre>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="variables">← Variables</button>
+    <button class="nav-btn" data-next="conditionals">Next: Conditionals →</button>
+  </div>
+</section>
+
+<!-- CONDITIONALS -->
+<section id="sec-conditionals">
+  <div class="section-title">🔀 Conditionals</div>
+  <div class="section-subtitle">Make decisions in your code</div>
+  <div class="card">
+    <h3>if / else if / else</h3>
+    <pre><span class="kw">let</span> stopLight = <span class="str">'yellow'</span>;
+<span class="kw">if</span> (stopLight === <span class="str">'red'</span>) {
+  console.log(<span class="str">'Stop!'</span>);
+} <span class="kw">else if</span> (stopLight === <span class="str">'yellow'</span>) {
+  console.log(<span class="str">'Slow down.'</span>);
+} <span class="kw">else if</span> (stopLight === <span class="str">'green'</span>) {
+  console.log(<span class="str">'Go!'</span>);
+} <span class="kw">else</span> {
+  console.log(<span class="str">'Caution!'</span>);
+}</pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Change the temperature</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">let temperature = 28;
+
+if (temperature >= 30) {
+  console.log("Very hot!");
+} else if (temperature >= 20) {
+  console.log("Nice and warm.");
+} else if (temperature >= 10) {
+  console.log("A bit chilly.");
+} else {
+  console.log("It's cold!");
+}</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Ternary Operator</h3>
+    <p>A shorthand for if/else: <code class="inline">condition ? ifTrue : ifFalse</code></p>
+    <pre><span class="kw">let</span> isNightTime = <span class="kw">true</span>;
+isNightTime
+  ? console.log(<span class="str">'Turn on the lights!'</span>)
+  : console.log(<span class="str">'Turn off the lights!'</span>);</pre>
+  </div>
+  <div class="card">
+    <h3>Switch Statement</h3>
+    <pre><span class="kw">let</span> groceryItem = <span class="str">'papaya'</span>;
+<span class="kw">switch</span> (groceryItem) {
+  <span class="kw">case</span> <span class="str">'tomato'</span>:
+    console.log(<span class="str">'$0.49'</span>); <span class="kw">break</span>;
+  <span class="kw">case</span> <span class="str">'papaya'</span>:
+    console.log(<span class="str">'$1.29'</span>); <span class="kw">break</span>;
+  <span class="kw">default</span>:
+    console.log(<span class="str">'Invalid item'</span>);
+}</pre>
+  </div>
+  <div class="card">
+    <h3>Truthy &amp; Falsy Values</h3>
+    <p>These values are treated as <strong>false</strong> in conditionals:</p>
+    <ul>
+      <li><code class="inline">0</code></li>
+      <li><code class="inline">""</code> or <code class="inline">''</code> (empty string)</li>
+      <li><code class="inline">null</code></li>
+      <li><code class="inline">undefined</code></li>
+      <li><code class="inline">NaN</code></li>
+    </ul>
+    <pre><span class="kw">let</span> username = <span class="str">''</span>;
+<span class="kw">let</span> defaultName = username || <span class="str">'Stranger'</span>;
+console.log(defaultName); <span class="cmt">// 'Stranger'</span></pre>
+  </div>
+  <div class="quiz-card">
+    <h4>🧠 Quick Check</h4>
+    <div class="quiz-q">What does <code class="inline">0 || "hello"</code> evaluate to?</div>
+    <div class="quiz-options">
+      <label><input type="radio" name="q-cond" value="a"> 0</label>
+      <label><input type="radio" name="q-cond" value="b"> "hello"</label>
+      <label><input type="radio" name="q-cond" value="c"> false</label>
+    </div>
+    <button class="btn-check" data-correct="b" data-name="q-cond">Check</button>
+    <div class="quiz-result"></div>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="operators">← Operators</button>
+    <button class="nav-btn" data-next="functions">Next: Functions →</button>
+  </div>
+</section>
+
+<!-- FUNCTIONS -->
+<section id="sec-functions">
+  <div class="section-title">⚙️ Functions</div>
+  <div class="section-subtitle">Reusable blocks of code</div>
+  <div class="card">
+    <h3>Function Declaration (Hoisted)</h3>
+    <pre><span class="fn">greetWorld</span>(); <span class="cmt">// Works even before declaration!</span>
+
+<span class="kw">function</span> <span class="fn">greetWorld</span>() {
+  console.log(<span class="str">'Hello, World!'</span>);
+}</pre>
+  </div>
+  <div class="card">
+    <h3>Parameters, Arguments &amp; Default Values</h3>
+    <pre><span class="kw">function</span> <span class="fn">greeting</span>(name = <span class="str">'stranger'</span>) {
+  console.log(`Hello, ${name}!`);
+}
+<span class="fn">greeting</span>(<span class="str">'Nick'</span>);  <span class="cmt">// Hello, Nick!</span>
+<span class="fn">greeting</span>();      <span class="cmt">// Hello, stranger!</span></pre>
+  </div>
+  <div class="card">
+    <h3>Return Statement &amp; Helper Functions</h3>
+    <pre><span class="kw">function</span> <span class="fn">multiplyByNineFifths</span>(n) {
+  <span class="kw">return</span> n * (<span class="num">9</span>/<span class="num">5</span>);
+}
+<span class="kw">function</span> <span class="fn">getFahrenheit</span>(celsius) {
+  <span class="kw">return</span> <span class="fn">multiplyByNineFifths</span>(celsius) + <span class="num">32</span>;
+}
+console.log(<span class="fn">getFahrenheit</span>(<span class="num">15</span>)); <span class="cmt">// 59</span></pre>
+  </div>
+  <div class="card">
+    <h3>Arrow Functions (ES6)</h3>
+    <pre><span class="cmt">// Regular function expression</span>
+<span class="kw">const</span> add = <span class="kw">function</span>(x, y) { <span class="kw">return</span> x + y; };
+
+<span class="cmt">// Arrow function</span>
+<span class="kw">const</span> add2 = (x, y) => x + y;
+
+<span class="cmt">// Single param — no parens needed</span>
+<span class="kw">const</span> squareNum = num => num * num;
+console.log(<span class="fn">squareNum</span>(<span class="num">5</span>)); <span class="cmt">// 25</span></pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Practice functions</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">const add = (a, b) => a + b;
+const multiply = (a, b) => a * b;
+
+function greet(name = "stranger") {
+  return `Hello, ${name}!`;
+}
+
+console.log(add(3, 4));
+console.log(multiply(5, 6));
+console.log(greet("Mardakhay"));</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="quiz-card">
+    <h4>🧠 Quick Check</h4>
+    <div class="quiz-q">Which type of function is <strong>hoisted</strong> (can be called before its definition)?</div>
+    <div class="quiz-options">
+      <label><input type="radio" name="q-fn" value="a"> Function expression</label>
+      <label><input type="radio" name="q-fn" value="b"> Arrow function</label>
+      <label><input type="radio" name="q-fn" value="c"> Function declaration</label>
+    </div>
+    <button class="btn-check" data-correct="c" data-name="q-fn">Check</button>
+    <div class="quiz-result"></div>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="conditionals">← Conditionals</button>
+    <button class="nav-btn" data-next="scope">Next: Scope →</button>
+  </div>
+</section>
+
+<!-- SCOPE -->
+<section id="sec-scope">
+  <div class="section-title">🔭 Scope</div>
+  <div class="section-subtitle">Where variables live and can be accessed</div>
+  <div class="card">
+    <h3>Global vs Block Scope</h3>
+    <pre><span class="kw">const</span> color = <span class="str">'blue'</span>; <span class="cmt">// Global scope</span>
+
+<span class="kw">const</span> logSkyColor = () => {
+  <span class="kw">let</span> localColor = <span class="str">'pink'</span>; <span class="cmt">// Block scope (local)</span>
+  console.log(color);      <span class="cmt">// Can access global</span>
+  console.log(localColor); <span class="cmt">// Can access local</span>
+};
+
+logSkyColor();
+<span class="cmt">// console.log(localColor); // ReferenceError!</span></pre>
+  </div>
+  <div class="card">
+    <h3>Scope Pollution</h3>
+    <p>Too many global variables can cause naming collisions and bugs. Always prefer block scope.</p>
+    <pre><span class="kw">const</span> logSkyColor = () => {
+  <span class="kw">const</span> dusk = <span class="kw">true</span>;
+  <span class="kw">let</span> color = <span class="str">'blue'</span>;
+  <span class="kw">if</span> (dusk) {
+    <span class="kw">let</span> color = <span class="str">'pink'</span>; <span class="cmt">// New variable, different scope</span>
+    console.log(color); <span class="cmt">// 'pink'</span>
+  }
+  console.log(color); <span class="cmt">// 'blue'</span>
+};</pre>
+  </div>
+  <div class="info-box tip">💡 <strong>Best practice:</strong> Use <code class="inline">const</code> and <code class="inline">let</code> (block scope). Avoid <code class="inline">var</code> (function scope, can leak).</div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="functions">← Functions</button>
+    <button class="nav-btn" data-next="arrays">Next: Arrays →</button>
+  </div>
+</section>
+
+<!-- ARRAYS -->
+<section id="sec-arrays">
+  <div class="section-title">📋 Arrays</div>
+  <div class="section-subtitle">Ordered lists of values</div>
+  <div class="card">
+    <h3>Creating &amp; Accessing Arrays</h3>
+    <pre><span class="kw">let</span> seasons = [<span class="str">'Winter'</span>, <span class="str">'Spring'</span>, <span class="str">'Summer'</span>, <span class="str">'Fall'</span>];
+console.log(seasons[<span class="num">0</span>]);       <span class="cmt">// 'Winter'</span>
+console.log(seasons.length);    <span class="cmt">// 4</span>
+seasons[<span class="num">3</span>] = <span class="str">'Autumn'</span>;          <span class="cmt">// Modify element</span></pre>
+  </div>
+  <div class="card">
+    <h3>Array Methods</h3>
+    <table class="data-table">
+      <tr><th>Method</th><th>What it does</th></tr>
+      <tr><td><code>.push(x)</code></td><td>Add to end</td></tr>
+      <tr><td><code>.pop()</code></td><td>Remove from end (returns it)</td></tr>
+      <tr><td><code>.shift()</code></td><td>Remove from beginning</td></tr>
+      <tr><td><code>.unshift(x)</code></td><td>Add to beginning</td></tr>
+      <tr><td><code>.slice(a,b)</code></td><td>Copy portion [a, b)</td></tr>
+      <tr><td><code>.indexOf(x)</code></td><td>Find index (−1 if not found)</td></tr>
+      <tr><td><code>.splice(i,n)</code></td><td>Delete/insert at index</td></tr>
+      <tr><td><code>.join(sep)</code></td><td>Combine to string</td></tr>
+    </table>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Practice array methods</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">const fruits = ["apple", "banana", "cherry"];
+fruits.push("mango");
+console.log(fruits);         // added mango
+console.log(fruits.pop());   // removes mango
+console.log(fruits.indexOf("banana")); // 1
+console.log(fruits.join(" | "));       // joined</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Nested Arrays</h3>
+    <pre><span class="kw">const</span> nestedArr = [[<span class="num">1</span>], [<span class="num">2</span>, <span class="num">3</span>]];
+console.log(nestedArr[<span class="num">1</span>]);    <span class="cmt">// [2, 3]</span>
+console.log(nestedArr[<span class="num">1</span>][<span class="num">0</span>]); <span class="cmt">// 2</span></pre>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="scope">← Scope</button>
+    <button class="nav-btn" data-next="loops">Next: Loops →</button>
+  </div>
+</section>
+
+<!-- LOOPS -->
+<section id="sec-loops">
+  <div class="section-title">🔁 Loops</div>
+  <div class="section-subtitle">Repeat code efficiently</div>
+  <div class="card">
+    <h3>for Loop</h3>
+    <pre><span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; <span class="num">4</span>; i++) {
+  console.log(i); <span class="cmt">// 0, 1, 2, 3</span>
+}
+<span class="cmt">// Loop through array:</span>
+<span class="kw">const</span> animals = [<span class="str">'Bear'</span>, <span class="str">'Sloth'</span>, <span class="str">'Sea Lion'</span>];
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; animals.length; i++) {
+  console.log(animals[i]);
+}</pre>
+  </div>
+  <div class="card">
+    <h3>while &amp; do...while</h3>
+    <pre><span class="kw">let</span> counter = <span class="num">1</span>;
+<span class="kw">while</span> (counter &lt; <span class="num">4</span>) {
+  console.log(counter);
+  counter++;
+}
+
+<span class="cmt">// do...while runs at least once:</span>
+<span class="kw">let</span> i = <span class="num">0</span>;
+<span class="kw">do</span> {
+  console.log(i);
+  i++;
+} <span class="kw">while</span> (i &lt; <span class="num">3</span>);</pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Practice loops</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">// Print even numbers 1-10
+for (let i = 1; i <= 10; i++) {
+  if (i % 2 === 0) {
+    console.log("Even:", i);
+  }
+}</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>break Statement</h3>
+    <pre><span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; <span class="num">99</span>; i++) {
+  <span class="kw">if</span> (i > <span class="num">2</span>) <span class="kw">break</span>;
+  console.log(<span class="str">'Banana.'</span>);
+}
+<span class="cmt">// Banana. Banana. Banana.</span></pre>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="arrays">← Arrays</button>
+    <button class="nav-btn" data-next="iterators">Next: Iterators →</button>
+  </div>
+</section>
+
+<!-- ITERATORS -->
+<section id="sec-iterators">
+  <div class="section-title">🔄 Iterators</div>
+  <div class="section-subtitle">Higher-order array methods</div>
+  <div class="card">
+    <h3>Higher-Order Functions &amp; Callbacks</h3>
+    <p>JavaScript functions are first-class objects — they can be passed as arguments (callbacks).</p>
+    <pre><span class="kw">const</span> <span class="fn">higherOrder</span> = fn => {
+  fn();
+  <span class="kw">return</span> `Invoked ${fn.name}!`;
+};</pre>
+  </div>
+  <div class="card">
+    <h3>Key Array Iterator Methods</h3>
+    <pre><span class="kw">const</span> numbers = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>];
+
+<span class="cmt">// .forEach — runs for each element</span>
+numbers.forEach(n => console.log(n));
+
+<span class="cmt">// .map — transforms each element → new array</span>
+<span class="kw">const</span> doubled = numbers.map(n => n * <span class="num">2</span>);
+
+<span class="cmt">// .filter — keeps matching elements</span>
+<span class="kw">const</span> evens = numbers.filter(n => n % <span class="num">2</span> === <span class="num">0</span>);
+
+<span class="cmt">// .reduce — collapses to single value</span>
+<span class="kw">const</span> sum = numbers.reduce((acc, n) => acc + n, <span class="num">0</span>);
+
+<span class="cmt">// .some — any element passes?</span>
+<span class="kw">const</span> hasLarge = numbers.some(n => n > <span class="num">4</span>);
+
+<span class="cmt">// .every — all elements pass?</span>
+<span class="kw">const</span> allPositive = numbers.every(n => n > <span class="num">0</span>);
+
+<span class="cmt">// .findIndex — index of first match</span>
+<span class="kw">const</span> idx = numbers.findIndex(n => n > <span class="num">3</span>);</pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Try all iterators</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">const nums = [1, 2, 3, 4, 5, 6];
+const doubled = nums.map(n => n * 2);
+const evens = nums.filter(n => n % 2 === 0);
+const sum = nums.reduce((acc, n) => acc + n, 0);
+
+console.log("Doubled:", doubled);
+console.log("Evens:", evens);
+console.log("Sum:", sum);
+console.log("Has > 5?", nums.some(n => n > 5));
+console.log("All > 0?", nums.every(n => n > 0));</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="quiz-card">
+    <h4>🧠 Quick Check</h4>
+    <div class="quiz-q">Which method returns a <strong>new array</strong> with only elements that pass a test?</div>
+    <div class="quiz-options">
+      <label><input type="radio" name="q-iter" value="a"> .forEach()</label>
+      <label><input type="radio" name="q-iter" value="b"> .map()</label>
+      <label><input type="radio" name="q-iter" value="c"> .filter()</label>
+    </div>
+    <button class="btn-check" data-correct="c" data-name="q-iter">Check</button>
+    <div class="quiz-result"></div>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="loops">← Loops</button>
+    <button class="nav-btn" data-next="objects">Next: Objects →</button>
+  </div>
+</section>
+
+<!-- OBJECTS -->
+<section id="sec-objects">
+  <div class="section-title">🗂️ Objects</div>
+  <div class="section-subtitle">Key-value pairs for structured data</div>
+  <div class="card">
+    <h3>Creating &amp; Accessing Objects</h3>
+    <pre><span class="kw">let</span> spaceship = {
+  homePlanet: <span class="str">'Earth'</span>,
+  color: <span class="str">'silver'</span>,
+  speed: <span class="num">5000</span>
+};
+console.log(spaceship.homePlanet);     <span class="cmt">// dot notation</span>
+console.log(spaceship[<span class="str">'color'</span>]);       <span class="cmt">// bracket notation</span></pre>
+  </div>
+  <div class="card">
+    <h3>Methods &amp; this Keyword</h3>
+    <pre><span class="kw">const</span> goat = {
+  dietType: <span class="str">'herbivore'</span>,
+  diet() {
+    console.log(<span class="kw">this</span>.dietType); <span class="cmt">// 'this' = the object</span>
+  }
+};
+goat.diet(); <span class="cmt">// 'herbivore'</span></pre>
+  </div>
+  <div class="card">
+    <h3>Getters &amp; Setters</h3>
+    <pre><span class="kw">const</span> person = {
+  _firstName: <span class="str">'John'</span>,
+  _lastName: <span class="str">'Doe'</span>,
+  <span class="kw">get</span> <span class="fn">fullName</span>() {
+    <span class="kw">return</span> `${<span class="kw">this</span>._firstName} ${<span class="kw">this</span>._lastName}`;
+  },
+  _age: <span class="num">37</span>,
+  <span class="kw">set</span> <span class="fn">age</span>(newAge) {
+    <span class="kw">if</span> (typeof newAge === <span class="str">'number'</span>) <span class="kw">this</span>._age = newAge;
+    <span class="kw">else</span> console.log(<span class="str">'Must be a number!'</span>);
+  }
+};
+console.log(person.fullName); <span class="cmt">// 'John Doe'</span>
+person.age = <span class="num">40</span>;</pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Practice objects</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">const user = {
+  name: "Mardakhay",
+  city: "Baku",
+  age: 25,
+  greet() {
+    return `Hi, I'm ${this.name} from ${this.city}!`;
+  }
+};
+
+console.log(user.greet());
+console.log(Object.keys(user));
+for (const [key, val] of Object.entries(user)) {
+  console.log(key + ":", val);
+}</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Object Methods Reference</h3>
+    <pre>Object.keys(obj)      <span class="cmt">// → array of keys</span>
+Object.entries(obj)   <span class="cmt">// → array of [key, value] pairs</span>
+Object.assign(target, src) <span class="cmt">// → copies properties</span></pre>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="iterators">← Iterators</button>
+    <button class="nav-btn" data-next="classes">Next: Classes →</button>
+  </div>
+</section>
+
+<!-- CLASSES -->
+<section id="sec-classes">
+  <div class="section-title">🏗️ Classes</div>
+  <div class="section-subtitle">Blueprints for creating objects</div>
+  <div class="card">
+    <h3>Class Declaration</h3>
+    <pre><span class="kw">class</span> <span class="fn">Dog</span> {
+  <span class="fn">constructor</span>(name) {
+    <span class="kw">this</span>._name = name;
+    <span class="kw">this</span>._behavior = <span class="num">0</span>;
+  }
+  <span class="kw">get</span> <span class="fn">name</span>() { <span class="kw">return this</span>._name; }
+  <span class="fn">incrementBehavior</span>() { <span class="kw">this</span>._behavior++; }
+}
+<span class="kw">const</span> halley = <span class="kw">new</span> <span class="fn">Dog</span>(<span class="str">'Halley'</span>);
+console.log(halley.name); <span class="cmt">// 'Halley'</span></pre>
+  </div>
+  <div class="card">
+    <h3>Inheritance with extends &amp; super</h3>
+    <pre><span class="kw">class</span> <span class="fn">Animal</span> {
+  <span class="fn">constructor</span>(name) { <span class="kw">this</span>._name = name; }
+  <span class="kw">get</span> <span class="fn">name</span>() { <span class="kw">return this</span>._name; }
+  <span class="fn">eat</span>() { console.log(`${<span class="kw">this</span>._name} is eating`); }
+}
+<span class="kw">class</span> <span class="fn">Cat</span> <span class="kw">extends</span> <span class="fn">Animal</span> {
+  <span class="fn">constructor</span>(name, usesLitter) {
+    <span class="kw">super</span>(name); <span class="cmt">// MUST call super first</span>
+    <span class="kw">this</span>._usesLitter = usesLitter;
+  }
+  <span class="kw">get</span> <span class="fn">usesLitter</span>() { <span class="kw">return this</span>._usesLitter; }
+}
+<span class="kw">const</span> bryceCat = <span class="kw">new</span> <span class="fn">Cat</span>(<span class="str">'Bryce'</span>, <span class="kw">false</span>);</pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Practice classes</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">class Animal {
+  constructor(name) { this.name = name; }
+  speak() { return `${this.name} makes a noise.`; }
+}
+class Dog extends Animal {
+  constructor(name) { super(name); }
+  speak() { return `${this.name} barks!`; }
+}
+const d = new Dog("Rex");
+console.log(d.speak());
+console.log(d instanceof Dog);
+console.log(d instanceof Animal);</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Static Methods</h3>
+    <pre><span class="kw">class</span> <span class="fn">Animal</span> {
+  <span class="kw">static</span> <span class="fn">generateName</span>() {
+    <span class="kw">const</span> names = [<span class="str">'Angel'</span>, <span class="str">'Spike'</span>, <span class="str">'Buffy'</span>];
+    <span class="kw">return</span> names[Math.floor(Math.random() * <span class="num">3</span>)];
+  }
+}
+console.log(Animal.<span class="fn">generateName</span>()); <span class="cmt">// Called on class, not instance</span></pre>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="objects">← Objects</button>
+    <button class="nav-btn" data-next="promises">Next: Promises →</button>
+  </div>
+</section>
+
+<!-- PROMISES -->
+<section id="sec-promises">
+  <div class="section-title">🤝 Promises</div>
+  <div class="section-subtitle">Handling asynchronous operations</div>
+  <div class="card">
+    <h3>Promise States</h3>
+    <ul>
+      <li><strong>Pending</strong> — initial, not complete yet</li>
+      <li><strong>Fulfilled</strong> — completed successfully</li>
+      <li><strong>Rejected</strong> — failed with a reason</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Creating &amp; Handling Promises</h3>
+    <pre><span class="kw">const</span> myPromise = <span class="kw">new</span> <span class="fn">Promise</span>((resolve, reject) => {
+  <span class="kw">if</span> (someCondition) {
+    resolve(<span class="str">'Success!'</span>);
+  } <span class="kw">else</span> {
+    reject(<span class="str">'Failed!'</span>);
+  }
+});
+
+myPromise
+  .then(value => console.log(value))   <span class="cmt">// fulfilled</span>
+  .catch(reason => console.log(reason)); <span class="cmt">// rejected</span></pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Promise example</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">const flip = new Promise((resolve, reject) => {
+  const heads = Math.random() > 0.5;
+  if (heads) resolve("Heads! You win!");
+  else reject("Tails! You lose.");
+});
+
+flip
+  .then(msg => console.log(msg))
+  .catch(err => console.log(err));</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Promise.all() — Concurrent</h3>
+    <pre><span class="kw">const</span> p1 = Promise.resolve(<span class="num">1</span>);
+<span class="kw">const</span> p2 = Promise.resolve(<span class="num">2</span>);
+<span class="kw">const</span> p3 = Promise.resolve(<span class="num">3</span>);
+Promise.all([p1, p2, p3])
+  .then(values => console.log(values)); <span class="cmt">// [1, 2, 3]</span></pre>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="classes">← Classes</button>
+    <button class="nav-btn" data-next="asyncawait">Next: Async/Await →</button>
+  </div>
+</section>
+
+<!-- ASYNC/AWAIT -->
+<section id="sec-asyncawait">
+  <div class="section-title">⚡ Async / Await</div>
+  <div class="section-subtitle">ES8 — cleaner async code</div>
+  <div class="card">
+    <h3>async / await Basics</h3>
+    <pre><span class="kw">async function</span> <span class="fn">getData</span>() {
+  <span class="kw">let</span> value = <span class="kw">await</span> somePromise();
+  console.log(value);
+}
+<span class="cmt">// Arrow function syntax:</span>
+<span class="kw">const</span> <span class="fn">getData</span> = <span class="kw">async</span> () => {
+  <span class="kw">let</span> value = <span class="kw">await</span> somePromise();
+};</pre>
+  </div>
+  <div class="card">
+    <h3>Error Handling with try/catch</h3>
+    <pre><span class="kw">async function</span> <span class="fn">example</span>() {
+  <span class="kw">try</span> {
+    <span class="kw">let</span> value = <span class="kw">await</span> riskyOperation();
+    console.log(value);
+  } <span class="kw">catch</span> (err) {
+    console.log(<span class="str">'Error:'</span>, err);
+  }
+}</pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Async/await example</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+async function runSteps() {
+  console.log("Step 1: Starting...");
+  await wait(300);
+  console.log("Step 2: Done waiting!");
+  return "All done!";
+}
+runSteps().then(msg => console.log(msg));</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Concurrent Execution</h3>
+    <pre><span class="cmt">// Sequential (slower):</span>
+<span class="kw">const</span> first = <span class="kw">await</span> task1();
+<span class="kw">const</span> second = <span class="kw">await</span> task2();
+
+<span class="cmt">// Concurrent (faster):</span>
+<span class="kw">const</span> [first, second] = <span class="kw">await</span> Promise.all([task1(), task2()]);</pre>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="promises">← Promises</button>
+    <button class="nav-btn" data-next="fetch">Next: Fetch →</button>
+  </div>
+</section>
+
+<!-- FETCH -->
+<section id="sec-fetch">
+  <div class="section-title">🌐 Fetch &amp; HTTP Requests</div>
+  <div class="section-subtitle">Talk to servers from JavaScript</div>
+  <div class="card">
+    <h3>How HTTP Works</h3>
+    <p>When you enter a URL, the browser: identifies the protocol → uses DNS to find IP → opens TCP connection → sends HTTP request → receives response.</p>
+    <table class="data-table">
+      <tr><th>Method</th><th>Purpose</th></tr>
+      <tr><td>GET</td><td>Retrieve data</td></tr>
+      <tr><td>POST</td><td>Send data to server</td></tr>
+      <tr><td>PUT</td><td>Update existing data</td></tr>
+      <tr><td>DELETE</td><td>Remove data</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>fetch() with async/await</h3>
+    <pre><span class="kw">async function</span> <span class="fn">getData</span>() {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> response = <span class="kw">await</span> fetch(<span class="str">'https://api.example.com/data'</span>);
+    <span class="kw">if</span> (!response.ok) <span class="kw">throw new</span> Error(<span class="str">'Request failed!'</span>);
+    <span class="kw">const</span> data = <span class="kw">await</span> response.json();
+    console.log(data);
+  } <span class="kw">catch</span> (error) {
+    console.error(error);
+  }
+}</pre>
+  </div>
+  <div class="card">
+    <h3>POST Request</h3>
+    <pre><span class="kw">const</span> response = <span class="kw">await</span> fetch(<span class="str">'https://api.example.com/users'</span>, {
+  method: <span class="str">'POST'</span>,
+  headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+  body: JSON.stringify({ name: <span class="str">'John'</span>, age: <span class="num">25</span> })
+});</pre>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="asyncawait">← Async/Await</button>
+    <button class="nav-btn" data-next="errors">Next: Errors →</button>
+  </div>
+</section>
+
+<!-- ERRORS -->
+<section id="sec-errors">
+  <div class="section-title">🐛 Errors &amp; Debugging</div>
+  <div class="section-subtitle">Find and fix problems in your code</div>
+  <div class="card">
+    <h3>Common Error Types</h3>
+    <table class="data-table">
+      <tr><th>Error</th><th>Cause</th><th>Example</th></tr>
+      <tr><td>SyntaxError</td><td>Invalid JS syntax</td><td>Missing bracket</td></tr>
+      <tr><td>ReferenceError</td><td>Variable not defined</td><td><code>console.log(x)</code> — x undefined</td></tr>
+      <tr><td>TypeError</td><td>Wrong type operation</td><td>Calling non-function</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>try / catch / finally</h3>
+    <pre><span class="kw">try</span> {
+  <span class="kw">const</span> result = riskyOperation();
+  console.log(result);
+} <span class="kw">catch</span> (err) {
+  console.log(<span class="str">'Caught error:'</span>, err.message);
+} <span class="kw">finally</span> {
+  console.log(<span class="str">'Always runs'</span>);
+}</pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Try triggering an error</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">try {
+  const nums = [1, 2, 3];
+  // Try accessing nums.filter (works)
+  // Try calling nums.filter as if it's not a function:
+  const result = nums.filter(n => n > 1);
+  console.log("Result:", result);
+} catch (err) {
+  console.log("Error caught:", err.message);
+} finally {
+  console.log("Done (always runs).");
+}</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="info-box tip">💡 <strong>Debugging tip:</strong> Check the first line of the stack trace — it points to the root cause.</div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="fetch">← Fetch</button>
+    <button class="nav-btn" data-next="modules">Next: Modules →</button>
+  </div>
+</section>
+
+<!-- MODULES -->
+<section id="sec-modules">
+  <div class="section-title">📦 Modules</div>
+  <div class="section-subtitle">Split code into reusable files</div>
+  <div class="card">
+    <h3>Node.js Modules (CommonJS)</h3>
+    <pre><span class="cmt">// converters.js</span>
+<span class="kw">function</span> <span class="fn">celsiusToFahrenheit</span>(c) {
+  <span class="kw">return</span> c * (<span class="num">9</span>/<span class="num">5</span>) + <span class="num">32</span>;
+}
+module.exports = { celsiusToFahrenheit };
+
+<span class="cmt">// main.js</span>
+<span class="kw">const</span> { celsiusToFahrenheit } = require(<span class="str">'./converters'</span>);
+console.log(<span class="fn">celsiusToFahrenheit</span>(<span class="num">100</span>)); <span class="cmt">// 212</span></pre>
+  </div>
+  <div class="card">
+    <h3>ES6 Modules (Browser)</h3>
+    <pre><span class="cmt">// dom-functions.js</span>
+<span class="kw">export const</span> <span class="fn">toggleEl</span> = (el) => { <span class="cmt">/* ... */</span> };
+<span class="kw">export default</span> { valueA, valueB };
+
+<span class="cmt">// main.js</span>
+<span class="kw">import</span> { toggleEl } <span class="kw">from</span> <span class="str">'./dom-functions.js'</span>;
+<span class="kw">import</span> resources <span class="kw">from</span> <span class="str">'./module.js'</span>; <span class="cmt">// default</span>
+
+<span class="cmt">// Rename imports:</span>
+<span class="kw">import</span> { greet <span class="kw">as</span> greetES } <span class="kw">from</span> <span class="str">'./greeter.js'</span>;</pre>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="errors">← Errors</button>
+    <button class="nav-btn" data-next="destructuring">Next: Destructuring →</button>
+  </div>
+</section>
+
+<!-- DESTRUCTURING -->
+<section id="sec-destructuring">
+  <div class="section-title">🔓 Destructuring</div>
+  <div class="section-subtitle">Extract values from arrays and objects elegantly</div>
+  <div class="card">
+    <h3>Array Destructuring</h3>
+    <pre><span class="kw">const</span> colors = [<span class="str">'red'</span>, <span class="str">'green'</span>, <span class="str">'blue'</span>];
+<span class="kw">const</span> [first, second] = colors;
+console.log(first);  <span class="cmt">// 'red'</span>
+console.log(second); <span class="cmt">// 'green'</span>
+
+<span class="cmt">// Skip elements:</span>
+<span class="kw">const</span> [a, , c] = colors; <span class="cmt">// skip green</span>
+
+<span class="cmt">// Rest pattern:</span>
+<span class="kw">const</span> [head, ...rest] = colors;
+
+<span class="cmt">// Swap variables:</span>
+<span class="kw">let</span> x = <span class="num">1</span>, y = <span class="num">2</span>;
+[x, y] = [y, x];</pre>
+  </div>
+  <div class="card">
+    <h3>Object Destructuring</h3>
+    <pre><span class="kw">const</span> person = { name: <span class="str">'Sarah'</span>, age: <span class="num">28</span>, city: <span class="str">'Boston'</span> };
+<span class="kw">const</span> { name, age } = person;
+
+<span class="cmt">// Rename:</span>
+<span class="kw">const</span> { name: fullName, age: years } = person;
+
+<span class="cmt">// Default values:</span>
+<span class="kw">const</span> { name: n, job = <span class="str">'unemployed'</span> } = person;
+
+<span class="cmt">// In function params:</span>
+<span class="kw">function</span> <span class="fn">display</span>({ name, age, city = <span class="str">'Unknown'</span> }) {
+  console.log(`${name}, ${age}, from ${city}`);
+}</pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Practice destructuring</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">const user = { name: "Mardakhay", city: "Baku", age: 25 };
+const { name, city, country = "Azerbaijan" } = user;
+console.log(name, "from", city, country);
+
+const nums = [10, 20, 30, 40, 50];
+const [first, second, ...rest] = nums;
+console.log(first, second, rest);</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="modules">← Modules</button>
+    <button class="nav-btn" data-next="spreadrest">Next: Spread &amp; Rest →</button>
+  </div>
+</section>
+
+<!-- SPREAD & REST -->
+<section id="sec-spreadrest">
+  <div class="section-title">💨 Spread &amp; Rest Operators</div>
+  <div class="section-subtitle">Both use <code class="inline">...</code> but for opposite purposes</div>
+  <div class="card">
+    <h3>Spread — Expands an iterable</h3>
+    <pre><span class="kw">const</span> arr1 = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+<span class="kw">const</span> arr2 = [<span class="num">4</span>, <span class="num">5</span>];
+<span class="kw">const</span> combined = [...arr1, ...arr2]; <span class="cmt">// [1,2,3,4,5]</span>
+<span class="kw">const</span> copy = [...arr1]; <span class="cmt">// shallow copy</span>
+
+<span class="kw">const</span> obj1 = { a: <span class="num">1</span>, b: <span class="num">2</span> };
+<span class="kw">const</span> merged = { ...obj1, c: <span class="num">3</span> }; <span class="cmt">// { a:1, b:2, c:3 }</span>
+
+<span class="kw">const</span> numbers = [<span class="num">5</span>, <span class="num">10</span>, <span class="num">15</span>];
+Math.max(...numbers); <span class="cmt">// 15</span></pre>
+  </div>
+  <div class="card">
+    <h3>Rest — Collects remaining elements</h3>
+    <pre><span class="kw">function</span> <span class="fn">sum</span>(...numbers) {
+  <span class="kw">return</span> numbers.reduce((total, n) => total + n, <span class="num">0</span>);
+}
+console.log(<span class="fn">sum</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>)); <span class="cmt">// 15</span>
+
+<span class="kw">function</span> <span class="fn">greet</span>(greeting, ...names) {
+  <span class="kw">return</span> `${greeting} ${names.join(<span class="str">', '</span>)}!`;
+}
+<span class="fn">greet</span>(<span class="str">'Hello'</span>, <span class="str">'Alice'</span>, <span class="str">'Bob'</span>); <span class="cmt">// 'Hello Alice, Bob!'</span></pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Try spread &amp; rest</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">const a = [1, 2, 3];
+const b = [4, 5, 6];
+console.log([...a, ...b]);         // merge
+console.log(Math.max(...a));       // spread into args
+
+function total(...nums) {
+  return nums.reduce((s, n) => s + n, 0);
+}
+console.log(total(1, 2, 3, 4, 5)); // rest params</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="destructuring">← Destructuring</button>
+    <button class="nav-btn" data-next="optional">Next: Optional Chaining →</button>
+  </div>
+</section>
+
+<!-- OPTIONAL CHAINING -->
+<section id="sec-optional">
+  <div class="section-title">🛡️ Optional Chaining &amp; Nullish Coalescing</div>
+  <div class="section-subtitle">Safe access to deeply nested properties</div>
+  <div class="card">
+    <h3>Optional Chaining <code class="inline">?.</code></h3>
+    <pre><span class="kw">const</span> user = { name: <span class="str">'Alice'</span>, address: { city: <span class="str">'Paris'</span> } };
+
+<span class="cmt">// Without — throws TypeError if undefined:</span>
+<span class="cmt">// user.address.street.name</span>
+
+<span class="cmt">// With optional chaining — returns undefined safely:</span>
+<span class="kw">const</span> street = user?.address?.street?.name;
+console.log(street); <span class="cmt">// undefined (no error!)</span>
+
+<span class="cmt">// With arrays:</span>
+<span class="kw">const</span> users = <span class="kw">null</span>;
+console.log(users?.[<span class="num">0</span>]); <span class="cmt">// undefined</span>
+
+<span class="cmt">// With functions:</span>
+console.log(user.greet?.()); <span class="cmt">// undefined (no error)</span></pre>
+  </div>
+  <div class="card">
+    <h3>Nullish Coalescing <code class="inline">??</code></h3>
+    <p>Returns right side only if left is <code class="inline">null</code> or <code class="inline">undefined</code> (not falsy 0, ''!).</p>
+    <pre><span class="kw">const</span> count = <span class="num">0</span>;
+console.log(count || <span class="num">10</span>);  <span class="cmt">// 10 — 0 is falsy</span>
+console.log(count ?? <span class="num">10</span>);  <span class="cmt">// 0  — 0 is NOT nullish</span>
+
+<span class="kw">const</span> name = <span class="kw">null</span> ?? <span class="str">'Guest'</span>; <span class="cmt">// 'Guest'</span></pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Try ?. and ??</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">const user = { name: "Bob", address: { city: "Baku" } };
+console.log(user?.address?.city);    // "Baku"
+console.log(user?.address?.zip);     // undefined — safe!
+console.log(user?.phone?.number);    // undefined — safe!
+
+const score = 0;
+console.log(score ?? "No score");    // 0
+console.log(score || "No score");    // "No score"</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="spreadrest">← Spread &amp; Rest</button>
+    <button class="nav-btn" data-next="mapssets">Next: Maps &amp; Sets →</button>
+  </div>
+</section>
+
+<!-- MAPS & SETS -->
+<section id="sec-mapssets">
+  <div class="section-title">🗺️ Maps &amp; Sets</div>
+  <div class="section-subtitle">Modern data structures</div>
+  <div class="card">
+    <h3>Map — any-type key-value pairs</h3>
+    <pre><span class="kw">const</span> myMap = <span class="kw">new</span> Map();
+myMap.set(<span class="str">'name'</span>, <span class="str">'Alice'</span>);
+myMap.set(<span class="num">1</span>, <span class="str">'number key'</span>);
+console.log(myMap.get(<span class="str">'name'</span>)); <span class="cmt">// 'Alice'</span>
+console.log(myMap.has(<span class="str">'name'</span>)); <span class="cmt">// true</span>
+console.log(myMap.size);         <span class="cmt">// 2</span>
+
+<span class="kw">for</span> (<span class="kw">const</span> [key, val] <span class="kw">of</span> myMap) {
+  console.log(key, <span class="str">'→'</span>, val);
+}</pre>
+  </div>
+  <div class="card">
+    <h3>Set — unique values only</h3>
+    <pre><span class="kw">const</span> nums = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">3</span>, <span class="num">4</span>];
+<span class="kw">const</span> unique = [...<span class="kw">new</span> Set(nums)];
+console.log(unique); <span class="cmt">// [1, 2, 3, 4]</span>
+
+<span class="kw">const</span> setA = <span class="kw">new</span> Set([<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>]);
+<span class="kw">const</span> setB = <span class="kw">new</span> Set([<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>]);
+<span class="cmt">// Intersection:</span>
+<span class="kw">const</span> inter = <span class="kw">new</span> Set([...setA].filter(x => setB.has(x)));
+console.log([...inter]); <span class="cmt">// [3, 4]</span></pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Maps &amp; Sets playground</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">// Remove duplicates using Set
+const arr = [1, 2, 2, 3, 3, 4, 5, 5];
+const unique = [...new Set(arr)];
+console.log("Unique:", unique);
+
+// Map with any key types
+const scores = new Map([["Alice",95],["Bob",87],["Charlie",92]]);
+scores.forEach((score, name) => console.log(`${name}: ${score}`));</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="optional">← Optional Chaining</button>
+    <button class="nav-btn" data-next="closures">Next: Closures →</button>
+  </div>
+</section>
+
+<!-- CLOSURES -->
+<section id="sec-closures">
+  <div class="section-title">🔒 Closures</div>
+  <div class="section-subtitle">Functions that remember their outer scope</div>
+  <div class="card">
+    <h3>How Closures Work</h3>
+    <pre><span class="kw">function</span> <span class="fn">outer</span>() {
+  <span class="kw">const</span> message = <span class="str">'Hello from outer'</span>;
+  <span class="kw">function</span> <span class="fn">inner</span>() {
+    console.log(message); <span class="cmt">// accesses outer's variable</span>
+  }
+  <span class="kw">return</span> inner;
+}
+<span class="kw">const</span> myFn = <span class="fn">outer</span>();
+<span class="fn">myFn</span>(); <span class="cmt">// 'Hello from outer' — even after outer() finished!</span></pre>
+  </div>
+  <div class="card">
+    <h3>Practical Example — Private Counter</h3>
+    <pre><span class="kw">function</span> <span class="fn">createCounter</span>() {
+  <span class="kw">let</span> count = <span class="num">0</span>; <span class="cmt">// private</span>
+  <span class="kw">return</span> {
+    increment() { <span class="kw">return</span> ++count; },
+    decrement() { <span class="kw">return</span> --count; },
+    getCount() { <span class="kw">return</span> count; }
+  };
+}
+<span class="kw">const</span> c = <span class="fn">createCounter</span>();
+c.increment(); c.increment();
+console.log(c.getCount()); <span class="cmt">// 2</span>
+console.log(c.count);      <span class="cmt">// undefined (private!)</span></pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Build a bank account with closures</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">function createBankAccount(initialBalance) {
+  let balance = initialBalance;
+  return {
+    deposit(amount) { balance += amount; return balance; },
+    withdraw(amount) {
+      if (amount <= balance) { balance -= amount; return balance; }
+      return "Insufficient funds";
+    },
+    getBalance() { return balance; }
+  };
+}
+const acc = createBankAccount(1000);
+console.log("After deposit:", acc.deposit(500));
+console.log("After withdraw:", acc.withdraw(200));
+console.log("Balance:", acc.getBalance());
+console.log("Direct access:", acc.balance); // undefined!</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="mapssets">← Maps &amp; Sets</button>
+    <button class="nav-btn" data-next="prototypes">Next: Prototypes →</button>
+  </div>
+</section>
+
+<!-- PROTOTYPES -->
+<section id="sec-prototypes">
+  <div class="section-title">🧬 Prototypes &amp; Inheritance</div>
+  <div class="section-subtitle">How JS objects inherit from each other</div>
+  <div class="card">
+    <h3>Prototype Chain</h3>
+    <p>Every object has a hidden link to its prototype. When you access a property, JS looks on the object first, then its prototype, and so on up to <code class="inline">null</code>.</p>
+    <pre><span class="kw">const</span> animal = { eats: <span class="kw">true</span> };
+<span class="kw">const</span> rabbit = { jumps: <span class="kw">true</span> };
+Object.setPrototypeOf(rabbit, animal);
+
+console.log(rabbit.jumps); <span class="cmt">// true  (own)</span>
+console.log(rabbit.eats);  <span class="cmt">// true  (inherited!)</span></pre>
+  </div>
+  <div class="card">
+    <h3>Constructor Functions</h3>
+    <pre><span class="kw">function</span> <span class="fn">Person</span>(name, age) {
+  <span class="kw">this</span>.name = name;
+  <span class="kw">this</span>.age = age;
+}
+Person.prototype.greet = <span class="kw">function</span>() {
+  console.log(`Hi, I'm ${<span class="kw">this</span>.name}`);
+};
+<span class="kw">const</span> alice = <span class="kw">new</span> <span class="fn">Person</span>(<span class="str">'Alice'</span>, <span class="num">25</span>);
+alice.greet(); <span class="cmt">// 'Hi, I'm Alice'</span></pre>
+  </div>
+  <div class="info-box note">🔵 ES6 <code class="inline">class</code> syntax is just cleaner syntax over prototypes — they are equivalent under the hood.</div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="closures">← Closures</button>
+    <button class="nav-btn" data-next="callbind">Next: call/apply/bind →</button>
+  </div>
+</section>
+
+<!-- CALL/APPLY/BIND -->
+<section id="sec-callbind">
+  <div class="section-title">🎯 call() / apply() / bind()</div>
+  <div class="section-subtitle">Control what <code class="inline">this</code> points to</div>
+  <div class="card">
+    <h3>call() — invoke with specific this</h3>
+    <pre><span class="kw">function</span> <span class="fn">greet</span>(greeting) {
+  console.log(`${greeting}, I'm ${<span class="kw">this</span>.name}`);
+}
+<span class="kw">const</span> person = { name: <span class="str">'Alice'</span> };
+greet.call(person, <span class="str">'Hello'</span>); <span class="cmt">// 'Hello, I'm Alice'</span></pre>
+  </div>
+  <div class="card">
+    <h3>apply() — same but args as array</h3>
+    <pre>greet.apply(person, [<span class="str">'Hi'</span>]); <span class="cmt">// 'Hi, I'm Alice'</span>
+<span class="cmt">// Mnemonic: A for Array, C for Comma</span>
+Math.max.apply(<span class="kw">null</span>, [<span class="num">5</span>, <span class="num">6</span>, <span class="num">2</span>, <span class="num">9</span>]); <span class="cmt">// 9</span></pre>
+  </div>
+  <div class="card">
+    <h3>bind() — create bound function</h3>
+    <pre><span class="kw">const</span> boundGreet = greet.bind(person);
+<span class="fn">boundGreet</span>(<span class="str">'Hey'</span>); <span class="cmt">// 'Hey, I'm Alice'</span>
+
+<span class="cmt">// Partial application:</span>
+<span class="kw">const</span> <span class="fn">double</span> = (<span class="kw">function</span>(a, b) { <span class="kw">return</span> a * b; }).bind(<span class="kw">null</span>, <span class="num">2</span>);
+<span class="fn">double</span>(<span class="num">5</span>);  <span class="cmt">// 10</span>
+<span class="fn">double</span>(<span class="num">10</span>); <span class="cmt">// 20</span></pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Practice call/bind</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">function introduce(greeting, punct) {
+  return `${greeting}, my name is ${this.name}${punct}`;
+}
+const person1 = { name: "Alice" };
+const person2 = { name: "Bob" };
+
+console.log(introduce.call(person1, "Hello", "!"));
+console.log(introduce.apply(person2, ["Hi", "."]));
+
+const greetAlice = introduce.bind(person1, "Hey");
+console.log(greetAlice("!"));</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="prototypes">← Prototypes</button>
+    <button class="nav-btn" data-next="generators">Next: Generators →</button>
+  </div>
+</section>
+
+<!-- GENERATORS -->
+<section id="sec-generators">
+  <div class="section-title">🔮 Generators &amp; Iterators</div>
+  <div class="section-subtitle">Functions that can pause and resume</div>
+  <div class="card">
+    <h3>Generator Functions</h3>
+    <pre><span class="kw">function*</span> <span class="fn">numberGenerator</span>() {
+  <span class="kw">yield</span> <span class="num">1</span>;
+  <span class="kw">yield</span> <span class="num">2</span>;
+  <span class="kw">yield</span> <span class="num">3</span>;
+}
+<span class="kw">const</span> gen = <span class="fn">numberGenerator</span>();
+console.log(gen.next()); <span class="cmt">// { value: 1, done: false }</span>
+console.log(gen.next()); <span class="cmt">// { value: 2, done: false }</span>
+console.log(gen.next()); <span class="cmt">// { value: 3, done: false }</span>
+console.log(gen.next()); <span class="cmt">// { value: undefined, done: true }</span></pre>
+  </div>
+  <div class="card">
+    <h3>Infinite Generator / Practical Use</h3>
+    <pre><span class="kw">function*</span> <span class="fn">idGenerator</span>() {
+  <span class="kw">let</span> id = <span class="num">1</span>;
+  <span class="kw">while</span> (<span class="kw">true</span>) <span class="kw">yield</span> id++;
+}
+<span class="kw">const</span> genId = <span class="fn">idGenerator</span>();
+console.log(genId.next().value); <span class="cmt">// 1</span>
+console.log(genId.next().value); <span class="cmt">// 2</span></pre>
+    <div class="editor-block">
+      <div class="editor-toolbar"><span class="editor-label">▶ Generator playground</span><div class="editor-btns"><button class="btn-reset">Reset</button><button class="btn-run">Run</button></div></div>
+      <textarea class="code-area">function* countUp(max) {
+  for (let i = 1; i <= max; i++) {
+    yield i;
+  }
+}
+for (const num of countUp(5)) {
+  console.log("Count:", num);
+}
+
+// ID generator
+function* idGen() { let id = 1; while (true) yield id++; }
+const ids = idGen();
+console.log(ids.next().value, ids.next().value, ids.next().value);</textarea>
+      <div class="output-panel empty">Output will appear here…</div>
+    </div>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="callbind">← call/bind</button>
+    <button class="nav-btn" data-next="dom">Next: DOM →</button>
+  </div>
+</section>
+
+<!-- DOM -->
+<section id="sec-dom">
+  <div class="section-title">🌳 DOM Manipulation</div>
+  <div class="section-subtitle">Control the page with JavaScript</div>
+  <div class="card">
+    <h3>Selecting Elements</h3>
+    <pre><span class="cmt">// By ID</span>
+<span class="kw">const</span> header = document.getElementById(<span class="str">'main-header'</span>);
+<span class="cmt">// By CSS selector (first match)</span>
+<span class="kw">const</span> btn = document.querySelector(<span class="str">'.btn-primary'</span>);
+<span class="cmt">// All matching elements</span>
+<span class="kw">const</span> all = document.querySelectorAll(<span class="str">'button'</span>);</pre>
+  </div>
+  <div class="card">
+    <h3>Modifying Content &amp; Styles</h3>
+    <pre>heading.textContent = <span class="str">'New Title'</span>;
+container.innerHTML = <span class="str">'&lt;p&gt;New &lt;b&gt;content&lt;/b&gt;&lt;/p&gt;'</span>;
+
+<span class="cmt">// CSS classes (recommended):</span>
+el.classList.add(<span class="str">'active'</span>);
+el.classList.remove(<span class="str">'hidden'</span>);
+el.classList.toggle(<span class="str">'expanded'</span>);</pre>
+  </div>
+  <div class="card">
+    <h3>Live Demo — Click to change</h3>
+    <div style="padding:16px;background:var(--code-bg);border-radius:8px;border:1px solid var(--border)">
+      <p id="dom-demo-text" style="color:#e2e8f0;margin-bottom:10px">I am the original text!</p>
+      <button onclick="document.getElementById('dom-demo-text').textContent='🎉 Changed by JavaScript!';document.getElementById('dom-demo-text').style.color='#4f9eff';" style="padding:6px 14px;background:#2563eb;color:white;border:none;border-radius:5px;cursor:pointer">Change Text</button>
+    </div>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="generators">← Generators</button>
+    <button class="nav-btn" data-next="events">Next: Events →</button>
+  </div>
+</section>
+
+<!-- EVENTS -->
+<section id="sec-events">
+  <div class="section-title">🖱️ Events</div>
+  <div class="section-subtitle">Respond to user interactions</div>
+  <div class="card">
+    <h3>addEventListener</h3>
+    <pre>button.addEventListener(<span class="str">'click'</span>, (event) => {
+  console.log(<span class="str">'Clicked!'</span>, event.target);
+});
+
+<span class="cmt">// Remove listener:</span>
+button.removeEventListener(<span class="str">'click'</span>, handler);</pre>
+  </div>
+  <div class="card">
+    <h3>Common Event Types</h3>
+    <table class="data-table">
+      <tr><th>Event</th><th>Triggers when</th></tr>
+      <tr><td><code>click</code></td><td>User clicks</td></tr>
+      <tr><td><code>dblclick</code></td><td>Double click</td></tr>
+      <tr><td><code>keydown</code></td><td>Key pressed</td></tr>
+      <tr><td><code>keyup</code></td><td>Key released</td></tr>
+      <tr><td><code>submit</code></td><td>Form submitted</td></tr>
+      <tr><td><code>input</code></td><td>Input value changes</td></tr>
+      <tr><td><code>mouseover</code></td><td>Mouse enters element</td></tr>
+      <tr><td><code>scroll</code></td><td>Page scrolled</td></tr>
+      <tr><td><code>DOMContentLoaded</code></td><td>DOM ready</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Live Event Demo</h3>
+    <div style="padding:14px;background:var(--code-bg);border-radius:8px;border:1px solid var(--border)">
+      <input id="evt-input" type="text" placeholder="Type here…" style="width:100%;padding:8px;background:#0f1117;border:1px solid #2d3748;border-radius:5px;color:#e2e8f0;font-size:13px;margin-bottom:8px">
+      <div id="evt-output" style="font-size:13px;color:#94a3b8">You typed: …</div>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded',()=>{
+        const inp=document.getElementById('evt-input');
+        const out=document.getElementById('evt-output');
+        if(inp&&out){inp.addEventListener('input',()=>{out.textContent='You typed: '+inp.value;});}
+      });
+    </script>
+  </div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="dom">← DOM</button>
+    <button class="nav-btn" data-next="memory">Next: Memory →</button>
+  </div>
+</section>
+
+<!-- MEMORY -->
+<section id="sec-memory">
+  <div class="section-title">🧠 Memory Management</div>
+  <div class="section-subtitle">How JavaScript allocates and frees memory</div>
+  <div class="card">
+    <h3>Stack vs Heap</h3>
+    <table class="data-table">
+      <tr><th>Stack</th><th>Heap</th></tr>
+      <tr><td>Primitive values</td><td>Objects &amp; arrays</td></tr>
+      <tr><td>References to heap objects</td><td>Functions</td></tr>
+      <tr><td>Function call frames</td><td>Dynamic size</td></tr>
+      <tr><td>Limited space</td><td>Large, flexible</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Garbage Collection</h3>
+    <p>JavaScript automatically frees unreachable memory using:</p>
+    <ul>
+      <li><strong>Reference Counting</strong> — tracks how many references point to an object</li>
+      <li><strong>Mark-and-Sweep</strong> — marks all reachable objects, sweeps the rest</li>
+    </ul>
+    <pre><span class="kw">let</span> obj = <span class="kw">new</span> Object(); <span class="cmt">// ref count: 1</span>
+<span class="kw">let</span> obj2 = obj;         <span class="cmt">// ref count: 2</span>
+obj2 = <span class="str">"string"</span>;        <span class="cmt">// ref count back to 1</span>
+obj = <span class="kw">null</span>;             <span class="cmt">// ref count: 0 → memory freed</span></pre>
+  </div>
+  <div class="card">
+    <h3>Common Memory Leaks</h3>
+    <ul>
+      <li><strong>Messy closures</strong> — closures retaining large objects</li>
+      <li><strong>Dangling timers</strong> — <code class="inline">setInterval</code> not cleared</li>
+      <li><strong>Forgotten event listeners</strong> — not removed when unneeded</li>
+    </ul>
+    <pre><span class="cmt">// Prevent timer leak:</span>
+<span class="kw">const</span> intervalID = setInterval(cb, <span class="num">1000</span>);
+clearInterval(intervalID); <span class="cmt">// Always clear!</span></pre>
+  </div>
+  <div class="info-box tip">🎉 <strong>You've reached the end!</strong> You've covered all topics from your Notion notes — from basics to advanced JS. Now build projects and apply what you know!</div>
+  <div class="section-nav">
+    <button class="nav-btn" data-next="events">← Events</button>
+    <button class="nav-btn" disabled>End of Book 🏁</button>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  const sections=[
+    'intro','variables','operators','conditionals','functions','scope',
+    'arrays','loops','iterators','objects','classes','promises','asyncawait',
+    'fetch','errors','modules','destructuring','spreadrest','optional',
+    'mapssets','closures','prototypes','callbind','generators','dom','events','memory'
+  ];
+  const visited=new Set(['intro']);
+
+  function goTo(id){
+    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+    const sec=document.getElementById('sec-'+id);
+    if(sec){sec.classList.add('active');sec.scrollIntoView&&window.scrollTo(0,0);}
+    const link=document.querySelector(`nav a[data-sec="${id}"]`);
+    if(link){link.classList.add('active');}
+    visited.add(id);
+    updateProgress();
+  }
+
+  function updateProgress(){
+    const pct=Math.round((visited.size/sections.length)*100);
+    document.getElementById('prog-fill').style.width=pct+'%';
+    document.getElementById('prog-text').textContent=pct+'%';
+  }
+
+  document.querySelectorAll('nav a[data-sec]').forEach(a=>{
+    a.addEventListener('click',e=>{e.preventDefault();goTo(a.dataset.sec);});
+  });
+
+  document.querySelectorAll('button[data-next]').forEach(b=>{
+    b.addEventListener('click',()=>goTo(b.dataset.next));
+  });
+
+  // Run buttons
+  document.querySelectorAll('.editor-block').forEach(block=>{
+    const ta=block.querySelector('textarea.code-area');
+    const runBtn=block.querySelector('.btn-run');
+    const resetBtn=block.querySelector('.btn-reset');
+    const out=block.querySelector('.output-panel');
+    const original=ta.value;
+
+    function run(){
+      const logs=[];
+      const fakeConsole={
+        log:function(){logs.push(Array.from(arguments).map(v=>{
+          if(v===null)return'null';
+          if(Array.isArray(v))return JSON.stringify(v);
+          if(typeof v==='object')return JSON.stringify(v);
+          return String(v);
+        }).join(' '));},
+        error:function(){logs.push('ERROR: '+Array.from(arguments).map(String).join(' '));}
+      };
+      try{
+        const fn=new Function('console',ta.value);
+        fn(fakeConsole);
+        out.textContent=logs.length?logs.join('\n'):'(no output)';
+        out.className='output-panel';
+      }catch(e){
+        out.textContent='Error: '+e.message;
+        out.className='output-panel error';
+      }
+    }
+    if(runBtn)runBtn.addEventListener('click',run);
+    if(resetBtn)resetBtn.addEventListener('click',()=>{ta.value=original;out.textContent='';out.className='output-panel empty';});
+  });
+
+  // Quiz buttons
+  document.querySelectorAll('.btn-check').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const name=btn.dataset.name;
+      const correct=btn.dataset.correct;
+      const selected=document.querySelector(`input[name="${name}"]:checked`);
+      const result=btn.parentElement.querySelector('.quiz-result');
+      if(!selected){result.textContent='Please select an answer.';result.className='quiz-result wrong';return;}
+      if(selected.value===correct){
+        result.textContent='✅ Correct!';result.className='quiz-result correct';
+      }else{
+        result.textContent='❌ Not quite. Try again!';result.className='quiz-result wrong';
+      }
+    });
+  });
+
+  updateProgress();
+})();
+</script>
+</body>
+</html>

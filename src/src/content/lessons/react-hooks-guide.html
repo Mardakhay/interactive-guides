@@ -1,0 +1,2490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React Hooks & Patterns — Deep Dive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&family=Fraunces:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07080d;
+    --bg2: #0d0f18;
+    --bg3: #131520;
+    --surface: #181a27;
+    --surface2: #1e2030;
+    --border: #252840;
+    --border2: #2e3155;
+    --text: #c8cce8;
+    --text-dim: #6b6f8f;
+    --text-bright: #eef0ff;
+    --orange: #ff6f3c;
+    --orange-dim: rgba(255,111,60,0.15);
+    --amber: #ffb347;
+    --amber-dim: rgba(255,179,71,0.12);
+    --mint: #4ecca3;
+    --mint-dim: rgba(78,204,163,0.12);
+    --blue: #5b8dee;
+    --blue-dim: rgba(91,141,238,0.12);
+    --pink: #f0609e;
+    --pink-dim: rgba(240,96,158,0.12);
+    --yellow: #f5e642;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ── NOISE TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  /* ── LAYOUT ── */
+  .page-wrap { position: relative; z-index: 1; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 14px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(7,8,13,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--orange);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .nav-links {
+    display: flex; gap: 6px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .nav-links a:hover {
+    color: var(--text-bright);
+    border-color: var(--border2);
+    background: var(--surface);
+  }
+  .nav-progress {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: linear-gradient(90deg, var(--orange), var(--amber));
+    z-index: 101;
+    transition: width 0.1s;
+    width: 0%;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: flex-start;
+    padding: 120px 80px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.3;
+    mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%);
+  }
+  .hero-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,111,60,0.07) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    pointer-events: none;
+  }
+  .hero-glow2 {
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(91,141,238,0.06) 0%, transparent 70%);
+    bottom: 0; left: 200px;
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--orange);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+    opacity: 0; animation: fadeUp 0.6s 0.1s ease forwards;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 30px; height: 1px;
+    background: var(--orange);
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(52px, 8vw, 110px);
+    font-weight: 800;
+    line-height: 0.92;
+    color: var(--text-bright);
+    letter-spacing: -0.03em;
+    margin-bottom: 32px;
+    opacity: 0; animation: fadeUp 0.7s 0.2s ease forwards;
+  }
+  .hero h1 span { color: var(--orange); }
+  .hero h1 em { font-style: italic; color: var(--amber); font-weight: 300; }
+  .hero-sub {
+    max-width: 520px;
+    font-size: 18px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 48px;
+    opacity: 0; animation: fadeUp 0.7s 0.35s ease forwards;
+  }
+  .hero-tags {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    opacity: 0; animation: fadeUp 0.7s 0.5s ease forwards;
+  }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid;
+    letter-spacing: 0.05em;
+  }
+  .tag-orange { border-color: rgba(255,111,60,0.4); color: var(--orange); background: var(--orange-dim); }
+  .tag-blue { border-color: rgba(91,141,238,0.4); color: var(--blue); background: var(--blue-dim); }
+  .tag-mint { border-color: rgba(78,204,163,0.4); color: var(--mint); background: var(--mint-dim); }
+  .tag-amber { border-color: rgba(255,179,71,0.4); color: var(--amber); background: var(--amber-dim); }
+  .tag-pink { border-color: rgba(240,96,158,0.4); color: var(--pink); background: var(--pink-dim); }
+
+  .hero-scroll {
+    position: absolute; bottom: 40px; left: 80px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    display: flex; align-items: center; gap: 10px;
+    opacity: 0; animation: fadeUp 0.7s 0.7s ease forwards;
+  }
+  .scroll-line {
+    width: 40px; height: 1px;
+    background: var(--text-dim);
+    animation: scrollPulse 2s infinite;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 100px 80px;
+    border-top: 1px solid var(--border);
+    position: relative;
+  }
+  .section-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-number::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border2);
+    max-width: 60px;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 800;
+    color: var(--text-bright);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 20px;
+  }
+  .section-title span { color: var(--orange); }
+  .section-intro {
+    font-size: 18px;
+    color: var(--text-dim);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 60px;
+    font-style: italic;
+  }
+
+  /* ── TWO COL LAYOUT ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+  @media (max-width: 900px) {
+    .two-col, .three-col { grid-template-columns: 1fr; }
+    section { padding: 60px 24px; }
+    .hero { padding: 100px 24px 60px; }
+    nav { padding: 14px 20px; }
+    .nav-links { display: none; }
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.25s, transform 0.25s;
+  }
+  .card:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .card-orange::before { background: linear-gradient(90deg, var(--orange), transparent); }
+  .card-blue::before { background: linear-gradient(90deg, var(--blue), transparent); }
+  .card-mint::before { background: linear-gradient(90deg, var(--mint), transparent); }
+  .card-amber::before { background: linear-gradient(90deg, var(--amber), transparent); }
+  .card-pink::before { background: linear-gradient(90deg, var(--pink), transparent); }
+
+  .card-icon {
+    font-size: 28px;
+    margin-bottom: 14px;
+    display: block;
+  }
+  .card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 10px;
+  }
+  .card p {
+    font-size: 15px;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  /* ── CODE BLOCKS ── */
+  .code-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin: 24px 0;
+    position: relative;
+  }
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .code-dots {
+    display: flex; gap: 6px;
+  }
+  .code-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .code-dot:nth-child(1) { background: #ff5f57; }
+  .code-dot:nth-child(2) { background: #febc2e; }
+  .code-dot:nth-child(3) { background: #28c840; }
+  .code-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+  .code-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .label-good { background: var(--mint-dim); color: var(--mint); border: 1px solid rgba(78,204,163,0.3); }
+  .label-bad { background: var(--pink-dim); color: var(--pink); border: 1px solid rgba(240,96,158,0.3); }
+  .label-note { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(255,179,71,0.3); }
+  pre {
+    padding: 24px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .kw { color: #c084fc; }
+  .fn { color: #60a5fa; }
+  .str { color: var(--mint); }
+  .cm { color: var(--text-dim); font-style: italic; }
+  .num { color: var(--amber); }
+  .tag-c { color: var(--orange); }
+  .type { color: #fb923c; }
+  .op { color: #94a3b8; }
+  .hl { background: rgba(255,111,60,0.08); display: block; margin: 0 -24px; padding: 0 24px; }
+  .hl-good { background: rgba(78,204,163,0.06); display: block; margin: 0 -24px; padding: 0 24px; }
+
+  /* ── CALLOUT BOXES ── */
+  .callout {
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 24px 0;
+    display: flex; gap: 14px;
+    font-size: 15.5px;
+    line-height: 1.65;
+  }
+  .callout-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .callout-orange { background: var(--orange-dim); border: 1px solid rgba(255,111,60,0.25); }
+  .callout-mint { background: var(--mint-dim); border: 1px solid rgba(78,204,163,0.25); }
+  .callout-blue { background: var(--blue-dim); border: 1px solid rgba(91,141,238,0.25); }
+  .callout-amber { background: var(--amber-dim); border: 1px solid rgba(255,179,71,0.25); }
+  .callout-pink { background: var(--pink-dim); border: 1px solid rgba(240,96,158,0.25); }
+  .callout b { color: var(--text-bright); }
+
+  /* ── PROSE ── */
+  .prose p {
+    font-size: 16.5px;
+    line-height: 1.8;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .prose strong { color: var(--text-bright); font-weight: 500; }
+  .prose code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 7px;
+    border-radius: 5px;
+    color: var(--orange);
+  }
+
+  /* ── DIAGRAM ── */
+  .diagram {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    margin: 32px 0;
+    overflow-x: auto;
+  }
+  .flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    row-gap: 20px;
+  }
+  .flow-box {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    text-align: center;
+    min-width: 130px;
+    position: relative;
+  }
+  .flow-box span {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .flow-box strong {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    color: var(--text-bright);
+  }
+  .flow-box.active { border-color: var(--orange); background: var(--orange-dim); }
+  .flow-box.active strong { color: var(--orange); }
+  .flow-box.mint { border-color: var(--mint); background: var(--mint-dim); }
+  .flow-box.mint strong { color: var(--mint); }
+  .flow-box.blue { border-color: var(--blue); background: var(--blue-dim); }
+  .flow-box.blue strong { color: var(--blue); }
+  .flow-arrow {
+    font-size: 20px;
+    color: var(--text-dim);
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+  .dep-demo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .dep-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 18px;
+    text-align: center;
+  }
+  .dep-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+  .dep-card h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-bright);
+    margin-bottom: 8px;
+  }
+  .dep-card p { font-size: 12.5px; color: var(--text-dim); line-height: 1.5; }
+
+  /* ── QUIZZES ── */
+  .quiz-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    margin: 32px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .quiz-wrap::before {
+    content: 'QUIZ';
+    position: absolute; top: 20px; right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    border: 1px solid var(--border2);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .quiz-q {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 20px;
+    padding-right: 80px;
+  }
+  .quiz-options {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .quiz-option {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    cursor: pointer;
+    font-size: 14.5px;
+    display: flex; align-items: center; gap: 12px;
+    transition: all 0.2s;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .quiz-option:hover { border-color: var(--border2); background: var(--surface2); }
+  .quiz-option.correct { border-color: var(--mint); background: var(--mint-dim); color: var(--mint); }
+  .quiz-option.wrong { border-color: var(--pink); background: var(--pink-dim); color: var(--pink); }
+  .quiz-option.disabled { pointer-events: none; opacity: 0.6; }
+  .quiz-badge {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .quiz-feedback {
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    font-size: 14.5px;
+    display: none;
+    line-height: 1.6;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: var(--mint-dim); border: 1px solid rgba(78,204,163,0.3); color: var(--mint); }
+  .quiz-feedback.wrong-fb { background: var(--pink-dim); border: 1px solid rgba(240,96,158,0.3); color: var(--pink); }
+  .quiz-reset {
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    background: none;
+    border: 1px solid var(--border2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+  }
+  .quiz-reset.show { display: inline-block; }
+  .quiz-reset:hover { color: var(--text-bright); border-color: var(--text-dim); }
+
+  /* ── CODE EDITOR / CHALLENGE ── */
+  .challenge-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .challenge-header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+  }
+  .challenge-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--orange);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .challenge-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-bright);
+  }
+  .challenge-diff {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .diff-easy { background: var(--mint-dim); color: var(--mint); border: 1px solid rgba(78,204,163,0.3); }
+  .diff-medium { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(255,179,71,0.3); }
+  .diff-hard { background: var(--pink-dim); color: var(--pink); border: 1px solid rgba(240,96,158,0.3); }
+  .challenge-desc {
+    padding: 20px 28px;
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.7;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .challenge-desc code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: var(--surface);
+    padding: 2px 7px;
+    border-radius: 4px;
+    color: var(--orange);
+    border: 1px solid var(--border2);
+  }
+  .challenge-editor {
+    position: relative;
+  }
+  .editor-area {
+    width: 100%;
+    min-height: 260px;
+    background: var(--bg);
+    border: none;
+    outline: none;
+    padding: 24px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--text);
+    resize: vertical;
+    tab-size: 2;
+  }
+  .editor-footer {
+    padding: 14px 28px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    background: var(--surface);
+    flex-wrap: wrap;
+  }
+  .run-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 10px 24px;
+    background: var(--orange);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .run-btn:hover { background: var(--amber); transform: translateY(-1px); }
+  .run-btn:active { transform: translateY(0); }
+  .reset-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 9px 18px;
+    background: none;
+    color: var(--text-dim);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover { color: var(--text-bright); border-color: var(--text-dim); }
+  .check-result {
+    padding: 16px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    display: none;
+    border-top: 1px solid var(--border);
+    line-height: 1.6;
+  }
+  .check-result.show { display: block; }
+  .check-result.pass { background: var(--mint-dim); color: var(--mint); }
+  .check-result.fail { background: var(--pink-dim); color: var(--pink); }
+  .check-result.partial { background: var(--amber-dim); color: var(--amber); }
+  .check-tests {
+    margin-top: 10px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .check-test {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px;
+  }
+  .check-test-icon { font-size: 14px; }
+
+  /* ── INTERACTIVE LIFECYCLE ── */
+  .lifecycle-demo {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    margin: 32px 0;
+  }
+  .lifecycle-demo h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 20px;
+  }
+  .lifecycle-controls {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px;
+  }
+  .lc-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 9px 20px;
+    border-radius: 6px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .lc-btn-mount { border-color: var(--mint); color: var(--mint); background: var(--mint-dim); }
+  .lc-btn-mount:hover { background: rgba(78,204,163,0.25); }
+  .lc-btn-update { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+  .lc-btn-update:hover { background: rgba(91,141,238,0.25); }
+  .lc-btn-unmount { border-color: var(--pink); color: var(--pink); background: var(--pink-dim); }
+  .lc-btn-unmount:hover { background: rgba(240,96,158,0.25); }
+  .lc-log {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    min-height: 140px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    display: flex; flex-direction: column; gap: 5px;
+    overflow-y: auto;
+    max-height: 220px;
+  }
+  .log-entry {
+    display: flex; align-items: center; gap: 10px;
+    animation: fadeIn 0.3s ease;
+  }
+  .log-time { color: var(--text-dim); font-size: 11px; }
+  .log-type { padding: 1px 8px; border-radius: 3px; font-size: 10px; letter-spacing: 0.05em; }
+  .log-mount { background: var(--mint-dim); color: var(--mint); border: 1px solid rgba(78,204,163,0.3); }
+  .log-update { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(91,141,238,0.3); }
+  .log-cleanup { background: var(--pink-dim); color: var(--pink); border: 1px solid rgba(240,96,158,0.3); }
+  .log-msg { color: var(--text); }
+  .lc-clear {
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    background: none;
+    border: 1px solid var(--border2);
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+  .lc-clear:hover { color: var(--text-bright); }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 14px;
+  }
+  .compare-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 14px 20px;
+    background: var(--surface);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+  .compare-table th:first-child { color: var(--text-bright); }
+  .compare-table td {
+    padding: 14px 20px;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+  .compare-table tr:hover td { background: var(--surface); }
+  .compare-table td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--orange);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .compare-table .useState-col { color: var(--blue); }
+  .compare-table .useEffect-col { color: var(--mint); }
+
+  /* ── PROGRESS TRACKER ── */
+  .section-progress {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 10px;
+    z-index: 50;
+  }
+  .prog-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border2);
+    transition: all 0.3s;
+    cursor: pointer;
+    position: relative;
+  }
+  .prog-dot::after {
+    content: attr(data-label);
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .prog-dot:hover::after { opacity: 1; }
+  .prog-dot.active { background: var(--orange); transform: scale(1.5); }
+  @media (max-width: 900px) { .section-progress { display: none; } }
+
+  /* ── CHILDREN VISUAL ── */
+  .children-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    margin: 32px 0;
+  }
+  .cv-wrapper {
+    border: 2px dashed var(--orange);
+    border-radius: var(--radius-lg);
+    padding: 24px 32px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+  }
+  .cv-label {
+    position: absolute;
+    top: -11px; left: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: var(--bg2);
+    padding: 0 8px;
+    color: var(--orange);
+    letter-spacing: 0.08em;
+  }
+  .cv-inner {
+    border: 2px solid var(--blue);
+    border-radius: var(--radius);
+    padding: 16px 24px;
+    margin-top: 16px;
+    position: relative;
+  }
+  .cv-inner .cv-label { color: var(--blue); }
+  .cv-children-slot {
+    border: 2px dashed var(--mint);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--mint);
+    position: relative;
+  }
+  .cv-children-slot .cv-label { color: var(--mint); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 60px 80px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 24px;
+  }
+  .footer-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .footer-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,111,60,0.3); }
+    50% { box-shadow: 0 0 0 8px rgba(255,111,60,0); }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Section bg accents */
+  #use-effect { background: linear-gradient(180deg, var(--bg) 0%, rgba(255,111,60,0.02) 100%); }
+  #composition { background: linear-gradient(180deg, var(--bg) 0%, rgba(91,141,238,0.02) 100%); }
+  #lists-keys { background: linear-gradient(180deg, var(--bg) 0%, rgba(78,204,163,0.02) 100%); }
+  #quizzes { background: linear-gradient(180deg, var(--bg) 0%, rgba(255,179,71,0.02) 100%); }
+  #challenges { background: linear-gradient(180deg, var(--bg) 0%, rgba(240,96,158,0.02) 100%); }
+
+  /* Sticky note style */
+  .sticky {
+    background: rgba(255,230,80,0.07);
+    border: 1px solid rgba(255,230,80,0.2);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    font-size: 14.5px;
+    color: #f5e890;
+    margin: 20px 0;
+    font-style: italic;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border2), transparent);
+    margin: 48px 0;
+  }
+
+  /* Tab system for code comparison */
+  .tabs {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin: 24px 0;
+  }
+  .tab-nav {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .tab-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .tab-btn.active { color: var(--orange); border-bottom-color: var(--orange); }
+  .tab-btn:hover:not(.active) { color: var(--text-bright); }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* Counter animation */
+  .stat-row {
+    display: flex; gap: 24px; margin: 32px 0; flex-wrap: wrap;
+  }
+  .stat-item {
+    flex: 1; min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--orange);
+    display: block;
+  }
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<div class="nav-progress" id="navProgress"></div>
+
+<nav>
+  <div class="nav-logo">⚛ React Deep Dive</div>
+  <ul class="nav-links">
+    <li><a href="#use-effect">useEffect</a></li>
+    <li><a href="#composition">Composition</a></li>
+    <li><a href="#lists-keys">Lists & Keys</a></li>
+    <li><a href="#quizzes">Quizzes</a></li>
+    <li><a href="#challenges">Challenges</a></li>
+  </ul>
+</nav>
+
+<div class="section-progress">
+  <div class="prog-dot active" data-label="Intro" data-target="hero" onclick="scrollToSection('hero')"></div>
+  <div class="prog-dot" data-label="useEffect" data-target="use-effect" onclick="scrollToSection('use-effect')"></div>
+  <div class="prog-dot" data-label="Composition" data-target="composition" onclick="scrollToSection('composition')"></div>
+  <div class="prog-dot" data-label="Lists & Keys" data-target="lists-keys" onclick="scrollToSection('lists-keys')"></div>
+  <div class="prog-dot" data-label="Quizzes" data-target="quizzes" onclick="scrollToSection('quizzes')"></div>
+  <div class="prog-dot" data-label="Challenges" data-target="challenges" onclick="scrollToSection('challenges')"></div>
+</div>
+
+<div class="page-wrap">
+
+<!-- ── HERO ──────────────────────────────── -->
+<section class="hero" id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <div class="hero-eyebrow">React Fundamentals — Module 3</div>
+  <h1>Hooks &<br><em>Patterns</em><br><span>Deep Dive</span></h1>
+  <p class="hero-sub">
+    Everything you need to understand <strong>useEffect</strong>, Component Composition, and Lists — explained the way you actually think, not the way docs do.
+  </p>
+  <div class="hero-tags">
+    <span class="tag tag-orange">useEffect</span>
+    <span class="tag tag-blue">Composition</span>
+    <span class="tag tag-mint">children prop</span>
+    <span class="tag tag-amber">Lists & Keys</span>
+    <span class="tag tag-pink">Quizzes</span>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll to explore
+  </div>
+</section>
+
+<!-- ── USEEFFECT ──────────────────────────── -->
+<section id="use-effect">
+  <div class="section-number">01 — React Hook</div>
+  <h2 class="section-title">use<span>Effect</span></h2>
+  <p class="section-intro">React's escape hatch for talking to the outside world — APIs, timers, the DOM, and more.</p>
+
+  <div class="two-col reveal">
+    <div class="prose">
+      <p>
+        Every React component has one job: <strong>take some data, return some UI</strong>. That's it. Clean, predictable, pure.
+      </p>
+      <p>
+        But real applications need to do other things. They need to fetch data from a server, start a timer, listen to keyboard events, update the page title. These are called <strong>side effects</strong> — work that happens <em>outside</em> the render cycle.
+      </p>
+      <p>
+        <code>useEffect</code> is how you safely run side effects <em>after</em> React has updated the DOM. Think of it as React telling you: <em>"I'm done rendering — you can go do your side stuff now."</em>
+      </p>
+    </div>
+    <div>
+      <div class="callout callout-orange reveal">
+        <span class="callout-icon">🍽️</span>
+        <div><b>Restaurant Analogy:</b> The render is making the food. A side effect is like placing the order to the kitchen — it happens alongside the main work, but separately. The customer sees the food (the UI), not all the kitchen work happening behind the scenes.</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-item"><span class="stat-num">4</span><span class="stat-label">Side Effect Types</span></div>
+        <div class="stat-item"><span class="stat-num">3</span><span class="stat-label">Dep Array Modes</span></div>
+        <div class="stat-item"><span class="stat-num">1</span><span class="stat-label">Rule: runs after render</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- What are side effects -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text-bright);margin:48px 0 20px;letter-spacing:-0.02em;" class="reveal">What counts as a side effect?</h3>
+  <div class="three-col reveal">
+    <div class="card card-orange">
+      <span class="card-icon">🌐</span>
+      <h3>Data Fetching</h3>
+      <p>Calling APIs with <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--orange)">fetch()</code>, axios, or any async request to a server.</p>
+    </div>
+    <div class="card card-blue">
+      <span class="card-icon">⏱️</span>
+      <h3>Timers</h3>
+      <p><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--orange)">setTimeout</code>, <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--orange)">setInterval</code> — anything that runs code on a delay or repeatedly.</p>
+    </div>
+    <div class="card card-mint">
+      <span class="card-icon">🎧</span>
+      <h3>Event Listeners</h3>
+      <p>Attaching listeners to <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--orange)">window</code>, <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--orange)">document</code>, or other DOM elements outside your component.</p>
+    </div>
+    <div class="card card-amber">
+      <span class="card-icon">🗄️</span>
+      <h3>Storage & DOM</h3>
+      <p>Reading/writing <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--orange)">localStorage</code>, updating <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--orange)">document.title</code>, or direct DOM manipulation.</p>
+    </div>
+    <div class="card card-pink">
+      <span class="card-icon">🔌</span>
+      <h3>Subscriptions</h3>
+      <p>WebSockets, pub/sub systems, Firebase listeners — any ongoing connection that needs to be cleaned up.</p>
+    </div>
+    <div class="card card-orange" style="border-color:var(--border2)">
+      <span class="card-icon">📊</span>
+      <h3>Third-party libs</h3>
+      <p>Initializing Chart.js, Google Maps, or any library that needs a DOM element to attach to.</p>
+    </div>
+  </div>
+
+  <!-- Why not just fetch in render -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text-bright);margin:48px 0 20px;letter-spacing:-0.02em;" class="reveal">Why can't I just fetch during render?</h3>
+
+  <div class="tabs reveal">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab(this, 'tab-bad')">❌ The Wrong Way</button>
+      <button class="tab-btn" onclick="switchTab(this, 'tab-good')">✅ With useEffect</button>
+    </div>
+    <div class="tab-pane active" id="tab-bad">
+      <div class="code-block" style="margin:0;border:none;border-radius:0">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-filename">Posts.jsx</span>
+          <span class="code-label label-bad">broken</span>
+        </div>
+        <pre><span class="kw">function</span> <span class="fn">Posts</span>() {
+  <span class="kw">const</span> [posts, setPosts] = <span class="fn">useState</span>([]);
+
+  <span class="cm">// 💥 This runs on EVERY render</span>
+  <span class="cm">// setPosts triggers a re-render</span>
+  <span class="cm">// re-render calls fetch again... forever</span>
+  <span class="hl"><span class="fn">fetch</span>(<span class="str">'/api/posts'</span>)</span>
+<span class="hl">    .then(r => r.json())</span>
+<span class="hl">    .then(data => <span class="fn">setPosts</span>(data)); <span class="cm">// ← INFINITE LOOP! 🔄</span></span>
+
+  <span class="kw">return</span> <span class="tag-c">&lt;div&gt;</span>{posts.length} posts<span class="tag-c">&lt;/div&gt;</span>;
+}</pre>
+      </div>
+    </div>
+    <div class="tab-pane" id="tab-good">
+      <div class="code-block" style="margin:0;border:none;border-radius:0">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-filename">Posts.jsx</span>
+          <span class="code-label label-good">correct</span>
+        </div>
+        <pre><span class="kw">function</span> <span class="fn">Posts</span>() {
+  <span class="kw">const</span> [posts, setPosts] = <span class="fn">useState</span>([]);
+
+  <span class="hl-good"><span class="fn">useEffect</span>(() => {</span>
+<span class="hl-good">    <span class="cm">// ✅ Runs ONCE after mount, never again</span></span>
+<span class="hl-good">    <span class="fn">fetch</span>(<span class="str">'/api/posts'</span>)</span>
+<span class="hl-good">      .then(r => r.json())</span>
+<span class="hl-good">      .then(data => <span class="fn">setPosts</span>(data));</span>
+<span class="hl-good">  }, []); <span class="cm">// ← empty array = "only run once"</span></span>
+
+  <span class="kw">return</span> <span class="tag-c">&lt;div&gt;</span>{posts.length} posts<span class="tag-c">&lt;/div&gt;</span>;
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Anatomy -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text-bright);margin:48px 0 20px;letter-spacing:-0.02em;" class="reveal">Anatomy of useEffect</h3>
+
+  <div class="diagram reveal">
+    <div class="flow">
+      <div class="flow-box blue"><span>Step 1</span><strong>React renders</strong></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box"><span>Step 2</span><strong>DOM updates</strong></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box active"><span>Step 3</span><strong>useEffect runs</strong></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box mint"><span>Step 4</span><strong>Cleanup (optional)</strong></div>
+    </div>
+    <p style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);margin-top:20px;">useEffect always runs <em style="color:var(--orange)">after</em> React finishes painting — your UI never blocks!</p>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-filename">useEffect syntax breakdown</span>
+    </div>
+    <pre><span class="fn">useEffect</span>(() => {
+  <span class="cm">// ① SETUP: Your side effect code lives here</span>
+  <span class="cm">//   - fetch data</span>
+  <span class="cm">//   - subscribe to events</span>
+  <span class="cm">//   - start a timer</span>
+  <span class="fn">console</span>.log(<span class="str">'Effect ran!'</span>);
+
+  <span class="cm">// ② CLEANUP: Return a function to "undo" the effect</span>
+  <span class="cm">//   This runs before the next effect, or when component unmounts</span>
+  <span class="kw">return</span> () => {
+    <span class="fn">console</span>.log(<span class="str">'Cleaning up...'</span>);
+  };
+
+}, [<span class="type">dependency1</span>, <span class="type">dependency2</span>]);
+<span class="cm">//  ↑ ③ DEPENDENCY ARRAY: Controls when the effect re-runs</span></pre>
+  </div>
+
+  <!-- Dependency Array -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text-bright);margin:48px 0 20px;letter-spacing:-0.02em;" class="reveal">The Dependency Array — The Most Confusing Part</h3>
+
+  <div class="prose reveal" style="max-width:700px;margin-bottom:28px;">
+    <p>The second argument to <code>useEffect</code> is an array that tells React <em>when</em> to re-run the effect. A lot of bugs come from getting this wrong.</p>
+  </div>
+
+  <div class="diagram reveal">
+    <div class="dep-demo">
+      <div class="dep-card">
+        <span class="dep-badge" style="background:var(--mint-dim);color:var(--mint);border:1px solid rgba(78,204,163,0.3)">useEffect(fn, [])</span>
+        <h4>Empty Array</h4>
+        <p>Runs <strong style="color:var(--mint)">once</strong> after the component first appears on screen. Perfect for initial data loading.</p>
+        <p style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim)">Like componentDidMount</p>
+      </div>
+      <div class="dep-card">
+        <span class="dep-badge" style="background:var(--blue-dim);color:var(--blue);border:1px solid rgba(91,141,238,0.3)">useEffect(fn, [val])</span>
+        <h4>With Dependencies</h4>
+        <p>Runs after mount, then again <strong style="color:var(--blue)">whenever</strong> a value in the array changes.</p>
+        <p style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim)">Like componentDidUpdate</p>
+      </div>
+      <div class="dep-card">
+        <span class="dep-badge" style="background:var(--pink-dim);color:var(--pink);border:1px solid rgba(240,96,158,0.3)">useEffect(fn)</span>
+        <h4>No Array ⚠️</h4>
+        <p>Runs after <strong style="color:var(--pink)">every single render</strong>. Almost never what you want — usually a bug.</p>
+        <p style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim)">Use very rarely</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-filename">dependency-examples.jsx</span>
+    </div>
+    <pre><span class="cm">// ✅ Empty array — fetch once on mount</span>
+<span class="fn">useEffect</span>(() => {
+  <span class="fn">fetchUserProfile</span>();
+}, []);
+
+<span class="cm">// ✅ Dependency — re-fetch when userId changes</span>
+<span class="cm">//   e.g., user navigates from /user/1 to /user/2</span>
+<span class="fn">useEffect</span>(() => {
+  <span class="fn">fetchUser</span>(userId);
+}, [userId]); <span class="cm">// ← re-runs whenever userId changes</span>
+
+<span class="cm">// ✅ Multiple deps — re-run when either changes</span>
+<span class="fn">useEffect</span>(() => {
+  <span class="fn">fetchPosts</span>(page, category);
+}, [page, category]);
+
+<span class="cm">// ⚠️  No array — runs after every render (almost always wrong)</span>
+<span class="fn">useEffect</span>(() => {
+  <span class="fn">console</span>.log(<span class="str">'runs after EVERY render...'</span>);
+});</pre>
+  </div>
+
+  <!-- Full API call example -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text-bright);margin:48px 0 20px;letter-spacing:-0.02em;" class="reveal">Real Example: Fetching Data with Loading & Error States</h3>
+  <div class="prose reveal" style="max-width:680px;margin-bottom:28px;">
+    <p>Any time you fetch data, you need to handle <strong>three states</strong>: loading (waiting for response), error (something went wrong), and success (data arrived). Never skip the first two.</p>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-filename">PostsPage.tsx</span>
+      <span class="code-label label-good">production pattern</span>
+    </div>
+    <pre><span class="kw">interface</span> <span class="type">Post</span> { id: <span class="type">number</span>; title: <span class="type">string</span>; body: <span class="type">string</span>; }
+
+<span class="kw">function</span> <span class="fn">PostsPage</span>() {
+  <span class="kw">const</span> [posts, setPosts] = <span class="fn">useState</span>&lt;<span class="type">Post</span>[]&gt;([]);
+  <span class="kw">const</span> [loading, setLoading] = <span class="fn">useState</span>(<span class="kw">true</span>);
+  <span class="kw">const</span> [error, setError] = <span class="fn">useState</span>&lt;<span class="type">string</span> | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+
+  <span class="kw">const</span> <span class="fn">fetchPosts</span> = <span class="kw">async</span> () => {
+    <span class="fn">setLoading</span>(<span class="kw">true</span>);
+    <span class="fn">setError</span>(<span class="kw">null</span>);
+    <span class="kw">try</span> {
+      <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://jsonplaceholder.typicode.com/posts?_limit=10'</span>);
+      <span class="kw">if</span> (!res.ok) <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">`HTTP error: </span>${res.status}<span class="str">`</span>);
+      <span class="kw">const</span> data = <span class="kw">await</span> res.json();
+      <span class="fn">setPosts</span>(data);
+    } <span class="kw">catch</span> (err) {
+      <span class="fn">setError</span>(err <span class="kw">instanceof</span> Error ? err.message : <span class="str">'Unknown error'</span>);
+    } <span class="kw">finally</span> {
+      <span class="fn">setLoading</span>(<span class="kw">false</span>); <span class="cm">// ← always runs, even on error!</span>
+    }
+  };
+
+  <span class="hl-good"><span class="fn">useEffect</span>(() => { <span class="fn">fetchPosts</span>(); }, []); <span class="cm">// ← call async fn inside effect</span></span>
+
+  <span class="cm">// Render based on state — ORDER matters!</span>
+  <span class="kw">if</span> (loading) <span class="kw">return</span> <span class="tag-c">&lt;p&gt;</span>⏳ Loading...<span class="tag-c">&lt;/p&gt;</span>;
+  <span class="kw">if</span> (error) <span class="kw">return</span> <span class="tag-c">&lt;div&gt;</span>❌ {error} <span class="tag-c">&lt;button</span> <span class="fn">onClick</span>={fetchPosts}<span class="tag-c">&gt;</span>Retry<span class="tag-c">&lt;/button&gt;&lt;/div&gt;</span>;
+  <span class="kw">return</span> <span class="tag-c">&lt;ul&gt;</span>{posts.map(p => <span class="tag-c">&lt;li</span> <span class="fn">key</span>={p.id}<span class="tag-c">&gt;</span>{p.title}<span class="tag-c">&lt;/li&gt;</span>)}<span class="tag-c">&lt;/ul&gt;</span>;
+}</pre>
+  </div>
+
+  <div class="callout callout-amber reveal">
+    <span class="callout-icon">⚠️</span>
+    <div><b>Important:</b> Never pass an <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px">async</code> function directly to useEffect: <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px">useEffect(async () => {})</code> is wrong. Instead, define your async function inside the effect and call it immediately.</div>
+  </div>
+
+  <!-- Cleanup -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text-bright);margin:48px 0 20px;letter-spacing:-0.02em;" class="reveal">Cleanup Functions — Preventing Memory Leaks</h3>
+  <div class="prose reveal" style="max-width:680px;margin-bottom:28px;">
+    <p>When a component <strong>unmounts</strong> (disappears from the page), any ongoing effects should be stopped. If you don't clean up, you can end up with timers firing after a component is gone, or worse — updating state on a component that no longer exists (a memory leak).</p>
+  </div>
+
+  <div class="two-col reveal">
+    <div class="code-block" style="margin:0">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+        <span class="code-filename">Timer cleanup</span>
+      </div>
+      <pre><span class="fn">useEffect</span>(() => {
+  <span class="kw">const</span> id = <span class="fn">setInterval</span>(() => {
+    <span class="fn">setCount</span>(c => c + <span class="num">1</span>);
+  }, <span class="num">1000</span>);
+
+  <span class="cm">// Stop timer when component leaves</span>
+  <span class="kw">return</span> () => <span class="fn">clearInterval</span>(id);
+}, []);</pre>
+    </div>
+    <div class="code-block" style="margin:0">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+        <span class="code-filename">Event listener cleanup</span>
+      </div>
+      <pre><span class="fn">useEffect</span>(() => {
+  <span class="kw">const</span> <span class="fn">handler</span> = (e: KeyboardEvent) => {
+    <span class="kw">if</span> (e.key === <span class="str">'Escape'</span>) <span class="fn">setOpen</span>(<span class="kw">false</span>);
+  };
+
+  window.<span class="fn">addEventListener</span>(<span class="str">'keydown'</span>, handler);
+
+  <span class="cm">// Remove listener when component leaves</span>
+  <span class="kw">return</span> () => {
+    window.<span class="fn">removeEventListener</span>(<span class="str">'keydown'</span>, handler);
+  };
+}, []);</pre>
+    </div>
+  </div>
+
+  <!-- Interactive lifecycle demo -->
+  <div class="lifecycle-demo reveal">
+    <h4>🎮 Interactive Lifecycle Simulator</h4>
+    <p style="font-size:14px;color:var(--text-dim);margin-bottom:20px;font-family:'JetBrains Mono',monospace;">Click the buttons to see what triggers useEffect and cleanup — just like a real component would behave.</p>
+    <div class="lifecycle-controls">
+      <button class="lc-btn lc-btn-mount" onclick="lifecycleLog('mount')">🟢 Mount Component</button>
+      <button class="lc-btn lc-btn-update" onclick="lifecycleLog('update')">🔵 Update State (userId changes)</button>
+      <button class="lc-btn lc-btn-unmount" onclick="lifecycleLog('unmount')">🔴 Unmount Component</button>
+    </div>
+    <div class="lc-log" id="lcLog">
+      <div style="color:var(--text-dim);font-size:12px;font-style:italic">Click a button to see lifecycle events...</div>
+    </div>
+    <button class="lc-clear" onclick="clearLog()">Clear log</button>
+  </div>
+
+</section>
+
+<!-- ── COMPOSITION ──────────────────────────── -->
+<section id="composition">
+  <div class="section-number">02 — Pattern</div>
+  <h2 class="section-title">Component<br><span>Composition</span></h2>
+  <p class="section-intro">Building big UIs from small, focused pieces — the React superpower that makes code reusable and maintainable.</p>
+
+  <div class="two-col reveal">
+    <div class="prose">
+      <p>
+        Composition is simply <strong>combining small components to build bigger ones</strong>. Each component does one job really well, and you snap them together like LEGO bricks.
+      </p>
+      <p>
+        This is different from inheritance (what OOP uses). Instead of "a UserCard IS-A Card," we think "a UserCard HAS-A Avatar and HAS-A Username." It's the composing of capabilities, not inheriting them.
+      </p>
+      <p>
+        The payoff: small components are easy to <strong>test</strong>, easy to <strong>reuse</strong>, and easy to <strong>change</strong> without breaking everything else.
+      </p>
+    </div>
+    <div class="callout callout-blue" style="align-self:start">
+      <span class="callout-icon">🧱</span>
+      <div>
+        <b>The LEGO Principle:</b> You wouldn't carve a LEGO castle from one block of plastic. You'd build it from small, interchangeable pieces that click together. Component composition is exactly this — small, focused, reusable pieces that snap together into something complex.
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-filename">composition-example.jsx</span>
+      <span class="code-label label-good">good</span>
+    </div>
+    <pre><span class="cm">// Small, single-purpose components</span>
+<span class="kw">function</span> <span class="fn">Avatar</span>({ src, size = <span class="num">40</span> }) {
+  <span class="kw">return</span> <span class="tag-c">&lt;img</span> <span class="fn">src</span>={src} <span class="fn">width</span>={size} <span class="fn">height</span>={size} style={{ borderRadius: <span class="str">'50%'</span> }} <span class="tag-c">/&gt;</span>;
+}
+
+<span class="kw">function</span> <span class="fn">Badge</span>({ label, color }) {
+  <span class="kw">return</span> <span class="tag-c">&lt;span</span> style={{ background: color, borderRadius: <span class="str">'4px'</span>, padding: <span class="str">'2px 8px'</span> }}<span class="tag-c">&gt;</span>{label}<span class="tag-c">&lt;/span&gt;</span>;
+}
+
+<span class="cm">// Composed into a bigger component</span>
+<span class="kw">function</span> <span class="fn">UserCard</span>({ user }) {
+  <span class="kw">return</span> (
+    <span class="tag-c">&lt;div</span> className=<span class="str">"card"</span><span class="tag-c">&gt;</span>
+      <span class="tag-c">&lt;Avatar</span> src={user.avatar} <span class="tag-c">/&gt;</span>   <span class="cm">{/* ← reusable */}</span>
+      <span class="tag-c">&lt;h3&gt;</span>{user.name}<span class="tag-c">&lt;/h3&gt;</span>
+      <span class="tag-c">&lt;Badge</span> label={user.role} color=<span class="str">"#3b82f6"</span> <span class="tag-c">/&gt;</span>  <span class="cm">{/* ← reusable */}</span>
+      <span class="tag-c">&lt;p&gt;</span>{user.email}<span class="tag-c">&lt;/p&gt;</span>
+    <span class="tag-c">&lt;/div&gt;</span>
+  );
+}
+
+<span class="cm">// Can reuse Avatar and Badge anywhere else too!</span>
+<span class="kw">function</span> <span class="fn">CommentItem</span>({ comment }) {
+  <span class="kw">return</span> (
+    <span class="tag-c">&lt;div&gt;</span>
+      <span class="tag-c">&lt;Avatar</span> src={comment.author.avatar} size={<span class="num">24</span>} <span class="tag-c">/&gt;</span>  <span class="cm">{/* same Avatar! */}</span>
+      <span class="tag-c">&lt;p&gt;</span>{comment.text}<span class="tag-c">&lt;/p&gt;</span>
+    <span class="tag-c">&lt;/div&gt;</span>
+  );
+}</pre>
+  </div>
+
+  <!-- Children prop -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text-bright);margin:48px 0 20px;letter-spacing:-0.02em;" class="reveal">The <code style="font-size:22px;color:var(--orange)">children</code> Prop</h3>
+  <div class="prose reveal" style="max-width:680px;margin-bottom:28px;">
+    <p>The <code>children</code> prop is React's special reserved prop. It automatically contains whatever you put <em>between</em> the opening and closing tags of a component. This makes it perfect for building wrapper components like layouts, modals, and cards — that hold <em>anything</em> inside them.</p>
+  </div>
+
+  <div class="children-visual reveal">
+    <div class="cv-wrapper">
+      <span class="cv-label">Card wrapper component</span>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim)">Provides: border, shadow, padding, title</p>
+      <div class="cv-inner">
+        <span class="cv-label">Card title</span>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim)">"Profile"</p>
+        <div class="cv-children-slot">
+          <span class="cv-label">{children}</span>
+          <p>← This is where YOUR content goes.</p>
+          <p>Card has no idea what this will be.</p>
+          <p>Could be an Avatar, a Chart, a Form...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col reveal">
+    <div class="code-block" style="margin:0">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+        <span class="code-filename">Card.tsx — the wrapper</span>
+      </div>
+      <pre><span class="kw">function</span> <span class="fn">Card</span>({ children, title }: {
+  children: React.<span class="type">ReactNode</span>;
+  title: <span class="type">string</span>;
+}) {
+  <span class="kw">return</span> (
+    <span class="tag-c">&lt;div</span> className=<span class="str">"card"</span><span class="tag-c">&gt;</span>
+      <span class="tag-c">&lt;h3&gt;</span>{title}<span class="tag-c">&lt;/h3&gt;</span>
+      <span class="tag-c">&lt;div&gt;</span>
+        {children} <span class="cm">← magic here</span>
+      <span class="tag-c">&lt;/div&gt;</span>
+    <span class="tag-c">&lt;/div&gt;</span>
+  );
+}</pre>
+    </div>
+    <div class="code-block" style="margin:0">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+        <span class="code-filename">Usage — anything fits</span>
+      </div>
+      <pre><span class="cm">// Card holds a user profile</span>
+<span class="tag-c">&lt;Card</span> title=<span class="str">"Profile"</span><span class="tag-c">&gt;</span>
+  <span class="tag-c">&lt;Avatar</span> src=<span class="str">"photo.jpg"</span> <span class="tag-c">/&gt;</span>
+  <span class="tag-c">&lt;p&gt;</span>Ali Mammadov<span class="tag-c">&lt;/p&gt;</span>
+<span class="tag-c">&lt;/Card&gt;</span>
+
+<span class="cm">// Same Card holds a chart!</span>
+<span class="tag-c">&lt;Card</span> title=<span class="str">"Statistics"</span><span class="tag-c">&gt;</span>
+  <span class="tag-c">&lt;SalesChart</span> data={salesData} <span class="tag-c">/&gt;</span>
+<span class="tag-c">&lt;/Card&gt;</span>
+
+<span class="cm">// Card doesn't care. It just wraps.</span></pre>
+    </div>
+  </div>
+
+  <!-- Prop drilling -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text-bright);margin:48px 0 20px;letter-spacing:-0.02em;" class="reveal">Prop Drilling — The Problem Composition Solves</h3>
+  <div class="prose reveal" style="max-width:680px;margin-bottom:28px;">
+    <p>
+      <strong>Prop drilling</strong> happens when you need to pass data through multiple layers of components that don't actually use that data — they just pass it along. It's like playing telephone: each person has to repeat the message even though they don't care about it.
+    </p>
+  </div>
+
+  <div class="diagram reveal">
+    <div style="display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;row-gap:16px">
+      <div class="flow-box active" style="text-align:left;min-width:160px;">
+        <span>App</span>
+        <strong>has user ✅</strong>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);margin-top:6px">passes user ↓</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box" style="text-align:left;min-width:160px;border-color:rgba(240,96,158,0.5)">
+        <span>Layout</span>
+        <strong style="color:var(--pink)">doesn't use it ❌</strong>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);margin-top:6px">passes user ↓</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box" style="text-align:left;min-width:160px;border-color:rgba(240,96,158,0.5)">
+        <span>Sidebar</span>
+        <strong style="color:var(--pink)">doesn't use it ❌</strong>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);margin-top:6px">passes user ↓</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box mint" style="text-align:left;min-width:160px;">
+        <span>UserMenu</span>
+        <strong>finally uses it ✅</strong>
+      </div>
+    </div>
+    <p style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--pink);margin-top:20px;">Layout & Sidebar are forced to accept props they don't care about 😤</p>
+  </div>
+
+  <div class="tabs reveal">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab(this, 'tab-drill-bad')">❌ Prop Drilling</button>
+      <button class="tab-btn" onclick="switchTab(this, 'tab-drill-good')">✅ Composition Fix</button>
+    </div>
+    <div class="tab-pane active" id="tab-drill-bad">
+      <div class="code-block" style="margin:0;border:none;border-radius:0">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-filename">prop-drilling.jsx</span>
+          <span class="code-label label-bad">messy</span>
+        </div>
+        <pre><span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [user] = <span class="fn">useState</span>(userData);
+  <span class="kw">return</span> <span class="tag-c">&lt;Layout</span> user={user} <span class="tag-c">/&gt;</span>;
+}
+
+<span class="kw">function</span> <span class="fn">Layout</span>({ user }) {
+  <span class="cm">// Layout doesn't use user AT ALL</span>
+  <span class="kw">return</span> <span class="tag-c">&lt;Sidebar</span> user={user} <span class="tag-c">/&gt;</span>;
+}
+
+<span class="kw">function</span> <span class="fn">Sidebar</span>({ user }) {
+  <span class="cm">// Sidebar doesn't use user either!</span>
+  <span class="kw">return</span> <span class="tag-c">&lt;UserMenu</span> user={user} <span class="tag-c">/&gt;</span>;
+}
+
+<span class="kw">function</span> <span class="fn">UserMenu</span>({ user }) {
+  <span class="kw">return</span> <span class="tag-c">&lt;p&gt;</span>{user.name}<span class="tag-c">&lt;/p&gt;</span>; <span class="cm">// ← finally used</span>
+}</pre>
+      </div>
+    </div>
+    <div class="tab-pane" id="tab-drill-good">
+      <div class="code-block" style="margin:0;border:none;border-radius:0">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-filename">composition-solution.jsx</span>
+          <span class="code-label label-good">clean</span>
+        </div>
+        <pre><span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [user] = <span class="fn">useState</span>(userData);
+  <span class="kw">return</span> (
+    <span class="tag-c">&lt;Layout&gt;</span>                         <span class="cm">{/* no user prop! */}</span>
+      <span class="tag-c">&lt;Sidebar&gt;</span>                       <span class="cm">{/* no user prop! */}</span>
+        <span class="tag-c">&lt;UserMenu</span> user={user} <span class="tag-c">/&gt;</span>      <span class="cm">{/* passed directly! */}</span>
+      <span class="tag-c">&lt;/Sidebar&gt;</span>
+    <span class="tag-c">&lt;/Layout&gt;</span>
+  );
+}
+
+<span class="kw">function</span> <span class="fn">Layout</span>({ children }) {
+  <span class="kw">return</span> <span class="tag-c">&lt;div</span> className=<span class="str">"layout"</span><span class="tag-c">&gt;</span>{children}<span class="tag-c">&lt;/div&gt;</span>;
+}
+
+<span class="kw">function</span> <span class="fn">Sidebar</span>({ children }) {
+  <span class="kw">return</span> <span class="tag-c">&lt;aside&gt;</span>{children}<span class="tag-c">&lt;/aside&gt;</span>;
+}
+
+<span class="kw">function</span> <span class="fn">UserMenu</span>({ user }) {
+  <span class="kw">return</span> <span class="tag-c">&lt;p&gt;</span>{user.name}<span class="tag-c">&lt;/p&gt;</span>; <span class="cm">// clean & direct</span>
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-mint reveal">
+    <span class="callout-icon">💡</span>
+    <div><b>Rule of thumb:</b> 2–3 levels of prop passing is totally fine. 4+ levels? Start thinking about composition or Context API. The goal is: components only know about data they actually need.</div>
+  </div>
+
+  <!-- Patterns -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text-bright);margin:48px 0 20px;letter-spacing:-0.02em;" class="reveal">Useful Composition Patterns</h3>
+  <div class="three-col reveal">
+    <div class="card card-blue">
+      <span class="card-icon">📐</span>
+      <h3>Layout Pattern</h3>
+      <p>Create page shells with slots for content. Header/main/footer don't change; your page content slots in.</p>
+      <div class="code-block" style="margin-top:14px">
+        <pre style="padding:14px;font-size:12px"><span class="kw">function</span> <span class="fn">Page</span>({ children }) {
+  <span class="kw">return</span> (
+    <span class="tag-c">&lt;&gt;&lt;Header/&gt;</span>
+      <span class="tag-c">&lt;main&gt;</span>{children}<span class="tag-c">&lt;/main&gt;</span>
+    <span class="tag-c">&lt;Footer/&gt;&lt;/&gt;</span>
+  );
+}</pre>
+      </div>
+    </div>
+    <div class="card card-orange">
+      <span class="card-icon">🎯</span>
+      <h3>Container / Presentational</h3>
+      <p>Split logic from display. "Smart" containers fetch and manage state; "dumb" components just render props.</p>
+      <div class="code-block" style="margin-top:14px">
+        <pre style="padding:14px;font-size:12px"><span class="cm">// Smart — fetches</span>
+<span class="kw">function</span> <span class="fn">PostsContainer</span>() {
+  <span class="kw">const</span> [posts] = <span class="fn">useFetch</span>(...);
+  <span class="kw">return</span> <span class="tag-c">&lt;PostsList</span> posts={posts} <span class="tag-c">/&gt;</span>;
+}
+<span class="cm">// Dumb — just displays</span>
+<span class="kw">function</span> <span class="fn">PostsList</span>({ posts }) {
+  <span class="kw">return</span> <span class="tag-c">&lt;ul&gt;</span>...{posts}<span class="tag-c">&lt;/ul&gt;</span>;
+}</pre>
+      </div>
+    </div>
+    <div class="card card-pink">
+      <span class="card-icon">🔌</span>
+      <h3>Slot Pattern</h3>
+      <p>Like children, but multiple named slots. Think of it as named regions a component can accept content into.</p>
+      <div class="code-block" style="margin-top:14px">
+        <pre style="padding:14px;font-size:12px"><span class="kw">function</span> <span class="fn">Dialog</span>({ header, body, footer }) {
+  <span class="kw">return</span> (
+    <span class="tag-c">&lt;div&gt;</span>
+      <span class="tag-c">&lt;div&gt;</span>{header}<span class="tag-c">&lt;/div&gt;</span>
+      <span class="tag-c">&lt;div&gt;</span>{body}<span class="tag-c">&lt;/div&gt;</span>
+      <span class="tag-c">&lt;div&gt;</span>{footer}<span class="tag-c">&lt;/div&gt;</span>
+    <span class="tag-c">&lt;/div&gt;</span>
+  );
+}</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LISTS & KEYS ──────────────────────────── -->
+<section id="lists-keys">
+  <div class="section-number">03 — Core Concept</div>
+  <h2 class="section-title">Lists &<br><span>Keys</span></h2>
+  <p class="section-intro">Rendering arrays efficiently — and why React needs that little key prop so badly.</p>
+
+  <div class="two-col reveal">
+    <div class="prose">
+      <p>
+        In React, you render lists using JavaScript's <code>.map()</code> — it transforms an array of data into an array of JSX elements. This is one of the most common patterns you'll write.
+      </p>
+      <p>
+        But there's a catch: React needs a way to track each item in the list. When the list changes (items added, removed, reordered), React needs to know <em>which</em> item is which. That's what the <strong>key</strong> prop is for.
+      </p>
+    </div>
+    <div class="callout callout-orange" style="align-self:start">
+      <span class="callout-icon">🔑</span>
+      <div><b>What's a key, really?</b> Think of keys like nametags at a party. If everyone wears a nametag, you can quickly spot who arrived, who left, and who just moved seats — without re-reading everyone's face from scratch. React uses keys the same way to efficiently update only what changed.</div>
+    </div>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-filename">UserList.tsx</span>
+      <span class="code-label label-good">basic pattern</span>
+    </div>
+    <pre><span class="kw">interface</span> <span class="type">User</span> {
+  id: <span class="type">number</span>;
+  name: <span class="type">string</span>;
+  email: <span class="type">string</span>;
+}
+
+<span class="kw">function</span> <span class="fn">UserList</span>({ users }: { users: <span class="type">User</span>[] }) {
+  <span class="kw">return</span> (
+    <span class="tag-c">&lt;ul&gt;</span>
+      {users.map(user => (
+        <span class="hl"><span class="tag-c">&lt;li</span> key={user.id}<span class="tag-c">&gt;</span>               <span class="cm">{/* ← key is required! */}</span></span>
+          <span class="tag-c">&lt;strong&gt;</span>{user.name}<span class="tag-c">&lt;/strong&gt;</span>
+          <span class="tag-c">&lt;span&gt;</span>{user.email}<span class="tag-c">&lt;/span&gt;</span>
+        <span class="tag-c">&lt;/li&gt;</span>
+      ))}
+    <span class="tag-c">&lt;/ul&gt;</span>
+  );
+}</pre>
+  </div>
+
+  <!-- Why keys matter -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text-bright);margin:48px 0 20px;letter-spacing:-0.02em;" class="reveal">Why Keys Actually Matter</h3>
+
+  <div class="diagram reveal">
+    <p style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);margin-bottom:20px;">WITHOUT keys — React has to re-render everything when the list changes:</p>
+    <div class="flow" style="justify-content:flex-start;gap:8px">
+      <div class="flow-box" style="background:var(--pink-dim);border-color:var(--pink)"><span>re-render</span><strong style="color:var(--pink)">Alice</strong></div>
+      <div class="flow-box" style="background:var(--pink-dim);border-color:var(--pink)"><span>re-render</span><strong style="color:var(--pink)">Bob</strong></div>
+      <div class="flow-box" style="background:var(--pink-dim);border-color:var(--pink)"><span>re-render</span><strong style="color:var(--pink)">Carol</strong></div>
+      <div class="flow-box" style="background:var(--pink-dim);border-color:var(--pink)"><span>re-render</span><strong style="color:var(--pink)">Dave (new)</strong></div>
+    </div>
+    <p style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);margin:20px 0;">WITH keys — React only processes what actually changed:</p>
+    <div class="flow" style="justify-content:flex-start;gap:8px">
+      <div class="flow-box mint"><span>skip</span><strong>Alice ✓</strong></div>
+      <div class="flow-box mint"><span>skip</span><strong>Bob ✓</strong></div>
+      <div class="flow-box mint"><span>skip</span><strong>Carol ✓</strong></div>
+      <div class="flow-box active"><span>create</span><strong>Dave 🆕</strong></div>
+    </div>
+  </div>
+
+  <!-- Index vs ID -->
+  <div class="two-col reveal">
+    <div>
+      <div class="callout callout-pink">
+        <span class="callout-icon">🚫</span>
+        <div>
+          <b>Don't use index as key</b> — when items are added, removed, or reordered, the index of each item changes. React gets confused and can show stale UI, lose input values, or animate incorrectly.
+          <div class="code-block" style="margin-top:12px">
+            <pre style="padding:14px;font-size:12px"><span class="cm">// ❌ Index changes when list changes</span>
+items.map((item, index) =>
+  <span class="tag-c">&lt;Item</span> key={index} <span class="tag-c">/&gt;</span>
+)</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="callout callout-mint">
+        <span class="callout-icon">✅</span>
+        <div>
+          <b>Always use a stable, unique ID</b> — database IDs are perfect. They never change for the same item, even if the item moves in the list.
+          <div class="code-block" style="margin-top:12px">
+            <pre style="padding:14px;font-size:12px"><span class="cm">// ✅ ID is stable regardless of order</span>
+items.map(item =>
+  <span class="tag-c">&lt;Item</span> key={item.id} <span class="tag-c">/&gt;</span>
+)</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- filter + sort + map -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text-bright);margin:48px 0 20px;letter-spacing:-0.02em;" class="reveal">Filter → Sort → Map: The Power Chain</h3>
+  <div class="prose reveal" style="max-width:680px;margin-bottom:28px;">
+    <p>You'll often need to filter, sort, AND render a list. Chain <code>.filter()</code>, <code>.sort()</code>, and <code>.map()</code> together. Always <strong>filter first</strong> (discard what you don't need), <strong>sort second</strong> (order what's left), <strong>map last</strong> (turn data into UI).</p>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-filename">ProductList.tsx</span>
+      <span class="code-label label-good">derived state pattern</span>
+    </div>
+    <pre><span class="kw">function</span> <span class="fn">ProductList</span>() {
+  <span class="kw">const</span> [products] = <span class="fn">useState</span>(allProducts);
+  <span class="kw">const</span> [search, setSearch] = <span class="fn">useState</span>(<span class="str">''</span>);
+  <span class="kw">const</span> [sortBy, setSortBy] = <span class="fn">useState</span>(<span class="str">'name'</span>);
+
+  <span class="cm">// ✅ Derived state — no extra useState needed!</span>
+  <span class="cm">// React re-calculates this on every render automatically</span>
+  <span class="kw">const</span> displayProducts = products
+    <span class="hl">.<span class="fn">filter</span>(p => p.name.toLowerCase().<span class="fn">includes</span>(search.toLowerCase()))</span>
+    <span class="hl">.<span class="fn">sort</span>((a, b) => sortBy === <span class="str">'price'</span></span>
+<span class="hl">      ? a.price - b.price</span>
+<span class="hl">      : a.name.<span class="fn">localeCompare</span>(b.name))</span>
+    <span class="hl">.<span class="fn">map</span>(p => <span class="tag-c">&lt;ProductCard</span> key={p.id} product={p} <span class="tag-c">/&gt;</span>);</span>
+
+  <span class="kw">return</span> (
+    <span class="tag-c">&lt;&gt;</span>
+      <span class="tag-c">&lt;input</span>
+        value={search}
+        <span class="fn">onChange</span>={e => <span class="fn">setSearch</span>(e.target.value)}
+        placeholder=<span class="str">"Search products..."</span>
+      <span class="tag-c">/&gt;</span>
+      <span class="tag-c">&lt;select</span> <span class="fn">onChange</span>={e => <span class="fn">setSortBy</span>(e.target.value)}<span class="tag-c">&gt;</span>
+        <span class="tag-c">&lt;option</span> value=<span class="str">"name"</span><span class="tag-c">&gt;</span>Sort by Name<span class="tag-c">&lt;/option&gt;</span>
+        <span class="tag-c">&lt;option</span> value=<span class="str">"price"</span><span class="tag-c">&gt;</span>Sort by Price<span class="tag-c">&lt;/option&gt;</span>
+      <span class="tag-c">&lt;/select&gt;</span>
+      {displayProducts}
+    <span class="tag-c">&lt;/&gt;</span>
+  );
+}</pre>
+  </div>
+
+  <!-- useState vs useEffect comparison -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text-bright);margin:48px 0 20px;letter-spacing:-0.02em;" class="reveal">useState vs useEffect — Know the Difference</h3>
+
+  <table class="compare-table reveal">
+    <thead>
+      <tr>
+        <th>Aspect</th>
+        <th class="useState-col">useState</th>
+        <th class="useEffect-col">useEffect</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Purpose</td>
+        <td>Stores and manages data inside your component</td>
+        <td>Handles work outside the render cycle (side effects)</td>
+      </tr>
+      <tr>
+        <td>When it runs</td>
+        <td>You call <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface);padding:2px 6px;border-radius:4px">setState()</code> — triggers a re-render</td>
+        <td>After the component renders (React controls this)</td>
+      </tr>
+      <tr>
+        <td>Causes re-render?</td>
+        <td>Yes — that's the whole point</td>
+        <td>No — but the effects inside it might (via setState)</td>
+      </tr>
+      <tr>
+        <td>Use for...</td>
+        <td>Input values, counters, toggle states, fetched data</td>
+        <td>API calls, timers, event listeners, subscriptions</td>
+      </tr>
+      <tr>
+        <td>Mental model</td>
+        <td>"What data should my component remember?"</td>
+        <td>"What should happen after rendering?"</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sticky reveal">
+    💬 Quick summary: <strong>useState</strong> = "what to remember" | <strong>useEffect</strong> = "what to do after rendering"
+  </div>
+</section>
+
+<!-- ── QUIZZES ──────────────────────────── -->
+<section id="quizzes">
+  <div class="section-number">04 — Test Yourself</div>
+  <h2 class="section-title"><span>Quiz</span> Time</h2>
+  <p class="section-intro">Let's see how much stuck. No pressure — these are for you, not a grade.</p>
+
+  <!-- Q1 -->
+  <div class="quiz-wrap reveal">
+    <div class="quiz-q">1. What does an empty dependency array <code style="font-family:'JetBrains Mono',monospace;font-size:14px">[]</code> in useEffect tell React?</div>
+    <div class="quiz-options" id="q1">
+      <div class="quiz-option" onclick="answerQuiz('q1', this, false, 'Not quite — no array at all means it runs after every single render, which can cause performance issues.')">
+        <div class="quiz-badge">A</div>
+        Run the effect after every render
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q1', this, true, '✅ Correct! An empty array means "no dependencies to watch" — so the effect only runs once, right after the component mounts for the first time.')">
+        <div class="quiz-badge">B</div>
+        Run the effect only once, after the first render
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q1', this, false, 'Close, but not quite. Cleanup runs when the component unmounts, but the empty array controls when the effect itself runs — which is once on mount.')">
+        <div class="quiz-badge">C</div>
+        Only run the cleanup function
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q1', this, false, 'No — omitting the dependency array is what causes effects to never run. An empty array means run once on mount.')">
+        <div class="quiz-badge">D</div>
+        Never run the effect
+      </div>
+    </div>
+    <div class="quiz-feedback" id="q1-fb"></div>
+    <button class="quiz-reset" id="q1-reset" onclick="resetQuiz('q1')">↺ Try again</button>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-wrap reveal">
+    <div class="quiz-q">2. You want to re-fetch user data whenever the <code style="font-family:'JetBrains Mono',monospace;font-size:14px">userId</code> prop changes. Which is correct?</div>
+    <div class="quiz-options" id="q2">
+      <div class="quiz-option" onclick="answerQuiz('q2', this, false, 'useEffect(fn) with no array runs after every render — way more than needed. This is a bug.')">
+        <div class="quiz-badge">A</div>
+        <code style="font-family:'JetBrains Mono',monospace;font-size:13px">useEffect(() => { fetchUser(userId); })</code>
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q2', this, false, 'Empty array means run once only. If userId changes later, the fetch won\'t re-run. Wrong!')">
+        <div class="quiz-badge">B</div>
+        <code style="font-family:'JetBrains Mono',monospace;font-size:13px">useEffect(() => { fetchUser(userId); }, [])</code>
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q2', this, true, '✅ Correct! Including userId in the dependency array means React watches it — whenever userId changes, the effect re-runs and fetches new data.')">
+        <div class="quiz-badge">C</div>
+        <code style="font-family:'JetBrains Mono',monospace;font-size:13px">useEffect(() => { fetchUser(userId); }, [userId])</code>
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q2', this, false, 'This would only re-fetch when the component mounts (empty array behavior for multiple items is still "watch these values"). This syntax with just brackets isn\'t right either.')">
+        <div class="quiz-badge">D</div>
+        <code style="font-family:'JetBrains Mono',monospace;font-size:13px">useEffect(() => { fetchUser(userId); }, {})</code>
+      </div>
+    </div>
+    <div class="quiz-feedback" id="q2-fb"></div>
+    <button class="quiz-reset" id="q2-reset" onclick="resetQuiz('q2')">↺ Try again</button>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-wrap reveal">
+    <div class="quiz-q">3. What is the purpose of returning a function from useEffect?</div>
+    <div class="quiz-options" id="q3">
+      <div class="quiz-option" onclick="answerQuiz('q3', this, false, 'Not quite — you can\'t pass data back from useEffect directly. Use useState to store fetched data.')">
+        <div class="quiz-badge">A</div>
+        To return data back to the component
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q3', this, false, 'Nope — the return value doesn\'t trigger re-renders. setState does that.')">
+        <div class="quiz-badge">B</div>
+        To trigger a re-render after the effect completes
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q3', this, true, '✅ Correct! The returned function is the "cleanup" — it runs before the next effect fires, and when the component unmounts. Use it to clear timers, remove listeners, cancel requests, etc.')">
+        <div class="quiz-badge">C</div>
+        To run cleanup code before the next effect or on unmount
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q3', this, false, 'The dependency array controls timing, not the return value.')">
+        <div class="quiz-badge">D</div>
+        To specify when the effect should run next
+      </div>
+    </div>
+    <div class="quiz-feedback" id="q3-fb"></div>
+    <button class="quiz-reset" id="q3-reset" onclick="resetQuiz('q3')">↺ Try again</button>
+  </div>
+
+  <!-- Q4 -->
+  <div class="quiz-wrap reveal">
+    <div class="quiz-q">4. Why is using array index as a key in lists a bad idea?</div>
+    <div class="quiz-options" id="q4">
+      <div class="quiz-option" onclick="answerQuiz('q4', this, false, 'Index is a valid JavaScript value — that\'s not the issue. The problem is more subtle.')">
+        <div class="quiz-badge">A</div>
+        Because index is not a valid value in JavaScript
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q4', this, false, 'Indexes are unique within an array... until items are reordered or deleted. But that\'s close!')">
+        <div class="quiz-badge">B</div>
+        Because indexes are not unique
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q4', this, true, '✅ Correct! Keys need to be stable — tied to the data, not position. If you insert "Dave" at position 0, Bob becomes index 1 instead of 0, Carol becomes 2... React sees completely different keys and re-renders everything wrong.')">
+        <div class="quiz-badge">C</div>
+        Because indexes change when items are added, removed, or reordered — making keys unstable
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q4', this, false, 'React does accept indexes — it just warns you because it\'s a bad pattern, not because it refuses to work.')">
+        <div class="quiz-badge">D</div>
+        Because React doesn't accept number values as keys
+      </div>
+    </div>
+    <div class="quiz-feedback" id="q4-fb"></div>
+    <button class="quiz-reset" id="q4-reset" onclick="resetQuiz('q4')">↺ Try again</button>
+  </div>
+
+  <!-- Q5 -->
+  <div class="quiz-wrap reveal">
+    <div class="quiz-q">5. What is "prop drilling" and what's the simplest fix?</div>
+    <div class="quiz-options" id="q5">
+      <div class="quiz-option" onclick="answerQuiz('q5', this, false, 'Passing too many props to a single component is a different problem — that\'s about interface complexity, not drilling.')">
+        <div class="quiz-badge">A</div>
+        Passing too many props to one component; fix by using fewer props
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q5', this, true, '✅ Exactly! Prop drilling is about intermediate components that are forced to pass props they don\'t use. Composition (using children) can often solve this elegantly without needing Context API.')">
+        <div class="quiz-badge">B</div>
+        Passing props through components that don't use them; fix with composition (children) or Context API
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q5', this, false, 'Using props is the right way to share data in React — the issue is specifically passing through components that don\'t need it.')">
+        <div class="quiz-badge">C</div>
+        Using props at all instead of global state
+      </div>
+      <div class="quiz-option" onclick="answerQuiz('q5', this, false, 'Drilling refers to depth of passing, not frequency. And TypeScript isn\'t the solution here.')">
+        <div class="quiz-badge">D</div>
+        Updating props too frequently; fix by using TypeScript
+      </div>
+    </div>
+    <div class="quiz-feedback" id="q5-fb"></div>
+    <button class="quiz-reset" id="q5-reset" onclick="resetQuiz('q5')">↺ Try again</button>
+  </div>
+
+</section>
+
+<!-- ── CHALLENGES ──────────────────────────── -->
+<section id="challenges">
+  <div class="section-number">05 — Practice</div>
+  <h2 class="section-title">Code<br><span>Challenges</span></h2>
+  <p class="section-intro">Write real code in the editors below. Hit "Check" to see how you did — no server needed.</p>
+
+  <!-- Challenge 1 -->
+  <div class="challenge-wrap reveal">
+    <div class="challenge-header">
+      <div>
+        <div class="challenge-num">Challenge 01</div>
+        <div class="challenge-title">Fix the Infinite Loop</div>
+      </div>
+      <span class="challenge-diff diff-easy">Easy</span>
+    </div>
+    <div class="challenge-desc">
+      The component below has a bug — it creates an infinite loop. Fix it by adding a <code>useEffect</code> with the correct dependency array so the fetch only runs once when the component mounts.
+    </div>
+    <div class="challenge-editor">
+      <textarea class="editor-area" id="ch1-code" spellcheck="false">// Fix this component!
+// It currently calls fetch on every render
+// causing an infinite loop.
+
+function UserProfile() {
+  const [user, setUser] = useState(null);
+
+  // The fetch should only run ONCE on mount
+  fetch('/api/user/1')
+    .then(r => r.json())
+    .then(data => setUser(data));
+
+  return <div>{user?.name}</div>;
+}</textarea>
+    </div>
+    <div class="editor-footer">
+      <div style="display:flex;gap:10px">
+        <button class="run-btn" onclick="checkChallenge1()">▶ Check Answer</button>
+        <button class="reset-btn" onclick="resetChallenge(1)">Reset</button>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim)">
+        Hint: wrap the fetch in useEffect with []
+      </div>
+    </div>
+    <div class="check-result" id="ch1-result"></div>
+  </div>
+
+  <!-- Challenge 2 -->
+  <div class="challenge-wrap reveal">
+    <div class="challenge-header">
+      <div>
+        <div class="challenge-num">Challenge 02</div>
+        <div class="challenge-title">Add the Cleanup</div>
+      </div>
+      <span class="challenge-diff diff-medium">Medium</span>
+    </div>
+    <div class="challenge-desc">
+      The timer below starts when the component mounts but <strong>never stops</strong>, even after the component is removed. Add a cleanup function that calls <code>clearInterval(id)</code> to fix the memory leak.
+    </div>
+    <div class="challenge-editor">
+      <textarea class="editor-area" id="ch2-code" spellcheck="false">function CountdownTimer() {
+  const [seconds, setSeconds] = useState(60);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSeconds(s => s - 1);
+    }, 1000);
+
+    // TODO: Return a cleanup function here
+    // that calls clearInterval(id)
+
+  }, []);
+
+  return <p>Time left: {seconds}s</p>;
+}</textarea>
+    </div>
+    <div class="editor-footer">
+      <div style="display:flex;gap:10px">
+        <button class="run-btn" onclick="checkChallenge2()">▶ Check Answer</button>
+        <button class="reset-btn" onclick="resetChallenge(2)">Reset</button>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim)">
+        Hint: return () => clearInterval(id)
+      </div>
+    </div>
+    <div class="check-result" id="ch2-result"></div>
+  </div>
+
+  <!-- Challenge 3 -->
+  <div class="challenge-wrap reveal">
+    <div class="challenge-header">
+      <div>
+        <div class="challenge-num">Challenge 03</div>
+        <div class="challenge-title">Build a Card with children</div>
+      </div>
+      <span class="challenge-diff diff-medium">Medium</span>
+    </div>
+    <div class="challenge-desc">
+      Create a <code>Card</code> component that accepts a <code>title</code> prop and a <code>children</code> prop. It should render a div with a heading (title) and then render whatever children are passed inside it.
+    </div>
+    <div class="challenge-editor">
+      <textarea class="editor-area" id="ch3-code" spellcheck="false">// Write a Card component that:
+// 1. Accepts a "title" prop (string)
+// 2. Accepts "children" (React.ReactNode)
+// 3. Renders the title in an <h3>
+// 4. Renders children below the title
+
+function Card({ title, children }) {
+  // Your code here...
+}
+
+// It should work like this:
+// <Card title="My Profile">
+//   <p>Hello world</p>
+// </Card></textarea>
+    </div>
+    <div class="editor-footer">
+      <div style="display:flex;gap:10px">
+        <button class="run-btn" onclick="checkChallenge3()">▶ Check Answer</button>
+        <button class="reset-btn" onclick="resetChallenge(3)">Reset</button>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim)">
+        Hint: use {title} and {children} in JSX
+      </div>
+    </div>
+    <div class="check-result" id="ch3-result"></div>
+  </div>
+
+  <!-- Challenge 4 -->
+  <div class="challenge-wrap reveal">
+    <div class="challenge-header">
+      <div>
+        <div class="challenge-num">Challenge 04</div>
+        <div class="challenge-title">Render a Filtered List</div>
+      </div>
+      <span class="challenge-diff diff-hard">Hard</span>
+    </div>
+    <div class="challenge-desc">
+      Complete the <code>FilteredFruits</code> component. It should render only the fruits whose name includes the search term (case-insensitive). Each item must have a unique <code>key</code> prop. Use <code>.filter()</code> and <code>.map()</code>.
+    </div>
+    <div class="challenge-editor">
+      <textarea class="editor-area" id="ch4-code" spellcheck="false">const fruits = [
+  { id: 1, name: 'Apple' },
+  { id: 2, name: 'Banana' },
+  { id: 3, name: 'Apricot' },
+  { id: 4, name: 'Mango' },
+  { id: 5, name: 'Pineapple' },
+];
+
+function FilteredFruits({ search }) {
+  // Filter fruits by search term (case-insensitive)
+  // Render each fruit as <li key={fruit.id}>{fruit.name}</li>
+  // Return a <ul> wrapping all the items
+
+  // Your code here...
+}</textarea>
+    </div>
+    <div class="editor-footer">
+      <div style="display:flex;gap:10px">
+        <button class="run-btn" onclick="checkChallenge4()">▶ Check Answer</button>
+        <button class="reset-btn" onclick="resetChallenge(4)">Reset</button>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim)">
+        Hint: .filter(f => ...).map(f => &lt;li key={f.id}&gt;...)
+      </div>
+    </div>
+    <div class="check-result" id="ch4-result"></div>
+  </div>
+
+</section>
+
+<footer>
+  <div class="footer-text">
+    React Hooks & Patterns — Deep Dive<br>
+    <span style="color:var(--text-dim);margin-top:4px;display:block">Built for curious learners 🔥</span>
+  </div>
+  <div class="footer-tags">
+    <span class="tag tag-orange">useEffect</span>
+    <span class="tag tag-blue">Composition</span>
+    <span class="tag tag-mint">Lists & Keys</span>
+  </div>
+</footer>
+
+</div><!-- /page-wrap -->
+
+<script>
+// ── SCROLL PROGRESS ──
+window.addEventListener('scroll', () => {
+  const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+  const scrolled = window.scrollY / scrollable * 100;
+  document.getElementById('navProgress').style.width = scrolled + '%';
+
+  // Update progress dots
+  const sections = ['hero','use-effect','composition','lists-keys','quizzes','challenges'];
+  const dots = document.querySelectorAll('.prog-dot');
+  let active = 0;
+  sections.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el && window.scrollY >= el.offsetTop - 200) active = i;
+  });
+  dots.forEach((d, i) => d.classList.toggle('active', i === active));
+});
+
+// ── REVEAL ON SCROLL ──
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ── SCROLL TO SECTION ──
+function scrollToSection(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── TABS ──
+function switchTab(btn, paneId) {
+  const container = btn.closest('.tabs');
+  container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  container.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(paneId).classList.add('active');
+}
+
+// ── LIFECYCLE DEMO ──
+let lifecycleState = 'unmounted';
+const lifecycleMessages = {
+  mount: [
+    { type: 'mount', msg: 'Component renders for the first time' },
+    { type: 'mount', msg: 'useEffect() runs → fetch("/api/user")' },
+    { type: 'mount', msg: 'Data arrives → setState() → re-render' },
+  ],
+  update: [
+    { type: 'cleanup', msg: 'Cleanup from previous effect runs' },
+    { type: 'update', msg: 'Component re-renders (userId changed)' },
+    { type: 'update', msg: 'useEffect() runs again with new userId' },
+    { type: 'update', msg: 'New data fetched for userId=' + (Math.floor(Math.random()*100)+2) },
+  ],
+  unmount: [
+    { type: 'cleanup', msg: 'Component unmounts from DOM' },
+    { type: 'cleanup', msg: 'Cleanup function runs → clearInterval / removeEventListener' },
+    { type: 'cleanup', msg: 'All effects cleaned up ✓' },
+  ]
+};
+
+function lifecycleLog(action) {
+  const log = document.getElementById('lcLog');
+  if (log.querySelector('i')) log.innerHTML = '';
+
+  lifecycleMessages[action].forEach((item, i) => {
+    setTimeout(() => {
+      const time = new Date().toLocaleTimeString('en', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      const typeMap = { mount: 'log-mount', update: 'log-update', cleanup: 'log-cleanup' };
+      const labelMap = { mount: 'MOUNT', update: 'UPDATE', cleanup: 'CLEANUP' };
+      entry.innerHTML = `<span class="log-time">${time}</span><span class="log-type ${typeMap[item.type]}">${labelMap[item.type]}</span><span class="log-msg">${item.msg}</span>`;
+      log.appendChild(entry);
+      log.scrollTop = log.scrollHeight;
+    }, i * 400);
+  });
+}
+
+function clearLog() {
+  const log = document.getElementById('lcLog');
+  log.innerHTML = '<div style="color:var(--text-dim);font-size:12px;font-style:italic">Click a button to see lifecycle events...</div>';
+}
+
+// ── QUIZ SYSTEM ──
+function answerQuiz(qId, el, isCorrect, explanation) {
+  const container = document.getElementById(qId);
+  const opts = container.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.classList.add('disabled'));
+
+  const fb = document.getElementById(qId + '-fb');
+  const reset = document.getElementById(qId + '-reset');
+
+  if (isCorrect) {
+    el.classList.add('correct');
+    fb.textContent = explanation;
+    fb.className = 'quiz-feedback show correct-fb';
+  } else {
+    el.classList.add('wrong');
+    // Find the correct one and highlight
+    fb.textContent = explanation;
+    fb.className = 'quiz-feedback show wrong-fb';
+  }
+  reset.classList.add('show');
+}
+
+function resetQuiz(qId) {
+  const container = document.getElementById(qId);
+  container.querySelectorAll('.quiz-option').forEach(o => {
+    o.classList.remove('correct', 'wrong', 'disabled');
+  });
+  document.getElementById(qId + '-fb').className = 'quiz-feedback';
+  document.getElementById(qId + '-reset').classList.remove('show');
+}
+
+// ── CHALLENGE DEFAULTS ──
+const challengeDefaults = {
+  1: `// Fix this component!
+// It currently calls fetch on every render
+// causing an infinite loop.
+
+function UserProfile() {
+  const [user, setUser] = useState(null);
+
+  // The fetch should only run ONCE on mount
+  fetch('/api/user/1')
+    .then(r => r.json())
+    .then(data => setUser(data));
+
+  return <div>{user?.name}</div>;
+}`,
+  2: `function CountdownTimer() {
+  const [seconds, setSeconds] = useState(60);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSeconds(s => s - 1);
+    }, 1000);
+
+    // TODO: Return a cleanup function here
+    // that calls clearInterval(id)
+
+  }, []);
+
+  return <p>Time left: {seconds}s</p>;
+}`,
+  3: `// Write a Card component that:
+// 1. Accepts a "title" prop (string)
+// 2. Accepts "children" (React.ReactNode)
+// 3. Renders the title in an <h3>
+// 4. Renders children below the title
+
+function Card({ title, children }) {
+  // Your code here...
+}
+
+// It should work like this:
+// <Card title="My Profile">
+//   <p>Hello world</p>
+// </Card>`,
+  4: `const fruits = [
+  { id: 1, name: 'Apple' },
+  { id: 2, name: 'Banana' },
+  { id: 3, name: 'Apricot' },
+  { id: 4, name: 'Mango' },
+  { id: 5, name: 'Pineapple' },
+];
+
+function FilteredFruits({ search }) {
+  // Filter fruits by search term (case-insensitive)
+  // Render each fruit as <li key={fruit.id}>{fruit.name}</li>
+  // Return a <ul> wrapping all the items
+
+  // Your code here...
+}`
+};
+
+function resetChallenge(num) {
+  document.getElementById('ch' + num + '-code').value = challengeDefaults[num];
+  const result = document.getElementById('ch' + num + '-result');
+  result.className = 'check-result';
+  result.innerHTML = '';
+}
+
+// ── CHALLENGE CHECKERS ──
+function showResult(id, status, title, tests) {
+  const el = document.getElementById(id);
+  el.className = 'check-result show ' + status;
+  const icons = { pass: '✅', fail: '❌', partial: '⚠️' };
+  el.innerHTML = `<strong>${icons[status]} ${title}</strong>`;
+  if (tests && tests.length) {
+    el.innerHTML += '<div class="check-tests">' +
+      tests.map(t => `<div class="check-test"><span class="check-test-icon">${t.pass ? '✅' : '❌'}</span>${t.msg}</div>`).join('') +
+      '</div>';
+  }
+}
+
+function checkChallenge1() {
+  const code = document.getElementById('ch1-code').value;
+  const hasUseEffect = /useEffect\s*\(/.test(code);
+  const hasEmptyDeps = /useEffect\s*\([^)]+,\s*\[\s*\]/.test(code);
+  const hasFetchInEffect = /useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*fetch/.test(code) ||
+    /useEffect\s*\(\s*\(\)\s*=>/.test(code) && /fetch/.test(code);
+  const noNakedFetch = !/^\s*fetch\s*\(/m.test(code.replace(/useEffect[\s\S]*?},\s*\[\s*\]/, ''));
+
+  const tests = [
+    { pass: hasUseEffect, msg: 'useEffect() is used' },
+    { pass: hasEmptyDeps, msg: 'Dependency array is empty []' },
+    { pass: hasFetchInEffect, msg: 'fetch() is called inside useEffect' },
+  ];
+  const allPass = tests.every(t => t.pass);
+  if (allPass) {
+    showResult('ch1-result', 'pass', 'All checks passed! The fetch is now inside useEffect with an empty array — it will only run once.', tests);
+  } else {
+    showResult('ch1-result', 'fail', 'Not quite yet. Check the hints below:', tests);
+  }
+}
+
+function checkChallenge2() {
+  const code = document.getElementById('ch2-code').value;
+  const hasReturn = /return\s*\(\s*\)/.test(code) || /return\s*\(\s*\)\s*=>/.test(code);
+  const hasClearInterval = /clearInterval\s*\(\s*id\s*\)/.test(code);
+  const returnIsInsideEffect = /useEffect[\s\S]*?return[\s\S]*?clearInterval/.test(code);
+
+  const tests = [
+    { pass: hasReturn, msg: 'A return statement is present in useEffect' },
+    { pass: hasClearInterval, msg: 'clearInterval(id) is called in cleanup' },
+    { pass: returnIsInsideEffect, msg: 'Cleanup is returned from within useEffect' },
+  ];
+  const allPass = tests.every(t => t.pass);
+  if (allPass) {
+    showResult('ch2-result', 'pass', 'Perfect! The cleanup function will stop the interval when the component unmounts — no more memory leak!', tests);
+  } else {
+    showResult('ch2-result', 'fail', 'Something\'s missing. Check the hints:', tests);
+  }
+}
+
+function checkChallenge3() {
+  const code = document.getElementById('ch3-code').value;
+  const hasTitle = /\{title\}/.test(code);
+  const hasChildren = /\{children\}/.test(code);
+  const hasH3 = /<h3/.test(code) || /h3/.test(code);
+  const hasReturn = /return\s*[\n\s]*\(/.test(code) || /return\s+</.test(code);
+
+  const tests = [
+    { pass: hasReturn, msg: 'Component returns JSX' },
+    { pass: hasH3, msg: 'Title is rendered in an <h3>' },
+    { pass: hasTitle, msg: '{title} is used in the render' },
+    { pass: hasChildren, msg: '{children} is rendered inside the component' },
+  ];
+  const allPass = tests.every(t => t.pass);
+  const partialPass = tests.filter(t => t.pass).length >= 3;
+  if (allPass) {
+    showResult('ch3-result', 'pass', 'Great work! Card accepts title and children, and renders both correctly.', tests);
+  } else if (partialPass) {
+    showResult('ch3-result', 'partial', 'Almost there! A few things to fix:', tests);
+  } else {
+    showResult('ch3-result', 'fail', 'Keep going — try adding a return with JSX:', tests);
+  }
+}
+
+function checkChallenge4() {
+  const code = document.getElementById('ch4-code').value;
+  const hasFilter = /\.filter\s*\(/.test(code);
+  const hasMap = /\.map\s*\(/.test(code);
+  const hasKey = /key\s*=\s*\{[^}]*id/.test(code) || /key=\{fruit\.id\}/.test(code) || /key=\{f\.id\}/.test(code);
+  const hasUl = /<ul/.test(code);
+  const hasLi = /<li/.test(code);
+  const hasReturn = /return\s*[\n\s]*\(/.test(code) || /return\s+</.test(code);
+  const hasCaseInsensitive = /toLowerCase/.test(code) || /toUpperCase/.test(code) || /toLowerCase\(\)/.test(code);
+
+  const tests = [
+    { pass: hasReturn, msg: 'Component returns JSX' },
+    { pass: hasFilter, msg: '.filter() is used to filter fruits' },
+    { pass: hasCaseInsensitive, msg: 'Search is case-insensitive (toLowerCase)' },
+    { pass: hasMap, msg: '.map() is used to render items' },
+    { pass: hasKey, msg: 'key={fruit.id} is set on each list item' },
+    { pass: hasUl && hasLi, msg: 'Returns a <ul> containing <li> elements' },
+  ];
+  const passCount = tests.filter(t => t.pass).length;
+  if (passCount === tests.length) {
+    showResult('ch4-result', 'pass', '🎉 Perfect! You\'ve nailed filter + map + keys — a pattern you\'ll use constantly in React.', tests);
+  } else if (passCount >= 4) {
+    showResult('ch4-result', 'partial', 'So close! Just a couple of things left:', tests);
+  } else {
+    showResult('ch4-result', 'fail', 'Keep going! Check these requirements:', tests);
+  }
+}
+
+// ── TAB KEY in textareas ──
+document.querySelectorAll('.editor-area').forEach(area => {
+  area.addEventListener('keydown', e => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = area.selectionStart;
+      const end = area.selectionEnd;
+      area.value = area.value.substring(0, start) + '  ' + area.value.substring(end);
+      area.selectionStart = area.selectionEnd = start + 2;
+    }
+  });
+});
+</script>
+</body>
+</html>

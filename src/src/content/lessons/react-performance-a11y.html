@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React Performance & Accessibility</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0b0f;
+    --bg2: #0f1117;
+    --bg3: #141720;
+    --surface: #1a1d28;
+    --surface2: #222536;
+    --border: #2a2e42;
+    --border2: #353a52;
+    --text: #e2e4f0;
+    --text-muted: #7a7f9a;
+    --text-dim: #4a4f6a;
+    --cyan: #00e5ff;
+    --green: #00ff88;
+    --yellow: #ffdc5c;
+    --orange: #ff8c42;
+    --pink: #ff4da6;
+    --purple: #a855f7;
+    --red: #ff4466;
+    --blue: #4488ff;
+    --glow-cyan: 0 0 20px rgba(0,229,255,0.3);
+    --glow-green: 0 0 20px rgba(0,255,136,0.3);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  html { scroll-behavior: smooth; }
+  
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1001;
+    background: rgba(10,11,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 56px;
+    overflow-x: auto;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .nav-brand {
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--cyan);
+    white-space: nowrap;
+    margin-right: 2rem;
+    letter-spacing: 0.05em;
+  }
+  .nav-brand span { color: var(--text-muted); }
+  .nav-links { display: flex; gap: 0; }
+  .nav-link {
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0 0.9rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+  .nav-link:hover { color: var(--text); border-bottom-color: var(--border2); }
+  .nav-link.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+  /* HERO */
+  .hero {
+    padding: 120px 2rem 80px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--cyan);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .hero-tag::before { content: '//'; color: var(--text-dim); }
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 em { font-style: normal; color: var(--cyan); }
+  .hero-desc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+    max-width: 600px;
+    margin-bottom: 3rem;
+  }
+  .hero-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid;
+    letter-spacing: 0.05em;
+  }
+  .chip-cyan { border-color: rgba(0,229,255,0.4); color: var(--cyan); background: rgba(0,229,255,0.05); }
+  .chip-green { border-color: rgba(0,255,136,0.4); color: var(--green); background: rgba(0,255,136,0.05); }
+  .chip-yellow { border-color: rgba(255,220,92,0.4); color: var(--yellow); background: rgba(255,220,92,0.05); }
+  .chip-orange { border-color: rgba(255,140,66,0.4); color: var(--orange); background: rgba(255,140,66,0.05); }
+  .chip-purple { border-color: rgba(168,85,247,0.4); color: var(--purple); background: rgba(168,85,247,0.05); }
+  .chip-pink { border-color: rgba(255,77,166,0.4); color: var(--pink); background: rgba(255,77,166,0.05); }
+
+  /* SECTIONS */
+  section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    padding-top: 0.4rem;
+    letter-spacing: 0.1em;
+  }
+  .section-title-group {}
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--cyan);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .section-title {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .section-desc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-top: 0.75rem;
+    max-width: 700px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--border2); }
+  .card-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  @media (max-width: 768px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+  }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+  .code-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+  }
+  .code-body {
+    padding: 1.25rem 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    line-height: 1.8;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--text);
+  }
+  .code-body::-webkit-scrollbar { height: 4px; }
+  .code-body::-webkit-scrollbar-track { background: var(--bg2); }
+  .code-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* Syntax highlighting */
+  .kw { color: var(--purple); }
+  .fn { color: var(--cyan); }
+  .str { color: var(--green); }
+  .cmt { color: var(--text-dim); font-style: italic; }
+  .tag { color: var(--orange); }
+  .num { color: var(--yellow); }
+  .ok { color: var(--green); }
+  .err { color: var(--red); }
+  .prop { color: var(--blue); }
+
+  /* RENDER TREE DEMO */
+  .tree-demo {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+  }
+  .tree-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 6px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+  }
+  .btn-cyan { border-color: var(--cyan); color: var(--cyan); background: rgba(0,229,255,0.08); }
+  .btn-cyan:hover { background: rgba(0,229,255,0.15); box-shadow: var(--glow-cyan); }
+  .btn-green { border-color: var(--green); color: var(--green); background: rgba(0,255,136,0.08); }
+  .btn-green:hover { background: rgba(0,255,136,0.15); box-shadow: var(--glow-green); }
+  .btn-orange { border-color: var(--orange); color: var(--orange); background: rgba(255,140,66,0.08); }
+  .btn-orange:hover { background: rgba(255,140,66,0.15); }
+  .btn-ghost { border-color: var(--border2); color: var(--text-muted); background: transparent; }
+  .btn-ghost:hover { border-color: var(--text-muted); color: var(--text); }
+
+  .tree-svg-wrap { display: flex; justify-content: center; }
+
+  /* NODE styles for SVG trees */
+  .tree-node { cursor: default; }
+  .node-box {
+    rx: 8;
+    transition: all 0.3s;
+  }
+
+  /* FLOW DIAGRAM */
+  .flow-diagram {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+  }
+
+  /* COMPARISON TABLE */
+  .comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    margin: 1.5rem 0;
+  }
+  .comp-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--border2);
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.62rem;
+  }
+  .comp-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.5;
+    vertical-align: top;
+  }
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .tick { color: var(--green); }
+  .cross { color: var(--red); }
+  .warn { color: var(--yellow); }
+
+  /* CALLOUT */
+  .callout {
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    line-height: 1.7;
+  }
+  .callout-warn { background: rgba(255,220,92,0.06); border: 1px solid rgba(255,220,92,0.2); }
+  .callout-info { background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.2); }
+  .callout-success { background: rgba(0,255,136,0.06); border: 1px solid rgba(0,255,136,0.2); }
+  .callout-error { background: rgba(255,68,102,0.06); border: 1px solid rgba(255,68,102,0.2); }
+  .callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+  /* BUNDLE VIZ */
+  .bundle-bar {
+    margin: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+  }
+  .bundle-label { width: 110px; color: var(--text-muted); text-align: right; flex-shrink: 0; }
+  .bundle-track {
+    flex: 1;
+    height: 24px;
+    background: var(--surface);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border);
+  }
+  .bundle-fill {
+    height: 100%;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--bg);
+    transition: width 0.8s cubic-bezier(0.16,1,0.3,1);
+    position: relative;
+  }
+  .bundle-size { color: var(--text-muted); margin-left: 0.5rem; flex-shrink: 0; }
+
+  /* MEMO SIMULATOR */
+  .sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border-radius: 10px; overflow: hidden; margin: 1.5rem 0; }
+  .sim-panel { background: var(--bg2); padding: 1.25rem; }
+  .sim-panel-title { font-size: 0.65rem; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+  .sim-node {
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    margin: 0.35rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--surface);
+    transition: all 0.3s;
+    cursor: default;
+  }
+  .sim-node.rendering {
+    border-color: var(--red);
+    background: rgba(255,68,102,0.1);
+    animation: pulse-red 0.5s ease;
+  }
+  .sim-node.skipped {
+    border-color: var(--green);
+    background: rgba(0,255,136,0.05);
+  }
+  .sim-node.rendering-opt {
+    border-color: var(--orange);
+    background: rgba(255,140,66,0.1);
+    animation: pulse-orange 0.5s ease;
+  }
+  @keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(255,68,102,0.6); }
+    100% { box-shadow: 0 0 0 8px rgba(255,68,102,0); }
+  }
+  @keyframes pulse-orange {
+    0% { box-shadow: 0 0 0 0 rgba(255,140,66,0.6); }
+    100% { box-shadow: 0 0 0 8px rgba(255,140,66,0); }
+  }
+  .render-log {
+    margin-top: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-height: 80px;
+    overflow-y: auto;
+  }
+  .log-red { color: var(--red); }
+  .log-green { color: var(--green); }
+  .log-orange { color: var(--orange); }
+
+  /* KEYBOARD DEMO */
+  .keyboard-demo {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .kbd-grid { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+  .kbd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.4rem 0.75rem;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-bottom: 3px solid var(--border2);
+    border-radius: 5px;
+    color: var(--text);
+    cursor: default;
+    transition: all 0.1s;
+    user-select: none;
+  }
+  .kbd.pressed {
+    background: rgba(0,229,255,0.15);
+    border-color: var(--cyan);
+    color: var(--cyan);
+    border-bottom-width: 1px;
+    transform: translateY(2px);
+  }
+
+  /* FOCUS DEMO */
+  .focus-demo-area {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+    padding: 1.5rem;
+    background: var(--bg3);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .demo-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .demo-btn-bad {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    color: var(--text-muted);
+  }
+  .demo-btn-bad:focus { outline: none; }
+  .demo-btn-good {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    color: var(--text);
+  }
+  .demo-btn-good:focus-visible {
+    outline: 3px solid var(--cyan);
+    outline-offset: 3px;
+    box-shadow: var(--glow-cyan);
+  }
+
+  /* ARIA DEMO */
+  .aria-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin: 0.75rem 0;
+    position: relative;
+  }
+  .aria-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+  }
+  .badge-good { background: rgba(0,255,136,0.15); color: var(--green); }
+  .badge-bad { background: rgba(255,68,102,0.15); color: var(--red); }
+
+  /* LAZY LOADING VIZ */
+  .lazy-chunks {
+    display: grid;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+  }
+  .chunk-row { display: flex; align-items: center; gap: 0.75rem; }
+  .chunk-label { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--text-muted); width: 120px; text-align: right; }
+  .chunk-bar-wrap { flex: 1; position: relative; }
+  .chunk-bar {
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding: 0 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    transition: all 0.6s cubic-bezier(0.16,1,0.3,1);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid transparent;
+  }
+  .chunk-bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+  }
+  .chunk-main { background: rgba(0,229,255,0.2); border-color: rgba(0,229,255,0.3); color: var(--cyan); width: 100%; }
+  .chunk-dashboard { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.3); color: var(--purple); }
+  .chunk-settings { background: rgba(0,255,136,0.15); border-color: rgba(0,255,136,0.3); color: var(--green); }
+  .chunk-admin { background: rgba(255,140,66,0.15); border-color: rgba(255,140,66,0.3); color: var(--orange); }
+  .chunk-reports { background: rgba(255,220,92,0.15); border-color: rgba(255,220,92,0.3); color: var(--yellow); }
+  .chunk-status {
+    width: 80px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    text-align: left;
+  }
+  .status-loaded { color: var(--green); }
+  .status-pending { color: var(--text-dim); }
+  .status-loading { color: var(--yellow); animation: blink 1s infinite; }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* HOOK DIAGRAM */
+  .hook-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: flex-start;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 1rem 0;
+  }
+  .hook-step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    min-width: 220px;
+    margin-left: 0;
+    position: relative;
+  }
+  .hook-arrow {
+    width: 2px;
+    height: 24px;
+    background: var(--border2);
+    margin-left: 1.5rem;
+    position: relative;
+  }
+  .hook-arrow::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: -3px;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid var(--border2);
+  }
+  .hook-branch { display: flex; gap: 1rem; margin-top: 0; }
+  .hook-branch-item { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .hook-step-yes { border-color: rgba(0,255,136,0.4); background: rgba(0,255,136,0.05); }
+  .hook-step-no { border-color: rgba(255,68,102,0.3); background: rgba(255,68,102,0.04); }
+  .hook-step-result { border-color: rgba(0,229,255,0.3); background: rgba(0,229,255,0.05); }
+
+  /* SECTION colors */
+  .accent-cyan .section-label, .accent-cyan .section-num { color: var(--cyan); }
+  .accent-green .section-label, .accent-green .section-num { color: var(--green); }
+  .accent-yellow .section-label, .accent-yellow .section-num { color: var(--yellow); }
+  .accent-orange .section-label, .accent-orange .section-num { color: var(--orange); }
+  .accent-purple .section-label, .accent-purple .section-num { color: var(--purple); }
+  .accent-pink .section-label, .accent-pink .section-num { color: var(--pink); }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    border-top: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    margin-top: 4rem;
+  }
+
+  /* PROGRESS BAR */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: var(--cyan);
+    box-shadow: var(--glow-cyan);
+    z-index: 1002;
+    transition: width 0.1s;
+  }
+
+  /* LIVE REGION STATUS */
+  .live-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    padding: 0.5rem 0.75rem;
+    border-radius: 5px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    transition: all 0.3s;
+  }
+  .live-status.announcing { color: var(--cyan); border-color: rgba(0,229,255,0.3); background: rgba(0,229,255,0.05); }
+
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border2), transparent); margin: 2rem 0; }
+
+  /* Tooltip */
+  [data-tip] { position: relative; cursor: help; }
+  [data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 5px;
+    padding: 0.4rem 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    white-space: nowrap;
+    color: var(--text);
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  .inline-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1em 0.4em;
+    color: var(--cyan);
+  }
+
+  /* DROPDOWN ARIA demo */
+  .aria-dropdown { position: relative; display: inline-block; }
+  .aria-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    min-width: 180px;
+    overflow: hidden;
+    z-index: 10;
+    display: none;
+  }
+  .aria-menu.open { display: block; animation: slideDown 0.15s ease; }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .aria-menu-item {
+    padding: 0.6rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    color: var(--text);
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    outline: none;
+  }
+  .aria-menu-item:hover, .aria-menu-item:focus { background: rgba(255,255,255,0.06); color: var(--cyan); }
+  .aria-menu-item:focus-visible { background: rgba(0,229,255,0.1); }
+
+  /* BADGE */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+  }
+  .badge-hook { background: rgba(0,229,255,0.1); color: var(--cyan); border: 1px solid rgba(0,229,255,0.2); }
+  .badge-hoc { background: rgba(168,85,247,0.1); color: var(--purple); border: 1px solid rgba(168,85,247,0.2); }
+  .badge-pattern { background: rgba(0,255,136,0.1); color: var(--green); border: 1px solid rgba(0,255,136,0.2); }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+  /* scroll reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<div id="progress-bar" style="width:0%"></div>
+
+<nav role="navigation" aria-label="Page sections">
+  <div class="nav-brand">react<span>.perf</span> + <span>a11y</span></div>
+  <div class="nav-links">
+    <a href="#rerenders" class="nav-link">Re-renders</a>
+    <a href="#memo" class="nav-link">React.memo</a>
+    <a href="#usememo" class="nav-link">useMemo</a>
+    <a href="#usecallback" class="nav-link">useCallback</a>
+    <a href="#lazy" class="nav-link">Lazy Loading</a>
+    <a href="#bundle" class="nav-link">Bundle Size</a>
+    <a href="#a11y" class="nav-link">Accessibility</a>
+  </div>
+</nav>
+
+<main>
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">React · Performance · Accessibility</div>
+  <h1>Build Fast.<br>Build for <em>Everyone</em>.</h1>
+  <p class="hero-desc">
+    // A deep-dive into React's performance primitives and<br>
+    // accessibility patterns. Interactive examples, visual<br>
+    // flow diagrams, and real code — all in one place.
+  </p>
+  <div class="hero-chips">
+    <span class="chip chip-cyan">React.memo</span>
+    <span class="chip chip-green">useMemo</span>
+    <span class="chip chip-yellow">useCallback</span>
+    <span class="chip chip-orange">Lazy Loading</span>
+    <span class="chip chip-purple">Bundle Size</span>
+    <span class="chip chip-pink">ARIA + a11y</span>
+  </div>
+</div>
+
+<!-- SECTION 1: RE-RENDERS -->
+<section id="rerenders" class="accent-cyan reveal">
+  <div class="section-header">
+    <div class="section-num">01</div>
+    <div class="section-title-group">
+      <div class="section-label">The Problem</div>
+      <h2 class="section-title">The Re-render Cascade</h2>
+      <p class="section-desc">
+        React's default behavior is to re-render a component AND all of its children whenever state changes — even if a child's props haven't changed. This cascading re-render is the root cause of most React performance issues.
+      </p>
+    </div>
+  </div>
+
+  <div class="tree-demo">
+    <div class="tree-controls">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--text-muted);">// Click a state update to see renders cascade:</span>
+    </div>
+    <div class="grid-2" style="gap:2rem;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-dim);margin-bottom:1rem;letter-spacing:0.1em;">WITHOUT OPTIMIZATION</div>
+        <button type="button" class="btn btn-orange" onclick="simulateRender(false)" style="margin-bottom:1.25rem;">setCount() → trigger render</button>
+        <div id="tree-bad">
+          <div class="sim-node" id="bad-parent">🔵 Parent <span style="color:var(--text-dim);margin-left:auto;font-size:0.6rem;">count = 0</span></div>
+          <div style="margin-left:1.5rem;">
+            <div class="sim-node" id="bad-button">🔵 &lt;Button&gt; <span style="color:var(--text-dim);margin-left:auto;font-size:0.6rem;">+count</span></div>
+            <div class="sim-node" id="bad-child">🔵 &lt;ExpensiveChild&gt; <span style="color:var(--text-dim);margin-left:auto;font-size:0.6rem;">name="Nurlan"</span></div>
+            <div style="margin-left:1.5rem;">
+              <div class="sim-node" id="bad-deep">🔵 &lt;DeepChild&gt; <span style="color:var(--text-dim);margin-left:auto;font-size:0.6rem;">static</span></div>
+            </div>
+          </div>
+        </div>
+        <div id="log-bad" class="render-log"></div>
+      </div>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-dim);margin-bottom:1rem;letter-spacing:0.1em;">WITH React.memo</div>
+        <button type="button" class="btn btn-green" onclick="simulateRender(true)" style="margin-bottom:1.25rem;">setCount() → trigger render</button>
+        <div id="tree-good">
+          <div class="sim-node" id="good-parent">🔵 Parent <span style="color:var(--text-dim);margin-left:auto;font-size:0.6rem;">count = 0</span></div>
+          <div style="margin-left:1.5rem;">
+            <div class="sim-node" id="good-button">🔵 &lt;Button&gt; <span style="color:var(--text-dim);margin-left:auto;font-size:0.6rem;">+count</span></div>
+            <div class="sim-node" id="good-child">🟢 &lt;ExpensiveChild memo&gt; <span style="color:var(--text-dim);margin-left:auto;font-size:0.6rem;">name="Nurlan"</span></div>
+            <div style="margin-left:1.5rem;">
+              <div class="sim-node" id="good-deep">🟢 &lt;DeepChild memo&gt; <span style="color:var(--text-dim);margin-left:auto;font-size:0.6rem;">static</span></div>
+            </div>
+          </div>
+        </div>
+        <div id="log-good" class="render-log"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-warn">
+    <span class="callout-icon">⚠️</span>
+    <div><strong style="color:var(--yellow);">React DevTools Profiler</strong> — Use the Profiler tab in React DevTools to record renders. Components shown in yellow/orange/red took longer. Flamegraph view shows the render tree. This is your #1 tool for finding performance bottlenecks.</div>
+  </div>
+</section>
+
+<!-- SECTION 2: React.memo -->
+<section id="memo" class="accent-purple reveal">
+  <div class="section-header">
+    <div class="section-num">02</div>
+    <div class="section-title-group">
+      <div class="section-label">Memoization</div>
+      <h2 class="section-title">React.memo <span class="badge badge-hoc">HOC</span></h2>
+      <p class="section-desc">
+        React.memo is a Higher-Order Component that wraps your component and caches the rendered output. It performs a <strong>shallow comparison</strong> of props — if they haven't changed, React skips re-rendering entirely and reuses the last result.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:1.5rem;">
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+        <div class="code-filename">❌ Without memo</div>
+        <div></div>
+      </div>
+      <div class="code-body"><span class="kw">function</span> <span class="fn">ExpensiveChild</span>({ name }) {
+  console.<span class="fn">log</span>(<span class="str">'🔴 Renders every time!'</span>);
+  <span class="cmt">// Expensive computation...</span>
+  <span class="kw">return</span> <span class="tag">&lt;div&gt;</span>Hello, {name}<span class="tag">&lt;/div&gt;</span>;
+}
+
+<span class="cmt">// Parent re-renders → child re-renders
+// even when name="Nurlan" never changes!</span></div>
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+        <div class="code-filename">✅ With React.memo</div>
+        <div></div>
+      </div>
+      <div class="code-body"><span class="kw">const</span> ExpensiveChild = <span class="fn">React.memo</span>(
+  <span class="kw">function</span> <span class="fn">ExpensiveChild</span>({ name }) {
+    console.<span class="fn">log</span>(<span class="str">'🟢 Only when props change!'</span>);
+    <span class="kw">return</span> <span class="tag">&lt;div&gt;</span>Hello, {name}<span class="tag">&lt;/div&gt;</span>;
+  }
+);
+
+<span class="cmt">// Parent re-renders → memo checks props
+// name unchanged → SKIP! ✅</span></div>
+    </div>
+  </div>
+
+  <div class="flow-diagram">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);margin-bottom:1.25rem;letter-spacing:0.1em;">REACT.MEMO DECISION FLOW</div>
+    <div style="display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+      <div class="hook-flow">
+        <div class="hook-step" style="border-color:rgba(168,85,247,0.4);background:rgba(168,85,247,0.08);">
+          <span>🔄</span> Parent re-renders
+        </div>
+        <div class="hook-arrow"></div>
+        <div class="hook-step" style="border-color:rgba(0,229,255,0.3);background:rgba(0,229,255,0.06);">
+          <span>⚖️</span> prevProps === nextProps?<br><span style="font-size:0.6rem;color:var(--text-dim);">  (shallow comparison)</span>
+        </div>
+        <div style="display:flex;gap:2rem;margin-top:0;padding-top:0;">
+          <div class="hook-flow" style="align-items:center;">
+            <div class="hook-arrow"></div>
+            <div class="hook-step hook-step-yes" style="min-width:160px;justify-content:center;flex-direction:column;align-items:center;text-align:center;">
+              <span>✅ Equal</span>
+              <span style="font-size:0.6rem;color:var(--text-dim);">Reuse cached output</span>
+            </div>
+          </div>
+          <div class="hook-flow" style="align-items:center;">
+            <div class="hook-arrow"></div>
+            <div class="hook-step hook-step-no" style="min-width:160px;justify-content:center;flex-direction:column;align-items:center;text-align:center;">
+              <span>❌ Not equal</span>
+              <span style="font-size:0.6rem;color:var(--text-dim);">Re-render component</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;">When to use React.memo</h3>
+  <table class="comp-table">
+    <thead>
+      <tr><th>Situation</th><th>Use memo?</th><th>Reason</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Component renders frequently, props rarely change</td><td><span class="tick">✅ Yes</span></td><td>Avoids expensive re-renders</td></tr>
+      <tr><td>Component does heavy computation</td><td><span class="tick">✅ Yes</span></td><td>Computation cost outweighs memo overhead</td></tr>
+      <tr><td>Simple/cheap component (e.g. &lt;p&gt; wrapper)</td><td><span class="cross">❌ No</span></td><td>Memo overhead > render cost</td></tr>
+      <tr><td>Props change on every parent render</td><td><span class="cross">❌ No</span></td><td>Comparison runs but always fails — wasteful</td></tr>
+      <tr><td>Receives objects/arrays as props without useCallback/useMemo</td><td><span class="warn">⚠️ Careful</span></td><td>New reference each render breaks shallow comparison</td></tr>
+    </tbody>
+  </table>
+
+  <div class="code-block" style="margin-top:1.5rem;">
+    <div class="code-header">
+      <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+      <div class="code-filename">Custom areEqual — fine-grained control</div>
+      <div></div>
+    </div>
+    <div class="code-body"><span class="kw">const</span> UserCard = <span class="fn">React.memo</span>(
+  <span class="kw">function</span> <span class="fn">UserCard</span>({ user, theme }) {
+    <span class="kw">return</span> (
+      <span class="tag">&lt;div</span> <span class="prop">style</span>={{ color: theme.text }}<span class="tag">&gt;</span>
+        <span class="tag">&lt;h3&gt;</span>{user.name}<span class="tag">&lt;/h3&gt;</span>
+        <span class="tag">&lt;p&gt;</span>{user.email}<span class="tag">&lt;/p&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+    );
+  },
+  <span class="cmt">// Custom comparison — true = SKIP render, false = RE-RENDER</span>
+  (prevProps, nextProps) => {
+    <span class="kw">return</span> (
+      prevProps.user.id === nextProps.user.id &&
+      prevProps.user.name === nextProps.user.name &&
+      prevProps.theme.text === nextProps.theme.text
+    );
+  }
+);</div>
+  </div>
+</section>
+
+<!-- SECTION 3: useMemo -->
+<section id="usememo" class="accent-green reveal">
+  <div class="section-header">
+    <div class="section-num">03</div>
+    <div class="section-title-group">
+      <div class="section-label">Hook</div>
+      <h2 class="section-title">useMemo <span class="badge badge-hook">Hook</span></h2>
+      <p class="section-desc">
+        useMemo caches the <em>result</em> of an expensive calculation. It only re-runs the function when its dependencies change. Think of it as a smart cache for derived values — filter results, sorted arrays, computed styles.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:1.5rem;">
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+        <div class="code-filename">❌ Recalculates every render</div>
+        <div></div>
+      </div>
+      <div class="code-body"><span class="kw">function</span> <span class="fn">ProductList</span>({ products, search }) {
+  <span class="cmt">// ❌ Runs on EVERY render — even when</span>
+  <span class="cmt">// only an unrelated state changes!</span>
+  <span class="kw">const</span> filtered = products.<span class="fn">filter</span>(p =>
+    p.name.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(
+      search.<span class="fn">toLowerCase</span>()
+    )
+  );
+  <span class="kw">return</span> <span class="tag">&lt;ul&gt;</span>{filtered.<span class="fn">map</span>(p => (
+    <span class="tag">&lt;li</span> <span class="prop">key</span>={p.id}<span class="tag">&gt;</span>{p.name}<span class="tag">&lt;/li&gt;</span>
+  ))}<span class="tag">&lt;/ul&gt;</span>;
+}</div>
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+        <div class="code-filename">✅ Cached with useMemo</div>
+        <div></div>
+      </div>
+      <div class="code-body"><span class="kw">import</span> { useMemo } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">ProductList</span>({ products, search }) {
+  <span class="cmt">// ✅ Only re-runs when products or</span>
+  <span class="cmt">// search actually changes</span>
+  <span class="kw">const</span> filtered = <span class="fn">useMemo</span>(() => {
+    <span class="kw">return</span> products.<span class="fn">filter</span>(p =>
+      p.name.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(
+        search.<span class="fn">toLowerCase</span>()
+      )
+    );
+  }, [products, search]); <span class="cmt">// ← deps array</span>
+
+  <span class="kw">return</span> <span class="tag">&lt;ul&gt;</span>...filtered results...<span class="tag">&lt;/ul&gt;</span>;
+}</div>
+    </div>
+  </div>
+
+  <div class="flow-diagram">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);margin-bottom:1.25rem;letter-spacing:0.1em;">useMemo EXECUTION FLOW</div>
+    <div class="hook-flow">
+      <div class="hook-step" style="border-color:rgba(0,255,136,0.3);background:rgba(0,255,136,0.05);">
+        <span>🔄</span> Component renders
+      </div>
+      <div class="hook-arrow"></div>
+      <div class="hook-step" style="border-color:rgba(0,229,255,0.3);background:rgba(0,229,255,0.05);">
+        <span>🔍</span> Have dependencies [deps] changed?
+      </div>
+      <div style="display:flex;gap:3rem;">
+        <div class="hook-flow" style="align-items:center;">
+          <div class="hook-arrow"></div>
+          <div class="hook-step hook-step-yes" style="min-width:180px;text-align:center;flex-direction:column;align-items:center;">
+            <span>✅ No change</span>
+            <span style="font-size:0.62rem;color:var(--text-dim);">Return cached value</span>
+          </div>
+        </div>
+        <div class="hook-flow" style="align-items:center;">
+          <div class="hook-arrow"></div>
+          <div class="hook-step hook-step-no" style="min-width:180px;text-align:center;flex-direction:column;align-items:center;">
+            <span>❌ Changed!</span>
+            <span style="font-size:0.62rem;color:var(--text-dim);">Run fn(), cache result</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE USEMEMO DEMO -->
+  <div class="card" style="margin:1.5rem 0;">
+    <div class="card-title" style="color:var(--green);">🧪 Interactive Demo — See useMemo in action</div>
+    <p style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-bottom:1.25rem;line-height:1.7;">
+      Type in the search box. Notice "filter runs" only updates when you search.<br>
+      Clicking "unrelated update" triggers a re-render but does NOT re-run the filter.
+    </p>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem;">
+      <input type="text" id="search-input" aria-label="Search products" placeholder="Search products..." oninput="updateSearch()" style="
+        font-family:'JetBrains Mono',monospace;font-size:0.72rem;
+        background:var(--surface2);border:1px solid var(--border2);
+        border-radius:6px;padding:0.5rem 0.75rem;color:var(--text);
+        outline:none;min-width:200px;
+      ">
+      <button type="button" class="btn btn-ghost" onclick="unrelatedUpdate()">Unrelated state update</button>
+    </div>
+    <div style="display:flex;gap:1rem;font-family:'JetBrains Mono',monospace;font-size:0.72rem;flex-wrap:wrap;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.75rem 1rem;flex:1;min-width:150px;">
+        <div style="color:var(--text-dim);font-size:0.62rem;margin-bottom:0.25rem;">RENDER COUNT</div>
+        <div id="render-count" style="color:var(--yellow);font-size:1.2rem;font-weight:700;">0</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.75rem 1rem;flex:1;min-width:150px;">
+        <div style="color:var(--text-dim);font-size:0.62rem;margin-bottom:0.25rem;">FILTER RUNS</div>
+        <div id="filter-count" style="color:var(--green);font-size:1.2rem;font-weight:700;">0</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.75rem 1rem;flex:2;min-width:150px;">
+        <div style="color:var(--text-dim);font-size:0.62rem;margin-bottom:0.25rem;">FILTERED RESULTS</div>
+        <div id="filter-results" style="color:var(--text);font-size:0.72rem;">apple, avocado, banana...</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:0.8rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem;">Best use cases for useMemo</h3>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title" style="color:var(--green);font-size:0.72rem;">📊 Large List Filtering</div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--text-muted);line-height:1.6;">Filtering/sorting arrays of 100+ items. Without memo, this runs on every keystroke, scroll, or unrelated state update.</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--green);font-size:0.72rem;">🧮 Heavy Calculations</div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--text-muted);line-height:1.6;">Statistical computations, data transformations, chart data processing — anything measurably expensive via profiling.</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--green);font-size:0.72rem;">🎨 Style Objects</div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--text-muted);line-height:1.6;">When passing style objects to a React.memo child — without useMemo, a new object reference breaks memo's comparison.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: useCallback -->
+<section id="usecallback" class="accent-yellow reveal">
+  <div class="section-header">
+    <div class="section-num">04</div>
+    <div class="section-title-group">
+      <div class="section-label">Hook</div>
+      <h2 class="section-title">useCallback <span class="badge badge-hook">Hook</span></h2>
+      <p class="section-desc">
+        useCallback caches the <em>function itself</em> — its reference stays stable across renders. This matters because in JavaScript, <code class="inline-code">() => {}</code> creates a new function object on every call. Pass a new function to a memoized child, and memo's comparison fails, defeating the optimization.
+      </p>
+    </div>
+  </div>
+
+  <div class="callout callout-info">
+    <span class="callout-icon">💡</span>
+    <div><strong style="color:var(--cyan);">Key insight:</strong> In JavaScript, <code class="inline-code">fn1 === fn2</code> is <strong>false</strong> even if they do exactly the same thing. Functions are objects — every <code class="inline-code">() => {}</code> creates a fresh object reference. useCallback prevents this.</div>
+  </div>
+
+  <div class="grid-2" style="margin:1.5rem 0;">
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+        <div class="code-filename">❌ memo is broken</div>
+        <div></div>
+      </div>
+      <div class="code-body"><span class="kw">function</span> <span class="fn">Parent</span>() {
+  <span class="kw">const</span> [count, setCount] = <span class="fn">useState</span>(<span class="num">0</span>);
+
+  <span class="cmt">// ❌ NEW function object every render!</span>
+  <span class="kw">const</span> handleClick = () => {
+    console.<span class="fn">log</span>(<span class="str">'Clicked!'</span>);
+  };
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;button</span> <span class="prop">onClick</span>={() => <span class="fn">setCount</span>(c => c+<span class="num">1</span>)}<span class="tag">&gt;</span>
+        {count}
+      <span class="tag">&lt;/button&gt;</span>
+      <span class="cmt">{/* memo FAILS — handleClick is always new */}</span>
+      <span class="tag">&lt;MemoizedChild</span> <span class="prop">onClick</span>={handleClick} <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</div>
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+        <div class="code-filename">✅ Stable reference with useCallback</div>
+        <div></div>
+      </div>
+      <div class="code-body"><span class="kw">import</span> { useCallback } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Parent</span>() {
+  <span class="kw">const</span> [count, setCount] = <span class="fn">useState</span>(<span class="num">0</span>);
+
+  <span class="cmt">// ✅ Same function reference across renders</span>
+  <span class="kw">const</span> handleClick = <span class="fn">useCallback</span>(() => {
+    console.<span class="fn">log</span>(<span class="str">'Clicked!'</span>);
+  }, []); <span class="cmt">// no deps → never recreated</span>
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;button</span> <span class="prop">onClick</span>={() => <span class="fn">setCount</span>(c => c+<span class="num">1</span>)}<span class="tag">&gt;</span>
+        {count}
+      <span class="tag">&lt;/button&gt;</span>
+      <span class="cmt">{/* memo WORKS — stable reference ✅ */}</span>
+      <span class="tag">&lt;MemoizedChild</span> <span class="prop">onClick</span>={handleClick} <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</div>
+    </div>
+  </div>
+
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.5rem 0;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);margin-bottom:1rem;letter-spacing:0.1em;">useMemo vs useCallback — THE RELATIONSHIP</div>
+    <div class="code-body" style="background:transparent;border:none;padding:0;font-size:0.72rem;">
+<span class="cmt">// useCallback is actually just syntactic sugar over useMemo:</span>
+
+<span class="kw">const</span> memoFn = <span class="fn">useCallback</span>(fn, deps);
+<span class="cmt">// is exactly equivalent to:</span>
+<span class="kw">const</span> memoFn = <span class="fn">useMemo</span>(() => fn, deps);
+
+<span class="cmt">// useMemo  → caches the RETURN VALUE of the function</span>
+<span class="cmt">// useCallback → caches the FUNCTION ITSELF</span>
+    </div>
+  </div>
+
+  <div class="callout callout-warn">
+    <span class="callout-icon">⚠️</span>
+    <div><strong style="color:var(--yellow);">The Golden Rule:</strong> Only use useCallback when passing a function to a child wrapped with <code class="inline-code">React.memo</code>. Using it elsewhere adds overhead without benefit. Don't wrap every function "just in case."</div>
+  </div>
+
+  <!-- FULL REAL WORLD EXAMPLE -->
+  <h3 style="font-size:0.85rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin:2rem 0 1rem;">🌍 Real-world: E-Commerce Product Page</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+      <div class="code-filename">ProductPage.jsx — All three working together</div>
+      <div></div>
+    </div>
+    <div class="code-body"><span class="kw">import</span> { useState, useMemo, useCallback } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">ProductPage</span>() {
+  <span class="kw">const</span> [search, setSearch] = <span class="fn">useState</span>(<span class="str">''</span>);
+  <span class="kw">const</span> [cart, setCart] = <span class="fn">useState</span>([]);
+  <span class="kw">const</span> [products] = <span class="fn">useState</span>(() => <span class="fn">generateProducts</span>(<span class="num">10000</span>));
+
+  <span class="cmt">// ✅ useMemo: 10,000 products filtered only when search changes</span>
+  <span class="kw">const</span> filtered = <span class="fn">useMemo</span>(() =>
+    products.<span class="fn">filter</span>(p =>
+      p.name.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(search.<span class="fn">toLowerCase</span>())
+    )
+  , [products, search]);
+
+  <span class="cmt">// ✅ useCallback: stable reference for memo'd child</span>
+  <span class="kw">const</span> addToCart = <span class="fn">useCallback</span>((product) => {
+    <span class="fn">setCart</span>(prev => [...prev, product]);
+  }, []); <span class="cmt">// no deps — setCart is stable</span>
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;SearchBar</span> <span class="prop">onSearch</span>={setSearch} <span class="tag">/&gt;</span>
+      <span class="tag">&lt;CartBadge</span> <span class="prop">count</span>={cart.length} <span class="tag">/&gt;</span>
+      <span class="tag">&lt;ProductList</span> <span class="prop">products</span>={filtered} <span class="prop">onAdd</span>={addToCart} <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}
+
+<span class="cmt">// ✅ React.memo: re-renders only when products/onAdd change</span>
+<span class="kw">const</span> ProductList = <span class="fn">React.memo</span>(
+  <span class="kw">function</span> <span class="fn">ProductList</span>({ products, onAdd }) {
+    <span class="kw">return</span> (
+      <span class="tag">&lt;ul&gt;</span>
+        {products.<span class="fn">map</span>(p => (
+          <span class="tag">&lt;ProductCard</span> <span class="prop">key</span>={p.id} <span class="prop">product</span>={p} <span class="prop">onAdd</span>={onAdd} <span class="tag">/&gt;</span>
+        ))}
+      <span class="tag">&lt;/ul&gt;</span>
+    );
+  }
+);
+<span class="cmt">// Result: cart changes don't re-render ProductList 🎯</span></div>
+  </div>
+</section>
+
+<!-- SECTION 5: LAZY LOADING -->
+<section id="lazy" class="accent-orange reveal">
+  <div class="section-header">
+    <div class="section-num">05</div>
+    <div class="section-title-group">
+      <div class="section-label">Code Splitting</div>
+      <h2 class="section-title">Lazy Loading</h2>
+      <p class="section-desc">
+        By default, your entire React app ships as one big JavaScript bundle. Every route, every component — loaded upfront, even for pages the user may never visit. React.lazy() + dynamic import() splits your bundle into chunks that load on-demand.
+      </p>
+    </div>
+  </div>
+
+  <!-- BUNDLE VISUALIZER -->
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card-title" style="color:var(--orange);">📦 Bundle Simulator — Click routes to load chunks</div>
+    <div style="display:flex;gap:0.5rem;margin:1rem 0;flex-wrap:wrap;">
+      <button type="button" class="btn btn-ghost" onclick="navigateTo('home')">/ home</button>
+      <button type="button" class="btn btn-ghost" onclick="navigateTo('dashboard')">/dashboard</button>
+      <button type="button" class="btn btn-ghost" onclick="navigateTo('settings')">/settings</button>
+      <button type="button" class="btn btn-ghost" onclick="navigateTo('admin')">/admin</button>
+      <button type="button" class="btn btn-ghost" onclick="navigateTo('reports')">/reports</button>
+      <button type="button" class="btn btn-orange" onclick="resetChunks()">↺ Reset</button>
+    </div>
+    <div class="lazy-chunks">
+      <div class="chunk-row">
+        <span class="chunk-label">main.js</span>
+        <div class="chunk-bar-wrap">
+          <div class="chunk-bar chunk-main" style="width:8%;">main.js</div>
+        </div>
+        <span class="chunk-status status-loaded" id="status-home">200kb ✓</span>
+      </div>
+      <div class="chunk-row">
+        <span class="chunk-label">dashboard.chunk</span>
+        <div class="chunk-bar-wrap" style="background:var(--surface);border-radius:6px;border:1px solid var(--border);">
+          <div class="chunk-bar chunk-dashboard" id="bar-dashboard" style="width:0%;transition:width 0.6s;">Dashboard</div>
+        </div>
+        <span class="chunk-status status-pending" id="status-dashboard">500kb ···</span>
+      </div>
+      <div class="chunk-row">
+        <span class="chunk-label">settings.chunk</span>
+        <div class="chunk-bar-wrap" style="background:var(--surface);border-radius:6px;border:1px solid var(--border);">
+          <div class="chunk-bar chunk-settings" id="bar-settings" style="width:0%;transition:width 0.6s;">Settings</div>
+        </div>
+        <span class="chunk-status status-pending" id="status-settings">300kb ···</span>
+      </div>
+      <div class="chunk-row">
+        <span class="chunk-label">admin.chunk</span>
+        <div class="chunk-bar-wrap" style="background:var(--surface);border-radius:6px;border:1px solid var(--border);">
+          <div class="chunk-bar chunk-admin" id="bar-admin" style="width:0%;transition:width 0.6s;">AdminPanel</div>
+        </div>
+        <span class="chunk-status status-pending" id="status-admin">800kb ···</span>
+      </div>
+      <div class="chunk-row">
+        <span class="chunk-label">reports.chunk</span>
+        <div class="chunk-bar-wrap" style="background:var(--surface);border-radius:6px;border:1px solid var(--border);">
+          <div class="chunk-bar chunk-reports" id="bar-reports" style="width:0%;transition:width 0.6s;">Reports</div>
+        </div>
+        <span class="chunk-status status-pending" id="status-reports">700kb ···</span>
+      </div>
+    </div>
+    <div style="margin-top:1rem;display:flex;gap:1rem;font-family:'JetBrains Mono',monospace;font-size:0.7rem;">
+      <div style="color:var(--text-muted);">Initial load: <span id="initial-load" style="color:var(--cyan);font-weight:700;">200kb</span></div>
+      <div style="color:var(--text-muted);">Total loaded: <span id="total-load" style="color:var(--orange);font-weight:700;">200kb</span></div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:1.5rem;">
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+        <div class="code-filename">❌ Eager loading (2.5MB upfront)</div>
+        <div></div>
+      </div>
+      <div class="code-body"><span class="cmt">// ❌ ALL routes loaded immediately</span>
+<span class="kw">import</span> Dashboard <span class="kw">from</span> <span class="str">'./pages/Dashboard'</span>;
+<span class="kw">import</span> Settings <span class="kw">from</span> <span class="str">'./pages/Settings'</span>;
+<span class="kw">import</span> AdminPanel <span class="kw">from</span> <span class="str">'./pages/AdminPanel'</span>;
+<span class="kw">import</span> Reports <span class="kw">from</span> <span class="str">'./pages/Reports'</span>;
+
+<span class="cmt">// User visits "/" — but pays for ALL 2.5MB
+// Even if they never visit /admin!</span></div>
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+        <div class="code-filename">✅ Lazy loading (200kb → on-demand)</div>
+        <div></div>
+      </div>
+      <div class="code-body"><span class="kw">import</span> { lazy, Suspense } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="cmt">// ✅ Each becomes its own JS chunk</span>
+<span class="kw">const</span> Dashboard = <span class="fn">lazy</span>(
+  () => <span class="kw">import</span>(<span class="str">'./pages/Dashboard'</span>)
+);
+<span class="kw">const</span> AdminPanel = <span class="fn">lazy</span>(
+  () => <span class="kw">import</span>(<span class="str">'./pages/AdminPanel'</span>)
+);
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;Suspense</span> <span class="prop">fallback</span>={<span class="tag">&lt;Loading /&gt;</span>}<span class="tag">&gt;</span>
+      <span class="tag">&lt;Routes&gt;</span>
+        <span class="tag">&lt;Route</span> <span class="prop">path</span>=<span class="str">"/dashboard"</span>
+               <span class="prop">element</span>={<span class="tag">&lt;Dashboard /&gt;</span>} <span class="tag">/&gt;</span>
+        <span class="tag">&lt;Route</span> <span class="prop">path</span>=<span class="str">"/admin"</span>
+               <span class="prop">element</span>={<span class="tag">&lt;AdminPanel /&gt;</span>} <span class="tag">/&gt;</span>
+      <span class="tag">&lt;/Routes&gt;</span>
+    <span class="tag">&lt;/Suspense&gt;</span>
+  );
+}</div>
+    </div>
+  </div>
+
+  <div class="callout callout-success">
+    <span class="callout-icon">💡</span>
+    <div><strong style="color:var(--green);">Key requirement:</strong> Lazy-loaded components must use <code class="inline-code">export default</code>. Named exports don't work with <code class="inline-code">React.lazy()</code>. Vite/Webpack automatically create separate <code class="inline-code">.chunk.js</code> files for each dynamic import.</div>
+  </div>
+</section>
+
+<!-- SECTION 6: BUNDLE SIZE -->
+<section id="bundle" class="accent-purple reveal">
+  <div class="section-header">
+    <div class="section-num">06</div>
+    <div class="section-title-group">
+      <div class="section-label">Performance</div>
+      <h2 class="section-title">Bundle Size Matters</h2>
+      <p class="section-desc">
+        Every kilobyte of JavaScript must be downloaded, parsed, and executed before your app becomes interactive. Large bundles = slow TTI (Time to Interactive). Here are the strategies to keep bundles lean.
+      </p>
+    </div>
+  </div>
+
+  <h3 style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;">Bundle size comparison — common packages</h3>
+  <div class="lazy-chunks" style="margin-bottom:2rem;">
+    <div class="chunk-row"><span class="chunk-label">moment.js</span><div class="chunk-bar-wrap"><div class="bundle-track"><div class="bundle-fill" style="background:var(--red);width:90%;">290kb minified</div></div></div><span class="chunk-size" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--red);">⚠️ avoid</span></div>
+    <div class="chunk-row"><span class="chunk-label">date-fns</span><div class="chunk-bar-wrap"><div class="bundle-track"><div class="bundle-fill" style="background:var(--green);width:18%;">~2kb (tree-shaken)</div></div></div><span class="chunk-size" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--green);">✅ great</span></div>
+    <div class="chunk-row"><span class="chunk-label">lodash</span><div class="chunk-bar-wrap"><div class="bundle-track"><div class="bundle-fill" style="background:var(--orange);width:71%;">~72kb</div></div></div><span class="chunk-size" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--yellow);">use lodash-es</span></div>
+    <div class="chunk-row"><span class="chunk-label">lodash-es</span><div class="chunk-bar-wrap"><div class="bundle-track"><div class="bundle-fill" style="background:var(--green);width:5%;">tree-shakeable</div></div></div><span class="chunk-size" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--green);">✅ great</span></div>
+    <div class="chunk-row"><span class="chunk-label">react + react-dom</span><div class="chunk-bar-wrap"><div class="bundle-track"><div class="bundle-fill" style="background:var(--cyan);width:44%;">~42kb gzipped</div></div></div><span class="chunk-size" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--cyan);">baseline</span></div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:2rem;">
+    <div class="card">
+      <div class="card-title" style="color:var(--purple);font-size:0.72rem;">🌲 Tree Shaking</div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);line-height:1.6;">Modern bundlers (Vite, Webpack 5) remove unused exports. Use named imports: <code class="inline-code">import {'{ format }'} from 'date-fns'</code> instead of the whole library.</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--purple);font-size:0.72rem;">📊 Bundle Analysis</div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);line-height:1.6;">Use <code class="inline-code">vite-bundle-visualizer</code> or <code class="inline-code">webpack-bundle-analyzer</code> to see what's taking up space. Run it before and after optimizations.</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--purple);font-size:0.72rem;">🗜️ Compression</div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);line-height:1.6;">Enable gzip/Brotli on your server. Brotli gives ~20% better compression than gzip. Most CDNs handle this automatically.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-warn">
+    <span class="callout-icon">⚠️</span>
+    <div><strong style="color:var(--yellow);">Premature Optimization Warning</strong> — Don't optimize blindly. Use Chrome DevTools Performance tab or React Profiler to <em>measure first</em>. Optimization has overhead — adding useMemo to a fast component makes it slower. The rule: Profile → Identify → Optimize → Measure again.</div>
+  </div>
+
+  <h3 style="font-size:0.85rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin:1.5rem 0 1rem;">The 3-Hook Summary</h3>
+  <table class="comp-table">
+    <thead><tr><th>Hook / API</th><th>What it caches</th><th>Use when</th><th>Overhead</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span style="color:var(--purple);font-weight:600;">React.memo</span></td>
+        <td>Component render output</td>
+        <td>Component re-renders but props stay the same</td>
+        <td>Props comparison on every render</td>
+      </tr>
+      <tr>
+        <td><span style="color:var(--green);font-weight:600;">useMemo</span></td>
+        <td>Computed value / result</td>
+        <td>Expensive calculation, derived state, style objects</td>
+        <td>Deps comparison + memory for cached value</td>
+      </tr>
+      <tr>
+        <td><span style="color:var(--yellow);font-weight:600;">useCallback</span></td>
+        <td>Function reference</td>
+        <td>Passing callbacks to memo'd children</td>
+        <td>Deps comparison + memory for function</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- SECTION 7: ACCESSIBILITY -->
+<section id="a11y" class="accent-pink reveal">
+  <div class="section-header">
+    <div class="section-num">07</div>
+    <div class="section-title-group">
+      <div class="section-label">Accessibility · a11y</div>
+      <h2 class="section-title">Build for Everyone</h2>
+      <p class="section-desc">
+        ~15% of the world's population lives with some form of disability. Accessibility (a11y) ensures your app works for screen reader users, keyboard-only users, people with visual impairments, and more. It's also increasingly a legal requirement.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:2rem;">
+    <div class="card">
+      <div class="card-title" style="color:var(--pink);font-size:0.72rem;">👁️ Visual</div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);line-height:1.6;">Screen readers, high contrast mode, zoom support. Use semantic HTML and ARIA labels to describe your UI.</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--pink);font-size:0.72rem;">🖐️ Motor</div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);line-height:1.6;">Keyboard-only navigation, switch access, voice control. Every interaction must be reachable without a mouse.</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--pink);font-size:0.72rem;">🧠 Cognitive</div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);line-height:1.6;">Clear structure, consistent layouts, plain language, no auto-playing media, sufficient contrast ratios (4.5:1 min).</p>
+    </div>
+  </div>
+
+  <!-- KEYBOARD NAV -->
+  <h3 style="font-size:0.85rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;">⌨️ Keyboard Navigation</h3>
+  <div class="keyboard-demo">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--text-muted);margin-bottom:1rem;">Essential keyboard shortcuts every user relies on:</div>
+    <div class="kbd-grid">
+      <span class="kbd" id="kbd-tab">Tab</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--text-muted);display:flex;align-items:center;">→ Next focusable element</span>
+    </div>
+    <div class="kbd-grid" style="margin-top:0.5rem;">
+      <span class="kbd">Shift</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--text-dim);">+</span> <span class="kbd">Tab</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--text-muted);display:flex;align-items:center;">→ Previous element</span>
+    </div>
+    <div class="kbd-grid" style="margin-top:0.5rem;">
+      <span class="kbd">Enter</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--text-muted);display:flex;align-items:center;">→ Activate link / button</span>
+    </div>
+    <div class="kbd-grid" style="margin-top:0.5rem;">
+      <span class="kbd">Space</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--text-muted);display:flex;align-items:center;">→ Activate checkbox / button / toggle</span>
+    </div>
+    <div class="kbd-grid" style="margin-top:0.5rem;">
+      <span class="kbd">Esc</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--text-muted);display:flex;align-items:center;">→ Close modal / dropdown / dialog</span>
+    </div>
+    <div class="kbd-grid" style="margin-top:0.5rem;">
+      <span class="kbd">↑</span><span class="kbd">↓</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--text-muted);display:flex;align-items:center;">→ Navigate menu items / listbox options</span>
+    </div>
+  </div>
+
+  <!-- FOCUS DEMO -->
+  <div class="card" style="margin:1.5rem 0;">
+    <div class="card-title" style="color:var(--pink);">🎯 Focus Style Demo — Tab through these buttons</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-bottom:1rem;line-height:1.7;">
+      Tab between these elements. The "Bad" row has <code class="inline-code">outline:none</code> — invisible focus.<br>
+      The "Good" row uses <code class="inline-code">:focus-visible</code> — clearly visible to keyboard users only.
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--red);margin-bottom:0.5rem;">❌ Bad — outline:none (keyboard users can't see focus):</div>
+    <div class="focus-demo-area" style="margin-bottom:1rem;">
+      <button type="button" class="demo-btn demo-btn-bad">Home</button>
+      <button type="button" class="demo-btn demo-btn-bad">About</button>
+      <button type="button" class="demo-btn demo-btn-bad">Contact</button>
+      <a href="#" class="demo-btn demo-btn-bad" style="text-decoration:none;" onclick="return false;">Link</a>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--green);margin-bottom:0.5rem;">✅ Good — :focus-visible (glowing outline on Tab):</div>
+    <div class="focus-demo-area">
+      <button type="button" class="demo-btn demo-btn-good">Home</button>
+      <button type="button" class="demo-btn demo-btn-good">About</button>
+      <button type="button" class="demo-btn demo-btn-good">Contact</button>
+      <a href="#" class="demo-btn demo-btn-good" style="text-decoration:none;" onclick="return false;">Link</a>
+    </div>
+  </div>
+
+  <!-- ARIA -->
+  <h3 style="font-size:0.85rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin:2rem 0 1rem;">🏷️ ARIA — Accessible Rich Internet Applications</h3>
+  <div class="callout callout-info">
+    <span class="callout-icon">💡</span>
+    <div><strong style="color:var(--cyan);">First Rule of ARIA:</strong> "No ARIA is better than bad ARIA." Always prefer native HTML elements first — <code class="inline-code">&lt;button&gt;</code>, <code class="inline-code">&lt;a&gt;</code>, <code class="inline-code">&lt;input&gt;</code>. They include keyboard support and screen reader semantics for free.</div>
+  </div>
+
+  <table class="comp-table" style="margin:1.5rem 0;">
+    <thead><tr><th>Attribute</th><th>Purpose</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline-code">aria-label</code></td><td>Add invisible label to element</td><td><code class="inline-code">&lt;button aria-label="Delete item"&gt;🗑️&lt;/button&gt;</code></td></tr>
+      <tr><td><code class="inline-code">aria-labelledby</code></td><td>Point to another element's text as label</td><td><code class="inline-code">aria-labelledby="dialog-title"</code></td></tr>
+      <tr><td><code class="inline-code">aria-describedby</code></td><td>Additional description/hint</td><td><code class="inline-code">aria-describedby="email-hint"</code></td></tr>
+      <tr><td><code class="inline-code">aria-hidden="true"</code></td><td>Hide decorative elements from screen readers</td><td><code class="inline-code">&lt;span aria-hidden="true"&gt;🎉&lt;/span&gt;</code></td></tr>
+      <tr><td><code class="inline-code">aria-expanded</code></td><td>Toggle open/closed state</td><td><code class="inline-code">aria-expanded={isOpen}</code></td></tr>
+      <tr><td><code class="inline-code">aria-live="polite"</code></td><td>Announce dynamic content changes</td><td>Error messages, notifications</td></tr>
+      <tr><td><code class="inline-code">role</code></td><td>Override element's semantic role</td><td><code class="inline-code">role="dialog"</code>, <code class="inline-code">role="menu"</code></td></tr>
+    </tbody>
+  </table>
+
+  <!-- LIVE INTERACTIVE ARIA DEMO -->
+  <div class="card" style="margin-top:1.5rem;">
+    <div class="card-title" style="color:var(--pink);">🔊 Interactive ARIA Demo — Accessible Dropdown</div>
+    <p style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-bottom:1.25rem;line-height:1.7;">
+      This dropdown uses aria-expanded, aria-controls, role="menu", and keyboard navigation (Esc to close).
+    </p>
+    <div class="aria-dropdown">
+      <button type="button" class="btn btn-cyan"
+        id="menu-btn"
+        aria-expanded="false"
+        aria-controls="aria-menu"
+        onclick="toggleAriaMenu()"
+        onkeydown="handleMenuKeydown(event)">
+        ☰ Open Menu ▾
+      </button>
+      <ul id="aria-menu" class="aria-menu" role="menu" aria-labelledby="menu-btn">
+        <li role="none"><button type="button" class="aria-menu-item" role="menuitem" tabindex="-1" onkeydown="handleItemKeydown(event)">👤 Profile</button></li>
+        <li role="none"><button type="button" class="aria-menu-item" role="menuitem" tabindex="-1" onkeydown="handleItemKeydown(event)">⚙️ Settings</button></li>
+        <li role="none"><button type="button" class="aria-menu-item" role="menuitem" tabindex="-1" onkeydown="handleItemKeydown(event)">🚪 Sign Out</button></li>
+      </ul>
+    </div>
+
+    <div id="aria-status" class="live-status" aria-live="polite" aria-atomic="true">
+      <span style="color:var(--text-dim);">○</span> Waiting for interaction...
+    </div>
+
+    <div class="divider" style="margin:1.25rem 0;"></div>
+
+    <div class="grid-2">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--red);margin-bottom:0.5rem;">❌ Inaccessible version:</div>
+        <div class="code-body" style="background:var(--bg2);border-radius:6px;border:1px solid var(--border);padding:0.75rem;font-size:0.65rem;white-space:pre-wrap;">
+<span class="tag">&lt;div</span> <span class="prop">onClick</span>={toggle}<span class="tag">&gt;</span>Menu<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="prop">onClick</span>={...}<span class="tag">&gt;</span>Profile<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+<span class="cmt">// No keyboard support, no screen reader
+// context, no open/close state signal</span></div>
+      </div>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--green);margin-bottom:0.5rem;">✅ Accessible version:</div>
+        <div class="code-body" style="background:var(--bg2);border-radius:6px;border:1px solid var(--border);padding:0.75rem;font-size:0.65rem;white-space:pre-wrap;">
+<span class="tag">&lt;button</span>
+  <span class="prop">aria-expanded</span>={isOpen}
+  <span class="prop">aria-controls</span>=<span class="str">"menu"</span><span class="tag">&gt;</span>
+  Menu
+<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;ul</span> <span class="prop">id</span>=<span class="str">"menu"</span> <span class="prop">role</span>=<span class="str">"menu"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;li</span> <span class="prop">role</span>=<span class="str">"menuitem"</span><span class="tag">&gt;</span>Profile<span class="tag">&lt;/li&gt;</span>
+<span class="tag">&lt;/ul&gt;</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMAGES A11Y -->
+  <h3 style="font-size:0.85rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin:2rem 0 1rem;">🖼️ Images & Alt Text</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+      <div class="code-filename">Image accessibility patterns</div>
+      <div></div>
+    </div>
+    <div class="code-body"><span class="cmt">// ✅ Meaningful image — describe its content</span>
+<span class="tag">&lt;img</span> <span class="prop">src</span>=<span class="str">"chart.png"</span> <span class="prop">alt</span>=<span class="str">"Bar chart showing Q3 revenue increased 42%"</span> <span class="tag">/&gt;</span>
+
+<span class="cmt">// ✅ Decorative image — empty alt, screen readers skip it</span>
+<span class="tag">&lt;img</span> <span class="prop">src</span>=<span class="str">"bg-pattern.png"</span> <span class="prop">alt</span>=<span class="str">""</span> <span class="prop">aria-hidden</span>=<span class="str">"true"</span> <span class="tag">/&gt;</span>
+
+<span class="cmt">// ❌ Missing alt — screen reader reads the filename!</span>
+<span class="tag">&lt;img</span> <span class="prop">src</span>=<span class="str">"img_2024_final_v3.png"</span> <span class="tag">/&gt;</span>
+
+<span class="cmt">// ✅ Icon button — use aria-label to explain the action</span>
+<span class="tag">&lt;button</span> <span class="prop">aria-label</span>=<span class="str">"Delete item"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;svg</span> <span class="prop">aria-hidden</span>=<span class="str">"true"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/svg&gt;</span>
+<span class="tag">&lt;/button&gt;</span>
+
+<span class="cmt">// ✅ aria-live — announce dynamic status messages</span>
+<span class="tag">&lt;div</span> <span class="prop">aria-live</span>=<span class="str">"polite"</span> <span class="prop">aria-atomic</span>=<span class="str">"true"</span><span class="tag">&gt;</span>
+  {statusMessage} <span class="cmt">// Screen reader announces changes automatically</span>
+<span class="tag">&lt;/div&gt;</span></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <p>// React Performance & Accessibility — deep dive reference</p>
+  <p style="margin-top:0.5rem;">React.memo · useMemo · useCallback · Lazy Loading · Bundle Size · ARIA · Keyboard Navigation</p>
+</footer>
+
+<script>
+// PROGRESS BAR
+window.addEventListener('scroll', () => {
+  const doc = document.documentElement;
+  const scrollTop = doc.scrollTop || document.body.scrollTop;
+  const scrollHeight = doc.scrollHeight - doc.clientHeight;
+  const progress = (scrollTop / scrollHeight) * 100;
+  document.getElementById('progress-bar').style.width = progress + '%';
+
+  // Update active nav link
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('.nav-link');
+  let current = '';
+  sections.forEach(s => {
+    if (scrollTop + 80 >= s.offsetTop) current = s.id;
+  });
+  links.forEach(l => {
+    l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+  });
+});
+
+// SCROLL REVEAL
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// === RENDER SIMULATOR ===
+let badCount = 0, goodCount = 0;
+
+function simulateRender(optimized) {
+  if (!optimized) {
+    badCount++;
+    const nodes = ['bad-parent','bad-button','bad-child','bad-deep'];
+    const log = document.getElementById('log-bad');
+    log.innerHTML = '';
+    nodes.forEach((id, i) => {
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        el.classList.remove('rendering', 'skipped');
+        el.classList.add('rendering');
+        const names = ['Parent','Button','ExpensiveChild','DeepChild'];
+        log.innerHTML += `<span class="log-red">🔴 ${names[i]} rendered</span>\n`;
+        setTimeout(() => { el.classList.remove('rendering'); scrollLog('log-bad'); }, 600);
+      }, i * 180);
+    });
+    // Update count display
+    document.getElementById('bad-parent').querySelector('span').textContent = `count = ${badCount}`;
+  } else {
+    goodCount++;
+    const log = document.getElementById('log-good');
+    log.innerHTML = '';
+    const toRender = ['good-parent','good-button'];
+    const toSkip = ['good-child','good-deep'];
+    // Reset skip nodes first so they flash properly each cycle
+    toSkip.forEach(id => document.getElementById(id).classList.remove('skipped','rendering-opt'));
+    toRender.forEach((id, i) => {
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        el.classList.remove('rendering-opt','skipped');
+        el.classList.add('rendering-opt');
+        const names = ['Parent','Button'];
+        log.innerHTML += `<span class="log-orange">🟠 ${names[i]} rendered</span>\n`;
+        setTimeout(() => el.classList.remove('rendering-opt'), 600);
+      }, i * 180);
+    });
+    setTimeout(() => {
+      toSkip.forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove('rendering-opt');
+        el.classList.add('skipped');
+        log.innerHTML += `<span class="log-green">🟢 ${id.replace('good-','')} SKIPPED (memo) ✅</span>\n`;
+      });
+      scrollLog('log-good');
+    }, 400);
+    document.getElementById('good-parent').querySelector('span').textContent = `count = ${goodCount}`;
+  }
+}
+
+// === useMemo INTERACTIVE DEMO ===
+const products = ['apple','avocado','banana','blueberry','cherry','coconut','grape','kiwi','lemon','mango','orange','papaya','peach','pear','pineapple','plum','raspberry','strawberry','watermelon'];
+let renderCount = 0, filterCount = 0, lastSearch = null;
+
+function updateSearch() {
+  renderCount++;
+  document.getElementById('render-count').textContent = renderCount;
+  const search = document.getElementById('search-input').value.toLowerCase();
+  if (search !== lastSearch) {
+    filterCount++;
+    lastSearch = search;
+    document.getElementById('filter-count').textContent = filterCount;
+    const filtered = products.filter(p => p.includes(search));
+    document.getElementById('filter-results').textContent = filtered.join(', ') || 'no results';
+  }
+}
+
+function unrelatedUpdate() {
+  renderCount++;
+  document.getElementById('render-count').textContent = renderCount;
+  // filter does NOT run (deps unchanged)
+  const rc = document.getElementById('render-count');
+  rc.style.color = 'var(--yellow)';
+  rc.style.transform = 'scale(1.3)';
+  setTimeout(() => { rc.style.transform = ''; }, 300);
+  const fc = document.getElementById('filter-count');
+  fc.style.color = 'var(--green)'; // stays same
+}
+
+// === LAZY LOADING SIMULATOR ===
+const chunks = {
+  dashboard: { size: 500, bar: 'bar-dashboard', status: 'status-dashboard', label: 'Dashboard' },
+  settings: { size: 300, bar: 'bar-settings', status: 'status-settings', label: 'Settings' },
+  admin: { size: 800, bar: 'bar-admin', status: 'status-admin', label: 'AdminPanel' },
+  reports: { size: 700, bar: 'bar-reports', status: 'status-reports', label: 'Reports' }
+};
+const loaded = new Set(['home']);
+let totalKb = 200;
+
+function navigateTo(route) {
+  if (route === 'home') return;
+  if (loaded.has(route)) {
+    updateTotal();
+    return;
+  }
+  const chunk = chunks[route];
+  const statusEl = document.getElementById(chunk.status);
+  statusEl.className = 'chunk-status status-loading';
+  statusEl.textContent = 'Loading...';
+
+  setTimeout(() => {
+    const barEl = document.getElementById(chunk.bar);
+    const pct = Math.round((chunk.size / 800) * 100);
+    barEl.style.width = pct + '%';
+    barEl.textContent = chunk.label;
+    statusEl.className = 'chunk-status status-loaded';
+    statusEl.textContent = chunk.size + 'kb ✓';
+    loaded.add(route);
+    totalKb += chunk.size;
+    updateTotal();
+  }, 600 + Math.random() * 400);
+}
+
+function updateTotal() {
+  document.getElementById('total-load').textContent = totalKb + 'kb';
+}
+
+function resetChunks() {
+  Object.keys(chunks).forEach(route => {
+    const chunk = chunks[route];
+    document.getElementById(chunk.bar).style.width = '0%';
+    document.getElementById(chunk.bar).textContent = chunk.label;
+    document.getElementById(chunk.status).className = 'chunk-status status-pending';
+    document.getElementById(chunk.status).textContent = chunk.size + 'kb ···';
+  });
+  loaded.clear();
+  loaded.add('home');
+  totalKb = 200;
+  document.getElementById('total-load').textContent = '200kb';
+}
+
+// === ARIA DROPDOWN DEMO ===
+let menuOpen = false;
+
+function toggleAriaMenu() {
+  menuOpen = !menuOpen;
+  const btn = document.getElementById('menu-btn');
+  const menu = document.getElementById('aria-menu');
+  const status = document.getElementById('aria-status');
+  btn.setAttribute('aria-expanded', String(menuOpen));
+  menu.classList.toggle('open', menuOpen);
+  btn.textContent = menuOpen ? '✕ Close Menu ▲' : '☰ Open Menu ▾';
+  status.className = 'live-status announcing';
+  status.innerHTML = menuOpen
+    ? '<span>📢</span> Menu opened — 3 items available. Use ↑↓ to navigate, Esc to close.'
+    : '<span>📢</span> Menu closed.';
+  const items = menu.querySelectorAll('[role="menuitem"]');
+  if (menuOpen) {
+    items.forEach(i => i.setAttribute('tabindex','0'));
+    setTimeout(() => items[0].focus(), 50);
+  } else {
+    items.forEach(i => i.setAttribute('tabindex','-1'));
+  }
+}
+
+function handleMenuKeydown(e) {
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    if (menuOpen) {
+      toggleAriaMenu();
+      document.getElementById('menu-btn').focus();
+    }
+    return;
+  }
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (!menuOpen) toggleAriaMenu();
+  }
+}
+
+function handleItemKeydown(e) {
+  const items = [...document.querySelectorAll('#aria-menu [role="menuitem"]')];
+  const idx = items.indexOf(e.target);
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    toggleAriaMenu();
+    document.getElementById('menu-btn').focus();
+  }
+  if (e.key === 'ArrowDown') { e.preventDefault(); items[(idx+1) % items.length].focus(); }
+  if (e.key === 'ArrowUp') { e.preventDefault(); items[(idx-1+items.length) % items.length].focus(); }
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    const status = document.getElementById('aria-status');
+    status.className = 'live-status announcing';
+    status.innerHTML = `<span>✅</span> "${e.target.textContent.trim()}" selected`;
+    toggleAriaMenu();
+    document.getElementById('menu-btn').focus();
+  }
+}
+
+// Close on outside click
+document.addEventListener('click', e => {
+  if (menuOpen && !e.target.closest('.aria-dropdown')) toggleAriaMenu();
+});
+
+// === KBD VISUAL DEMO — animate keys on actual keypresses ===
+const kbdMap = {
+  'Tab': 'kbd-tab',
+};
+document.addEventListener('keydown', e => {
+  if (e.key === 'Tab') {
+    const el = document.getElementById('kbd-tab');
+    if (el) { el.classList.add('pressed'); setTimeout(() => el.classList.remove('pressed'), 200); }
+  }
+});
+
+// Auto-scroll render logs to bottom
+function scrollLog(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollTop = el.scrollHeight;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2421 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Test Writing Guide — Jest &amp; RTL</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Sora:wght@300;400;600;700;800&display=swap');
+
+:root {
+  --bg-deep: #080810;
+  --bg-card: #0e0e1a;
+  --bg-card2: #12121f;
+  --bg-elevated: #1a1a2e;
+  --border: rgba(99,102,241,0.15);
+  --border-bright: rgba(99,102,241,0.4);
+  --indigo: #6366f1;
+  --indigo-light: #818cf8;
+  --emerald: #10b981;
+  --emerald-light: #34d399;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --cyan: #06b6d4;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #4a5568;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Sora', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── BACKGROUND MESH ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 10%, rgba(99,102,241,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(16,185,129,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 30% 30% at 60% 40%, rgba(6,182,212,0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── TOPBAR NAV ── */
+#topnav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(8,8,16,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--indigo-light);
+  white-space: nowrap;
+  margin-right: 2rem;
+  letter-spacing: 0.05em;
+}
+
+.nav-logo span { color: var(--emerald); }
+
+.nav-links {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+}
+
+.nav-links::-webkit-scrollbar { display: none; }
+
+.nav-link {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 0.35rem 0.85rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+.nav-link:hover { color: var(--indigo-light); background: rgba(99,102,241,0.1); }
+.nav-link.active { color: var(--emerald); }
+
+/* ── PROGRESS BAR ── */
+#progress-bar {
+  position: fixed;
+  top: 60px; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--indigo), var(--emerald));
+  z-index: 101;
+  transition: width 0.1s;
+  width: 0%;
+}
+
+/* ── LAYOUT ── */
+.wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 80px 2rem 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── HERO ── */
+.hero {
+  text-align: center;
+  padding: 5rem 1rem 4rem;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--emerald);
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.2);
+  padding: 0.3rem 0.9rem;
+  border-radius: 100px;
+  margin-bottom: 2rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.hero-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--emerald);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.hero h1 {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #e2e8f0 0%, var(--indigo-light) 40%, var(--emerald-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto 3rem;
+}
+
+/* ── LEARNING PATH ── */
+.learning-path {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-bottom: 3rem;
+}
+
+.path-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.path-dot {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 2px solid var(--border-bright);
+  color: var(--indigo-light);
+  background: rgba(99,102,241,0.08);
+  transition: all 0.3s;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.path-dot:hover { background: rgba(99,102,241,0.2); border-color: var(--indigo); transform: scale(1.1); }
+.path-dot.done { background: rgba(16,185,129,0.15); border-color: var(--emerald); color: var(--emerald); }
+
+.path-label {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  font-family: var(--mono);
+}
+
+.path-connector {
+  width: 30px; height: 2px;
+  background: linear-gradient(90deg, var(--border-bright), transparent);
+  margin: 0 0.25rem;
+}
+
+/* ── STATS STRIP ── */
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 4rem;
+}
+
+.stat-item {
+  background: var(--bg-card);
+  padding: 1.5rem 1rem;
+  text-align: center;
+}
+
+.stat-num {
+  font-family: var(--mono);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--indigo-light);
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* ── SECTION HEADERS ── */
+.section-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--indigo);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.section-label::before { content: '//'; color: var(--text-muted); }
+
+.section-title {
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.section-desc {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  max-width: 600px;
+  margin-bottom: 2rem;
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.75rem;
+  margin-bottom: 1rem;
+  transition: border-color 0.3s;
+}
+.card:hover { border-color: var(--border-bright); }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.card-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.card p { font-size: 0.875rem; color: var(--text-secondary); }
+
+/* ── FEATURE LIST ── */
+.feature-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.feature-list li {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.feature-list li::before {
+  content: '▸';
+  color: var(--emerald);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+/* ── CODE BLOCK ── */
+.code-wrap {
+  position: relative;
+  margin: 1.5rem 0;
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1e1e2e;
+  border: 1px solid rgba(99,102,241,0.2);
+  border-bottom: none;
+  padding: 0.6rem 1rem;
+  border-radius: 10px 10px 0 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+
+.code-filename { color: var(--indigo-light); }
+.code-lang { color: var(--text-muted); }
+
+.copy-btn {
+  background: rgba(99,102,241,0.1);
+  border: 1px solid rgba(99,102,241,0.25);
+  color: var(--indigo-light);
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+.copy-btn:hover { background: rgba(99,102,241,0.2); }
+.copy-btn.copied { color: var(--emerald); border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.1); }
+
+pre {
+  background: #131320;
+  border: 1px solid rgba(99,102,241,0.15);
+  border-radius: 0 0 10px 10px;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.75;
+  tab-size: 2;
+}
+
+code { font-family: var(--mono); }
+
+pre code {
+  color: #cdd6f4;
+}
+
+/* Syntax highlight */
+.kw { color: #cba6f7; }
+.fn { color: #89dceb; }
+.str { color: #a6e3a1; }
+.cm { color: #585b70; font-style: italic; }
+.num { color: #fab387; }
+.hl { background: rgba(99,102,241,0.12); display: block; margin: 0 -1.5rem; padding: 0 1.5rem; }
+
+/* ── TABS ── */
+.tabs-wrap { margin-bottom: 2rem; }
+
+.tab-buttons {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px 10px 0 0;
+  padding: 0.4rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tab-buttons::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+.tab-btn:hover { color: var(--text-secondary); background: rgba(255,255,255,0.03); }
+.tab-btn.active { background: rgba(99,102,241,0.15); color: var(--indigo-light); }
+
+.tab-panels {
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  padding: 1.75rem;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── ACCORDION ── */
+.accordion { margin-bottom: 0.5rem; }
+
+.acc-trigger {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  text-align: left;
+  transition: all 0.2s;
+}
+.acc-trigger:hover { border-color: var(--border-bright); background: var(--bg-elevated); }
+.acc-trigger.open { border-color: rgba(99,102,241,0.4); border-radius: 10px 10px 0 0; }
+
+.acc-icon {
+  font-size: 0.75rem;
+  color: var(--indigo-light);
+  transition: transform 0.3s;
+  flex-shrink: 0;
+  font-family: var(--mono);
+}
+.acc-trigger.open .acc-icon { transform: rotate(45deg); }
+
+.acc-body {
+  display: none;
+  background: var(--bg-card2);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  padding: 1.5rem;
+  animation: fadeIn 0.3s ease;
+}
+.acc-body.open { display: block; }
+.acc-body p { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.75rem; }
+.acc-body p:last-child { margin-bottom: 0; }
+
+/* ── PYRAMID SVG ── */
+.diagram-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.diagram-title {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+
+/* ── DIAGRAM IMPROVEMENTS ── */
+.ascii-diagram {
+  margin: 0;
+  background: #10101c;
+  border: 1px solid rgba(99,102,241,0.18);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  color: var(--text-secondary);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.9;
+  white-space: pre-wrap;
+}
+
+.pyramid-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.pyramid-level {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+}
+
+.pyramid-main {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: center;
+  letter-spacing: 0.04em;
+}
+
+.pyramid-sub {
+  margin-top: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.pyramid-unit { width: min(100%, 560px); border-color: rgba(16,185,129,0.25); background: rgba(16,185,129,0.06); }
+.pyramid-integration { width: min(86%, 480px); border-color: rgba(99,102,241,0.25); background: rgba(99,102,241,0.06); }
+.pyramid-e2e { width: min(68%, 380px); border-color: rgba(245,158,11,0.25); background: rgba(245,158,11,0.06); }
+
+@media (max-width: 640px) {
+  .pyramid-unit, .pyramid-integration, .pyramid-e2e { width: 100%; }
+  .pyramid-main { flex-direction: column; gap: 0.25rem; }
+}
+/* ── COMPARE TABLE ── */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.compare-table th {
+  background: rgba(99,102,241,0.08);
+  color: var(--indigo-light);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border: 1px solid var(--border);
+  letter-spacing: 0.05em;
+}
+
+.compare-table td {
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* ── CALLOUT ── */
+.callout {
+  border-left: 3px solid;
+  padding: 1rem 1.25rem;
+  border-radius: 0 10px 10px 0;
+  margin: 1.25rem 0;
+  font-size: 0.875rem;
+}
+.callout.info { border-color: var(--indigo); background: rgba(99,102,241,0.06); }
+.callout.success { border-color: var(--emerald); background: rgba(16,185,129,0.06); }
+.callout.warning { border-color: var(--amber); background: rgba(245,158,11,0.06); }
+.callout.danger { border-color: var(--rose); background: rgba(244,63,94,0.06); }
+
+.callout-title {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.callout.info .callout-title { color: var(--indigo-light); }
+.callout.success .callout-title { color: var(--emerald); }
+.callout.warning .callout-title { color: var(--amber); }
+.callout.danger .callout-title { color: var(--rose); }
+.callout p { color: var(--text-secondary); margin: 0; }
+
+/* ── BADGE ── */
+.badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.67rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  vertical-align: middle;
+}
+.badge-indigo { background: rgba(99,102,241,0.15); color: var(--indigo-light); border: 1px solid rgba(99,102,241,0.25); }
+.badge-emerald { background: rgba(16,185,129,0.12); color: var(--emerald); border: 1px solid rgba(16,185,129,0.25); }
+.badge-amber { background: rgba(245,158,11,0.12); color: var(--amber); border: 1px solid rgba(245,158,11,0.25); }
+.badge-rose { background: rgba(244,63,94,0.12); color: var(--rose); border: 1px solid rgba(244,63,94,0.25); }
+.badge-cyan { background: rgba(6,182,212,0.12); color: var(--cyan); border: 1px solid rgba(6,182,212,0.25); }
+
+/* ── QUIZ ── */
+.quiz-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.quiz-q {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quiz-opt {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.quiz-opt::before {
+  content: attr(data-key);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  width: 22px; height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.quiz-opt:hover { border-color: var(--border-bright); color: var(--text-primary); }
+.quiz-opt.correct { border-color: var(--emerald); background: rgba(16,185,129,0.08); color: var(--emerald); }
+.quiz-opt.wrong { border-color: var(--rose); background: rgba(244,63,94,0.08); color: var(--rose); }
+.quiz-opt.correct::before { border-color: var(--emerald); color: var(--emerald); }
+.quiz-opt.wrong::before { border-color: var(--rose); color: var(--rose); }
+
+.quiz-feedback {
+  margin-top: 0.75rem;
+  font-size: 0.825rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  display: none;
+}
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct-fb { background: rgba(16,185,129,0.08); color: var(--emerald); border: 1px solid rgba(16,185,129,0.2); }
+.quiz-feedback.wrong-fb { background: rgba(244,63,94,0.08); color: var(--rose); border: 1px solid rgba(244,63,94,0.2); }
+
+/* ── FLOW DIAGRAM ── */
+.flow-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+
+.flow-box {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.flow-box.code-b { border-color: rgba(99,102,241,0.4); color: var(--indigo-light); background: rgba(99,102,241,0.08); }
+.flow-box.test-b { border-color: rgba(16,185,129,0.4); color: var(--emerald); background: rgba(16,185,129,0.08); }
+.flow-box.pass-b { border-color: rgba(16,185,129,0.4); color: var(--emerald); background: rgba(16,185,129,0.12); }
+.flow-box.fail-b { border-color: rgba(244,63,94,0.4); color: var(--rose); background: rgba(244,63,94,0.08); }
+.flow-box.deploy-b { border-color: rgba(245,158,11,0.4); color: var(--amber); background: rgba(245,158,11,0.08); }
+.flow-box.fix-b { border-color: rgba(6,182,212,0.4); color: var(--cyan); background: rgba(6,182,212,0.08); }
+
+.flow-arrow { color: var(--text-muted); font-family: var(--mono); font-size: 0.85rem; }
+
+/* ── SECTION DIVIDER ── */
+.section { margin-bottom: 5rem; }
+
+.section-break {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 4rem 0;
+}
+
+/* ── MATCHER GRID ── */
+.matcher-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+}
+
+.matcher-item {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem;
+  transition: all 0.2s;
+}
+.matcher-item:hover { border-color: var(--border-bright); transform: translateY(-2px); }
+
+.matcher-name {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--cyan);
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+}
+
+.matcher-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+/* ── PRIORITY LIST ── */
+.priority-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.priority-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.priority-rank {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 28px;
+}
+
+/* ── BEST PRACTICES ── */
+.practice-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.practice-col {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.practice-col h4 {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.practice-col.good h4 { color: var(--emerald); }
+.practice-col.bad h4 { color: var(--rose); }
+
+.practice-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.practice-col ul li {
+  font-size: 0.825rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.practice-col.good ul li::before { content: '✓'; color: var(--emerald); flex-shrink: 0; font-weight: 700; }
+.practice-col.bad ul li::before { content: '✗'; color: var(--rose); flex-shrink: 0; font-weight: 700; }
+
+/* ── BACK TO TOP ── */
+#btt {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 42px;
+  height: 42px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-bright);
+  color: var(--indigo-light);
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s;
+  z-index: 50;
+}
+#btt.visible { opacity: 1; transform: translateY(0); }
+#btt:hover { background: rgba(99,102,241,0.15); }
+
+/* ── SECTION ANCHOR ── */
+.anchor { scroll-margin-top: 72px; }
+
+/* ── REVEAL ANIMATION ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .stats-strip { grid-template-columns: repeat(2, 1fr); }
+  .practice-split { grid-template-columns: 1fr; }
+  .nav-logo { display: none; }
+  .hero h1 { font-size: 2rem; }
+  .learning-path { gap: 0.25rem; }
+  .path-connector { width: 15px; }
+  .path-label { display: none; }
+}
+
+/* ── INLINE CODE ── */
+.ic {
+  font-family: var(--mono);
+  font-size: 0.82em;
+  background: rgba(99,102,241,0.1);
+  color: var(--cyan);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  border: 1px solid rgba(99,102,241,0.15);
+}
+
+/* ── AAA PATTERN ── */
+.aaa-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 1.5rem 0;
+}
+.aaa-step {
+  background: var(--bg-card);
+  padding: 1.25rem;
+  text-align: center;
+}
+.aaa-letter {
+  font-family: var(--mono);
+  font-size: 2rem;
+  font-weight: 800;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.aaa-step:nth-child(1) .aaa-letter { color: var(--indigo-light); }
+.aaa-step:nth-child(2) .aaa-letter { color: var(--cyan); }
+.aaa-step:nth-child(3) .aaa-letter { color: var(--emerald); }
+.aaa-name { font-weight: 700; font-size: 0.85rem; margin-bottom: 0.25rem; }
+.aaa-desc { font-size: 0.78rem; color: var(--text-secondary); }
+
+@media (max-width: 500px) { .aaa-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<!-- TOP NAV -->
+<nav id="topnav">
+<div class="nav-logo">// <span>test</span>.guide</div>
+<div class="nav-links">
+<a class="nav-link" href="#why">Why Test?</a>
+<a class="nav-link" href="#types">Test Types</a>
+<a class="nav-link" href="#jest">Jest Basics</a>
+<a class="nav-link" href="#matchers">Matchers</a>
+<a class="nav-link" href="#mocks">Mock</a>
+<a class="nav-link" href="#rtl">RTL</a>
+<a class="nav-link" href="#queries">Queries</a>
+<a class="nav-link" href="#userevents">userEvent</a>
+<a class="nav-link" href="#async">Async</a>
+<a class="nav-link" href="#bestpractices">Best Practices</a>
+<a class="nav-link" href="#quiz">Quiz</a>
+</div>
+</nav>
+<div id="progress-bar"></div>
+<div class="wrapper">
+<!-- ── HERO ── -->
+<section class="hero reveal">
+<div class="hero-badge">Complete Guide · Jest &amp; React Testing Library</div>
+<h1>The Art of Writing<br/>Tests</h1>
+<p>From beginner to advanced — with Jest, React Testing Library, mocks, async tests, and real-world examples.</p>
+<!-- LEARNING PATH -->
+<div class="learning-path">
+<div class="path-step">
+<div class="path-dot done">01</div>
+<div class="path-label">Why?</div>
+</div>
+<div class="path-connector"></div>
+<div class="path-step">
+<div class="path-dot">02</div>
+<div class="path-label">Types</div>
+</div>
+<div class="path-connector"></div>
+<div class="path-step">
+<div class="path-dot">03</div>
+<div class="path-label">Jest</div>
+</div>
+<div class="path-connector"></div>
+<div class="path-step">
+<div class="path-dot">04</div>
+<div class="path-label">RTL</div>
+</div>
+<div class="path-connector"></div>
+<div class="path-step">
+<div class="path-dot">05</div>
+<div class="path-label">Async</div>
+</div>
+<div class="path-connector"></div>
+<div class="path-step">
+<div class="path-dot">06</div>
+<div class="path-label">Master</div>
+</div>
+</div>
+</section>
+<!-- STATS -->
+<div class="stats-strip reveal">
+<div class="stat-item">
+<span class="stat-num">100×</span>
+<div class="stat-label">Production bug is more expensive</div>
+</div>
+<div class="stat-item">
+<span class="stat-num">3</span>
+<div class="stat-label">Test type</div>
+</div>
+<div class="stat-item">
+<span class="stat-num">70%</span>
+<div class="stat-label">Unit tests (pyramid)</div>
+</div>
+<div class="stat-item">
+<span class="stat-num">∞</span>
+<div class="stat-label">Gain confidence</div>
+</div>
+</div>
+<!-- ── SECTION 1: WHY ── -->
+<section class="section anchor" id="why">
+<div class="section-label">Section 01</div>
+<h2 class="section-title">Why Write Tests?</h2>
+<p class="section-desc">Code without tests is like driving without a seat belt. The faster you go, the more the risk rises.</p>
+<div class="card-grid reveal">
+<div class="card">
+<span class="card-icon">😰</span>
+<h3>Code Without Tests — Risks</h3>
+<ul class="feature-list">
+<li>Every new feature can break old functionality</li>
+<li>Regression bugs — fix one place, break another</li>
+<li>Fear of refactoring — you hesitate to change code</li>
+<li>Production bugs — users find them</li>
+<li>Manual testing takes time — checking everything by hand every time</li>
+</ul>
+</div>
+<div class="card">
+<span class="card-icon">🛡️</span>
+<h3>Code With Tests — Benefits</h3>
+<ul class="feature-list">
+<li>Regression protection — old features stay safe</li>
+<li>Living documentation — tests show what the code does</li>
+<li>Confident refactoring — tests back you up</li>
+<li>Faster development — bugs are caught earlier</li>
+<li>Team collaboration — new developers understand the code faster</li>
+</ul>
+</div>
+</div>
+<div class="callout warning reveal">
+<div class="callout-title">⚠ Statistics</div>
+<p>Finding a bug in production is <strong>100x more expensive</strong> than catching it during development. Early testing saves more time than hours of debugging later.</p>
+</div>
+<div class="diagram-wrap reveal">
+<div class="diagram-title">// Test Flow — Comparison</div>
+<pre class="ascii-diagram">WITHOUT TESTS
+Code → Deploy → 🐛 Bug → Hotfix → 😰 Stress
+
+WITH TESTS
+Code → Test → ✅ Pass → Deploy → 😊 Confidence
+Code → Test → ❌ Fail → Fix → ✅ Pass</pre>
+</div>
+</section>
+<div class="section-break"></div>
+<!-- ── SECTION 2: TYPES ── -->
+<section class="section anchor" id="types">
+<div class="section-label">Section 02</div>
+<h2 class="section-title">Test Types — Pyramid</h2>
+<p class="section-desc">Tests are divided into three main categories. Each has its own speed, cost, and scope.</p>
+<!-- SIMPLE TEST PYRAMID -->
+    <div class="diagram-wrap reveal">
+      <div class="diagram-title">// Test Pyramid</div>
+      <div class="pyramid-diagram" role="img" aria-label="Test pyramid with unit tests at the base, integration tests in the middle, and end-to-end tests at the top">
+        <div class="pyramid-level pyramid-unit">
+          <div class="pyramid-main"><span>UNIT TESTS</span><span>~70%</span></div>
+          <div class="pyramid-sub">Many · Fastest · Cheapest</div>
+        </div>
+        <div class="pyramid-level pyramid-integration">
+          <div class="pyramid-main"><span>INTEGRATION</span><span>~20%</span></div>
+          <div class="pyramid-sub">Some · Balanced · Reliable</div>
+        </div>
+        <div class="pyramid-level pyramid-e2e">
+          <div class="pyramid-main"><span>E2E TESTS</span><span>~10%</span></div>
+          <div class="pyramid-sub">Few · Slowest · Most expensive</div>
+        </div>
+      </div>
+
+      <div class="callout info" style="margin-top:1.5rem;">
+        <div class="callout-title">Why this shape?</div>
+        <p>The lower a test sits in the pyramid, the cheaper and faster it is to run. Keep most of your coverage in the base, add fewer integration tests, and reserve end-to-end tests for critical user journeys.</p>
+      </div>
+    </div>
+
+
+    <div class="tabs-wrap reveal">
+      <div class="tab-buttons">
+<button class="tab-btn active" data-tab="unit">01 · Unit Tests</button>
+<button class="tab-btn" data-tab="integration">02 · Integration Tests</button>
+<button class="tab-btn" data-tab="e2e">03 · E2E Tests</button>
+<button class="tab-btn" data-tab="compare">📊 Comparison</button>
+</div>
+<div class="tab-panels">
+<!-- UNIT -->
+<div class="tab-panel active" id="tab-unit">
+<div style="margin-bottom:1rem;">
+<span class="badge badge-emerald">Most commonly used</span>
+<span class="badge badge-cyan" style="margin-left:0.5rem;">⚡ Very fast</span>
+</div>
+<p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.25rem;">Unit tests test a function or component <strong style="color:var(--text-primary);">in isolation</strong> . They do not depend on external dependencies (API, database). Each test runs independently.</p>
+<div class="code-wrap">
+<div class="code-header">
+<span class="code-filename">utils/math.test.js</span>
+<div style="display:flex;align-items:center;gap:0.5rem;">
+<span class="code-lang">unit test</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+</div>
+<pre><code><span class="cm">// ✅ Unit test — single function</span>
+<span class="kw">function</span> <span class="fn">add</span>(a, b) {
+  <span class="kw">return</span> a + b;
+}
+
+<span class="fn">test</span>(<span class="str">'The add function returns 2 + 3 = 5'</span>, () =&gt; {
+  <span class="kw">const</span> result = <span class="fn">add</span>(<span class="num">2</span>, <span class="num">3</span>);
+  <span class="fn">expect</span>(result).<span class="fn">toBe</span>(<span class="num">5</span>);
+});
+
+<span class="cm">// ✅ Unit test — React component</span>
+<span class="fn">test</span>(<span class="str">'Button renders correctly'</span>, () =&gt; {
+  <span class="fn">render</span>(&lt;<span class="fn">Button</span> label=<span class="str">"Click me"</span> /&gt;);
+  <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'Click me'</span>))
+    .<span class="fn">toBeInTheDocument</span>();
+});</code></pre>
+</div>
+</div>
+<!-- INTEGRATION -->
+<div class="tab-panel" id="tab-integration">
+<div style="margin-bottom:1rem;">
+<span class="badge badge-indigo">Medium complexity</span>
+<span class="badge badge-amber" style="margin-left:0.5rem;">🏃 Fast</span>
+</div>
+<p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.25rem;">Integration tests verify several components <strong style="color:var(--text-primary);">working together</strong> . They check flows such as form submission and the result of an API call.</p>
+<div class="code-wrap">
+<div class="code-header">
+<span class="code-filename">LoginForm.test.jsx</span>
+<div style="display:flex;align-items:center;gap:0.5rem;">
+<span class="code-lang">integration test</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+</div>
+<pre><code><span class="cm">// ✅ Integration test — form submission flow</span>
+<span class="fn">test</span>(<span class="str">'shows a welcome message after submission'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="fn">render</span>(&lt;<span class="fn">LoginForm</span> /&gt;);
+
+  <span class="cm">// Enter email</span>
+  <span class="kw">await</span> userEvent.<span class="fn">type</span>(
+    screen.<span class="fn">getByLabelText</span>(<span class="str">'Email'</span>),
+    <span class="str">'test@mail.com'</span>
+  );
+
+  <span class="cm">// Click the button</span>
+  <span class="kw">await</span> userEvent.<span class="fn">click</span>(
+    screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">'Sign in'</span> })
+  );
+
+  <span class="cm">// Check the result</span>
+  <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'Welcome!'</span>))
+    .<span class="fn">toBeInTheDocument</span>();
+});</code></pre>
+</div>
+</div>
+<!-- E2E -->
+<div class="tab-panel" id="tab-e2e">
+<div style="margin-bottom:1rem;">
+<span class="badge badge-amber">Fewest</span>
+<span class="badge badge-rose" style="margin-left:0.5rem;">🐢 Slow</span>
+</div>
+<p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.25rem;">E2E (End-to-End) tests verify the full user flow in a real browser. Tools like Cypress and Playwright are used. They are the most expensive, but also the most realistic tests.</p>
+<div class="code-wrap">
+<div class="code-header">
+<span class="code-filename">e2e/checkout.spec.ts</span>
+<div style="display:flex;align-items:center;gap:0.5rem;">
+<span class="code-lang">playwright</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+</div>
+<pre><code><span class="cm">// ✅ E2E test — full shopping flow</span>
+<span class="fn">test</span>(<span class="str">'the user buys a product and pays'</span>, <span class="kw">async</span> ({ page }) =&gt; {
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/products'</span>);
+
+  <span class="cm">// Select a product</span>
+  <span class="kw">await</span> page.<span class="fn">click</span>(<span class="str">'[data-testid="product-1"]'</span>);
+  <span class="kw">await</span> page.<span class="fn">click</span>(<span class="str">'text=Add to cart'</span>);
+
+  <span class="cm">// Payment</span>
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/checkout'</span>);
+  <span class="kw">await</span> page.<span class="fn">fill</span>(<span class="str">'#card-number'</span>, <span class="str">'4111111111111111'</span>);
+  <span class="kw">await</span> page.<span class="fn">click</span>(<span class="str">'text=Pay'</span>);
+
+  <span class="cm">// Success message</span>
+  <span class="kw">await</span> <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="str">'text=Your order has been received'</span>))
+    .<span class="fn">toBeVisible</span>();
+});</code></pre>
+</div>
+</div>
+<!-- COMPARE -->
+<div class="tab-panel" id="tab-compare">
+<table class="compare-table">
+<thead>
+<tr>
+<th>Feature</th>
+<th>Unit</th>
+<th>Integration</th>
+<th>E2E</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What does it test?</td>
+<td><span class="badge badge-emerald">Single function</span></td>
+<td><span class="badge badge-indigo">Between components</span></td>
+<td><span class="badge badge-amber">Full user flow</span></td>
+</tr>
+<tr>
+<td>Speed</td>
+<td style="color:var(--emerald);">⚡⚡⚡ Very fast</td>
+<td style="color:var(--indigo-light);">⚡⚡ Fast</td>
+<td style="color:var(--amber);">⚡ Slow</td>
+</tr>
+<tr>
+<td>Cost</td>
+<td style="color:var(--emerald);">Cheap</td>
+<td style="color:var(--indigo-light);">Medium</td>
+<td style="color:var(--rose);">Expensive</td>
+</tr>
+<tr>
+<td>Tool</td>
+<td>Jest, Vitest</td>
+<td>Jest + RTL</td>
+<td>Cypress, Playwright</td>
+</tr>
+<tr>
+<td>Share in the pyramid</td>
+<td style="color:var(--emerald);">~70%</td>
+<td style="color:var(--indigo-light);">~20%</td>
+<td style="color:var(--amber);">~10%</td>
+</tr>
+</tbody>
+</table>
+<div class="callout info">
+<div class="callout-title">💡 Golden Rule</div>
+<p>The base of the pyramid should be unit tests, the middle integration tests, and the top E2E tests. Doing the opposite is called the "ice cream cone anti-pattern."</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<div class="section-break"></div>
+<!-- ── SECTION 3: JEST ── -->
+<section class="section anchor" id="jest">
+<div class="section-label">Section 03</div>
+<h2 class="section-title">Jest — Setup &amp; First Test</h2>
+<p class="section-desc">Jest is one of the most popular JavaScript testing frameworks. It was created at Facebook and works extremely well with React.</p>
+<!-- INSTALL -->
+<div class="code-wrap reveal">
+<div class="code-header">
+<span class="code-filename">terminal</span>
+<div style="display:flex;align-items:center;gap:0.5rem;">
+<span class="code-lang">bash</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+</div>
+<pre><code><span class="cm"># Create React App — Jest is included! ✅</span>
+npx create-react-app my-app
+
+<span class="cm"># For a Vite project:</span>
+npm install --save-dev jest
+npm install --save-dev @testing-library/react
+npm install --save-dev @testing-library/jest-dom
+npm install --save-dev @testing-library/user-event</code></pre>
+</div>
+<!-- FILE STRUCTURE -->
+<div class="callout info reveal">
+<div class="callout-title">📂 File Naming Convention</div>
+<p>Test files <span class="ic">.test.js</span> or <span class="ic">.test.jsx</span> are named with the suffix. Alternatively <span class="ic">__tests__/</span> the folder is used. Jest finds those files automatically.</p>
+</div>
+<div class="code-wrap reveal">
+<div class="code-header">
+<span class="code-filename">src/ structure</span>
+<div style="display:flex;align-items:center;gap:0.5rem;">
+<span class="code-lang">file structure</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+</div>
+<pre><code>src/
+  ├── components/
+  │   ├── Button.jsx
+  │   ├── Button.test.jsx   <span class="cm">✅ same folder</span>
+  │   ├── Form.jsx
+  │   └── Form.test.jsx     <span class="cm">✅ same folder</span>
+  ├── utils/
+  │   ├── helpers.js
+  │   └── helpers.test.js   <span class="cm">✅ same folder</span>
+  └── __tests__/            <span class="cm">← Alternative approach</span></code></pre>
+</div>
+<!-- FIRST TEST -->
+<h3 style="font-size:1.1rem;font-weight:700;margin:2rem 0 1rem;color:var(--text-primary);">First Test — <span class="ic">test()</span> and <span class="ic">expect()</span></h3>
+<div class="code-wrap reveal">
+<div class="code-header">
+<span class="code-filename">utils/math.test.js</span>
+<div style="display:flex;align-items:center;gap:0.5rem;">
+<span class="code-lang">javascript</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+</div>
+<pre><code><span class="kw">import</span> { add, multiply } <span class="kw">from</span> <span class="str">'./math'</span>;
+
+<span class="cm">// test(name, function) — each test checks one behavior</span>
+<span class="fn">test</span>(<span class="str">'The add function returns 2 + 3 = 5'</span>, () =&gt; {
+  <span class="kw">const</span> result = <span class="fn">add</span>(<span class="num">2</span>, <span class="num">3</span>);
+  <span class="fn">expect</span>(result).<span class="fn">toBe</span>(<span class="num">5</span>);  <span class="cm">// check the result</span>
+});
+
+<span class="fn">test</span>(<span class="str">'The multiply function returns 4 × 5 = 20'</span>, () =&gt; {
+  <span class="fn">expect</span>(<span class="fn">multiply</span>(<span class="num">4</span>, <span class="num">5</span>)).<span class="fn">toBe</span>(<span class="num">20</span>);
+});
+
+<span class="cm">// Run the test:</span>
+<span class="cm">// npm test</span></code></pre>
+</div>
+<!-- DESCRIBE -->
+<div class="section-break" style="margin:2rem 0;"></div>
+<h3 style="font-size:1.1rem;font-weight:700;margin:0 0 1rem;color:var(--text-primary);">📂 <span class="ic">describe()</span> — Group Tests</h3>
+<p style="color:var(--text-secondary);font-size:0.875rem;margin-bottom:1.25rem;"><span class="ic">describe()</span> The describe block groups tests related to the same topic. The terminal output becomes more readable. Nested <span class="ic">describe</span> describe blocks are also possible.</p>
+<div class="tabs-wrap reveal">
+<div class="tab-buttons">
+<button class="tab-btn active" data-tab="desc-code">Code</button>
+<button class="tab-btn" data-tab="desc-lifecycle">beforeEach / afterEach</button>
+<button class="tab-btn" data-tab="desc-output">Terminal Output</button>
+</div>
+<div class="tab-panels">
+<div class="tab-panel active" id="tab-desc-code">
+<div class="code-wrap" style="margin-top:0;">
+<div class="code-header">
+<span class="code-filename">utils/string.test.js</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+<pre><code><span class="fn">describe</span>(<span class="str">'String Utils'</span>, () =&gt; {
+
+  <span class="fn">describe</span>(<span class="str">'capitalize'</span>, () =&gt; {
+    <span class="fn">test</span>(<span class="str">'capitalizes the first letter'</span>, () =&gt; {
+      <span class="fn">expect</span>(<span class="fn">capitalize</span>(<span class="str">'hello'</span>)).<span class="fn">toBe</span>(<span class="str">'Hello'</span>);
+    });
+    <span class="fn">test</span>(<span class="str">'returns empty string for an empty string'</span>, () =&gt; {
+      <span class="fn">expect</span>(<span class="fn">capitalize</span>(<span class="str">''</span>)).<span class="fn">toBe</span>(<span class="str">''</span>);
+    });
+    <span class="fn">test</span>(<span class="str">'returns empty string for null'</span>, () =&gt; {
+      <span class="fn">expect</span>(<span class="fn">capitalize</span>(<span class="kw">null</span>)).<span class="fn">toBe</span>(<span class="str">''</span>);
+    });
+  });
+
+  <span class="fn">describe</span>(<span class="str">'truncate'</span>, () =&gt; {
+    <span class="fn">test</span>(<span class="str">'truncates long string'</span>, () =&gt; {
+      <span class="fn">expect</span>(<span class="fn">truncate</span>(<span class="str">'Hello World'</span>, <span class="num">5</span>))
+        .<span class="fn">toBe</span>(<span class="str">'Hello...'</span>);
+    });
+    <span class="fn">test</span>(<span class="str">'does not change short string'</span>, () =&gt; {
+      <span class="fn">expect</span>(<span class="fn">truncate</span>(<span class="str">'Hi'</span>, <span class="num">5</span>)).<span class="fn">toBe</span>(<span class="str">'Hi'</span>);
+    });
+  });
+
+});</code></pre>
+</div>
+</div>
+<div class="tab-panel" id="tab-desc-lifecycle">
+<div class="code-wrap" style="margin-top:0;">
+<div class="code-header">
+<span class="code-filename">cart.test.js</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+<pre><code><span class="fn">describe</span>(<span class="str">'ShoppingCart'</span>, () =&gt; {
+  <span class="kw">let</span> cart;
+
+  <span class="cm">// Runs BEFORE every test — clean state</span>
+  <span class="fn">beforeEach</span>(() =&gt; {
+    cart = <span class="kw">new</span> <span class="fn">ShoppingCart</span>();
+  });
+
+  <span class="cm">// Runs AFTER every test — cleanup</span>
+  <span class="fn">afterEach</span>(() =&gt; {
+    cart.<span class="fn">clear</span>();
+  });
+
+  <span class="fn">test</span>(<span class="str">'should be empty at first'</span>, () =&gt; {
+    <span class="fn">expect</span>(cart.items).<span class="fn">toHaveLength</span>(<span class="num">0</span>);
+  });
+
+  <span class="fn">test</span>(<span class="str">'adds a product'</span>, () =&gt; {
+    cart.<span class="fn">add</span>({ id: <span class="num">1</span>, name: <span class="str">'Book'</span> });
+    <span class="fn">expect</span>(cart.items).<span class="fn">toHaveLength</span>(<span class="num">1</span>);
+  });
+});</code></pre>
+</div>
+<div class="callout info" style="margin-top:1rem;">
+<div class="callout-title">💡 Lifecycle Methods</div>
+<p><span class="ic">beforeEach</span> — before every test. <span class="ic">afterEach</span> — after every test. <span class="ic">beforeAll</span> — once before all tests. <span class="ic">afterAll</span> — once after all tests.</p>
+</div>
+</div>
+<div class="tab-panel" id="tab-desc-output">
+<div style="background:#0d0d17;border:1px solid var(--border);border-radius:10px;padding:1.25rem;font-family:var(--mono);font-size:0.8rem;line-height:1.9;">
+<div style="color:var(--emerald);">PASS src/utils/string.test.js</div>
+<div style="color:var(--text-secondary);margin-left:0.5rem;">String Utils</div>
+<div style="color:var(--text-muted);margin-left:1.5rem;">capitalize</div>
+<div style="color:var(--emerald);margin-left:2.5rem;">✓ capitalizes the first letter (2ms)</div>
+<div style="color:var(--emerald);margin-left:2.5rem;">✓ returns empty string for an empty string</div>
+<div style="color:var(--emerald);margin-left:2.5rem;">✓ returns empty string for null (1ms)</div>
+<div style="color:var(--text-muted);margin-left:1.5rem;">truncate</div>
+<div style="color:var(--emerald);margin-left:2.5rem;">✓ truncates long string</div>
+<div style="color:var(--emerald);margin-left:2.5rem;">✓ does not change short string</div>
+<div style="margin-top:0.75rem;color:var(--text-muted);">Tests: <span style="color:var(--emerald);">5 passed</span>, 5 total</div>
+<div style="color:var(--text-muted);">Time: 0.5s</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<div class="section-break"></div>
+<!-- ── SECTION 4: MATCHERS ── -->
+<section class="section anchor" id="matchers">
+<div class="section-label">Section 04</div>
+<h2 class="section-title">Jest Matchers — <span class="ic">expect()</span> Methods</h2>
+<p class="section-desc">Matchers are used to check the result. <span class="ic">expect(value).matcher(expected)</span> — simple, but powerful syntax.</p>
+<div class="matcher-grid reveal">
+<div class="matcher-item">
+<div class="matcher-name">.toBe()</div>
+<div class="matcher-desc">Primitive value comparison (<span class="ic">===</span>). Use it for numbers, strings, and booleans.</div>
+</div>
+<div class="matcher-item">
+<div class="matcher-name">.toEqual()</div>
+<div class="matcher-desc">Deep comparison for objects/arrays. Use <span class="ic">toBe</span> only for primitive values.</div>
+</div>
+<div class="matcher-item">
+<div class="matcher-name">.toBeTruthy()</div>
+<div class="matcher-desc">Truthy value check. Anything that evaluates to true in an <span class="ic">if</span> condition.</div>
+</div>
+<div class="matcher-item">
+<div class="matcher-name">.toBeFalsy()</div>
+<div class="matcher-desc">Falsy value check. null, undefined, 0, false, "".</div>
+</div>
+<div class="matcher-item">
+<div class="matcher-name">.toContain()</div>
+<div class="matcher-desc">Searches for an element in an array. Also for a substring inside a string.</div>
+</div>
+<div class="matcher-item">
+<div class="matcher-name">.toThrow()</div>
+<div class="matcher-desc">Checks that a function throws an error. Be sure to wrap the function.</div>
+</div>
+<div class="matcher-item">
+<div class="matcher-name">.toHaveLength()</div>
+<div class="matcher-desc">Checks the length of an array or string.</div>
+</div>
+<div class="matcher-item">
+<div class="matcher-name">.not</div>
+<div class="matcher-desc">Opposite. <span class="ic">.not.toBe(3)</span> — not equal to 3.</div>
+</div>
+</div>
+<div class="code-wrap reveal">
+<div class="code-header">
+<span class="code-filename">matchers.test.js</span>
+<div style="display:flex;align-items:center;gap:0.5rem;">
+<span class="code-lang">javascript</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+</div>
+<pre><code><span class="cm">// Primitive comparison — toBe</span>
+<span class="fn">expect</span>(<span class="num">2</span> + <span class="num">2</span>).<span class="fn">toBe</span>(<span class="num">4</span>);
+<span class="fn">expect</span>(<span class="str">'hello'</span>).<span class="fn">toBe</span>(<span class="str">'hello'</span>);
+
+<span class="cm">// Object comparison — use toEqual!</span>
+<span class="fn">expect</span>({ name: <span class="str">'Ali'</span> }).<span class="fn">toEqual</span>({ name: <span class="str">'Ali'</span> });  <span class="cm">// ✅</span>
+<span class="cm">// expect({ name: 'Ali' }).toBe({ name: 'Ali' })  ❌ DOES NOT WORK</span>
+
+<span class="cm">// Truthiness</span>
+<span class="fn">expect</span>(<span class="str">'hello'</span>).<span class="fn">toBeTruthy</span>();
+<span class="fn">expect</span>(<span class="num">0</span>).<span class="fn">toBeFalsy</span>();
+<span class="fn">expect</span>(<span class="kw">null</span>).<span class="fn">toBeNull</span>();
+<span class="fn">expect</span>(<span class="kw">undefined</span>).<span class="fn">toBeUndefined</span>();
+
+<span class="cm">// Array</span>
+<span class="fn">expect</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]).<span class="fn">toContain</span>(<span class="num">2</span>);
+<span class="fn">expect</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]).<span class="fn">toHaveLength</span>(<span class="num">3</span>);
+
+<span class="cm">// NOT — opposite</span>
+<span class="fn">expect</span>(<span class="num">5</span>).<span class="fn">not</span>.<span class="fn">toBe</span>(<span class="num">3</span>);
+<span class="fn">expect</span>([<span class="num">1</span>, <span class="num">2</span>]).<span class="fn">not</span>.<span class="fn">toContain</span>(<span class="num">5</span>);
+
+<span class="cm">// Error — the function must be wrapped!</span>
+<span class="fn">expect</span>(() =&gt; {
+  <span class="kw">throw new</span> Error(<span class="str">'An error occurred!'</span>);
+}).<span class="fn">toThrow</span>(<span class="str">'An error occurred!'</span>);</code></pre>
+</div>
+<div class="callout warning reveal">
+<div class="callout-title">⚠ toBe vs toEqual</div>
+<p><span class="ic">toBe</span> performs reference comparison (<span class="ic">===</span>). Even if two different objects have the same values <span class="ic">false</span> returns. <span class="ic">toEqual</span> performs deep comparison — it checks values, not the reference. <strong>For objects/arrays, always <span class="ic">toEqual</span> use it!</strong></p>
+</div>
+</section>
+<div class="section-break"></div>
+<!-- ── SECTION 5: MOCKS ── -->
+<section class="section anchor" id="mocks">
+<div class="section-label">Section 05</div>
+<h2 class="section-title">Jest Mock — Simulate Dependencies</h2>
+<p class="section-desc">We replace external dependencies such as APIs, databases, and timers with fake versions during tests. This makes tests fast, reliable, and deterministic.</p>
+<div class="card-grid reveal">
+<div class="card">
+<span class="card-icon">🌐</span>
+<h3>Why Do We Need Mocks?</h3>
+<ul class="feature-list">
+<li>API calls — no real server needed</li>
+<li>External services — payments, sending email</li>
+<li>Timers — setTimeout/setInterval</li>
+<li>Deterministic — same result every time</li>
+<li>Fast — no network delay</li>
+</ul>
+</div>
+<div class="card">
+<span class="card-icon">🎭</span>
+<h3>Types of Mocks</h3>
+<ul class="feature-list">
+<li><span class="ic">jest.fn()</span> — creates a fake function</li>
+<li><span class="ic">jest.mock()</span> — mocks the entire module</li>
+<li><span class="ic">jest.spyOn()</span> — spies on an existing function</li>
+<li><span class="ic">mockResolvedValue()</span> — async result</li>
+<li><span class="ic">mockRejectedValue()</span> — simulates an error</li>
+</ul>
+</div>
+</div>
+<div class="tabs-wrap reveal">
+<div class="tab-buttons">
+<button class="tab-btn active" data-tab="mock-fn">jest.fn()</button>
+<button class="tab-btn" data-tab="mock-api">API Mock</button>
+<button class="tab-btn" data-tab="mock-module">Modul Mock</button>
+</div>
+<div class="tab-panels">
+<div class="tab-panel active" id="tab-mock-fn">
+<div class="code-wrap" style="margin-top:0;">
+<div class="code-header">
+<span class="code-filename">callback.test.js</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+<pre><code><span class="fn">test</span>(<span class="str">'callback is called correctly'</span>, () =&gt; {
+  <span class="cm">// Create a fake function</span>
+  <span class="kw">const</span> mockFn = jest.<span class="fn">fn</span>();
+
+  <span class="cm">// Use</span>
+  <span class="fn">mockFn</span>(<span class="str">'hello'</span>);
+  <span class="fn">mockFn</span>(<span class="str">'world'</span>);
+
+  <span class="cm">// Assert</span>
+  <span class="fn">expect</span>(mockFn).<span class="fn">toHaveBeenCalled</span>();
+  <span class="fn">expect</span>(mockFn).<span class="fn">toHaveBeenCalledTimes</span>(<span class="num">2</span>);
+  <span class="fn">expect</span>(mockFn).<span class="fn">toHaveBeenCalledWith</span>(<span class="str">'hello'</span>);
+});
+
+<span class="fn">test</span>(<span class="str">'returns a fake value'</span>, () =&gt; {
+  <span class="kw">const</span> mockFn = jest.<span class="fn">fn</span>().<span class="fn">mockReturnValue</span>(<span class="num">42</span>);
+  <span class="fn">expect</span>(<span class="fn">mockFn</span>()).<span class="fn">toBe</span>(<span class="num">42</span>);
+});</code></pre>
+</div>
+</div>
+<div class="tab-panel" id="tab-mock-api">
+<div class="code-wrap" style="margin-top:0;">
+<div class="code-header">
+<span class="code-filename">api.test.js</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+<pre><code><span class="kw">import</span> { fetchUsers } <span class="kw">from</span> <span class="str">'./api'</span>;
+
+<span class="cm">// Mock the global fetch</span>
+global.fetch = jest.<span class="fn">fn</span>();
+
+<span class="fn">test</span>(<span class="str">'fetches users'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">const</span> mockUsers = [
+    { id: <span class="num">1</span>, name: <span class="str">'Ali'</span> },
+    { id: <span class="num">2</span>, name: <span class="str">'Vali'</span> }
+  ];
+
+  <span class="cm">// define the fetch response</span>
+  fetch.<span class="fn">mockResolvedValue</span>({
+    json: () =&gt; Promise.<span class="fn">resolve</span>(mockUsers)
+  });
+
+  <span class="kw">const</span> users = <span class="kw">await</span> <span class="fn">fetchUsers</span>();
+
+  <span class="fn">expect</span>(fetch).<span class="fn">toHaveBeenCalledWith</span>(<span class="str">'/api/users'</span>);
+  <span class="fn">expect</span>(users).<span class="fn">toEqual</span>(mockUsers);
+  <span class="fn">expect</span>(users).<span class="fn">toHaveLength</span>(<span class="num">2</span>);
+});
+
+<span class="fn">test</span>(<span class="str">'handles the error case'</span>, <span class="kw">async</span> () =&gt; {
+  fetch.<span class="fn">mockRejectedValue</span>(<span class="kw">new</span> Error(<span class="str">'Network error'</span>));
+
+  <span class="kw">await</span> <span class="fn">expect</span>(<span class="fn">fetchUsers</span>())
+    .<span class="fn">rejects</span>.<span class="fn">toThrow</span>(<span class="str">'Network error'</span>);
+});</code></pre>
+</div>
+</div>
+<div class="tab-panel" id="tab-mock-module">
+<div class="code-wrap" style="margin-top:0;">
+<div class="code-header">
+<span class="code-filename">module-mock.test.js</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+<pre><code><span class="cm">// Mock the whole module</span>
+jest.<span class="fn">mock</span>(<span class="str">'./emailService'</span>);
+
+<span class="kw">import</span> { sendEmail } <span class="kw">from</span> <span class="str">'./emailService'</span>;
+
+<span class="fn">test</span>(<span class="str">'an email is sent on sign-up'</span>, <span class="kw">async</span> () =&gt; {
+  sendEmail.<span class="fn">mockResolvedValue</span>({ sent: <span class="kw">true</span> });
+
+  <span class="kw">await</span> <span class="fn">registerUser</span>({ email: <span class="str">'test@mail.com'</span> });
+
+  <span class="fn">expect</span>(sendEmail).<span class="fn">toHaveBeenCalledWith</span>(
+    <span class="fn">expect</span>.<span class="fn">objectContaining</span>({
+      to: <span class="str">'test@mail.com'</span>
+    })
+  );
+});
+
+<span class="cm">// spyOn — observe an existing method</span>
+<span class="fn">test</span>(<span class="str">'console.error is called'</span>, () =&gt; {
+  <span class="kw">const</span> spy = jest.<span class="fn">spyOn</span>(console, <span class="str">'error'</span>)
+    .<span class="fn">mockImplementation</span>(() =&gt; {});
+
+  <span class="fn">myBrokenFunction</span>();
+
+  <span class="fn">expect</span>(spy).<span class="fn">toHaveBeenCalled</span>();
+  spy.<span class="fn">mockRestore</span>();
+});</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="callout success reveal">
+<div class="callout-title">✅ Mock Rule</div>
+<p>Only <strong>external dependencies</strong> mock APIs, databases, email services, and third-party libraries. Never mock the code you are actually testing — it makes the test meaningless.</p>
+</div>
+</section>
+<div class="section-break"></div>
+<!-- ── SECTION 6: RTL ── -->
+<section class="section anchor" id="rtl">
+<div class="section-label">Section 06</div>
+<h2 class="section-title">React Testing Library</h2>
+<p class="section-desc">RTL philosophy is simple: test components the way the user sees them. Behavior matters, not implementation details.</p>
+<div class="diagram-wrap reveal">
+<div class="diagram-title">// RTL Philosophy</div>
+<div style="max-width:500px;margin:0 auto;font-family:var(--mono);font-size:0.82rem;font-style:italic;color:var(--indigo-light);text-align:center;border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:1.5rem 2rem;background:rgba(99,102,241,0.04);">
+        "The more your tests resemble the way your software is used, the more confidence they can give you."
+        <div style="margin-top:0.75rem;font-style:normal;font-size:0.72rem;color:var(--text-muted);">— Kent C. Dodds (RTL author)</div>
+</div>
+</div>
+<div class="tabs-wrap reveal">
+<div class="tab-buttons">
+<button class="tab-btn active" data-tab="rtl-vs">Enzyme vs RTL</button>
+<button class="tab-btn" data-tab="rtl-render">render() &amp; screen</button>
+<button class="tab-btn" data-tab="rtl-flow">Test Flow</button>
+</div>
+<div class="tab-panels">
+<div class="tab-panel active" id="tab-rtl-vs">
+<table class="compare-table">
+<thead>
+<tr>
+<th>Feature</th>
+<th>Enzyme (old)</th>
+<th>RTL (modern) ✅</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Approach</td>
+<td>Implementation details</td>
+<td>User behavior</td>
+</tr>
+<tr>
+<td>Type of render</td>
+<td>Shallow render</td>
+<td>Full render (DOM)</td>
+</tr>
+<tr>
+<td>Finding elements</td>
+<td>className, state</td>
+<td>role, text, label</td>
+</tr>
+<tr>
+<td>Refactoring</td>
+<td style="color:var(--rose);">Tests break ❌</td>
+<td style="color:var(--emerald);">Tests pass ✅</td>
+</tr>
+<tr>
+<td>Accessibility</td>
+<td>Weak support</td>
+<td>Strong support</td>
+</tr>
+</tbody>
+</table>
+<div class="callout info">
+<div class="callout-title">💡 Why did RTL win?</div>
+<p>Enzyme componentn <em>how</em> it worked. RTL tests the user's <em>what they see</em> . When you refactor, RTL tests do not break — because if the user interface has not changed, the tests still pass.</p>
+</div>
+</div>
+<div class="tab-panel" id="tab-rtl-render">
+<div class="code-wrap" style="margin-top:0;">
+<div class="code-header">
+<span class="code-filename">Greeting.test.jsx</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+<pre><code><span class="kw">import</span> { render, screen } <span class="kw">from</span> <span class="str">'@testing-library/react'</span>;
+<span class="kw">import</span> Greeting <span class="kw">from</span> <span class="str">'./Greeting'</span>;
+
+<span class="fn">test</span>(<span class="str">'displays the name correctly'</span>, () =&gt; {
+  <span class="cm">// 1. Render it</span>
+  <span class="fn">render</span>(&lt;<span class="fn">Greeting</span> name=<span class="str">"Ali"</span> /&gt;);
+
+  <span class="cm">// 2. Find it on the screen</span>
+  <span class="kw">const</span> heading = screen.<span class="fn">getByText</span>(<span class="str">'Hello, Ali!'</span>);
+
+  <span class="cm">// 3. Assert</span>
+  <span class="fn">expect</span>(heading).<span class="fn">toBeInTheDocument</span>();
+});
+
+<span class="fn">test</span>(<span class="str">'shows a welcome message'</span>, () =&gt; {
+  <span class="fn">render</span>(&lt;<span class="fn">Greeting</span> name=<span class="str">"Vali"</span> /&gt;);
+  <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'Welcome!'</span>))
+    .<span class="fn">toBeInTheDocument</span>();
+});</code></pre>
+</div>
+</div>
+<div class="tab-panel" id="tab-rtl-flow">
+<div style="font-family:var(--mono);font-size:0.8rem;color:var(--text-secondary);margin-bottom:1rem;">Writing tests with RTL has 4 steps:</div>
+<div style="display:flex;flex-direction:column;gap:0.75rem;">
+<div style="display:flex;align-items:center;gap:1rem;padding:0.9rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;">
+<div style="width:32px;height:32px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.75rem;color:var(--indigo-light);flex-shrink:0;">1</div>
+<div><span style="color:var(--text-primary);font-weight:600;">render()</span> <span style="color:var(--text-muted);">— Komponenti virtual DOM-a render et</span></div>
+</div>
+<div style="display:flex;align-items:center;gap:1rem;padding:0.9rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;">
+<div style="width:32px;height:32px;background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.75rem;color:var(--cyan);flex-shrink:0;">2</div>
+<div><span style="color:var(--text-primary);font-weight:600;">screen.getBy...()</span> <span style="color:var(--text-muted);">— Find elements on the screen</span></div>
+</div>
+<div style="display:flex;align-items:center;gap:1rem;padding:0.9rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;">
+<div style="width:32px;height:32px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.75rem;color:var(--amber);flex-shrink:0;">3</div>
+<div><span style="color:var(--text-primary);font-weight:600;">userEvent</span> <span style="color:var(--text-muted);">— Interact like a user</span></div>
+</div>
+<div style="display:flex;align-items:center;gap:1rem;padding:0.9rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;">
+<div style="width:32px;height:32px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.75rem;color:var(--emerald);flex-shrink:0;">4</div>
+<div><span style="color:var(--text-primary);font-weight:600;">expect()</span> <span style="color:var(--text-muted);">— Verify the result</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<div class="section-break"></div>
+<!-- ── SECTION 7: QUERIES ── -->
+<section class="section anchor" id="queries">
+<div class="section-label">Section 07</div>
+<h2 class="section-title">screen Queries — Finding Elements</h2>
+<p class="section-desc">RTL provides various query methods for finding elements. Each has different behavior.</p>
+<div class="card-grid reveal">
+<div class="card">
+<h3><span class="ic">getBy...</span></h3>
+<p>Returns the element when found. When not found — <strong style="color:var(--rose);">throws an error</strong>. Most commonly used.</p>
+<div class="feature-list" style="margin-top:0.75rem;">
+<li>0 found → ❌ Error</li>
+<li>1 found → ✅ Element</li>
+<li>1+ found → ❌ Error</li>
+</div>
+</div>
+<div class="card">
+<h3><span class="ic">queryBy...</span></h3>
+<p>Returns the element when found. When not found — <strong style="color:var(--emerald);">returns null</strong>. For "does not exist" checks.</p>
+<div class="feature-list" style="margin-top:0.75rem;">
+<li>0 found → null</li>
+<li>1 found → ✅ Element</li>
+<li>1+ found → ❌ Error</li>
+</div>
+</div>
+<div class="card">
+<h3><span class="ic">findBy...</span></h3>
+<p>Async — waits for the element. For elements that appear after an API response. Default waits 1000ms.</p>
+<div class="feature-list" style="margin-top:0.75rem;">
+<li>0 found → ❌ Error (timeout)</li>
+<li>1 found → ✅ Promise</li>
+<li><span class="ic">await</span> use with</li>
+</div>
+</div>
+</div>
+<!-- PRIORITY LIST -->
+<h3 style="font-size:1.05rem;font-weight:700;margin:2rem 0 1rem;color:var(--text-primary);">Query Priority Order</h3>
+<div class="priority-list reveal">
+<div class="priority-item">
+<div class="priority-rank" style="color:var(--emerald);">🥇 1</div>
+<div>
+<span class="ic">getByRole</span>
+<span style="color:var(--text-secondary);font-size:0.82rem;margin-left:0.5rem;">— button, heading, textbox, checkbox, link... Accessibility-friendly. Best choice.</span>
+</div>
+</div>
+<div class="priority-item">
+<div class="priority-rank" style="color:var(--indigo-light);">🥈 2</div>
+<div>
+<span class="ic">getByLabelText</span>
+<span style="color:var(--text-secondary);font-size:0.82rem;margin-left:0.5rem;">— For form elements. Inputs tied to labels.</span>
+</div>
+</div>
+<div class="priority-item">
+<div class="priority-rank" style="color:var(--cyan);">🥉 3</div>
+<div>
+<span class="ic">getByPlaceholderText</span>
+<span style="color:var(--text-secondary);font-size:0.82rem;margin-left:0.5rem;">— Find by input placeholder.</span>
+</div>
+</div>
+<div class="priority-item">
+<div class="priority-rank" style="color:var(--text-muted);">4</div>
+<div>
+<span class="ic">getByText</span>
+<span style="color:var(--text-secondary);font-size:0.82rem;margin-left:0.5rem;">— Find by visible text. Buttons, headings, paragraphs.</span>
+</div>
+</div>
+<div class="priority-item">
+<div class="priority-rank" style="color:var(--text-muted);">5</div>
+<div>
+<span class="ic">getByTestId</span>
+<span style="color:var(--text-secondary);font-size:0.82rem;margin-left:0.5rem;">— With data-testid attribute. Last resort — only when there is no other way.</span>
+</div>
+</div>
+</div>
+<div class="code-wrap reveal">
+<div class="code-header">
+<span class="code-filename">Navigation.test.jsx</span>
+<div style="display:flex;align-items:center;gap:0.5rem;">
+<span class="code-lang">getByRole example</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+</div>
+<pre><code><span class="fn">test</span>(<span class="str">'finds elements by role'</span>, () =&gt; {
+  <span class="fn">render</span>(&lt;<span class="fn">Navigation</span> /&gt;);
+
+  <span class="cm">// Heading</span>
+  screen.<span class="fn">getByRole</span>(<span class="str">'heading'</span>, { name: <span class="str">'My Site'</span> });
+
+  <span class="cm">// Button</span>
+  screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">'Log in'</span> });
+
+  <span class="cm">// Link</span>
+  screen.<span class="fn">getByRole</span>(<span class="str">'link'</span>, { name: <span class="str">'About'</span> });
+
+  <span class="cm">// Checkbox</span>
+  screen.<span class="fn">getByRole</span>(<span class="str">'checkbox'</span>);
+});
+
+<span class="fn">test</span>(<span class="str">'error message is not shown initially'</span>, () =&gt; {
+  <span class="fn">render</span>(&lt;<span class="fn">LoginForm</span> /&gt;);
+
+  <span class="cm">// queryBy — returns null, does not throw ✅</span>
+  <span class="kw">const</span> error = screen.<span class="fn">queryByText</span>(<span class="str">'Error!'</span>);
+  <span class="fn">expect</span>(error).<span class="fn">not</span>.<span class="fn">toBeInTheDocument</span>();
+});</code></pre>
+</div>
+</section>
+<div class="section-break"></div>
+<!-- ── SECTION 8: USEREVENTS ── -->
+<section class="section anchor" id="userevents">
+<div class="section-label">Section 08</div>
+<h2 class="section-title">userEvent — User Interactions</h2>
+<p class="section-desc">userEvent behaves like a real user. Keyboard presses, focus, clicks, typing — all are simulated.</p>
+<div class="callout info reveal">
+<div class="callout-title">💡 fireEvent vs userEvent</div>
+<p><span class="ic">fireEvent</span> sends DOM events directly. <span class="ic">userEvent</span> follows the real browser sequence — <span class="ic">focus → keydown → input → keyup → blur</span>. It is more precise and reliable. Prefer <span class="ic">userEvent</span> for user-facing interactions.</p>
+</div>
+<div class="tabs-wrap reveal">
+<div class="tab-buttons">
+<button class="tab-btn active" data-tab="ue-counter">Counter Example</button>
+<button class="tab-btn" data-tab="ue-login">Login Form</button>
+<button class="tab-btn" data-tab="ue-todo">TodoApp</button>
+</div>
+<div class="tab-panels">
+<!-- COUNTER -->
+<div class="tab-panel active" id="tab-ue-counter">
+<div class="code-wrap" style="margin-top:0;">
+<div class="code-header">
+<span class="code-filename">Counter.test.jsx</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+<pre><code><span class="kw">import</span> { render, screen } <span class="kw">from</span> <span class="str">'@testing-library/react'</span>;
+<span class="kw">import</span> userEvent <span class="kw">from</span> <span class="str">'@testing-library/user-event'</span>;
+<span class="kw">import</span> Counter <span class="kw">from</span> <span class="str">'./Counter'</span>;
+
+<span class="fn">describe</span>(<span class="str">'Counter component'</span>, () =&gt; {
+  <span class="kw">const</span> user = userEvent.<span class="fn">setup</span>();
+
+  <span class="fn">test</span>(<span class="str">'shows initial value 0'</span>, () =&gt; {
+    <span class="fn">render</span>(&lt;<span class="fn">Counter</span> /&gt;);
+    <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'Counter: 0'</span>))
+      .<span class="fn">toBeInTheDocument</span>();
+  });
+
+  <span class="fn">test</span>(<span class="str">'The increase button increments the value'</span>, <span class="kw">async</span> () =&gt; {
+    <span class="fn">render</span>(&lt;<span class="fn">Counter</span> /&gt;);
+    <span class="kw">const</span> incrementBtn = screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>,
+      { name: /Increase/i });
+
+    <span class="kw">await</span> user.<span class="fn">click</span>(incrementBtn);
+    <span class="kw">await</span> user.<span class="fn">click</span>(incrementBtn);
+    <span class="kw">await</span> user.<span class="fn">click</span>(incrementBtn);
+
+    <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'Counter: 3'</span>))
+      .<span class="fn">toBeInTheDocument</span>();
+  });
+
+  <span class="fn">test</span>(<span class="str">'The reset button works'</span>, <span class="kw">async</span> () =&gt; {
+    <span class="fn">render</span>(&lt;<span class="fn">Counter</span> /&gt;);
+    <span class="kw">const</span> incrementBtn = screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: /Increase/i });
+    <span class="kw">const</span> resetBtn = screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: /Reset/i });
+
+    <span class="kw">await</span> user.<span class="fn">click</span>(incrementBtn);
+    <span class="kw">await</span> user.<span class="fn">click</span>(incrementBtn);
+    <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'Counter: 2'</span>)).<span class="fn">toBeInTheDocument</span>();
+
+    <span class="kw">await</span> user.<span class="fn">click</span>(resetBtn);
+    <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'Counter: 0'</span>)).<span class="fn">toBeInTheDocument</span>();
+  });
+});</code></pre>
+</div>
+</div>
+<!-- LOGIN FORM -->
+<div class="tab-panel" id="tab-ue-login">
+<div class="code-wrap" style="margin-top:0;">
+<div class="code-header">
+<span class="code-filename">LoginForm.test.jsx</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+<pre><code><span class="fn">describe</span>(<span class="str">'LoginForm'</span>, () =&gt; {
+  <span class="kw">const</span> mockSubmit = jest.<span class="fn">fn</span>();
+  <span class="kw">const</span> user = userEvent.<span class="fn">setup</span>();
+
+  <span class="fn">beforeEach</span>(() =&gt; {
+    mockSubmit.<span class="fn">mockClear</span>();
+    <span class="fn">render</span>(&lt;<span class="fn">LoginForm</span> onSubmit={mockSubmit} /&gt;);
+  });
+
+  <span class="fn">test</span>(<span class="str">'shows an error when submitting an empty form'</span>, <span class="kw">async</span> () =&gt; {
+    <span class="kw">await</span> user.<span class="fn">click</span>(
+      screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">'Log in'</span> }));
+
+    <span class="fn">expect</span>(screen.<span class="fn">getByRole</span>(<span class="str">'alert'</span>))
+      .<span class="fn">toHaveTextContent</span>(<span class="str">'Fill in all fields!'</span>);
+    <span class="fn">expect</span>(mockSubmit).<span class="fn">not</span>.<span class="fn">toHaveBeenCalled</span>();
+  });
+
+  <span class="fn">test</span>(<span class="str">'shows an error for a short password'</span>, <span class="kw">async</span> () =&gt; {
+    <span class="kw">await</span> user.<span class="fn">type</span>(screen.<span class="fn">getByLabelText</span>(<span class="str">'Email'</span>), <span class="str">'test@mail.com'</span>);
+    <span class="kw">await</span> user.<span class="fn">type</span>(screen.<span class="fn">getByLabelText</span>(<span class="str">'Password'</span>), <span class="str">'123'</span>);
+    <span class="kw">await</span> user.<span class="fn">click</span>(screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">'Log in'</span> }));
+
+    <span class="fn">expect</span>(screen.<span class="fn">getByRole</span>(<span class="str">'alert'</span>))
+      .<span class="fn">toHaveTextContent</span>(<span class="str">'Password must be at least 6 characters!'</span>);
+  });
+
+  <span class="fn">test</span>(<span class="str">'submits the form with valid data'</span>, <span class="kw">async</span> () =&gt; {
+    <span class="kw">await</span> user.<span class="fn">type</span>(screen.<span class="fn">getByLabelText</span>(<span class="str">'Email'</span>), <span class="str">'test@mail.com'</span>);
+    <span class="kw">await</span> user.<span class="fn">type</span>(screen.<span class="fn">getByLabelText</span>(<span class="str">'Password'</span>), <span class="str">'password123'</span>);
+    <span class="kw">await</span> user.<span class="fn">click</span>(screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">'Log in'</span> }));
+
+    <span class="fn">expect</span>(mockSubmit).<span class="fn">toHaveBeenCalledWith</span>({
+      email: <span class="str">'test@mail.com'</span>,
+      password: <span class="str">'password123'</span>
+    });
+  });
+});</code></pre>
+</div>
+</div>
+<!-- TODO -->
+<div class="tab-panel" id="tab-ue-todo">
+<div class="code-wrap" style="margin-top:0;">
+<div class="code-header">
+<span class="code-filename">TodoApp.test.jsx</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+<pre><code><span class="fn">describe</span>(<span class="str">'TodoApp'</span>, () =&gt; {
+  <span class="kw">const</span> user = userEvent.<span class="fn">setup</span>();
+
+  <span class="fn">beforeEach</span>(() =&gt; <span class="fn">render</span>(&lt;<span class="fn">TodoApp</span> /&gt;));
+
+  <span class="fn">test</span>(<span class="str">'empty list at the start'</span>, () =&gt; {
+    <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'0 remaining'</span>)).<span class="fn">toBeInTheDocument</span>();
+    <span class="fn">expect</span>(screen.<span class="fn">queryByRole</span>(<span class="str">'listitem'</span>)).<span class="fn">not</span>.<span class="fn">toBeInTheDocument</span>();
+  });
+
+  <span class="fn">test</span>(<span class="str">'adds a new todo'</span>, <span class="kw">async</span> () =&gt; {
+    <span class="kw">const</span> input = screen.<span class="fn">getByLabelText</span>(<span class="str">'New task'</span>);
+    <span class="kw">await</span> user.<span class="fn">type</span>(input, <span class="str">'Learn Jest'</span>);
+    <span class="kw">await</span> user.<span class="fn">click</span>(screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">'Add'</span> }));
+
+    <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'Learn Jest'</span>)).<span class="fn">toBeInTheDocument</span>();
+    <span class="fn">expect</span>(input).<span class="fn">toHaveValue</span>(<span class="str">''</span>);  <span class="cm">// input is cleared</span>
+    <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'1 remaining'</span>)).<span class="fn">toBeInTheDocument</span>();
+  });
+
+  <span class="fn">test</span>(<span class="str">'adds a todo with Enter'</span>, <span class="kw">async</span> () =&gt; {
+    <span class="kw">const</span> input = screen.<span class="fn">getByLabelText</span>(<span class="str">'New task'</span>);
+    <span class="kw">await</span> user.<span class="fn">type</span>(input, <span class="str">'Learn RTL{enter}'</span>);
+    <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'Learn RTL'</span>)).<span class="fn">toBeInTheDocument</span>();
+  });
+
+  <span class="fn">test</span>(<span class="str">'toggles a todo'</span>, <span class="kw">async</span> () =&gt; {
+    <span class="kw">await</span> user.<span class="fn">type</span>(screen.<span class="fn">getByLabelText</span>(<span class="str">'New task'</span>), <span class="str">'Write test{enter}'</span>);
+    <span class="kw">const</span> checkbox = screen.<span class="fn">getByRole</span>(<span class="str">'checkbox'</span>, { name: <span class="str">'Complete the test task'</span> });
+    <span class="kw">await</span> user.<span class="fn">click</span>(checkbox);
+    <span class="fn">expect</span>(checkbox).<span class="fn">toBeChecked</span>();
+  });
+});</code></pre>
+</div>
+</div>
+</div>
+</div>
+</section>
+<div class="section-break"></div>
+<!-- ── SECTION 9: ASYNC ── -->
+<section class="section anchor" id="async">
+<div class="section-label">Section 09</div>
+<h2 class="section-title">Async Testing — Components with APIs</h2>
+<p class="section-desc">In real applications, components load data from APIs. We test these scenarios <span class="ic">findBy</span> and <span class="ic">waitFor</span> with</p>
+<div class="code-wrap reveal">
+<div class="code-header">
+<span class="code-filename">UserList.test.jsx</span>
+<div style="display:flex;align-items:center;gap:0.5rem;">
+<span class="code-lang">async test</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+</div>
+<pre><code><span class="fn">beforeEach</span>(() =&gt; {
+  global.fetch = jest.<span class="fn">fn</span>();
+});
+
+<span class="fn">test</span>(<span class="str">'loads users'</span>, <span class="kw">async</span> () =&gt; {
+  fetch.<span class="fn">mockResolvedValue</span>({
+    json: () =&gt; Promise.<span class="fn">resolve</span>([
+      { id: <span class="num">1</span>, name: <span class="str">'Ali'</span> },
+      { id: <span class="num">2</span>, name: <span class="str">'Vali'</span> }
+    ])
+  });
+
+  <span class="fn">render</span>(&lt;<span class="fn">UserList</span> /&gt;);
+
+  <span class="cm">// Loading is shown</span>
+  <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'Loading...'</span>)).<span class="fn">toBeInTheDocument</span>();
+
+  <span class="cm">// Wait for the API response — findBy waits asynchronously</span>
+  <span class="fn">expect</span>(<span class="kw">await</span> screen.<span class="fn">findByText</span>(<span class="str">'Ali'</span>)).<span class="fn">toBeInTheDocument</span>();
+  <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'Vali'</span>)).<span class="fn">toBeInTheDocument</span>();
+
+  <span class="cm">// Loading is no longer present</span>
+  <span class="fn">expect</span>(screen.<span class="fn">queryByText</span>(<span class="str">'Loading...'</span>))
+    .<span class="fn">not</span>.<span class="fn">toBeInTheDocument</span>();
+});
+
+<span class="fn">test</span>(<span class="str">'shows the error state'</span>, <span class="kw">async</span> () =&gt; {
+  fetch.<span class="fn">mockRejectedValue</span>(<span class="kw">new</span> Error(<span class="str">'Network'</span>));
+  <span class="fn">render</span>(&lt;<span class="fn">UserList</span> /&gt;);
+
+  <span class="fn">expect</span>(<span class="kw">await</span> screen.<span class="fn">findByRole</span>(<span class="str">'alert'</span>))
+    .<span class="fn">toHaveTextContent</span>(<span class="str">'An error occurred!'</span>);
+});</code></pre>
+</div>
+<div class="callout success reveal">
+<div class="callout-title">💡 findBy = getBy + waitFor</div>
+<p><span class="ic">findBy</span> automatically waits for DOM updates, which makes it ideal for async data from APIs. The default timeout is 1000ms. <span class="ic">getBy</span> fails immediately if the element is not there yet.</p>
+</div>
+<!-- JEST DOM MATCHERS -->
+<h3 style="font-size:1.1rem;font-weight:700;margin:2.5rem 0 1rem;color:var(--text-primary);">✨ jest-dom — DOM-specific Matchers</h3>
+<div class="code-wrap reveal">
+<div class="code-header">
+<span class="code-filename">jest-dom.test.jsx</span>
+<div style="display:flex;align-items:center;gap:0.5rem;">
+<span class="code-lang">jest-dom matchers</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+</div>
+<pre><code><span class="kw">import</span> <span class="str">'@testing-library/jest-dom'</span>;
+
+<span class="fn">test</span>(<span class="str">'jest-dom matcher example'</span>, () =&gt; {
+  <span class="fn">render</span>(
+    &lt;form&gt;
+      &lt;label htmlFor=<span class="str">"name"</span>&gt;Name&lt;/label&gt;
+      &lt;input id=<span class="str">"name"</span> value=<span class="str">"Ali"</span> disabled /&gt;
+      &lt;button type=<span class="str">"submit"</span> className=<span class="str">"primary"</span>&gt;Submit&lt;/button&gt;
+      &lt;p style={{ display: <span class="str">'none'</span> }}&gt;Hidden&lt;/p&gt;
+      &lt;a href=<span class="str">"/about"</span>&gt;About&lt;/a&gt;
+    &lt;/form&gt;
+  );
+
+  <span class="kw">const</span> input = screen.<span class="fn">getByLabelText</span>(<span class="str">'Name'</span>);
+  <span class="fn">expect</span>(input).<span class="fn">toBeDisabled</span>();
+  <span class="fn">expect</span>(input).<span class="fn">toHaveValue</span>(<span class="str">'Ali'</span>);
+
+  <span class="kw">const</span> btn = screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>);
+  <span class="fn">expect</span>(btn).<span class="fn">toBeEnabled</span>();
+  <span class="fn">expect</span>(btn).<span class="fn">toHaveTextContent</span>(<span class="str">'Submit'</span>);
+  <span class="fn">expect</span>(btn).<span class="fn">toHaveClass</span>(<span class="str">'primary'</span>);
+
+  <span class="cm">// Visibility</span>
+  <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'Hidden'</span>)).<span class="fn">not</span>.<span class="fn">toBeVisible</span>();
+
+  <span class="cm">// Attribute</span>
+  <span class="fn">expect</span>(screen.<span class="fn">getByRole</span>(<span class="str">'link'</span>))
+    .<span class="fn">toHaveAttribute</span>(<span class="str">'href'</span>, <span class="str">'/about'</span>);
+});</code></pre>
+</div>
+</section>
+<div class="section-break"></div>
+<!-- ── SECTION 10: BEST PRACTICES ── -->
+<section class="section anchor" id="bestpractices">
+<div class="section-label">Section 10</div>
+<h2 class="section-title">Best Practices &amp; AAA Pattern</h2>
+<p class="section-desc">Good testing is not just a technical skill; it is a mindset. Following these rules makes your tests maintainable, readable, and reliable.</p>
+<!-- AAA -->
+<div class="aaa-grid reveal">
+<div class="aaa-step">
+<span class="aaa-letter">A</span>
+<div class="aaa-name">Arrange</div>
+<div class="aaa-desc">Arrange — render the component, define the variables</div>
+</div>
+<div class="aaa-step">
+<span class="aaa-letter">A</span>
+<div class="aaa-name">Act</div>
+<div class="aaa-desc">Act — click, type, API call</div>
+</div>
+<div class="aaa-step">
+<span class="aaa-letter">A</span>
+<div class="aaa-name">Assert</div>
+<div class="aaa-desc">Assert — verify the expected result</div>
+</div>
+</div>
+<div class="code-wrap reveal">
+<div class="code-header">
+<span class="code-filename">aaa-pattern.test.jsx</span>
+<div style="display:flex;align-items:center;gap:0.5rem;">
+<span class="code-lang">AAA pattern</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+</div>
+</div>
+<pre><code><span class="fn">test</span>(<span class="str">'adding a todo updates the list'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">const</span> user = userEvent.<span class="fn">setup</span>();
+
+  <span class="cm">// ── ARRANGE — prepare ─────────────────</span>
+  <span class="fn">render</span>(&lt;<span class="fn">TodoApp</span> /&gt;);
+  <span class="kw">const</span> input = screen.<span class="fn">getByRole</span>(<span class="str">'textbox'</span>, { name: <span class="str">'New task'</span> });
+  <span class="kw">const</span> addBtn = screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">'Add'</span> });
+
+  <span class="cm">// ── ACT — act ──────────────────</span>
+  <span class="kw">await</span> user.<span class="fn">type</span>(input, <span class="str">'Learn React'</span>);
+  <span class="kw">await</span> user.<span class="fn">click</span>(addBtn);
+
+  <span class="cm">// ── ASSERT — verify ────────────────────</span>
+  <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">'Learn React'</span>)).<span class="fn">toBeInTheDocument</span>();
+  <span class="fn">expect</span>(input).<span class="fn">toHaveValue</span>(<span class="str">''</span>);  <span class="cm">// input cleared</span>
+});</code></pre>
+</div>
+<!-- GOOD vs BAD -->
+<div class="practice-split reveal">
+<div class="practice-col good">
+<h4>✅ Best Practices</h4>
+<ul>
+<li>Test user behavior</li>
+<li>Prioritize getByRole</li>
+<li>Write accessible tests</li>
+<li>Mock only external dependencies</li>
+<li>Write clear, descriptive test names</li>
+<li>Arrange → Act → Assert (AAA)</li>
+<li>Each test should verify one behavior</li>
+<li>Reduce repetition with beforeEach</li>
+</ul>
+</div>
+<div class="practice-col bad">
+<h4>❌ Bad Practices</h4>
+<ul>
+<li>Testing implementation details</li>
+<li>Using container.querySelector</li>
+<li>Overrelying on snapshots</li>
+<li>Mocking everything</li>
+<li>Naming tests "test1", "test2"</li>
+<li>Checking too many things in one test</li>
+<li>Mocking the code you are testing</li>
+<li>Forgetting async/await</li>
+</ul>
+</div>
+</div>
+<!-- ACCORDION -->
+<h3 style="font-size:1.1rem;font-weight:700;margin:2.5rem 0 1rem;color:var(--text-primary);">Frequently Asked Questions</h3>
+<div class="accordion reveal">
+<button class="acc-trigger" onclick="toggleAcc(this)">
+        What if getByRole is not possible?
+        <span class="acc-icon">+</span>
+</button>
+<div class="acc-body">
+<p>Follow the priority order: getByRole → getByLabelText → getByPlaceholderText → getByText → getByAltText → getByTitle. If none is possible, add data-testid. data-testid is the last resort — only when there is no other way.</p>
+</div>
+</div>
+<div class="accordion reveal">
+<button class="acc-trigger" onclick="toggleAcc(this)">
+        Should every test be isolated?
+        <span class="acc-icon">+</span>
+</button>
+<div class="acc-body">
+<p>Yes. Each test should be independent from the others. Create a clean state before each test with beforeEach. Reset mocks with mockClear() or mockReset(). Make sure test order does not affect the result — you can shuffle the order with jest --randomize.</p>
+</div>
+</div>
+<div class="accordion reveal">
+<button class="acc-trigger" onclick="toggleAcc(this)">
+        How many tests are enough?
+        <span class="acc-icon">+</span>
+</button>
+<div class="acc-body">
+<p>Always test the main flow (happy path) for each feature. Then add error cases. Testing edge cases is also a good practice. 80–90% code coverage is a good target — 100% is not always possible and not always necessary. Quality is more important than quantity.</p>
+</div>
+</div>
+<div class="accordion reveal">
+<button class="acc-trigger" onclick="toggleAcc(this)">
+        When should snapshot tests be used?
+        <span class="acc-icon">+</span>
+</button>
+<div class="acc-body">
+<p>Snapshot tests are useful for verifying that the UI does not change unexpectedly, but they should not be overused. Every small change updates the snapshot — that trains you to ignore warnings. Testing specific behavior with RTL is a more reliable approach. Use snapshots only for static UI components.</p>
+</div>
+</div>
+<div class="accordion reveal">
+<button class="acc-trigger" onclick="toggleAcc(this)">
+        I see an act() warning — why?
+        <span class="acc-icon">+</span>
+</button>
+<div class="acc-body">
+<p>This warning means a state change happened outside act(). RTL's render(), userEvent, and findBy already wrap things in act(). If you see this warning, the test is ending before an async state change is awaited. Solution: use await screen.findBy...(), or wrap it with await act(async () =&gt; { ... }).</p>
+</div>
+</div>
+</section>
+<div class="section-break"></div>
+<!-- ── QUIZ ── -->
+<section class="section anchor" id="quiz">
+<div class="section-label">Section 11</div>
+<h2 class="section-title">Knowledge Check</h2>
+<p class="section-desc">Test what you learned. Strengthen your knowledge by answering each question.</p>
+<!-- Q1 -->
+<div class="quiz-card reveal">
+<div class="quiz-q">1. Which matcher should be used to compare objects?</div>
+<div class="quiz-options">
+<button class="quiz-opt" data-correct="false" data-key="A" onclick="answerQuiz(this)">toBe()</button>
+<button class="quiz-opt" data-correct="true" data-key="B" onclick="answerQuiz(this)">toEqual()</button>
+<button class="quiz-opt" data-correct="false" data-key="C" onclick="answerQuiz(this)">toContain()</button>
+<button class="quiz-opt" data-correct="false" data-key="D" onclick="answerQuiz(this)">toBeTruthy()</button>
+</div>
+<div class="quiz-feedback correct-fb">✅ Correct! <code>toEqual()</code> performs deep comparison. <code>toBe()</code> performs reference comparison and does not work for objects.</div>
+<div class="quiz-feedback wrong-fb">❌ Wrong. <code>toEqual()</code> is the correct answer — it deeply compares object values.</div>
+</div>
+<!-- Q2 -->
+<div class="quiz-card reveal">
+<div class="quiz-q">2. Which query returns null when an element is not found (without throwing)?</div>
+<div class="quiz-options">
+<button class="quiz-opt" data-correct="false" data-key="A" onclick="answerQuiz(this)">getByText()</button>
+<button class="quiz-opt" data-correct="false" data-key="B" onclick="answerQuiz(this)">findByText()</button>
+<button class="quiz-opt" data-correct="true" data-key="C" onclick="answerQuiz(this)">queryByText()</button>
+<button class="quiz-opt" data-correct="false" data-key="D" onclick="answerQuiz(this)">getAllByText()</button>
+</div>
+<div class="quiz-feedback correct-fb">✅ Correct! <code>queryBy</code> returns null when the element is not found. It is used for "this element does not exist" checks.</div>
+<div class="quiz-feedback wrong-fb">❌ Wrong. <code>queryByText()</code> is the correct answer — it returns null when not found and does not throw.</div>
+</div>
+<!-- Q3 -->
+<div class="quiz-card reveal">
+<div class="quiz-q">3. Which query has the highest priority in RTL?</div>
+<div class="quiz-options">
+<button class="quiz-opt" data-correct="false" data-key="A" onclick="answerQuiz(this)">getByTestId()</button>
+<button class="quiz-opt" data-correct="false" data-key="B" onclick="answerQuiz(this)">getByText()</button>
+<button class="quiz-opt" data-correct="true" data-key="C" onclick="answerQuiz(this)">getByRole()</button>
+<button class="quiz-opt" data-correct="false" data-key="D" onclick="answerQuiz(this)">getByClassName()</button>
+</div>
+<div class="quiz-feedback correct-fb">✅ Correct! <code>getByRole()</code> is the highest priority. It is accessibility-friendly and checks how the element is seen by the user.</div>
+<div class="quiz-feedback wrong-fb">❌ Wrong. <code>getByRole()</code> is the correct answer — it is RTL's recommended first choice.</div>
+</div>
+<!-- Q4 -->
+<div class="quiz-card reveal">
+<div class="quiz-q">4. Which Jest method is used to mock an API call?</div>
+<div class="quiz-options">
+<button class="quiz-opt" data-correct="false" data-key="A" onclick="answerQuiz(this)">jest.stub()</button>
+<button class="quiz-opt" data-correct="true" data-key="B" onclick="answerQuiz(this)">jest.fn() + mockResolvedValue()</button>
+<button class="quiz-opt" data-correct="false" data-key="C" onclick="answerQuiz(this)">jest.fake()</button>
+<button class="quiz-opt" data-correct="false" data-key="D" onclick="answerQuiz(this)">jest.async()</button>
+</div>
+<div class="quiz-feedback correct-fb">✅ Correct! <code>jest.fn()</code> creates a fake function, <code>.mockResolvedValue()</code> while it defines the async response.</div>
+<div class="quiz-feedback wrong-fb">❌ Wrong. <code>jest.fn().mockResolvedValue(data)</code> is the correct combination.</div>
+</div>
+<!-- Q5 -->
+<div class="quiz-card reveal">
+<div class="quiz-q">5. What do the "A" letters in the AAA pattern stand for?</div>
+<div class="quiz-options">
+<button class="quiz-opt" data-correct="false" data-key="A" onclick="answerQuiz(this)">Add, Apply, Affirm</button>
+<button class="quiz-opt" data-correct="true" data-key="B" onclick="answerQuiz(this)">Arrange, Act, Assert</button>
+<button class="quiz-opt" data-correct="false" data-key="C" onclick="answerQuiz(this)">Async, Await, Assign</button>
+<button class="quiz-opt" data-correct="false" data-key="D" onclick="answerQuiz(this)">Analyze, Automate, Assert</button>
+</div>
+<div class="quiz-feedback correct-fb">✅ Correct! Arrange → Act → Assert. This pattern makes tests structured and readable.</div>
+<div class="quiz-feedback wrong-fb">❌ Wrong. AAA = Arrange → Act → Assert.</div>
+</div>
+</section>
+<div class="section-break"></div>
+<!-- FOOTER -->
+<div style="text-align:center;padding:2rem 0;font-family:var(--mono);font-size:0.72rem;color:var(--text-muted);">
+<div style="margin-bottom:0.5rem;color:var(--indigo-light);">// Testing Guide — Jest &amp; React Testing Library</div>
+<div>Unit · Integration · E2E · render · screen · userEvent · Mock</div>
+</div>
+</div>
+<!-- BACK TO TOP -->
+<button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+<script>
+// ── PROGRESS BAR ──
+const progressBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY;
+  const maxScroll = document.body.scrollHeight - window.innerHeight;
+  progressBar.style.width = (scrolled / maxScroll * 100) + '%';
+
+  // back to top
+  const btt = document.getElementById('btt');
+  btt.classList.toggle('visible', scrolled > 300);
+
+  // active nav
+  const sections = document.querySelectorAll('.anchor');
+  const navLinks = document.querySelectorAll('.nav-link');
+  let current = '';
+  sections.forEach(sec => {
+    if (scrolled >= sec.offsetTop - 100) current = sec.id;
+  });
+  navLinks.forEach(l => {
+    l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+  });
+});
+
+// ── TABS ──
+document.querySelectorAll('.tab-buttons').forEach(group => {
+  group.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.dataset.tab;
+      group.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const panels = group.nextElementSibling;
+      panels.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      const target = panels.querySelector('#tab-' + tabId);
+      if (target) target.classList.add('active');
+    });
+  });
+});
+
+// ── ACCORDION ──
+function toggleAcc(btn) {
+  const body = btn.nextElementSibling;
+  const isOpen = btn.classList.contains('open');
+  btn.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+
+// ── COPY ──
+function copyCode(btn) {
+  const pre = btn.closest('.code-wrap').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// ── QUIZ ──
+function answerQuiz(btn) {
+  const quizCard = btn.closest('.quiz-card');
+  if (quizCard.dataset.answered) return;
+  quizCard.dataset.answered = '1';
+
+  const opts = quizCard.querySelectorAll('.quiz-opt');
+  opts.forEach(o => {
+    o.style.pointerEvents = 'none';
+    if (o.dataset.correct === 'true') o.classList.add('correct');
+  });
+
+  const isCorrect = btn.dataset.correct === 'true';
+  if (!isCorrect) btn.classList.add('wrong');
+
+  const feedbacks = quizCard.querySelectorAll('.quiz-feedback');
+  feedbacks[isCorrect ? 0 : 1].classList.add('show');
+}
+
+// ── REVEAL ON SCROLL ──
+const reveals = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 60);
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(el => io.observe(el));
+
+// ── LEARNING PATH DOTS ──
+const pathDots = document.querySelectorAll('.path-dot');
+const sectionIds = ['why', 'types', 'jest', 'rtl', 'async', 'bestpractices'];
+window.addEventListener('scroll', () => {
+  sectionIds.forEach((id, i) => {
+    const sec = document.getElementById(id);
+    if (sec && window.scrollY >= sec.offsetTop - 200) {
+      pathDots[i]?.classList.add('done');
+    }
+  });
+});
+</script>
+</body>
+</html>

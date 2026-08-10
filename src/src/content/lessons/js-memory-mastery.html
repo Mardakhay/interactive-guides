@@ -1,0 +1,2736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS Memory Mastery — Interactive Deep Dive</title>
+<style>
+/* ===== FONTS ===== */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&display=swap');
+
+/* ===== ROOT VARS ===== */
+:root {
+  --bg: #050510;
+  --surface: rgba(255,255,255,0.04);
+  --surface2: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.1);
+  --neon-blue: #00f0ff;
+  --neon-purple: #b44fff;
+  --neon-green: #00ff88;
+  --neon-orange: #ff6b35;
+  --neon-pink: #ff2d78;
+  --neon-yellow: #ffe033;
+  --text: #e8eaf0;
+  --text-dim: #8892a4;
+  --stack-color: #00f0ff;
+  --heap-color: #b44fff;
+  --gc-color: #ff2d78;
+  --font-display: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-body: 'Inter', sans-serif;
+  --radius: 16px;
+  --radius-sm: 8px;
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.7;
+}
+
+/* ===== ANIMATED BG ===== */
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.bg-canvas canvas { width: 100%; height: 100%; }
+
+/* ===== PROGRESS BAR ===== */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple), var(--neon-green));
+  z-index: 9999;
+  width: 0%;
+  transition: width 0.1s;
+}
+
+/* ===== NAV ===== */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: rgba(5,5,16,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+.nav-links {
+  display: flex;
+  gap: 0.25rem;
+  list-style: none;
+  flex-wrap: wrap;
+}
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.nav-links a:hover {
+  color: var(--neon-blue);
+  border-color: var(--neon-blue);
+  background: rgba(0,240,255,0.07);
+}
+
+/* ===== MAIN LAYOUT ===== */
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 1.5rem 4rem;
+}
+
+/* ===== HERO ===== */
+.hero {
+  text-align: center;
+  padding: 6rem 0 4rem;
+}
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--neon-green);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -2px;
+  margin-bottom: 1.5rem;
+}
+.hero h1 .grad {
+  background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-purple) 50%, var(--neon-pink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-sub {
+  color: var(--text-dim);
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+  font-size: 1.1rem;
+}
+.hero-chips {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  border: 1px solid;
+}
+.chip.blue { color: var(--neon-blue); border-color: var(--neon-blue); background: rgba(0,240,255,0.07); }
+.chip.purple { color: var(--neon-purple); border-color: var(--neon-purple); background: rgba(180,79,255,0.07); }
+.chip.green { color: var(--neon-green); border-color: var(--neon-green); background: rgba(0,255,136,0.07); }
+.chip.orange { color: var(--neon-orange); border-color: var(--neon-orange); background: rgba(255,107,53,0.07); }
+
+/* ===== SECTION ===== */
+.section {
+  margin: 5rem 0;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.section.visible { opacity: 1; transform: translateY(0); }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.section-num {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-sm);
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  transition: border-color 0.3s, transform 0.2s;
+  backdrop-filter: blur(10px);
+}
+.card:hover { border-color: rgba(255,255,255,0.2); }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+@media(max-width:700px){ .card-grid { grid-template-columns: 1fr; } }
+
+.card h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.card p { color: var(--text-dim); font-size: 0.92rem; }
+
+/* ===== DIVIDER ===== */
+.neon-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+  margin: 4rem 0;
+}
+
+/* ===== CODE BLOCK ===== */
+.code-block {
+  position: relative;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.8;
+  overflow-x: auto;
+}
+.code-block .keyword { color: var(--neon-purple); }
+.code-block .string { color: var(--neon-green); }
+.code-block .number { color: var(--neon-orange); }
+.code-block .comment { color: #4a5568; }
+.code-block .func { color: var(--neon-blue); }
+.code-block .var-name { color: var(--neon-yellow); }
+
+.copy-btn {
+  position: absolute;
+  top: 0.75rem; right: 0.75rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.copy-btn:hover { color: var(--neon-blue); border-color: var(--neon-blue); }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: 100px;
+  border: 1px solid;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: none;
+}
+.btn-blue { color: var(--neon-blue); border-color: var(--neon-blue); }
+.btn-blue:hover { background: rgba(0,240,255,0.12); box-shadow: 0 0 20px rgba(0,240,255,0.2); }
+.btn-purple { color: var(--neon-purple); border-color: var(--neon-purple); }
+.btn-purple:hover { background: rgba(180,79,255,0.12); box-shadow: 0 0 20px rgba(180,79,255,0.2); }
+.btn-green { color: var(--neon-green); border-color: var(--neon-green); }
+.btn-green:hover { background: rgba(0,255,136,0.12); box-shadow: 0 0 20px rgba(0,255,136,0.2); }
+.btn-red { color: var(--neon-pink); border-color: var(--neon-pink); }
+.btn-red:hover { background: rgba(255,45,120,0.12); box-shadow: 0 0 20px rgba(255,45,120,0.2); }
+.btn-orange { color: var(--neon-orange) !important; border-color: var(--neon-orange) !important; }
+.btn-orange:hover { background: rgba(255,107,53,0.12) !important; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ===== MEMORY PANELS ===== */
+.memory-arena {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+@media(max-width:650px){ .memory-arena { grid-template-columns: 1fr; } }
+
+.mem-panel {
+  border-radius: var(--radius);
+  border: 1px solid;
+  overflow: hidden;
+  min-height: 280px;
+}
+.mem-panel.stack { border-color: rgba(0,240,255,0.4); }
+.mem-panel.heap { border-color: rgba(180,79,255,0.4); }
+
+.mem-header {
+  padding: 0.75rem 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.mem-panel.stack .mem-header { background: rgba(0,240,255,0.1); color: var(--neon-blue); }
+.mem-panel.heap .mem-header { background: rgba(180,79,255,0.1); color: var(--neon-purple); }
+
+.mem-dot { width: 8px; height: 8px; border-radius: 50%; }
+.stack .mem-dot { background: var(--neon-blue); box-shadow: 0 0 8px var(--neon-blue); }
+.heap .mem-dot { background: var(--neon-purple); box-shadow: 0 0 8px var(--neon-purple); }
+
+.mem-body {
+  padding: 1rem;
+  min-height: 220px;
+  position: relative;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.5rem;
+}
+
+.mem-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  animation: slideIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px) scale(0.9); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+.mem-item.stack-item { background: rgba(0,240,255,0.08); border: 1px solid rgba(0,240,255,0.25); color: var(--neon-blue); }
+.mem-item.heap-item { background: rgba(180,79,255,0.08); border: 1px solid rgba(180,79,255,0.25); color: var(--neon-purple); }
+.mem-item.removing { animation: slideOut 0.4s forwards; }
+@keyframes slideOut {
+  to { opacity: 0; transform: translateX(20px) scale(0.8); }
+}
+.mem-item .item-name { font-weight: 700; }
+.mem-item .item-val { color: var(--neon-green); }
+.mem-item .item-addr { color: var(--text-dim); font-size: 0.65rem; }
+.mem-ref-line {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 20px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--neon-blue), transparent);
+}
+
+.mem-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  font-size: 1.5rem;
+  padding: 0.5rem;
+}
+
+/* ===== CALL STACK VISUALIZER ===== */
+.callstack-arena {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+@media(max-width:650px){ .callstack-arena { grid-template-columns: 1fr; } }
+
+.callstack-panel {
+  border: 1px solid rgba(0,240,255,0.3);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.callstack-header {
+  background: rgba(0,240,255,0.08);
+  padding: 0.75rem 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--neon-blue);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 700;
+}
+.callstack-body {
+  min-height: 300px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.5rem;
+}
+.frame {
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  animation: frameIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  border-left: 3px solid;
+}
+@keyframes frameIn {
+  from { opacity: 0; transform: scale(0.85) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.frame.active {
+  background: rgba(0,240,255,0.12);
+  border-left-color: var(--neon-blue);
+  box-shadow: 0 0 15px rgba(0,240,255,0.1);
+}
+.frame.waiting {
+  background: rgba(255,255,255,0.03);
+  border-left-color: rgba(255,255,255,0.15);
+}
+.frame-name { color: var(--neon-yellow); font-weight: 700; }
+.frame-detail { color: var(--text-dim); font-size: 0.68rem; margin-top: 0.2rem; }
+
+.code-highlight {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.code-line {
+  padding: 0.35rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  border-left: 3px solid transparent;
+  transition: all 0.3s;
+  cursor: default;
+}
+.code-line.active-line {
+  background: rgba(0,240,255,0.08);
+  border-left-color: var(--neon-blue);
+  color: var(--text);
+}
+.code-line .ln { color: #3a4a5e; width: 1.5rem; display: inline-block; }
+
+/* ===== TABS ===== */
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.tab {
+  padding: 0.6rem 1.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  border: none;
+  background: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.tab.active { color: var(--neon-blue); border-bottom-color: var(--neon-blue); }
+.tab:hover:not(.active) { color: var(--text); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ===== COMPARISON TABLE ===== */
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  font-family: var(--font-mono);
+}
+.comp-table th {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.comp-table th:nth-child(2) { color: var(--neon-blue); }
+.comp-table th:nth-child(3) { color: var(--neon-purple); }
+.comp-table td {
+  padding: 0.7rem 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  vertical-align: top;
+}
+.comp-table td:first-child { color: var(--text); font-weight: 500; }
+.comp-table td:nth-child(2) { color: rgba(0,240,255,0.85); }
+.comp-table td:nth-child(3) { color: rgba(180,79,255,0.85); }
+.comp-table tr:hover td { background: var(--surface); }
+
+/* ===== GC SIMULATION ===== */
+.gc-arena {
+  position: relative;
+  min-height: 320px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: rgba(0,0,0,0.3);
+  padding: 1rem;
+}
+.gc-node {
+  position: absolute;
+  width: 90px;
+  height: 70px;
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  cursor: pointer;
+  transition: all 0.4s;
+  border: 2px solid;
+  user-select: none;
+}
+.gc-node.reachable { background: rgba(0,255,136,0.1); border-color: var(--neon-green); color: var(--neon-green); }
+.gc-node.unreachable { background: rgba(255,45,120,0.1); border-color: var(--neon-pink); color: var(--neon-pink); }
+.gc-node.root { background: rgba(255,224,51,0.1); border-color: var(--neon-yellow); color: var(--neon-yellow); }
+.gc-node.collected { animation: collectAnim 0.5s forwards; }
+@keyframes collectAnim {
+  to { opacity: 0; transform: scale(0) rotate(10deg); }
+}
+.gc-node .node-name { font-weight: 700; font-size: 0.78rem; }
+.gc-node .node-status { font-size: 0.6rem; margin-top: 0.2rem; }
+
+/* ===== STRING POOL ===== */
+.pool-arena {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.pool-section {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.pool-section-header {
+  background: var(--surface2);
+  padding: 0.65rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+}
+.pool-body {
+  padding: 1rem;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.pool-entry {
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: rgba(255,224,51,0.08);
+  border: 1px solid rgba(255,224,51,0.2);
+  color: var(--neon-yellow);
+  animation: slideIn 0.35s ease;
+}
+.pool-entry.new-string { background: rgba(0,255,136,0.08); border-color: rgba(0,255,136,0.2); color: var(--neon-green); }
+
+/* ===== COPY DEMO ===== */
+.copy-demo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.copy-block {
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.copy-block-header {
+  padding: 0.6rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--surface2);
+}
+.copy-block-body {
+  padding: 1rem;
+  min-height: 130px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+.copy-prop {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.copy-prop:last-child { border-bottom: none; }
+.copy-prop .key { color: var(--neon-blue); }
+.copy-prop .val { color: var(--neon-green); }
+.copy-prop.mutated .val { color: var(--neon-pink); animation: flash 0.5s; }
+@keyframes flash { 0%,100%{} 50%{ background: rgba(255,45,120,0.2); } }
+
+/* ===== ACCORDION ===== */
+.accordion { margin-bottom: 0.75rem; }
+.accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  user-select: none;
+}
+.accordion-header:hover { border-color: rgba(255,255,255,0.2); background: var(--surface2); }
+.accordion-header.open { border-radius: var(--radius) var(--radius) 0 0; border-bottom-color: transparent; }
+.accordion-arrow { transition: transform 0.3s; font-size: 0.8rem; color: var(--text-dim); }
+.accordion-header.open .accordion-arrow { transform: rotate(90deg); }
+.accordion-body {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding: 0 1.25rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s;
+}
+.accordion-body.open { max-height: 1000px; padding: 1.25rem; }
+
+/* ===== QUIZ ===== */
+.quiz-q {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.quiz-q-text {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+.quiz-opt {
+  padding: 0.65rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.87rem;
+  font-family: var(--font-mono);
+  transition: all 0.2s;
+  background: none;
+  color: var(--text);
+  text-align: left;
+}
+.quiz-opt:hover { border-color: rgba(255,255,255,0.3); background: var(--surface2); }
+.quiz-opt.correct { border-color: var(--neon-green); background: rgba(0,255,136,0.08); color: var(--neon-green); }
+.quiz-opt.wrong { border-color: var(--neon-pink); background: rgba(255,45,120,0.08); color: var(--neon-pink); }
+.quiz-opt.disabled { cursor: default; pointer-events: none; }
+.quiz-feedback {
+  margin-top: 0.75rem;
+  font-size: 0.83rem;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-sm);
+  display: none;
+  font-family: var(--font-mono);
+}
+.quiz-feedback.correct { background: rgba(0,255,136,0.08); color: var(--neon-green); border: 1px solid rgba(0,255,136,0.3); display: block; }
+.quiz-feedback.wrong { background: rgba(255,45,120,0.08); color: var(--neon-pink); border: 1px solid rgba(255,45,120,0.3); display: block; }
+
+.quiz-score {
+  text-align: center;
+  padding: 2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: none;
+}
+.quiz-score.visible { display: block; }
+.score-num {
+  font-family: var(--font-display);
+  font-size: 4rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ===== LOG ===== */
+.sim-log {
+  margin-top: 1rem;
+  min-height: 60px;
+  padding: 0.75rem 1rem;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  max-height: 140px;
+  overflow-y: auto;
+}
+.log-line { padding: 0.15rem 0; }
+.log-line.info { color: var(--neon-blue); }
+.log-line.success { color: var(--neon-green); }
+.log-line.warn { color: var(--neon-orange); }
+.log-line.error { color: var(--neon-pink); }
+
+/* ===== LIFECYCLE DIAGRAM ===== */
+.lifecycle-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+.lc-step {
+  text-align: center;
+  padding: 1.2rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-width: 130px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.lc-step:hover, .lc-step.active {
+  border-color: var(--neon-blue);
+  background: rgba(0,240,255,0.08);
+  box-shadow: 0 0 20px rgba(0,240,255,0.15);
+}
+.lc-step .lc-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.lc-step .lc-label { font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; }
+.lc-step .lc-desc { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.3rem; }
+.lc-arrow { font-size: 1.5rem; color: var(--text-dim); padding: 0 0.5rem; }
+
+.lc-detail {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: rgba(0,240,255,0.05);
+  border: 1px solid rgba(0,240,255,0.2);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  min-height: 80px;
+  transition: all 0.3s;
+}
+
+/* ===== ANALOGY BOX ===== */
+.analogy {
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius);
+  background: rgba(255,224,51,0.05);
+  border: 1px solid rgba(255,224,51,0.2);
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin: 1.25rem 0;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.analogy-icon { font-size: 1.5rem; flex-shrink: 0; }
+.analogy strong { color: var(--neon-yellow); }
+
+/* ===== SUMMARY ===== */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+@media(max-width:750px){ .summary-grid { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:500px){ .summary-grid { grid-template-columns: 1fr; } }
+
+.summary-card {
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  text-align: center;
+  transition: all 0.3s;
+}
+.summary-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.2); }
+.summary-card .sc-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.summary-card .sc-title { font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; margin-bottom: 0.4rem; }
+.summary-card .sc-text { font-size: 0.77rem; color: var(--text-dim); }
+
+/* ===== SCROLL ===== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+/* ===== HIGHLIGHT ===== */
+.hl-blue { color: var(--neon-blue); }
+.hl-purple { color: var(--neon-purple); }
+.hl-green { color: var(--neon-green); }
+.hl-yellow { color: var(--neon-yellow); }
+.hl-pink { color: var(--neon-pink); }
+.hl-orange { color: var(--neon-orange); }
+
+/* ===== TOOLTIP ===== */
+.tooltip-wrap { position: relative; display: inline-block; cursor: help; border-bottom: 1px dashed var(--text-dim); }
+.tooltip-box {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10,10,30,0.97);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.72rem;
+  color: var(--text);
+  white-space: nowrap;
+  z-index: 100;
+  font-family: var(--font-body);
+  margin-bottom: 6px;
+  pointer-events: none;
+}
+.tooltip-wrap:hover .tooltip-box { display: block; }
+
+/* ===== CONST DEMO ===== */
+.const-demo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+.const-box {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.const-box-header {
+  padding: 0.7rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  background: var(--surface2);
+}
+.const-box-body { padding: 1rem; font-family: var(--font-mono); font-size: 0.8rem; }
+.const-val { margin: 0.4rem 0; }
+.const-val .key { color: var(--neon-blue); }
+.const-val .val { color: var(--neon-green); }
+.const-val.blocked { color: var(--neon-pink); }
+.const-val.allowed { color: var(--neon-green); }
+
+/* ===== FOOTER ===== */
+footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono);
+}
+
+/* ===== OVERFLOW FIX ===== */
+.overflow-demo {
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid rgba(255,45,120,0.3);
+  background: rgba(255,45,120,0.05);
+}
+.overflow-header {
+  padding: 0.75rem 1.25rem;
+  background: rgba(255,45,120,0.1);
+  color: var(--neon-pink);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+}
+.overflow-stack {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 200px;
+  overflow: hidden;
+  position: relative;
+}
+.overflow-frame-item {
+  padding: 0.35rem 0.75rem;
+  background: rgba(255,45,120,0.08);
+  border: 1px solid rgba(255,45,120,0.2);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--neon-pink);
+}
+.overflow-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(transparent, rgba(5,5,16,0.9));
+}
+
+/* ===== V8 ENGINE VIZ ===== */
+.v8-pipeline {
+  display: flex;
+  gap: 0;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+.v8-stage {
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
+  position: relative;
+}
+.v8-stage-box {
+  padding: 0.8rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  margin-right: 1px;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.v8-stage-box:hover { border-color: var(--neon-blue); background: rgba(0,240,255,0.07); }
+.v8-stage-box .stage-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+.v8-stage-box .stage-name { color: var(--neon-blue); font-weight: 700; font-size: 0.68rem; }
+.v8-stage-box .stage-desc { color: var(--text-dim); font-size: 0.6rem; margin-top: 0.25rem; }
+.v8-arr { display: flex; align-items: center; color: var(--text-dim); padding: 0 0.25rem; font-size: 1.2rem; }
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div id="progress-bar"></div>
+
+<!-- ANIMATED BG -->
+<div class="bg-canvas">
+  <canvas id="bg-canvas"></canvas>
+</div>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">⚡ JS Memory Mastery</span>
+  <ul class="nav-links">
+    <li><a href="#lifecycle">Life Cycle</a></li>
+    <li><a href="#stack">Stack</a></li>
+    <li><a href="#heap">Heap</a></li>
+    <li><a href="#callstack">Call Stack</a></li>
+    <li><a href="#primitives">Primitives</a></li>
+    <li><a href="#copy">Copy</a></li>
+    <li><a href="#gc">GC</a></li>
+    <li><a href="#v8">V8</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+  </ul>
+</nav>
+
+<main>
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">🧠 Interactive Deep Dive</div>
+  <h1>JavaScript <span class="grad">Memory</span><br>Under The Hood</h1>
+  <p class="hero-sub">See exactly what happens inside your computer's memory when JavaScript runs — from zero to expert, with live simulations.</p>
+  <div class="hero-chips">
+    <span class="chip blue">🗂️ Stack Memory</span>
+    <span class="chip purple">🏗️ Heap Memory</span>
+    <span class="chip green">♻️ Garbage Collection</span>
+    <span class="chip orange">⚙️ V8 Engine</span>
+  </div>
+</div>
+
+<!-- ===== SECTION 1: LIFECYCLE ===== -->
+<div id="lifecycle" class="section">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2 class="section-title">Memory Life Cycle</h2>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <p>Every piece of data in JavaScript goes through a <strong class="hl-blue">3-phase life cycle</strong>. Click each phase to learn what happens:</p>
+  </div>
+
+  <div class="lifecycle-diagram">
+    <div class="lc-step" onclick="showLCDetail(0,this)">
+      <div class="lc-icon">📦</div>
+      <div class="lc-label">Allocation</div>
+      <div class="lc-desc">Memory is reserved</div>
+    </div>
+    <div class="lc-arrow">→</div>
+    <div class="lc-step" onclick="showLCDetail(1,this)">
+      <div class="lc-icon">🔧</div>
+      <div class="lc-label">Usage</div>
+      <div class="lc-desc">Data is read/written</div>
+    </div>
+    <div class="lc-arrow">→</div>
+    <div class="lc-step" onclick="showLCDetail(2,this)">
+      <div class="lc-icon">🗑️</div>
+      <div class="lc-label">Release</div>
+      <div class="lc-desc">Memory is freed</div>
+    </div>
+  </div>
+
+  <div class="lc-detail" id="lc-detail">
+    👆 Click a phase above to see what JavaScript does behind the scenes.
+  </div>
+
+  <div class="analogy">
+    <span class="analogy-icon">🏨</span>
+    <div>
+      <strong>Analogy: A hotel room</strong> — When you check in (allocate), the room is yours. While you stay (usage), you use the furniture. When you check out (release), the room is cleaned and available again for someone else. Memory works exactly the same way!
+    </div>
+  </div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ===== SECTION 2: STACK ===== -->
+<div id="stack" class="section">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2 class="section-title" style="color:var(--neon-blue)">Stack Memory</h2>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <p>The <strong class="hl-blue">Stack</strong> is a fast, organized region of memory. It works like a stack of plates — the last plate you put on is the first one you take off. This is called <strong>LIFO</strong> (Last In, First Out).</p>
+    <br>
+    <p style="color:var(--text-dim);font-size:0.9rem;">What goes in the stack: <span class="hl-blue">primitive values</span> (numbers, strings, booleans, undefined, null, symbols, BigInt), local variables, function call information.</p>
+  </div>
+
+  <div class="card-grid" style="margin-bottom:1.5rem;">
+    <div class="card">
+      <h3>⚡ Why is Stack so fast?</h3>
+      <p>Stack memory is allocated and freed with a single pointer movement. The CPU always knows exactly where the top of the stack is. No searching, no complex management — just move a number up or down.</p>
+    </div>
+    <div class="card">
+      <h3>📏 Fixed Size Matters</h3>
+      <p>Everything on the stack has a <strong>known, fixed size</strong> at compile time. A number is always 8 bytes. A boolean is always 1 byte. This predictability is what makes stack lightning fast.</p>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <span class="analogy-icon">📚</span>
+    <div>
+      <strong>Analogy: A stack of books on a desk.</strong> You can only add or remove from the top. When a function is called, a new "book" (frame) is added. When the function ends, that book is removed. It's fast because you always know exactly where the top is.
+    </div>
+  </div>
+
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:1.5rem 0;">
+    <button class="btn btn-blue" onclick="stackDemo('push')">▶ Push Variable</button>
+    <button class="btn btn-red" onclick="stackDemo('pop')">⬆ Pop Variable</button>
+    <button class="btn btn-green" onclick="stackDemo('reset')">↺ Reset</button>
+  </div>
+  <div class="mem-panel stack">
+    <div class="mem-header"><div class="mem-dot"></div>Stack Memory — LIFO</div>
+    <div class="mem-body" id="stack-demo-body"></div>
+  </div>
+  <div class="sim-log" id="stack-log">→ Press "Push Variable" to add items to the stack...</div>
+
+  <div style="margin-top:1.5rem;">
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <span class="keyword">let</span> <span class="var-name">age</span> = <span class="number">25</span>;       <span class="comment">// ← number 25 stored directly on stack</span>
+<span class="keyword">let</span> <span class="var-name">name</span> = <span class="string">"Alice"</span>;   <span class="comment">// ← string literal, value on stack (optimized)</span>
+<span class="keyword">let</span> <span class="var-name">isOk</span> = <span class="keyword">true</span>;     <span class="comment">// ← boolean true stored directly on stack</span>
+
+<span class="comment">// When this scope ends, all these are GONE instantly</span>
+    </div>
+  </div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ===== SECTION 3: HEAP ===== -->
+<div id="heap" class="section">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2 class="section-title" style="color:var(--neon-purple)">Heap Memory</h2>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <p>The <strong class="hl-purple">Heap</strong> is a large, less organized region for data that is <strong>dynamic</strong> — things whose size we don't know ahead of time, or things that need to outlive a single function call. Objects, arrays, and functions live here.</p>
+  </div>
+
+  <div class="card-grid" style="margin-bottom:1.5rem;">
+    <div class="card">
+      <h3>🗃️ Why does Heap exist?</h3>
+      <p>Objects can grow — you can add properties any time. Arrays can change length. We can't predict their size, so they can't live on the fixed-size stack. The heap is like a big warehouse where you can store anything, any size.</p>
+    </div>
+    <div class="card">
+      <h3>🔗 References not values</h3>
+      <p>When you create an object, the <strong>actual data</strong> goes in the heap. But what the stack holds is a tiny <strong>reference</strong> (memory address) pointing to where in the heap the object lives.</p>
+    </div>
+    <div class="card">
+      <h3>🐢 Why is Heap slower?</h3>
+      <p>The heap needs a complex allocator to find free space. Over time, allocations and deallocations leave "holes" (fragmentation). The GC also needs to scan it. All this adds overhead.</p>
+    </div>
+    <div class="card">
+      <h3>💥 Fragmentation</h3>
+      <p>After many alloc/free cycles, memory can look like swiss cheese — lots of small free holes between used blocks. Finding a contiguous block big enough for a new object takes real computation.</p>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <span class="analogy-icon">🏭</span>
+    <div>
+      <strong>Analogy: A warehouse with shelf tickets.</strong> When you put a box (object) in the warehouse, you get a ticket (reference/address). Your desk (stack) holds only the ticket, not the whole box. If someone else needs the same box, they get a copy of the ticket — not another copy of the box.
+    </div>
+  </div>
+
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:1.5rem 0;">
+    <button class="btn btn-purple" onclick="heapDemo('create')">+ Create Object</button>
+    <button class="btn btn-red" onclick="heapDemo('nullify')">✗ Remove Reference</button>
+    <button class="btn btn-green" onclick="heapDemo('reset')">↺ Reset</button>
+  </div>
+
+  <div class="memory-arena">
+    <div class="mem-panel stack">
+      <div class="mem-header"><div class="mem-dot"></div>Stack (references)</div>
+      <div class="mem-body" id="heap-stack-body"></div>
+    </div>
+    <div class="mem-panel heap">
+      <div class="mem-header"><div class="mem-dot"></div>Heap (objects)</div>
+      <div class="mem-body" id="heap-heap-body"></div>
+    </div>
+  </div>
+  <div class="sim-log" id="heap-log">→ Press "Create Object" to see stack and heap in action...</div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ===== SECTION 4: STACK vs HEAP COMPARISON ===== -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2 class="section-title">Stack vs Heap — Full Comparison</h2>
+  </div>
+
+  <div style="overflow-x:auto;">
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>🔵 Stack</th>
+          <th>🟣 Heap</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Size</td><td>Fixed, small (1–8 MB)</td><td>Large, dynamic (GBs)</td></tr>
+        <tr><td>Speed</td><td>⚡ Very fast</td><td>🐢 Slower</td></tr>
+        <tr><td>Access</td><td>LIFO (top only)</td><td>Random access via address</td></tr>
+        <tr><td>Management</td><td>Automatic (pointer moves)</td><td>Garbage Collector</td></tr>
+        <tr><td>Stores</td><td>Primitives, references</td><td>Objects, arrays, functions</td></tr>
+        <tr><td>Memory size</td><td>Known at compile time</td><td>Dynamic, unknown</td></tr>
+        <tr><td>Scope</td><td>Tied to function scope</td><td>Can outlive functions</td></tr>
+        <tr><td>Fragmentation</td><td>None</td><td>Yes, can fragment</td></tr>
+        <tr><td>Overflow risk</td><td>Stack Overflow</td><td>Out Of Memory</td></tr>
+        <tr><td>Thread safety</td><td>Per-thread (safe)</td><td>Shared (needs management)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ===== SECTION 5: CALL STACK ===== -->
+<div id="callstack" class="section">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2 class="section-title">The Call Stack</h2>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <p>The <strong class="hl-blue">Call Stack</strong> is a special region of the stack that tracks <strong>which function is running and where to return to</strong> when it finishes. Every time you call a function, a <em>stack frame</em> is pushed. When the function returns, that frame is popped.</p>
+    <br><p style="color:var(--text-dim);font-size:0.9rem;">Each frame contains: the function's local variables, its arguments, and the <strong>return address</strong> (where to continue execution after the function ends).</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(this,'cs-tab1')">Live Simulation</button>
+    <button class="tab" onclick="switchTab(this,'cs-tab2')">Stack Overflow</button>
+    <button class="tab" onclick="switchTab(this,'cs-tab3')">Execution Context</button>
+  </div>
+
+  <div id="cs-tab1" class="tab-content active">
+    <div class="callstack-arena">
+      <div>
+        <div class="code-highlight" id="cs-code"></div>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1rem;">
+          <button class="btn btn-blue" id="cs-next-btn" onclick="csNext()">▶ Next Step</button>
+          <button class="btn btn-green" onclick="csReset()">↺ Reset</button>
+        </div>
+        <div class="sim-log" id="cs-log">→ Press "Next Step" to walk through function execution...</div>
+      </div>
+      <div class="callstack-panel">
+        <div class="callstack-header">📞 Call Stack</div>
+        <div class="callstack-body" id="cs-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cs-tab2" class="tab-content">
+    <div class="card" style="margin-bottom:1.25rem;">
+      <h3 style="color:var(--neon-pink)">💥 Stack Overflow</h3>
+      <p>If functions keep calling each other endlessly (recursion without a base case), the call stack eventually runs out of space. This causes a <strong class="hl-pink">Stack Overflow</strong> error. Browsers typically allow 10,000–15,000 frames.</p>
+    </div>
+    <div class="overflow-demo">
+      <div class="overflow-header">⚠️ Stack Overflow Simulation</div>
+      <div class="overflow-stack" id="overflow-stack">
+        <div style="text-align:center;color:var(--text-dim);font-family:var(--font-mono);font-size:0.8rem;padding:2rem;">Press the button to simulate infinite recursion</div>
+        <div class="overflow-fade"></div>
+      </div>
+    </div>
+    <div style="margin-top:1rem;display:flex;gap:1rem;">
+      <button class="btn btn-red" onclick="simulateOverflow()">💥 Trigger Overflow</button>
+      <button class="btn btn-green" onclick="resetOverflow()">↺ Reset</button>
+    </div>
+    <div class="code-block" style="margin-top:1.25rem;">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <span class="comment">// This will cause a Stack Overflow!</span>
+<span class="keyword">function</span> <span class="func">infinite</span>() {
+  <span class="func">infinite</span>(); <span class="comment">// calls itself forever</span>
+}
+<span class="func">infinite</span>(); <span class="comment">// ❌ RangeError: Maximum call stack size exceeded</span>
+    </div>
+  </div>
+
+  <div id="cs-tab3" class="tab-content">
+    <div class="card" style="margin-bottom:1.25rem;">
+      <h3>🌍 Execution Context</h3>
+      <p>Every time JavaScript runs, it creates an <strong class="hl-blue">Execution Context</strong> — a container that holds all the information needed to run a piece of code. There are two types:</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <h3>🌐 Global Execution Context</h3>
+        <p>Created once when your script starts. Sets up the global scope, creates the <code>window</code> (browser) or <code>global</code> (Node) object. This is the bottom frame always present in the call stack.</p>
+      </div>
+      <div class="card">
+        <h3>📦 Function Execution Context</h3>
+        <p>Created every time a function is called. Contains: the function's own variables (Variable Environment), the scope chain to look up outer variables, and the value of <code>this</code>.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1rem;">
+      <h3>🔗 Scope Chain</h3>
+      <p>When JavaScript looks for a variable, it starts in the current function's scope. If not found, it goes up to the parent scope, then the parent's parent, all the way up to global. This chain of scopes is the <strong class="hl-green">Scope Chain</strong> — it's formed at creation time using closures.</p>
+    </div>
+  </div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ===== SECTION 6: PRIMITIVES vs OBJECTS ===== -->
+<div id="primitives" class="section">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2 class="section-title">Primitives vs Non-Primitives</h2>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <p><strong class="hl-blue">Primitive types</strong>: number, string, boolean, undefined, null, symbol, BigInt — stored <em>by value</em> directly on the stack.<br><br>
+    <strong class="hl-purple">Non-primitive types</strong>: objects, arrays, functions — stored <em>by reference</em>. The actual data lives in the heap, and the stack holds a pointer to it.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(this,'prim-tab1')">Primitive Copy</button>
+    <button class="tab" onclick="switchTab(this,'prim-tab2')">Object Reference</button>
+    <button class="tab" onclick="switchTab(this,'prim-tab3')">Mutation Effect</button>
+  </div>
+
+  <div id="prim-tab1" class="tab-content active">
+    <div class="card" style="margin-bottom:1rem;">
+      <p>When you copy a primitive, you get a <strong class="hl-green">completely independent copy</strong>. Changing one does NOT affect the other.</p>
+    </div>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0;">
+      <button class="btn btn-blue" onclick="primDemo('copy')">▶ Copy Primitive</button>
+      <button class="btn btn-orange" onclick="primDemo('mutate')">✏️ Mutate Original</button>
+      <button class="btn btn-green" onclick="primDemo('reset')">↺ Reset</button>
+    </div>
+    <div class="memory-arena">
+      <div class="mem-panel stack">
+        <div class="mem-header"><div class="mem-dot"></div>Stack</div>
+        <div class="mem-body" id="prim-stack"></div>
+      </div>
+      <div class="mem-panel heap">
+        <div class="mem-header"><div class="mem-dot"></div>Heap</div>
+        <div class="mem-body" id="prim-heap" style="align-items:center;justify-content:center;color:var(--text-dim);font-family:var(--font-mono);font-size:0.8rem;">Empty — primitives don't use heap</div>
+      </div>
+    </div>
+    <div class="sim-log" id="prim-log">→ Press "Copy Primitive" to see what happens in memory...</div>
+  </div>
+
+  <div id="prim-tab2" class="tab-content">
+    <div class="card" style="margin-bottom:1rem;">
+      <p>When you "copy" an object variable, you actually copy the <strong class="hl-purple">reference</strong> (the address). Both variables now point to the <strong>same object in heap</strong>.</p>
+    </div>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0;">
+      <button class="btn btn-purple" onclick="refDemo('create')">▶ Create Object</button>
+      <button class="btn btn-blue" onclick="refDemo('copy')">📋 Copy Reference</button>
+      <button class="btn btn-orange" onclick="refDemo('mutate')">✏️ Mutate via Copy</button>
+      <button class="btn btn-green" onclick="refDemo('reset')">↺ Reset</button>
+    </div>
+    <div class="memory-arena">
+      <div class="mem-panel stack">
+        <div class="mem-header"><div class="mem-dot"></div>Stack</div>
+        <div class="mem-body" id="ref-stack"></div>
+      </div>
+      <div class="mem-panel heap">
+        <div class="mem-header"><div class="mem-dot"></div>Heap</div>
+        <div class="mem-body" id="ref-heap"></div>
+      </div>
+    </div>
+    <div class="sim-log" id="ref-log">→ Press "Create Object" to begin...</div>
+  </div>
+
+  <div id="prim-tab3" class="tab-content">
+    <div class="card">
+      <h3>Why does object mutation matter?</h3>
+      <p>Because multiple variables can point to the same heap object, changing a property through one variable <strong class="hl-pink">affects all variables pointing to it</strong>. This is a common source of bugs for JS newcomers.</p>
+      <div class="code-block" style="margin-top:1rem;">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <span class="keyword">const</span> <span class="var-name">user</span> = { <span class="var-name">name</span>: <span class="string">"Alice"</span> }; <span class="comment">// Object in heap</span>
+<span class="keyword">const</span> <span class="var-name">admin</span> = <span class="var-name">user</span>;               <span class="comment">// admin points to SAME object</span>
+
+<span class="var-name">admin</span>.<span class="var-name">name</span> = <span class="string">"Bob"</span>;              <span class="comment">// mutate via admin</span>
+
+<span class="func">console</span>.<span class="func">log</span>(<span class="var-name">user</span>.<span class="var-name">name</span>);          <span class="comment">// "Bob" !! user is affected too</span>
+<span class="comment">// Because user and admin point to the SAME memory address</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ===== SECTION 7: SHALLOW vs DEEP COPY ===== -->
+<div id="copy" class="section">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2 class="section-title">Shallow Copy vs Deep Copy</h2>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <p>To avoid the shared-reference problem, you need to <em>copy</em> an object. But there are two kinds of copies, and they behave very differently with <strong>nested objects</strong>.</p>
+  </div>
+
+  <div class="card-grid" style="margin-bottom:1.5rem;">
+    <div class="card">
+      <h3 style="color:var(--neon-blue)">📄 Shallow Copy</h3>
+      <p>Copies only the <strong>top level</strong> properties. Nested objects are still shared by reference. Methods: <code>Object.assign()</code>, spread <code>{...obj}</code>.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--neon-green)">📚 Deep Copy</h3>
+      <p>Copies <strong>everything</strong> — including nested objects — creating completely new memory. Methods: <code>structuredClone()</code>, <code>JSON.parse(JSON.stringify())</code>.</p>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0;">
+    <button class="btn btn-blue" onclick="copyDemo('shallow')">▶ Shallow Copy Demo</button>
+    <button class="btn btn-green" onclick="copyDemo('deep')">▶ Deep Copy Demo</button>
+    <button class="btn btn-orange" onclick="copyDemo('mutate')">✏️ Mutate Nested</button>
+    <button class="btn btn-green" onclick="copyDemo('reset')">↺ Reset</button>
+  </div>
+
+  <div class="copy-demo-grid" id="copy-demo-grid">
+    <div class="copy-block" id="copy-original">
+      <div class="copy-block-header" style="color:var(--neon-blue);">Original Object</div>
+      <div class="copy-block-body" id="copy-orig-body"><div style="color:var(--text-dim);font-size:0.8rem;font-family:var(--font-mono);">Press a copy button above to start...</div></div>
+    </div>
+    <div class="copy-block" id="copy-cloned">
+      <div class="copy-block-header" style="color:var(--neon-purple);">Copied Object</div>
+      <div class="copy-block-body" id="copy-clone-body"><div style="color:var(--text-dim);font-size:0.8rem;font-family:var(--font-mono);">Copy will appear here...</div></div>
+    </div>
+  </div>
+  <div class="sim-log" id="copy-log" style="margin-top:1rem;">→ Observe how mutations affect both objects in shallow copy...</div>
+
+  <div class="code-block" style="margin-top:1.5rem;">
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    <span class="keyword">const</span> <span class="var-name">obj</span> = { <span class="var-name">a</span>: <span class="number">1</span>, <span class="var-name">inner</span>: { <span class="var-name">x</span>: <span class="number">10</span> } };
+
+<span class="comment">// SHALLOW copy — inner is still shared!</span>
+<span class="keyword">const</span> <span class="var-name">shallow</span> = { ...<span class="var-name">obj</span> };
+<span class="var-name">shallow</span>.<span class="var-name">inner</span>.<span class="var-name">x</span> = <span class="number">99</span>;
+<span class="func">console</span>.<span class="func">log</span>(<span class="var-name">obj</span>.<span class="var-name">inner</span>.<span class="var-name">x</span>); <span class="comment">// 99 ← affected!</span>
+
+<span class="comment">// DEEP copy — truly independent</span>
+<span class="keyword">const</span> <span class="var-name">deep</span> = <span class="func">structuredClone</span>(<span class="var-name">obj</span>);
+<span class="var-name">deep</span>.<span class="var-name">inner</span>.<span class="var-name">x</span> = <span class="number">42</span>;
+<span class="func">console</span>.<span class="func">log</span>(<span class="var-name">obj</span>.<span class="var-name">inner</span>.<span class="var-name">x</span>); <span class="comment">// 10 ← NOT affected!</span>
+  </div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ===== SECTION 8: CONST ===== -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2 class="section-title">The Truth About <code style="font-family:var(--font-mono)">const</code></h2>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <p><code class="hl-blue">const</code> does NOT mean the value can never change. It means the <strong class="hl-yellow">binding (the reference) cannot be reassigned</strong>. For primitives, this effectively freezes the value. For objects, you can still change the object's contents.</p>
+  </div>
+
+  <div class="analogy">
+    <span class="analogy-icon">📌</span>
+    <div>
+      <strong>Analogy:</strong> <code>const</code> is like a <strong>pinned label</strong> on a mailbox. You can't point that label at a different mailbox. But you can absolutely change what's <em>inside</em> the mailbox. For a primitive, the label IS the value. For an object, the label points to the mailbox (heap address), not the contents.
+    </div>
+  </div>
+
+  <div class="const-demo">
+    <div class="const-box">
+      <div class="const-box-header" style="color:var(--neon-blue)">const with Primitive</div>
+      <div class="const-box-body" id="const-prim-body">
+        <div class="const-val"><span class="key">const x = </span><span class="val" id="const-x-val">42</span></div>
+        <div style="color:var(--text-dim);font-size:0.75rem;margin-top:0.75rem;">Stack slot for <code>x</code> holds: <code style="color:var(--neon-yellow)">42</code></div>
+      </div>
+      <div style="padding:0.75rem 1rem;border-top:1px solid var(--border);">
+        <button class="btn btn-red" onclick="constDemo('reassign')" style="width:100%;">Try x = 99</button>
+        <div id="const-prim-msg" style="margin-top:0.5rem;font-family:var(--font-mono);font-size:0.72rem;color:var(--neon-pink);display:none;">❌ TypeError: Assignment to constant variable.</div>
+      </div>
+    </div>
+    <div class="const-box">
+      <div class="const-box-header" style="color:var(--neon-purple)">const with Object</div>
+      <div class="const-box-body">
+        <div class="const-val"><span class="key">const obj = </span><span class="val">{ name: </span><span id="const-obj-name" style="color:var(--neon-orange);">"Alice"</span><span class="val"> }</span></div>
+        <div style="color:var(--text-dim);font-size:0.75rem;margin-top:0.75rem;">Stack holds: <code style="color:var(--neon-yellow);">0x7f3a</code> (heap address)</div>
+      </div>
+      <div style="padding:0.75rem 1rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:0.5rem;">
+        <button class="btn btn-green" onclick="constDemo('mutate')" style="width:100%;">✓ obj.name = "Bob"</button>
+        <button class="btn btn-red" onclick="constDemo('reassignObj')" style="width:100%;">Try obj = {}</button>
+        <div id="const-obj-msg" style="font-family:var(--font-mono);font-size:0.72rem;display:none;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ===== SECTION 9: STRING POOL ===== -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <h2 class="section-title">The String Pool (String Interning)</h2>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <p>JavaScript (via V8) is smart about strings. When you write the same string literal in multiple places, the engine may <strong class="hl-yellow">intern</strong> it — storing it only once in a special "pool" and having all variables point to that same instance. This saves memory.</p>
+  </div>
+
+  <div class="card-grid" style="margin-bottom:1.5rem;">
+    <div class="card">
+      <h3>📝 String Literals</h3>
+      <p>When you write <code>"hello"</code> directly in code, V8 can deduplicate. If two places have <code>"hello"</code>, they may share the same memory slot.</p>
+    </div>
+    <div class="card">
+      <h3>🏭 new String()</h3>
+      <p>Using <code>new String("hello")</code> explicitly creates a String <em>object</em> on the heap — it is never pooled/interned, and it is NOT strictly equal to a primitive string.</p>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0;">
+    <button class="btn btn-yellow" onclick="stringPoolDemo('add')">+ Add String Literal</button>
+    <button class="btn btn-purple" onclick="stringPoolDemo('addNew')">+ new String()</button>
+    <button class="btn btn-green" onclick="stringPoolDemo('reset')">↺ Reset</button>
+  </div>
+
+  <div class="pool-arena">
+    <div class="pool-section">
+      <div class="pool-section-header">🏦 String Pool (Interned)</div>
+      <div class="pool-body" id="pool-body"></div>
+    </div>
+    <div class="pool-section">
+      <div class="pool-section-header">🏗️ Heap (new String objects)</div>
+      <div class="pool-body" id="pool-heap"></div>
+    </div>
+  </div>
+  <div class="sim-log" id="pool-log">→ Add strings to see how the pool works...</div>
+
+  <div class="code-block" style="margin-top:1.5rem;">
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    <span class="keyword">const</span> <span class="var-name">a</span> = <span class="string">"hello"</span>;       <span class="comment">// string primitive, may be pooled</span>
+<span class="keyword">const</span> <span class="var-name">b</span> = <span class="string">"hello"</span>;       <span class="comment">// may point to SAME pool entry as a</span>
+<span class="keyword">const</span> <span class="var-name">c</span> = <span class="keyword">new</span> <span class="func">String</span>(<span class="string">"hello"</span>); <span class="comment">// heap object — always new</span>
+
+<span class="func">console</span>.<span class="func">log</span>(<span class="var-name">a</span> === <span class="var-name">b</span>); <span class="comment">// true  (same value)</span>
+<span class="func">console</span>.<span class="func">log</span>(<span class="var-name">a</span> === <span class="var-name">c</span>); <span class="comment">// false (primitive vs object!)</span>
+<span class="func">console</span>.<span class="func">log</span>(<span class="var-name">a</span> ==  <span class="var-name">c</span>); <span class="comment">// true  (== coerces c to primitive)</span>
+  </div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ===== SECTION 10: GARBAGE COLLECTION ===== -->
+<div id="gc" class="section">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <h2 class="section-title">Garbage Collection</h2>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <p>JavaScript has automatic memory management. When an object is no longer reachable from any variable, the <strong class="hl-pink">Garbage Collector (GC)</strong> will eventually find it and free its memory. You don't need to do this manually (unlike C/C++).</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(this,'gc-tab1')">Mark & Sweep</button>
+    <button class="tab" onclick="switchTab(this,'gc-tab2')">Reachability</button>
+    <button class="tab" onclick="switchTab(this,'gc-tab3')">Memory Leaks</button>
+  </div>
+
+  <div id="gc-tab1" class="tab-content active">
+    <div class="card" style="margin-bottom:1.25rem;">
+      <h3>🔍 Mark and Sweep Algorithm</h3>
+      <p><strong>Phase 1 — Mark:</strong> GC starts from "roots" (global variables, current function's variables) and marks everything reachable by following references.<br><br>
+      <strong>Phase 2 — Sweep:</strong> GC scans all memory. Anything NOT marked is garbage — it gets freed.</p>
+    </div>
+    <div class="gc-arena" id="gc-arena"></div>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0;">
+      <button class="btn btn-pink" onclick="gcStep('setup')">▶ Setup Objects</button>
+      <button class="btn btn-orange" onclick="gcStep('unlink')">🔗 Break a Link</button>
+      <button class="btn btn-red" onclick="gcStep('collect')">🗑️ Run GC Sweep</button>
+      <button class="btn btn-green" onclick="gcStep('reset')">↺ Reset</button>
+    </div>
+    <div class="sim-log" id="gc-log">→ Press "Setup Objects" to begin the GC simulation...</div>
+  </div>
+
+  <div id="gc-tab2" class="tab-content">
+    <div class="card">
+      <h3>🌳 Reachability — The Core Concept</h3>
+      <p>An object is <strong class="hl-green">reachable</strong> if it can be accessed through a chain of references starting from a root. Roots include: the global object, the current call stack variables, and any closures that reference variables.</p>
+      <br>
+      <p>An object becomes <strong class="hl-pink">unreachable</strong> (garbage) when no variable or property anywhere in your program holds a reference to it. Once unreachable, it cannot affect your program — so it's safe to delete.</p>
+    </div>
+    <div class="code-block" style="margin-top:1.25rem;">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <span class="keyword">let</span> <span class="var-name">user</span> = { <span class="var-name">name</span>: <span class="string">"Alice"</span> }; <span class="comment">// Object is reachable via user</span>
+
+<span class="var-name">user</span> = <span class="keyword">null</span>; <span class="comment">// Object is NOW unreachable → Garbage!</span>
+<span class="comment">// GC will free the { name: "Alice" } object</span>
+    </div>
+  </div>
+
+  <div id="gc-tab3" class="tab-content">
+    <div class="card" style="margin-bottom:1rem;">
+      <h3 style="color:var(--neon-orange)">🕳️ Memory Leaks</h3>
+      <p>A memory leak happens when objects remain reachable but you no longer <em>need</em> them. The GC won't collect them because they're still "reachable." Common causes:</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          1. Global Variables <span class="accordion-arrow">›</span>
+        </div>
+        <div class="accordion-body">
+          <p>Variables attached to <code>window</code> (or global scope) live forever unless explicitly removed. Accidentally creating globals by forgetting <code>let/const/var</code> is a common leak source.</p>
+          <div class="code-block" style="margin-top:0.75rem;font-size:0.78rem;">
+            <span class="func">function</span> <span class="var-name">leaky</span>() {
+  <span class="var-name">bigData</span> = <span class="keyword">new</span> <span class="func">Array</span>(<span class="number">1000000</span>); <span class="comment">// ← no let/const! → global!</span>
+}
+          </div>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          2. Forgotten Event Listeners <span class="accordion-arrow">›</span>
+        </div>
+        <div class="accordion-body">
+          <p>Event listeners keep references to DOM elements and their closures. If you remove an element but don't remove its listeners, those objects leak.</p>
+          <div class="code-block" style="margin-top:0.75rem;font-size:0.78rem;">
+            <span class="keyword">const</span> <span class="var-name">btn</span> = <span class="var-name">document</span>.<span class="func">getElementById</span>(<span class="string">'btn'</span>);
+<span class="var-name">btn</span>.<span class="func">addEventListener</span>(<span class="string">'click'</span>, <span class="var-name">handler</span>);
+<span class="comment">// If btn is removed from DOM but listener isn't removed → leak</span>
+<span class="comment">// Fix: btn.removeEventListener('click', handler)</span>
+          </div>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          3. Closures Holding References <span class="accordion-arrow">›</span>
+        </div>
+        <div class="accordion-body">
+          <p>Closures capture variables from their outer scope. If a long-lived function (like a setInterval) closes over a large object, that object can never be collected.</p>
+          <div class="code-block" style="margin-top:0.75rem;font-size:0.78rem;">
+            <span class="keyword">const</span> <span class="var-name">bigObj</span> = { <span class="var-name">data</span>: <span class="keyword">new</span> <span class="func">Array</span>(<span class="number">1e6</span>) };
+<span class="func">setInterval</span>(() => {
+  <span class="func">console</span>.<span class="func">log</span>(<span class="var-name">bigObj</span>.<span class="var-name">data</span>.<span class="var-name">length</span>); <span class="comment">// keeps bigObj alive!</span>
+}, <span class="number">1000</span>);
+          </div>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          4. Detached DOM Nodes <span class="accordion-arrow">›</span>
+        </div>
+        <div class="accordion-body">
+          <p>If you remove a DOM element but keep a JS reference to it, that element and its children remain in memory even though they're not visible.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ===== SECTION 11: V8 UNDER THE HOOD ===== -->
+<div id="v8" class="section">
+  <div class="section-header">
+    <span class="section-num">11</span>
+    <h2 class="section-title">Deep Inside V8 Engine</h2>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <p><strong class="hl-blue">V8</strong> is Google's JavaScript engine (used in Chrome & Node.js). It has clever tricks to make JS run fast. Understanding these helps you write better code.</p>
+  </div>
+
+  <div class="v8-pipeline">
+    <div class="v8-stage">
+      <div class="v8-stage-box" onclick="showV8Detail(0,this)">
+        <div class="stage-icon">📝</div>
+        <div class="stage-name">Parse</div>
+        <div class="stage-desc">Source → AST</div>
+      </div>
+    </div>
+    <div class="v8-arr">→</div>
+    <div class="v8-stage">
+      <div class="v8-stage-box" onclick="showV8Detail(1,this)">
+        <div class="stage-icon">⚙️</div>
+        <div class="stage-name">Ignition</div>
+        <div class="stage-desc">AST → Bytecode</div>
+      </div>
+    </div>
+    <div class="v8-arr">→</div>
+    <div class="v8-stage">
+      <div class="v8-stage-box" onclick="showV8Detail(2,this)">
+        <div class="stage-icon">🔥</div>
+        <div class="stage-name">TurboFan</div>
+        <div class="stage-desc">JIT Optimize</div>
+      </div>
+    </div>
+    <div class="v8-arr">→</div>
+    <div class="v8-stage">
+      <div class="v8-stage-box" onclick="showV8Detail(3,this)">
+        <div class="stage-icon">🏎️</div>
+        <div class="stage-name">Machine Code</div>
+        <div class="stage-desc">Native speed</div>
+      </div>
+    </div>
+    <div class="v8-arr">→</div>
+    <div class="v8-stage">
+      <div class="v8-stage-box" onclick="showV8Detail(4,this)">
+        <div class="stage-icon">♻️</div>
+        <div class="stage-name">Deoptimize</div>
+        <div class="stage-desc">Falls back if wrong</div>
+      </div>
+    </div>
+  </div>
+  <div class="lc-detail" id="v8-detail" style="margin-bottom:1.5rem;">
+    👆 Click a pipeline stage to learn what V8 does there.
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(this,'v8-tab1')">Hidden Classes</button>
+    <button class="tab" onclick="switchTab(this,'v8-tab2')">Inline Caching</button>
+    <button class="tab" onclick="switchTab(this,'v8-tab3')">Memory Limits</button>
+  </div>
+
+  <div id="v8-tab1" class="tab-content active">
+    <div class="card" style="margin-bottom:1rem;">
+      <h3>🕵️ Hidden Classes — How V8 Optimizes Objects</h3>
+      <p>Every time you create an object with the same shape (same properties in the same order), V8 assigns it the same <strong class="hl-blue">Hidden Class</strong>. Objects sharing a hidden class can be optimized with the same machine code — no property lookup needed, just a fixed memory offset.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <h3 style="color:var(--neon-green)">✅ Consistent Shape</h3>
+        <div class="code-block" style="margin-top:0.75rem;font-size:0.75rem;">
+          <span class="keyword">function</span> <span class="func">Point</span>(<span class="var-name">x</span>, <span class="var-name">y</span>) {
+  <span class="keyword">this</span>.<span class="var-name">x</span> = <span class="var-name">x</span>;
+  <span class="keyword">this</span>.<span class="var-name">y</span> = <span class="var-name">y</span>;
+}
+<span class="comment">// All Points share hidden class C2</span>
+<span class="comment">// Fast property access!</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--neon-pink)">❌ Shape Changes = Slow</h3>
+        <div class="code-block" style="margin-top:0.75rem;font-size:0.75rem;">
+          <span class="keyword">const</span> <span class="var-name">obj</span> = {};
+<span class="var-name">obj</span>.<span class="var-name">x</span> = <span class="number">1</span>; <span class="comment">// class C1</span>
+<span class="var-name">obj</span>.<span class="var-name">y</span> = <span class="number">2</span>; <span class="comment">// class C2</span>
+<span class="comment">// Each add creates new hidden class</span>
+<span class="comment">// Harder to optimize</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="v8-tab2" class="tab-content">
+    <div class="card">
+      <h3>⚡ Inline Caching (IC)</h3>
+      <p>When V8 accesses a property like <code>obj.name</code>, it <em>caches</em> the location (offset in memory) for that hidden class. Next time it sees the same operation on the same hidden class, it skips the lookup entirely — direct memory access.</p>
+      <br>
+      <p style="color:var(--text-dim);">This is why keeping your object shapes consistent is important for performance. When V8 sees many <em>different</em> hidden classes at the same call site, the cache goes <strong class="hl-pink">megamorphic</strong> — it gives up optimizing and falls back to slow lookups.</p>
+    </div>
+    <div class="analogy" style="margin-top:1rem;">
+      <span class="analogy-icon">🗺️</span>
+      <div>
+        <strong>Analogy:</strong> First time you drive to work, you look at the map. Second time, you remember the route. If you always go to the same place the same way, you never need the map again. Inline caching is V8's "memorized route."
+      </div>
+    </div>
+  </div>
+
+  <div id="v8-tab3" class="tab-content">
+    <div class="card" style="margin-bottom:1rem;">
+      <h3>🚧 Memory Limits</h3>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <h3 style="color:var(--neon-blue)">Stack Size</h3>
+        <p>Typically <strong>1–8 MB</strong> per thread. Set by the OS/browser. Stack overflow at ~10,000–15,000 call frames. You cannot control this from JS.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--neon-purple)">Heap Size</h3>
+        <p>V8 default: ~<strong>1.5 GB</strong> (64-bit). Configurable in Node.js with <code>--max-old-space-size=4096</code> (MB). Browser tabs have per-tab limits.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--neon-pink)">Out of Memory</h3>
+        <p>If heap is exhausted: <code>FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory</code>. Process crashes.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--neon-green)">Generations</h3>
+        <p>V8's GC splits heap into <strong>Young Generation</strong> (new objects, collected often) and <strong>Old Generation</strong> (long-lived, collected rarely). This is called <em>generational GC</em>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ===== SECTION 12: CLOSURES & MEMORY ===== -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">12</span>
+    <h2 class="section-title">Closures & Memory</h2>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <p>A <strong class="hl-green">closure</strong> is a function that "remembers" the variables from its outer scope, even after the outer function has finished executing. This is powerful — but it also means those variables stay in memory as long as the closure exists.</p>
+  </div>
+
+  <div class="card-grid" style="margin-bottom:1.5rem;">
+    <div class="card">
+      <h3>🧲 How Closures Keep Memory Alive</h3>
+      <p>When an inner function captures a variable, that variable is stored in a <strong>closure environment</strong> — a special heap object. It stays alive as long as the closure function is reachable.</p>
+    </div>
+    <div class="card">
+      <h3>💡 Closures are Useful</h3>
+      <p>Closures enable: private state, factory functions, callbacks with context, module patterns. They're one of JS's most powerful features — just be mindful of what they hold in memory.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    <span class="keyword">function</span> <span class="func">makeCounter</span>() {
+  <span class="keyword">let</span> <span class="var-name">count</span> = <span class="number">0</span>; <span class="comment">// Lives in closure environment, not stack!</span>
+  <span class="keyword">return</span> <span class="keyword">function</span>() {
+    <span class="var-name">count</span>++; <span class="comment">// still accesses count from outer scope</span>
+    <span class="keyword">return</span> <span class="var-name">count</span>;
+  };
+}
+
+<span class="keyword">const</span> <span class="var-name">counter</span> = <span class="func">makeCounter</span>();
+<span class="comment">// makeCounter() returned, but count is STILL alive in heap</span>
+<span class="comment">// because counter closure holds a reference to it</span>
+
+<span class="func">counter</span>(); <span class="comment">// 1</span>
+<span class="func">counter</span>(); <span class="comment">// 2</span>
+<span class="comment">// count is freed only when counter is set to null</span>
+  </div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ===== SECTION 13: UNIQUE IDENTIFIERS / REFERENCES ===== -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">13</span>
+    <h2 class="section-title">References & Memory Addresses</h2>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <p>Every object in the heap lives at a specific <strong class="hl-yellow">memory address</strong> — a unique number like <code>0x7f3a12b0</code>. In lower-level languages, you work with these directly. In JS, the engine handles addresses automatically — you only see <em>references</em> (variables that point to addresses).</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>🔢 What is a Memory Address?</h3>
+      <p>Memory is like a giant numbered array. Each byte has an index (address). When an object is allocated, it gets a block starting at some address. A reference variable stores that starting address number.</p>
+    </div>
+    <div class="card">
+      <h3>🆔 Unique Identity</h3>
+      <p>Two objects with identical contents are still <em>different objects</em> at different addresses. That's why <code>{} === {}</code> is <code>false</code> — JS compares references (addresses), not content.</p>
+    </div>
+  </div>
+
+  <div class="code-block" style="margin-top:1.5rem;">
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    <span class="keyword">const</span> <span class="var-name">a</span> = { <span class="var-name">x</span>: <span class="number">1</span> }; <span class="comment">// Lives at address 0x7f3a (example)</span>
+<span class="keyword">const</span> <span class="var-name">b</span> = { <span class="var-name">x</span>: <span class="number">1</span> }; <span class="comment">// Lives at address 0x8b2c — DIFFERENT object</span>
+
+<span class="func">console</span>.<span class="func">log</span>(<span class="var-name">a</span> === <span class="var-name">b</span>); <span class="comment">// false — different addresses!</span>
+
+<span class="keyword">const</span> <span class="var-name">c</span> = <span class="var-name">a</span>; <span class="comment">// c holds the SAME address as a (0x7f3a)</span>
+<span class="func">console</span>.<span class="func">log</span>(<span class="var-name">a</span> === <span class="var-name">c</span>); <span class="comment">// true — same address!</span>
+  </div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ===== SUMMARY ===== -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">14</span>
+    <h2 class="section-title">Summary — Everything in One View</h2>
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="sc-icon">📦</div>
+      <div class="sc-title" style="color:var(--neon-blue)">Stack</div>
+      <div class="sc-text">Primitives stored directly. Fast LIFO structure. Freed automatically when scope ends.</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-icon">🏗️</div>
+      <div class="sc-title" style="color:var(--neon-purple)">Heap</div>
+      <div class="sc-text">Objects/arrays live here. Stack holds reference (address). Managed by GC.</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-icon">📞</div>
+      <div class="sc-title" style="color:var(--neon-yellow)">Call Stack</div>
+      <div class="sc-text">Tracks function calls. Stack frames pushed/popped. Overflow at ~10k depth.</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-icon">♻️</div>
+      <div class="sc-title" style="color:var(--neon-pink)">Garbage Collection</div>
+      <div class="sc-text">Mark & Sweep. Unreachable = garbage. Watch for leaks via globals, listeners, closures.</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-icon">📋</div>
+      <div class="sc-title" style="color:var(--neon-green)">Copy Behavior</div>
+      <div class="sc-text">Primitives: copied by value. Objects: copied by reference. Use structuredClone() for deep copy.</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-icon">📌</div>
+      <div class="sc-title" style="color:var(--neon-orange)">const</div>
+      <div class="sc-text">Locks the binding, not the value. Object contents can still change. Primitive is effectively frozen.</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-icon">🔠</div>
+      <div class="sc-title" style="color:var(--neon-yellow)">String Pool</div>
+      <div class="sc-text">String literals may be interned. new String() creates heap object. Use literals for efficiency.</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-icon">🏎️</div>
+      <div class="sc-title" style="color:var(--neon-blue)">V8 Optimization</div>
+      <div class="sc-text">Hidden classes & inline caching. Keep object shapes consistent. Avoid adding properties dynamically.</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-icon">🧲</div>
+      <div class="sc-title" style="color:var(--neon-green)">Closures</div>
+      <div class="sc-text">Capture outer variables in heap environment. Stay alive as long as closure is referenced.</div>
+    </div>
+  </div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ===== QUIZ ===== -->
+<div id="quiz" class="section">
+  <div class="section-header">
+    <span class="section-num">15</span>
+    <h2 class="section-title">🧠 Test Your Knowledge</h2>
+  </div>
+
+  <div id="quiz-container"></div>
+
+  <div class="quiz-score" id="quiz-score">
+    <div style="font-family:var(--font-mono);color:var(--text-dim);margin-bottom:0.5rem;">Your Score</div>
+    <div class="score-num" id="score-display">0/8</div>
+    <div id="score-msg" style="color:var(--text-dim);margin-top:1rem;font-size:0.9rem;"></div>
+    <button class="btn btn-blue" onclick="resetQuiz()" style="margin-top:1.5rem;">↺ Try Again</button>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="nav-logo" style="margin-bottom:0.5rem;">⚡ JS Memory Mastery</div>
+  Built with pure HTML + CSS + Vanilla JS — No frameworks, no libraries, no CDN.
+</footer>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+/* ============================================================
+   ANIMATED BACKGROUND
+============================================================ */
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+  
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  
+  function createParticles(){
+    particles = [];
+    const count = Math.floor((W * H) / 18000);
+    for(let i=0;i<count;i++){
+      particles.push({
+        x: Math.random()*W, y: Math.random()*H,
+        vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3,
+        r: Math.random()*2+0.5,
+        a: Math.random()*0.4+0.1,
+        c: ['#00f0ff','#b44fff','#00ff88','#ff6b35'][Math.floor(Math.random()*4)]
+      });
+    }
+  }
+  
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // gradient bg
+    const g = ctx.createRadialGradient(W*0.3,H*0.2,0,W*0.3,H*0.2,W*0.8);
+    g.addColorStop(0,'rgba(0,30,60,0.7)');
+    g.addColorStop(0.5,'rgba(15,5,40,0.7)');
+    g.addColorStop(1,'rgba(5,5,16,0.9)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+    
+    // Draw particles
+    for(let p of particles){
+      p.x += p.vx; p.y += p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle = p.c + Math.floor(p.a*255).toString(16).padStart(2,'0');
+      ctx.fill();
+    }
+    
+    // Connect nearby particles
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<100){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(100,150,255,${0.08*(1-d/100)})`;
+          ctx.lineWidth=0.5;
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  
+  resize(); createParticles(); draw();
+  window.addEventListener('resize', ()=>{ resize(); createParticles(); });
+})();
+
+/* ============================================================
+   PROGRESS BAR
+============================================================ */
+window.addEventListener('scroll', ()=>{
+  const el = document.documentElement;
+  const pct = (el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100;
+  document.getElementById('progress-bar').style.width = pct+'%';
+});
+
+/* ============================================================
+   INTERSECTION OBSERVER — reveal sections
+============================================================ */
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.05 });
+document.querySelectorAll('.section').forEach(s=>observer.observe(s));
+
+/* ============================================================
+   ACCORDION
+============================================================ */
+function toggleAccordion(header){
+  const body = header.nextElementSibling;
+  header.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+/* ============================================================
+   TABS
+============================================================ */
+function switchTab(btn, targetId){
+  const parent = btn.closest('.section, main');
+  const tabGroup = btn.parentElement;
+  tabGroup.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  // find all tab-contents that are siblings after the tabs div
+  const container = btn.closest('.section') || document.body;
+  container.querySelectorAll('.tab-content').forEach(tc=>{
+    tc.classList.toggle('active', tc.id === targetId);
+  });
+}
+
+/* ============================================================
+   COPY CODE BUTTON
+============================================================ */
+function copyCode(btn){
+  const block = btn.closest('.code-block');
+  const text = block.innerText.replace('Copy','').trim();
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent='Copy',2000);
+  });
+}
+
+/* ============================================================
+   LIFECYCLE DEMO
+============================================================ */
+const lcDetails = [
+  '<strong style="color:var(--neon-blue)">📦 Allocation:</strong> JavaScript automatically reserves memory for your data. For primitives (numbers, strings), space is allocated on the <strong>Stack</strong>. For objects and arrays, space is found in the larger <strong>Heap</strong>. This happens the moment you declare a variable — <code>let x = 5</code> instantly triggers allocation.',
+  '<strong style="color:var(--neon-green)">🔧 Usage:</strong> Your code reads and writes to memory. When you do <code>x + 3</code>, JS reads x\'s memory slot, adds 3, and places the result somewhere. When you do <code>obj.name = "Bob"</code>, JS follows the reference in the stack to find the object in the heap, then overwrites the name property.',
+  '<strong style="color:var(--neon-pink)">🗑️ Release:</strong> For stack variables, memory is instantly freed when the function/scope ends — just moving a pointer. For heap objects, the <strong>Garbage Collector</strong> periodically checks which objects are no longer reachable, then frees them. You never call <code>free()</code> in JS — the GC handles it.'
+];
+function showLCDetail(i, el){
+  document.querySelectorAll('.lc-step').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('lc-detail').innerHTML = lcDetails[i];
+}
+
+/* ============================================================
+   STACK DEMO
+============================================================ */
+let stackItems = [];
+const stackVars = [
+  {name:'age', val:'25', addr:'0x001'},
+  {name:'name', val:'"Alice"', addr:'0x002'},
+  {name:'isOk', val:'true', addr:'0x003'},
+  {name:'score', val:'99.5', addr:'0x004'},
+  {name:'count', val:'0', addr:'0x005'},
+];
+let stackIdx = 0;
+
+function addLog(logId, msg, cls='info'){
+  const log = document.getElementById(logId);
+  const line = document.createElement('div');
+  line.className = 'log-line ' + cls;
+  line.textContent = '> ' + msg;
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
+
+function renderStack(bodyId, items){
+  const body = document.getElementById(bodyId);
+  body.innerHTML = '';
+  items.forEach(item=>{
+    const div = document.createElement('div');
+    div.className = 'mem-item stack-item';
+    div.innerHTML = `<span class="item-name">${item.name}</span><span class="item-val">${item.val}</span><span class="item-addr">${item.addr}</span>`;
+    body.appendChild(div);
+  });
+}
+
+function stackDemo(action){
+  if(action==='push'){
+    if(stackIdx >= stackVars.length){ addLog('stack-log','Stack is full in demo!','warn'); return; }
+    const v = stackVars[stackIdx++];
+    stackItems.push(v);
+    renderStack('stack-demo-body', stackItems);
+    addLog('stack-log',`PUSH: ${v.name} = ${v.val} → address ${v.addr}`,'info');
+  } else if(action==='pop'){
+    if(!stackItems.length){ addLog('stack-log','Stack is empty!','warn'); return; }
+    const removed = stackItems.pop();
+    renderStack('stack-demo-body', stackItems);
+    addLog('stack-log',`POP: ${removed.name} removed from stack — memory freed instantly`,'success');
+    stackIdx = Math.max(0, stackIdx-1);
+  } else {
+    stackItems = []; stackIdx = 0;
+    renderStack('stack-demo-body', stackItems);
+    document.getElementById('stack-log').innerHTML = '';
+    addLog('stack-log','Stack cleared — ready for new demo','success');
+  }
+}
+
+/* ============================================================
+   HEAP DEMO
+============================================================ */
+let heapObjects = [];
+let heapObjCount = 0;
+let heapStackItems = [];
+
+function heapDemo(action){
+  if(action==='create'){
+    heapObjCount++;
+    const id = 'obj'+heapObjCount;
+    const addr = '0x'+Math.floor(Math.random()*65535).toString(16).toUpperCase().padStart(4,'0');
+    heapObjects.push({id, addr, name:'user'+heapObjCount});
+    heapStackItems.push({name:id, val:'→ '+addr, addr:'stack'});
+    
+    renderMemItems('heap-stack-body', heapStackItems, 'stack-item');
+    renderHeapObjects();
+    addLog('heap-log',`Created ${id} → Heap at ${addr}, Stack holds reference`,'info');
+  } else if(action==='nullify'){
+    if(!heapStackItems.length){ addLog('heap-log','No objects to remove!','warn'); return; }
+    const removed = heapStackItems.pop();
+    const objRemoved = heapObjects.pop();
+    renderMemItems('heap-stack-body', heapStackItems, 'stack-item');
+    
+    // animate removal
+    const heapBody = document.getElementById('heap-heap-body');
+    const lastChild = heapBody.lastElementChild;
+    if(lastChild){ lastChild.classList.add('removing'); setTimeout(()=>{ renderHeapObjects(); },400); }
+    addLog('heap-log',`${removed.name} = null → reference broken → ${objRemoved.addr} is now garbage!`,'warn');
+  } else {
+    heapObjects=[]; heapObjCount=0; heapStackItems=[];
+    document.getElementById('heap-stack-body').innerHTML='';
+    document.getElementById('heap-heap-body').innerHTML='';
+    document.getElementById('heap-log').innerHTML='';
+    addLog('heap-log','Reset — ready for new demo','success');
+  }
+}
+
+function renderMemItems(bodyId, items, cls){
+  const body = document.getElementById(bodyId);
+  body.innerHTML='';
+  items.forEach(item=>{
+    const div = document.createElement('div');
+    div.className='mem-item '+cls;
+    div.innerHTML=`<span class="item-name">${item.name}</span><span class="item-val">${item.val}</span>`;
+    body.appendChild(div);
+  });
+}
+
+function renderHeapObjects(){
+  const body = document.getElementById('heap-heap-body');
+  body.innerHTML='';
+  heapObjects.forEach(obj=>{
+    const div = document.createElement('div');
+    div.className='mem-item heap-item';
+    div.innerHTML=`<span class="item-name">${obj.addr}</span><span class="item-val">{ name: "${obj.name}" }</span>`;
+    body.appendChild(div);
+  });
+}
+
+/* ============================================================
+   CALL STACK SIMULATION
+============================================================ */
+const csSteps = [
+  { line: 0, stack: [], log: 'Program starts. Global Execution Context is created.' },
+  { line: 1, stack: [{name:'main()', detail:'Entry point', active:true}], log: 'main() is called → Push frame onto call stack.' },
+  { line: 2, stack: [{name:'main()', detail:'waiting...', active:false},{name:'greet()', detail:'x = 5', active:true}], log: 'main() calls greet() → Push new frame. main() is now waiting.' },
+  { line: 3, stack: [{name:'main()', detail:'waiting...', active:false},{name:'greet()', detail:'waiting...', active:false},{name:'sayHi()', detail:'msg = "Hi!"', active:true}], log: 'greet() calls sayHi() → Another frame pushed.' },
+  { line: 4, stack: [{name:'main()', detail:'waiting...', active:false},{name:'greet()', detail:'waiting...', active:false},{name:'sayHi()', detail:'✓ returned', active:true}], log: 'sayHi() completes → returns to greet().' },
+  { line: 5, stack: [{name:'main()', detail:'waiting...', active:false},{name:'greet()', detail:'✓ returned', active:true}], log: 'sayHi() frame POPPED. greet() resumes.' },
+  { line: 6, stack: [{name:'main()', detail:'✓ returned', active:true}], log: 'greet() frame POPPED. main() resumes.' },
+  { line: 7, stack: [], log: '✅ main() frame POPPED. Call stack is empty. Program complete.' },
+];
+const csCode = [
+  '<span class="ln">1</span><span class="keyword">function</span> <span class="func">sayHi</span>() { <span class="keyword">return</span> <span class="string">"Hi!"</span>; }',
+  '<span class="ln">2</span><span class="keyword">function</span> <span class="func">greet</span>() { <span class="keyword">return</span> <span class="func">sayHi</span>(); }',
+  '<span class="ln">3</span><span class="keyword">function</span> <span class="func">main</span>() {',
+  '<span class="ln">4</span>  <span class="keyword">const</span> <span class="var-name">x</span> = <span class="number">5</span>;',
+  '<span class="ln">5</span>  <span class="keyword">const</span> <span class="var-name">result</span> = <span class="func">greet</span>();',
+  '<span class="ln">6</span>  <span class="comment">// greet calls sayHi internally</span>',
+  '<span class="ln">7</span>  <span class="keyword">return</span> <span class="var-name">result</span>;',
+  '<span class="ln">8</span>}',
+  '<span class="ln">9</span><span class="func">main</span>(); <span class="comment">// Start!</span>',
+];
+
+let csStep = 0;
+
+function initCS(){
+  const codeEl = document.getElementById('cs-code');
+  codeEl.innerHTML = csCode.map((line,i)=>`<div class="code-line" id="csline${i}">${line}</div>`).join('');
+}
+
+function csNext(){
+  if(csStep >= csSteps.length){ addLog('cs-log','Simulation complete! Press Reset to run again.','success'); return; }
+  const step = csSteps[csStep];
+  
+  // highlight line
+  document.querySelectorAll('.code-line').forEach(l=>l.classList.remove('active-line'));
+  const target = document.getElementById('csline'+step.line);
+  if(target) target.classList.add('active-line');
+  
+  // render call stack
+  const body = document.getElementById('cs-body');
+  body.innerHTML='';
+  step.stack.forEach(f=>{
+    const div = document.createElement('div');
+    div.className='frame '+(f.active?'active':'waiting');
+    div.innerHTML=`<div class="frame-name">${f.name}</div><div class="frame-detail">${f.detail}</div>`;
+    body.appendChild(div);
+  });
+  
+  addLog('cs-log', step.log, csStep===csSteps.length-1?'success':'info');
+  csStep++;
+  if(csStep>=csSteps.length) document.getElementById('cs-next-btn').disabled=true;
+}
+
+function csReset(){
+  csStep=0;
+  document.getElementById('cs-next-btn').disabled=false;
+  document.getElementById('cs-body').innerHTML='';
+  document.getElementById('cs-log').innerHTML='';
+  document.querySelectorAll('.code-line').forEach(l=>l.classList.remove('active-line'));
+  addLog('cs-log','→ Press "Next Step" to walk through function execution...','info');
+}
+
+initCS();
+
+/* ============================================================
+   STACK OVERFLOW SIMULATION
+============================================================ */
+let overflowInterval = null;
+let overflowCount = 0;
+
+function simulateOverflow(){
+  resetOverflow();
+  const stack = document.getElementById('overflow-stack');
+  stack.innerHTML = '<div class="overflow-fade"></div>';
+  overflowCount = 0;
+  
+  overflowInterval = setInterval(()=>{
+    overflowCount++;
+    const frame = document.createElement('div');
+    frame.className = 'overflow-frame-item';
+    frame.textContent = `#${overflowCount} infinite() { infinite() ← calling self... }`;
+    stack.insertBefore(frame, stack.firstChild);
+    
+    if(overflowCount >= 20){
+      clearInterval(overflowInterval);
+      const err = document.createElement('div');
+      err.style.cssText='color:var(--neon-pink);font-family:var(--font-mono);font-size:0.8rem;padding:1rem;text-align:center;font-weight:700;';
+      err.textContent='❌ RangeError: Maximum call stack size exceeded';
+      stack.insertBefore(err, stack.firstChild);
+    }
+  }, 120);
+}
+
+function resetOverflow(){
+  clearInterval(overflowInterval);
+  overflowCount = 0;
+  document.getElementById('overflow-stack').innerHTML = '<div style="text-align:center;color:var(--text-dim);font-family:var(--font-mono);font-size:0.8rem;padding:2rem;">Press the button to simulate infinite recursion</div><div class="overflow-fade"></div>';
+}
+
+/* ============================================================
+   PRIMITIVE COPY DEMO
+============================================================ */
+let primState = 'empty';
+function primDemo(action){
+  if(action==='reset'){
+    primState='empty';
+    document.getElementById('prim-stack').innerHTML='';
+    document.getElementById('prim-log').innerHTML='';
+    addLog('prim-log','→ Press "Copy Primitive" to see what happens in memory...','info');
+    return;
+  }
+  if(action==='copy'){
+    primState='copied';
+    const body = document.getElementById('prim-stack');
+    body.innerHTML='';
+    ['a = 5 (addr:0x01)', 'b = 5 (addr:0x02)'].forEach((t,i)=>{
+      const d = document.createElement('div');
+      d.className='mem-item stack-item';
+      const parts = t.split(' ');
+      d.innerHTML=`<span class="item-name">${parts[0]}</span><span class="item-val">${parts[2]}</span><span class="item-addr">${parts[3].replace(')','')}</span>`;
+      body.appendChild(d);
+    });
+    addLog('prim-log','let a = 5; let b = a; → Two SEPARATE copies on stack','info');
+    addLog('prim-log','They are at DIFFERENT addresses — independent!','success');
+  }
+  if(action==='mutate' && primState==='copied'){
+    const items = document.getElementById('prim-stack').querySelectorAll('.mem-item');
+    if(items[0]){
+      items[0].querySelector('.item-val').textContent = '99';
+      items[0].querySelector('.item-val').style.color = 'var(--neon-orange)';
+      items[0].style.animation = 'flash 0.5s';
+    }
+    addLog('prim-log','a = 99 → Only a changes. b is still 5 ✓','success');
+  }
+}
+
+/* ============================================================
+   REFERENCE COPY DEMO
+============================================================ */
+let refState = 'empty';
+function refDemo(action){
+  if(action==='reset'){
+    refState='empty';
+    document.getElementById('ref-stack').innerHTML='';
+    document.getElementById('ref-heap').innerHTML='';
+    document.getElementById('ref-log').innerHTML='';
+    addLog('ref-log','→ Press "Create Object" to begin...','info');
+    return;
+  }
+  if(action==='create'){
+    refState='created';
+    document.getElementById('ref-stack').innerHTML='';
+    document.getElementById('ref-heap').innerHTML='';
+    const si = document.createElement('div');
+    si.className='mem-item stack-item'; si.id='ref-si';
+    si.innerHTML='<span class="item-name">user</span><span class="item-val">→ 0x7f3a</span>';
+    document.getElementById('ref-stack').appendChild(si);
+    const hi = document.createElement('div');
+    hi.className='mem-item heap-item'; hi.id='ref-hi';
+    hi.innerHTML='<span class="item-name">0x7f3a</span><span class="item-val">{ name: "Alice" }</span>';
+    document.getElementById('ref-heap').appendChild(hi);
+    addLog('ref-log','const user = { name: "Alice" } → Object in heap at 0x7f3a','info');
+    addLog('ref-log','Stack holds reference (address 0x7f3a), NOT the object','info');
+  }
+  if(action==='copy' && refState==='created'){
+    refState='copied';
+    const si2 = document.createElement('div');
+    si2.className='mem-item stack-item'; si2.id='ref-si2';
+    si2.innerHTML='<span class="item-name">admin</span><span class="item-val">→ 0x7f3a</span>';
+    document.getElementById('ref-stack').appendChild(si2);
+    addLog('ref-log','const admin = user → admin gets a COPY of the reference (0x7f3a)','warn');
+    addLog('ref-log','Both user and admin point to the SAME heap object!','warn');
+  }
+  if(action==='mutate' && refState==='copied'){
+    const hi = document.getElementById('ref-hi');
+    if(hi){ hi.querySelector('.item-val').textContent='{ name: "Bob" }'; hi.style.animation='flash 0.5s'; }
+    addLog('ref-log','admin.name = "Bob" → Changes the SHARED heap object!','error');
+    addLog('ref-log','user.name is now also "Bob" ← SAME memory address','error');
+  }
+}
+
+/* ============================================================
+   SHALLOW vs DEEP COPY DEMO
+============================================================ */
+let copyState = { type: null, orig: { a: 1, inner: { x: 10 } }, copy: null };
+
+function copyDemo(action){
+  if(action==='reset'){
+    copyState = { type: null, orig: { a: 1, inner: { x: 10 } }, copy: null };
+    document.getElementById('copy-orig-body').innerHTML='<div style="color:var(--text-dim);font-size:0.8rem;font-family:var(--font-mono);">Press a copy button above to start...</div>';
+    document.getElementById('copy-clone-body').innerHTML='<div style="color:var(--text-dim);font-size:0.8rem;font-family:var(--font-mono);">Copy will appear here...</div>';
+    document.getElementById('copy-log').innerHTML='';
+    addLog('copy-log','→ Observe how mutations affect both objects in shallow copy...','info');
+    return;
+  }
+  if(action==='shallow'){
+    copyState.type='shallow';
+    copyState.orig = { a: 1, inner: { x: 10 } };
+    copyState.copy = Object.assign({}, copyState.orig); // shallow
+    renderCopyBlocks();
+    addLog('copy-log','Shallow copy: { ...orig } → top-level copied, inner SHARED','warn');
+    addLog('copy-log','orig.inner and copy.inner point to same heap object!','warn');
+  }
+  if(action==='deep'){
+    copyState.type='deep';
+    copyState.orig = { a: 1, inner: { x: 10 } };
+    copyState.copy = JSON.parse(JSON.stringify(copyState.orig)); // deep
+    renderCopyBlocks();
+    addLog('copy-log','Deep copy: structuredClone(orig) → EVERYTHING cloned','success');
+    addLog('copy-log','Completely independent — no shared references','success');
+  }
+  if(action==='mutate' && copyState.copy){
+    if(copyState.type==='shallow'){
+      copyState.orig.inner.x = 99;
+      copyState.copy.inner.x = 99; // shared!
+    } else {
+      copyState.copy.inner.x = 42; // independent
+    }
+    renderCopyBlocks(true);
+    if(copyState.type==='shallow'){
+      addLog('copy-log','copy.inner.x = 99 → orig.inner.x is ALSO 99! (shared ref)','error');
+    } else {
+      addLog('copy-log','copy.inner.x = 42 → orig.inner.x is still 10 ✓ (deep copy)','success');
+    }
+  }
+}
+
+function renderCopyBlocks(mutated){
+  const origBody = document.getElementById('copy-orig-body');
+  const cloneBody = document.getElementById('copy-clone-body');
+  
+  function renderObj(container, obj, mutation){
+    container.innerHTML='';
+    function addProp(key, val, isMut){
+      const d = document.createElement('div');
+      d.className='copy-prop'+(isMut?' mutated':'');
+      d.innerHTML=`<span class="key">${key}</span><span class="val">${JSON.stringify(val)}</span>`;
+      container.appendChild(d);
+    }
+    addProp('a', obj.a);
+    addProp('inner.x', obj.inner.x, mutation && obj.inner.x !== 10);
+  }
+  
+  renderObj(origBody, copyState.orig, mutated);
+  if(copyState.copy) renderObj(cloneBody, copyState.copy, mutated && copyState.type==='deep');
+}
+
+/* ============================================================
+   CONST DEMO
+============================================================ */
+function constDemo(action){
+  if(action==='reassign'){
+    const msg = document.getElementById('const-prim-msg');
+    msg.style.display='block';
+    msg.style.animation='flash 0.5s';
+  }
+  if(action==='mutate'){
+    const nameEl = document.getElementById('const-obj-name');
+    nameEl.textContent='"Bob"';
+    nameEl.style.color='var(--neon-orange)';
+    const msg = document.getElementById('const-obj-msg');
+    msg.style.display='block';
+    msg.style.color='var(--neon-green)';
+    msg.textContent='✅ Allowed! obj.name is now "Bob". The const binding still points to same address.';
+  }
+  if(action==='reassignObj'){
+    const msg = document.getElementById('const-obj-msg');
+    msg.style.display='block';
+    msg.style.color='var(--neon-pink)';
+    msg.textContent='❌ TypeError! Cannot reassign const binding to a new object.';
+  }
+}
+
+/* ============================================================
+   STRING POOL DEMO
+============================================================ */
+let poolStrings = [];
+let poolHeapStrings = [];
+const sampleStrings = ['"hello"', '"world"', '"hello"', '"foo"', '"world"', '"hello"'];
+let poolIdx = 0;
+
+function stringPoolDemo(action){
+  if(action==='reset'){
+    poolStrings=[]; poolHeapStrings=[]; poolIdx=0;
+    document.getElementById('pool-body').innerHTML='';
+    document.getElementById('pool-heap').innerHTML='';
+    document.getElementById('pool-log').innerHTML='';
+    addLog('pool-log','→ Add strings to see how the pool works...','info');
+    return;
+  }
+  if(action==='add'){
+    const str = sampleStrings[poolIdx++ % sampleStrings.length];
+    const existing = poolStrings.find(s=>s===str);
+    if(!existing){
+      poolStrings.push(str);
+      const d = document.createElement('div');
+      d.className='pool-entry';
+      d.textContent = str + ' (new entry)';
+      document.getElementById('pool-body').appendChild(d);
+      addLog('pool-log',`${str} → NEW pool entry created`,'info');
+    } else {
+      addLog('pool-log',`${str} → Already in pool! Reusing existing entry ✓`,'success');
+      // flash existing
+      const entries = document.getElementById('pool-body').querySelectorAll('.pool-entry');
+      entries.forEach(e=>{ if(e.textContent.startsWith(str)){ e.style.animation='none'; e.offsetHeight; e.style.animation='flash 0.5s'; }});
+    }
+  }
+  if(action==='addNew'){
+    const addr = '0x'+Math.floor(Math.random()*65535).toString(16).toUpperCase().padStart(4,'0');
+    const d = document.createElement('div');
+    d.className='pool-entry new-string';
+    d.textContent = `new String("hello") at ${addr}`;
+    document.getElementById('pool-heap').appendChild(d);
+    addLog('pool-log',`new String() → Always creates NEW object at ${addr}. Never pooled.`,'warn');
+  }
+}
+
+/* ============================================================
+   GARBAGE COLLECTION SIMULATION
+============================================================ */
+let gcNodes = [];
+let gcSetup = false;
+
+function gcStep(action){
+  if(action==='reset'){
+    gcSetup=false; gcNodes=[];
+    document.getElementById('gc-arena').innerHTML='';
+    document.getElementById('gc-log').innerHTML='';
+    addLog('gc-log','→ Press "Setup Objects" to begin the GC simulation...','info');
+    return;
+  }
+  if(action==='setup'){
+    gcSetup=true;
+    gcNodes = [
+      {id:'root', label:'🌍 Global Root', x:10, y:10, type:'root'},
+      {id:'objA', label:'Object A', x:35, y:45, type:'reachable'},
+      {id:'objB', label:'Object B', x:65, y:45, type:'reachable'},
+      {id:'objC', label:'Object C', x:35, y:75, type:'reachable'},
+      {id:'objD', label:'Object D', x:65, y:75, type:'unreachable'},
+    ];
+    renderGCArena();
+    addLog('gc-log','Objects created. Root → A → C (reachable chain). Root → B. D has no references.','info');
+  }
+  if(action==='unlink' && gcSetup){
+    // Make D officially orphaned (already is), mark visually
+    const d = gcNodes.find(n=>n.id==='objD');
+    if(d){ d.label='Object D\n(orphaned)'; }
+    renderGCArena();
+    addLog('gc-log','Reference to Object D removed. D is now UNREACHABLE — it\'s garbage!','warn');
+  }
+  if(action==='collect' && gcSetup){
+    gcNodes = gcNodes.filter(n=>n.type!=='unreachable');
+    renderGCArena();
+    addLog('gc-log','♻️ GC ran Mark & Sweep — Object D was collected! Memory freed.','success');
+  }
+}
+
+function renderGCArena(){
+  const arena = document.getElementById('gc-arena');
+  arena.innerHTML='';
+  gcNodes.forEach(n=>{
+    const div = document.createElement('div');
+    div.className='gc-node '+n.type;
+    div.style.left=n.x+'%';
+    div.style.top=n.y+'%';
+    div.innerHTML=`<div class="node-name">${n.label.split('\n')[0]}</div><div class="node-status">${n.type}</div>`;
+    div.title='Click to toggle reachability';
+    div.onclick=()=>toggleReachability(n.id);
+    arena.appendChild(div);
+  });
+}
+
+function toggleReachability(id){
+  const n = gcNodes.find(n=>n.id===id);
+  if(n && n.type!=='root'){
+    n.type = n.type==='reachable'?'unreachable':'reachable';
+    renderGCArena();
+    addLog('gc-log',`${n.label} toggled to ${n.type}. Click "Run GC Sweep" to collect garbage.`,'info');
+  }
+}
+
+/* ============================================================
+   V8 PIPELINE
+============================================================ */
+const v8Details = [
+  '<strong style="color:var(--neon-blue)">📝 Parse:</strong> V8 reads your JavaScript text and converts it into an <strong>Abstract Syntax Tree (AST)</strong> — a tree structure that represents the code\'s grammar. This phase also checks for syntax errors.',
+  '<strong style="color:var(--neon-purple)">⚙️ Ignition (Interpreter):</strong> The AST is compiled to <strong>bytecode</strong> — a simple, compact instruction format. Ignition executes this bytecode. It\'s not super fast, but it starts immediately without waiting for full compilation. It also <em>profiles</em> which functions run often.',
+  '<strong style="color:var(--neon-orange)">🔥 TurboFan (JIT Compiler):</strong> "Hot" functions (run frequently) are sent to TurboFan for <strong>Just-In-Time compilation</strong>. TurboFan uses type feedback gathered by Ignition to make aggressive assumptions and generate highly optimized machine code.',
+  '<strong style="color:var(--neon-green)">🏎️ Machine Code:</strong> The output of TurboFan is native machine code — binary instructions that the CPU executes directly with no interpretation overhead. This is as fast as C++.',
+  '<strong style="color:var(--neon-pink)">♻️ Deoptimization:</strong> If TurboFan\'s assumptions turn out to be wrong (e.g., a variable that was always a number suddenly gets a string), V8 <strong>deoptimizes</strong> — throws away the optimized code and falls back to Ignition. This is why type consistency matters.'
+];
+
+function showV8Detail(i, el){
+  document.querySelectorAll('.v8-stage-box').forEach(s=>s.style.borderColor='');
+  el.style.borderColor='var(--neon-blue)';
+  document.getElementById('v8-detail').innerHTML = v8Details[i];
+}
+
+/* ============================================================
+   QUIZ
+============================================================ */
+const quizData = [
+  {
+    q: 'Where are primitive values stored in JavaScript?',
+    opts: ['Heap Memory','Stack Memory','String Pool','Execution Context'],
+    ans: 1,
+    explain: '✅ Primitive values (numbers, booleans, etc.) are stored directly on the Stack — a fast, fixed-size memory region.'
+  },
+  {
+    q: 'What does the Garbage Collector use to determine if an object should be freed?',
+    opts: ['Object size','Reachability from roots','Time since creation','Whether it was declared with let or const'],
+    ans: 1,
+    explain: '✅ The GC uses "reachability" — if an object can be reached from any root (global vars, call stack), it stays alive. If not, it\'s garbage.'
+  },
+  {
+    q: 'What happens when you do: const b = a (where a is an object)?',
+    opts: ['A new object is created in heap','b gets a deep copy of a','b gets the same reference as a','a is moved to b\'s scope'],
+    ans: 2,
+    explain: '✅ Copying an object variable copies the reference (memory address), not the object itself. Both point to the same heap object.'
+  },
+  {
+    q: 'Which statement about "const" is TRUE?',
+    opts: ['const variables can never be changed at all','const prevents reassignment of the binding, not mutation of objects','const is the same as let but faster','const stores values in the string pool'],
+    ans: 1,
+    explain: '✅ const prevents reassignment (obj = newObj) but allows mutation (obj.name = "Bob"). The binding (reference) is locked, not the object contents.'
+  },
+  {
+    q: 'What is a "Stack Overflow"?',
+    opts: ['When the heap runs out of memory','When too many functions are called recursively, filling the call stack','When a const variable is reassigned','When the GC fails to collect garbage'],
+    ans: 1,
+    explain: '✅ Stack Overflow occurs when the call stack exceeds its limit — usually from infinite recursion (a function that calls itself forever).'
+  },
+  {
+    q: 'What is the difference between a shallow and deep copy?',
+    opts: ['Shallow copies are faster but never share references','Shallow copies share nested object references; deep copies clone everything independently','Deep copies use more stack space','There is no practical difference'],
+    ans: 1,
+    explain: '✅ Shallow copy only copies top-level properties. Nested objects are still shared by reference. Deep copy creates entirely new objects at every level.'
+  },
+  {
+    q: 'Why might two objects {} === {} return false?',
+    opts: ['Objects are compared by content in JavaScript','=== compares references (memory addresses), and two object literals are at different addresses','Objects use == not === for comparison','Because {} is a function call'],
+    ans: 1,
+    explain: '✅ === on objects compares their memory addresses (references). Each object literal creates a new object at a new address, so they are never ===.'
+  },
+  {
+    q: 'What is a "Hidden Class" in V8?',
+    opts: ['A CSS class applied by V8 to DOM elements','An internal type structure V8 assigns to objects with the same property shape for optimization','A private class keyword','A backup copy of an object'],
+    ans: 1,
+    explain: '✅ V8 assigns hidden classes to objects with the same shape (same properties in same order). Objects sharing a hidden class can be optimized with fixed memory offsets — much faster property access.'
+  },
+];
+
+let quizAnswered = 0;
+let quizCorrect = 0;
+
+function buildQuiz(){
+  const container = document.getElementById('quiz-container');
+  container.innerHTML='';
+  quizAnswered=0; quizCorrect=0;
+  document.getElementById('quiz-score').classList.remove('visible');
+  
+  quizData.forEach((q,qi)=>{
+    const div = document.createElement('div');
+    div.className='quiz-q';
+    div.innerHTML=`<div class="quiz-q-text">${qi+1}. ${q.q}</div>
+    <div class="quiz-options">${q.opts.map((o,oi)=>`<button class="quiz-opt" onclick="quizAnswer(${qi},${oi},this)">${o}</button>`).join('')}</div>
+    <div class="quiz-feedback" id="qf${qi}"></div>`;
+    container.appendChild(div);
+  });
+}
+
+function quizAnswer(qi, oi, btn){
+  const q = quizData[qi];
+  const allBtns = btn.closest('.quiz-options').querySelectorAll('.quiz-opt');
+  allBtns.forEach(b=>b.classList.add('disabled'));
+  
+  const fb = document.getElementById('qf'+qi);
+  if(oi===q.ans){
+    btn.classList.add('correct');
+    fb.className='quiz-feedback correct';
+    fb.textContent=q.explain;
+    quizCorrect++;
+  } else {
+    btn.classList.add('wrong');
+    allBtns[q.ans].classList.add('correct');
+    fb.className='quiz-feedback wrong';
+    fb.textContent='❌ Not quite. '+q.explain;
+  }
+  fb.style.display='block';
+  
+  quizAnswered++;
+  if(quizAnswered===quizData.length){
+    setTimeout(showScore, 800);
+  }
+}
+
+function showScore(){
+  const score = document.getElementById('quiz-score');
+  score.classList.add('visible');
+  document.getElementById('score-display').textContent=`${quizCorrect}/${quizData.length}`;
+  const pct = quizCorrect/quizData.length;
+  const msgs = [
+    [0.5,'Keep learning! Review the sections above and try again. You\'ve got this! 💪'],
+    [0.75,'Good effort! You understand the basics. A few more reads and you\'ll nail it! 📚'],
+    [0.9,'Great job! You have a solid grasp of JS memory concepts! 🎉'],
+    [1.1,'Perfect score! You are a JavaScript memory master! 🏆⚡']
+  ];
+  const msg = msgs.find(m=>pct<=m[0]);
+  document.getElementById('score-msg').textContent = msg ? msg[1] : msgs[3][1];
+  score.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function resetQuiz(){ buildQuiz(); }
+
+buildQuiz();
+
+/* ============================================================
+   Add missing button class
+============================================================ */
+document.querySelectorAll('.btn-yellow').forEach(btn=>{
+  btn.style.color='var(--neon-yellow)';
+  btn.style.borderColor='var(--neon-yellow)';
+});
+document.querySelectorAll('.btn-pink').forEach(btn=>{
+  btn.style.color='var(--neon-pink)';
+  btn.style.borderColor='var(--neon-pink)';
+});
+</script>
+
+<style>
+/* Extra inline overrides */
+.btn-yellow { color: var(--neon-yellow) !important; border-color: var(--neon-yellow) !important; }
+.btn-yellow:hover { background: rgba(255,224,51,0.12) !important; }
+.btn-pink { color: var(--neon-pink) !important; border-color: var(--neon-pink) !important; }
+.btn-pink:hover { background: rgba(255,45,120,0.12) !important; }
+</style>
+
+</body>
+</html>

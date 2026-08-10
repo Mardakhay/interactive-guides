@@ -1,0 +1,2239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React Ecosystem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --bg2: #131620;
+    --bg3: #1a1e2e;
+    --bg4: #1f2435;
+    --border: #2a2f45;
+    --border2: #353b55;
+    --text: #c9d1e8;
+    --text2: #7b85a3;
+    --text3: #4a5068;
+    --accent: #5b9cf6;
+    --accent2: #7c3aed;
+    --green: #34d399;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --purple: #a78bfa;
+    --pink: #f472b6;
+    --cyan: #22d3ee;
+    --sidebar-w: 260px;
+    --header-h: 56px;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+    --display: 'Syne', sans-serif;
+    --glow: 0 0 20px rgba(91,156,246,0.12);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    overflow-x: hidden;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    height: var(--header-h);
+    background: rgba(13,15,20,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+  }
+  .header-logo {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .header-logo span { color: var(--accent); }
+  
+  .header-right {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .progress-bar-wrap {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text2);
+  }
+  .progress-track {
+    width: 120px; height: 4px;
+    background: var(--bg3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--purple));
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+  .menu-toggle {
+    display: none;
+    background: none; border: none;
+    color: var(--text); cursor: pointer;
+    padding: 4px;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed;
+    top: var(--header-h); left: 0; bottom: 0;
+    width: var(--sidebar-w);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 90;
+    padding: 20px 0;
+    transition: transform 0.3s ease;
+  }
+  .sidebar-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 12px 20px 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 20px;
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 13.5px;
+    font-weight: 500;
+    border-left: 2px solid transparent;
+    transition: all 0.18s;
+    text-decoration: none;
+  }
+  .nav-item:hover { color: var(--text); background: var(--bg3); }
+  .nav-item.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: rgba(91,156,246,0.06);
+  }
+  .nav-item .nav-icon { font-size: 15px; width: 20px; text-align: center; }
+  .nav-item .nav-num {
+    margin-left: auto;
+    font-size: 10px;
+    background: var(--bg3);
+    color: var(--text3);
+    padding: 1px 7px;
+    border-radius: 10px;
+  }
+
+  /* ── MAIN ── */
+  main {
+    margin-left: var(--sidebar-w);
+    padding-top: var(--header-h);
+    min-height: 100vh;
+  }
+  .content { max-width: 860px; margin: 0 auto; padding: 40px 32px 80px; }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 60px 0 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 56px;
+  }
+  
+  .hero h1 {
+    font-family: var(--display);
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    color: #fff;
+    margin-bottom: 14px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    font-size: 16px;
+    color: var(--text2);
+    max-width: 560px;
+    margin: 0 auto 28px;
+  }
+  .hero-pills { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .pill {
+    font-size: 12px; font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    color: var(--text2);
+  }
+  .pill.blue { border-color: rgba(91,156,246,0.4); color: var(--accent); background: rgba(91,156,246,0.07); }
+  .pill.green { border-color: rgba(52,211,153,0.4); color: var(--green); background: rgba(52,211,153,0.07); }
+  .pill.purple { border-color: rgba(167,139,250,0.4); color: var(--purple); background: rgba(167,139,250,0.07); }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 72px; scroll-margin-top: calc(var(--header-h) + 20px); }
+  .section-header {
+    display: flex; align-items: flex-start; gap: 16px;
+    margin-bottom: 28px;
+  }
+  .section-num {
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 700;
+    color: var(--accent2);
+    background: rgba(124,58,237,0.12);
+    border: 1px solid rgba(124,58,237,0.25);
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    margin-top: 4px;
+  }
+  .section-title-wrap {}
+  .section-title {
+    font-family: var(--display);
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+  .section-subtitle { font-size: 14px; color: var(--text2); margin-top: 4px; }
+  h3.sub-heading {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin: 32px 0 12px;
+    letter-spacing: -0.3px;
+  }
+  p { color: var(--text); margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .card.accent { border-color: rgba(91,156,246,0.3); background: rgba(91,156,246,0.04); }
+  .card.warning { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.04); }
+  .card.success { border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.04); }
+  .card.danger { border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.04); }
+  .card-title {
+    font-size: 13px; font-weight: 700;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card.accent .card-title { color: var(--accent); }
+  .card.warning .card-title { color: var(--yellow); }
+  .card.success .card-title { color: var(--green); }
+  .card.danger .card-title { color: var(--red); }
+
+  /* ── CODE BLOCKS ── */
+  .code-block {
+    position: relative;
+    background: #0a0c12;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin: 16px 0;
+    overflow: hidden;
+  }
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 16px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+  .code-filename {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text2);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .code-filename::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.7;
+  }
+  .copy-btn {
+    font-size: 11px; font-weight: 600;
+    font-family: var(--mono);
+    background: var(--bg4);
+    color: var(--text2);
+    border: 1px solid var(--border2);
+    padding: 3px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.03em;
+  }
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .copy-btn.copied { color: var(--green); border-color: var(--green); }
+  .menu-toggle:focus-visible,
+  .nav-item:focus-visible,
+  .tab-btn:focus-visible,
+  .copy-btn:focus-visible,
+  .show-solution-btn:focus-visible,
+  .quiz-opt:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  pre {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 18px 20px;
+    overflow-x: auto;
+    color: var(--text);
+    white-space: pre;
+  }
+  .kw { color: #c792ea; }
+  .fn { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .cm { color: #546e7a; font-style: italic; }
+  .num { color: #f78c6c; }
+  .tag { color: #f07178; }
+  .attr { color: #ffcb6b; }
+  .op { color: #89ddff; }
+  .type-c { color: #ffcb6b; }
+  .jsx-text { color: #eeffff; }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  .compare-table th {
+    background: var(--bg4);
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+    vertical-align: top;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: var(--bg3); }
+  .compare-table td:first-child { font-family: var(--mono); font-size: 13px; color: var(--cyan); }
+  .badge {
+    display: inline-block;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+  .badge-green { background: rgba(52,211,153,0.15); color: var(--green); }
+  .badge-red { background: rgba(248,113,113,0.15); color: var(--red); }
+  .badge-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); }
+
+  /* ── DIAGRAMS ── */
+  .diagram-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin: 20px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  /* SPA vs MPA */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .compare-box {
+    background: var(--bg3);
+    border-radius: var(--radius-sm);
+    padding: 18px;
+    border: 1px solid var(--border);
+  }
+  .compare-box.bad { border-top: 3px solid var(--red); }
+  .compare-box.good { border-top: 3px solid var(--green); }
+  .compare-box h4 {
+    font-size: 13px; font-weight: 700;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .compare-box.bad h4 { color: var(--red); }
+  .compare-box.good h4 { color: var(--green); }
+  .compare-box ul { padding-left: 0; list-style: none; }
+  .compare-box li { font-size: 13px; color: var(--text2); padding: 4px 0; padding-left: 18px; position: relative; }
+  .compare-box.bad li::before { content: '✗'; position: absolute; left: 0; color: var(--red); font-size: 11px; top: 5px; }
+  .compare-box.good li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-size: 11px; top: 5px; }
+
+  /* Flow diagrams */
+  .flow-row { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
+  .flow-box {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    font-size: 13px; font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .flow-box.blue { border-color: rgba(91,156,246,0.5); color: var(--accent); background: rgba(91,156,246,0.08); }
+  .flow-box.purple { border-color: rgba(167,139,250,0.5); color: var(--purple); background: rgba(167,139,250,0.08); }
+  .flow-box.green { border-color: rgba(52,211,153,0.5); color: var(--green); background: rgba(52,211,153,0.08); }
+  .flow-box.yellow { border-color: rgba(251,191,36,0.5); color: var(--yellow); background: rgba(251,191,36,0.08); }
+  .flow-box.red { border-color: rgba(248,113,113,0.5); color: var(--red); background: rgba(248,113,113,0.08); }
+  .flow-box.cyan { border-color: rgba(34,211,238,0.5); color: var(--cyan); background: rgba(34,211,238,0.08); }
+  .flow-arrow {
+    color: var(--text3);
+    font-size: 18px;
+    padding: 0 6px;
+    flex-shrink: 0;
+  }
+  .flow-label {
+    font-size: 10px; font-family: var(--mono);
+    color: var(--text3);
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  /* Context tree diagram */
+  .tree { font-family: var(--mono); font-size: 13px; color: var(--text2); }
+  .tree-line { padding: 2px 0; }
+  .tree-provider { color: var(--green); }
+  .tree-consumer { color: var(--cyan); }
+  .tree-neutral { color: var(--text3); }
+
+  /* ── ACCORDION ── */
+  .accordion { margin: 12px 0; }
+  .accordion-header {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.18s;
+  }
+  .accordion-header:hover { border-color: var(--border2); }
+  .accordion-header.open {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-color: var(--accent);
+    background: rgba(91,156,246,0.06);
+  }
+  .accordion-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .accordion-icon {
+    font-size: 12px;
+    color: var(--text3);
+    transition: transform 0.25s;
+  }
+  .accordion-header.open .accordion-icon { transform: rotate(180deg); color: var(--accent); }
+  .accordion-body {
+    display: none;
+    background: var(--bg3);
+    border: 1px solid var(--accent);
+    border-top: none;
+    border-bottom-left-radius: var(--radius-sm);
+    border-bottom-right-radius: var(--radius-sm);
+    padding: 16px 18px;
+    animation: slideDown 0.2s ease;
+  }
+  .accordion-body.open { display: block; }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── QUIZ ── */
+  .quiz-block {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin: 20px 0;
+  }
+  .quiz-label {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .quiz-q {
+    font-size: 15px; font-weight: 600; color: #fff;
+    margin-bottom: 16px; line-height: 1.5;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 11px 16px;
+    cursor: pointer;
+    font-size: 13.5px;
+    color: var(--text2);
+    transition: all 0.18s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .quiz-opt:hover { border-color: var(--border2); color: var(--text); }
+  .quiz-opt.correct { border-color: var(--green) !important; background: rgba(52,211,153,0.08); color: var(--green) !important; }
+  .quiz-opt.wrong { border-color: var(--red) !important; background: rgba(248,113,113,0.08); color: var(--red) !important; }
+  .quiz-opt.disabled { pointer-events: none; }
+  .quiz-opt .opt-letter {
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 700;
+    background: var(--bg3);
+    padding: 2px 7px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .quiz-feedback {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; animation: slideDown 0.2s ease; }
+  .quiz-feedback.correct-fb { background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.3); color: var(--green); }
+  .quiz-feedback.wrong-fb { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
+  .quiz-feedback p { margin: 0; }
+
+  /* ── CHALLENGE ── */
+  .challenge-block {
+    background: var(--bg3);
+    border: 1px solid rgba(251,191,36,0.3);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: 20px 0;
+  }
+  .challenge-header {
+    background: rgba(251,191,36,0.06);
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid rgba(251,191,36,0.2);
+  }
+  .challenge-title { font-size: 14px; font-weight: 700; color: var(--yellow); display: flex; align-items: center; gap: 8px; }
+  .show-solution-btn {
+    font-size: 12px; font-weight: 600;
+    font-family: var(--mono);
+    background: var(--bg4);
+    color: var(--text2);
+    border: 1px solid var(--border2);
+    padding: 5px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .show-solution-btn:hover { color: var(--yellow); border-color: var(--yellow); }
+  .challenge-body { padding: 18px 20px; }
+  .challenge-task { font-size: 14px; color: var(--text); margin-bottom: 14px; }
+  .solution-block { display: none; margin-top: 14px; animation: slideDown 0.22s ease; }
+  .solution-block.show { display: block; }
+  .solution-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+  }
+
+  /* ── STEPS ── */
+  .steps { counter-reset: step; margin: 16px 0; }
+  .step {
+    display: flex; gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .step-num {
+    counter-increment: step;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+    font-family: var(--mono);
+  }
+  .step-content {}
+  .step-content h4 { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .step-content p { font-size: 13.5px; color: var(--text2); margin: 0; }
+
+  /* ── API TABLE ── */
+  .api-grid { display: grid; grid-template-columns: auto 1fr; gap: 2px; margin: 12px 0; }
+  .api-key {
+    font-family: var(--mono); font-size: 13px;
+    color: var(--cyan);
+    background: var(--bg4);
+    padding: 8px 14px;
+    border-radius: 5px 0 0 5px;
+    border: 1px solid var(--border);
+    border-right: none;
+    white-space: nowrap;
+    display: flex; align-items: center;
+  }
+  .api-val {
+    font-size: 13px; color: var(--text2);
+    background: var(--bg3);
+    padding: 8px 14px;
+    border-radius: 0 5px 5px 0;
+    border: 1px solid var(--border);
+    display: flex; align-items: center;
+  }
+
+  /* ── REDUCER DIAGRAM ── */
+  .reducer-flow {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .rf-row { display: flex; align-items: center; gap: 12px; }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+    :root { --sidebar-w: 0px; }
+    .sidebar { transform: translateX(-260px); width: 260px; }
+    .sidebar.open { transform: translateX(0); }
+    .menu-toggle { display: block; }
+    .content { padding: 24px 16px 60px; }
+    .two-col { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 28px; }
+  }
+
+  /* ── HIGHLIGHT LINE ── */
+  .hl { background: rgba(91,156,246,0.08); border-left: 2px solid var(--accent); }
+
+  /* ── PROJECT SECTION ── */
+  .project-card {
+    background: linear-gradient(135deg, rgba(91,156,246,0.06), rgba(124,58,237,0.06));
+    border: 1px solid rgba(91,156,246,0.25);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin: 20px 0;
+  }
+  .project-card h3 {
+    font-family: var(--display);
+    font-size: 20px; font-weight: 800;
+    color: #fff; margin-bottom: 6px;
+  }
+  .req-list { list-style: none; padding: 0; margin: 12px 0; }
+  .req-list li {
+    padding: 6px 0 6px 24px;
+    position: relative;
+    font-size: 13.5px; color: var(--text2);
+    border-bottom: 1px dashed var(--border);
+  }
+  .req-list li:last-child { border-bottom: none; }
+  .req-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: -1px; }
+  .tab-btn {
+    font-size: 13px; font-weight: 600;
+    padding: 8px 18px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 7px 7px 0 0;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .tab-btn.active { background: #0a0c12; color: var(--accent); border-color: var(--border2); }
+  .tab-content {
+    display: none;
+    border: 1px solid var(--border2);
+    border-radius: 0 var(--radius) var(--radius) var(--radius);
+    overflow: hidden;
+  }
+  .tab-content.active { display: block; }
+
+  /* inline code */
+  code { font-family: var(--mono); font-size: 12.5px; background: var(--bg4); color: var(--cyan); padding: 1px 6px; border-radius: 4px; }
+
+  /* Section tag colors */
+  .s-router .section-num { color: var(--accent); background: rgba(91,156,246,0.1); border-color: rgba(91,156,246,0.25); }
+  .s-forms .section-num { color: var(--green); background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.25); }
+  .s-rhf .section-num { color: var(--pink); background: rgba(244,114,182,0.1); border-color: rgba(244,114,182,0.25); }
+  .s-context .section-num { color: var(--purple); background: rgba(167,139,250,0.1); border-color: rgba(167,139,250,0.25); }
+  .s-reducer .section-num { color: var(--yellow); background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.25); }
+  .s-project .section-num { color: var(--cyan); background: rgba(34,211,238,0.1); border-color: rgba(34,211,238,0.25); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+  <div class="header-logo">React<span>.</span>dev</div>
+  <div class="header-right">
+    <div class="progress-bar-wrap">
+      <span id="progress-label">0%</span>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-section-label">Course Contents</div>
+  <a class="nav-item active" href="#overview" onclick="closeSidebar()"><span class="nav-icon">🗺️</span> Overview <span class="nav-num">5 topics</span></a>
+  <a class="nav-item" href="#router" onclick="closeSidebar()"><span class="nav-icon">🔗</span> React Router <span class="nav-num">6 concepts</span></a>
+  <a class="nav-item" href="#forms" onclick="closeSidebar()"><span class="nav-icon">📝</span> Forms & Validation</a>
+  <a class="nav-item" href="#rhf" onclick="closeSidebar()"><span class="nav-icon">📚</span> React Hook Form</a>
+  <a class="nav-item" href="#context" onclick="closeSidebar()"><span class="nav-icon">🌳</span> Context API</a>
+  <a class="nav-item" href="#reducer" onclick="closeSidebar()"><span class="nav-icon">⚙️</span> useReducer</a>
+  <a class="nav-item" href="#project" onclick="closeSidebar()"><span class="nav-icon">💻</span> Mini Project</a>
+</nav>
+
+<!-- MAIN -->
+<main>
+<div class="content">
+
+  <!-- HERO -->
+  <div class="hero" id="overview">
+    <h1>React <span>Ecosystem</span></h1>
+    <p>Master routing, forms, validation, and global state management. Build modern Single Page Applications with confidence.</p>
+    <div class="hero-pills">
+      <span class="pill blue">React Router v7</span>
+      <span class="pill green">Forms & Validation</span>
+      <span class="pill">React Hook Form</span>
+      <span class="pill purple">Context API</span>
+      <span class="pill">useReducer</span>
+      <span class="pill">TypeScript</span>
+    </div>
+  </div>
+
+  <!-- ECOSYSTEM OVERVIEW -->
+  <section class="section" id="overview-section">
+    <div class="section-header">
+      <div class="section-num">00</div>
+      <div class="section-title-wrap">
+        <div class="section-title">What We're Building</div>
+        <div class="section-subtitle">The full picture before diving in</div>
+      </div>
+    </div>
+
+    <p>This module focuses on three pillars that transform a basic React app into a real-world Single Page Application: <strong>Navigation</strong> (React Router), <strong>User Input</strong> (Forms + Validation), and <strong>Shared State</strong> (Context API + useReducer).</p>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">React App Architecture</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div class="flow-box blue" style="width:280px;text-align:center;font-size:15px;">React Application</div>
+        <div class="flow-arrow">↓</div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div class="flow-box blue" style="text-align:center;">React Router v7</div>
+            <div class="flow-label">URL → Components</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div class="flow-box green" style="text-align:center;">Forms + RHF</div>
+            <div class="flow-label">User Input</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div class="flow-box purple" style="text-align:center;">Context + Reducer</div>
+            <div class="flow-label">Global State</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card success">
+      <div class="card-title">💡 Learning Path</div>
+      <p style="font-size:13.5px;margin:0;color:var(--text2);">Each section builds on the last. By the end, you'll combine all three pillars in a mini SPA project that uses routing, validated forms, and shared global state.</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ═══ REACT ROUTER ═══ -->
+  <section class="section s-router" id="router">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-title-wrap">
+        <div class="section-title">React Router v7</div>
+        <div class="section-subtitle">Client-side navigation for Single Page Applications</div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">SPA vs Traditional (MPA) Websites</h3>
+    <p>Before we look at code, it's essential to understand <em>why</em> React Router exists. Traditional websites reload the entire page on every click. React apps don't — and React Router is what makes that possible.</p>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">Navigation Model Comparison</div>
+      <div class="two-col">
+        <div class="compare-box bad">
+          <h4>❌ Traditional (MPA)</h4>
+          <ul>
+            <li>Browser requests new HTML from server on every click</li>
+            <li>Full page reload — screen flashes blank</li>
+            <li>Each navigation = new HTTP round-trip</li>
+            <li>Slow, jarring transitions</li>
+          </ul>
+        </div>
+        <div class="compare-box good">
+          <h4>✅ SPA with React Router</h4>
+          <ul>
+            <li>One HTML file is loaded initially</li>
+            <li>Navigation happens entirely in the browser</li>
+            <li>Only the relevant component re-renders</li>
+            <li>URL changes but page never fully reloads</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Installation & Core Setup</h3>
+    <p>React Router v7 made a key change: the package is now <code>react-router</code> instead of <code>react-router-dom</code>. Everything else imports from there.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="cm"># Install React Router v7</span>
+npm install react-router
+
+<span class="cm"># Note: v7 uses "react-router" — NOT "react-router-dom"</span></pre>
+    </div>
+
+    <h3 class="sub-heading">Core API Reference</h3>
+    <div class="api-grid">
+      <div class="api-key">createBrowserRouter</div><div class="api-val">Creates a router from a config array of route objects</div>
+      <div class="api-key">RouterProvider</div><div class="api-val">Connects your router config to the React component tree</div>
+      <div class="api-key">Link / NavLink</div><div class="api-val">Navigate between pages without triggering a full reload</div>
+      <div class="api-key">Outlet</div><div class="api-val">Renders the active child route inside a layout component</div>
+      <div class="api-key">useParams</div><div class="api-val">Reads dynamic URL segments (e.g., <code>:id</code> in <code>/posts/42</code>)</div>
+      <div class="api-key">useNavigate</div><div class="api-val">Programmatically navigate (e.g., after a form submission)</div>
+    </div>
+
+    <h3 class="sub-heading">Setting Up Routes</h3>
+    <p>In v7, routes are defined as an <strong>array of objects</strong> rather than JSX <code>&lt;Route&gt;</code> elements. This is cleaner, more testable, and easier to reason about.</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'tab-router-1')">router.tsx</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-router-2')">main.tsx</button>
+    </div>
+    <div class="tab-content active" id="tab-router-1">
+      <div class="code-block" style="margin:0;border-radius:0 var(--radius) var(--radius) var(--radius);border-top:none">
+        <div class="code-header">
+          <span class="code-filename">router.tsx</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="kw">import</span> { createBrowserRouter } <span class="kw">from</span> <span class="str">'react-router'</span>;
+<span class="kw">import</span> Layout   <span class="kw">from</span> <span class="str">'./components/Layout'</span>;
+<span class="kw">import</span> Home     <span class="kw">from</span> <span class="str">'./pages/Home'</span>;
+<span class="kw">import</span> About    <span class="kw">from</span> <span class="str">'./pages/About'</span>;
+<span class="kw">import</span> Posts    <span class="kw">from</span> <span class="str">'./pages/Posts'</span>;
+<span class="kw">import</span> NotFound <span class="kw">from</span> <span class="str">'./pages/NotFound'</span>;
+
+<span class="kw">export const</span> router = <span class="fn">createBrowserRouter</span>([
+  {
+    path: <span class="str">'/'</span>,
+    element: &lt;<span class="tag">Layout</span> /&gt;,         <span class="cm">// Shared layout (nav + footer)</span>
+    children: [
+      { index: <span class="kw">true</span>,  element: &lt;<span class="tag">Home</span> /&gt;      }, <span class="cm">// /</span>
+      { path: <span class="str">'about'</span>,  element: &lt;<span class="tag">About</span> /&gt;     }, <span class="cm">// /about</span>
+      { path: <span class="str">'posts'</span>,  element: &lt;<span class="tag">Posts</span> /&gt;     }, <span class="cm">// /posts</span>
+      { path: <span class="str">'posts/:id'</span>, element: &lt;<span class="tag">PostDetail</span> /&gt; }, <span class="cm">// /posts/42</span>
+      { path: <span class="str">'*'</span>,       element: &lt;<span class="tag">NotFound</span> /&gt;  }, <span class="cm">// 404</span>
+    ],
+  },
+]);</pre>
+      </div>
+    </div>
+    <div class="tab-content" id="tab-router-2">
+      <div class="code-block" style="margin:0;border-radius:0 var(--radius) var(--radius) var(--radius);border-top:none">
+        <div class="code-header">
+          <span class="code-filename">main.tsx</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="kw">import</span> { createRoot }    <span class="kw">from</span> <span class="str">'react-dom/client'</span>;
+<span class="kw">import</span> { RouterProvider } <span class="kw">from</span> <span class="str">'react-router'</span>;
+<span class="kw">import</span> { router }        <span class="kw">from</span> <span class="str">'./router'</span>;
+
+<span class="fn">createRoot</span>(document.<span class="fn">getElementById</span>(<span class="str">'root'</span>)!).<span class="fn">render</span>(
+  &lt;<span class="tag">RouterProvider</span> router={router} /&gt;
+);</pre>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Layout & Nested Routes with Outlet</h3>
+    <p>The <code>Outlet</code> component is the key to nested layouts. Think of it as a "slot" — the parent component defines the chrome (navbar, footer) and <code>Outlet</code> is where child pages are injected.</p>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">How Outlet Works</div>
+      <div style="font-family:var(--mono);font-size:13px;color:var(--text2);">
+        <div style="background:var(--bg4);border:1px solid rgba(91,156,246,0.3);border-radius:8px;padding:16px;">
+          <div style="color:var(--accent);margin-bottom:8px;">&lt;Layout&gt;  ← always rendered</div>
+          <div style="padding-left:24px;border-left:2px solid var(--border2);">
+            <div style="color:var(--text2);">&lt;Navbar /&gt;</div>
+            <div style="color:var(--text2);">&lt;main&gt;</div>
+            <div style="padding-left:24px;">
+              <div style="color:var(--green);background:rgba(52,211,153,0.08);padding:6px 12px;border-radius:5px;border:1px dashed rgba(52,211,153,0.3);">&lt;Outlet /&gt;  ← child page renders HERE</div>
+            </div>
+            <div style="color:var(--text2);">&lt;/main&gt;</div>
+            <div style="color:var(--text2);">&lt;Footer /&gt;</div>
+          </div>
+          <div style="color:var(--accent);">&lt;/Layout&gt;</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">Layout.tsx</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="kw">import</span> { Outlet } <span class="kw">from</span> <span class="str">'react-router'</span>;
+
+<span class="kw">function</span> <span class="fn">Layout</span>() {
+  <span class="kw">return</span> (
+    &lt;&gt;
+      &lt;<span class="tag">Navbar</span> /&gt;
+      &lt;<span class="tag">main</span>&gt;
+        <span class="cm">{/* Child route renders here */}</span>
+        &lt;<span class="tag">Outlet</span> /&gt;
+      &lt;/<span class="tag">main</span>&gt;
+      &lt;<span class="tag">Footer</span> /&gt;
+    &lt;/&gt;
+  );
+}</pre>
+    </div>
+
+    <h3 class="sub-heading">Link vs NavLink vs &lt;a&gt;</h3>
+    <div class="card warning">
+      <div class="card-title">⚠️ Common Mistake</div>
+      <p style="font-size:13.5px;margin:0;color:var(--text2);">Never use a raw <code>&lt;a href="/about"&gt;</code> in React Router. It triggers a full page reload, discarding all your React state. Always use <code>&lt;Link to="/about"&gt;</code>.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">Navbar.tsx</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="kw">import</span> { Link, NavLink } <span class="kw">from</span> <span class="str">'react-router'</span>;
+
+<span class="cm">// Link — basic client-side navigation</span>
+&lt;<span class="tag">Link</span> to=<span class="str">"/about"</span>&gt;About&lt;/<span class="tag">Link</span>&gt;
+
+<span class="cm">// NavLink — auto-applies CSS class when route is active</span>
+&lt;<span class="tag">NavLink</span>
+  to=<span class="str">"/"</span>
+  className={({ isActive }) =&gt; isActive ? <span class="str">'nav-active'</span> : <span class="str">''</span>}
+&gt;
+  Home
+&lt;/<span class="tag">NavLink</span>&gt;
+
+<span class="cm">// Programmatic navigation (e.g., after login)</span>
+<span class="kw">const</span> navigate = <span class="fn">useNavigate</span>();
+<span class="fn">navigate</span>(<span class="str">'/dashboard'</span>); <span class="cm">// go forward</span>
+<span class="fn">navigate</span>(<span class="num">-1</span>);            <span class="cm">// go back (like browser back button)</span></pre>
+    </div>
+
+    <h3 class="sub-heading">Dynamic Routes with useParams</h3>
+    <p>Adding <code>:id</code> to a path makes it dynamic — that segment captures whatever is in the URL and makes it available via <code>useParams()</code>.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">PostDetail.tsx</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="kw">import</span> { useParams } <span class="kw">from</span> <span class="str">'react-router'</span>;
+
+<span class="kw">function</span> <span class="fn">PostDetail</span>() {
+  <span class="cm">// :id from URL → e.g. /posts/42 → id = "42"</span>
+  <span class="kw">const</span> { id } = <span class="fn">useParams</span>&lt;{ id: <span class="type-c">string</span> }&gt;();
+
+  <span class="kw">const</span> [post, setPost] = <span class="fn">useState</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() =&gt; {
+    <span class="fn">fetch</span>(<span class="str">`https://jsonplaceholder.typicode.com/posts/${id}`</span>)
+      .<span class="fn">then</span>(r =&gt; r.<span class="fn">json</span>())
+      .<span class="fn">then</span>(setPost);
+  }, [id]); <span class="cm">// Re-fetch when id changes</span>
+
+  <span class="kw">if</span> (!post) <span class="kw">return</span> &lt;<span class="tag">p</span>&gt;Loading...&lt;/<span class="tag">p</span>&gt;;
+  <span class="kw">return</span> &lt;<span class="tag">h1</span>&gt;{post.title}&lt;/<span class="tag">h1</span>&gt;;
+}</pre>
+    </div>
+
+    <!-- QUIZ 1 -->
+    <div class="quiz-block" id="quiz-router">
+      <div class="quiz-label">🧠 Quiz — React Router</div>
+      <div class="quiz-q">What is the purpose of the <code>&lt;Outlet /&gt;</code> component in React Router?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q1')"><span class="opt-letter">A</span> It creates a new browser tab for each route</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'correct','q1')"><span class="opt-letter">B</span> It marks where child route components should be rendered inside a layout</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q1')"><span class="opt-letter">C</span> It replaces the entire page when navigating</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q1')"><span class="opt-letter">D</span> It handles authentication redirects</div>
+      </div>
+      <div class="quiz-feedback correct-fb" id="q1-correct">
+        <p>✅ <strong>Correct!</strong> <code>&lt;Outlet /&gt;</code> is a placeholder inside a layout component. When a child route matches, React Router renders it in place of <code>&lt;Outlet /&gt;</code> — keeping the navbar/footer intact.</p>
+      </div>
+      <div class="quiz-feedback wrong-fb" id="q1-wrong">
+        <p>❌ <strong>Not quite.</strong> <code>&lt;Outlet /&gt;</code> is where child route components get injected inside a parent layout. The navbar and footer stay — only the Outlet area changes.</p>
+      </div>
+    </div>
+
+    <!-- CHALLENGE 1 -->
+    <div class="challenge-block" id="challenges">
+      <div class="challenge-header">
+        <div class="challenge-title">⚡ Challenge — Fix the Bug</div>
+        <button class="show-solution-btn" onclick="toggleSolution(this)">Show Solution</button>
+      </div>
+      <div class="challenge-body">
+        <div class="challenge-task">The navigation below causes a full page reload on every click. What's wrong and how do you fix it?</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-filename">BuggyNav.tsx — BROKEN</span></div>
+          <pre><span class="kw">function</span> <span class="fn">Navbar</span>() {
+  <span class="kw">return</span> (
+    &lt;<span class="tag">nav</span>&gt;
+      &lt;<span class="tag">a</span> href=<span class="str">"/"</span>&gt;Home&lt;/<span class="tag">a</span>&gt;
+      &lt;<span class="tag">a</span> href=<span class="str">"/about"</span>&gt;About&lt;/<span class="tag">a</span>&gt;
+      &lt;<span class="tag">a</span> href=<span class="str">"/posts"</span>&gt;Posts&lt;/<span class="tag">a</span>&gt;
+    &lt;/<span class="tag">nav</span>&gt;
+  );
+}</pre>
+        </div>
+        <div class="solution-block" id="sol1">
+          <div class="solution-label">✅ Solution</div>
+          <p style="font-size:13.5px;color:var(--text2);margin-bottom:10px;">Replace <code>&lt;a href&gt;</code> with <code>&lt;Link to&gt;</code> from React Router. The <code>&lt;a&gt;</code> tag bypasses React's virtual DOM and causes a full reload.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-filename">FixedNav.tsx — CORRECT</span></div>
+            <pre><span class="kw">import</span> { Link } <span class="kw">from</span> <span class="str">'react-router'</span>;
+
+<span class="kw">function</span> <span class="fn">Navbar</span>() {
+  <span class="kw">return</span> (
+    &lt;<span class="tag">nav</span>&gt;
+      &lt;<span class="tag">Link</span> to=<span class="str">"/"</span>&gt;Home&lt;/<span class="tag">Link</span>&gt;
+      &lt;<span class="tag">Link</span> to=<span class="str">"/about"</span>&gt;About&lt;/<span class="tag">Link</span>&gt;
+      &lt;<span class="tag">Link</span> to=<span class="str">"/posts"</span>&gt;Posts&lt;/<span class="tag">Link</span>&gt;
+    &lt;/<span class="tag">nav</span>&gt;
+  );
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ═══ FORMS ═══ -->
+  <section class="section s-forms" id="forms">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-title-wrap">
+        <div class="section-title">Forms & Manual Validation</div>
+        <div class="section-subtitle">Controlled inputs, object state, and writing your own validators</div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Controlled Inputs — The Foundation</h3>
+    <p>In React, form inputs are "controlled" — meaning the input's value is driven by React state, not by the DOM. This gives you complete control over what the user types.</p>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">Controlled Input Data Flow</div>
+      <div class="flow-row" style="justify-content:center;gap:6px;flex-wrap:wrap;">
+        <div style="text-align:center;">
+          <div class="flow-box blue">useState</div>
+          <div class="flow-label">holds value</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div style="text-align:center;">
+          <div class="flow-box green">value=&#123;state&#125;</div>
+          <div class="flow-label">controls input</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div style="text-align:center;">
+          <div class="flow-box yellow">User Types</div>
+          <div class="flow-label">triggers event</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div style="text-align:center;">
+          <div class="flow-box purple">onChange</div>
+          <div class="flow-label">setState called</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div style="text-align:center;">
+          <div class="flow-box blue">useState</div>
+          <div class="flow-label">re-render</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">LoginForm.tsx</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="kw">function</span> <span class="fn">LoginForm</span>() {
+  <span class="kw">const</span> [email,    setEmail]    = <span class="fn">useState</span>(<span class="str">''</span>);
+  <span class="kw">const</span> [password, setPassword] = <span class="fn">useState</span>(<span class="str">''</span>);
+
+  <span class="kw">const</span> <span class="fn">handleSubmit</span> = (e: React.<span class="type-c">FormEvent</span>) =&gt; {
+    e.<span class="fn">preventDefault</span>(); <span class="cm">// ← prevents page reload!</span>
+    console.<span class="fn">log</span>({ email, password });
+  };
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">form</span> onSubmit={handleSubmit}&gt;
+      &lt;<span class="tag">input</span>
+        type=<span class="str">"email"</span>
+        value={email}                       <span class="cm">// state → input</span>
+        onChange={e =&gt; <span class="fn">setEmail</span>(e.target.value)} <span class="cm">// input → state</span>
+        placeholder=<span class="str">"Email"</span>
+      /&gt;
+      &lt;<span class="tag">input</span>
+        type=<span class="str">"password"</span>
+        value={password}
+        onChange={e =&gt; <span class="fn">setPassword</span>(e.target.value)}
+        placeholder=<span class="str">"Password"</span>
+      /&gt;
+      &lt;<span class="tag">button</span> type=<span class="str">"submit"</span>&gt;Login&lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">form</span>&gt;
+  );
+}</pre>
+    </div>
+
+    <h3 class="sub-heading">Object State — One State for Many Fields</h3>
+    <p>When you have multiple fields, managing a separate state variable for each becomes tedious. Instead, use one <code>useState</code> with an object and a single universal <code>handleChange</code> function.</p>
+
+    <div class="card accent">
+      <div class="card-title">💡 The Key Trick</div>
+      <p style="font-size:13.5px;margin:0;color:var(--text2);">Use <code>[e.target.name]</code> (a computed property) as the key. This lets one handler update any field — the input's <code>name</code> attribute must match the state key exactly.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">ContactForm.tsx</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="kw">interface</span> <span class="type-c">FormData</span> {
+  name: <span class="type-c">string</span>;
+  email: <span class="type-c">string</span>;
+  message: <span class="type-c">string</span>;
+}
+
+<span class="kw">function</span> <span class="fn">ContactForm</span>() {
+  <span class="kw">const</span> [form, setForm] = <span class="fn">useState</span>&lt;<span class="type-c">FormData</span>&gt;({
+    name: <span class="str">''</span>, email: <span class="str">''</span>, message: <span class="str">''</span>
+  });
+
+  <span class="cm">// One handler for ALL inputs</span>
+  <span class="kw">const</span> <span class="fn">handleChange</span> = (
+    e: React.<span class="type-c">ChangeEvent</span>&lt;<span class="type-c">HTMLInputElement</span> | <span class="type-c">HTMLTextAreaElement</span>&gt;
+  ) =&gt; {
+    <span class="kw">const</span> { name, value } = e.target;
+    <span class="fn">setForm</span>(prev =&gt; ({ ...prev, [name]: value }));
+    <span class="cm">//               ↑ spread keeps other fields intact</span>
+  };
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">form</span>&gt;
+      &lt;<span class="tag">input</span> name=<span class="str">"name"</span>    value={form.name}    onChange={handleChange} /&gt;
+      &lt;<span class="tag">input</span> name=<span class="str">"email"</span>   value={form.email}   onChange={handleChange} /&gt;
+      &lt;<span class="tag">textarea</span> name=<span class="str">"message"</span> value={form.message} onChange={handleChange} /&gt;
+    &lt;/<span class="tag">form</span>&gt;
+  );
+}</pre>
+    </div>
+
+    <h3 class="sub-heading">Manual Validation</h3>
+    <p>Validation means checking if the user's input is acceptable before submitting. The pattern is: run a <code>validate()</code> function, populate an errors object, and conditionally display error messages.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">Validation logic</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="kw">const</span> [errors, setErrors] = <span class="fn">useState</span>&lt;<span class="type-c">Partial</span>&lt;<span class="type-c">Record</span>&lt;<span class="kw">keyof</span> <span class="type-c">FormData</span>, <span class="type-c">string</span>&gt;&gt;&gt;({});
+
+<span class="kw">const</span> <span class="fn">validate</span> = (): <span class="type-c">boolean</span> =&gt; {
+  <span class="kw">const</span> newErrors: <span class="kw">typeof</span> errors = {};
+
+  <span class="kw">if</span> (!form.name.<span class="fn">trim</span>())
+    newErrors.name = <span class="str">'Name is required'</span>;
+
+  <span class="kw">if</span> (!form.email.<span class="fn">includes</span>(<span class="str">'@'</span>))
+    newErrors.email = <span class="str">'Enter a valid email address'</span>;
+
+  <span class="kw">if</span> (form.message.length &lt; <span class="num">10</span>)
+    newErrors.message = <span class="str">'Message must be at least 10 characters'</span>;
+
+  <span class="fn">setErrors</span>(newErrors);
+  <span class="kw">return</span> Object.<span class="fn">keys</span>(newErrors).length === <span class="num">0</span>; <span class="cm">// true = no errors</span>
+};
+
+<span class="kw">const</span> <span class="fn">handleSubmit</span> = (e: React.<span class="type-c">FormEvent</span>) =&gt; {
+  e.<span class="fn">preventDefault</span>();
+  <span class="kw">if</span> (<span class="fn">validate</span>()) {
+    console.<span class="fn">log</span>(<span class="str">'Submitted:'</span>, form);
+  }
+};
+
+<span class="cm">// In JSX — show error below each field:</span>
+{errors.email &amp;&amp; &lt;<span class="tag">span</span> className=<span class="str">"error"</span>&gt;{errors.email}&lt;/<span class="tag">span</span>&gt;}</pre>
+    </div>
+
+    <!-- QUIZ 2 -->
+    <div class="quiz-block">
+      <div class="quiz-label">🧠 Quiz — Forms</div>
+      <div class="quiz-q">In a controlled input, what does <code>value=&#123;email&#125;</code> do?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q2')"><span class="opt-letter">A</span> It sets an initial default value only, which the user can overwrite freely</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'correct','q2')"><span class="opt-letter">B</span> It makes React state the single source of truth — the input always reflects the state</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q2')"><span class="opt-letter">C</span> It validates the email format automatically</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q2')"><span class="opt-letter">D</span> It prevents the user from typing in the field</div>
+      </div>
+      <div class="quiz-feedback correct-fb" id="q2-correct">
+        <p>✅ <strong>Correct!</strong> With <code>value=&#123;state&#125;</code>, the input's displayed value is always controlled by React state. The user can't change the input without an <code>onChange</code> handler updating that state.</p>
+      </div>
+      <div class="quiz-feedback wrong-fb" id="q2-wrong">
+        <p>❌ <strong>Not quite.</strong> <code>value=&#123;state&#125;</code> makes React state the <em>single source of truth</em>. The input reads from state on every render, and <code>onChange</code> writes back to state when the user types.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ═══ REACT HOOK FORM ═══ -->
+  <section class="section s-rhf" id="rhf">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-title-wrap">
+        <div class="section-title">React Hook Form</div>
+        <div class="section-subtitle">Declarative validation with fewer re-renders</div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Why a Library?</h3>
+
+    <div class="two-col">
+      <div class="card danger">
+        <div class="card-title">Manual Approach — Problems</div>
+        <ul style="list-style:none;padding:0;font-size:13.5px;color:var(--text2);">
+          <li style="padding:4px 0;">❌ Lots of repetitive boilerplate code</li>
+          <li style="padding:4px 0;">❌ Every keystroke triggers a re-render</li>
+          <li style="padding:4px 0;">❌ Validation logic scattered throughout</li>
+          <li style="padding:4px 0;">❌ TypeScript types are cumbersome to set up</li>
+        </ul>
+      </div>
+      <div class="card success">
+        <div class="card-title">React Hook Form — Benefits</div>
+        <ul style="list-style:none;padding:0;font-size:13.5px;color:var(--text2);">
+          <li style="padding:4px 0;">✅ Minimal boilerplate with <code>register()</code></li>
+          <li style="padding:4px 0;">✅ Uncontrolled by default → fewer re-renders</li>
+          <li style="padding:4px 0;">✅ Declarative validation rules inline</li>
+          <li style="padding:4px 0;">✅ Excellent TypeScript generics support</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Core API</h3>
+    <div class="api-grid">
+      <div class="api-key">register(name, rules)</div><div class="api-val">Connects an input to RHF and applies validation rules</div>
+      <div class="api-key">handleSubmit(fn)</div><div class="api-val">Wraps your submit handler — only calls it if validation passes</div>
+      <div class="api-key">formState.errors</div><div class="api-val">Object containing error messages, keyed by field name</div>
+      <div class="api-key">watch(name)</div><div class="api-val">Subscribe to a field's live value (e.g., for password confirm)</div>
+      <div class="api-key">reset()</div><div class="api-val">Resets all fields and errors to default values</div>
+    </div>
+
+    <h3 class="sub-heading">Complete Example</h3>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">RegisterPage.tsx</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="kw">import</span> { useForm } <span class="kw">from</span> <span class="str">'react-hook-form'</span>;
+
+<span class="kw">interface</span> <span class="type-c">RegisterForm</span> {
+  name: <span class="type-c">string</span>;
+  email: <span class="type-c">string</span>;
+  password: <span class="type-c">string</span>;
+}
+
+<span class="kw">function</span> <span class="fn">RegisterPage</span>() {
+  <span class="kw">const</span> {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = <span class="fn">useForm</span>&lt;<span class="type-c">RegisterForm</span>&gt;();
+
+  <span class="kw">const</span> <span class="fn">onSubmit</span> = (data: <span class="type-c">RegisterForm</span>) =&gt; {
+    console.<span class="fn">log</span>(<span class="str">'Success:'</span>, data);
+  };
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">form</span> onSubmit={<span class="fn">handleSubmit</span>(onSubmit)}&gt;
+
+      &lt;<span class="tag">input</span> {...<span class="fn">register</span>(<span class="str">'name'</span>, {
+        required: <span class="str">'Name is required'</span>,
+        minLength: { value: <span class="num">2</span>, message: <span class="str">'Min 2 characters'</span> }
+      })} /&gt;
+      {errors.name &amp;&amp; &lt;<span class="tag">span</span>&gt;{errors.name.message}&lt;/<span class="tag">span</span>&gt;}
+
+      &lt;<span class="tag">input</span> {...<span class="fn">register</span>(<span class="str">'email'</span>, {
+        required: <span class="str">'Email is required'</span>,
+        pattern: {
+          value: <span class="num">/^[^\s@]+@[^\s@]+\.[^\s@]+$/</span>,
+          message: <span class="str">'Enter a valid email'</span>
+        }
+      })} /&gt;
+      {errors.email &amp;&amp; &lt;<span class="tag">span</span>&gt;{errors.email.message}&lt;/<span class="tag">span</span>&gt;}
+
+      &lt;<span class="tag">input</span> type=<span class="str">"password"</span> {...<span class="fn">register</span>(<span class="str">'password'</span>, {
+        required: <span class="str">'Password is required'</span>,
+        minLength: { value: <span class="num">6</span>, message: <span class="str">'Min 6 characters'</span> }
+      })} /&gt;
+      {errors.password &amp;&amp; &lt;<span class="tag">span</span>&gt;{errors.password.message}&lt;/<span class="tag">span</span>&gt;}
+
+      &lt;<span class="tag">button</span> type=<span class="str">"submit"</span>&gt;Register&lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">form</span>&gt;
+  );
+}</pre>
+    </div>
+
+    <h3 class="sub-heading">Validation Rules Cheat Sheet</h3>
+    <table class="compare-table">
+      <thead><tr><th>Rule</th><th>Usage</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>required</td><td>Field cannot be empty</td><td><code>required: 'Name is required'</code></td></tr>
+        <tr><td>minLength</td><td>Minimum character count</td><td><code>minLength: &#123; value: 6, message: 'Too short' &#125;</code></td></tr>
+        <tr><td>maxLength</td><td>Maximum character count</td><td><code>maxLength: &#123; value: 50, message: 'Too long' &#125;</code></td></tr>
+        <tr><td>min / max</td><td>For number inputs</td><td><code>min: &#123; value: 18, message: 'Must be 18+' &#125;</code></td></tr>
+        <tr><td>pattern</td><td>Regex match</td><td><code>pattern: &#123; value: /regex/, message: '...' &#125;</code></td></tr>
+        <tr><td>validate</td><td>Custom function</td><td><code>validate: val => val === getValues('pw') || 'No match'</code></td></tr>
+      </tbody>
+    </table>
+
+    <!-- Accordion: Manual vs RHF -->
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <span class="accordion-title">📊 Manual Validation vs React Hook Form — Side by Side</span>
+        <span class="accordion-icon">▼</span>
+      </div>
+      <div class="accordion-body">
+        <table class="compare-table" style="margin-top:0">
+          <thead><tr><th>Feature</th><th>Manual (useState)</th><th>React Hook Form</th></tr></thead>
+          <tbody>
+            <tr><td>Setup</td><td>Many useState calls</td><td>One <code>useForm()</code></td></tr>
+            <tr><td>Input binding</td><td><code>value + onChange</code></td><td><code>...register()</code></td></tr>
+            <tr><td>Validation</td><td>Custom validate() function</td><td>Inline rules object</td></tr>
+            <tr><td>Re-renders</td><td>Every keystroke</td><td>Only on submit/blur</td></tr>
+            <tr><td>Error display</td><td>Manual errors state</td><td><code>formState.errors</code></td></tr>
+            <tr><td>Best for</td><td>Simple 2-3 field forms</td><td>Complex multi-field forms</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- QUIZ 3 -->
+    <div class="quiz-block">
+      <div class="quiz-label">🧠 Quiz — React Hook Form</div>
+      <div class="quiz-q">What does <code>&#123;...register('email', &#123; required: 'Email required' &#125;)&#125;</code> actually do to the input?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q3')"><span class="opt-letter">A</span> It adds a CSS error class to the input element</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q3')"><span class="opt-letter">B</span> It makes the input read-only</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'correct','q3')"><span class="opt-letter">C</span> It spreads ref, name, onChange, and onBlur props onto the input to connect it to RHF's tracking</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q3')"><span class="opt-letter">D</span> It creates a new controlled useState for this field</div>
+      </div>
+      <div class="quiz-feedback correct-fb" id="q3-correct">
+        <p>✅ <strong>Correct!</strong> <code>register()</code> returns an object with <code>ref</code>, <code>name</code>, <code>onChange</code>, and <code>onBlur</code>. Spreading it onto the input connects that element to RHF's internal tracking system without needing any useState.</p>
+      </div>
+      <div class="quiz-feedback wrong-fb" id="q3-wrong">
+        <p>❌ <strong>Not quite.</strong> <code>register()</code> returns <code>&#123; ref, name, onChange, onBlur &#125;</code>. Spreading those props onto the input is what wires it into React Hook Form — no useState needed at all.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ═══ CONTEXT API ═══ -->
+  <section class="section s-context" id="context">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div class="section-title-wrap">
+        <div class="section-title">Context API</div>
+        <div class="section-subtitle">Share state across the component tree without prop drilling</div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">The Prop Drilling Problem</h3>
+    <p>Imagine you need the logged-in user's name in a deeply nested component. Passing it through every intermediate component — even ones that don't use it — is called <strong>prop drilling</strong>.</p>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">Prop Drilling vs Context</div>
+      <div class="two-col">
+        <div class="compare-box bad">
+          <h4>❌ Prop Drilling</h4>
+          <div class="tree" style="font-size:12.5px;line-height:2;">
+            <div><span class="tree-provider">&lt;App user=&#123;user&#125;&gt;</span>   ← has it</div>
+            <div style="padding-left:16px;"><span class="tree-neutral">&lt;Layout user=&#123;user&#125;&gt;</span> ← passes it</div>
+            <div style="padding-left:32px;"><span class="tree-neutral">&lt;Sidebar user=&#123;user&#125;&gt;</span> ← passes it</div>
+            <div style="padding-left:48px;"><span class="tree-consumer">&lt;UserMenu user=&#123;user&#125;&gt;</span> ← uses it</div>
+          </div>
+        </div>
+        <div class="compare-box good">
+          <h4>✅ Context</h4>
+          <div class="tree" style="font-size:12.5px;line-height:2;">
+            <div><span class="tree-provider">&lt;UserContext.Provider&gt;</span></div>
+            <div style="padding-left:16px;"><span class="tree-neutral">&lt;App&gt;</span></div>
+            <div style="padding-left:32px;"><span class="tree-neutral">&lt;Sidebar&gt;</span> ← doesn't care</div>
+            <div style="padding-left:48px;"><span class="tree-consumer">&lt;UserMenu&gt;</span> ← reads directly</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">3 Steps to Use Context</h3>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Create the Context (<code>createContext</code>)</h4>
+          <p>Define the shape of the data your context will hold. This is typically done in its own file.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Provide the Value (<code>Provider</code>)</h4>
+          <p>Wrap the part of your component tree that needs access with <code>&lt;Context.Provider value=&#123;...&#125;&gt;</code>. Everything inside can access the value.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Consume the Value (<code>useContext</code>)</h4>
+          <p>Any component inside the Provider can call <code>useContext(MyContext)</code> to get the value directly — no props needed.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'tab-ctx-1')">1. Create</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-ctx-2')">2. Provide</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-ctx-3')">3. Consume</button>
+    </div>
+    <div class="tab-content active" id="tab-ctx-1">
+      <div class="code-block" style="margin:0;border-top:none;border-radius:0 var(--radius) var(--radius) var(--radius);">
+        <div class="code-header">
+          <span class="code-filename">context/ThemeContext.tsx</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="kw">import</span> { createContext } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">interface</span> <span class="type-c">ThemeContextType</span> {
+  isDark: <span class="type-c">boolean</span>;
+  toggle: () =&gt; <span class="type-c">void</span>;
+}
+
+<span class="kw">export const</span> ThemeContext = <span class="fn">createContext</span>&lt;<span class="type-c">ThemeContextType</span>&gt;({
+  isDark: <span class="kw">false</span>,
+  toggle: () =&gt; {},  <span class="cm">// default no-op</span>
+});</pre>
+      </div>
+    </div>
+    <div class="tab-content" id="tab-ctx-2">
+      <div class="code-block" style="margin:0;border-top:none;border-radius:0 var(--radius) var(--radius) var(--radius);">
+        <div class="code-header">
+          <span class="code-filename">App.tsx</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [isDark, setIsDark] = <span class="fn">useState</span>(<span class="kw">false</span>);
+  <span class="kw">const</span> toggle = () =&gt; <span class="fn">setIsDark</span>(prev =&gt; !prev);
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">ThemeContext.Provider</span> value={{ isDark, toggle }}&gt;
+      &lt;<span class="tag">Layout</span> /&gt;  <span class="cm">{/* Everything inside can access ThemeContext */}</span>
+    &lt;/<span class="tag">ThemeContext.Provider</span>&gt;
+  );
+}</pre>
+      </div>
+    </div>
+    <div class="tab-content" id="tab-ctx-3">
+      <div class="code-block" style="margin:0;border-top:none;border-radius:0 var(--radius) var(--radius) var(--radius);">
+        <div class="code-header">
+          <span class="code-filename">ThemeToggle.tsx</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="kw">import</span> { useContext } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> { ThemeContext } <span class="kw">from</span> <span class="str">'./context/ThemeContext'</span>;
+
+<span class="kw">function</span> <span class="fn">ThemeToggle</span>() {
+  <span class="cm">// No props needed — reads directly from Context</span>
+  <span class="kw">const</span> { isDark, toggle } = <span class="fn">useContext</span>(ThemeContext);
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">button</span> onClick={toggle}&gt;
+      {isDark ? <span class="str">'☀️ Light Mode'</span> : <span class="str">'🌙 Dark Mode'</span>}
+    &lt;/<span class="tag">button</span>&gt;
+  );
+}</pre>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Custom Provider + Custom Hook Pattern</h3>
+    <p>In real projects, you'll almost always wrap the Provider in a dedicated component and expose a custom hook. This hides implementation details and gives you a clean API.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">context/AuthContext.tsx</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="kw">const</span> AuthContext = <span class="fn">createContext</span>&lt;<span class="type-c">AuthContextType</span>&gt;({} <span class="kw">as</span> <span class="type-c">AuthContextType</span>);
+
+<span class="cm">// Custom Provider — encapsulates all auth logic</span>
+<span class="kw">export function</span> <span class="fn">AuthProvider</span>({ children }: { children: React.<span class="type-c">ReactNode</span> }) {
+  <span class="kw">const</span> [user, setUser] = <span class="fn">useState</span>&lt;<span class="type-c">User</span> | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+
+  <span class="kw">const</span> login  = (email: <span class="type-c">string</span>) =&gt; <span class="fn">setUser</span>({ id: <span class="num">1</span>, email });
+  <span class="kw">const</span> logout = () =&gt; <span class="fn">setUser</span>(<span class="kw">null</span>);
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">AuthContext.Provider</span> value={{ user, login, logout, isLoggedIn: user !== <span class="kw">null</span> }}&gt;
+      {children}
+    &lt;/<span class="tag">AuthContext.Provider</span>&gt;
+  );
+}
+
+<span class="cm">// Custom Hook — clean API for consumers</span>
+<span class="kw">export function</span> <span class="fn">useAuth</span>() {
+  <span class="kw">const</span> ctx = <span class="fn">useContext</span>(AuthContext);
+  <span class="kw">if</span> (!ctx) <span class="kw">throw new</span> Error(<span class="str">'useAuth must be used inside AuthProvider'</span>);
+  <span class="kw">return</span> ctx;
+}
+
+<span class="cm">// Usage anywhere in the tree:</span>
+<span class="kw">function</span> <span class="fn">Profile</span>() {
+  <span class="kw">const</span> { user, logout } = <span class="fn">useAuth</span>(); <span class="cm">// clean and simple!</span>
+}</pre>
+    </div>
+
+    <div class="card warning">
+      <div class="card-title">⚠️ Performance Warning</div>
+      <p style="font-size:13.5px;margin:0;color:var(--text2);">Every time the context value changes, <strong>all consumers re-render</strong>. Context is ideal for infrequently changing data (user auth, theme, language). For frequently changing data (like a counter that updates every second), consider a more targeted solution or split contexts.</p>
+    </div>
+
+    <h3 class="sub-heading">When to Use Context</h3>
+    <table class="compare-table">
+      <thead><tr><th>Good Use Cases</th><th>Poor Use Cases</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-green">✓</span> Authentication state (user login)</td><td><span class="badge badge-red">✗</span> Rapidly changing data (animations)</td></tr>
+        <tr><td><span class="badge badge-green">✓</span> Theme (dark/light mode)</td><td><span class="badge badge-red">✗</span> Server data (use React Query instead)</td></tr>
+        <tr><td><span class="badge badge-green">✓</span> Language/locale settings</td><td><span class="badge badge-red">✗</span> Complex state with many actions</td></tr>
+        <tr><td><span class="badge badge-green">✓</span> Shopping cart items</td><td><span class="badge badge-yellow">~</span> Very large apps (consider Zustand/Redux)</td></tr>
+      </tbody>
+    </table>
+
+    <!-- QUIZ 4 -->
+    <div class="quiz-block">
+      <div class="quiz-label">🧠 Quiz — Context API</div>
+      <div class="quiz-q">You have <code>AuthProvider</code> wrapping your app. A <code>&lt;Sidebar&gt;</code> component doesn't need auth but has a child <code>&lt;UserMenu&gt;</code> that does. What's the correct approach?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q4')"><span class="opt-letter">A</span> Pass the user as a prop through Sidebar down to UserMenu</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'correct','q4')"><span class="opt-letter">B</span> Call <code>useAuth()</code> directly inside UserMenu — Sidebar doesn't need to do anything</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q4')"><span class="opt-letter">C</span> Create a separate copy of AuthContext inside Sidebar</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q4')"><span class="opt-letter">D</span> Add another AuthProvider just for Sidebar</div>
+      </div>
+      <div class="quiz-feedback correct-fb" id="q4-correct">
+        <p>✅ <strong>Exactly right!</strong> This is the whole point of Context — <code>UserMenu</code> calls <code>useAuth()</code> and gets the user directly from the nearest Provider above it in the tree. <code>Sidebar</code> doesn't need to know about it at all.</p>
+      </div>
+      <div class="quiz-feedback wrong-fb" id="q4-wrong">
+        <p>❌ <strong>Not quite.</strong> With Context, <code>UserMenu</code> can call <code>useAuth()</code> directly without Sidebar doing anything. That's the whole point — it reads from the Provider ancestor, skipping all the intermediary components.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ═══ useREDUCER ═══ -->
+  <section class="section s-reducer" id="reducer">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div class="section-title-wrap">
+        <div class="section-title">useReducer</div>
+        <div class="section-subtitle">Manage complex state with predictable action-based updates</div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">What is useReducer?</h3>
+    <p><code>useReducer</code> is an alternative to <code>useState</code> when your state logic involves multiple sub-values or when the next state depends on the previous one. It's inspired by Redux and uses an <strong>Action → Reducer → New State</strong> pattern.</p>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">useReducer Data Flow</div>
+      <div class="reducer-flow">
+        <div class="rf-row">
+          <div class="flow-box yellow" style="text-align:center;">Component</div>
+        </div>
+        <div style="text-align:center;color:var(--text3);font-size:12px;padding:4px 0;">calls dispatch(&#123; type: 'ADD', text: '...' &#125;)</div>
+        <div class="flow-arrow" style="font-size:20px;">↓</div>
+        <div class="rf-row">
+          <div class="flow-box purple" style="text-align:center;min-width:200px;">Reducer Function<br><small style="font-size:11px;opacity:0.7;">(state, action) → newState</small></div>
+        </div>
+        <div style="text-align:center;color:var(--text3);font-size:12px;padding:4px 0;">switch(action.type) → returns new state</div>
+        <div class="flow-arrow" style="font-size:20px;">↓</div>
+        <div class="rf-row">
+          <div class="flow-box green" style="text-align:center;">New State</div>
+        </div>
+        <div style="text-align:center;color:var(--text3);font-size:12px;padding:4px 0;">triggers re-render</div>
+        <div class="flow-arrow" style="font-size:20px;">↓</div>
+        <div class="rf-row">
+          <div class="flow-box yellow" style="text-align:center;">Component re-renders</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Todo List with useReducer</h3>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">todoReducer.ts</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="cm">// Define all possible action shapes with a discriminated union</span>
+<span class="kw">type</span> <span class="type-c">Action</span> =
+  | { type: <span class="str">'ADD'</span>;    text: <span class="type-c">string</span> }
+  | { type: <span class="str">'TOGGLE'</span>; id: <span class="type-c">number</span> }
+  | { type: <span class="str">'DELETE'</span>; id: <span class="type-c">number</span> };
+
+<span class="kw">function</span> <span class="fn">todoReducer</span>(state: <span class="type-c">Todo</span>[], action: <span class="type-c">Action</span>): <span class="type-c">Todo</span>[] {
+  <span class="kw">switch</span> (action.type) {
+
+    <span class="kw">case</span> <span class="str">'ADD'</span>:
+      <span class="kw">return</span> [
+        ...state,
+        { id: Date.<span class="fn">now</span>(), text: action.text, completed: <span class="kw">false</span> }
+      ];
+
+    <span class="kw">case</span> <span class="str">'TOGGLE'</span>:
+      <span class="kw">return</span> state.<span class="fn">map</span>(t =&gt;
+        t.id === action.id ? { ...t, completed: !t.completed } : t
+      );
+
+    <span class="kw">case</span> <span class="str">'DELETE'</span>:
+      <span class="kw">return</span> state.<span class="fn">filter</span>(t =&gt; t.id !== action.id);
+
+    <span class="kw">default</span>:
+      <span class="kw">return</span> state;
+  }
+}
+
+<span class="cm">// Usage in a component:</span>
+<span class="kw">const</span> [todos, dispatch] = <span class="fn">useReducer</span>(todoReducer, []);
+
+dispatch({ type: <span class="str">'ADD'</span>,    text: <span class="str">'Learn useReducer'</span> });
+dispatch({ type: <span class="str">'TOGGLE'</span>, id: <span class="num">123</span> });
+dispatch({ type: <span class="str">'DELETE'</span>, id: <span class="num">123</span> });</pre>
+    </div>
+
+    <h3 class="sub-heading">Context + useReducer = Global State</h3>
+    <p>This is the most powerful pattern in this module. Combine Context (to make state globally accessible) with useReducer (to handle complex state changes). This is essentially a mini-Redux.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">context/TodoContext.tsx</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="kw">const</span> TodoContext = <span class="fn">createContext</span>&lt;{
+  todos: <span class="type-c">Todo</span>[];
+  dispatch: React.<span class="type-c">Dispatch</span>&lt;<span class="type-c">Action</span>&gt;;
+}&gt;({} <span class="kw">as any</span>);
+
+<span class="kw">export function</span> <span class="fn">TodoProvider</span>({ children }: { children: React.<span class="type-c">ReactNode</span> }) {
+  <span class="kw">const</span> [todos, dispatch] = <span class="fn">useReducer</span>(todoReducer, []);
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">TodoContext.Provider</span> value={{ todos, dispatch }}&gt;
+      {children}
+    &lt;/<span class="tag">TodoContext.Provider</span>&gt;
+  );
+}
+
+<span class="kw">export const</span> useTodos = () =&gt; <span class="fn">useContext</span>(TodoContext);
+
+<span class="cm">// AddTodo.tsx — writes to global state</span>
+<span class="kw">function</span> <span class="fn">AddTodo</span>() {
+  <span class="kw">const</span> { dispatch } = <span class="fn">useTodos</span>();
+  dispatch({ type: <span class="str">'ADD'</span>, text: <span class="str">'New task'</span> });
+}
+
+<span class="cm">// TodoList.tsx — reads from global state</span>
+<span class="kw">function</span> <span class="fn">TodoList</span>() {
+  <span class="kw">const</span> { todos } = <span class="fn">useTodos</span>();
+  <span class="kw">return</span> &lt;<span class="tag">ul</span>&gt;{todos.<span class="fn">map</span>(t =&gt; &lt;<span class="tag">li</span> key={t.id}&gt;{t.text}&lt;/<span class="tag">li</span>&gt;)}&lt;/<span class="tag">ul</span>&gt;;
+}</pre>
+    </div>
+
+    <h3 class="sub-heading">When to Use What?</h3>
+    <table class="compare-table">
+      <thead><tr><th>Tool</th><th>Use When...</th><th>Scope</th></tr></thead>
+      <tbody>
+        <tr><td>useState</td><td>Simple value, one component</td><td><span class="badge badge-yellow">Local</span></td></tr>
+        <tr><td>Lifting State</td><td>2-3 sibling components need sharing</td><td><span class="badge badge-yellow">Local+</span></td></tr>
+        <tr><td>Context</td><td>Many components, infrequent updates</td><td><span class="badge badge-green">Global</span></td></tr>
+        <tr><td>useReducer</td><td>Complex local state, many actions</td><td><span class="badge badge-yellow">Local</span></td></tr>
+        <tr><td>Context + Reducer</td><td>Global + complex — mini Redux</td><td><span class="badge badge-green">Global</span></td></tr>
+        <tr><td>Zustand / Redux</td><td>Large app, many slices, DevTools</td><td><span class="badge badge-green">Global</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="card accent">
+      <div class="card-title">💡 Golden Rule</div>
+      <p style="font-size:13.5px;margin:0;color:var(--text2);">Always start with the simplest tool (<code>useState</code>). Only reach for more complex solutions when you actually have the problem they solve. Don't over-engineer from the start.</p>
+    </div>
+
+    <!-- CHALLENGE 2 -->
+    <div class="challenge-block">
+      <div class="challenge-header">
+        <div class="challenge-title">⚡ Challenge — Complete the Reducer</div>
+        <button class="show-solution-btn" onclick="toggleSolution(this)">Show Solution</button>
+      </div>
+      <div class="challenge-body">
+        <div class="challenge-task">The RESET action is missing from this counter reducer. Add it so that dispatching <code>&#123; type: 'RESET' &#125;</code> returns the count to 0.</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-filename">counterReducer.ts — INCOMPLETE</span></div>
+          <pre><span class="kw">type</span> <span class="type-c">Action</span> = { type: <span class="str">'INC'</span> } | { type: <span class="str">'DEC'</span> } | { type: <span class="str">'RESET'</span> };
+
+<span class="kw">function</span> <span class="fn">counterReducer</span>(state: <span class="type-c">number</span>, action: <span class="type-c">Action</span>): <span class="type-c">number</span> {
+  <span class="kw">switch</span> (action.type) {
+    <span class="kw">case</span> <span class="str">'INC'</span>:  <span class="kw">return</span> state + <span class="num">1</span>;
+    <span class="kw">case</span> <span class="str">'DEC'</span>:  <span class="kw">return</span> state - <span class="num">1</span>;
+    <span class="cm">// TODO: add RESET case here</span>
+    <span class="kw">default</span>: <span class="kw">return</span> state;
+  }
+}</pre>
+        </div>
+        <div class="solution-block" id="sol2">
+          <div class="solution-label">✅ Solution</div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-filename">counterReducer.ts — COMPLETE</span></div>
+            <pre><span class="kw">function</span> <span class="fn">counterReducer</span>(state: <span class="type-c">number</span>, action: <span class="type-c">Action</span>): <span class="type-c">number</span> {
+  <span class="kw">switch</span> (action.type) {
+    <span class="kw">case</span> <span class="str">'INC'</span>:   <span class="kw">return</span> state + <span class="num">1</span>;
+    <span class="kw">case</span> <span class="str">'DEC'</span>:   <span class="kw">return</span> state - <span class="num">1</span>;
+    <span class="kw">case</span> <span class="str">'RESET'</span>: <span class="kw">return</span> <span class="num">0</span>; <span class="cm">// ← simply return 0</span>
+    <span class="kw">default</span>:       <span class="kw">return</span> state;
+  }
+}</pre>
+          </div>
+          <p style="font-size:13.5px;color:var(--text2);margin-top:10px;">The key insight: a reducer always returns the <em>new state value</em>. For RESET, that's simply <code>0</code>. The reducer doesn't mutate anything — it just returns a new value.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ 5 -->
+    <div class="quiz-block">
+      <div class="quiz-label">🧠 Quiz — useReducer</div>
+      <div class="quiz-q">In a reducer function, why should you never directly mutate the state object (e.g., <code>state.count++</code>)?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q5')"><span class="opt-letter">A</span> JavaScript doesn't allow mutation of function parameters</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'correct','q5')"><span class="opt-letter">B</span> React uses reference equality to detect state changes — mutating won't trigger a re-render</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q5')"><span class="opt-letter">C</span> TypeScript will throw a compile error</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q5')"><span class="opt-letter">D</span> It's just a style convention with no functional impact</div>
+      </div>
+      <div class="quiz-feedback correct-fb" id="q5-correct">
+        <p>✅ <strong>Correct!</strong> React compares the old and new state with <code>===</code>. If you mutate the object directly, the reference stays the same, React thinks nothing changed, and no re-render happens. Always return a <em>new</em> state object.</p>
+      </div>
+      <div class="quiz-feedback wrong-fb" id="q5-wrong">
+        <p>❌ <strong>Not quite.</strong> React detects state changes by comparing object references (<code>===</code>). Mutating the existing object keeps the same reference, so React sees "old state === new state" and skips the re-render. Always return a new object/array.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ═══ MINI PROJECT ═══ -->
+  <section class="section s-project" id="project">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div class="section-title-wrap">
+        <div class="section-title">Mini Project: Book Club SPA</div>
+        <div class="section-subtitle">Combine everything you've learned into one application</div>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <h3>📚 BookClub — A Reading Tracker App</h3>
+      <p style="font-size:13.5px;color:var(--text2);margin-top:8px;">You'll build a small SPA that lets users browse books, add new ones via a form, and track reading status. It uses all three pillars from this module.</p>
+      <ul class="req-list">
+        <li>Multiple pages with React Router v7 (Home, Books, Add Book)</li>
+        <li>A form with validation (React Hook Form) to add new books</li>
+        <li>Global book list managed with Context + useReducer</li>
+        <li>NavLink highlighting the active page</li>
+        <li>Dynamic route <code>/books/:id</code> for book detail page</li>
+      </ul>
+    </div>
+
+    <!-- STEP BY STEP -->
+    <h3 class="sub-heading">Step-by-Step Guide</h3>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Project Setup</h4>
+          <p>Create a new Vite + React + TypeScript project and install dependencies.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Create the Book Context + Reducer</h4>
+          <p>Define the Book type, action types (ADD_BOOK, TOGGLE_READ, DELETE_BOOK), and set up the BookContext with useReducer.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Set Up Router</h4>
+          <p>Create <code>router.tsx</code> with routes: <code>/</code>, <code>/books</code>, <code>/books/:id</code>, <code>/add</code>, and a 404 catch-all. Wrap everything in a Layout component.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>Build the "Add Book" Form</h4>
+          <p>Use React Hook Form with validation: title (required, min 2 chars), author (required), year (required, number, min 1900).</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h4>Wire Everything Together</h4>
+          <p>On form submit, dispatch ADD_BOOK to the context. Navigate to <code>/books</code> after success using <code>useNavigate</code>. Read the book list from context in the Books page.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Starter Code</h3>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'proj-1')">BookContext.tsx</button>
+      <button class="tab-btn" onclick="switchTab(this,'proj-2')">router.tsx</button>
+      <button class="tab-btn" onclick="switchTab(this,'proj-3')">AddBook.tsx</button>
+      <button class="tab-btn" onclick="switchTab(this,'proj-4')">main.tsx</button>
+    </div>
+
+    <div class="tab-content active" id="proj-1">
+      <div class="code-block" style="margin:0;border-top:none;border-radius:0 var(--radius) var(--radius) var(--radius);">
+        <div class="code-header"><span class="code-filename">context/BookContext.tsx</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> { createContext, useContext, useReducer } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">interface</span> <span class="type-c">Book</span> {
+  id: <span class="type-c">number</span>;
+  title: <span class="type-c">string</span>;
+  author: <span class="type-c">string</span>;
+  year: <span class="type-c">number</span>;
+  isRead: <span class="type-c">boolean</span>;
+}
+
+<span class="kw">type</span> <span class="type-c">Action</span> =
+  | { type: <span class="str">'ADD_BOOK'</span>;    book: <span class="type-c">Omit</span>&lt;<span class="type-c">Book</span>, <span class="str">'id'</span> | <span class="str">'isRead'</span>&gt; }
+  | { type: <span class="str">'TOGGLE_READ'</span>; id: <span class="type-c">number</span> }
+  | { type: <span class="str">'DELETE_BOOK'</span>; id: <span class="type-c">number</span> };
+
+<span class="kw">function</span> <span class="fn">bookReducer</span>(state: <span class="type-c">Book</span>[], action: <span class="type-c">Action</span>): <span class="type-c">Book</span>[] {
+  <span class="kw">switch</span> (action.type) {
+    <span class="kw">case</span> <span class="str">'ADD_BOOK'</span>:
+      <span class="kw">return</span> [...state, { ...action.book, id: Date.<span class="fn">now</span>(), isRead: <span class="kw">false</span> }];
+    <span class="kw">case</span> <span class="str">'TOGGLE_READ'</span>:
+      <span class="kw">return</span> state.<span class="fn">map</span>(b =&gt; b.id === action.id ? { ...b, isRead: !b.isRead } : b);
+    <span class="kw">case</span> <span class="str">'DELETE_BOOK'</span>:
+      <span class="kw">return</span> state.<span class="fn">filter</span>(b =&gt; b.id !== action.id);
+    <span class="kw">default</span>: <span class="kw">return</span> state;
+  }
+}
+
+<span class="kw">const</span> BookContext = <span class="fn">createContext</span>&lt;{
+  books: <span class="type-c">Book</span>[];
+  dispatch: React.<span class="type-c">Dispatch</span>&lt;<span class="type-c">Action</span>&gt;;
+}&gt;({} <span class="kw">as any</span>);
+
+<span class="kw">export function</span> <span class="fn">BookProvider</span>({ children }: { children: React.<span class="type-c">ReactNode</span> }) {
+  <span class="kw">const</span> [books, dispatch] = <span class="fn">useReducer</span>(bookReducer, [
+    { id: <span class="num">1</span>, title: <span class="str">'Clean Code'</span>, author: <span class="str">'Robert Martin'</span>, year: <span class="num">2008</span>, isRead: <span class="kw">true</span> },
+    { id: <span class="num">2</span>, title: <span class="str">'The Pragmatic Programmer'</span>, author: <span class="str">'Hunt & Thomas'</span>, year: <span class="num">1999</span>, isRead: <span class="kw">false</span> },
+  ]);
+  <span class="kw">return</span> (
+    &lt;<span class="tag">BookContext.Provider</span> value={{ books, dispatch }}&gt;
+      {children}
+    &lt;/<span class="tag">BookContext.Provider</span>&gt;
+  );
+}
+
+<span class="kw">export const</span> useBooks = () =&gt; <span class="fn">useContext</span>(BookContext);</pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="proj-2">
+      <div class="code-block" style="margin:0;border-top:none;border-radius:0 var(--radius) var(--radius) var(--radius);">
+        <div class="code-header"><span class="code-filename">router.tsx</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> { createBrowserRouter } <span class="kw">from</span> <span class="str">'react-router'</span>;
+<span class="kw">import</span> Layout     <span class="kw">from</span> <span class="str">'./components/Layout'</span>;
+<span class="kw">import</span> Home       <span class="kw">from</span> <span class="str">'./pages/Home'</span>;
+<span class="kw">import</span> Books      <span class="kw">from</span> <span class="str">'./pages/Books'</span>;
+<span class="kw">import</span> BookDetail <span class="kw">from</span> <span class="str">'./pages/BookDetail'</span>;
+<span class="kw">import</span> AddBook    <span class="kw">from</span> <span class="str">'./pages/AddBook'</span>;
+<span class="kw">import</span> NotFound   <span class="kw">from</span> <span class="str">'./pages/NotFound'</span>;
+
+<span class="kw">export const</span> router = <span class="fn">createBrowserRouter</span>([{
+  path: <span class="str">'/'</span>,
+  element: &lt;<span class="tag">Layout</span> /&gt;,
+  children: [
+    { index: <span class="kw">true</span>,         element: &lt;<span class="tag">Home</span> /&gt;       },
+    { path: <span class="str">'books'</span>,        element: &lt;<span class="tag">Books</span> /&gt;      },
+    { path: <span class="str">'books/:id'</span>,   element: &lt;<span class="tag">BookDetail</span> /&gt; },
+    { path: <span class="str">'add'</span>,          element: &lt;<span class="tag">AddBook</span> /&gt;    },
+    { path: <span class="str">'*'</span>,            element: &lt;<span class="tag">NotFound</span> /&gt;   },
+  ]
+}]);</pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="proj-3">
+      <div class="code-block" style="margin:0;border-top:none;border-radius:0 var(--radius) var(--radius) var(--radius);">
+        <div class="code-header"><span class="code-filename">pages/AddBook.tsx</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> { useForm }    <span class="kw">from</span> <span class="str">'react-hook-form'</span>;
+<span class="kw">import</span> { useNavigate } <span class="kw">from</span> <span class="str">'react-router'</span>;
+<span class="kw">import</span> { useBooks }  <span class="kw">from</span> <span class="str">'../context/BookContext'</span>;
+
+<span class="kw">interface</span> <span class="type-c">FormValues</span> { title: <span class="type-c">string</span>; author: <span class="type-c">string</span>; year: <span class="type-c">number</span>; }
+
+<span class="kw">function</span> <span class="fn">AddBook</span>() {
+  <span class="kw">const</span> { dispatch } = <span class="fn">useBooks</span>();
+  <span class="kw">const</span> navigate    = <span class="fn">useNavigate</span>();
+  <span class="kw">const</span> { register, handleSubmit, formState: { errors } } = <span class="fn">useForm</span>&lt;<span class="type-c">FormValues</span>&gt;();
+
+  <span class="kw">const</span> <span class="fn">onSubmit</span> = (data: <span class="type-c">FormValues</span>) =&gt; {
+    <span class="fn">dispatch</span>({ type: <span class="str">'ADD_BOOK'</span>, book: data });
+    <span class="fn">navigate</span>(<span class="str">'/books'</span>); <span class="cm">// redirect after adding</span>
+  };
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">form</span> onSubmit={<span class="fn">handleSubmit</span>(onSubmit)}&gt;
+      &lt;<span class="tag">input</span> placeholder=<span class="str">"Book Title"</span>
+        {...<span class="fn">register</span>(<span class="str">'title'</span>, { required: <span class="str">'Title is required'</span>, minLength: { value: <span class="num">2</span>, message: <span class="str">'Min 2 chars'</span> } })} /&gt;
+      {errors.title &amp;&amp; &lt;<span class="tag">span</span>&gt;{errors.title.message}&lt;/<span class="tag">span</span>&gt;}
+
+      &lt;<span class="tag">input</span> placeholder=<span class="str">"Author"</span>
+        {...<span class="fn">register</span>(<span class="str">'author'</span>, { required: <span class="str">'Author is required'</span> })} /&gt;
+      {errors.author &amp;&amp; &lt;<span class="tag">span</span>&gt;{errors.author.message}&lt;/<span class="tag">span</span>&gt;}
+
+      &lt;<span class="tag">input</span> type=<span class="str">"number"</span> placeholder=<span class="str">"Year"</span>
+        {...<span class="fn">register</span>(<span class="str">'year'</span>, {
+          required: <span class="str">'Year is required'</span>,
+          min: { value: <span class="num">1900</span>, message: <span class="str">'Year must be after 1900'</span> },
+          max: { value: <span class="num">2030</span>, message: <span class="str">'Invalid year'</span> }
+        })} /&gt;
+      {errors.year &amp;&amp; &lt;<span class="tag">span</span>&gt;{errors.year.message}&lt;/<span class="tag">span</span>&gt;}
+
+      &lt;<span class="tag">button</span> type=<span class="str">"submit"</span>&gt;Add Book&lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">form</span>&gt;
+  );
+}</pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="proj-4">
+      <div class="code-block" style="margin:0;border-top:none;border-radius:0 var(--radius) var(--radius) var(--radius);">
+        <div class="code-header"><span class="code-filename">main.tsx</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> { createRoot }    <span class="kw">from</span> <span class="str">'react-dom/client'</span>;
+<span class="kw">import</span> { RouterProvider } <span class="kw">from</span> <span class="str">'react-router'</span>;
+<span class="kw">import</span> { router }        <span class="kw">from</span> <span class="str">'./router'</span>;
+<span class="kw">import</span> { BookProvider }  <span class="kw">from</span> <span class="str">'./context/BookContext'</span>;
+
+<span class="fn">createRoot</span>(document.<span class="fn">getElementById</span>(<span class="str">'root'</span>)!).<span class="fn">render</span>(
+  &lt;<span class="tag">BookProvider</span>&gt;
+    <span class="cm">{/* Provider wraps the router so all pages can access books */}</span>
+    &lt;<span class="tag">RouterProvider</span> router={router} /&gt;
+  &lt;/<span class="tag">BookProvider</span>&gt;
+);</pre>
+      </div>
+    </div>
+
+    <!-- Final Quiz -->
+    <div class="quiz-block" style="margin-top:28px;">
+      <div class="quiz-label">🧠 Final Quiz — The Big Picture</div>
+      <div class="quiz-q">In the BookClub project, <code>BookProvider</code> wraps <code>RouterProvider</code> in <code>main.tsx</code>. Why is this order important?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q6')"><span class="opt-letter">A</span> It's not important — the order of providers never matters</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q6')"><span class="opt-letter">B</span> RouterProvider must always be the outermost wrapper</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'correct','q6')"><span class="opt-letter">C</span> Pages (rendered by RouterProvider) are inside BookProvider, so they can access the book context</div>
+        <div class="quiz-opt" onclick="answerQuiz(this,'wrong','q6')"><span class="opt-letter">D</span> BookProvider needs the router to know the current URL</div>
+      </div>
+      <div class="quiz-feedback correct-fb" id="q6-correct">
+        <p>✅ <strong>Perfect!</strong> A component can only consume a Context if it's a <em>descendant</em> of that Context's Provider. Since pages are rendered by RouterProvider, RouterProvider must be inside BookProvider — making all pages descendants of the book context.</p>
+      </div>
+      <div class="quiz-feedback wrong-fb" id="q6-wrong">
+        <p>❌ <strong>Not quite.</strong> Context is available only to descendants of the Provider. For page components to read book data, they must be inside <code>&lt;BookProvider&gt;</code>. Since pages are rendered by RouterProvider, RouterProvider must be nested inside BookProvider.</p>
+      </div>
+    </div>
+
+    <div class="card success" style="margin-top:28px;">
+      <div class="card-title">🎉</div>
+      <p style="font-size:13.5px;margin:0;color:var(--text2);">You now know how to build navigated SPAs with React Router v7, handle user input with both manual validation and React Hook Form, and manage shared application state with Context API and useReducer. These are the foundations of every professional React application.</p>
+    </div>
+  </section>
+
+</div>
+
+</main>
+
+<script>
+(() => {
+  const sidebar = () => document.getElementById('sidebar');
+  const menuToggle = () => document.querySelector('.menu-toggle');
+  const sections = () => Array.from(document.querySelectorAll('.section'));
+  const navItems = () => Array.from(document.querySelectorAll('.sidebar .nav-item[href^="#"]'));
+
+  function setSidebarOpen(open) {
+    const sb = sidebar();
+    const toggle = menuToggle();
+    if (!sb) return;
+
+    sb.classList.toggle('open', open);
+    if (toggle) toggle.setAttribute('aria-expanded', String(open));
+  }
+
+  // ── PROGRESS TRACKING ──
+  function updateProgress() {
+    const fill = document.getElementById('progress-fill');
+    const label = document.getElementById('progress-label');
+    if (!fill || !label) return;
+
+    const doc = document.documentElement;
+    const maxScroll = Math.max(doc.scrollHeight - window.innerHeight, 1);
+    const pct = Math.max(0, Math.min(100, Math.round((window.scrollY / maxScroll) * 100)));
+
+    fill.style.width = pct + '%';
+    label.textContent = pct + '%';
+  }
+
+  function getActiveSectionId() {
+    const allSections = sections();
+    if (!allSections.length) return 'overview';
+
+    const offset = 120;
+    let current = 'overview';
+
+    for (const section of allSections) {
+      const rect = section.getBoundingClientRect();
+      if (rect.top <= offset) current = section.id;
+    }
+
+    return current;
+  }
+
+  // ── SIDEBAR ACTIVE ──
+  function updateSidebarActive() {
+    const current = getActiveSectionId();
+    navItems().forEach((item) => {
+      item.classList.toggle('active', item.getAttribute('href') === '#' + current);
+    });
+  }
+
+  let rafPending = false;
+  function refreshUI() {
+    if (rafPending) return;
+    rafPending = true;
+
+    window.requestAnimationFrame(() => {
+      updateProgress();
+      updateSidebarActive();
+      rafPending = false;
+    });
+  }
+
+  window.addEventListener('scroll', refreshUI, { passive: true });
+  window.addEventListener('resize', refreshUI);
+  window.addEventListener('hashchange', refreshUI);
+
+  // ── SIDEBAR TOGGLE (mobile) ──
+  window.toggleSidebar = function toggleSidebar() {
+    const sb = sidebar();
+    if (!sb) return;
+    setSidebarOpen(!sb.classList.contains('open'));
+  };
+
+  window.closeSidebar = function closeSidebar() {
+    setSidebarOpen(false);
+  };
+
+  document.addEventListener('click', (e) => {
+    const sb = sidebar();
+    if (!sb || !sb.classList.contains('open')) return;
+
+    const clickedMenuButton = e.target && typeof e.target.closest === 'function'
+      ? e.target.closest('.menu-toggle')
+      : null;
+
+    if (!sb.contains(e.target) && !clickedMenuButton) {
+      setSidebarOpen(false);
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setSidebarOpen(false);
+  });
+
+  // ── TABS ──
+  window.switchTab = function switchTab(btn, tabId) {
+    const tabs = btn && btn.closest ? btn.closest('.tabs') : null;
+    if (!tabs) return;
+
+    const container = tabs.parentElement;
+    if (!container) return;
+
+    tabs.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    container.querySelectorAll('.tab-content').forEach((c) => c.classList.remove('active'));
+    const target = document.getElementById(tabId);
+    if (target) target.classList.add('active');
+  };
+
+  // ── COPY CODE ──
+  window.copyCode = function copyCode(btn) {
+    const codeBlock = btn && btn.closest ? btn.closest('.code-block') : null;
+    const pre = codeBlock ? codeBlock.querySelector('pre') : null;
+    if (!pre) return;
+
+    const text = pre.textContent || '';
+
+    const markCopied = () => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+
+      window.setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    };
+
+    const fallbackCopy = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+
+      try {
+        document.execCommand('copy');
+        markCopied();
+      } finally {
+        document.body.removeChild(ta);
+      }
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(markCopied).catch(fallbackCopy);
+    } else {
+      fallbackCopy();
+    }
+  };
+
+  // ── QUIZ ──
+  window.answerQuiz = function answerQuiz(opt, result, qId) {
+    const block = opt && opt.closest ? opt.closest('.quiz-block') : null;
+    if (!block || block.dataset.answered) return;
+
+    block.dataset.answered = '1';
+    block.querySelectorAll('.quiz-opt').forEach((o) => {
+      o.classList.add('disabled');
+      o.setAttribute('aria-disabled', 'true');
+      o.setAttribute('tabindex', '-1');
+    });
+
+    opt.classList.add(result === 'correct' ? 'correct' : 'wrong');
+
+    const correctFb = document.getElementById(qId + '-correct');
+    const wrongFb = document.getElementById(qId + '-wrong');
+
+    if (result === 'correct') {
+      if (correctFb) correctFb.classList.add('show');
+    } else {
+      if (wrongFb) wrongFb.classList.add('show');
+
+      block.querySelectorAll('.quiz-opt').forEach((o) => {
+        const onclick = o.getAttribute('onclick') || '';
+        if (onclick.includes("'correct'")) o.classList.add('correct');
+      });
+    }
+  };
+
+  // ── CHALLENGE SOLUTION ──
+  window.toggleSolution = function toggleSolution(btn) {
+    const block = btn && btn.closest ? btn.closest('.challenge-block') : null;
+    if (!block) return;
+
+    const sol = block.querySelector('.solution-block');
+    if (!sol) return;
+
+    const isShown = sol.classList.toggle('show');
+    btn.textContent = isShown ? 'Hide Solution' : 'Show Solution';
+    btn.setAttribute('aria-expanded', String(isShown));
+  };
+
+  function enhanceControls() {
+    const toggle = menuToggle();
+    if (toggle) toggle.setAttribute('aria-expanded', 'false');
+
+    document.querySelectorAll('.show-solution-btn').forEach((btn) => {
+      btn.setAttribute('aria-expanded', 'false');
+    });
+
+    document.querySelectorAll('.quiz-opt').forEach((opt) => {
+      opt.setAttribute('role', 'button');
+      opt.setAttribute('tabindex', '0');
+      opt.setAttribute('aria-disabled', 'false');
+      opt.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          opt.click();
+        }
+      });
+    });
+  }
+
+  enhanceControls();
+  refreshUI();
+})();
+</script>
+</body>
+</html>
