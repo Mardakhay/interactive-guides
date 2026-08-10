@@ -9,6 +9,7 @@ import {
   LessonMetadata,
   LessonNavigation,
 } from '@/features/content';
+import { LessonRenderer, resolveLessonSource } from '@/features/lesson-renderer';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { EmptyState } from '@/components/feedback';
 import { ROUTE_PATHS, coursePath } from '@/app/router/routes';
@@ -70,12 +71,7 @@ export default function LessonViewerPage() {
         </div>
 
         <div className="rounded-xl border border-neutral-200 bg-white p-6 lg:p-8">
-          <div className="flex items-center gap-3 rounded-lg border border-dashed border-neutral-300 bg-neutral-50 px-4 py-6 text-center">
-            <BookOpen className="h-5 w-5 shrink-0 text-neutral-400" />
-            <p className="text-sm text-neutral-500">
-              Interactive lesson content will render here once the HTML rendering system is connected.
-            </p>
-          </div>
+          <LessonRenderer source={resolveLessonSource(lesson)} title={lesson.title} />
         </div>
 
         <LessonNavigation previous={adjacent.previous} next={adjacent.next} />

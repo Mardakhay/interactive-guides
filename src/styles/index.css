@@ -22,4 +22,74 @@
   .skip-link {
     @apply absolute left-4 top-4 z-[100] -translate-y-20 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-transform focus:translate-y-0;
   }
+
+  .lesson-content {
+    @apply text-neutral-700;
+  }
+
+  .lesson-content > *:first-child {
+    @apply mt-0;
+  }
+
+  .lesson-content h1,
+  .lesson-content h2,
+  .lesson-content h3 {
+    @apply mt-8 font-semibold text-neutral-900;
+  }
+
+  .lesson-content h1 {
+    @apply text-2xl;
+  }
+
+  .lesson-content h2 {
+    @apply text-xl;
+  }
+
+  .lesson-content h3 {
+    @apply text-lg;
+  }
+
+  .lesson-content p {
+    @apply mt-4 leading-relaxed;
+  }
+
+  .lesson-content ul {
+    @apply mt-4 list-disc space-y-1 pl-6;
+  }
+
+  .lesson-content ol {
+    @apply mt-4 list-decimal space-y-1 pl-6;
+  }
+
+  .lesson-content li {
+    @apply leading-relaxed;
+  }
+
+  .lesson-content a {
+    @apply font-medium text-primary-600 underline underline-offset-2 hover:text-primary-700;
+  }
+
+  .lesson-content code {
+    @apply rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-sm text-neutral-800;
+  }
+
+  .lesson-content pre {
+    @apply mt-4 overflow-x-auto rounded-lg bg-neutral-900 p-4 text-sm text-neutral-100;
+  }
+
+  .lesson-content pre code {
+    @apply bg-transparent p-0 text-inherit;
+  }
+
+  .lesson-content strong {
+    @apply font-semibold text-neutral-900;
+  }
+
+  .lesson-content blockquote {
+    @apply mt-4 border-l-4 border-primary-200 pl-4 italic text-neutral-600;
+  }
+
+  .lesson-content img {
+    @apply mt-4 rounded-lg border border-neutral-200;
+  }
 }

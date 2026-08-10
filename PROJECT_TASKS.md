@@ -62,6 +62,21 @@
 - [x] Create lesson not-found state with EmptyState
 - [x] Git commit: `feat: create lesson viewer infrastructure`
 
+### M4: HTML Lesson Engine
+- [x] Create lesson-rendering feature module (src/features/lesson-renderer/)
+- [x] Add types for lesson rendering (LessonSource) and manifests (LessonManifest)
+- [x] Add LessonRenderer component that dispatches on source type
+- [x] Add LessonLoader abstraction (resolveLessonSource / defaultLessonLoader)
+- [x] Support inline-html rendering mode (current lessons.json content)
+- [x] Support external-html rendering mode (sandboxed iframe, future-ready, unused today)
+- [x] Wire LessonRenderer into LessonViewerPage, replacing the placeholder block
+- [x] Keep breadcrumbs, lesson tree, metadata panel, and navigation unchanged
+- [x] Add placeholder lesson manifest registry (empty, keyed by lesson id)
+- [x] Add `.lesson-content` typography styles in styles/index.css
+- [x] Remove tracked build artifacts (vite.config.js, vite.config.d.ts, tsconfig.tsbuildinfo) and gitignore them
+- [x] Verify typecheck and build pass
+- [x] Git commit: `feat: create html lesson engine`
+
 ---
 
 ## Phase 3 — User Features
@@ -147,5 +162,5 @@
 | 3     | M6–M9      | User Features            |
 | 4     | M10–M13    | Discovery & Polish       |
 
-**Current Milestone:** M4 — Lesson Content Rendering
-**Last Completed:** M3 — Lesson Viewer Infrastructure
+**Current Milestone:** M6 — Progress Tracking
+**Last Completed:** M4 — HTML Lesson Engine
