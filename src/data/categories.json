@@ -2,63 +2,63 @@
   {
     "id": "start-here",
     "name": "Start Here",
-    "description": "New to Interactive Guides? Begin with these orientation lessons to learn how the platform works and get set up for success.",
+    "description": "New to Interactive Guides? Begin with this orientation handbook to get a bird's-eye view of the entire frontend landscape.",
     "icon": "Compass",
     "order": 0
   },
   {
     "id": "web-basics",
     "name": "Web Basics",
-    "description": "Understand the foundational technologies of the web — HTML structure, CSS styling, and how browsers render pages.",
+    "description": "Understand how the internet works and master the foundational technologies of the web — HTML, CSS, and the DOM.",
     "icon": "Globe",
     "order": 1
   },
   {
     "id": "javascript",
     "name": "JavaScript",
-    "description": "Master the language of the web, from variables and functions to async patterns and modern ES modules.",
+    "description": "Master JavaScript from core fundamentals to objects, memory management, and asynchronous programming.",
     "icon": "Code2",
     "order": 2
   },
   {
     "id": "react",
     "name": "React",
-    "description": "Build modern user interfaces with components, hooks, state management, and the React rendering model.",
+    "description": "Build modern user interfaces with hooks, forms, API integration, routing, performance optimization, and accessibility.",
     "icon": "Atom",
     "order": 3
   },
   {
     "id": "ui-design",
     "name": "UI / Design",
-    "description": "Learn design principles, color theory, typography, spacing, and how to create interfaces that feel intuitive and polished.",
+    "description": "Learn design system fundamentals, component design with tokens and variants, and master Material UI.",
     "icon": "Palette",
     "order": 4
   },
   {
     "id": "tooling",
     "name": "Tooling",
-    "description": "Set up your development workflow with build tools, package managers, linters, formatters, and version control.",
+    "description": "Set up your dev environment, master Git and CI/CD workflows, and learn how to deploy applications to production.",
     "icon": "Wrench",
     "order": 5
   },
   {
     "id": "quality",
     "name": "Quality",
-    "description": "Write code that lasts — testing strategies, debugging techniques, error handling, and code review best practices.",
+    "description": "Write code that lasts — frontend architecture and planning, plus comprehensive testing strategies from unit to E2E.",
     "icon": "ShieldCheck",
     "order": 6
   },
   {
     "id": "security",
     "name": "Security",
-    "description": "Protect your applications from common vulnerabilities — XSS, CSRF, injection attacks, and modern security headers.",
+    "description": "Protect your applications — master frontend authentication, JWT, OAuth, secure token storage, and route protection.",
     "icon": "Lock",
     "order": 7
   },
   {
     "id": "data",
     "name": "Data",
-    "description": "Work with data effectively — REST APIs, GraphQL, caching strategies, local storage, and state synchronization.",
+    "description": "Work with data effectively — learn SQL from SELECT queries to joins, aggregations, and database design fundamentals.",
     "icon": "Database",
     "order": 8
   }
