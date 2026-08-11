@@ -16,3 +16,5 @@ export interface BreadcrumbItem {
   readonly label: string;
   readonly path?: string;
 }
+
+export type LessonStatus = 'not-started' | 'in-progress' | 'completed';

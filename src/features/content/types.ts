@@ -1,7 +1,5 @@
 export type LessonDifficulty = 'beginner' | 'intermediate' | 'advanced';
 
-export type LessonStatus = 'not-started' | 'in-progress' | 'completed';
-
 export interface Category {
   readonly id: string;
   readonly name: string;

@@ -1,4 +1,4 @@
-export type { Category, CatalogCategory, Lesson, LessonDifficulty, LessonStatus } from './types';
+export type { Category, CatalogCategory, Lesson, LessonDifficulty } from './types';
 export {
   getCategories,
   getCategoryById,
