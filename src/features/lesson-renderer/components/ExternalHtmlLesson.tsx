@@ -8,9 +8,11 @@ interface ExternalHtmlLessonProps {
   sandbox?: string;
 }
 
-// No allow-same-origin by default: external content is treated as
-// untrusted, so scripts run isolated from the app's origin unless a
-// manifest entry explicitly opts a source into a wider sandbox policy.
+// allow-scripts lets lesson JS run; allow-same-origin is intentionally
+// excluded — lessons don't use localStorage/sessionStorage, window.parent,
+// or location.search at runtime, so same-origin access is unnecessary and
+// would weaken the sandbox. allow-popups and allow-forms support lesson
+// demos that open links or render form inputs.
 const DEFAULT_SANDBOX = 'allow-scripts allow-popups allow-forms';
 
 /**
