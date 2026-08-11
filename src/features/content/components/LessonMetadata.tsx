@@ -9,11 +9,20 @@ import { cn } from '@/lib/utils';
 interface LessonMetadataProps {
   lesson: Lesson;
   category: Category;
+  /** Optional status badge, injected by the page so this feature stays decoupled from progress tracking. */
+  statusBadge?: React.ReactNode;
 }
 
-export function LessonMetadata({ lesson, category }: LessonMetadataProps) {
+export function LessonMetadata({ lesson, category, statusBadge }: LessonMetadataProps) {
   return (
     <div className="space-y-4 rounded-xl border border-neutral-200 bg-white p-4">
+      {statusBadge && (
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">Status</p>
+          <div className="mt-1">{statusBadge}</div>
+        </div>
+      )}
+
       <div>
         <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">Difficulty</p>
         <span
