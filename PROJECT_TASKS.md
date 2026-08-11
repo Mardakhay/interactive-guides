@@ -91,13 +91,13 @@
 ## Phase 3 — User Features
 
 ### M6: Progress Tracking
-- [ ] Create progress feature: store (localStorage), types
-- [ ] Add "Mark Complete" action in lesson viewer
-- [ ] Auto-advance to next lesson on completion
-- [ ] Show progress bar on course detail and dashboard
-- [ ] Track in_progress vs completed status
-- [ ] Persist last opened lesson
-- [ ] Git commit: `feat: implement progress tracking`
+- [x] Create progress feature: store (localStorage), types
+- [x] Add "Mark Complete" action in lesson viewer
+- [x] Auto-advance to next lesson on completion
+- [x] Show progress bar on course detail and dashboard
+- [x] Track in_progress vs completed status
+- [x] Persist last opened lesson
+- [x] Git commit: `feat: implement progress tracking`
 
 ### M7: Bookmarks
 - [ ] Create bookmark feature: store (localStorage), types
@@ -171,5 +171,5 @@
 | 3     | M6–M9      | User Features            |
 | 4     | M10–M13    | Discovery & Polish       |
 
-**Current Milestone:** M6 — Progress Tracking
-**Last Completed:** M4 — HTML Lesson Engine
+**Current Milestone:** M7 — Bookmarks
+**Last Completed:** M6 — Progress Tracking
