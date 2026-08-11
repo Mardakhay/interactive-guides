@@ -47,8 +47,10 @@ export default function LessonViewerPage() {
     if (lessonId) markLessonOpened(lessonId);
   }, [lessonId, markLessonOpened]);
 
-  // Clear any pending auto-advance timer on unmount or when navigating away.
+  // Reset the "just completed" transition flag when navigating to a different lesson,
+  // and clear any pending auto-advance timer from the previous lesson.
   useEffect(() => {
+    setJustCompleted(false);
     return () => {
       if (advanceTimeout.current) clearTimeout(advanceTimeout.current);
     };
