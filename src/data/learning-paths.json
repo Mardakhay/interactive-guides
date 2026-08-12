@@ -1,0 +1,74 @@
+[
+  {
+    "id": "frontend-foundations",
+    "title": "Frontend Foundations",
+    "description": "Go from zero to building your first web page. Learn how the internet works, master HTML and CSS, and get comfortable with the DOM — the essential trio every frontend developer needs before touching a framework.",
+    "level": "beginner",
+    "icon": "Globe",
+    "estimatedHours": 3,
+    "steps": [
+      { "lessonId": "sh-001", "note": "Start with a bird's-eye view of the entire frontend landscape." },
+      { "lessonId": "wb-001", "note": "Understand how the internet and browsers actually work." },
+      { "lessonId": "wb-002", "note": "Learn the structure of every web page." },
+      { "lessonId": "wb-003", "note": "Style your pages and master layout." },
+      { "lessonId": "wb-004", "note": "Bring pages to life by manipulating the DOM." }
+    ]
+  },
+  {
+    "id": "javascript-mastery",
+    "title": "JavaScript Mastery",
+    "description": "Master JavaScript from first principles to advanced async patterns. You'll cover the core language, objects and prototypes, memory internals, and asynchronous programming — everything you need to write confident, modern JavaScript.",
+    "level": "intermediate",
+    "icon": "Code2",
+    "estimatedHours": 4,
+    "steps": [
+      { "lessonId": "js-001", "note": "Build a solid foundation in JS syntax and fundamentals." },
+      { "lessonId": "js-002", "note": "Understand objects, the prototype chain, and classes." },
+      { "lessonId": "js-003", "note": "Go under the hood with memory, stack, and heap." },
+      { "lessonId": "js-004", "note": "Master the event loop, Promises, and async/await." }
+    ]
+  },
+  {
+    "id": "react-developer",
+    "title": "React Developer Track",
+    "description": "Become a confident React developer. Start with useState and hooks, move through forms and API integration, learn routing for single-page apps, and finish with performance optimization and accessibility best practices.",
+    "level": "intermediate",
+    "icon": "Atom",
+    "estimatedHours": 5,
+    "steps": [
+      { "lessonId": "re-001", "note": "Start with the most essential hook — useState." },
+      { "lessonId": "re-002", "note": "Master the full hooks API and common patterns." },
+      { "lessonId": "re-003", "note": "Learn to build and validate forms effectively." },
+      { "lessonId": "re-004", "note": "Integrate APIs with custom hooks and error handling." },
+      { "lessonId": "re-005", "note": "Add routing and navigation to your SPA." },
+      { "lessonId": "re-006", "note": "Optimize performance and build accessible apps." }
+    ]
+  },
+  {
+    "id": "full-stack-tooling",
+    "title": "Full-Stack Tooling & Deployment",
+    "description": "Set up a professional development workflow from start to finish. Configure your dev environment, master Git, learn CI/CD pipelines, and deploy your applications to production with confidence.",
+    "level": "intermediate",
+    "icon": "Wrench",
+    "estimatedHours": 4,
+    "steps": [
+      { "lessonId": "tl-003", "note": "Set up your dev environment from scratch." },
+      { "lessonId": "tl-001", "note": "Master Git — the version control system every developer uses." },
+      { "lessonId": "tl-002", "note": "Learn branching strategies and CI/CD with GitHub Actions." },
+      { "lessonId": "tl-004", "note": "Deploy your app to production with hosting and DNS." }
+    ]
+  },
+  {
+    "id": "production-ready",
+    "title": "Production-Ready Frontend",
+    "description": "Take your skills to a senior level. Learn frontend architecture and planning, write comprehensive tests, and master authentication and security — the three pillars of production-grade applications.",
+    "level": "advanced",
+    "icon": "ShieldCheck",
+    "estimatedHours": 4,
+    "steps": [
+      { "lessonId": "qa-001", "note": "Learn how to plan and architect scalable frontends." },
+      { "lessonId": "qa-002", "note": "Write tests at every level — unit, integration, and E2E." },
+      { "lessonId": "sec-001", "note": "Master authentication, JWT, OAuth, and route protection." }
+    ]
+  }
+]

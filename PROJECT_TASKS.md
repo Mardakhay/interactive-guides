@@ -136,11 +136,11 @@
 - [ ] Git commit: `feat: implement search functionality`
 
 ### M11: Learning Paths
-- [ ] Create learning paths feature: types, api, store
-- [ ] Build LearningPathsPage with path cards
-- [ ] Build LearningPathDetailPage with course sequence
-- [ ] Show path progress
-- [ ] Git commit: `feat: add guided learning paths`
+- [x] Create learning paths feature: types, api, data, schemas
+- [x] Build LearningPathsPage with path cards
+- [x] Build LearningPathDetailPage with course sequence
+- [x] Show path progress
+- [x] Git commit: `feat: add guided learning paths`
 
 ### M12: Dashboard
 - [ ] Create dashboard feature: components, hooks
