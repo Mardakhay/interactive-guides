@@ -11,6 +11,7 @@ import {
 } from '@/features/content';
 import { LessonRenderer, resolveLessonSource } from '@/features/lesson-renderer';
 import { useProgressStore, STATUS_LABELS, STATUS_BADGE_VARIANTS } from '@/features/progress';
+import { BookmarkButton } from '@/features/bookmarks';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { EmptyState } from '@/components/feedback';
 import { Button, Badge } from '@/components/ui';
@@ -117,6 +118,7 @@ export default function LessonViewerPage() {
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-2xl font-semibold text-neutral-900">{lesson.title}</h1>
             <Badge variant={STATUS_BADGE_VARIANTS[status]}>{STATUS_LABELS[status]}</Badge>
+            <BookmarkButton lessonId={lesson.id} className="ml-auto" />
           </div>
           <p className="text-neutral-600">{lesson.description}</p>
         </div>

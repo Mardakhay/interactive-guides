@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowRight, Check, Clock } from 'lucide-react';
 import { getCategoryById, getLessonsByCategory, getCategoryIcon } from '@/features/content';
 import { useProgressStore, computeProgressStats, STATUS_BADGE_VARIANTS } from '@/features/progress';
+import { BookmarkButton } from '@/features/bookmarks';
 import { Card, Badge, ProgressBar } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { EmptyState } from '@/components/feedback';
@@ -109,6 +110,7 @@ export default function CourseDetailPage() {
                     <Clock className="h-3.5 w-3.5" />
                     {lesson.durationMinutes}m
                   </span>
+                  <BookmarkButton lessonId={lesson.id} variant="icon" />
                   <ArrowRight className="h-4 w-4 text-neutral-300 transition-transform group-hover:translate-x-0.5 group-hover:text-primary-600" />
                 </div>
               </Card>

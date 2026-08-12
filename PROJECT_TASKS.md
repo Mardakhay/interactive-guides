@@ -100,12 +100,12 @@
 - [x] Git commit: `feat: implement progress tracking`
 
 ### M7: Bookmarks
-- [ ] Create bookmark feature: store (localStorage), types
-- [ ] Add bookmark toggle in lesson viewer
-- [ ] Build BookmarksPage with saved lessons list
-- [ ] Remove bookmark from list or lesson view
-- [ ] Show bookmark state on course lesson list
-- [ ] Git commit: `feat: add bookmarks system`
+- [x] Create bookmark feature: store (localStorage), types
+- [x] Add bookmark toggle in lesson viewer
+- [x] Build BookmarksPage with saved lessons list
+- [x] Remove bookmark from list or lesson view
+- [x] Show bookmark state on course lesson list
+- [x] Git commit: `feat: add bookmarks system`
 
 ### M8: Notes
 - [ ] Create notes feature: store (localStorage), types
@@ -171,5 +171,5 @@
 | 3     | M6–M9      | User Features            |
 | 4     | M10–M13    | Discovery & Polish       |
 
-**Current Milestone:** M7 — Bookmarks
-**Last Completed:** M6 — Progress Tracking
+**Current Milestone:** M8 — Notes
+**Last Completed:** M7 — Bookmarks
