@@ -4,6 +4,7 @@ export const STORAGE_KEYS = {
   PROGRESS: 'ig:progress',
   BOOKMARKS: 'ig:bookmarks',
   NOTES: 'ig:notes',
+  QUIZ_RESULTS: 'ig:quiz-results',
   LAST_LESSON: 'ig:last-lesson',
   THEME: 'ig:theme',
 } as const;

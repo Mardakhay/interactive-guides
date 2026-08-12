@@ -115,13 +115,13 @@
 - [x] Git commit: `feat: add notes feature`
 
 ### M9: Quiz Engine
-- [ ] Create quiz feature: types, store (localStorage), components
-- [ ] Build QuizRenderer (multiple choice, true/false)
-- [ ] Capture answers and calculate score
-- [ ] Show quiz results with correct/incorrect feedback
-- [ ] Save quiz results to localStorage
-- [ ] Allow quiz retry
-- [ ] Git commit: `feat: add quiz engine`
+- [x] Create quiz feature: types, store (localStorage), components
+- [x] Build QuizRenderer (multiple choice, true/false)
+- [x] Capture answers and calculate score
+- [x] Show quiz results with correct/incorrect feedback
+- [x] Save quiz results to localStorage
+- [x] Allow quiz retry
+- [x] Git commit: `feat: add quiz engine`
 
 ---
 
@@ -171,5 +171,5 @@
 | 3     | M6–M9      | User Features            |
 | 4     | M10–M13    | Discovery & Polish       |
 
-**Current Milestone:** M9 — Quiz Engine
-**Last Completed:** M8 — Notes
+**Current Milestone:** M10 — Search
+**Last Completed:** M9 — Quiz Engine

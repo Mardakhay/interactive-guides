@@ -1,0 +1,405 @@
+[
+  {
+    "id": "quiz-sh-001",
+    "lessonId": "sh-001",
+    "title": "Frontend Engineering Handbook Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "Which layer of a typical clean architecture should have no external dependencies?",
+        "options": ["UI layer", "Application layer", "Domain layer", "Infrastructure layer"],
+        "correctIndex": 2,
+        "explanation": "The domain layer holds pure types and business rules and depends on nothing else."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "A frontend engineer only needs to know how to write JavaScript — networking and browsers are out of scope.",
+        "options": ["True", "False"],
+        "correctIndex": 1,
+        "explanation": "Understanding how browsers render pages and how the network works is core frontend knowledge."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "What is the main benefit of a feature-based folder structure?",
+        "options": [
+          "It reduces the number of files in a project",
+          "Each feature is a self-contained vertical slice, easier to reason about and remove",
+          "It avoids the need for TypeScript",
+          "It removes the need for a router"
+        ],
+        "correctIndex": 1,
+        "explanation": "Vertical slices keep related components, hooks, and state together, making features easier to maintain."
+      },
+      {
+        "id": "q4",
+        "type": "true-false",
+        "prompt": "YAGNI stands for 'You Aren't Gonna Need It' and encourages avoiding speculative, unused functionality.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "YAGNI keeps codebases lean by discouraging building for hypothetical future requirements."
+      }
+    ]
+  },
+  {
+    "id": "quiz-wb-001",
+    "lessonId": "wb-001",
+    "title": "Internet Fundamentals Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "What does DNS primarily do?",
+        "options": [
+          "Encrypts traffic between client and server",
+          "Translates domain names into IP addresses",
+          "Compresses HTTP responses",
+          "Renders HTML into the DOM"
+        ],
+        "correctIndex": 1,
+        "explanation": "DNS resolves human-readable domain names to the IP addresses machines use to route traffic."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "HTTPS uses TLS to encrypt data exchanged between a browser and a server.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "TLS (Transport Layer Security) is what turns plain HTTP into encrypted HTTPS."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "Which HTTP status code range indicates a client error?",
+        "options": ["1xx", "2xx", "4xx", "5xx"],
+        "correctIndex": 2,
+        "explanation": "4xx codes (like 404 Not Found) indicate the client's request was malformed or invalid."
+      },
+      {
+        "id": "q4",
+        "type": "true-false",
+        "prompt": "A single IP address can only ever be associated with one domain name.",
+        "options": ["True", "False"],
+        "correctIndex": 1,
+        "explanation": "Many domain names can share a single IP address, especially with virtual hosting and CDNs."
+      }
+    ]
+  },
+  {
+    "id": "quiz-js-004",
+    "lessonId": "js-004",
+    "title": "Async JavaScript Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "What does 'await' do inside an async function?",
+        "options": [
+          "Immediately throws an error if the promise is pending",
+          "Pauses execution of that function until the promise settles",
+          "Converts a synchronous function into an async one",
+          "Cancels the promise"
+        ],
+        "correctIndex": 1,
+        "explanation": "await pauses the async function's execution until the awaited promise resolves or rejects."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "The JavaScript event loop allows non-blocking I/O despite JavaScript being single-threaded.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "The event loop hands off async work and processes callbacks/microtasks without blocking the main thread."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "Which method runs multiple promises in parallel and resolves when all of them succeed?",
+        "options": ["Promise.race()", "Promise.any()", "Promise.all()", "Promise.resolve()"],
+        "correctIndex": 2,
+        "explanation": "Promise.all() waits for every promise to resolve, or rejects as soon as one rejects."
+      },
+      {
+        "id": "q4",
+        "type": "true-false",
+        "prompt": "Microtasks (like promise callbacks) run before the next macrotask (like a setTimeout callback) in the event loop.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "The microtask queue is fully drained before the event loop moves on to the next macrotask."
+      },
+      {
+        "id": "q5",
+        "type": "multiple-choice",
+        "prompt": "What does the Fetch API return?",
+        "options": ["A raw XMLHttpRequest object", "A Promise that resolves to a Response", "A callback function", "A synchronous Response object"],
+        "correctIndex": 1,
+        "explanation": "fetch() is promise-based; you await it to get a Response object, then parse the body separately."
+      }
+    ]
+  },
+  {
+    "id": "quiz-re-001",
+    "lessonId": "re-001",
+    "title": "React useState Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "What does calling the setter function from useState trigger?",
+        "options": [
+          "An immediate synchronous DOM mutation",
+          "A re-render of the component (scheduled by React)",
+          "A page reload",
+          "Nothing unless wrapped in useEffect"
+        ],
+        "correctIndex": 1,
+        "explanation": "Calling the setter schedules a re-render with the new state value."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "State updates in React are guaranteed to be applied synchronously, immediately after the setter call.",
+        "options": ["True", "False"],
+        "correctIndex": 1,
+        "explanation": "React often batches updates, so the new state isn't necessarily reflected until the next render."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "When should you use the functional updater form, setCount(c => c + 1)?",
+        "options": [
+          "Never, it's discouraged",
+          "Only inside useEffect",
+          "When the new state depends on the previous state",
+          "Only for objects, never primitives"
+        ],
+        "correctIndex": 2,
+        "explanation": "The functional form avoids stale closures when the next state depends on the current one."
+      },
+      {
+        "id": "q4",
+        "type": "true-false",
+        "prompt": "You can call useState conditionally inside an if statement as long as it's at the top of the component.",
+        "options": ["True", "False"],
+        "correctIndex": 1,
+        "explanation": "Hooks must be called unconditionally, in the same order, on every render."
+      }
+    ]
+  },
+  {
+    "id": "quiz-ui-001",
+    "lessonId": "ui-001",
+    "title": "Design System Fundamentals Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "What is a design token?",
+        "options": [
+          "A reusable React component",
+          "A named, platform-agnostic value like a color or spacing unit",
+          "A Figma plugin",
+          "A CSS framework"
+        ],
+        "correctIndex": 1,
+        "explanation": "Design tokens store visual values (colors, spacing, typography) as reusable, named variables."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "A component variant refers to a different visual style or state of the same underlying component.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "Variants (e.g. primary/secondary buttons) share structure but differ in styling or behavior."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "Why use an 8px spacing scale instead of arbitrary pixel values?",
+        "options": [
+          "It's required by all browsers",
+          "It creates visual consistency and makes spacing decisions faster",
+          "It reduces bundle size",
+          "It's needed for accessibility compliance"
+        ],
+        "correctIndex": 1,
+        "explanation": "A consistent base unit keeps spacing predictable and easy to reason about across a UI."
+      }
+    ]
+  },
+  {
+    "id": "quiz-tl-001",
+    "lessonId": "tl-001",
+    "title": "Git Fundamentals Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "What does 'git rebase' do differently from 'git merge'?",
+        "options": [
+          "It deletes the branch history",
+          "It replays commits on top of another branch, producing a linear history",
+          "It only works on remote branches",
+          "It automatically resolves all conflicts"
+        ],
+        "correctIndex": 1,
+        "explanation": "Rebase re-applies your commits on top of another base, avoiding a merge commit and keeping history linear."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "'git stash' permanently discards your uncommitted changes.",
+        "options": ["True", "False"],
+        "correctIndex": 1,
+        "explanation": "git stash temporarily shelves changes so you can bring them back later with git stash pop."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "Which command moves a file from the working directory into the staging area?",
+        "options": ["git commit", "git push", "git add", "git fetch"],
+        "correctIndex": 2,
+        "explanation": "git add stages changes so they'll be included in the next commit."
+      },
+      {
+        "id": "q4",
+        "type": "true-false",
+        "prompt": "A detached HEAD state means you're not on any branch and new commits could be lost if you switch branches without saving them.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "In detached HEAD, commits aren't attached to a branch reference, so they can become unreachable."
+      }
+    ]
+  },
+  {
+    "id": "quiz-qa-001",
+    "lessonId": "qa-001",
+    "title": "Frontend Architecture Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "In the dependency rule of clean architecture, dependencies should point:",
+        "options": ["Outward, toward the UI", "Inward, toward the domain", "In any direction, it doesn't matter", "Only toward the infrastructure layer"],
+        "correctIndex": 1,
+        "explanation": "Inner layers (domain) should never depend on outer layers (UI, infrastructure)."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "Isolating localStorage access behind a single infrastructure module makes it easier to later swap in a remote backend.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "When only one module touches storage, swapping the implementation doesn't require touching UI or application code."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "What's a key risk of premature architectural planning?",
+        "options": [
+          "The app becomes too fast",
+          "Over-engineering for requirements that may never materialize",
+          "Too few dependencies",
+          "Reduced type safety"
+        ],
+        "correctIndex": 1,
+        "explanation": "Planning too far ahead for hypothetical needs can add complexity that never pays off — the essence of violating YAGNI."
+      }
+    ]
+  },
+  {
+    "id": "quiz-sec-001",
+    "lessonId": "sec-001",
+    "title": "Frontend Authentication Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "Why is storing a JWT in localStorage generally riskier than an httpOnly cookie?",
+        "options": [
+          "localStorage is slower to read",
+          "localStorage is accessible to any JavaScript on the page, making it vulnerable to XSS",
+          "localStorage tokens expire immediately",
+          "Cookies can't be sent cross-origin at all"
+        ],
+        "correctIndex": 1,
+        "explanation": "An httpOnly cookie can't be read by JavaScript, which limits the damage a successful XSS attack can do."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "OAuth is primarily an authorization framework, not an authentication protocol by itself.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "OAuth grants access to resources; OpenID Connect layers authentication semantics on top of it."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "What is the purpose of a refresh token?",
+        "options": [
+          "To immediately log the user out",
+          "To obtain a new access token without requiring the user to log in again",
+          "To encrypt the access token",
+          "To replace the need for HTTPS"
+        ],
+        "correctIndex": 1,
+        "explanation": "Refresh tokens let a client silently obtain new short-lived access tokens after the old one expires."
+      },
+      {
+        "id": "q4",
+        "type": "true-false",
+        "prompt": "Protected routes in a single-page app provide real security on their own, without any server-side checks.",
+        "options": ["True", "False"],
+        "correctIndex": 1,
+        "explanation": "Client-side route guards are a UX convenience — actual security must be enforced by the server/API."
+      }
+    ]
+  },
+  {
+    "id": "quiz-dt-001",
+    "lessonId": "dt-001",
+    "title": "SQL Fundamentals Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "Which clause filters rows before any grouping happens?",
+        "options": ["HAVING", "WHERE", "GROUP BY", "ORDER BY"],
+        "correctIndex": 1,
+        "explanation": "WHERE filters individual rows before aggregation; HAVING filters after GROUP BY."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "An INNER JOIN returns only rows that have matching values in both joined tables.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "INNER JOIN excludes rows without a match on either side, unlike LEFT/RIGHT/FULL joins."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "What does a PRIMARY KEY constraint guarantee?",
+        "options": [
+          "Values in the column can repeat",
+          "The column can contain NULLs",
+          "Each value in the column uniquely identifies a row and cannot be NULL",
+          "The table can have multiple primary keys with different names"
+        ],
+        "correctIndex": 2,
+        "explanation": "A primary key uniquely identifies each row and implicitly disallows NULL values."
+      },
+      {
+        "id": "q4",
+        "type": "true-false",
+        "prompt": "Normalizing a database schema means intentionally duplicating data across tables to speed up reads.",
+        "options": ["True", "False"],
+        "correctIndex": 1,
+        "explanation": "Normalization reduces redundancy by splitting data into related tables — the opposite of duplication."
+      }
+    ]
+  }
+]

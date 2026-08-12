@@ -216,6 +216,7 @@ Courses, lessons, quizzes, and learning paths are stored as JSON files in `src/d
 | `ig:progress`              | `{ [lessonId]: { status, completedAt } }` |
 | `ig:bookmarks`             | `{ [lessonId]: { createdAt } }`          |
 | `ig:notes`                 | `{ [lessonId]: { content, updatedAt } }` |
+| `ig:quiz-results`          | `{ [quizId]: { answers, score, total, completedAt } }` |
 | `ig:last-lesson`           | `lessonId`                              |
 
 All localStorage access is funneled through `lib/storage.ts`, which provides typed read/write helpers with Zod validation and graceful fallbacks for corrupted/missing data. Stores hydrate from localStorage on initialization and persist on every change via Zustand middleware.
