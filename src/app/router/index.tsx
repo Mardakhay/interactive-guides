@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { RouteErrorBoundary } from '@/components/feedback';
 import { ROUTES } from './routes';
 
+/* eslint-disable react-refresh/only-export-components -- This module intentionally exports a router made from lazy page components. */
 const DashboardPage = lazy(() => import('@/app/pages/DashboardPage'));
 const CoursesPage = lazy(() => import('@/app/pages/CoursesPage'));
 const CourseDetailPage = lazy(() => import('@/app/pages/CourseDetailPage'));
