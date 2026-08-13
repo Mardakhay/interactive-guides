@@ -1,34 +1,30 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const HEADING_SELECTORS = ['h1', 'h2', '[data-page-heading]'];
-
 /**
- * Moves focus to the current page's primary heading on route changes so
- * screen-reader users perceive navigation. Falls back to #main-content when
- * no heading is present.
+ * Moves keyboard/screen-reader focus to the current page's main heading (or
+ * the #main-content landmark as a fallback) whenever the route changes.
+ * React Router does not reset focus on client-side navigation by default,
+ * which otherwise leaves screen reader users anchored on the previous
+ * page's content after navigating.
  */
 export function useRouteFocus(): void {
-  const { pathname } = useLocation();
-  const previousPath = useRef<string | null>(null);
+  const location = useLocation();
 
   useEffect(() => {
-    if (previousPath.current === pathname) return;
-    previousPath.current = pathname;
+    // Defer to the next frame so the new route's content (including inside
+    // <Suspense>) has mounted before we look for something to focus.
+    const raf = requestAnimationFrame(() => {
+      const heading = document.querySelector<HTMLElement>('#main-content h1');
+      const target = heading ?? document.getElementById('main-content');
+      if (!target) return;
 
-    const main = document.getElementById('main-content');
-    if (!main) return;
+      if (!target.hasAttribute('tabindex')) {
+        target.setAttribute('tabindex', '-1');
+      }
+      target.focus({ preventScroll: false });
+    });
 
-    let target: HTMLElement | null = null;
-    for (const selector of HEADING_SELECTORS) {
-      target = main.querySelector<HTMLElement>(selector);
-      if (target) break;
-    }
-
-    const focusTarget = target ?? main;
-    if (focusTarget) {
-      focusTarget.tabIndex = -1;
-      focusTarget.focus({ preventScroll: true });
-    }
-  }, [pathname]);
+    return () => cancelAnimationFrame(raf);
+  }, [location.pathname]);
 }

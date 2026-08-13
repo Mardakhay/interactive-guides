@@ -22,7 +22,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
                 {item.label}
               </span>
             )}
-            {!isLast && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-neutral-400" />}
+            {!isLast && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-neutral-500" />}
           </div>
         );
       })}

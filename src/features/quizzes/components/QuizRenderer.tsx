@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ClipboardCheck, CircleCheck as CheckCircle2, Circle as XCircle, RotateCcw } from 'lucide-react';
+import { ClipboardCheck, CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
 import { useQuizResultsStore } from '../store';
 import { Button, Badge, Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -57,7 +57,7 @@ export function QuizRenderer({ quiz }: QuizRendererProps) {
       <div className="space-y-4 rounded-xl border border-neutral-200 bg-white p-4 lg:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
-            <ClipboardCheck className="h-4 w-4 text-neutral-400" />
+            <ClipboardCheck className="h-4 w-4 text-neutral-500" />
             {quiz.title}
           </div>
           <div className="flex items-center gap-3">
@@ -129,13 +129,13 @@ export function QuizRenderer({ quiz }: QuizRendererProps) {
   return (
     <div className="space-y-4 rounded-xl border border-neutral-200 bg-white p-4 lg:p-6">
       <div className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
-        <ClipboardCheck className="h-4 w-4 text-neutral-400" />
+        <ClipboardCheck className="h-4 w-4 text-neutral-500" />
         {quiz.title}
       </div>
 
       <div className="space-y-3">
         {quiz.questions.map((question, index) => (
-          <fieldset key={question.id} className="rounded-lg border border-neutral-200 p-4" role="radiogroup" aria-label={`Question ${index + 1}: ${question.prompt}`}>
+          <fieldset key={question.id} className="rounded-lg border border-neutral-200 p-4">
             <legend className="px-1 text-sm font-medium text-neutral-900">
               {index + 1}. {question.prompt}
             </legend>
@@ -160,7 +160,6 @@ export function QuizRenderer({ quiz }: QuizRendererProps) {
                       type="radio"
                       name={question.id}
                       checked={isSelected}
-                      aria-checked={isSelected}
                       onChange={() => handleSelect(question.id, optionIndex)}
                       className="h-4 w-4 accent-primary-600"
                     />
@@ -174,7 +173,7 @@ export function QuizRenderer({ quiz }: QuizRendererProps) {
       </div>
 
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-neutral-400">
+        <p className="text-xs text-neutral-500">
           {Object.keys(answers).length} / {quiz.questions.length} answered
         </p>
         <Button variant="primary" size="sm" onClick={handleSubmit} disabled={!allAnswered}>

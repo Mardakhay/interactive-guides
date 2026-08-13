@@ -1,45 +1,42 @@
-export interface DashboardProgressSummary {
-  readonly completed: number;
-  readonly inProgress: number;
-  readonly total: number;
+import type { LessonStatus } from '@/types/common';
+
+export type ActivityKind = 'bookmark' | 'note';
+
+export interface ActivityItem {
+  readonly kind: ActivityKind;
+  readonly lessonId: string;
+  readonly lessonTitle: string;
+  readonly categoryName: string;
+  readonly timestamp: string;
+  readonly notePreview?: string;
+}
+
+export type RecommendationKind = 'continue-path' | 'start-path' | 'continue-category' | 'start-category';
+
+export interface RecommendedItem {
+  readonly kind: RecommendationKind;
+  readonly id: string;
+  readonly title: string;
+  readonly description: string;
+  readonly href: string;
   readonly percent: number;
 }
 
-export interface DashboardContinueLearning {
+export interface ContinueLearningInfo {
   readonly lessonId: string;
   readonly lessonTitle: string;
   readonly categoryId: string;
   readonly categoryName: string;
   readonly categoryIcon: string;
-  readonly status: 'not-started' | 'in-progress' | 'completed';
-}
-
-export type ActivityKind = 'bookmark' | 'note';
-
-export interface DashboardActivityItem {
-  readonly kind: ActivityKind;
-  readonly lessonId: string;
-  readonly lessonTitle: string;
-  readonly categoryId: string;
-  readonly categoryName: string;
-  readonly timestamp: string;
-  readonly preview?: string;
-}
-
-export type RecommendedKind = 'path' | 'category';
-
-export interface RecommendedItem {
-  readonly kind: RecommendedKind;
-  readonly id: string;
-  readonly title: string;
-  readonly description: string;
-  readonly path: string;
-  readonly reason: string;
+  readonly status: LessonStatus;
 }
 
 export interface DashboardData {
-  readonly progress: DashboardProgressSummary;
-  readonly continueLearning: DashboardContinueLearning | null;
-  readonly activity: readonly DashboardActivityItem[];
+  readonly completed: number;
+  readonly inProgress: number;
+  readonly total: number;
+  readonly percent: number;
+  readonly continueLearning: ContinueLearningInfo | null;
+  readonly recentActivity: readonly ActivityItem[];
   readonly recommendations: readonly RecommendedItem[];
 }

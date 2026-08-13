@@ -138,7 +138,7 @@ export default function LearningPathDetailPage() {
                   {step.note && <p className="text-sm text-neutral-600">{step.note}</p>}
                   <div className="flex flex-wrap items-center gap-2 pt-1">
                     {category && (
-                      <span className="flex items-center gap-1 text-xs text-neutral-400">
+                      <span className="flex items-center gap-1 text-xs text-neutral-500">
                         <BookOpen className="h-3 w-3" />
                         {category.name}
                       </span>
@@ -146,7 +146,7 @@ export default function LearningPathDetailPage() {
                     <span className={cn('inline-flex rounded-full px-2 py-0.5 text-xs font-medium', DIFFICULTY_COLORS[lesson.difficulty] ?? DIFFICULTY_COLORS.beginner)}>
                       {DIFFICULTY_LABELS[lesson.difficulty] ?? lesson.difficulty}
                     </span>
-                    <span className="flex items-center gap-1 text-xs text-neutral-400">
+                    <span className="flex items-center gap-1 text-xs text-neutral-500">
                       <Clock className="h-3 w-3" />
                       {lesson.durationMinutes}m
                     </span>

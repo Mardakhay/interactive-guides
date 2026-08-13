@@ -17,8 +17,8 @@ const DEFAULT_SANDBOX = 'allow-scripts allow-popups allow-forms';
 
 /**
  * Renders a lesson from an external or static HTML file in a sandboxed
- * iframe. Not wired to any lesson today — this is the future-ready path
- * for standalone HTML lesson files.
+ * iframe. This is the active rendering path for all 25 real lessons
+ * (see lessonLoader.ts's manifestRegistry).
  */
 export function ExternalHtmlLesson({ url, title, sandbox }: ExternalHtmlLessonProps) {
   const [isLoading, setIsLoading] = useState(true);

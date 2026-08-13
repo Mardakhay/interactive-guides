@@ -5,9 +5,6 @@ import { TopBar } from './TopBar';
 import { MobileNav } from './MobileNav';
 import { Spinner } from '@/components/ui';
 import { useRouteFocus } from '@/hooks/useRouteFocus';
-import { useRouteFocus } from '@/hooks/useRouteFocus';
-
-  useRouteFocus();
 
 export function AppLayout() {
   useRouteFocus();

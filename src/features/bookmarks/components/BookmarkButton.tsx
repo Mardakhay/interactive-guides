@@ -41,7 +41,7 @@ export function BookmarkButton({ lessonId, variant = 'button', className }: Book
         <Bookmark
           className={cn(
             'h-4 w-4 transition-colors',
-            isBookmarked ? 'fill-primary-600 text-primary-600' : 'text-neutral-400',
+            isBookmarked ? 'fill-primary-600 text-primary-600' : 'text-neutral-500',
           )}
         />
       </button>

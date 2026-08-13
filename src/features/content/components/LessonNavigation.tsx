@@ -18,9 +18,9 @@ export function LessonNavigation({ previous, next }: LessonNavigationProps) {
           to={lessonPath(previous.id)}
           className="group flex flex-1 items-center gap-3 rounded-lg border border-neutral-200 px-4 py-3 transition-colors hover:border-primary-300 hover:bg-primary-50"
         >
-          <ChevronLeft className="h-5 w-5 shrink-0 text-neutral-400 transition-transform group-hover:-translate-x-0.5 group-hover:text-primary-600" />
+          <ChevronLeft className="h-5 w-5 shrink-0 text-neutral-500 transition-transform group-hover:-translate-x-0.5 group-hover:text-primary-600" />
           <div className="flex flex-col items-start text-left">
-            <span className="text-xs text-neutral-400">Previous</span>
+            <span className="text-xs text-neutral-500">Previous</span>
             <span className="line-clamp-1 text-sm font-medium text-neutral-900 group-hover:text-primary-700">
               {previous.title}
             </span>
@@ -36,12 +36,12 @@ export function LessonNavigation({ previous, next }: LessonNavigationProps) {
           className="group flex flex-1 items-center justify-end gap-3 rounded-lg border border-neutral-200 px-4 py-3 text-right transition-colors hover:border-primary-300 hover:bg-primary-50"
         >
           <div className="flex flex-col items-end">
-            <span className="text-xs text-neutral-400">Next</span>
+            <span className="text-xs text-neutral-500">Next</span>
             <span className="line-clamp-1 text-sm font-medium text-neutral-900 group-hover:text-primary-700">
               {next.title}
             </span>
           </div>
-          <ChevronRight className="h-5 w-5 shrink-0 text-neutral-400 transition-transform group-hover:translate-x-0.5 group-hover:text-primary-600" />
+          <ChevronRight className="h-5 w-5 shrink-0 text-neutral-500 transition-transform group-hover:translate-x-0.5 group-hover:text-primary-600" />
         </Link>
       ) : (
         <div className="flex-1" />

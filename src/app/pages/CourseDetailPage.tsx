@@ -100,13 +100,13 @@ export default function CourseDetailPage() {
                   )}
                   <span
                     className={cn(
-                      'inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium',
+                      'hidden rounded-full px-2.5 py-0.5 text-xs font-medium sm:inline-flex',
                       DIFFICULTY_COLORS[lesson.difficulty] ?? DIFFICULTY_COLORS.beginner,
                     )}
                   >
                     {DIFFICULTY_LABELS[lesson.difficulty] ?? lesson.difficulty}
                   </span>
-                  <span className="flex items-center gap-1 text-xs text-neutral-400">
+                  <span className="hidden items-center gap-1 text-xs text-neutral-500 sm:flex">
                     <Clock className="h-3.5 w-3.5" />
                     {lesson.durationMinutes}m
                   </span>

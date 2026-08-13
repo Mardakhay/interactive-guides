@@ -1,14 +1,3 @@
-export { ProgressSummary } from './components/ProgressSummary';
-export { ContinueLearningCard } from './components/ContinueLearningCard';
-export { RecentActivity } from './components/RecentActivity';
-export { RecommendedNext } from './components/RecommendedNext';
+export type { DashboardData, ActivityItem, RecommendedItem, ContinueLearningInfo } from './types';
 export { useDashboardData } from './hooks/useDashboardData';
-export type {
-  DashboardData,
-  DashboardProgressSummary,
-  DashboardContinueLearning,
-  DashboardActivityItem,
-  RecommendedItem,
-  RecommendedKind,
-  ActivityKind,
-} from './types';
+export { ContinueLearningCard, ProgressSummary, RecentActivity, RecommendedNext } from './components';
