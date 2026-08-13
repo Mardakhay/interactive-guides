@@ -1,8 +1,57 @@
-Repository: interactive-guides
+# Interactive Guides
 
-Description:
-A modern learning platform that transforms interactive HTML lessons into structured courses with progress tracking, search, bookmarks, notes, quizzes, and guided learning paths.
+Interactive Guides is a local-first learning platform for structured technical lessons. It supports course browsing, lesson progress, bookmarks, notes, quizzes, search, learning paths, and a progress dashboard.
 
-## Continuous Integration
+## Stack
 
-GitHub Actions runs linting, type checking, tests, and a production build on every push and pull request targeting `main`. Requiring this check before merges is a manual branch-protection setting in the GitHub repository; a workflow file cannot enable it by itself.
+- React 18
+- TypeScript
+- Vite
+- Tailwind CSS
+- Zustand
+- React Router
+- Zod
+- Vitest and Testing Library
+
+## Features
+
+- Browse courses and interactive HTML lessons
+- Track lesson progress and continue learning
+- Bookmark lessons
+- Create and manage lesson notes
+- Complete quizzes and view saved results
+- Search lessons, courses, and notes
+- Follow curated learning paths
+- View dashboard recommendations and activity
+
+## Getting Started
+
+```bash
+npm install
+npm run dev
+```
+
+Open the local URL shown by Vite.
+
+## Scripts
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+npm run preview
+```
+
+## Quality Checks
+
+The project includes ESLint, TypeScript strict checking, Vitest tests, and GitHub Actions CI.
+
+CI runs the following checks on every push and pull request to `main`:
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
