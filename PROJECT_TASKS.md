@@ -162,10 +162,35 @@
 
 ---
 
+## Phase 5 — Quality Infrastructure
+
+### M14: ESLint & Architecture Boundaries
+- [x] Add ESLint flat configuration with TypeScript and React rules
+- [x] Enforce no explicit `any`, alias imports, and feature-boundary rules
+- [x] Add and pass `npm run lint`
+- [x] Git commit: `chore: add eslint and enforce architecture boundaries`
+
+### M15: Vitest & Testing Library
+- [x] Add Vitest, Testing Library, jsdom, and test scripts
+- [x] Cover dashboard recommendations, search, progress, and learning-path logic
+- [x] Add bookmarking and quiz integration tests
+- [x] Git commit: `test: add vitest and cover core business logic`
+
+### M16: CI Pipeline
+- [x] Add GitHub Actions verification workflow for pushes and pull requests to `main`
+- [x] Document continuous integration and branch-protection setup
+- [x] Git commit: `ci: add github actions pipeline`
+
+---
+
 ## Summary
 
 | Phase | Milestones | Focus                    |
 |-------|------------|--------------------------|
+| 5     | M14-M16    | Quality Infrastructure   |
+
+**Current Milestone (updated):** Quality infrastructure complete — all M1-M16 milestones shipped
+**Last Completed (updated):** M16 — CI Pipeline
 | 1     | M1–M2      | Foundation & Data Layer  |
 | 2     | M3–M5      | Content & Viewing        |
 | 3     | M6–M9      | User Features            |
