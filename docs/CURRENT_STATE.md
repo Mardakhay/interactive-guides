@@ -140,6 +140,6 @@ The original audit above describes `main` at the time it was inspected; the feat
 - The canonical curriculum has 26 EN/RU structured lesson pairs (52 locale files). A static audit found no structural issues with ordered block parity, duplicate IDs, walkthrough ranges, quiz answer shape, or practice scaffolding; see `docs/CONTENT_AUDIT.md`.
 - Structured content remains in editorial `review` status. Legacy HTML source reconciliation and source-link verification are still pending.
 - Section-level lesson progress, local quiz/draft/checklist state, validated backup export/import with merge rules, and localized storage-failure warnings are implemented.
-- HTML preview runs with scripts disabled; JS/TS code execution is not implemented yet.
+- HTML preview runs with scripts disabled. Ordinary JavaScript snippets can run in a disposable Worker with a 1.5-second timeout; DOM-dependent exercises, TS/TSX, shell commands and live network calls still require the learner's local project. The Worker is a learning aid, not a hardened hostile-code service.
 - GitHub Actions run [#185](https://github.com/Mardakhay/interactive-guides/actions/runs/39778390430) passed the exact checkpoint SHA `d8676ba3b4813ea8d9e9483f0436704e53a9a42a`. Recheck the next commit after this documentation update.
-- Remaining highest-value work: sandboxed JS runner with hard-stop semantics, full app-shell localization/design consolidation, editorial migration review, explicit local-data migrations/recovery, and real-device PWA tests.
+- Remaining highest-value work: verify the Worker runner on the deployed hosting/CSP setup, localize/consolidate the full app shell, review content against Notion and legacy sources, add explicit local-data migrations/recovery, and run real-device PWA tests.

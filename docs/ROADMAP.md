@@ -42,7 +42,9 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Validate code-walkthrough line references against sample length.
 - [x] Persist completed lesson sections with a version-tolerant schema; test preservation during draft reset and backup merge.
 - [ ] Add a richer review queue.
-- [ ] Add a JavaScript/TypeScript runner with explicit execution restrictions; only HTML preview currently runs (with scripts disabled). A proposed runner must support a hard-stop mechanism and explicitly document network/capability limits.
+- [x] Add a disposable Web Worker runner for ordinary JavaScript exercises with a 1.5-second hard-stop timeout, source/output limits, common network-capability blocking and tests.
+- [ ] Evaluate separate execution support for TypeScript/TSX and DOM-dependent lessons; shell and real network workflows continue in the learner's own project.
+- Note: the Worker runner is a learning aid, not a hardened security boundary for hostile code; the UI displays this limitation explicitly.
 - [ ] Add stronger coding-practice evidence; do not confuse a checklist tick with validated correctness.
 - [ ] Add explicit “retry/review” UX for weak quiz areas.
 - Acceptance: exercises are accessible and testable; mastery requires evidence beyond visiting a page.

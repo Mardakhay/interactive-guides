@@ -21,12 +21,13 @@ Rebuild Interactive Guides as a cohesive English/Russian, mobile-first, PWA-read
 - All structured lessons are in editorial `review` status, not published/approved.
 - Static content audit found no block-ID duplicates, EN/RU ordered block-shape mismatches, invalid walkthrough line ranges, bad single-answer counts, duplicate quiz-option IDs, or incomplete practice task scaffolds in the 52 files. Full semantic/source parity is still unreviewed; see `docs/CONTENT_AUDIT.md`.
 
-## Practice execution: current limitation
+## Practice execution
 
 - Coding exercises persist drafts and self-review checklist state locally; quiz attempts are tracked separately.
-- HTML preview exists and runs in an iframe with scripts disabled.
-- **There is no JavaScript/TypeScript execution runner in the current source tree.** Coding examples and starter code must be run in the learner's own project/environment. Do not describe JS/TS exercises as executed or automatically graded.
-- Next runner design should prioritize a real hard-stop mechanism for runaway synchronous code (e.g. a disposable Worker for pure JS), explicit restrictions on outbound network/capabilities, clear timeout/output limits, tests, and a truthful security note. A parent-page timeout around synchronous iframe code is not sufficient to guarantee the page remains responsive.
+- HTML has a sandboxed preview with scripts disabled.
+- `src/features/structured-lesson/JavaScriptRunner.tsx` integrates a disposable dedicated Worker for ordinary JavaScript practice. `src/features/structured-lesson/JavaScriptWorkerProgram.ts` captures console output, reports runtime errors, blocks common network APIs and nested-worker loading, limits source to 12,000 characters and console output, and allows the parent page to terminate the Worker after 1.5 seconds.
+- The runner has tests for source construction, console output, termination, and reader integration. GitHub Actions run #192 passed all CI stages for its exact code/test checkpoint.
+- **Important limitations:** the Worker has no browser DOM, no TypeScript/TSX transpilation, and no shell. DOM exercises explicitly direct learners to run the task in their own project; live network requests are blocked, so Fetch examples must be run locally to observe a real successful response. The runner is a learning aid, not a hardened security boundary for malicious code; dynamic browser capability risks cannot be fully eliminated in client-side code. Do not paste secrets or claim the runner is safe for hostile snippets.
 
 ## Progress and data portability
 
@@ -49,15 +50,15 @@ See `docs/CONTENT_AUDIT.md` for the inspected 26 lesson IDs and the exact scope/
 
 ## CI verification
 
-GitHub Actions run [#185](https://github.com/Mardakhay/interactive-guides/actions/runs/39778390430) passed for checkpoint SHA `d8676ba3b4813ea8d9e9483f0436704e53a9a42a`: `npm ci`, lint, TypeScript typecheck, tests and production build all succeeded. This documentation update will produce a new SHA; verify that SHA before claiming it is green.
+GitHub Actions run [#192](https://github.com/Mardakhay/interactive-guides/actions/runs/39780405732) passed for exact checkpoint SHA `8a78f48b2fccfbc04ba5c02838cfc5ba2ed4e441`: `npm ci`, ESLint, TypeScript typecheck, all tests and production build succeeded. This documentation update will produce a new SHA; verify that SHA before claiming it is green.
 
 ## Next actions
 
-1. Implement the JS practice runner in a separate, tightly scoped change with hard termination, network restrictions, UI states, and tests; be honest about browser sandbox limits.
+1. Verify CI for the documentation checkpoint after this change; then test Worker execution under the actual deployed hosting/CSP environment and document any compatibility restrictions.
 2. Localize the remaining app shell and consolidate the design system across legacy pages; test keyboard access, narrow viewports and reduced-motion behavior.
-3. Work through `docs/CONTENT_AUDIT.md` against Notion and legacy HTML sources, verifying claims, links, code and translation parity lesson by lesson.
-4. Add explicit local storage migrations and a user-triggered recovery/retry flow; preserve old progress, notes, bookmarks and quiz results.
-5. Test the PWA on supported browsers/devices, including deep routes, offline lessons, service-worker update and cache quota behavior.
+3. Review the 26 structured lessons against Notion and legacy HTML sources, verifying claims, links, code and EN/RU teaching parity. Use `docs/CONTENT_AUDIT.md`; all lessons remain in `review` status.
+4. Add explicit local-storage migrations and a user-triggered recovery/retry flow while preserving progress, notes, bookmarks and quiz results.
+5. Test the PWA on supported browsers/devices, including direct routes, offline lessons, service-worker update and cache quota behavior.
 6. Decide on a dedicated Supabase project and any cost only after local data contracts stabilize and the user explicitly approves the plan.
 7. Keep PR #1 in draft until editorial review, tests and release acceptance criteria are satisfied.
 
