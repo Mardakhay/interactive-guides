@@ -490,7 +490,8 @@
         "Scope chain and closures",
         "Stack/heap and garbage collection"
       ],
-      "note": "Supplementary depth beyond the weekly bootcamp outline; align with the user's Notion notes."
+      "note": "Supplementary depth beyond the weekly bootcamp outline; align with the user's Notion notes.",
+      "lessonIds": []
     },
     {
       "id": "supplement-architecture",
@@ -503,7 +504,8 @@
         "Refactoring",
         "Technical trade-offs"
       ],
-      "note": "Extend the curriculum with practical, production-oriented architecture decisions."
+      "note": "Extend the curriculum with practical, production-oriented architecture decisions.",
+      "lessonIds": []
     },
     {
       "id": "supplement-auth",
@@ -514,7 +516,8 @@
         "Protected routes vs server authorization",
         "Secure storage and common browser threats"
       ],
-      "note": "Supplementary security track; examples require current primary-source verification."
+      "note": "Supplementary security track; examples require current primary-source verification.",
+      "lessonIds": []
     },
     {
       "id": "supplement-deployment",
@@ -526,7 +529,8 @@
         "Hosting and deep-link routing",
         "CI/CD deployments"
       ],
-      "note": "Expands the final weeks with operational understanding."
+      "note": "Expands the final weeks with operational understanding.",
+      "lessonIds": []
     },
     {
       "id": "supplement-data",
@@ -538,7 +542,8 @@
         "Row Level Security",
         "Safe frontend integration and sync"
       ],
-      "note": "Supplementary track; not represented as part of the original 24-week core syllabus."
+      "note": "Supplementary track; not represented as part of the original 24-week core syllabus.",
+      "lessonIds": []
     },
     {
       "id": "supplement-tooling",
@@ -550,7 +555,40 @@
         "Vite build pipeline",
         "ESLint, Prettier and CI"
       ],
-      "note": "Expands Week 9 tooling into a deeper reference track."
+      "note": "Expands Week 9 tooling into a deeper reference track.",
+      "lessonIds": []
+    },
+    {
+      "id": "supplement-network-browser",
+      "title": "Internet, DNS and Network Protocols",
+      "topics": [
+        "DNS resolution and caching",
+        "IP addressing and packet routing",
+        "TCP, UDP and QUIC",
+        "Ports and sockets",
+        "TLS and HTTP versions",
+        "Network troubleshooting"
+      ],
+      "note": "An optional technical companion to Week 1. The core course retains its introductory Internet/HTTP model.",
+      "lessonIds": [
+        "network.dns-tcp-tls"
+      ]
+    },
+    {
+      "id": "supplement-browser-architecture",
+      "title": "Browser Architecture and Rendering",
+      "topics": [
+        "DOM and CSSOM",
+        "Critical rendering path",
+        "Layout, paint and compositing",
+        "Script loading and execution order",
+        "Main-thread responsiveness",
+        "Browser processes and security"
+      ],
+      "note": "An optional browser/performance deep dive that does not change the 24-week core sequence.",
+      "lessonIds": [
+        "browser.rendering-pipeline"
+      ]
     }
   ]
 }

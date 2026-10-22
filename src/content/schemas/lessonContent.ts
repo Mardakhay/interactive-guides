@@ -176,7 +176,8 @@ export const lessonTranslationSchema = z.object({
   translationStatus: z.enum(['original', 'translated', 'review-needed']),
   updatedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   moduleId: z.string().min(1),
-  week: z.number().int().min(1).max(24),
+  week: z.number().int().min(1).max(24).optional(),
+  supplementaryTrackId: z.string().min(1).optional(),
   order: z.number().int().nonnegative(),
   title: z.string().min(1),
   description: z.string().min(1),
@@ -187,6 +188,16 @@ export const lessonTranslationSchema = z.object({
   tags: z.array(z.string().min(1)),
   blocks: z.array(lessonContentBlockSchema).min(1),
 }).superRefine((lesson, ctx) => {
+  const hasCoreWeek = lesson.week !== undefined;
+  const hasSupplementaryTrack = lesson.supplementaryTrackId !== undefined;
+  if (hasCoreWeek === hasSupplementaryTrack) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['week'],
+      message: 'A lesson must belong to exactly one core week or supplementary track',
+    });
+  }
+
   const blockIds = lesson.blocks.map((block) => block.id);
   if (new Set(blockIds).size !== blockIds.length) {
     ctx.addIssue({

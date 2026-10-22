@@ -23,6 +23,7 @@ const supplementaryTrackSchema = z.object({
   title: z.string().min(1),
   topics: z.array(z.string().min(1)).min(1),
   note: z.string().min(1),
+  lessonIds: z.array(z.string().min(1)).default([]),
 });
 
 export const bootcampCurriculumSchema = z.object({
@@ -44,6 +45,19 @@ export const bootcampCurriculumSchema = z.object({
   months: z.array(curriculumMonthSchema).length(6),
   supplementaryTracks: z.array(supplementaryTrackSchema).min(1),
 }).superRefine((curriculum, ctx) => {
+  const supplementaryTrackIds = curriculum.supplementaryTracks.map((track) => track.id);
+  if (new Set(supplementaryTrackIds).size !== supplementaryTrackIds.length) {
+    ctx.addIssue({ code: 'custom', path: ['supplementaryTracks'], message: 'Supplementary track IDs must be unique' });
+  }
+  const supplementaryLessonIds = curriculum.supplementaryTracks.flatMap((track) => track.lessonIds);
+  if (new Set(supplementaryLessonIds).size !== supplementaryLessonIds.length) {
+    ctx.addIssue({ code: 'custom', path: ['supplementaryTracks'], message: 'A lesson ID may belong to only one supplementary track' });
+  }
+  const coreLessonIds = curriculum.months.flatMap((month) => month.weeks).flatMap((week) => week.lessonIds);
+  if (supplementaryLessonIds.some((id) => coreLessonIds.includes(id))) {
+    ctx.addIssue({ code: 'custom', path: ['supplementaryTracks'], message: 'Supplementary lesson IDs must not be duplicated in the core curriculum' });
+  }
+
   const monthIds = curriculum.months.map((month) => month.id);
   if (new Set(monthIds).size !== monthIds.length) {
     ctx.addIssue({
