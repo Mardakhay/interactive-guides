@@ -98,6 +98,165 @@
       ]
     },
     {
+      "id": "scope-and-lexical-environments",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: scope and lexical environments"
+    },
+    {
+      "id": "scope-vs-environment",
+      "type": "paragraph",
+      "text": "Scope is the language rule that determines where a binding can be referenced. A Lexical Environment is part of the ECMAScript specification's model for explaining that rule: it combines an Environment Record (the bindings associated with a scope) with a link to an outer environment. Engines need not implement this model as literal objects, but it is a precise way to reason about nested functions, shadowing, and closures."
+    },
+    {
+      "id": "environment-records",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Lexical scope follows the nesting in source code. A function uses the surrounding lexical environment where it was created, not the local variables of the function that happens to call it.",
+        "When an inner scope cannot resolve a name locally, lookup continues through the outer-environment chain until a binding is found or the lookup reaches the outermost environment.",
+        "A function object retains access to the lexical environment from its creation. In ECMAScript this relationship is represented by an internal [[Environment]] slot; normal application code cannot inspect or edit that slot directly.",
+        "Shadowing means an inner scope declares a binding with the same name as an outer binding. References in the inner scope resolve to the nearer binding.",
+        "A closure is a function together with access to the surrounding lexical bindings it uses. It keeps those bindings reachable while the closure remains reachable; it does not freeze their values into a snapshot."
+      ]
+    },
+    {
+      "id": "closure-lexical-lookup",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const name = \"Alex\";\n\nfunction start() {\n  const name = \"John\";\n  return function greet() {\n    return name;\n  };\n}\n\nconst greet = start();\n\nfunction callGreet() {\n  const name = \"Sam\";\n  return greet();\n}\n\nconsole.log(callGreet()); // \"John\"",
+      "steps": [
+        {
+          "title": "Create a local binding that shadows the global one",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "There are two bindings named name: the global binding \"Alex\" and the local binding \"John\" inside start. The inner declaration shadows the outer declaration within start."
+        },
+        {
+          "title": "Create greet inside start's lexical environment",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "The returned function is created while start's local name binding is in scope. The function retains access to that lexical environment after start returns."
+        },
+        {
+          "title": "Call greet from a different scope",
+          "lineStart": 11,
+          "lineEnd": 16,
+          "explanation": "callGreet has its own local name value \"Sam\", but greet was not declared inside callGreet. That caller-local binding is not part of greet's lexical lookup chain."
+        },
+        {
+          "title": "Resolve name from where greet was created",
+          "lineStart": 18,
+          "lineEnd": 18,
+          "explanation": "The output is \"John\". Variable lookup uses greet's lexical environment, not the call site and not simply the nearest name in the current call stack."
+        }
+      ]
+    },
+    {
+      "id": "closure-binding-not-snapshot",
+      "type": "paragraph",
+      "text": "A closure retains access to bindings, not a frozen copy of every value. If the captured variable is reassigned or incremented, later calls to the closure can observe the updated binding. This is why closures are useful for private state, function factories, and callbacks that need to remember context across separate events."
+    },
+    {
+      "id": "closure-counter",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function createCounter() {\n  let count = 0;\n  return function increment() {\n    count += 1;\n    return count;\n  };\n}\n\nconst first = createCounter();\nconst second = createCounter();\n\nconsole.log(first());  // 1\nconsole.log(first());  // 2\nconsole.log(second()); // 1",
+      "steps": [
+        {
+          "title": "Create state inside a function call",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Each call to createCounter creates a new local count binding initialized to zero."
+        },
+        {
+          "title": "Return a function that closes over the binding",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "explanation": "increment can read and update count even after createCounter has returned, because the closure keeps the needed lexical binding reachable."
+        },
+        {
+          "title": "Create two independent counters",
+          "lineStart": 8,
+          "lineEnd": 9,
+          "explanation": "first and second are closures created by separate calls, so they refer to different count bindings."
+        },
+        {
+          "title": "Observe shared state within one closure and independent state across closures",
+          "lineStart": 11,
+          "lineEnd": 13,
+          "explanation": "Calling first twice produces 1 then 2. Calling second produces 1 because its own count is still zero before that call."
+        }
+      ]
+    },
+    {
+      "id": "knowledge-check-5",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A function returned from start() reads a variable declared inside start(), even after start() has returned. Why?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The returned function retains access to the lexical environment where it was created",
+          "correct": true,
+          "feedback": "A closure keeps access to the surrounding lexical bindings its function body uses."
+        },
+        {
+          "id": "b",
+          "text": "JavaScript searches the caller's local variables before the function's outer scope",
+          "correct": false,
+          "feedback": "Lexical lookup follows the function's declaration environment, not the caller's local bindings."
+        },
+        {
+          "id": "c",
+          "text": "return copies every local variable into a global object",
+          "correct": false,
+          "feedback": "Returning a function does not copy all locals to the global object."
+        },
+        {
+          "id": "d",
+          "text": "The function body is re-parsed every time it is called to choose the nearest variable",
+          "correct": false,
+          "feedback": "Calling the function does not change where its lexical scope is rooted."
+        }
+      ],
+      "explanation": "Function creation establishes lexical scope. A returned inner function can keep the needed outer bindings reachable after the outer call finishes."
+    },
+    {
+      "id": "practice-closure-counter",
+      "type": "codingExercise",
+      "title": "Build two independent counter closures",
+      "language": "javascript",
+      "context": "This optional deep-dive task reinforces the relationship between function creation and retained state. The lesson editor saves your draft but does not execute JavaScript yet; run your solution in your own JavaScript environment.",
+      "instructions": [
+        "Complete createCounter() so it creates a private count binding and returns an increment function.",
+        "Create two counters by calling createCounter() twice.",
+        "Call the first counter three times and record the results.",
+        "Call the second counter once and explain why it starts independently.",
+        "Add a second returned method, such as reset(), only if you can describe which functions share the same lexical binding.",
+        "Explain why a caller function's local variable named count would not replace the count captured by the returned increment function."
+      ],
+      "requirements": [
+        "Each createCounter call owns a separate count binding.",
+        "The returned function can update the binding after createCounter has returned.",
+        "Calling one counter does not change the other counter's count.",
+        "The implementation does not use a global count variable.",
+        "The learner can explain lexical lookup and closure lifetime in their own words."
+      ],
+      "starterCode": "function createCounter() {\n  let count = 0;\n  return function increment() {\n    // TODO: update and return the captured count.\n  };\n}\n\nconst first = createCounter();\nconst second = createCounter();\n\nconsole.log(first());\nconsole.log(first());\nconsole.log(first());\nconsole.log(second());",
+      "hints": [
+        "Keep count inside createCounter; do not move it to the module or global scope.",
+        "The returned function needs to close over the count binding, not receive count as an argument on every call.",
+        "Create two counters from two separate calls and compare their outputs."
+      ],
+      "successCriteria": [
+        "The first counter returns 1, 2, 3 across three calls.",
+        "The second counter's first call returns 1.",
+        "There is no global mutable count variable.",
+        "You can explain why the outer binding remains accessible after createCounter returns."
+      ]
+    },
+    {
       "id": "function-forms-list",
       "type": "list",
       "ordered": false,
@@ -667,6 +826,16 @@
         {
           "title": "MDN: Spread syntax",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Closures",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Closures",
+          "kind": "guide"
+        },
+        {
+          "title": "ECMAScript Language Specification: Environment Records",
+          "url": "https://tc39.es/ecma262/#sec-environment-records",
           "kind": "official-docs"
         }
       ]
