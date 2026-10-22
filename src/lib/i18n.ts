@@ -8,6 +8,7 @@ interface NavigationCopy {
   skipToContent: string; appVersion: string; breadcrumbLabel: string;
 }
 interface CategoryCopy { name: string; description: string; }
+interface LearningPathCopy { title: string; description: string; stepNotes: Record<string, string>; }
 interface AppCopy {
   navigation: NavigationCopy;
   search: { buttonLabel: string; placeholder: string };
@@ -46,6 +47,7 @@ interface AppCopy {
     continueWith: string;
   };
   notFoundPage: { title: string; message: string; backHome: string; };
+  learningPathItems: Record<string, LearningPathCopy>;
   categories: Record<string, CategoryCopy>;
 }
 
@@ -113,6 +115,60 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
       pathCompleteMessage: 'Pick a new path to keep growing.', allPaths: 'All paths', continueWith: 'Continue with',
     },
     notFoundPage: { title: 'Page Not Found', message: "The page you're looking for doesn't exist.", backHome: 'Back to Dashboard' },
+    learningPathItems: {
+      'frontend-foundations': {
+        title: 'Frontend Foundations',
+        description: 'Go from zero to building your first web page. Learn how the internet works, master HTML and CSS, and get comfortable with the DOM before touching a framework.',
+        stepNotes: {
+          'sh-001': 'Start with a bird’s-eye view of frontend engineering.',
+          'wb-001': 'Understand how the internet and browsers work.',
+          'wb-002': 'Learn the structure of a web page.',
+          'wb-003': 'Style pages and master layout.',
+          'wb-004': 'Bring pages to life by manipulating the DOM.',
+        },
+      },
+      'javascript-mastery': {
+        title: 'JavaScript Mastery',
+        description: 'Progress from core syntax to asynchronous programming, objects, prototypes, memory concepts, Promises and async/await.',
+        stepNotes: {
+          'js-001': 'Build a strong foundation in JavaScript syntax.',
+          'js-002': 'Understand objects, prototypes and classes.',
+          'js-003': 'Explore memory, the stack and the heap.',
+          'js-004': 'Study the event loop, Promises and async/await.',
+        },
+      },
+      'react-developer': {
+        title: 'React Developer Track',
+        description: 'Build React skills through state, Hooks, forms, API integration, routing, performance and accessibility.',
+        stepNotes: {
+          're-001': 'Start with the essential useState Hook.',
+          're-002': 'Study the Hooks API and common patterns.',
+          're-003': 'Build and validate forms.',
+          're-004': 'Integrate APIs with custom Hooks and error handling.',
+          're-005': 'Add routing and navigation to a SPA.',
+          're-006': 'Improve performance and accessibility.',
+        },
+      },
+      'full-stack-tooling': {
+        title: 'Full-Stack Tooling & Deployment',
+        description: 'Configure a professional workflow, use Git and CI/CD, and deploy applications to production.',
+        stepNotes: {
+          'tl-003': 'Set up the development environment.',
+          'tl-001': 'Learn everyday Git workflows.',
+          'tl-002': 'Use branches, pull requests and CI/CD.',
+          'tl-004': 'Deploy an application using hosting and DNS.',
+        },
+      },
+      'production-ready': {
+        title: 'Production-Ready Frontend',
+        description: 'Develop production-minded skills through architecture, comprehensive testing, authentication and security.',
+        stepNotes: {
+          'qa-001': 'Plan and architect a maintainable frontend.',
+          'qa-002': 'Test at unit, integration and end-to-end levels.',
+          'sec-001': 'Learn authentication, JWT, OAuth and route protection.',
+        },
+      },
+    },
     categories: {
       'start-here': { name: 'Start Here', description: "New to Interactive Guides? Begin with this orientation handbook to get a bird's-eye view of the frontend landscape." },
       'web-basics': { name: 'Web Basics', description: 'Understand how the internet works and master the foundational technologies of the web — HTML, CSS, and the DOM.' },
@@ -188,6 +244,60 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
       pathCompleteMessage: 'Выбери следующую траекторию для развития.', allPaths: 'Все траектории', continueWith: 'Продолжить с урока',
     },
     notFoundPage: { title: 'Страница не найдена', message: 'Такой страницы не существует.', backHome: 'На главную' },
+    learningPathItems: {
+      'frontend-foundations': {
+        title: 'Основы frontend-разработки',
+        description: 'Пройди путь от первых шагов до своей веб-страницы: пойми работу интернета, освой HTML и CSS и научись работать с DOM.',
+        stepNotes: {
+          'sh-001': 'Начни с общей картины frontend-разработки.',
+          'wb-001': 'Разберись, как работают интернет и браузеры.',
+          'wb-002': 'Изучи структуру веб-страницы.',
+          'wb-003': 'Освой стилизацию и компоновку.',
+          'wb-004': 'Добавь интерактивность через DOM.',
+        },
+      },
+      'javascript-mastery': {
+        title: 'Углублённый JavaScript',
+        description: 'Пройди от базового синтаксиса к асинхронности, объектам, прототипам, памяти, Promise и async/await.',
+        stepNotes: {
+          'js-001': 'Закрепи основы синтаксиса JavaScript.',
+          'js-002': 'Разберись в объектах, прототипах и классах.',
+          'js-003': 'Изучи память, стек и кучу.',
+          'js-004': 'Разберись в event loop, Promise и async/await.',
+        },
+      },
+      'react-developer': {
+        title: 'Траектория React-разработчика',
+        description: 'Развивай навыки React: состояние, Hooks, формы, API, маршрутизация, производительность и доступность.',
+        stepNotes: {
+          're-001': 'Начни с основного хука useState.',
+          're-002': 'Изучи Hooks API и распространённые шаблоны.',
+          're-003': 'Научись создавать формы и проверять данные.',
+          're-004': 'Подключай API через custom Hooks и обрабатывай ошибки.',
+          're-005': 'Добавь маршрутизацию в SPA.',
+          're-006': 'Улучши производительность и доступность.',
+        },
+      },
+      'full-stack-tooling': {
+        title: 'Инструменты и развёртывание',
+        description: 'Настрой профессиональный workflow, освой Git и CI/CD, а затем разверни приложение в production.',
+        stepNotes: {
+          'tl-003': 'Настрой окружение разработки.',
+          'tl-001': 'Изучи повседневные рабочие процессы Git.',
+          'tl-002': 'Освой ветки, pull request и CI/CD.',
+          'tl-004': 'Разверни приложение с помощью хостинга и DNS.',
+        },
+      },
+      'production-ready': {
+        title: 'Frontend для production',
+        description: 'Освой архитектуру, всестороннее тестирование, аутентификацию и безопасность production-приложений.',
+        stepNotes: {
+          'qa-001': 'Планируй поддерживаемую архитектуру frontend.',
+          'qa-002': 'Пиши unit-, integration- и end-to-end-тесты.',
+          'sec-001': 'Изучи аутентификацию, JWT, OAuth и защиту маршрутов.',
+        },
+      },
+    },
     categories: {
       'start-here': { name: 'Начни здесь', description: 'Впервые в Interactive Guides? Начни с вводного руководства, которое показывает общую картину frontend-разработки.' },
       'web-basics': { name: 'Основы веба', description: 'Разберись, как работает интернет, и изучи базовые веб-технологии: HTML, CSS и DOM.' },
@@ -251,4 +361,13 @@ export function getDifficultyLabel(locale: AppLocale, difficulty: string): strin
     return UI_COPY[locale].difficulty[difficulty];
   }
   return difficulty;
+}
+
+
+export function getLearningPathCopy(locale: AppLocale, pathId: string): LearningPathCopy | undefined {
+  return UI_COPY[locale].learningPathItems[pathId];
+}
+
+export function getLearningPathStepNote(locale: AppLocale, pathId: string, lessonId: string, fallback = ''): string {
+  return UI_COPY[locale].learningPathItems[pathId]?.stepNotes[lessonId] ?? fallback;
 }
