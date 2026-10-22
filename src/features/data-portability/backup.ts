@@ -5,10 +5,7 @@ import { notesStateSchema } from '@/features/notes/schemas';
 import { progressStateSchema } from '@/features/progress/schemas';
 import { quizResultsStateSchema } from '@/features/quizzes/schemas';
 import {
-  EMPTY_STRUCTURED_LEARNING_STATE,
   STRUCTURED_LEARNING_STORAGE_KEY,
-  LEGACY_STRUCTURED_LEARNING_STORAGE_KEY,
-  structuredLearningStateSchema,
   type StructuredLearningState,
 } from '@/features/structured-lesson/schemas';
 import { clearLegacyStructuredLearningRecord, createStructuredLearningStorageRecord, readStructuredLearningState } from '@/features/structured-lesson/persistence';

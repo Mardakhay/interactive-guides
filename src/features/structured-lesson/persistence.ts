@@ -12,7 +12,7 @@ import {
 
 export interface StructuredLearningReadResult {
   readonly state: StructuredLearningState;
-  readonly source: 'current' | 'migrated-current' | 'migrated-legacy' | 'empty' | 'invalid';
+  readonly source: 'current' | 'migrated-current' | 'migrated-legacy' | 'legacy' | 'empty' | 'invalid';
   readonly invalid: boolean;
 }
 
@@ -143,7 +143,7 @@ export function readStructuredLearningState(storage?: Storage): StructuredLearni
 
   return {
     state: legacyState.data,
-    source: saved ? 'migrated-legacy' : 'empty',
+    source: saved ? 'migrated-legacy' : 'legacy',
     invalid: false,
   };
 }

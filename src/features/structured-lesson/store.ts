@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import { readStructuredLearningState, saveStructuredLearningState } from './persistence';
 import {
-  EMPTY_STRUCTURED_LEARNING_STATE,
-  structuredLearningStateSchema,
   type CodeDraft,
   type PracticeChecklist,
   type QuizAttempt,
@@ -27,8 +25,6 @@ interface StructuredLearningStore extends PersistedState {
   ) => void;
   setSectionComplete: (lessonId: string, sectionId: string, completed: boolean) => void;
 }
-
-const EMPTY_STATE: PersistedState = EMPTY_STRUCTURED_LEARNING_STATE;
 
 function loadInitialState(): PersistedState {
   return readStructuredLearningState().state;
