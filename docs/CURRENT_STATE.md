@@ -118,7 +118,7 @@ The sections above record the original audit of `main` and remain useful as a ba
 
 1. Review the source lessons in Notion and `public/lessons`, checking technical accuracy, completeness, outdated claims, source links and EN/RU equivalence.
 2. Decide and design a safe, explicitly bounded JavaScript practice runner (including hard timeout semantics); do not equate an iframe timeout with hostile-code isolation.
-3. Add versioned storage migrations, visible storage errors and export/import before cloud sync.
+3. Add explicit schema-version migrations and retry/recovery for persistence errors before cloud sync; validated export/import and localized write-failure warnings now exist.
 4. Finish localization/visual consistency across the legacy shell, then verify keyboard access, narrow mobile layouts and PWA update/offline behavior.
 5. Add Supabase only after a dedicated-project decision and the local data contract have been reviewed.
 
