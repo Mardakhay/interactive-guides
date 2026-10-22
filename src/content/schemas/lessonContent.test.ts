@@ -9,8 +9,6 @@ import englishLayout from '../lessons/css.flexbox-grid-responsive/en.json';
 import russianLayout from '../lessons/css.flexbox-grid-responsive/ru.json';
 import englishJsBasics from '../lessons/js.basics-types-control-flow/en.json';
 import russianJsBasics from '../lessons/js.basics-types-control-flow/ru.json';
-import englishJsFunctions from '../lessons/js.functions-arrays-objects/en.json';
-import russianJsFunctions from '../lessons/js.functions-arrays-objects/ru.json';
 import englishDom from '../lessons/js.dom-events/en.json';
 import russianDom from '../lessons/js.dom-events/ru.json';
 import englishAsync from '../lessons/js.async-fetch/en.json';
