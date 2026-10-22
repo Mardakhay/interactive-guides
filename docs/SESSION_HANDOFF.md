@@ -84,9 +84,11 @@ The connected account has projects named `kaelig` and `Mardakhay's Project`; nei
 
 ## Latest CI check
 
-Current branch HEAD verified: `6ebcb88d9f6fff97e323966193c48933f9e3cdcb`. GitHub Actions run [#134](https://github.com/Mardakhay/interactive-guides/actions/runs/39772187993) completed successfully: install, lint, typecheck, tests and production build all passed. The Netlify deploy preview reports ready at https://deploy-preview-1--interactive-guides.netlify.app. Recheck the exact HEAD after subsequent commits.n run](https://github.com/Mardakhay/interactive-guides/actions/runs/39758607304)). Verify this after the documentation commit as GitHub starts a new workflow.
+GitHub Actions run [#167](https://github.com/Mardakhay/interactive-guides/actions/runs/39776235742) passed for code/test commit `be9e050fba35082d036367e3e6b7eec47a7636c3`; install, lint, typecheck, tests and production build all succeeded, including the new local-storage warning tests.
 
-The GitHub Actions workflow runs `npm ci`, ESLint, TypeScript typecheck, tests and production build. Check the exact current branch head after every substantial change; an earlier successful run does not validate later commits.
+The exact current branch HEAD when this note was updated is `0725ed8347b0127c9138690acccadb09091749d1`, a documentation-only commit after #167. Run [#168](https://github.com/Mardakhay/interactive-guides/actions/runs/39776441775) was in progress at last check. Verify the exact latest HEAD's result before claiming that current CI is green.
+
+The workflow runs `npm ci`, ESLint, TypeScript typecheck, tests and production build. A successful run for an earlier SHA does not validate later code changes.
 
 ## Documentation
 
