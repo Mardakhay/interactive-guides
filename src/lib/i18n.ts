@@ -142,7 +142,7 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
       ariaLabel: 'Lesson notes', saved: 'Saved', autosaves: 'Autosaves as you type',
     },
     bookmarkButton: { add: 'Add bookmark', remove: 'Remove bookmark', bookmarked: 'Bookmarked', bookmark: 'Bookmark' },
-    quizRenderer: { correct: 'correct', retry: 'Retry quiz', yourAnswer: 'Your answer', answered: 'answered', submit: 'Submit quiz', score: '{score} / {total} correct · {percent}%', answeredSummary: '{answered} / {total} answered' },
+    quizRenderer: { correct: 'correct', retry: 'Retry Quiz', yourAnswer: 'Your answer', answered: 'answered', submit: 'Submit Quiz', score: '{score} / {total} correct · {percent}%', answeredSummary: '{answered} / {total} answered' },
     learningPathItems: {
       'frontend-foundations': {
         title: 'Frontend Foundations',
