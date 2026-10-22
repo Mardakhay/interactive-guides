@@ -25,7 +25,7 @@ export default function StructuredLessonPage() {
 
   useEffect(() => {
     if (lesson) markLessonOpened(lesson.id);
-  }, [lesson?.id, markLessonOpened]);
+  }, [lesson, markLessonOpened]);
 
   const copy = locale === 'ru'
     ? {
