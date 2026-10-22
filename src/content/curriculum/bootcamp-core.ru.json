@@ -452,7 +452,9 @@
           "practice": [
             "Реализовать основные пользовательские сценарии проекта целиком"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.implementation"
+          ]
         },
         {
           "id": "month-6-week-24",

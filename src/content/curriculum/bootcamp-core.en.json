@@ -452,7 +452,9 @@
           "practice": [
             "Implement the project's core end-to-end user journeys"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.implementation"
+          ]
         },
         {
           "id": "month-6-week-24",

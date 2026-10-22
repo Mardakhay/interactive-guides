@@ -44,6 +44,8 @@ import englishCapstoneRequirements from './lessons/capstone.requirements-discove
 import russianCapstoneRequirements from './lessons/capstone.requirements-discovery/ru.json';
 import englishCapstoneDesign from './lessons/capstone.design-architecture-planning/en.json';
 import russianCapstoneDesign from './lessons/capstone.design-architecture-planning/ru.json';
+import englishCapstoneImplementation from './lessons/capstone.implementation/en.json';
+import russianCapstoneImplementation from './lessons/capstone.implementation/ru.json';
 import englishCurriculum from './curriculum/bootcamp-core.en.json';
 import russianCurriculum from './curriculum/bootcamp-core.ru.json';
 import { bootcampCurriculumSchema } from './schemas/curriculum';
@@ -99,6 +101,8 @@ const lessonTranslations = [
   lessonTranslationSchema.parse(russianCapstoneRequirements),
   lessonTranslationSchema.parse(englishCapstoneDesign),
   lessonTranslationSchema.parse(russianCapstoneDesign),
+  lessonTranslationSchema.parse(englishCapstoneImplementation),
+  lessonTranslationSchema.parse(russianCapstoneImplementation),
 ] as const;
 
 const curricula = {

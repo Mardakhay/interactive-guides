@@ -32,6 +32,7 @@ const expectedIds = [
   'git.workflow-ci',
   'capstone.requirements-discovery',
   'capstone.design-architecture-planning',
+  'capstone.implementation',
 ].sort();
 
 describe('structured content repository', () => {
@@ -77,6 +78,7 @@ describe('structured content repository', () => {
       'git.workflow-ci': 'month-5-week-20',
       'capstone.requirements-discovery': 'month-6-week-21',
       'capstone.design-architecture-planning': 'month-6-week-22',
+      'capstone.implementation': 'month-6-week-23',
     };
     for (const [id, weekId] of Object.entries(expectedWeeks)) {
       expect(getWeekForLesson(id, 'en')?.id).toBe(weekId);
@@ -109,6 +111,7 @@ describe('structured content repository', () => {
       'git.workflow-ci',
       'capstone.requirements-discovery',
       'capstone.design-architecture-planning',
+      'capstone.implementation',
     ];
     for (let index = 0; index < expectedSequence.length; index += 1) {
       const id = expectedSequence[index]!;
@@ -135,5 +138,6 @@ describe('structured content repository', () => {
     expect(getCurriculumWeek('month-5-week-20', 'ru')?.lessonIds).toContain('git.workflow-ci');
     expect(getCurriculumWeek('month-6-week-21', 'en')?.lessonIds).toContain('capstone.requirements-discovery');
     expect(getCurriculumWeek('month-6-week-22', 'ru')?.lessonIds).toContain('capstone.design-architecture-planning');
+    expect(getCurriculumWeek('month-6-week-23', 'en')?.lessonIds).toContain('capstone.implementation');
   });
 });

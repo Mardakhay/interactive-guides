@@ -1,0 +1,362 @@
+{
+  "id": "capstone.implementation",
+  "locale": "en",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-22",
+  "moduleId": "month-6-week-23",
+  "week": 23,
+  "order": 1,
+  "title": "Capstone Part 3: Implementing the Core User Journeys",
+  "description": "Build the MVP in vertical slices, keep UI/service boundaries clear, handle CRUD and async states, validate data at boundaries, and integrate authentication and persistence only when the project requires them.",
+  "estimatedMinutes": 85,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "capstone.requirements-discovery",
+    "capstone.design-architecture-planning",
+    "testing.react-testing-library",
+    "git.workflow-ci"
+  ],
+  "learningOutcomes": [
+    "Translate a user story into a vertical implementation slice that includes UI, data flow, feedback, and tests.",
+    "Separate route/page orchestration, reusable components, feature logic, services, schemas, and persistence.",
+    "Implement CRUD with clear loading, success, empty, validation, and failure states.",
+    "Validate user input and external API data at runtime instead of trusting TypeScript declarations alone.",
+    "Handle asynchronous requests with cancellation/stale-result protection where needed.",
+    "Integrate authentication and remote persistence only when required, keeping secrets out of browser code.",
+    "Deliver reviewable commits and test the acceptance criteria after each increment."
+  ],
+  "tags": [
+    "capstone",
+    "implementation",
+    "crud",
+    "architecture",
+    "services",
+    "authentication",
+    "validation",
+    "integration"
+  ],
+  "blocks": [
+    {
+      "id": "vertical-slice",
+      "type": "heading",
+      "level": 2,
+      "text": "Implement one complete vertical slice at a time"
+    },
+    {
+      "id": "vertical-slice-body",
+      "type": "paragraph",
+      "text": "A vertical slice delivers one user-visible outcome across the necessary layers: interaction, UI state, business rules, service/data access, and verification. For example, “create a bookmark” includes the button or form, pending state, service call, success/failure feedback, persistence behavior, and tests—not just a new button component or a database table. Build the smallest complete path first, then extend it. This exposes integration problems early and keeps every milestone demonstrable."
+    },
+    {
+      "id": "implementation-sequence",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with a single story and its acceptance criteria from the product brief.",
+        "Build the UI with typed props and explicit loading/empty/error states; use mock data if the service is not ready.",
+        "Add a feature service that owns the data boundary and returns a documented result.",
+        "Validate input at the boundary and validate untrusted responses when their shape matters.",
+        "Connect the UI to the service and handle success, validation, network, authorization, and server failures.",
+        "Add tests for the agreed acceptance criteria and at least one meaningful edge case.",
+        "Review keyboard behavior, narrow layout, logging, and error recovery before moving to the next slice."
+      ]
+    },
+    {
+      "id": "feature-boundaries",
+      "type": "heading",
+      "level": 2,
+      "text": "Keep route, feature, service, and data contracts distinct"
+    },
+    {
+      "id": "feature-boundaries-body",
+      "type": "paragraph",
+      "text": "A page coordinates a route-level workflow; a component renders a coherent piece of UI; a feature module owns domain-specific interactions; a service communicates with the API or persistence layer; and a schema validates values crossing a trust boundary. They can live together in a feature folder while remaining distinct responsibilities. Avoid putting network requests into every button, placing business rules in a generic Button, or letting unrelated pages import private state from one another."
+    },
+    {
+      "id": "feature-example",
+      "type": "code",
+      "language": "text",
+      "caption": "A compact feature slice",
+      "code": "src/features/bookmarks/\n  pages/BookmarksPage.tsx      # route orchestration\n  components/BookmarkList.tsx  # display list\n  components/BookmarkForm.tsx  # interaction and field feedback\n  services/bookmarkService.ts  # API/persistence boundary\n  schemas/bookmark.ts          # runtime input/response validation\n  types.ts                     # shared TypeScript contracts\n  tests/                       # service and UI behavior"
+    },
+    {
+      "id": "crud",
+      "type": "heading",
+      "level": 2,
+      "text": "CRUD is four related workflows, not one generic handler"
+    },
+    {
+      "id": "crud-body",
+      "type": "paragraph",
+      "text": "Create, read, update, and delete each have their own permission, validation, and feedback rules. A read view can have loading, empty, success, and error states. A create/update form needs field errors, a submitting state, duplicate-submit handling where appropriate, and a clear result. A delete action should make its consequence clear and recover from failure; for destructive or hard-to-undo operations, ask for confirmation or provide undo when suitable. Keep the domain operation explicit instead of hiding all differences behind a vague “save” handler."
+    },
+    {
+      "id": "crud-matrix",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Create: validate input, prevent accidental duplicate submission, show success, and keep recoverable input on failure.",
+        "Read: handle loading, a successful empty result, populated data, and failure as distinct states.",
+        "Update: preserve unrelated fields, handle optimistic or server-confirmed behavior intentionally, and surface conflicts when relevant.",
+        "Delete: identify the selected record, protect against accidental destructive action where needed, and restore the UI coherently if the request fails."
+      ]
+    },
+    {
+      "id": "service-contract",
+      "type": "heading",
+      "level": 2,
+      "text": "Make the service boundary explicit"
+    },
+    {
+      "id": "service-contract-body",
+      "type": "paragraph",
+      "text": "UI code should not have to guess how an API represents success or failure. A feature service can accept typed input, call the transport layer, check HTTP status, parse the body, and return the documented value—or throw/return a typed error according to the project convention. Keep consistent error handling across operations. Never treat a TypeScript cast as proof that JSON matches a type; validate untrusted values using the project's schema library or another explicit runtime check."
+    },
+    {
+      "id": "service-example",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "type CreateBookmarkInput = { lessonId: string };\ntype Bookmark = { id: string; lessonId: string };\n\nasync function createBookmark(input: CreateBookmarkInput): Promise<Bookmark> {\n  const response = await fetch(\"/api/bookmarks\", {\n    method: \"POST\",\n    headers: { \"Content-Type\": \"application/json\" },\n    body: JSON.stringify(input),\n  });\n\n  if (!response.ok) {\n    throw new Error(`Could not save bookmark: HTTP ${response.status}`);\n  }\n\n  const payload: unknown = await response.json();\n  return bookmarkSchema.parse(payload);\n}",
+      "steps": [
+        {
+          "title": "Define the operation's input and result",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "The types document the service contract for trusted TypeScript callers. Runtime payloads from the server are still treated as unknown until validated."
+        },
+        {
+          "title": "Make the request explicit",
+          "lineStart": 4,
+          "lineEnd": 9,
+          "explanation": "The operation and body are visible at the service boundary rather than being scattered across UI components."
+        },
+        {
+          "title": "Handle non-success HTTP statuses",
+          "lineStart": 11,
+          "lineEnd": 13,
+          "explanation": "fetch typically resolves for HTTP 4xx/5xx responses, so the service checks response.ok and follows its error convention."
+        },
+        {
+          "title": "Validate the untrusted response body",
+          "lineStart": 15,
+          "lineEnd": 16,
+          "explanation": "A schema parse checks the actual runtime payload. A type assertion such as payload as Bookmark would not validate its fields."
+        }
+      ]
+    },
+    {
+      "id": "async-lifecycle",
+      "type": "heading",
+      "level": 2,
+      "text": "Treat async requests as a lifecycle"
+    },
+    {
+      "id": "async-lifecycle-body",
+      "type": "paragraph",
+      "text": "Async UI needs an explicit lifecycle: idle or ready, loading, success, and failure. Avoid leaving stale data visible without explanation or leaving a page in loading forever after a rejection. If a request belongs to a mounted component and can be made obsolete by navigation or a changed query, consider AbortController or an equivalent cancellation mechanism and ensure an old response cannot overwrite a newer result. Retries are not automatically safe for every mutation; understand whether the operation is idempotent before retrying it."
+    },
+    {
+      "id": "auth-persistence",
+      "type": "heading",
+      "level": 2,
+      "text": "Add auth and persistence only to meet a real requirement"
+    },
+    {
+      "id": "auth-persistence-body",
+      "type": "paragraph",
+      "text": "If the capstone requires user accounts or cross-device sync, document what is stored, who owns each record, and how ownership is enforced. The browser can hide or disable controls based on a session, but the backend/database must enforce authorization. Public frontend environment variables are visible to the client; never bundle service-role keys or private credentials. If remote auth/sync is not needed for the MVP, local-first or mock storage may be a deliberate first milestone, with export/migration considered separately."
+    },
+    {
+      "id": "implementation-security",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Do not trust the browser to enforce ownership",
+      "text": "For remote records, the service must derive the authenticated user identity from its trusted session and enforce access rules. Do not accept an arbitrary owner ID from the client as proof of ownership. Do not put server secrets in VITE_ environment variables: values used by frontend builds are shipped to the browser."
+    },
+    {
+      "id": "tests-as-you-build",
+      "type": "heading",
+      "level": 2,
+      "text": "Test each slice before adding the next"
+    },
+    {
+      "id": "tests-as-you-build-body",
+      "type": "paragraph",
+      "text": "Write tests while the behavior is small enough to reason about. A critical slice often needs a component test for the user's interaction, a service test for status/response handling, and perhaps a schema test for invalid data. Mock only the boundary needed to isolate the scenario; excessive mocking can hide integration failures. After changes, run the repository's actual lint, typecheck, test, and build scripts, then manually verify the journey in a browser."
+    },
+    {
+      "id": "implementation-quiz-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does a complete vertical slice normally include?",
+      "options": [
+        {
+          "id": "a",
+          "text": "One user-visible outcome across UI, data/service flow, feedback, and verification",
+          "correct": true,
+          "feedback": "The slice reaches a usable outcome and proves its acceptance criteria across the necessary layers."
+        },
+        {
+          "id": "b",
+          "text": "Only all database tables, before any UI exists",
+          "correct": false,
+          "feedback": "A database-only milestone does not validate an end-to-end user outcome."
+        },
+        {
+          "id": "c",
+          "text": "A set of reusable buttons with no feature integration",
+          "correct": false,
+          "feedback": "Reusable UI can be useful, but it alone does not deliver the intended user journey."
+        },
+        {
+          "id": "d",
+          "text": "A complete rewrite of every feature before testing anything",
+          "correct": false,
+          "feedback": "Large unverified changes delay feedback and make integration problems harder to isolate."
+        }
+      ],
+      "explanation": "A vertical slice delivers and verifies a small user-facing result through the relevant layers."
+    },
+    {
+      "id": "implementation-quiz-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "A TypeScript assertion such as response.json() as Bookmark is sufficient to prove that an API response contains valid bookmark data.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "A type assertion changes the compiler's assumption but does not inspect the response at runtime."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "Validate untrusted external data using a schema or another runtime validation method."
+        }
+      ],
+      "explanation": "Static type checking and runtime data validation protect different boundaries."
+    },
+    {
+      "id": "implementation-quiz-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Which practices are appropriate while implementing the capstone? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Handle loading, empty, success, and error states explicitly",
+          "correct": true,
+          "feedback": "Different outcomes need distinct user feedback and recovery behavior."
+        },
+        {
+          "id": "b",
+          "text": "Enforce access to remote records in the service/database",
+          "correct": true,
+          "feedback": "Authorization must be enforced outside the presentational UI."
+        },
+        {
+          "id": "c",
+          "text": "Place private server credentials in VITE_ variables so the frontend can use them",
+          "correct": false,
+          "feedback": "Frontend build variables are exposed to browser code and must not contain private server secrets."
+        },
+        {
+          "id": "d",
+          "text": "Test acceptance criteria after each vertical slice",
+          "correct": true,
+          "feedback": "Frequent verification catches integration problems early."
+        }
+      ],
+      "explanation": "A reliable implementation handles states, protects data at trusted boundaries, and validates small increments."
+    },
+    {
+      "id": "capstone-implementation-exercise",
+      "type": "codingExercise",
+      "title": "Implement the first end-to-end capstone slice",
+      "language": "markdown",
+      "context": "Work in the feature branch and follow the Week 22 design pack. This exercise records your implementation and verification plan; the lesson editor does not modify repository files automatically.",
+      "instructions": [
+        "Choose the highest-priority MVP user story and restate its acceptance criteria.",
+        "Implement its page/component interaction using the planned component boundaries.",
+        "Add or mock the service boundary and explicitly model loading, success, failure, and empty states where applicable.",
+        "Validate form input and any untrusted server response at runtime where the contract requires it.",
+        "Implement one CRUD operation or the core read flow through UI and service.",
+        "Add a user-facing success/error response and appropriate keyboard/accessibility behavior.",
+        "Add tests for the main acceptance path plus one meaningful failure/edge case.",
+        "Commit the vertical slice with a focused message, run lint/typecheck/tests/build, and record any known gaps.",
+        "If auth/remote sync is required, describe the owner/authorization rule and verify it is enforced by the trusted service/data layer."
+      ],
+      "requirements": [
+        "The slice maps directly to a Week 21 user story and acceptance criteria.",
+        "The feature's UI and service responsibilities are separated enough to test.",
+        "Loading/success/error/empty behavior is intentional rather than implicit.",
+        "Runtime validation is used at untrusted data boundaries where needed.",
+        "Authorization is not enforced solely through client-side visibility.",
+        "Automated tests cover the primary behavior and a relevant failure case.",
+        "The changes are reviewable, committed, and accompanied by verification evidence."
+      ],
+      "starterCode": "# Implementation slice checklist\n\n## Story and acceptance criteria\n\n## UI components changed\n\n## State ownership and data flow\n\n## Service/API operation\n- Request:\n- Success result:\n- Expected failures:\n- Runtime validation:\n\n## User-visible states\n- Loading:\n- Empty:\n- Success:\n- Error/recovery:\n\n## Security/privacy notes\n\n## Tests added\n- Primary path:\n- Edge/failure path:\n\n## Verification\n- [ ] Lint\n- [ ] Typecheck\n- [ ] Tests\n- [ ] Production build\n- [ ] Manual browser check\n\n## Commit and remaining gaps",
+      "hints": [
+        "Deliver one full user-visible outcome rather than building every page or service before connecting them.",
+        "Keep API details behind a service so the UI can work against a predictable interface and mock response.",
+        "Record any mock or unfinished persistence honestly; don't describe it as a completed remote integration."
+      ],
+      "successCriteria": [
+        "A core user story works through UI and the relevant service/data path.",
+        "The UI distinguishes pending, successful, empty, and failed outcomes where applicable.",
+        "Input and external data are validated at the appropriate boundaries.",
+        "Access control is enforced in a trusted service when remote private data is involved.",
+        "The primary behavior and one meaningful failure path have tests.",
+        "Checks and manual browser evidence are recorded against the committed slice."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Build complete vertical slices so each milestone delivers and verifies one user-facing outcome.",
+        "Separate page orchestration, reusable components, feature rules, services, and runtime schemas by responsibility.",
+        "CRUD actions have different validation, permission, feedback, and recovery requirements.",
+        "Model async lifecycle states and prevent stale requests from overwriting newer results when relevant.",
+        "Never trust client visibility or TypeScript assertions as security/runtime data validation.",
+        "Run tests and project quality gates after every meaningful slice, not only at the end."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "React: Thinking in React",
+          "url": "https://react.dev/learn/thinking-in-react",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Managing State",
+          "url": "https://react.dev/learn/managing-state",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using the Fetch API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch",
+          "kind": "guide"
+        },
+        {
+          "title": "OWASP API Security Top 10",
+          "url": "https://owasp.org/API-Security/",
+          "kind": "guide"
+        },
+        {
+          "title": "OWASP Input Validation Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+          "kind": "guide"
+        }
+      ]
+    }
+  ]
+}
