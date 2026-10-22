@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import curriculum from '../curriculum/bootcamp-core.json';
+import curriculum from '../curriculum/bootcamp-core.en.json';
 import { bootcampCurriculumSchema } from './curriculum';
 
 describe('bootcamp curriculum', () => {
