@@ -470,7 +470,9 @@
             "Представить приложение и объяснить архитектуру, компромиссы и качество кода"
           ],
           "project": "Итоговый capstone-проект и Demo Day",
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.review-demo"
+          ]
         }
       ]
     }

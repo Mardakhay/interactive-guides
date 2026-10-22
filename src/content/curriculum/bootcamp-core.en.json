@@ -470,7 +470,9 @@
             "Present the final application and explain architecture, trade-offs and code quality"
           ],
           "project": "Final Capstone Project and Demo Day",
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.review-demo"
+          ]
         }
       ]
     }
