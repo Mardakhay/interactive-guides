@@ -169,6 +169,8 @@ describe('structured content repository', () => {
       );
       expect(english?.blocks.some((block) => block.type === 'knowledgeCheck')).toBe(true);
       expect(russian?.blocks.some((block) => block.type === 'knowledgeCheck')).toBe(true);
+      expect(english?.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+      expect(russian?.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     }
   });
 
