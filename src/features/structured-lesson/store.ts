@@ -99,6 +99,7 @@ export const useStructuredLearningStore = create<StructuredLearningStore>((set) 
         quizAttempts: state.quizAttempts,
         codeDrafts,
         practiceChecklists: state.practiceChecklists,
+        sectionProgress: state.sectionProgress,
       };
       persist(next);
       return next;
