@@ -5,7 +5,7 @@ import { EmptyState } from '@/components/feedback';
 import { lessonPath } from '@/app/router/routes';
 import type { ActivityItem } from '../types';
 import { useLocaleStore } from '@/stores/localeStore';
-import { UI_COPY, getCategoryCopy } from '@/lib/i18n';
+import { UI_COPY, getCategoryCopyByName } from '@/lib/i18n';
 
 interface RecentActivityProps { items: readonly ActivityItem[]; }
 
@@ -19,7 +19,7 @@ export function RecentActivity({ items }: RecentActivityProps) {
   return (
     <ul className="space-y-2">
       {items.map((item) => {
-        const category = getCategoryCopy(locale, item.categoryName);
+        const category = getCategoryCopyByName(locale, item.categoryName);
         return (
           <li key={`${item.kind}-${item.lessonId}`}>
             <Link to={lessonPath(item.lessonId)}>
@@ -28,7 +28,7 @@ export function RecentActivity({ items }: RecentActivityProps) {
                   {item.kind === 'bookmark' ? <Bookmark className="h-4 w-4" aria-hidden="true" /> : <StickyNote className="h-4 w-4" aria-hidden="true" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs text-neutral-500">{item.categoryName}</p>
+                  <p className="text-xs text-neutral-500">{category?.name ?? item.categoryName}</p>
                   <h4 className="truncate text-sm font-semibold text-neutral-900 group-hover:text-primary-700">{item.lessonTitle}</h4>
                   {item.notePreview && <p className="mt-0.5 truncate text-xs text-neutral-500">{item.notePreview}</p>}
                 </div>

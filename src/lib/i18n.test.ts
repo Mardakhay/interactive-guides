@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { formatCatalogDescription, formatLessonCount, formatOverallProgress, getCategoryCopy, getLocaleFromPathname, getOtherLocale, isAppLocale, LOCALE_STORAGE_KEY, UI_COPY } from './i18n';
+import { formatCatalogDescription, formatLessonCount, formatOverallProgress, getCategoryCopy, getCategoryCopyByName, getLocaleFromPathname, getOtherLocale, isAppLocale, LOCALE_STORAGE_KEY, UI_COPY } from './i18n';
 
 describe('application localization utilities', () => {
   afterEach(() => window.localStorage.clear());
@@ -32,6 +32,7 @@ describe('application localization utilities', () => {
     expect(getCategoryCopy('ru', 'javascript')?.name).toBe('JavaScript');
     expect(getCategoryCopy('ru', 'web-basics')?.name).toBe('Основы веба');
     expect(getCategoryCopy('ru', 'missing-category')).toBeUndefined();
+    expect(getCategoryCopyByName('ru', 'Web Basics')?.name).toBe('Основы веба');
     expect(UI_COPY.en.language.shortLabel).toBe('RU');
     expect(UI_COPY.ru.language.shortLabel).toBe('EN');
     expect(getOtherLocale('en')).toBe('ru');

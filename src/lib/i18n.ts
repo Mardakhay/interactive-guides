@@ -136,6 +136,11 @@ export function getCategoryCopy(locale: AppLocale, categoryId: string): Category
   return UI_COPY[locale].categories[categoryId];
 }
 
+export function getCategoryCopyByName(locale: AppLocale, englishName: string): CategoryCopy | undefined {
+  const match = Object.entries(UI_COPY.en.categories).find(([, category]) => category.name === englishName);
+  return match ? UI_COPY[locale].categories[match[0]] : undefined;
+}
+
 export function formatOverallProgress(locale: AppLocale, completed: number, total: number): string {
   return UI_COPY[locale].dashboard.overallProgress
     .replace('{completed}', String(completed))
