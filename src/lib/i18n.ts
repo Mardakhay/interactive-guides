@@ -59,6 +59,10 @@ interface AppCopy {
   bookmarkButton: { add: string; remove: string; bookmarked: string; bookmark: string; };
   quizRenderer: { correct: string; retry: string; yourAnswer: string; answered: string; submit: string; score: string; answeredSummary: string; };
   learningPathItems: Record<string, LearningPathCopy>;
+  structuredCurriculum: {
+    title: string; description: string; monthGoal: string; weekLabel: string;
+    lessonLabel: string; openLesson: string; underReview: string; published: string; noLessonAvailable: string;
+  };
   categories: Record<string, CategoryCopy>;
 }
 
@@ -196,6 +200,12 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
           'sec-001': 'Learn authentication, JWT, OAuth and route protection.',
         },
       },
+    },
+    structuredCurriculum: {
+      title: 'Structured bootcamp curriculum',
+      description: 'Follow the six-month program in its original 24-week sequence. Structured lessons are available in English and Russian.',
+      monthGoal: 'Month goal', weekLabel: 'Week', lessonLabel: 'lessons', openLesson: 'Open lesson',
+      underReview: 'Editorial review', published: 'Published', noLessonAvailable: 'Structured lesson content is not available yet.',
     },
     categories: {
       'start-here': { name: 'Start Here', description: "New to Interactive Guides? Begin with this orientation handbook to get a bird's-eye view of the frontend landscape." },
@@ -342,6 +352,12 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
           'sec-001': 'Изучи аутентификацию, JWT, OAuth и защиту маршрутов.',
         },
       },
+    },
+    structuredCurriculum: {
+      title: 'Структурированная программа буткемпа',
+      description: 'Проходи исходную шестимесячную программу в последовательности из 24 недель. Структурированные уроки доступны на русском и английском.',
+      monthGoal: 'Цель месяца', weekLabel: 'Неделя', lessonLabel: 'уроки', openLesson: 'Открыть урок',
+      underReview: 'На редакционной проверке', published: 'Опубликовано', noLessonAvailable: 'Материал структурированного урока пока недоступен.',
     },
     categories: {
       'start-here': { name: 'Начни здесь', description: 'Впервые в Interactive Guides? Начни с вводного руководства, которое показывает общую картину frontend-разработки.' },
