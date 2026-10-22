@@ -144,4 +144,27 @@ describe('structured content repository', () => {
     expect(getCurriculumWeek('month-6-week-23', 'en')?.lessonIds).toContain('capstone.implementation');
     expect(getCurriculumWeek('month-6-week-24', 'ru')?.lessonIds).toContain('capstone.review-demo');
   });
+
+  it('keeps EN/RU block structure aligned for every registered lesson', () => {
+    const englishIds = getBootcampCurriculum('en').months.flatMap((month) =>
+      month.weeks.flatMap((week) => week.lessonIds),
+    );
+    const russianIds = getBootcampCurriculum('ru').months.flatMap((month) =>
+      month.weeks.flatMap((week) => week.lessonIds),
+    );
+    expect(russianIds).toEqual(englishIds);
+
+    for (const lessonId of expectedIds) {
+      const english = getStructuredLesson(lessonId, 'en');
+      const russian = getStructuredLesson(lessonId, 'ru');
+      expect(english).toBeDefined();
+      expect(russian).toBeDefined();
+      expect(english?.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+        russian?.blocks.map(({ id, type }) => ({ id, type })),
+      );
+      expect(english?.blocks.some((block) => block.type === 'knowledgeCheck')).toBe(true);
+      expect(russian?.blocks.some((block) => block.type === 'knowledgeCheck')).toBe(true);
+    }
+  });
+
 });
