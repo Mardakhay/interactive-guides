@@ -8,7 +8,7 @@ import { coursePath } from '@/app/router/routes';
 import { getBootcampCurriculum, getStructuredLesson } from '@/content/repository';
 import { STATUS_BADGE_VARIANTS } from '@/features/progress';
 import { useLocaleStore } from '@/stores/localeStore';
-import { UI_COPY, formatCatalogDescription, formatLessonCount, formatOverallProgress, getCategoryCopy, getLessonStatusLabel } from '@/lib/i18n';
+import { UI_COPY, formatCatalogDescription, formatLessonCount, formatOverallProgress, getCategoryCopy, getLessonStatusLabel, formatDurationMinutes } from '@/lib/i18n';
 
 const ICON_MAP: Record<string, LucideIcon> = { Compass, Globe, Code2, Atom, Palette, Wrench, ShieldCheck, Lock, Database };
 
@@ -104,7 +104,7 @@ export default function CoursesPage() {
                                   </div>
                                 </div>
                                 <p className="mt-1 text-xs leading-5 text-neutral-600">{lesson.description}</p>
-                                <p className="mt-2 text-xs text-neutral-500">{lesson.estimatedMinutes} {curriculumCopy.lessonLabel === 'уроки' ? 'минут' : 'min'}</p>
+                                <p className="mt-2 text-xs text-neutral-500">{formatDurationMinutes(locale, lesson.estimatedMinutes)}</p>
                               </Link>
                             );
                           })}
