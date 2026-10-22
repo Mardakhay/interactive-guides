@@ -10,7 +10,7 @@
   "order": 0,
   "title": "Functions, Arrays and Objects",
   "description": "Learn to compose small functions and transform datasets predictably. Understand function declarations, expressions and arrows; choose map, filter, reduce, find, some or every by their result; and work with objects using destructuring and spread without accidental mutation.",
-  "estimatedMinutes": 90,
+  "estimatedMinutes": 85,
   "difficulty": "beginner",
   "prerequisites": [
     "js.basics-types-control-flow"
@@ -22,7 +22,8 @@
     "Use map, filter, reduce, find, some and every correctly on datasets.",
     "Extract, rename and default object properties with destructuring.",
     "Create shallow copies and transform objects without confusing a copy with deep immutability.",
-    "Build small, composable data-processing functions and explain their behavior."
+    "Build small, composable data-processing functions and explain their behavior.",
+    "Explain lexical scope and closures, including why functions resolve names from where they are created."
   ],
   "tags": [
     "javascript",
@@ -101,7 +102,7 @@
       "id": "scope-and-lexical-environments",
       "type": "heading",
       "level": 2,
-      "text": "Deep dive: scope and lexical environments"
+      "text": "Optional deep dive: scope and lexical environments"
     },
     {
       "id": "scope-vs-environment",
@@ -130,7 +131,7 @@
           "title": "Create a local binding that shadows the global one",
           "lineStart": 1,
           "lineEnd": 4,
-          "explanation": "There are two bindings named name: the global binding \"Alex\" and the local binding \"John\" inside start. The inner declaration shadows the outer declaration within start."
+          "explanation": "There are two bindings named name: the outer binding \"Alex\" and the local binding \"John\" inside start. The inner declaration shadows the outer binding within start."
         },
         {
           "title": "Create greet inside start's lexical environment",
