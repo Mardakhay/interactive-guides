@@ -97,7 +97,7 @@ See `docs/README.md`. Key living docs include `CURRENT_STATE.md`, `ARCHITECTURE.
 2. Improve the coding practice workflow: draft persistence is present, but only HTML preview exists; decide on a Worker-based JavaScript playground with explicit network limits and correct timeout semantics.
 3. Fully review the 25 structured lessons against the Notion notes and legacy HTML sources; all current lessons remain editorial pilots in `review` state.
 4. Localize the remaining legacy app shell and continue mobile/accessibility verification using the existing tests and preview deployment.
-5. Add versioned local-storage migrations and user-owned export/import before cloud sync; clarify storage failures instead of silently dropping drafts.
+5. Keep the existing validated JSON export/import workflow; add explicit schema-version migrations and visible autosave/quota-failure recovery before cloud sync.
 6. Validate PWA install/offline behavior and service-worker update lifecycle on supported real devices/browsers.
 7. Add Supabase only after local contracts stabilize and dedicated project/cost intent is agreed.
 8. Keep PR #1 in draft until editorial review, tests and scope are sufficient.
