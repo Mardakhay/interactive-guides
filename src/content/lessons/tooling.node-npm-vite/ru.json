@@ -268,7 +268,7 @@
     },
     {
       "id": "knowledge-check-3",
-      "type": "multi-select",
+      "type": "knowledgeCheck",
       "questionType": "multi-select",
       "prompt": "Which statements about project tooling are accurate? Select all that apply.",
       "options": [
