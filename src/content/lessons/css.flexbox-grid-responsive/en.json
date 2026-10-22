@@ -203,13 +203,13 @@
         {
           "title": "Add breakpoints when content can support more columns",
           "lineStart": 12,
-          "lineEnd": 16,
+          "lineEnd": 22,
           "explanation": "At 48rem this example uses two columns; at 72rem it uses three. The values are illustrative starting points, not universally correct breakpoint values. Test where the actual cards stop having comfortable width."
         },
         {
           "title": "Why mobile-first helps",
           "lineStart": 1,
-          "lineEnd": 20,
+          "lineEnd": 22,
           "explanation": "Base rules describe the smallest supported layout and min-width media queries layer in more columns as space grows. This keeps narrow-screen behavior explicit and avoids overriding a desktop-first layout with many max-width rules."
         }
       ]

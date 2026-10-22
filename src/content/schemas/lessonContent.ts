@@ -65,6 +65,24 @@ const codeWalkthroughBlockSchema = z.object({
   language: z.string().min(1),
   code: z.string(),
   steps: z.array(walkthroughStepSchema).min(1),
+}).superRefine((block, ctx) => {
+  const lineCount = block.code.split('\\n').length;
+  block.steps.forEach((step, index) => {
+    if (step.lineStart !== undefined && step.lineStart > lineCount) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['steps', index, 'lineStart'],
+        message: `lineStart exceeds the code's ${lineCount} lines`,
+      });
+    }
+    if (step.lineEnd !== undefined && step.lineEnd > lineCount) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['steps', index, 'lineEnd'],
+        message: `lineEnd exceeds the code's ${lineCount} lines`,
+      });
+    }
+  });
 });
 
 const knowledgeOptionSchema = z.object({

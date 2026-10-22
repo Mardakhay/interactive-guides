@@ -94,3 +94,15 @@ describe('Flexbox, Grid and responsive design lesson translation', () => {
     expect(russianLayout.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
+
+describe('code walkthrough line references', () => {
+  it('rejects a walkthrough step that points beyond the sample code', () => {
+    const invalidLesson = structuredClone(englishForms);
+    const walkthrough = invalidLesson.blocks.find((block) => block.id === 'basic-form');
+    if (!walkthrough || walkthrough.type !== 'codeWalkthrough') {
+      throw new Error('Pilot fixture is missing the form walkthrough');
+    }
+    walkthrough.steps[0]!.lineEnd = walkthrough.code.split('\\n').length + 1;
+    expect(lessonTranslationSchema.safeParse(invalidLesson).success).toBe(false);
+  });
+});

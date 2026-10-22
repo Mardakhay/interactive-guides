@@ -172,8 +172,8 @@
         },
         {
           "title": "The selector can affect a nested title",
-          "lineStart": 13,
-          "lineEnd": 20,
+          "lineStart": 19,
+          "lineEnd": 19,
           "explanation": "The class sets a reusable default title color. The ID-plus-class selector overrides it for the featured card under the cascade conditions explained above."
         }
       ]
