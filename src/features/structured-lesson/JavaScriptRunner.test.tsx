@@ -48,7 +48,7 @@ describe('JavaScriptRunner', () => {
     expect(source).toContain('new AsyncFunction');
     expect(source).toContain('Network access is disabled');
     expect(source).toContain('XMLHttpRequest is disabled');
-    expect(source).toContain('importScripts is disabled');
+    expect(source).toContain('Loading external scripts is disabled');
     expect(source).toContain('nativePostMessage');
   });
 
@@ -82,7 +82,7 @@ describe('JavaScriptRunner', () => {
     act(() => vi.advanceTimersByTime(1_500));
 
     expect(worker?.terminated).toBe(true);
-    expect(screen.getByText(/worker was terminated after 1.5 seconds/i)).toBeTruthy();
+    expect(screen.getAllByText(/worker was terminated after 1.5 seconds/i).length).toBeGreaterThan(0);
   });
 
   it('does not embed learner source into the worker bootstrap script', () => {
