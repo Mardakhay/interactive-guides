@@ -10,7 +10,7 @@
   "order": 0,
   "title": "Функции, массивы и объекты",
   "description": "Научись составлять небольшие функции и предсказуемо преобразовывать наборы данных. Разбери function declaration, function expression и стрелочные функции; выбирай map, filter, reduce, find, some или every по типу результата; работай с объектами через деструктуризацию и spread без случайных мутаций.",
-  "estimatedMinutes": 90,
+  "estimatedMinutes": 85,
   "difficulty": "beginner",
   "prerequisites": [
     "js.basics-types-control-flow"
@@ -102,7 +102,7 @@
       "id": "scope-and-lexical-environments",
       "type": "heading",
       "level": 2,
-      "text": "Углубление: scope и Lexical Environment"
+      "text": "Дополнительное углубление: scope и Lexical Environment"
     },
     {
       "id": "scope-vs-environment",
