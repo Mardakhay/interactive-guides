@@ -1,12 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import englishLesson from '../lessons/html-document-structure/en.json';
 import russianLesson from '../lessons/html-document-structure/ru.json';
+import englishForms from '../lessons/html.forms-accessibility/en.json';
+import russianForms from '../lessons/html.forms-accessibility/ru.json';
 import { lessonTranslationSchema } from './lessonContent';
 
 describe('structured lesson content', () => {
   it('accepts both pilot lesson translations', () => {
     expect(lessonTranslationSchema.safeParse(englishLesson).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianLesson).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(englishForms).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianForms).success).toBe(true);
   });
 
   it('keeps stable lesson identity and equivalent content structure across locales', () => {
@@ -43,5 +47,18 @@ describe('structured lesson content', () => {
     invalidLesson.blocks = invalidLesson.blocks.filter((block) => block.type !== 'references');
 
     expect(lessonTranslationSchema.safeParse(invalidLesson).success).toBe(false);
+  });
+});
+
+describe('HTML forms and accessibility lesson translation', () => {
+  it('uses the same stable block structure in English and Russian', () => {
+    expect(englishForms.id).toBe(russianForms.id);
+    expect(englishForms.moduleId).toBe('month-1-week-2');
+    expect(englishForms.week).toBe(2);
+    expect(englishForms.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianForms.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianForms.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });

@@ -65,7 +65,9 @@
             "Build login and registration form layouts",
             "Connect labels to controls and test keyboard access"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "html.forms-accessibility"
+          ]
         },
         {
           "id": "month-1-week-3",

@@ -1,5 +1,7 @@
 import englishPilot from './lessons/html-document-structure/en.json';
 import russianPilot from './lessons/html-document-structure/ru.json';
+import englishForms from './lessons/html.forms-accessibility/en.json';
+import russianForms from './lessons/html.forms-accessibility/ru.json';
 import englishCurriculum from './curriculum/bootcamp-core.en.json';
 import russianCurriculum from './curriculum/bootcamp-core.ru.json';
 import { bootcampCurriculumSchema } from './schemas/curriculum';
@@ -11,6 +13,8 @@ export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 const lessonTranslations = [
   lessonTranslationSchema.parse(englishPilot),
   lessonTranslationSchema.parse(russianPilot),
+  lessonTranslationSchema.parse(englishForms),
+  lessonTranslationSchema.parse(russianForms),
 ] as const;
 
 const curricula = {

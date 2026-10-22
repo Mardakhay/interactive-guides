@@ -1,0 +1,394 @@
+{
+  "id": "html.forms-accessibility",
+  "locale": "ru",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-22",
+  "moduleId": "month-1-week-2",
+  "week": 2,
+  "order": 2,
+  "title": "HTML-формы и основы доступности",
+  "description": "Разберись, как браузер собирает и отправляет данные формы, связывает подписи с элементами управления, проверяет встроенные ограничения, группирует связанные варианты и обеспечивает работу с клавиатуры и вспомогательных технологий.",
+  "estimatedMinutes": 45,
+  "difficulty": "beginner",
+  "prerequisites": [
+    "html.document-structure"
+  ],
+  "learningOutcomes": [
+    "Объяснять назначение form, action и method.",
+    "Связывать видимую подпись с полем через for и id.",
+    "Различать id, name, placeholder, required, type и autocomplete.",
+    "Выбирать подходящие элементы формы и группировать связанные варианты radio.",
+    "Создавать форму регистрации и проверять её доступность с клавиатуры."
+  ],
+  "tags": [
+    "html",
+    "forms",
+    "accessibility",
+    "validation",
+    "semantics"
+  ],
+  "blocks": [
+    {
+      "id": "form-purpose",
+      "type": "heading",
+      "level": 2,
+      "text": "Для чего нужны формы"
+    },
+    {
+      "id": "form-purpose-body",
+      "type": "paragraph",
+      "text": "Форма — это встроенный в браузер способ собрать связанные значения и отправить их в виде запроса. Элементы формы — не просто стилизованные поля: у каждого есть назначение, состояние, ограничения и способ представить его значение при отправке. Форма входа, поиска и адреса может выглядеть по-разному, но основана на одной модели: элементы собирают значения, ограничения могут блокировать неверную отправку, а форма определяет, куда и каким способом уйдут данные."
+    },
+    {
+      "id": "form-mental-model",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Разделяй четыре вопроса",
+      "text": "Какой элемент собирает значение? Какая подпись объясняет его назначение? Какое имя определяет значение в отправляемых данных? Какой адрес принимает запрос? Это разные задачи. Путаница между ними приводит к формам, которые выглядят правильно, но неудобны или отправляют не те данные."
+    },
+    {
+      "id": "form-contract",
+      "type": "heading",
+      "level": 2,
+      "text": "Элемент form и правила отправки"
+    },
+    {
+      "id": "form-contract-body",
+      "type": "paragraph",
+      "text": "В примере используется условный серверный маршрут. Он демонстрирует HTML-структуру, но не создаст аккаунт, пока не появится настоящий серверный endpoint. HTML описывает поведение браузера, а не реализацию backend."
+    },
+    {
+      "id": "basic-form",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<form action=\"/signup\" method=\"post\">\n  <div>\n    <label for=\"full-name\">Полное имя</label>\n    <input id=\"full-name\" name=\"fullName\" type=\"text\" autocomplete=\"name\" required>\n  </div>\n  <div>\n    <label for=\"email\">Электронная почта</label>\n    <input id=\"email\" name=\"email\" type=\"email\" autocomplete=\"email\" required>\n  </div>\n  <div>\n    <label for=\"password\">Пароль</label>\n    <input id=\"password\" name=\"password\" type=\"password\" autocomplete=\"new-password\" minlength=\"12\" required>\n  </div>\n  <button type=\"submit\">Создать аккаунт</button>\n</form>",
+      "steps": [
+        {
+          "title": "form, action и method",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "Form объединяет элементы в одну отправку. Action задаёт целевой URL, а method определяет способ отправки запроса. Маршрут /signup условный: сервер должен реализовать его, прежде чем форма сможет создать аккаунт."
+        },
+        {
+          "title": "label и for",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "Значение for у label совпадает с id поля. Эта явная связь делает подпись кликабельной и задаёт доступное имя элемента. Видимая подпись остаётся доступной, когда пользователь вводит текст."
+        },
+        {
+          "title": "id и name",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "Id идентифицирует элемент в документе и используется для связи с label. Name задаёт имя значения в отправляемых данных. Элемент с id и label, но без name, обычно не отправляет именованное значение."
+        },
+        {
+          "title": "type, required и autocomplete",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "Type=email сообщает браузеру назначение поля и включает базовую проверку формата. Required блокирует пустое значение. Autocomplete=email помогает браузеру и менеджеру паролей распознать поле. Это не заменяет серверную валидацию."
+        },
+        {
+          "title": "Ограничения поля пароля",
+          "lineStart": 12,
+          "lineEnd": 12,
+          "explanation": "Type=password маскирует символы, но не шифрует значение. Autocomplete=new-password обозначает новый пароль, а minlength добавляет клиентское ограничение, которое нужно повторить на сервере."
+        },
+        {
+          "title": "Явная кнопка отправки",
+          "lineStart": 14,
+          "lineEnd": 14,
+          "explanation": "Type=submit отправляет форму, когда встроенная проверка проходит. Явный тип делает поведение предсказуемым, когда позже появятся другие кнопки."
+        }
+      ]
+    },
+    {
+      "id": "action-method",
+      "type": "paragraph",
+      "text": "GET помещает отправленные значения в query string URL и подходит для повторяемых запросов без секретов, например поиска и фильтров. POST отправляет данные в теле запроса и часто применяется, когда запрос создаёт или изменяет серверное состояние. POST не является шифрованием: данные при передаче защищает HTTPS, а серверная авторизация и проверка данных всё равно необходимы. Не передавай пароли и другие секреты в GET-параметрах URL."
+    },
+    {
+      "id": "form-data",
+      "type": "heading",
+      "level": 2,
+      "text": "Как элемент участвует в отправке данных"
+    },
+    {
+      "id": "form-data-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "name задаёт ключ значения элемента в отправляемых данных; id идентифицирует элемент документа и не заменяет name.",
+        "Отключённые элементы disabled не отправляются. Элементы readonly ведут себя иначе и могут участвовать в отправке.",
+        "Неотмеченные checkbox и radio не отправляются как выбранные значения.",
+        "Select отправляет value выбранного option. Указывай value, если передаваемое значение должно отличаться от видимой подписи.",
+        "Содержимое textarea является её значением. Placeholder — только подсказка и не должен содержать важные инструкции."
+      ]
+    },
+    {
+      "id": "labels",
+      "type": "heading",
+      "level": 2,
+      "text": "Подписи — не украшение"
+    },
+    {
+      "id": "labels-body",
+      "type": "paragraph",
+      "text": "Label объясняет назначение поля. Распространённый способ — явная связь label for=\"email\" с input id=\"email\". Значения должны совпадать, а id должен быть уникальным в документе. Подпись также может неявно содержать элемент управления, но используй один понятный шаблон последовательно. Placeholder может показывать необязательный пример, но обычно исчезает при вводе и не заменяет видимую подпись."
+    },
+    {
+      "id": "placeholder-warning",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Placeholder не заменяет label",
+      "text": "Поле, которое содержит только надпись «Адрес электронной почты» внутри, может стать непонятным после ввода текста. Оставляй видимую подпись, а placeholder используй для дополнительного примера, например name@example.com."
+    },
+    {
+      "id": "input-types",
+      "type": "heading",
+      "level": 2,
+      "text": "Выбирай тип input в зависимости от данных"
+    },
+    {
+      "id": "input-types-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "text собирает однострочный произвольный текст.",
+        "email задаёт семантический тип адреса электронной почты и включает базовую встроенную проверку.",
+        "password маскирует отображаемые символы, но не шифрует значение.",
+        "number предназначен для числовых величин; телефонный номер — идентификатор, а не количество.",
+        "checkbox — независимый отмечаемый вариант.",
+        "radio — один выбор из вариантов с общим name.",
+        "select выбирает из ограниченного списка; textarea собирает многострочный текст."
+      ]
+    },
+    {
+      "id": "grouping",
+      "type": "heading",
+      "level": 2,
+      "text": "Группируй связанные элементы с fieldset и legend"
+    },
+    {
+      "id": "grouping-body",
+      "type": "paragraph",
+      "text": "Когда несколько элементов относятся к одному вопросу — например, выбор способа связи, — объедини их через fieldset и опиши группу с помощью legend. У каждого элемента должны быть собственные id и label. Radio-варианты одной группы используют одинаковый name, чтобы браузер трактовал их как взаимоисключающий выбор."
+    },
+    {
+      "id": "radio-group-example",
+      "type": "code",
+      "language": "html",
+      "caption": "Доступная группа radio",
+      "code": "<fieldset>\n  <legend>Предпочтительный способ связи</legend>\n  <div>\n    <input id=\"contact-email\" name=\"contactMethod\" type=\"radio\" value=\"email\" checked>\n    <label for=\"contact-email\">Электронная почта</label>\n  </div>\n  <div>\n    <input id=\"contact-phone\" name=\"contactMethod\" type=\"radio\" value=\"phone\">\n    <label for=\"contact-phone\">Телефон</label>\n  </div>\n</fieldset>"
+    },
+    {
+      "id": "buttons",
+      "type": "heading",
+      "level": 2,
+      "text": "Кнопки внутри форм"
+    },
+    {
+      "id": "buttons-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "button type=\"submit\" отправляет связанную форму.",
+        "button type=\"button\" не отправляет форму автоматически; он предназначен для отдельного действия, часто реализуемого через JavaScript.",
+        "button type=\"reset\" возвращает поля к исходным значениям. Используй его только при реальной необходимости.",
+        "Если тип кнопки внутри формы не указан, её стандартное поведение обычно означает отправку. Указывай type явно."
+      ]
+    },
+    {
+      "id": "native-validation",
+      "type": "heading",
+      "level": 2,
+      "text": "Встроенная валидация и доступные сообщения об ошибках"
+    },
+    {
+      "id": "native-validation-body",
+      "type": "paragraph",
+      "text": "Атрибуты required, type=email, minlength, maxlength, min, max и pattern позволяют браузеру проверить некоторые ограничения до отправки. Браузер может сфокусировать неверное поле и показать сообщение. Эти проверки можно обойти, поэтому сервер должен повторять важную валидацию. В собственной валидации описывай проблему текстом, связывай сообщение с полем через aria-describedby и делай динамические ошибки доступными, когда они появляются или исчезают."
+    },
+    {
+      "id": "keyboard-review",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Дай каждому полю видимую подпись и подходящий name.",
+        "Помечай обязательные поля и объясняй необычные ограничения видимым текстом.",
+        "Не сообщай об ошибках только цветом.",
+        "После неудачной проверки укажи поле и способ исправления, например: «Введи адрес в формате name@example.com».",
+        "Проверь форму клавишами Tab, Shift+Tab, Space, стрелками для radio-групп и Enter для отправки."
+      ]
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Какой атрибут задаёт ключ значения input в отправляемых данных формы?",
+      "options": [
+        {
+          "id": "a",
+          "text": "name",
+          "correct": true,
+          "feedback": "The name attribute supplies the control's key in submitted form data."
+        },
+        {
+          "id": "b",
+          "text": "id",
+          "correct": false,
+          "feedback": "The id identifies an element in the document and can associate it with a label."
+        },
+        {
+          "id": "c",
+          "text": "placeholder",
+          "correct": false,
+          "feedback": "Placeholder provides a hint inside a control; it does not identify the submitted value."
+        },
+        {
+          "id": "d",
+          "text": "autocomplete",
+          "correct": false,
+          "feedback": "Autocomplete helps the browser recognize or fill a value, but it is not the submitted field key."
+        }
+      ],
+      "explanation": "Keep the document identifier (id), submitted-data key (name), hint (placeholder), and autofill hint (autocomplete) separate."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "Атрибут type=\"password\" шифрует значение поля перед отправкой формы браузером.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "Password inputs visually mask characters; the input type does not encrypt the value."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "The input type changes presentation and semantics, not transport encryption. Use HTTPS and appropriate server-side security."
+        }
+      ],
+      "explanation": "Visual masking, transport encryption, and server-side credential handling solve different problems."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Какие практики улучшают семантику и удобство формы? Выбери все подходящие варианты.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Associate a visible label with each control",
+          "correct": true,
+          "feedback": "An associated label communicates the control's purpose."
+        },
+        {
+          "id": "b",
+          "text": "Use placeholder as the only description of a field",
+          "correct": false,
+          "feedback": "Placeholder disappears during typing and is not a reliable replacement for a label."
+        },
+        {
+          "id": "c",
+          "text": "Group related radio choices with fieldset and legend",
+          "correct": true,
+          "feedback": "Fieldset and legend establish a semantic group and its shared question."
+        },
+        {
+          "id": "d",
+          "text": "Rely on browser validation instead of server checks",
+          "correct": false,
+          "feedback": "Client-side checks help usability but are not the sole validation or security boundary."
+        }
+      ],
+      "explanation": "Good form UX combines semantic labels and groups with validation on both client and server boundaries."
+    },
+    {
+      "id": "practice-registration-form",
+      "type": "codingExercise",
+      "title": "Создай доступную форму регистрации",
+      "language": "html",
+      "context": "Create a registration form for a fictional learning platform. Focus on labels, native browser behavior, and semantic grouping. No backend is needed; the action URL is illustrative.",
+      "instructions": [
+        "Create fields for full name, email, and password.",
+        "Give each field a visible label, a unique id, and a meaningful name.",
+        "Choose appropriate input types and autocomplete values; mark required fields.",
+        "Add a fieldset/legend group for a preferred contact method with two radio choices.",
+        "Add a terms checkbox with a visible associated label.",
+        "Add a submit button with an explicit type.",
+        "Open the page and test each control using only the keyboard."
+      ],
+      "requirements": [
+        "The form has action and an explicit method; if there is no backend, the endpoint is clearly illustrative.",
+        "Every control has an accessible name.",
+        "Radio options share one name but have different values and ids.",
+        "Labels are associated with controls and are not replaced by placeholders.",
+        "Native validation blocks empty required values and checks email format.",
+        "Keyboard focus is visible and controls can be operated without a mouse."
+      ],
+      "starterCode": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>Create an account</title>\n  </head>\n  <body>\n    <main>\n      <h1>Create an account</h1>\n      <!-- Build your form here. -->\n    </main>\n  </body>\n</html>",
+      "hints": [
+        "Decide each control's id, name, type, and visible label before styling it.",
+        "Mutually exclusive radio options share a name and have different values.",
+        "Press Tab from the start of the page to verify a logical focus order."
+      ],
+      "successCriteria": [
+        "The document has a complete HTML shell and a semantic main region.",
+        "Every control has an explicit label association and a submitted-data name.",
+        "required and email fields trigger native validation when invalid.",
+        "Radio options are semantically grouped and behave as one choice.",
+        "The form can be understood and operated using a keyboard.",
+        "You can explain what the browser validates and what the server must validate."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Form задаёт место и метод отправки; элементы управления собирают значения.",
+        "Label и id связывают подпись с полем; name является ключом значения в отправляемых данных.",
+        "Placeholder — подсказка, а не подпись. Встроенные ограничения улучшают удобство, но не обеспечивают безопасность сервера.",
+        "Используй fieldset/legend для связанных элементов и явно указывай типы кнопок.",
+        "Доступность включает доступные имена, контекст группы, работу с клавиатуры, видимый фокус и понятные ошибки."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Your first form",
+          "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Your_first_form",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: label element",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/label",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: input element",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: fieldset element",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/fieldset",
+          "kind": "official-docs"
+        },
+        {
+          "title": "W3C WAI: Forms Concepts",
+          "url": "https://www.w3.org/WAI/tutorials/forms/",
+          "kind": "standard"
+        }
+      ]
+    }
+  ]
+}

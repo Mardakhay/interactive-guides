@@ -5,7 +5,7 @@ describe('structured content repository', () => {
   it('returns equivalent lesson IDs in both supported locales', () => {
     expect(getStructuredLesson('html.document-structure', 'en')?.locale).toBe('en');
     expect(getStructuredLesson('html.document-structure', 'ru')?.locale).toBe('ru');
-    expect(getStructuredLessonIds()).toEqual(['html.document-structure']);
+    expect(getStructuredLessonIds().sort()).toEqual(['html.document-structure', 'html.forms-accessibility']);
   });
 
   it('returns localized curriculum while preserving the canonical week IDs', () => {
@@ -20,7 +20,10 @@ describe('structured content repository', () => {
 
   it('links the HTML pilot to its Week 1 curriculum record', () => {
     expect(getWeekForLesson('html.document-structure', 'en')?.id).toBe('month-1-week-1');
+    expect(getWeekForLesson('html.forms-accessibility', 'ru')?.id).toBe('month-1-week-2');
+    expect(getStructuredLesson('html.forms-accessibility', 'en')?.title).toContain('Forms');
     expect(getCurriculumWeek('month-1-week-1', 'ru')?.lessonIds).toContain('html.document-structure');
+    expect(getCurriculumWeek('month-1-week-2', 'ru')?.lessonIds).toContain('html.forms-accessibility');
   });
 
   it('returns no lesson for an unknown ID without throwing', () => {
