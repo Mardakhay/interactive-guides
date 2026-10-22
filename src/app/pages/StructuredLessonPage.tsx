@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Clock3, Languages, RotateCcw } from 'lucide-react';
-import { getAdjacentStructuredLessons, getBootcampCurriculum, getStructuredLesson, getWeekForLesson, SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
+import { getAdjacentStructuredLessons, getBootcampCurriculum, getStructuredLesson, getWeekForLesson, getSupplementaryTrackForLesson, SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
 import { StructuredLessonRenderer } from '@/features/structured-lesson/StructuredLessonRenderer';
 import { useProgressStore } from '@/features/progress';
 
@@ -15,6 +15,7 @@ export default function StructuredLessonPage() {
   const locale: SupportedLocale = isLocaleSupported ? localeParam : 'en';
   const lesson = lessonId ? getStructuredLesson(lessonId, locale) : undefined;
   const week = lesson ? getWeekForLesson(lesson.id, locale) : undefined;
+  const supplementaryTrack = lesson && !week ? getSupplementaryTrackForLesson(lesson.id, locale) : undefined;
   const curriculum = getBootcampCurriculum(locale);
   const month = week ? curriculum.months.find((item) => item.weeks.some((entry) => entry.id === week.id)) : undefined;
   const adjacent = lesson ? getAdjacentStructuredLessons(lesson.id, locale) : { previous: undefined, next: undefined };
@@ -150,7 +151,21 @@ export default function StructuredLessonPage() {
 
       <div className="mt-8 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_15rem]">
         <div className="min-w-0 rounded-2xl border border-neutral-200 bg-white p-4 shadow-subtle sm:p-7 lg:p-9">
-          <StructuredLessonRenderer lesson={lesson} />
+          
+        {supplementaryTrack && (
+          <section id="supplementary-context-panel" className="mt-4 rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5" aria-labelledby="supplementary-context-title">
+            <p className="text-xs font-semibold uppercase tracking-wide text-primary-700">
+              {locale === 'ru' ? 'Дополнительный учебный трек' : 'Supplementary learning track'}
+            </p>
+            <h2 id="supplementary-context-title" className="mt-1 text-sm font-semibold text-neutral-900">{supplementaryTrack.title}</h2>
+            <p className="mt-2 text-sm leading-6 text-neutral-600">{supplementaryTrack.note}</p>
+            <h3 className="mt-3 text-xs font-semibold text-neutral-700">{locale === 'ru' ? 'Темы трека' : 'Track topics'}</h3>
+            <ul className="mt-1 list-disc space-y-1 pl-4 text-sm leading-5 text-neutral-600">
+              {supplementaryTrack.topics.map((topic) => <li key={topic}>{topic}</li>)}
+            </ul>
+          </section>
+        )}
+<StructuredLessonRenderer lesson={lesson} />
         </div>
         <aside className="min-w-0 lg:sticky lg:top-20 lg:self-start">
           <details className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-subtle lg:hidden">

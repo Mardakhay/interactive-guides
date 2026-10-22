@@ -120,6 +120,59 @@ export default function CoursesPage() {
           ))}
         </div>
       </section>
+
+      <section className="space-y-4" aria-labelledby="supplementary-tracks-title">
+        <div className="space-y-1">
+          <h2 id="supplementary-tracks-title" className="text-xl font-semibold text-neutral-900">
+            {locale === 'ru' ? 'Дополнительные учебные треки' : 'Supplementary learning tracks'}
+          </h2>
+          <p className="max-w-3xl text-sm leading-6 text-neutral-600">
+            {locale === 'ru'
+              ? 'Необязательные углублённые темы расширяют курс, не меняя последовательность 24 основных недель.'
+              : 'Optional deep dives extend the course without changing the sequence of the 24 core weeks.'}
+          </p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {curriculum.supplementaryTracks.map((track) => (
+            <article key={track.id} className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-subtle sm:p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary-700">
+                {locale === 'ru' ? 'Дополнительный трек' : 'Supplementary track'}
+              </p>
+              <h3 className="mt-1 text-sm font-semibold text-neutral-900">{track.title}</h3>
+              <p className="mt-2 text-sm leading-5 text-neutral-600">{track.note}</p>
+              <h4 className="mt-3 text-xs font-semibold text-neutral-700">{locale === 'ru' ? 'Темы' : 'Topics'}</h4>
+              <ul className="mt-1 list-disc space-y-1 pl-4 text-xs leading-5 text-neutral-600">
+                {track.topics.map((topic) => <li key={topic}>{topic}</li>)}
+              </ul>
+              <div className="mt-4 space-y-2">
+                {track.lessonIds.map((lessonId) => {
+                  const lesson = getStructuredLesson(lessonId, locale);
+                  return lesson ? (
+                    <Link
+                      key={lessonId}
+                      to={`/${locale}/structured-lessons/${lesson.id}`}
+                      className="block rounded-xl border border-neutral-200 p-3 text-sm font-medium text-primary-800 transition hover:border-primary-300 hover:bg-primary-50/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+                    >
+                      <span>{lesson.title}</span>
+                      <span className="mt-1 block text-xs font-normal leading-5 text-neutral-600">{lesson.description}</span>
+                      <span className="mt-2 block text-xs font-semibold">
+                        {lesson.status === 'published'
+                          ? (locale === 'ru' ? 'Опубликовано' : 'Published')
+                          : (locale === 'ru' ? 'На редакционной проверке' : 'Under review')}
+                      </span>
+                    </Link>
+                  ) : (
+                    <p key={lessonId} className="text-xs text-neutral-500">
+                      {locale === 'ru' ? 'Материал пока готовится.' : 'Lesson content is planned.'}
+                    </p>
+                  );
+                })}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
     </div>
   );
 }

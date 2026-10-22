@@ -9,7 +9,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import type { SearchableContent, SearchableLesson, SearchableCourse, SearchableNote } from '@/features/search';
 import { useLocaleStore } from '@/stores/localeStore';
 import { UI_COPY, getCategoryCopy, getDifficultyLabel } from '@/lib/i18n';
-import { getStructuredLesson, getStructuredLessonIds, getWeekForLesson } from '@/content/repository';
+import { getStructuredLesson, getStructuredLessonIds, getWeekForLesson, getSupplementaryTrackForLesson } from '@/content/repository';
 
 const DEBOUNCE_DELAY_MS = 200;
 const MIN_QUERY_LENGTH = 2;
@@ -35,12 +35,13 @@ export default function SearchPage() {
       const lesson = getStructuredLesson(id, locale);
       if (!lesson) return [];
       const week = getWeekForLesson(id, locale);
+      const supplementaryTrack = week ? undefined : getSupplementaryTrackForLesson(id, locale);
       return [{
         id: lesson.id,
         title: lesson.title,
         description: [lesson.description, ...lesson.learningOutcomes, ...lesson.tags].join(' '),
-        categoryId: week?.id ?? 'structured-curriculum',
-        category: week?.title ?? UI_COPY[locale].structuredCurriculum.title,
+        categoryId: week?.id ?? supplementaryTrack?.id ?? 'structured-curriculum',
+        category: week?.title ?? supplementaryTrack?.title ?? UI_COPY[locale].structuredCurriculum.title,
         difficulty: getDifficultyLabel(locale, lesson.difficulty),
         durationMinutes: lesson.estimatedMinutes,
         path: `/${locale}/structured-lessons/${lesson.id}`,
