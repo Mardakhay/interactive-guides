@@ -26,7 +26,7 @@ describe('SearchPage structured lessons', () => {
   it('finds a structured lesson through its learning content', async () => {
     useLocaleStore.setState({ locale: 'en' });
     render(<MemoryRouter><SearchPage /></MemoryRouter>);
-    fireEvent.change(screen.getByRole('textbox', { name: 'Search' }), { target: { value: 'event.target' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Search' }), { target: { value: 'bubbling' } });
     const resultLink = await screen.findByRole('link', { name: /DOM and Browser Events/ });
     expect(resultLink.getAttribute('href')).toBe('/en/structured-lessons/js.dom-events');
   });
