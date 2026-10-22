@@ -131,3 +131,15 @@ The sections above record the original audit of `main` and remain useful as a ba
 - Add data/content contract tests before bulk content migration.
 - No service-role key or secret may be shipped to browser code.
 - Do not make cloud accounts mandatory for anonymous/local learning.
+
+
+## Working-branch checkpoint update — 2026-10-22
+
+The original audit above describes `main` at the time it was inspected; the feature branch now has a more complete structured-content and persistence foundation.
+
+- The canonical curriculum has 26 EN/RU structured lesson pairs (52 locale files). A static audit found no structural issues with ordered block parity, duplicate IDs, walkthrough ranges, quiz answer shape, or practice scaffolding; see `docs/CONTENT_AUDIT.md`.
+- Structured content remains in editorial `review` status. Legacy HTML source reconciliation and source-link verification are still pending.
+- Section-level lesson progress, local quiz/draft/checklist state, validated backup export/import with merge rules, and localized storage-failure warnings are implemented.
+- HTML preview runs with scripts disabled; JS/TS code execution is not implemented yet.
+- GitHub Actions run [#185](https://github.com/Mardakhay/interactive-guides/actions/runs/39778390430) passed the exact checkpoint SHA `d8676ba3b4813ea8d9e9483f0436704e53a9a42a`. Recheck the next commit after this documentation update.
+- Remaining highest-value work: sandboxed JS runner with hard-stop semantics, full app-shell localization/design consolidation, editorial migration review, explicit local-data migrations/recovery, and real-device PWA tests.

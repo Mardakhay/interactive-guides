@@ -17,6 +17,7 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Add structured bilingual lessons for all 24 core weeks (26 lesson IDs: Week 1 splits web fundamentals and HTML; Week 8 splits async/Fetch and Git).
 - [x] Add tests for schema invariants, bilingual lesson structure, curriculum order, repository lookups and walkthrough line references.
 - [x] Add a full-course EN/RU block-structure and knowledge-check presence invariant.
+- [x] Run a static audit of 26 bilingual lesson pairs for block identity, walkthrough ranges, quiz answer structure, and practice completeness (`CONTENT_AUDIT.md`).
 - [ ] Map all legacy lesson files to exact curriculum/sub-track lesson IDs.
 - [ ] Add a content editorial/review/publishing checklist and workflow.
 - Acceptance: content loads only through schema validation, canonical ordering is stable, and CI validates content invariants.
@@ -39,8 +40,9 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Add sandboxed HTML preview.
 - [x] Persist structured quiz attempts, code drafts and self-review checklists locally.
 - [x] Validate code-walkthrough line references against sample length.
-- [ ] Persist section completion and a richer review queue.
-- [ ] Add a JavaScript/TypeScript runner with explicit execution restrictions; only HTML preview currently runs (with scripts disabled).
+- [x] Persist completed lesson sections with a version-tolerant schema; test preservation during draft reset and backup merge.
+- [ ] Add a richer review queue.
+- [ ] Add a JavaScript/TypeScript runner with explicit execution restrictions; only HTML preview currently runs (with scripts disabled). A proposed runner must support a hard-stop mechanism and explicitly document network/capability limits.
 - [ ] Add stronger coding-practice evidence; do not confuse a checklist tick with validated correctness.
 - [ ] Add explicit “retry/review” UX for weak quiz areas.
 - Acceptance: exercises are accessible and testable; mastery requires evidence beyond visiting a page.
@@ -54,7 +56,7 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Create structured bilingual content for the complete 24-week core syllabus.
 - [ ] Review each mapped legacy HTML source line-by-line and reconcile it against the replacement lesson; implementation is not proof of source parity.
 - [ ] Keep all source HTML until both locales of its replacement pass review.
-- All 24 core weeks now have structured bilingual content (26 lesson IDs); Week 1 now separately teaches Internet/URL/HTTP/DevTools before HTML. Editorial approval and line-by-line source parity remain pending.
+- All 24 core weeks now have structured bilingual content (26 lesson IDs). A static audit found no structural errors in the 52 EN/RU lesson files; this is not a substitute for semantic/source parity review. All lessons remain in `review` status.
 - Acceptance: a topic is only marked migrated when source checks, language parity, navigation, code and exercises pass.
 
 ## Phase 5 — Local-first persistence

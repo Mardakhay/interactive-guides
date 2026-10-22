@@ -4,108 +4,63 @@
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Base branch:** `main`  
 **Working branch:** `feat/learning-platform-foundation`  
-**Draft PR:** [#1 — structured bilingual lesson foundation](https://github.com/Mardakhay/interactive-guides/pull/1)
+**Draft PR:** [#1 — structured bilingual lesson foundation](https://github.com/Mardakhay/interactive-guides/pull/1)  
+**Checkpoint before this documentation refresh:** `d8676ba3b4813ea8d9e9483f0436704e53a9a42a`
 
 ## Project goal
 
-Rebuild Interactive Guides as a cohesive bilingual (English/Russian), mobile-friendly, PWA-ready learning platform based on the user's Notion learning notes, the supplied six-month / 24-week ABB Frontend Bootcamp syllabus, verified primary documentation, and useful existing code.
+Rebuild Interactive Guides as a cohesive English/Russian, mobile-first, PWA-ready learning platform based on the supplied ABB six-month / 24-week frontend syllabus, the user's Notion learning notes, verified primary documentation, and valuable existing code. Content should be deep but understandable: mental models, step-by-step mechanisms, worked examples, misconceptions, knowledge checks with feedback, and meaningful independent coding practice. Reading or clicking “complete” is not proof of mastery.
 
-Lessons must be deep but understandable: explain concepts and mechanisms, show worked examples, include knowledge checks and relevant coding practice, explain mistakes, and do not claim mastery just because content was opened. Scope includes HTML, CSS, browser fundamentals, JavaScript, Git, Node/npm/build/package tooling, TypeScript, React, architecture, testing, accessibility, performance, authentication, deployment and supplementary SQL/Supabase.
+## Verified architecture and content status
 
-## Existing app and migration strategy
+- Stack: React 18, TypeScript, Vite 5, Tailwind CSS, React Router, Zustand, Zod, Vitest/Testing Library and GitHub Actions.
+- Structured content has all 26 core lesson IDs in both EN and RU: 52 JSON locale files covering the six-month/24-week syllabus. Week 1 splits Internet/HTTP and HTML; Week 8 splits async/Fetch and Git.
+- Content is served by Zod-validated JSON from `src/content/lessons/<lesson-id>/<locale>.json`, with shared schema validation and a canonical curriculum in `src/content/curriculum/bootcamp-core.en.json` and `bootcamp-core.ru.json`.
+- `src/content/repository.ts` registers the structured lessons and provides curriculum lookup/adjacent lesson navigation.
+- `src/features/structured-lesson/StructuredLessonRenderer.tsx` renders lesson blocks. `src/app/pages/StructuredLessonPage.tsx` provides the structured lesson page with locale switching, curriculum navigation, and completion control.
+- All structured lessons are in editorial `review` status, not published/approved.
+- Static content audit found no block-ID duplicates, EN/RU ordered block-shape mismatches, invalid walkthrough line ranges, bad single-answer counts, duplicate quiz-option IDs, or incomplete practice task scaffolds in the 52 files. Full semantic/source parity is still unreviewed; see `docs/CONTENT_AUDIT.md`.
 
-- React 18 + TypeScript + Vite 5 + Tailwind 3.
-- React Router, Zustand, Zod, Vitest/Testing Library and GitHub Actions CI.
-- Existing features include dashboard, course catalog, legacy lesson reader, learning paths, bookmarks, notes, search, quizzes and coarse local progress.
-- Legacy source input: 25 standalone HTML documents in `public/lessons/*.html`.
-- Keep legacy source content until each replacement has been reviewed in both locales; the structured reader coexists with the old reader during migration.
+## Practice execution: current limitation
 
-## Structured content architecture
+- Coding exercises persist drafts and self-review checklist state locally; quiz attempts are tracked separately.
+- HTML preview exists and runs in an iframe with scripts disabled.
+- **There is no JavaScript/TypeScript execution runner in the current source tree.** Coding examples and starter code must be run in the learner's own project/environment. Do not describe JS/TS exercises as executed or automatically graded.
+- Next runner design should prioritize a real hard-stop mechanism for runaway synchronous code (e.g. a disposable Worker for pure JS), explicit restrictions on outbound network/capabilities, clear timeout/output limits, tests, and a truthful security note. A parent-page timeout around synchronous iframe code is not sufficient to guarantee the page remains responsive.
 
-- `src/content/schemas/lessonContent.ts`: typed Zod lesson blocks and translation metadata; validates knowledge-check answer keys, unique block IDs and code-walkthrough line boundaries.
-- `src/content/schemas/curriculum.ts`: validates the 6-month / 24-week order and unique identifiers.
-- `src/content/curriculum/bootcamp-core.en.json` and `bootcamp-core.ru.json`: canonical core syllabus, with supplementary topics explicitly separated.
-- `src/content/repository.ts`: validates content and returns lessons, curriculum order and available previous/next lessons.
-- `src/features/structured-lesson/StructuredLessonRenderer.tsx`: shared React renderer for text, lists, callouts, code, walkthroughs, knowledge checks, coding exercises and references.
-- `src/app/pages/StructuredLessonPage.tsx`: locale-aware structured reader at `/:locale/structured-lessons/:lessonId`.
+## Progress and data portability
 
-## Current structured lessons
+- Existing progress, notes, bookmarks and quiz-result stores remain in place.
+- Structured learner state stores quiz attempt history, code drafts, practice-review checklists, and completed lesson-section IDs.
+- The section progress schema defaults missing `sectionProgress` for older v1 records, and tests cover section-state preservation through draft reset and backup merge.
+- `src/features/data-portability/backup.ts` and the Data Management page provide validated JSON backup export/import with merge rules, including progress, notes, bookmarks, quiz results, structured attempts/drafts/checklists and selected preferences.
+- Storage write/removal failures are surfaced with a localized warning; explicit version-to-version migration and user-triggered retry/recovery still need work.
+- Cloud sync, Supabase Auth/RLS and cross-device synchronization are not implemented.
 
-All 26 canonical course lesson IDs have registered English and Russian JSON translations. The lessons are marked `review` and should not be treated as editorially approved/published. The full curriculum sequence is:
+## PWA and UI
 
-| Week | Lesson ID | Main scope |
-|---|---|---|
-| 1 | `web.internet-http` | Internet/Web, URL anatomy, DNS, HTTP requests/responses, status codes, HTTPS/TLS, Network DevTools |
-| 1 | `html.document-structure` | HTML shell, metadata, semantics, About Me practice |
-| 2 | `html.forms-accessibility` | Forms, labels, native validation, fieldsets and accessible errors |
-| 3 | `css.fundamentals` | Selectors, cascade/specificity, box model and display |
-| 4 | `css.flexbox-grid-responsive` | Flexbox, Grid, responsive layouts and mobile-first media queries |
-| 5 | `js.basics-types-control-flow` | Variables, types, coercion, branches and loops |
-| 6 | `js.functions-arrays-objects` | Functions, callbacks, array methods, objects, destructuring and spread |
-| 7 | `js.dom-events` | DOM tree, selectors, safe manipulation, events and a to-do list |
-| 8 | `js.async-fetch` | Promises, async/await, Fetch, HTTP failures and request states |
-| 8 | `git.fundamentals` | Staging, commits, remotes, push and .gitignore |
-| 9 | `tooling.node-npm-vite` | Node.js, npm, package.json, lockfiles, Vite, ESLint and Prettier |
-| 10 | `typescript.fundamentals` | Annotations, inference, unknown, unions, object types and generics |
-| 11 | `react.components-jsx-state` | Function components, JSX, props and useState |
-| 12 | `react.effects-lists-composition` | useEffect, cleanup, composition, keys and request states |
-| 13 | `react.router-spa` | SPA navigation, nested routes, URL parameters and not-found paths |
-| 14 | `react.forms-validation` | Controlled/uncontrolled forms, validation and accessible errors |
-| 15 | `react.context-shared-state` | Lifting state, prop drilling and Context API |
-| 16 | `react.api-custom-hooks` | API services, request lifecycle and custom Hooks |
-| 17 | `ui.design-systems` | Design tokens, reusable UI components and consistency |
-| 18 | `performance.accessibility` | Performance patterns, keyboard support and ARIA |
-| 19 | `testing.react-testing-library` | Vitest/Jest-style tests, Testing Library and user interactions |
-| 20 | `git.workflow-ci` | Branches, pull requests, reviews and CI |
-| 21 | `capstone.requirements-discovery` | User stories, requirements and acceptance criteria |
-| 22 | `capstone.design-architecture-planning` | Wireframes, component architecture, data flows and planning |
-| 23 | `capstone.implementation` | Integrated capstone implementation and tests |
-| 24 | `capstone.review-demo` | Refactoring, quality review, demo and release readiness |
+- Manifest, SVG icons, service worker registration, basic cache behavior, install/update UI, and offline status UI exist.
+- No real Android/iOS install/offline acceptance test has been completed.
+- The structured reader has localization, but the entire legacy app shell and all old content still need localization/design consolidation/accessibility review.
 
-Lessons live in `src/content/lessons/<lesson-id>/en.json` and `ru.json`, with the first HTML-document lesson retaining its hyphenated directory name. The repository and curriculum tests register all canonical lesson IDs and verify localized routing/order; individual content tests cover schemas, quiz rules, references and EN/RU block structure. The repository test now checks EN/RU block structure, knowledge checks and coding exercises across the full canonical lesson set. Editorial/source parity review remains incomplete.
+## Static content audit
 
-## Learner state and practice
+See `docs/CONTENT_AUDIT.md` for the inspected 26 lesson IDs and the exact scope/limitations. A successful structural audit is not editorial approval.
 
-- `src/app/pages/StructuredLessonPage.tsx` renders a locale-aware reader at `/:locale/structured-lessons/:lessonId`, with TOC, EN/RU switching, document language, and previous/next navigation.
-- Completion is a self-attested marker, distinct from quiz results and code mastery.
-- `src/features/structured-lesson/store.ts` tracks quiz attempts, code drafts and practice self-review checklists separately from the legacy lesson status.
-- `src/lib/storage.ts` emits an event when a write/removal fails; `StorageWarningBanner` shows a localized warning and a link to the existing backup/restore page. Tests cover the failure notification and dismissible warning. Explicit schema migrations and retry/recovery remain open.
-- The coding exercise editor saves drafts locally and reveals hints/self-review criteria. **JavaScript/TypeScript execution is not currently implemented.** The only live preview is for HTML and uses an iframe with scripts disabled.
-- Before adding execution, design the sandbox intentionally. A same-tab synchronous infinite loop cannot reliably be stopped by a parent-page timer; an in-page iframe runner must not be described as a secure arbitrary-code service. A Worker can be terminated for hard time limits but still needs careful capability/network restrictions and an explicit threat model.
+## CI verification
 
-## PWA foundation
-
-- Manifest, SVG icons, service worker, production registration, offline status banner and install/update UI exist.
-- Shell/assets/public legacy lessons have cache strategies; API/auth/functions/storage/realtime paths are excluded from service-worker caching.
-- Real device installability/offline behavior has not been tested on Android/iOS in this session.
-
-## Supabase
-
-The connected account has projects named `kaelig` and `Mardakhay's Project`; neither is clearly an Interactive Guides project. No schema was modified. Do not repurpose a project or create a potentially billable project without cost/intent confirmation. Never expose service-role keys in browser code. Continue local-first data contracts before remote sync.
-
-## Latest CI check
-
-GitHub Actions run [#178](https://github.com/Mardakhay/interactive-guides/actions/runs/39777534026) passed for the bilingual Week 6 closure walkthrough fix (code/test HEAD `d5f509744939eb4dc5cc7da210766829300062fe`): `npm ci`, lint, TypeScript typecheck, tests and production build succeeded.
-
-Week 6 EN/RU content now has matching 51-block structure, seven knowledge checks, two exercises, and valid walkthrough line ranges. Documentation was updated afterwards; check the exact branch HEAD before claiming the latest revision has green CI.
-
-The workflow runs `npm ci`, ESLint, TypeScript typecheck, tests and production build. A successful run for an earlier SHA does not validate later code changes.
-
-## Documentation
-
-See `docs/README.md`. Key living docs include `CURRENT_STATE.md`, `ARCHITECTURE.md`, `CURRICULUM_AND_CONTENT.md`, `PERSISTENCE_AND_SUPABASE.md`, `PWA_AND_MOBILE.md`, `ROADMAP.md`, `DECISIONS.md`, and this handoff.
+GitHub Actions run [#185](https://github.com/Mardakhay/interactive-guides/actions/runs/39778390430) passed for checkpoint SHA `d8676ba3b4813ea8d9e9483f0436704e53a9a42a`: `npm ci`, lint, TypeScript typecheck, tests and production build all succeeded. This documentation update will produce a new SHA; verify that SHA before claiming it is green.
 
 ## Next actions
 
-1. Run and inspect CI for the latest Week 1 content/test changes.
-2. Improve the coding practice workflow: draft persistence is present, but only HTML preview exists; decide on a Worker-based JavaScript playground with explicit network limits and correct timeout semantics.
-3. Fully review the 26 structured lessons against the Notion notes and legacy HTML sources; all current lessons remain editorial pilots in `review` state.
-4. Localize the remaining legacy app shell and continue mobile/accessibility verification using the existing tests and preview deployment.
-5. Keep the existing validated JSON export/import workflow; add explicit schema-version migrations and visible autosave/quota-failure recovery before cloud sync.
-6. Validate PWA install/offline behavior and service-worker update lifecycle on supported real devices/browsers.
-7. Add Supabase only after local contracts stabilize and dedicated project/cost intent is agreed.
-8. Keep PR #1 in draft until editorial review, tests and scope are sufficient.
+1. Implement the JS practice runner in a separate, tightly scoped change with hard termination, network restrictions, UI states, and tests; be honest about browser sandbox limits.
+2. Localize the remaining app shell and consolidate the design system across legacy pages; test keyboard access, narrow viewports and reduced-motion behavior.
+3. Work through `docs/CONTENT_AUDIT.md` against Notion and legacy HTML sources, verifying claims, links, code and translation parity lesson by lesson.
+4. Add explicit local storage migrations and a user-triggered recovery/retry flow; preserve old progress, notes, bookmarks and quiz results.
+5. Test the PWA on supported browsers/devices, including deep routes, offline lessons, service-worker update and cache quota behavior.
+6. Decide on a dedicated Supabase project and any cost only after local data contracts stabilize and the user explicitly approves the plan.
+7. Keep PR #1 in draft until editorial review, tests and release acceptance criteria are satisfied.
 
 ## Commit conventions
 
-Use focused messages such as `content(javascript): add bilingual async JavaScript and Fetch lesson`, `content(git): add bilingual Git fundamentals lesson`, `feat(playground): ...`, `test(content): ...`, and `docs: ...`.
+Use focused messages such as `feat(playground): add disposable worker runner`, `feat(i18n): localize remaining app shell`, `test(content): ...`, `content(javascript): ...`, and `docs: ...`.
