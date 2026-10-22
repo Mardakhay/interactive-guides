@@ -348,7 +348,9 @@
           "practice": [
             "Build a small UI kit with Button, Input and Card components"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "ui.design-systems"
+          ]
         },
         {
           "id": "month-5-week-18",

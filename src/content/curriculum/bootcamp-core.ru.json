@@ -348,7 +348,9 @@
           "practice": [
             "Создать небольшой UI-kit из Button, Input и Card"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "ui.design-systems"
+          ]
         },
         {
           "id": "month-5-week-18",

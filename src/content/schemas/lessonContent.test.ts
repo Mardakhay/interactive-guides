@@ -31,6 +31,8 @@ import englishApiHooks from '../lessons/react.api-custom-hooks/en.json';
 import russianApiHooks from '../lessons/react.api-custom-hooks/ru.json';
 import englishReactBasics from '../lessons/react.components-jsx-state/en.json';
 import russianReactBasics from '../lessons/react.components-jsx-state/ru.json';
+import englishDesignSystem from '../lessons/ui.design-systems/en.json';
+import russianDesignSystem from '../lessons/ui.design-systems/ru.json';
 import { lessonTranslationSchema } from './lessonContent';
 
 describe('structured lesson content', () => {
@@ -274,5 +276,17 @@ describe('React fundamentals lesson translation', () => {
     );
     expect(englishReactBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
     expect(russianReactBasics.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('UI design system lesson translation', () => {
+  it('validates both locales and preserves equivalent block structure', () => {
+    expect(lessonTranslationSchema.safeParse(englishDesignSystem).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianDesignSystem).success).toBe(true);
+    expect(englishDesignSystem.id).toBe(russianDesignSystem.id);
+    expect(englishDesignSystem.moduleId).toBe('month-5-week-17');
+    expect(englishDesignSystem.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianDesignSystem.blocks.map(({ id, type }) => ({ id, type })),
+    );
   });
 });
