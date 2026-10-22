@@ -36,6 +36,10 @@ import englishDesignSystem from './lessons/ui.design-systems/en.json';
 import russianDesignSystem from './lessons/ui.design-systems/ru.json';
 import englishPerformance from './lessons/performance.accessibility/en.json';
 import russianPerformance from './lessons/performance.accessibility/ru.json';
+import englishTesting from './lessons/testing.react-testing-library/en.json';
+import russianTesting from './lessons/testing.react-testing-library/ru.json';
+import englishGitWorkflow from './lessons/git.workflow-ci/en.json';
+import russianGitWorkflow from './lessons/git.workflow-ci/ru.json';
 import englishCurriculum from './curriculum/bootcamp-core.en.json';
 import russianCurriculum from './curriculum/bootcamp-core.ru.json';
 import { bootcampCurriculumSchema } from './schemas/curriculum';
@@ -83,6 +87,10 @@ const lessonTranslations = [
   lessonTranslationSchema.parse(russianDesignSystem),
   lessonTranslationSchema.parse(englishPerformance),
   lessonTranslationSchema.parse(russianPerformance),
+  lessonTranslationSchema.parse(englishTesting),
+  lessonTranslationSchema.parse(russianTesting),
+  lessonTranslationSchema.parse(englishGitWorkflow),
+  lessonTranslationSchema.parse(russianGitWorkflow),
 ] as const;
 
 const curricula = {

@@ -380,7 +380,9 @@
           "practice": [
             "Написать 2–3 компонентных теста, например на клик кнопки и отправку формы"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "testing.react-testing-library"
+          ]
         },
         {
           "id": "month-5-week-20",
@@ -394,7 +396,9 @@
           "practice": [
             "Смоделировать процесс: задача → ветка → коммит → MR → review"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "git.workflow-ci"
+          ]
         }
       ]
     },

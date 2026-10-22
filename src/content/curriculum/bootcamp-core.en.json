@@ -380,7 +380,9 @@
           "practice": [
             "Write 2–3 component tests for interactions such as button click and form submission"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "testing.react-testing-library"
+          ]
         },
         {
           "id": "month-5-week-20",
@@ -394,7 +396,9 @@
           "practice": [
             "Simulate task → branch → commit → MR → review"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "git.workflow-ci"
+          ]
         }
       ]
     },

@@ -35,6 +35,10 @@ import englishDesignSystem from '../lessons/ui.design-systems/en.json';
 import russianDesignSystem from '../lessons/ui.design-systems/ru.json';
 import englishPerformance from '../lessons/performance.accessibility/en.json';
 import russianPerformance from '../lessons/performance.accessibility/ru.json';
+import englishTesting from '../lessons/testing.react-testing-library/en.json';
+import russianTesting from '../lessons/testing.react-testing-library/ru.json';
+import englishGitWorkflow from '../lessons/git.workflow-ci/en.json';
+import russianGitWorkflow from '../lessons/git.workflow-ci/ru.json';
 import { lessonTranslationSchema } from './lessonContent';
 
 describe('structured lesson content', () => {
@@ -301,6 +305,30 @@ describe('Performance and accessibility lesson translation', () => {
     expect(englishPerformance.moduleId).toBe('month-5-week-18');
     expect(englishPerformance.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianPerformance.blocks.map(({ id, type }) => ({ id, type })),
+    );
+  });
+});
+
+describe('React component testing lesson translation', () => {
+  it('validates both locales and preserves equivalent block structure', () => {
+    expect(lessonTranslationSchema.safeParse(englishTesting).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianTesting).success).toBe(true);
+    expect(englishTesting.id).toBe(russianTesting.id);
+    expect(englishTesting.moduleId).toBe('month-5-week-19');
+    expect(englishTesting.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianTesting.blocks.map(({ id, type }) => ({ id, type })),
+    );
+  });
+});
+
+describe('Git workflow lesson translation', () => {
+  it('validates both locales and preserves equivalent block structure', () => {
+    expect(lessonTranslationSchema.safeParse(englishGitWorkflow).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianGitWorkflow).success).toBe(true);
+    expect(englishGitWorkflow.id).toBe(russianGitWorkflow.id);
+    expect(englishGitWorkflow.moduleId).toBe('month-5-week-20');
+    expect(englishGitWorkflow.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianGitWorkflow.blocks.map(({ id, type }) => ({ id, type })),
     );
   });
 });
