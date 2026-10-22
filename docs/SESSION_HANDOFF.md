@@ -85,9 +85,9 @@ The connected account has projects named `kaelig` and `Mardakhay's Project`; nei
 
 ## Latest CI check
 
-GitHub Actions run [#167](https://github.com/Mardakhay/interactive-guides/actions/runs/39776235742) passed for code/test commit `be9e050fba35082d036367e3e6b7eec47a7636c3`; install, lint, typecheck, tests and production build all succeeded, including the new local-storage warning tests.
+GitHub Actions run [#178](https://github.com/Mardakhay/interactive-guides/actions/runs/39777534026) passed for the bilingual Week 6 closure walkthrough fix (code/test HEAD `d5f509744939eb4dc5cc7da210766829300062fe`): `npm ci`, lint, TypeScript typecheck, tests and production build succeeded.
 
-The exact current branch HEAD when this note was updated is `0725ed8347b0127c9138690acccadb09091749d1`, a documentation-only commit after #167. Run [#168](https://github.com/Mardakhay/interactive-guides/actions/runs/39776441775) was in progress at last check. Verify the exact latest HEAD's result before claiming that current CI is green.
+Week 6 EN/RU content now has matching 51-block structure, seven knowledge checks, two exercises, and valid walkthrough line ranges. Documentation was updated afterwards; check the exact branch HEAD before claiming the latest revision has green CI.
 
 The workflow runs `npm ci`, ESLint, TypeScript typecheck, tests and production build. A successful run for an earlier SHA does not validate later code changes.
 
