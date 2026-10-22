@@ -1,8 +1,9 @@
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const manifest = JSON.parse(
-  readFileSync(new URL('../../public/manifest.webmanifest', import.meta.url), 'utf8'),
+  readFileSync(resolve(process.cwd(), 'public/manifest.webmanifest'), 'utf8'),
 ) as {
   name: string;
   start_url: string;
@@ -11,7 +12,7 @@ const manifest = JSON.parse(
   icons: Array<{ src: string; sizes: string; type: string; purpose: string }>;
 };
 
-const serviceWorker = readFileSync(new URL('../../public/sw.js', import.meta.url), 'utf8');
+const serviceWorker = readFileSync(resolve(process.cwd(), 'public/sw.js'), 'utf8');
 
 describe('PWA static contract', () => {
   it('declares a standalone app manifest with scalable icons', () => {

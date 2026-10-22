@@ -229,31 +229,31 @@
       "prompt": "Какой атрибут задаёт ключ значения input в отправляемых данных формы?",
       "options": [
         {
-          "id": "a",
+          "id": "name",
           "text": "name",
           "correct": true,
-          "feedback": "The name attribute supplies the control's key in submitted form data."
+          "feedback": "Атрибут name задаёт ключ элемента управления в отправляемых данных."
         },
         {
-          "id": "b",
+          "id": "id",
           "text": "id",
           "correct": false,
-          "feedback": "The id identifies an element in the document and can associate it with a label."
+          "feedback": "Id идентифицирует элемент в документе и может связывать его с label."
         },
         {
-          "id": "c",
+          "id": "placeholder",
           "text": "placeholder",
           "correct": false,
-          "feedback": "Placeholder provides a hint inside a control; it does not identify the submitted value."
+          "feedback": "Placeholder показывает подсказку внутри поля, но не определяет ключ отправляемого значения."
         },
         {
-          "id": "d",
+          "id": "autocomplete",
           "text": "autocomplete",
           "correct": false,
-          "feedback": "Autocomplete helps the browser recognize or fill a value, but it is not the submitted field key."
+          "feedback": "Autocomplete помогает браузеру распознавать или заполнять значение, но не задаёт ключ отправляемого поля."
         }
       ],
-      "explanation": "Keep the document identifier (id), submitted-data key (name), hint (placeholder), and autofill hint (autocomplete) separate."
+      "explanation": "Различай идентификатор элемента (id), ключ отправляемых данных (name), подсказку (placeholder) и подсказку автозаполнения (autocomplete)."
     },
     {
       "id": "knowledge-check-2",
@@ -263,18 +263,18 @@
       "options": [
         {
           "id": "true",
-          "text": "True",
+          "text": "Верно",
           "correct": false,
-          "feedback": "Password inputs visually mask characters; the input type does not encrypt the value."
+          "feedback": "Поле password визуально маскирует символы, но тип input не шифрует значение."
         },
         {
           "id": "false",
-          "text": "False",
+          "text": "Неверно",
           "correct": true,
-          "feedback": "The input type changes presentation and semantics, not transport encryption. Use HTTPS and appropriate server-side security."
+          "feedback": "Тип поля меняет отображение и семантику, а не шифрование при передаче. Нужны HTTPS и безопасная серверная обработка."
         }
       ],
-      "explanation": "Visual masking, transport encryption, and server-side credential handling solve different problems."
+      "explanation": "Визуальное маскирование, шифрование при передаче и серверная обработка пароля решают разные задачи."
     },
     {
       "id": "knowledge-check-3",
@@ -284,67 +284,67 @@
       "options": [
         {
           "id": "a",
-          "text": "Associate a visible label with each control",
+          "text": "Связать видимую подпись с каждым элементом управления",
           "correct": true,
-          "feedback": "An associated label communicates the control's purpose."
+          "feedback": "Связанный label сообщает назначение элемента управления."
         },
         {
           "id": "b",
-          "text": "Use placeholder as the only description of a field",
+          "text": "Использовать placeholder как единственное описание поля",
           "correct": false,
-          "feedback": "Placeholder disappears during typing and is not a reliable replacement for a label."
+          "feedback": "Placeholder исчезает при вводе и не является надёжной заменой подписи."
         },
         {
           "id": "c",
-          "text": "Group related radio choices with fieldset and legend",
+          "text": "Группировать связанные radio через fieldset и legend",
           "correct": true,
-          "feedback": "Fieldset and legend establish a semantic group and its shared question."
+          "feedback": "Fieldset и legend задают семантическую группу и общий вопрос."
         },
         {
           "id": "d",
-          "text": "Rely on browser validation instead of server checks",
+          "text": "Положиться на проверку браузера вместо серверной валидации",
           "correct": false,
-          "feedback": "Client-side checks help usability but are not the sole validation or security boundary."
+          "feedback": "Клиентские проверки полезны, но не должны быть единственной валидацией или границей безопасности."
         }
       ],
-      "explanation": "Good form UX combines semantic labels and groups with validation on both client and server boundaries."
+      "explanation": "Хорошая форма сочетает семантические подписи и группы с проверками на клиенте и на сервере."
     },
     {
       "id": "practice-registration-form",
       "type": "codingExercise",
       "title": "Создай доступную форму регистрации",
       "language": "html",
-      "context": "Create a registration form for a fictional learning platform. Focus on labels, native browser behavior, and semantic grouping. No backend is needed; the action URL is illustrative.",
+      "context": "Создай форму регистрации для вымышленной учебной платформы. Сосредоточься на подписях, встроенном поведении браузера и семантической группировке. Backend не нужен; URL отправки показан для примера.",
       "instructions": [
-        "Create fields for full name, email, and password.",
-        "Give each field a visible label, a unique id, and a meaningful name.",
-        "Choose appropriate input types and autocomplete values; mark required fields.",
-        "Add a fieldset/legend group for a preferred contact method with two radio choices.",
-        "Add a terms checkbox with a visible associated label.",
-        "Add a submit button with an explicit type.",
-        "Open the page and test each control using only the keyboard."
+        "Создай поля полного имени, электронной почты и пароля.",
+        "Добавь каждому полю видимую подпись, уникальный id и осмысленный name.",
+        "Выбери подходящие типы полей и значения autocomplete; обязательные поля пометь required.",
+        "Добавь группу fieldset/legend для предпочтительного способа связи с двумя radio-вариантами.",
+        "Добавь checkbox согласия с условиями и видимую связанную подпись.",
+        "Добавь кнопку отправки с явно указанным type.",
+        "Открой страницу и проверь каждый элемент, используя только клавиатуру."
       ],
       "requirements": [
-        "The form has action and an explicit method; if there is no backend, the endpoint is clearly illustrative.",
-        "Every control has an accessible name.",
-        "Radio options share one name but have different values and ids.",
-        "Labels are associated with controls and are not replaced by placeholders.",
-        "Native validation blocks empty required values and checks email format.",
-        "Keyboard focus is visible and controls can be operated without a mouse."
+        "У формы есть action и явно заданный method; если backend отсутствует, endpoint обозначен как пример.",
+        "У каждого элемента управления есть доступное имя.",
+        "Radio-варианты используют одинаковый name, но разные value и id.",
+        "Подписи связаны с полями и не заменены placeholder.",
+        "Встроенная валидация блокирует пустые обязательные поля и проверяет формат email.",
+        "Фокус клавиатуры видим, а элементами можно пользоваться без мыши."
       ],
-      "starterCode": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>Create an account</title>\n  </head>\n  <body>\n    <main>\n      <h1>Create an account</h1>\n      <!-- Build your form here. -->\n    </main>\n  </body>\n</html>",
+      "starterCode": "<!doctype html>\n<html lang=\"ru\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>Создать аккаунт</title>\n  </head>\n  <body>\n    <main>\n      <h1>Создать аккаунт</h1>\n      <!-- Создай форму здесь. -->\n    </main>\n  </body>\n</html>",
       "hints": [
-        "Decide each control's id, name, type, and visible label before styling it.",
-        "Mutually exclusive radio options share a name and have different values.",
-        "Press Tab from the start of the page to verify a logical focus order."
+        "Для каждого поля сначала определи id, name, type и видимую подпись, а потом переходи к стилям.",
+        "Взаимоисключающие radio-варианты используют общий name и разные value.",
+        "Нажимай Tab с начала страницы, чтобы проверить логичный порядок фокуса."
       ],
       "successCriteria": [
-        "The document has a complete HTML shell and a semantic main region.",
-        "Every control has an explicit label association and a submitted-data name.",
-        "required and email fields trigger native validation when invalid.",
-        "Radio options are semantically grouped and behave as one choice.",
-        "The form can be understood and operated using a keyboard.",
-        "You can explain what the browser validates and what the server must validate."
+        "Документ имеет полную HTML-структуру и семантическую область main.",
+        "У каждого элемента управления есть явная связь с подписью и имя отправляемых данных.",
+        "required и email включают встроенную проверку браузера при неверных значениях.",
+        "Radio-варианты семантически сгруппированы и работают как единый выбор.",
+        "Формой можно пользоваться с клавиатуры.",
+        "Ты можешь объяснить, что проверяет браузер, а что необходимо проверить на сервере."
       ]
     },
     {
