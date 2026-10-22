@@ -206,3 +206,15 @@ describe('React forms and validation lesson translation', () => {
     expect(russianReactForms.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
+
+describe('React shared state and Context lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishContext.id).toBe(russianContext.id);
+    expect(englishContext.moduleId).toBe('month-4-week-15');
+    expect(englishContext.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianContext.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishContext.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianContext.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});

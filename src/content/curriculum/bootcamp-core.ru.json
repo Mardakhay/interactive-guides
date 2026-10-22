@@ -303,7 +303,9 @@
           "practice": [
             "Создать переключатель темы и пример глобального состояния пользователя"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.context-shared-state"
+          ]
         },
         {
           "id": "month-4-week-16",

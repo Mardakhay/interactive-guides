@@ -303,7 +303,9 @@
           "practice": [
             "Build a theme toggle and a global user-state example"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.context-shared-state"
+          ]
         },
         {
           "id": "month-4-week-16",
