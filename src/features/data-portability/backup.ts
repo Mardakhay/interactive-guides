@@ -262,7 +262,24 @@ function mergeStructuredLearning(
     }
   }
 
-  return { quizAttempts, codeDrafts, practiceChecklists };
+  // Section completion is additive during backup merge so a completed section
+  // on either device is not lost when records from both devices are combined.
+  const sectionProgress = { ...current.sectionProgress };
+  for (const [lessonId, imported] of Object.entries(incoming.sectionProgress)) {
+    const existing = sectionProgress[lessonId];
+    const completedBlockIds = new Set([
+      ...(existing?.completedBlockIds ?? []),
+      ...imported.completedBlockIds,
+    ]);
+    sectionProgress[lessonId] = {
+      completedBlockIds: [...completedBlockIds],
+      updatedAt: !existing || isNewer(imported.updatedAt, existing.updatedAt)
+        ? imported.updatedAt
+        : existing.updatedAt,
+    };
+  }
+
+  return { quizAttempts, codeDrafts, practiceChecklists, sectionProgress };
 }
 
 function mergeSnapshots(current: LearningDataSnapshot, incoming: LearningDataSnapshot): LearningDataSnapshot {
