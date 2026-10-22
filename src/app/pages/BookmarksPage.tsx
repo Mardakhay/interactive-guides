@@ -59,7 +59,7 @@ export default function BookmarksPage() {
                 <div className="relative z-10 flex shrink-0 items-center gap-3">
                   {status !== 'not-started' && <Badge variant={STATUS_BADGE_VARIANTS[status]}>{status === 'completed' ? copy.statusCompleted : copy.statusInProgress}</Badge>}
                   <span className={cn('hidden rounded-full px-2.5 py-0.5 text-xs font-medium sm:inline-flex', DIFFICULTY_COLORS[lesson.difficulty] ?? DIFFICULTY_COLORS.beginner)}>{getDifficultyLabel(locale, lesson.difficulty)}</span>
-                  <span className="hidden items-center gap-1 text-xs text-neutral-500 sm:flex"><Clock className="h-3.5 w-3.5" />{lesson.durationMinutes}{copy.durationUnit}</span>
+                  <span className="hidden items-center gap-1 text-xs text-neutral-500 sm:flex"><Clock className="h-3.5 w-3.5" />{lesson.durationMinutes} {copy.durationUnit}</span>
                   <BookmarkButton lessonId={lesson.id} variant="icon" />
                 </div>
               </Card>
