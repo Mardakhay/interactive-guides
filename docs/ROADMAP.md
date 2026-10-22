@@ -59,7 +59,8 @@ Use small, reversible phases; keep useful current behavior working while migrati
 
 ## Phase 5 — Local-first persistence
 - [x] Add local storage for structured quiz attempt history, code drafts and practice checklist state.
-- [ ] Add versioned storage migrations and an export/import backup path.
+- [x] Add validated local-data export/import with preview, merge rules and best-effort rollback (`src/features/data-portability/backup.ts`, Data Management page, tests).
+- [ ] Add explicit migrations between persisted schema versions as storage contracts evolve.
 - [ ] Preserve existing progress, notes, bookmarks and old quiz results through data-shape changes.
 - [ ] Handle storage quota failures visibly and test retry/recovery.
 - Acceptance: upgrades cannot silently reset existing learner data.
