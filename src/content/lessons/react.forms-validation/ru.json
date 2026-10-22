@@ -1,0 +1,352 @@
+{
+  "id": "react.forms-validation",
+  "locale": "ru",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-22",
+  "moduleId": "month-4-week-14",
+  "week": 14,
+  "order": 1,
+  "title": "Формы React, валидация и доступные ошибки",
+  "description": "Создавай удобные формы в React, различай controlled/uncontrolled inputs, проверяй данные с сохранением доступности и понимай, когда нужна библиотека форм.",
+  "estimatedMinutes": 70,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "react.components-jsx-state",
+    "typescript.fundamentals",
+    "html.forms-accessibility"
+  ],
+  "learningOutcomes": [
+    "Различать controlled и uncontrolled inputs и осознанно выбирать подход.",
+    "Использовать обработчик submit формы и отменять стандартную навигацию браузера при обработке в React.",
+    "Проверять обязательные поля, формат и связанные условия, отделяя валидацию от серверной авторизации.",
+    "Отображать доступные сообщения об ошибках, связанные с нужными полями.",
+    "Объяснять, что управляет библиотека вроде React Hook Form и чего она не заменяет.",
+    "Создать форму регистрации, которая обрабатывает ввод, валидацию, успех и серверные ошибки."
+  ],
+  "tags": [
+    "react",
+    "forms",
+    "validation",
+    "controlled-inputs",
+    "react-hook-form",
+    "accessibility",
+    "errors"
+  ],
+  "blocks": [
+    {
+      "id": "form-purpose",
+      "type": "heading",
+      "level": 2,
+      "text": "Форма — это контракт ввода данных"
+    },
+    {
+      "id": "form-purpose-body",
+      "type": "paragraph",
+      "text": "Форма собирает значения, сообщает, какие поля обязательны, проверяет данные и отправляет намеренно сформированный payload. В React решай, какие значения должны быть состоянием, какие можно считать из нативных контролов и когда должна выполняться валидация. Хорошее поведение формы включает клавиатурную доступность, понятные labels, ясные ошибки, сохранение введённых значений после исправимой ошибки и явную обратную связь о загрузке/успехе/неудаче."
+    },
+    {
+      "id": "controlled",
+      "type": "heading",
+      "level": 2,
+      "text": "Controlled и uncontrolled inputs"
+    },
+    {
+      "id": "controlled-body",
+      "type": "paragraph",
+      "text": "Controlled input получает отображаемое значение из состояния React и обновляет состояние в onChange. Это даёт компоненту прямой доступ к текущему значению и упрощает условное поведение, но требует аккуратных обновлений и добавляет работу на каждое нажатие клавиши. Uncontrolled input хранит текущее значение в DOM; React может прочитать его при отправке через FormData или ref. Оба подхода допустимы — выбирай по задаче формы, а не по универсальному правилу."
+    },
+    {
+      "id": "controlled-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState } from \"react\";\n\nfunction EmailField() {\n  const [email, setEmail] = useState(\"\");\n\n  return (\n    <label>\n      Email address\n      <input\n        type=\"email\"\n        value={email}\n        onChange={(event) => setEmail(event.target.value)}\n        autoComplete=\"email\"\n      />\n    </label>\n  );\n}",
+      "steps": [
+        {
+          "title": "Храни контролируемое значение в состоянии",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "Строка email является источником истины для значения поля в этом компоненте."
+        },
+        {
+          "title": "Свяжи значение с input",
+          "lineStart": 9,
+          "lineEnd": 9,
+          "explanation": "Prop value говорит React, что нужно отображать в поле. Передавая определённую строку, ты сохраняешь контролируемый режим."
+        },
+        {
+          "title": "Обновляй состояние при вводе",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "explanation": "Событие изменения читает новое значение DOM и просит React обновить состояние. При следующем рендере поле отражает новое значение."
+        },
+        {
+          "title": "Используй нативную семантику",
+          "lineStart": 11,
+          "lineEnd": 11,
+          "explanation": "Type=email и autocomplete дают браузерные подсказки, но не заменяют валидацию приложения и сервера."
+        }
+      ]
+    },
+    {
+      "id": "uncontrolled-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Прочитай uncontrolled-форму через FormData",
+      "code": "function SearchForm() {\n  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {\n    event.preventDefault();\n    const formData = new FormData(event.currentTarget);\n    const query = String(formData.get(\"query\") ?? \"\").trim();\n    console.log(\"Search for:\", query);\n  }\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <label htmlFor=\"query\">Search lessons</label>\n      <input id=\"query\" name=\"query\" type=\"search\" />\n      <button type=\"submit\">Search</button>\n    </form>\n  );\n}"
+    },
+    {
+      "id": "validation",
+      "type": "heading",
+      "level": 2,
+      "text": "У валидации есть несколько уровней"
+    },
+    {
+      "id": "validation-body",
+      "type": "paragraph",
+      "text": "Нативные ограничения HTML вроде required, type=email, minLength и pattern помогают рано ловить распространённые ошибки и дают базовую браузерную обратную связь. Валидация приложения учитывает продуктовые правила, например совпадение паролей или запрещённые комбинации. Сервер должен проверить данные ещё раз, потому что клиентские проверки можно обойти. Валидация улучшает качество данных и пользовательский опыт, но не является границей авторизации или безопасности."
+    },
+    {
+      "id": "validation-pattern",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type FormValues = { email: string; password: string };\n\nfunction validate(values: FormValues) {\n  const errors: Partial<Record<keyof FormValues, string>> = {};\n  if (!values.email.includes(\"@\")) errors.email = \"Enter a valid email address.\";\n  if (values.password.length < 12) errors.password = \"Use at least 12 characters.\";\n  return errors;\n}",
+      "steps": [
+        {
+          "title": "Смоделируй ошибки отдельных полей",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Объект errors может содержать сообщение для каждого поля, но не требует сообщения для всех полей. Такая форма помогает отобразить ошибку рядом с нужным input."
+        },
+        {
+          "title": "Проверяй каждое правило отдельно",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "Каждое условие соответствует одному продуктовому правилу. Проверки иллюстративные; в production правила email и паролей должны соответствовать требованиям продукта."
+        },
+        {
+          "title": "Верни результат проверки",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "Вызывающий код решает, показывать ошибки или продолжать. Валидатор должен возвращать результат, а не неожиданно менять несвязанное состояние интерфейса."
+        }
+      ]
+    },
+    {
+      "id": "accessible-errors",
+      "type": "heading",
+      "level": 2,
+      "text": "Сделай ошибки доступными и полезными"
+    },
+    {
+      "id": "accessible-errors-body",
+      "type": "paragraph",
+      "text": "У каждого поля должна быть программная label. Если поле невалидно, покажи конкретное сообщение рядом с ним, свяжи его через aria-describedby и при необходимости выставь aria-invalid. После отправки можно перевести фокус на сводку ошибок или первое неправильное поле. Не передавай ошибку только цветом и не используй сообщения вроде «Некорректный ввод», когда нужно объяснить, как исправить значение."
+    },
+    {
+      "id": "accessible-errors-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Пример: связать сообщение ошибки с полем",
+      "code": "<label htmlFor=\"email\">Email address</label>\n<input\n  id=\"email\"\n  name=\"email\"\n  type=\"email\"\n  aria-invalid={Boolean(errors.email)}\n  aria-describedby={errors.email ? \"email-error\" : undefined}\n/>\n{errors.email && <p id=\"email-error\">{errors.email}</p>}"
+    },
+    {
+      "id": "form-library",
+      "type": "heading",
+      "level": 2,
+      "text": "Когда полезна библиотека форм"
+    },
+    {
+      "id": "form-library-body",
+      "type": "paragraph",
+      "text": "Библиотека вроде React Hook Form помогает управлять регистрацией полей, состоянием валидации, отправкой и подписками с меньшим количеством ручного кода. Schema-библиотека может централизовать правила и переиспользовать их на границах. Эти инструменты не заменяют семантический HTML, доступные связи ошибок, понимание controlled/uncontrolled inputs или серверную валидацию. Выбирай библиотеку, когда сложность формы это оправдывает, и сохраняй контракт формы понятным."
+    },
+    {
+      "id": "submission-states",
+      "type": "heading",
+      "level": 2,
+      "text": "Представь весь жизненный цикл отправки"
+    },
+    {
+      "id": "submission-states-body",
+      "type": "paragraph",
+      "text": "Отправка формы не заканчивается только потому, что сработал click handler. Типичный жизненный цикл включает idle/edited, client-invalid, submitting, success и server-error. При необходимости блокируй дублирующую отправку, показывай обратную связь о прогрессе, сохраняй безопасные введённые значения после исправимой ошибки и не считай клиентский успех доказательством авторизованного сохранения на сервере."
+    },
+    {
+      "id": "submission-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Простая модель состояния отправки",
+      "code": "type SubmitState =\n  | { status: \"idle\" }\n  | { status: \"submitting\" }\n  | { status: \"success\"; message: string }\n  | { status: \"error\"; message: string };\n\n// Render feedback based on state.status rather than several unrelated booleans."
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что делает input контролируемым в React?",
+      "options": [
+        {
+          "id": "a",
+          "text": "React state задаёт value, а onChange обновляет это состояние",
+          "correct": true,
+          "feedback": "Контролируемое поле отображает value, переданное React, и сообщает об изменениях, чтобы обновить состояние."
+        },
+        {
+          "id": "b",
+          "text": "Поле обязательно должно быть disabled при рендере",
+          "correct": false,
+          "feedback": "Disabled относится к взаимодействию и не определяет, является ли поле controlled или uncontrolled."
+        },
+        {
+          "id": "c",
+          "text": "Браузер никогда не хранит значение input",
+          "correct": false,
+          "feedback": "DOM отображает значение поля; React state является источником истины для controlled input."
+        },
+        {
+          "id": "d",
+          "text": "Значение можно прочитать только через FormData при отправке",
+          "correct": false,
+          "feedback": "FormData часто применяют для uncontrolled-форм; значение controlled input доступно из React state."
+        }
+      ],
+      "explanation": "Controlled-поведение задаётся привязкой value к состоянию и обновлением состояния в ответ на ввод."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "Одной клиентской валидации достаточно, чтобы обеспечить правила безопасности данных.",
+      "options": [
+        {
+          "id": "true",
+          "text": "Верно",
+          "correct": false,
+          "feedback": "Клиентскую валидацию можно обойти; сервер должен независимо проверять данные и разрешения."
+        },
+        {
+          "id": "false",
+          "text": "Неверно",
+          "correct": true,
+          "feedback": "Клиентская валидация улучшает опыт, но для надёжного применения правил нужна серверная проверка."
+        }
+      ],
+      "explanation": "Валидация в UI улучшает обратную связь, но не является границей безопасности."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "multi-select",
+      "questionType": "multi-select",
+      "prompt": "Which practices improve form accessibility and reliability? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Связывать label поля с input",
+          "correct": true,
+          "feedback": "Программная связь помогает вспомогательным технологиям и пользователям понять назначение поля."
+        },
+        {
+          "id": "b",
+          "text": "При необходимости связывать ошибку с полем через aria-describedby",
+          "correct": true,
+          "feedback": "Связь позволяет озвучить относящееся к полю сообщение, когда пользователь фокусируется на нём."
+        },
+        {
+          "id": "c",
+          "text": "Обозначать невалидность только цветом",
+          "correct": false,
+          "feedback": "Цвета недостаточно; используй понятный текст и семантические атрибуты."
+        },
+        {
+          "id": "d",
+          "text": "Считать клик доказательством сохранения формы на сервере",
+          "correct": false,
+          "feedback": "Клиент должен обработать реальный результат отправки, включая отказ сервера или сетевую ошибку."
+        }
+      ],
+      "explanation": "Доступная форма явно задаёт связи и ошибки и обрабатывает полный асинхронный цикл отправки."
+    },
+    {
+      "id": "practice-registration-form",
+      "type": "codingExercise",
+      "title": "Создай форму регистрации с валидацией",
+      "language": "tsx",
+      "context": "Реализуй форму в React-проекте. Редактор сохраняет черновик, но не компилирует и не выполняет TSX.",
+      "instructions": [
+        "Создай поля name, email и password с labels и полезными значениями autocomplete.",
+        "Выбери controlled или uncontrolled inputs и объясни выбор.",
+        "Проверь обязательные поля, базовый формат email и заданную минимальную длину пароля.",
+        "Показывай ошибки рядом с полями и связывай их доступным способом с соответствующим input.",
+        "Обрабатывай submit на форме и отменяй стандартную навигацию, если запрос обрабатывается в React.",
+        "Явно моделируй submitting, success и error.",
+        "Объясни, какие проверки нужно повторять на сервере и почему.",
+        "Используй библиотеку вроде React Hook Form только если можешь объяснить, какую сложность она снимает; не считай её заменой валидации."
+      ],
+      "requirements": [
+        "У каждого input есть программная label.",
+        "Клиентская валидация показывает конкретные и исправимые ошибки.",
+        "Форма сохраняет введённые данные при исправимой ошибке валидации.",
+        "Отправка имеет явную обратную связь об успехе/ошибке и при необходимости предотвращает дублирующие запросы.",
+        "Решение не называет клиентскую проверку границей безопасности.",
+        "Ошибки связаны с полями и не передаются только цветом."
+      ],
+      "starterCode": "type RegistrationValues = {\n  name: string;\n  email: string;\n  password: string;\n};\n\nfunction validate(values: RegistrationValues) {\n  // TODO: верни ошибки валидации для конкретных полей.\n}\n\nexport function RegistrationForm() {\n  // TODO: добавь inputs, доступные сообщения об ошибках,\n  // обработку submit и состояния idle/submitting/success/error.\n}",
+      "hints": [
+        "Отдели validate(values) от отображения, чтобы правила можно было проверить отдельно.",
+        "Используй htmlFor/id и aria-describedby для связи labels и текста ошибки.",
+        "В настоящем приложении успешная клиентская ветка всё равно должна обработать результат реального запроса."
+      ],
+      "successCriteria": [
+        "Все поля подписаны, ошибки объясняют, как исправить значение.",
+        "Правила валидации понятны и могут быть проверены независимо.",
+        "Submit предотвращает нежелательную навигацию и моделирует асинхронные исходы.",
+        "Код различает клиентскую проверку и серверное принудительное применение правил.",
+        "Ты можешь обосновать выбор controlled/uncontrolled inputs и любую form-библиотеку."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Controlled inputs управляются состоянием React; uncontrolled хранят текущее значение в DOM и могут считываться при отправке.",
+        "Нативные ограничения, правила приложения и серверная валидация дополняют друг друга.",
+        "Используй labels, связанные ошибки, aria-invalid/aria-describedby по необходимости и понятные сообщения.",
+        "Явно моделируй жизненный цикл отправки и обрабатывай асинхронные ошибки.",
+        "Библиотеки форм уменьшают ручную связку кода, но не заменяют семантический HTML, доступность и серверные проверки."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "React: Sharing State Between Components",
+          "url": "https://react.dev/learn/sharing-state-between-components",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Managing State",
+          "url": "https://react.dev/learn/managing-state",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React Hook Form: Get Started",
+          "url": "https://react-hook-form.com/get-started",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Constraint validation",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Constraint_validation",
+          "kind": "guide"
+        },
+        {
+          "title": "W3C WAI: Forms Tutorial",
+          "url": "https://www.w3.org/WAI/tutorials/forms/",
+          "kind": "accessibility"
+        }
+      ]
+    }
+  ]
+}

@@ -287,7 +287,9 @@
           "practice": [
             "Создать форму регистрации/входа с сообщениями валидации"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.forms-validation"
+          ]
         },
         {
           "id": "month-4-week-15",

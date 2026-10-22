@@ -1,0 +1,352 @@
+{
+  "id": "react.forms-validation",
+  "locale": "en",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-22",
+  "moduleId": "month-4-week-14",
+  "week": 14,
+  "order": 1,
+  "title": "React Forms, Validation, and Accessible Errors",
+  "description": "Build usable forms in React, distinguish controlled and uncontrolled inputs, validate data without losing accessibility, and understand when a form library is useful.",
+  "estimatedMinutes": 70,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "react.components-jsx-state",
+    "typescript.fundamentals",
+    "html.forms-accessibility"
+  ],
+  "learningOutcomes": [
+    "Distinguish controlled inputs from uncontrolled inputs and choose intentionally.",
+    "Use form submit handlers and prevent the browser's default navigation when handling submission in React.",
+    "Validate required fields, formats, and cross-field conditions while keeping validation separate from server authorization.",
+    "Render accessible error messages associated with the correct fields.",
+    "Explain what a form library such as React Hook Form manages and what it does not replace.",
+    "Build a registration form that handles input, validation, success, and server-error states."
+  ],
+  "tags": [
+    "react",
+    "forms",
+    "validation",
+    "controlled-inputs",
+    "react-hook-form",
+    "accessibility",
+    "errors"
+  ],
+  "blocks": [
+    {
+      "id": "form-purpose",
+      "type": "heading",
+      "level": 2,
+      "text": "A form is a data-entry contract"
+    },
+    {
+      "id": "form-purpose-body",
+      "type": "paragraph",
+      "text": "A form collects values, communicates what is required, validates them, and submits a deliberate payload. In React, decide which values need to be state, which can be read from native form controls, and when validation should run. Good form behavior includes keyboard support, meaningful labels, clear error messages, preservation of entered data after a correctable error, and explicit loading/success/failure feedback."
+    },
+    {
+      "id": "controlled",
+      "type": "heading",
+      "level": 2,
+      "text": "Controlled and uncontrolled inputs"
+    },
+    {
+      "id": "controlled-body",
+      "type": "paragraph",
+      "text": "A controlled input receives its displayed value from React state and updates that state in onChange. This gives the component direct access to the current value and makes conditional behavior easier, but it requires careful updates and can add state work for every keystroke. An uncontrolled input keeps its current value in the DOM; React can read it at submission through FormData or a ref. Both patterns are valid—choose based on the form's needs, not a blanket rule."
+    },
+    {
+      "id": "controlled-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState } from \"react\";\n\nfunction EmailField() {\n  const [email, setEmail] = useState(\"\");\n\n  return (\n    <label>\n      Email address\n      <input\n        type=\"email\"\n        value={email}\n        onChange={(event) => setEmail(event.target.value)}\n        autoComplete=\"email\"\n      />\n    </label>\n  );\n}",
+      "steps": [
+        {
+          "title": "Keep the controlled value in state",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "The email string is the source of truth for the input value in this component."
+        },
+        {
+          "title": "Bind the input value",
+          "lineStart": 9,
+          "lineEnd": 9,
+          "explanation": "The value prop tells React what the input should display. Passing a defined string keeps it controlled."
+        },
+        {
+          "title": "Update state as the user types",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "explanation": "The change event reads the new DOM value and asks React to update state. On the next render the input reflects the new value."
+        },
+        {
+          "title": "Use native semantics where useful",
+          "lineStart": 11,
+          "lineEnd": 11,
+          "explanation": "type=email and autocomplete provide browser-level affordances, but they do not replace application/server validation."
+        }
+      ]
+    },
+    {
+      "id": "uncontrolled-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Read an uncontrolled form using FormData",
+      "code": "function SearchForm() {\n  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {\n    event.preventDefault();\n    const formData = new FormData(event.currentTarget);\n    const query = String(formData.get(\"query\") ?? \"\").trim();\n    console.log(\"Search for:\", query);\n  }\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <label htmlFor=\"query\">Search lessons</label>\n      <input id=\"query\" name=\"query\" type=\"search\" />\n      <button type=\"submit\">Search</button>\n    </form>\n  );\n}"
+    },
+    {
+      "id": "validation",
+      "type": "heading",
+      "level": 2,
+      "text": "Validation has layers"
+    },
+    {
+      "id": "validation-body",
+      "type": "paragraph",
+      "text": "Native HTML constraints such as required, type=email, minLength, and pattern can catch common mistakes early and provide basic browser feedback. Application validation handles rules specific to the product, such as matching password fields or disallowed combinations. The server must validate again because client-side checks can be bypassed. Validation improves data quality and user experience; it is not an authorization or security boundary."
+    },
+    {
+      "id": "validation-pattern",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type FormValues = { email: string; password: string };\n\nfunction validate(values: FormValues) {\n  const errors: Partial<Record<keyof FormValues, string>> = {};\n  if (!values.email.includes(\"@\")) errors.email = \"Enter a valid email address.\";\n  if (values.password.length < 12) errors.password = \"Use at least 12 characters.\";\n  return errors;\n}",
+      "steps": [
+        {
+          "title": "Model field-specific errors",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The errors object can contain a message for each field but does not require a message for every field. This shape helps render an error next to the input that caused it."
+        },
+        {
+          "title": "Validate each rule deliberately",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "Each condition represents one product rule. These checks are only illustrative; production password and email policies should match documented product requirements."
+        },
+        {
+          "title": "Return the validation result",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "The caller can decide whether to display errors or proceed. A validator should report the result rather than unexpectedly modifying unrelated UI state."
+        }
+      ]
+    },
+    {
+      "id": "accessible-errors",
+      "type": "heading",
+      "level": 2,
+      "text": "Make errors accessible and actionable"
+    },
+    {
+      "id": "accessible-errors-body",
+      "type": "paragraph",
+      "text": "Every field needs a programmatic label. When a field is invalid, display a specific message close to the field, associate it using aria-describedby, and set aria-invalid when appropriate. After submission, consider moving focus to an error summary or the first invalid field. Do not communicate errors by color alone, and avoid messages such as “Invalid input” when the learner needs to know how to fix the value."
+    },
+    {
+      "id": "accessible-errors-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Associate an error message with its field",
+      "code": "<label htmlFor=\"email\">Email address</label>\n<input\n  id=\"email\"\n  name=\"email\"\n  type=\"email\"\n  aria-invalid={Boolean(errors.email)}\n  aria-describedby={errors.email ? \"email-error\" : undefined}\n/>\n{errors.email && <p id=\"email-error\">{errors.email}</p>}"
+    },
+    {
+      "id": "form-library",
+      "type": "heading",
+      "level": 2,
+      "text": "When a form library helps"
+    },
+    {
+      "id": "form-library-body",
+      "type": "paragraph",
+      "text": "A library such as React Hook Form can manage field registration, validation state, submission, and performance-sensitive subscriptions with less custom wiring. A schema library can centralize rules and reuse them at boundaries. These tools do not replace semantic HTML, accessible error relationships, understanding controlled versus uncontrolled inputs, or server-side validation. Select a library when the form's complexity justifies it, and keep the form contract understandable."
+    },
+    {
+      "id": "submission-states",
+      "type": "heading",
+      "level": 2,
+      "text": "Represent the whole submit lifecycle"
+    },
+    {
+      "id": "submission-states-body",
+      "type": "paragraph",
+      "text": "A form submission is not finished just because the click handler ran. A typical lifecycle includes idle/edited, client-invalid, submitting, success, and server-error states. Disable duplicate submits when appropriate, show progress feedback, preserve safe entered values after a recoverable error, and never assume a client-side success means a server mutation was authorized or persisted."
+    },
+    {
+      "id": "submission-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "A simple submission-state shape",
+      "code": "type SubmitState =\n  | { status: \"idle\" }\n  | { status: \"submitting\" }\n  | { status: \"success\"; message: string }\n  | { status: \"error\"; message: string };\n\n// Render feedback based on state.status rather than several unrelated booleans."
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What makes an input controlled in React?",
+      "options": [
+        {
+          "id": "a",
+          "text": "React state supplies its value and an onChange handler updates that state",
+          "correct": true,
+          "feedback": "A controlled input displays a value provided by React and reports edits so state can be updated."
+        },
+        {
+          "id": "b",
+          "text": "It must be disabled while the component renders",
+          "correct": false,
+          "feedback": "Disabled is an interaction property and does not define controlled versus uncontrolled behavior."
+        },
+        {
+          "id": "c",
+          "text": "The browser never keeps an input value",
+          "correct": false,
+          "feedback": "The DOM displays the input value; React state is the source of truth for a controlled input."
+        },
+        {
+          "id": "d",
+          "text": "Its value can only be read through FormData on submission",
+          "correct": false,
+          "feedback": "FormData is commonly used for uncontrolled forms; controlled values are available from React state."
+        }
+      ],
+      "explanation": "Controlled input behavior is established by binding value to state and updating state in response to user input."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "Client-side validation alone is sufficient to enforce security-sensitive data rules.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "Client validation can be bypassed; the server must validate and authorize operations independently."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "Client-side validation improves experience, while server-side validation is required for trustworthy enforcement."
+        }
+      ],
+      "explanation": "Validation in the UI improves feedback but is not a security boundary."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "multi-select",
+      "questionType": "multi-select",
+      "prompt": "Which practices improve form accessibility and reliability? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Associate a field label with its input",
+          "correct": true,
+          "feedback": "A programmatic label helps assistive technology and users identify the purpose of the input."
+        },
+        {
+          "id": "b",
+          "text": "Connect field errors to inputs with aria-describedby when appropriate",
+          "correct": true,
+          "feedback": "The relationship can expose the relevant error description when the user focuses the field."
+        },
+        {
+          "id": "c",
+          "text": "Use color alone to indicate that a field is invalid",
+          "correct": false,
+          "feedback": "Color alone is not a reliable accessible error indicator; use clear text and semantics too."
+        },
+        {
+          "id": "d",
+          "text": "Treat a successful click event as proof that the server saved the form",
+          "correct": false,
+          "feedback": "The client must handle the actual submission result, including server rejection or network failure."
+        }
+      ],
+      "explanation": "Accessible forms make relationships and errors explicit and handle submission as a full asynchronous lifecycle."
+    },
+    {
+      "id": "practice-registration-form",
+      "type": "codingExercise",
+      "title": "Build a registration form with validation",
+      "language": "tsx",
+      "context": "Implement the form in a React project. The editor stores your draft but does not compile or run TSX.",
+      "instructions": [
+        "Create fields for name, email, and password with associated labels and useful autocomplete values.",
+        "Choose controlled or uncontrolled inputs and explain your choice.",
+        "Validate required fields, basic email format, and a stated password length rule.",
+        "Display field-specific errors with an accessible relationship to each input.",
+        "Handle submit through the form's onSubmit event and prevent default navigation when processing in React.",
+        "Model submitting, success, and error states explicitly.",
+        "Explain which checks must be repeated on the server and why.",
+        "Use a React Hook Form-style library only if you can explain which complexity it removes; do not treat it as a replacement for validation."
+      ],
+      "requirements": [
+        "Every input has a programmatic label.",
+        "Client validation reports specific actionable errors.",
+        "The form preserves entered data when a recoverable validation error occurs.",
+        "Submission has explicit success/error feedback and avoids duplicate requests where appropriate.",
+        "The implementation does not claim client validation is a security boundary.",
+        "Error messages are associated with fields and do not rely on color alone."
+      ],
+      "starterCode": "type RegistrationValues = {\n  name: string;\n  email: string;\n  password: string;\n};\n\nfunction validate(values: RegistrationValues) {\n  // TODO: return field-specific validation errors.\n}\n\nexport function RegistrationForm() {\n  // TODO: add inputs, accessible errors, form submit handling,\n  // and idle/submitting/success/error states.\n}",
+      "hints": [
+        "Separate validate(values) from the rendering so its rules can be tested independently.",
+        "Use htmlFor/id and aria-describedby to associate labels and error text.",
+        "The successful client-side path should still process an actual request result in a real application."
+      ],
+      "successCriteria": [
+        "All inputs are labeled and errors explain how to fix the value.",
+        "The validation rules are independently understandable.",
+        "Submit prevents unintended document navigation and models asynchronous outcomes.",
+        "The design distinguishes client validation from server-side enforcement.",
+        "You can justify the choice of controlled or uncontrolled inputs and any form library."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Controlled inputs are driven by React state; uncontrolled inputs keep their current value in the DOM and can be read at submission.",
+        "Native constraints, application rules, and server validation serve complementary roles.",
+        "Use labels, associated errors, aria-invalid/aria-describedby where appropriate, and helpful messages.",
+        "Model submit lifecycle states explicitly and handle asynchronous failures.",
+        "Form libraries reduce wiring; they do not replace semantic HTML, accessibility, or server-side checks."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "React: Sharing State Between Components",
+          "url": "https://react.dev/learn/sharing-state-between-components",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Managing State",
+          "url": "https://react.dev/learn/managing-state",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React Hook Form: Get Started",
+          "url": "https://react-hook-form.com/get-started",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Constraint validation",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Constraint_validation",
+          "kind": "guide"
+        },
+        {
+          "title": "W3C WAI: Forms Tutorial",
+          "url": "https://www.w3.org/WAI/tutorials/forms/",
+          "kind": "accessibility"
+        }
+      ]
+    }
+  ]
+}

@@ -287,7 +287,9 @@
           "practice": [
             "Build a registration/login form with validation messages"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.forms-validation"
+          ]
         },
         {
           "id": "month-4-week-15",

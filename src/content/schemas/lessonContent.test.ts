@@ -194,3 +194,15 @@ describe('React Router lesson translation', () => {
     expect(russianRouter.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
+
+describe('React forms and validation lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishReactForms.id).toBe(russianReactForms.id);
+    expect(englishReactForms.moduleId).toBe('month-4-week-14');
+    expect(englishReactForms.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianReactForms.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishReactForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianReactForms.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
