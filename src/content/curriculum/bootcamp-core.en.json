@@ -125,7 +125,9 @@
           "practice": [
             "Solve 5–10 small tasks covering arrays, conditions and loops"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "js.basics-types-control-flow"
+          ]
         },
         {
           "id": "month-2-week-6",

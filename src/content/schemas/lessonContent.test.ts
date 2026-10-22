@@ -7,6 +7,8 @@ import englishCss from '../lessons/css.fundamentals/en.json';
 import russianCss from '../lessons/css.fundamentals/ru.json';
 import englishLayout from '../lessons/css.flexbox-grid-responsive/en.json';
 import russianLayout from '../lessons/css.flexbox-grid-responsive/ru.json';
+import englishJsBasics from '../lessons/js.basics-types-control-flow/en.json';
+import russianJsBasics from '../lessons/js.basics-types-control-flow/ru.json';
 import { lessonTranslationSchema } from './lessonContent';
 
 describe('structured lesson content', () => {
@@ -19,6 +21,8 @@ describe('structured lesson content', () => {
     expect(lessonTranslationSchema.safeParse(russianCss).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(englishLayout).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianLayout).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(englishJsBasics).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianJsBasics).success).toBe(true);
   });
 
   it('keeps stable lesson identity and equivalent content structure across locales', () => {
@@ -104,5 +108,17 @@ describe('code walkthrough line references', () => {
     }
     walkthrough.steps[0]!.lineEnd = walkthrough.code.split('\n').length + 1;
     expect(lessonTranslationSchema.safeParse(invalidLesson).success).toBe(false);
+  });
+});
+
+describe('JavaScript basics lesson translation', () => {
+  it('keeps the same learning structure in both locales', () => {
+    expect(englishJsBasics.id).toBe(russianJsBasics.id);
+    expect(englishJsBasics.moduleId).toBe('month-2-week-5');
+    expect(englishJsBasics.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianJsBasics.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishJsBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(russianJsBasics.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });

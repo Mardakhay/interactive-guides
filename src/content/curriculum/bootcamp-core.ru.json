@@ -125,7 +125,9 @@
           "practice": [
             "Решить 5–10 небольших задач на массивы, условия и циклы"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "js.basics-types-control-flow"
+          ]
         },
         {
           "id": "month-2-week-6",

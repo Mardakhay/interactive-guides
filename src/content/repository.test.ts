@@ -5,7 +5,7 @@ describe('structured content repository', () => {
   it('returns equivalent lesson IDs in both supported locales', () => {
     expect(getStructuredLesson('html.document-structure', 'en')?.locale).toBe('en');
     expect(getStructuredLesson('html.document-structure', 'ru')?.locale).toBe('ru');
-    expect(getStructuredLessonIds().sort()).toEqual(['css.flexbox-grid-responsive', 'css.fundamentals', 'html.document-structure', 'html.forms-accessibility']);
+    expect(getStructuredLessonIds().sort()).toEqual(['css.flexbox-grid-responsive', 'css.fundamentals', 'html.document-structure', 'html.forms-accessibility', 'js.basics-types-control-flow']);
   });
 
   it('returns localized curriculum while preserving the canonical week IDs', () => {
@@ -23,6 +23,7 @@ describe('structured content repository', () => {
     expect(getWeekForLesson('html.forms-accessibility', 'ru')?.id).toBe('month-1-week-2');
     expect(getWeekForLesson('css.fundamentals', 'en')?.id).toBe('month-1-week-3');
     expect(getWeekForLesson('css.flexbox-grid-responsive', 'ru')?.id).toBe('month-1-week-4');
+    expect(getWeekForLesson('js.basics-types-control-flow', 'en')?.id).toBe('month-2-week-5');
     expect(getStructuredLesson('html.forms-accessibility', 'en')?.title).toContain('Forms');
     expect(getCurriculumWeek('month-1-week-1', 'ru')?.lessonIds).toContain('html.document-structure');
     expect(getCurriculumWeek('month-1-week-2', 'ru')?.lessonIds).toContain('html.forms-accessibility');
@@ -46,7 +47,10 @@ describe('structured lesson sequence', () => {
     expect(third.next?.id).toBe('css.flexbox-grid-responsive');
     const fourth = getAdjacentStructuredLessons('css.flexbox-grid-responsive', 'ru');
     expect(fourth.previous?.id).toBe('css.fundamentals');
-    expect(fourth.next).toBeUndefined();
+    expect(fourth.next?.id).toBe('js.basics-types-control-flow');
+    const fifth = getAdjacentStructuredLessons('js.basics-types-control-flow', 'en');
+    expect(fifth.previous?.id).toBe('css.flexbox-grid-responsive');
+    expect(fifth.next).toBeUndefined();
   });
 
   it('returns no neighbors for an unknown lesson ID', () => {
