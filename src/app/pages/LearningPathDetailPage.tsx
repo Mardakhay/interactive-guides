@@ -11,13 +11,14 @@ import { EmptyState } from '@/components/feedback';
 import { ROUTE_PATHS, lessonPath } from '@/app/router/routes';
 import { DIFFICULTY_COLORS } from '@/lib/constants';
 import { useLocaleStore } from '@/stores/localeStore';
-import { UI_COPY, formatOverallProgress, formatLessonCount, getCategoryCopy, getDifficultyLabel } from '@/lib/i18n';
+import { UI_COPY, formatOverallProgress, formatLessonCount, getCategoryCopy, getDifficultyLabel, getLearningPathCopy, getLearningPathStepNote } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 export default function LearningPathDetailPage() {
   const { pathId } = useParams<{ pathId: string }>();
   const locale = useLocaleStore((state) => state.locale);
   const copy = UI_COPY[locale].learningPathsPage;
+  const pathCopy = path ? getLearningPathCopy(locale, path.id) : undefined;
   const notFoundCopy = UI_COPY[locale].notFoundPage;
 
   const path = useMemo(() => (pathId ? getLearningPathById(pathId) : undefined), [pathId]);
@@ -66,12 +67,12 @@ export default function LearningPathDetailPage() {
 
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-semibold text-neutral-900">{path.title}</h1>
+          <h1 className="text-2xl font-semibold text-neutral-900">{pathCopy?.title ?? path.title}</h1>
           <span className={cn('inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium', DIFFICULTY_COLORS[path.level] ?? DIFFICULTY_COLORS.beginner)}>
             {getDifficultyLabel(locale, path.level)}
           </span>
         </div>
-        <p className="text-neutral-600">{path.description}</p>
+        <p className="text-neutral-600">{pathCopy?.description ?? path.description}</p>
         <div className="flex items-center gap-3 pt-1">
           <Badge variant="primary">{formatLessonCount(locale, path.steps.length)}</Badge>
           <span className="flex items-center gap-1 text-xs text-neutral-500">
@@ -141,7 +142,7 @@ export default function LearningPathDetailPage() {
                 </div>
                 <div className="flex-1 min-w-0 space-y-1">
                   <h3 className="text-sm font-semibold text-neutral-900 group-hover:text-primary-700">{lesson.title}</h3>
-                  {step.note && <p className="text-sm text-neutral-600">{step.note}</p>}
+                  {(getLearningPathStepNote(locale, path.id, lesson.id, step.note) || step.note) && <p className="text-sm text-neutral-600">{getLearningPathStepNote(locale, path.id, lesson.id, step.note) || step.note}</p>}
                   <div className="flex flex-wrap items-center gap-2 pt-1">
                     {category && (
                       <span className="flex items-center gap-1 text-xs text-neutral-500">
