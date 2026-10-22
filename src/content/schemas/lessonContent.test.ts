@@ -102,7 +102,7 @@ describe('code walkthrough line references', () => {
     if (!walkthrough || walkthrough.type !== 'codeWalkthrough') {
       throw new Error('Pilot fixture is missing the form walkthrough');
     }
-    walkthrough.steps[0]!.lineEnd = walkthrough.code.split('\\n').length + 1;
+    walkthrough.steps[0]!.lineEnd = walkthrough.code.split('\n').length + 1;
     expect(lessonTranslationSchema.safeParse(invalidLesson).success).toBe(false);
   });
 });
