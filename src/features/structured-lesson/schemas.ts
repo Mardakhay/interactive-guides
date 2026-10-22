@@ -16,15 +16,23 @@ export const practiceChecklistSchema = z.object({
   updatedAt: z.string(),
 });
 
+export const sectionProgressEntrySchema = z.object({
+  completedBlockIds: z.array(z.string()),
+  updatedAt: z.string(),
+});
+
 export const structuredLearningStateSchema = z.object({
   quizAttempts: z.record(z.string(), z.array(structuredQuizAttemptSchema)),
   codeDrafts: z.record(z.string(), codeDraftSchema),
   practiceChecklists: z.record(z.string(), practiceChecklistSchema),
+  // Default lets older v1 records/backups without this field migrate in memory.
+  sectionProgress: z.record(z.string(), sectionProgressEntrySchema).default({}),
 });
 
 export type QuizAttempt = z.infer<typeof structuredQuizAttemptSchema>;
 export type CodeDraft = z.infer<typeof codeDraftSchema>;
 export type PracticeChecklist = z.infer<typeof practiceChecklistSchema>;
+export type SectionProgressEntry = z.infer<typeof sectionProgressEntrySchema>;
 export type StructuredLearningState = z.infer<typeof structuredLearningStateSchema>;
 
 export const STRUCTURED_LEARNING_STORAGE_KEY = 'interactive-guides:structured-learning:v1';
@@ -33,4 +41,5 @@ export const EMPTY_STRUCTURED_LEARNING_STATE: StructuredLearningState = {
   quizAttempts: {},
   codeDrafts: {},
   practiceChecklists: {},
+  sectionProgress: {},
 };
