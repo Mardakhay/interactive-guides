@@ -3,6 +3,7 @@ import { Check, Clipboard, ExternalLink, Lightbulb, RotateCcw } from 'lucide-rea
 import type { LessonContentBlock, LessonTranslation } from '@/content/schemas/lessonContent';
 import type { SupportedLocale } from '@/content/repository';
 import { useStructuredLearningStore } from './store';
+import { JavaScriptRunner } from './JavaScriptRunner';
 
 interface StructuredLessonRendererProps {
   lesson: LessonTranslation;
@@ -283,6 +284,17 @@ function CodingExercise({
                 : (locale === 'ru' ? 'Начни писать — черновик сохранится локально.' : 'Start typing to save a local draft.')}
             </span>
           </div>
+          {block.language.toLowerCase() === 'javascript' && (
+            ['document.', 'window.', 'HTMLElement', 'Element'].some((token) => block.starterCode.includes(token)) ? (
+              <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-950">
+                {locale === 'ru'
+                  ? 'Это упражнение требует браузерного DOM (document/window). Worker-песочница поддерживает JavaScript, но не предоставляет DOM. Запусти задание в своём локальном проекте; подсказки и критерии самопроверки доступны здесь.'
+                  : 'This exercise requires the browser DOM (document/window). The Worker sandbox supports JavaScript but does not provide the DOM. Run this task in your local project; hints and self-review criteria remain available here.'}
+              </p>
+            ) : (
+              <JavaScriptRunner code={code} locale={locale} />
+            )
+          )}
           {block.language.toLowerCase() === 'html' && (
             <div className="mt-3">
               <button
