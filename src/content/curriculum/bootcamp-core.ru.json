@@ -436,7 +436,9 @@
           "practice": [
             "Подготовить wireframes, черновик API-контракта, карту страниц и план спринтов"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.design-architecture-planning"
+          ]
         },
         {
           "id": "month-6-week-23",

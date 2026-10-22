@@ -436,7 +436,9 @@
           "practice": [
             "Produce wireframes, an API contract sketch, a page map and sprint plan"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.design-architecture-planning"
+          ]
         },
         {
           "id": "month-6-week-23",

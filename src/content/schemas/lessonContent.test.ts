@@ -41,6 +41,8 @@ import englishGitWorkflow from '../lessons/git.workflow-ci/en.json';
 import russianGitWorkflow from '../lessons/git.workflow-ci/ru.json';
 import englishCapstoneRequirements from '../lessons/capstone.requirements-discovery/en.json';
 import russianCapstoneRequirements from '../lessons/capstone.requirements-discovery/ru.json';
+import englishCapstoneDesign from '../lessons/capstone.design-architecture-planning/en.json';
+import russianCapstoneDesign from '../lessons/capstone.design-architecture-planning/ru.json';
 import { lessonTranslationSchema } from './lessonContent';
 
 describe('structured lesson content', () => {
@@ -343,6 +345,18 @@ describe('Capstone requirements discovery lesson translation', () => {
     expect(englishCapstoneRequirements.moduleId).toBe('month-6-week-21');
     expect(englishCapstoneRequirements.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianCapstoneRequirements.blocks.map(({ id, type }) => ({ id, type })),
+    );
+  });
+});
+
+describe('Capstone design and architecture lesson translation', () => {
+  it('validates both locales and preserves equivalent block structure', () => {
+    expect(lessonTranslationSchema.safeParse(englishCapstoneDesign).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianCapstoneDesign).success).toBe(true);
+    expect(englishCapstoneDesign.id).toBe(russianCapstoneDesign.id);
+    expect(englishCapstoneDesign.moduleId).toBe('month-6-week-22');
+    expect(englishCapstoneDesign.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianCapstoneDesign.blocks.map(({ id, type }) => ({ id, type })),
     );
   });
 });
