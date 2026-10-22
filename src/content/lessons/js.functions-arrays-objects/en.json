@@ -1,0 +1,675 @@
+{
+  "id": "js.functions-arrays-objects",
+  "locale": "en",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-22",
+  "moduleId": "month-2-week-6",
+  "week": 6,
+  "order": 0,
+  "title": "Functions, Arrays and Objects",
+  "description": "Learn to compose small functions and transform datasets predictably. Understand function declarations, expressions and arrows; choose map, filter, reduce, find, some or every by their result; and work with objects using destructuring and spread without accidental mutation.",
+  "estimatedMinutes": 90,
+  "difficulty": "beginner",
+  "prerequisites": [
+    "js.basics-types-control-flow"
+  ],
+  "learningOutcomes": [
+    "Explain the difference between function declarations, function expressions and arrow functions.",
+    "Distinguish parameters, arguments, return values and side effects.",
+    "Choose an array method by the shape of the result required.",
+    "Use map, filter, reduce, find, some and every correctly on datasets.",
+    "Extract, rename and default object properties with destructuring.",
+    "Create shallow copies and transform objects without confusing a copy with deep immutability.",
+    "Build small, composable data-processing functions and explain their behavior."
+  ],
+  "tags": [
+    "javascript",
+    "functions",
+    "arrays",
+    "objects",
+    "map",
+    "filter",
+    "reduce",
+    "destructuring",
+    "spread"
+  ],
+  "blocks": [
+    {
+      "id": "why-functions",
+      "type": "heading",
+      "level": 2,
+      "text": "1. Why functions matter"
+    },
+    {
+      "id": "why-functions-p1",
+      "type": "paragraph",
+      "text": "A function packages a named or reusable operation behind an input/output contract. Instead of repeating the same steps for every order, user or price, you describe the transformation once and call it with different data. Good functions make intent visible: inputs are explicit, the result is returned, and unrelated effects are kept out when practical."
+    },
+    {
+      "id": "why-functions-callout",
+      "type": "callout",
+      "tone": "important",
+      "title": "A function call is not the same as a printed result",
+      "text": "return sends a value back to the caller. console.log displays a value for debugging or observation. Logging a value does not return it from the function."
+    },
+    {
+      "id": "function-kinds",
+      "type": "heading",
+      "level": 2,
+      "text": "2. Function declarations, expressions and arrow functions"
+    },
+    {
+      "id": "function-kinds-p1",
+      "type": "paragraph",
+      "text": "A function declaration defines a named function as a statement. A function expression creates a function value inside an expression and can assign that value to a variable. An arrow function is a concise function expression introduced by =>. These forms all let you define behavior, but their syntax and details—such as initialization timing and this binding—are not identical."
+    },
+    {
+      "id": "function-forms-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function formatLabel(customer, total) {\n  return `${customer}: $${total.toFixed(2)}`;\n}\n\nconst addTax = function (subtotal, rate) {\n  return subtotal * (1 + rate);\n};\n\nconst double = (value) => value * 2;\n\nconsole.log(formatLabel(\"Mina\", 10)); // Mina: $10.00\nconsole.log(addTax(10, 0.1));        // 11\nconsole.log(double(6));              // 12",
+      "steps": [
+        {
+          "title": "A declaration gives the function a name",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "formatLabel receives two parameters. The return statement produces a string; the caller receives it. A declaration can be called before its line in the same scope because the function binding is initialized during scope setup."
+        },
+        {
+          "title": "An expression assigns a function value",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "The function expression is evaluated and its result is assigned to addTax. Do not call this variable before its initialization has run: the variable binding and the function value have different initialization rules from a declaration."
+        },
+        {
+          "title": "An arrow can use an implicit return",
+          "lineStart": 9,
+          "lineEnd": 9,
+          "explanation": "Because the arrow body is a single expression with no braces, that expression's value is returned automatically. With a block body using braces, you must write return when a value is needed."
+        },
+        {
+          "title": "The call receives the returned values",
+          "lineStart": 11,
+          "lineEnd": 13,
+          "explanation": "The first call returns a formatted label, the second returns 11, and the third returns 12. The console calls only display those returned values."
+        }
+      ]
+    },
+    {
+      "id": "function-forms-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Declaration: function calculateTotal(items) { ... } — useful for named operations and direct declarations.",
+        "Function expression: const calculateTotal = function (items) { ... }; — the function value is assigned when the expression runs.",
+        "Arrow expression: const double = (value) => value * 2; — compact callbacks and transformations; it does not create its own this or arguments.",
+        "Parameters are names in the function definition; arguments are the values supplied at the call site.",
+        "A return value can be assigned, passed to another function, transformed or tested. A function that reaches its end without return returns undefined."
+      ]
+    },
+    {
+      "id": "function-choose-callout",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Do not choose arrows just because they are shorter",
+      "text": "Arrow functions inherit this from their surrounding lexical context and do not have their own arguments object. That is helpful for callbacks, but it means an arrow is not a drop-in replacement for every object method or constructor."
+    },
+    {
+      "id": "parameters-return",
+      "type": "heading",
+      "level": 2,
+      "text": "3. Inputs, return values and side effects"
+    },
+    {
+      "id": "parameters-return-p1",
+      "type": "paragraph",
+      "text": "Prefer a function that receives the values it needs and returns its result. For example, a function that totals prices is easier to test if it does not secretly read a global array or update the DOM. This does not mean every useful function must be pure: UI handlers and network code necessarily interact with the outside world. The goal is to make that boundary deliberate."
+    },
+    {
+      "id": "parameters-return-list",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Identify the required inputs and represent them as parameters.",
+        "Compute the result using local variables and clear steps.",
+        "Return the value when a caller needs to use it.",
+        "Keep side effects such as logging, DOM updates, network calls or storage writes explicit.",
+        "Name the function according to the operation and the shape of its result."
+      ]
+    },
+    {
+      "id": "array-transform",
+      "type": "heading",
+      "level": 2,
+      "text": "4. Select an array method by its result"
+    },
+    {
+      "id": "array-transform-p1",
+      "type": "paragraph",
+      "text": "Array methods are not interchangeable loop shortcuts. Their most useful distinction is the result they produce. For an ordinary dense array, map produces one transformed output per input item; filter keeps only items whose predicate is truthy; find returns the first matching item or undefined; some and every return booleans; reduce combines the items into one accumulated result."
+    },
+    {
+      "id": "array-transform-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "map(callback) → a new array containing each callback result.",
+        "filter(predicate) → a new array containing matching elements.",
+        "find(predicate) → the first matching element, or undefined when none matches.",
+        "some(predicate) → true when at least one element matches; otherwise false.",
+        "every(predicate) → true when every element matches; otherwise false.",
+        "reduce(reducer, initialValue) → one accumulated result such as a number, object or grouped structure."
+      ]
+    },
+    {
+      "id": "map-filter-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const amounts = [12, 5, 20, 8];\nconst expensive = amounts.filter((amount) => amount >= 10);\nconst labels = expensive.map((amount) => \"$\" + amount.toFixed(2));\n\nconsole.log(expensive); // [12, 20]\nconsole.log(labels);   // [\"$12.00\", \"$20.00\"]",
+      "steps": [
+        {
+          "title": "Start from one source array",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "amounts is the input dataset. The following methods produce new arrays instead of replacing the original variable."
+        },
+        {
+          "title": "Filter decides which elements remain",
+          "lineStart": 2,
+          "lineEnd": 2,
+          "explanation": "The predicate amount >= 10 returns a boolean for each value. Only 12 and 20 satisfy it, so expensive contains two elements."
+        },
+        {
+          "title": "Map transforms every remaining element",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "The mapping callback converts each retained number to a formatted string. The output has the same number of elements as the filtered input."
+        },
+        {
+          "title": "The arrays show different responsibilities",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "expensive contains numbers; labels contains strings. The source amounts array remains [12, 5, 20, 8]."
+        }
+      ]
+    },
+    {
+      "id": "method-chain",
+      "type": "heading",
+      "level": 3,
+      "text": "4.1. Chaining transforms"
+    },
+    {
+      "id": "method-chain-p1",
+      "type": "paragraph",
+      "text": "A chain reads from left to right: the output of one method becomes the input of the next. In activeCards below, filter narrows the set before map projects each remaining object into a smaller display model. This is often clearer than mutating a shared array in several steps."
+    },
+    {
+      "id": "method-chain-example",
+      "type": "code",
+      "language": "javascript",
+      "caption": "Filter first, then project the fields the UI needs.",
+      "code": "const users = [{ id: 1, name: \"Ayla\", active: true }, { id: 2, name: \"Omar\", active: false }, { id: 3, name: \"Mina\", active: true }];\nconst activeCards = users\n  .filter((user) => user.active)\n  .map(({ id, name }) => ({ id, label: name }));\nconsole.log(activeCards); // [{ id: 1, label: \"Ayla\" }, { id: 3, label: \"Mina\" }]"
+    },
+    {
+      "id": "method-chain-callout",
+      "type": "callout",
+      "tone": "warning",
+      "title": "New array does not mean deep clone",
+      "text": "map and filter create new arrays, but if their output contains objects, those objects may still be the same object references from the input. Avoid mutating nested data unless that is intentional."
+    },
+    {
+      "id": "reduce-example",
+      "type": "heading",
+      "level": 3,
+      "text": "4.2. Use reduce when you need an accumulated value"
+    },
+    {
+      "id": "reduce-example-p1",
+      "type": "paragraph",
+      "text": "reduce repeatedly calls a reducer with the current accumulator and the next item. Supplying an initial value makes the intended starting state explicit and allows an empty array to be handled. Without an initial value, an empty array throws and a non-empty array uses its first element as the initial accumulator—behavior that is easy to overlook."
+    },
+    {
+      "id": "reduce-code",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const prices = [12, 8, 5];\nconst total = prices.reduce((sum, price) => sum + price, 0);\nconsole.log(total); // 25\n\nconst emptyTotal = [].reduce((sum, price) => sum + price, 0);\nconsole.log(emptyTotal); // 0",
+      "steps": [
+        {
+          "title": "Give the accumulator a clear starting value",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "sum begins at zero, then accumulates each price: 0 + 12, then + 8, then + 5."
+        },
+        {
+          "title": "The final accumulator is the result",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "After all prices have been processed, total is 25 and reduce returns that value."
+        },
+        {
+          "title": "An explicit initial value handles empty data",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "There are no prices to add, so the reducer is never called and the initial value zero is returned."
+        }
+      ]
+    },
+    {
+      "id": "choose-method",
+      "type": "callout",
+      "tone": "tip",
+      "title": "A quick selection rule",
+      "text": "Need one output per item? Start with map. Need fewer items? Use filter. Need the first match? Use find. Need a yes/no answer? Use some or every. Need one combined value? Use reduce."
+    },
+    {
+      "id": "quiz-map-filter",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Given const values = [2, 4, 6], what does values.map((value) => value * 10) return?",
+      "options": [
+        {
+          "id": "a",
+          "text": "[20, 40, 60]",
+          "correct": true,
+          "feedback": "map calls the callback for each value and collects each returned product, so the new array contains 20, 40 and 60."
+        },
+        {
+          "id": "b",
+          "text": "[4, 6]",
+          "correct": false,
+          "feedback": "That shape suggests filtering some values; map does not remove the 2, 4 or 6 when the callback returns a value."
+        },
+        {
+          "id": "c",
+          "text": "60",
+          "correct": false,
+          "feedback": "That is a single combined number, but map returns an array of individual callback results."
+        },
+        {
+          "id": "d",
+          "text": "true",
+          "correct": false,
+          "feedback": "A boolean is often returned by some or every, not by this numeric mapping callback."
+        }
+      ],
+      "explanation": "map transforms each input element into one corresponding output element."
+    },
+    {
+      "id": "quiz-predicate-methods",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Which of these methods return a boolean for the whole array based on a predicate? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "some()",
+          "correct": true,
+          "feedback": "some returns true when at least one item satisfies the predicate, otherwise false."
+        },
+        {
+          "id": "b",
+          "text": "every()",
+          "correct": true,
+          "feedback": "every returns true when all items satisfy the predicate, otherwise false."
+        },
+        {
+          "id": "c",
+          "text": "filter()",
+          "correct": false,
+          "feedback": "filter returns an array of matching items rather than a boolean summary."
+        },
+        {
+          "id": "d",
+          "text": "find()",
+          "correct": false,
+          "feedback": "find returns the first matching element or undefined, not a boolean."
+        }
+      ],
+      "explanation": "some and every summarize a predicate over the collection with a boolean result."
+    },
+    {
+      "id": "quiz-find",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does [3, 7, 11].find((value) => value > 20) return?",
+      "options": [
+        {
+          "id": "a",
+          "text": "undefined",
+          "correct": true,
+          "feedback": "No element satisfies value > 20, so find returns undefined."
+        },
+        {
+          "id": "b",
+          "text": "false",
+          "correct": false,
+          "feedback": "find returns a matching element or undefined; it does not reduce the search result to a boolean."
+        },
+        {
+          "id": "c",
+          "text": "[]",
+          "correct": false,
+          "feedback": "An empty array is a possible filter result, but find returns a single element or undefined."
+        },
+        {
+          "id": "d",
+          "text": "11",
+          "correct": false,
+          "feedback": "11 is the final value in the array, but it does not satisfy the predicate value > 20."
+        }
+      ],
+      "explanation": "find stops at the first matching item. If there is no match, the result is undefined."
+    },
+    {
+      "id": "objects-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "5. Objects, destructuring and spread"
+    },
+    {
+      "id": "objects-p1",
+      "type": "paragraph",
+      "text": "Objects model related values with named properties. In real frontend code, data commonly arrives as an object from an API, gets normalized or selected, then becomes a view model for a component. Destructuring makes property access concise; spread helps create a shallow copy with selected changes. Neither feature removes the need to understand ownership and mutation."
+    },
+    {
+      "id": "destructuring-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const user = { id: 7, name: \"Ayla\", role: \"editor\" };\nconst { id, name: displayName, role = \"viewer\" } = user;\nconst updatedUser = { ...user, role: \"admin\" };\nconst { role: currentRole, ...publicProfile } = updatedUser;\n\nconsole.log(id, displayName, role); // 7 Ayla editor\nconsole.log(currentRole, publicProfile); // admin { id: 7, name: \"Ayla\" }",
+      "steps": [
+        {
+          "title": "Extract and rename a property",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "The property name is name, but the local binding is displayName. The role binding receives the existing value editor; its default viewer would be used only when role were undefined."
+        },
+        {
+          "title": "Spread copies the top-level properties",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "updatedUser gets the enumerable own properties from user, then role is overwritten with admin because the later property wins."
+        },
+        {
+          "title": "Rest collects remaining properties",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "The role property is extracted as currentRole. The rest pattern collects other remaining top-level properties into publicProfile."
+        },
+        {
+          "title": "The values can be used independently",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "The local binding role still contains editor. updatedUser has admin, and publicProfile contains id and name but no role property."
+        }
+      ]
+    },
+    {
+      "id": "destructuring-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "const { name } = user extracts the name property into a binding named name.",
+        "const { name: displayName } = user renames the local binding; it does not rename the source property.",
+        "const { role = \"viewer\" } = user uses the default only when role is undefined, not when it is null.",
+        "const [first, second] = items extracts array elements by position.",
+        "const { role, ...rest } = user collects the remaining enumerable own properties after role is removed from the pattern."
+      ]
+    },
+    {
+      "id": "spread-shallow",
+      "type": "heading",
+      "level": 3,
+      "text": "5.1. Spread creates shallow copies"
+    },
+    {
+      "id": "spread-shallow-p1",
+      "type": "paragraph",
+      "text": "A copy made with object spread copies the top-level property values. When one of those values is another object or array, the nested reference is copied, not the nested object itself. That is why changing copy.preferences.theme below is visible through original.preferences.theme as well."
+    },
+    {
+      "id": "spread-shallow-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const original = { id: 1, preferences: { theme: \"dark\" } };\nconst copy = { ...original };\ncopy.preferences.theme = \"light\";\nconsole.log(original.preferences.theme); // \"light\"\n\nconst independentCopy = {\n  ...original,\n  preferences: { ...original.preferences },\n};",
+      "steps": [
+        {
+          "title": "Copy the first-level properties",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "copy is a different outer object, but its preferences property points to the same nested object as original.preferences."
+        },
+        {
+          "title": "Mutate a shared nested object",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "The nested preferences object is shared, so changing its theme through copy also changes what original.preferences.theme reads."
+        },
+        {
+          "title": "Copy nested state explicitly when needed",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "explanation": "Spreading preferences separately gives independentCopy a new nested preferences object. For more deeply nested data, choose an explicit update strategy rather than assuming one spread creates a deep clone."
+        }
+      ]
+    },
+    {
+      "id": "objects-transform",
+      "type": "heading",
+      "level": 3,
+      "text": "5.2. Transform API-shaped data into a view model"
+    },
+    {
+      "id": "objects-transform-p1",
+      "type": "paragraph",
+      "text": "One common frontend task is selecting active records and shaping them into the small objects a list component needs. The pipeline below filters by active, then maps each selected object to a new object with only id and label. The original records remain available for other uses."
+    },
+    {
+      "id": "objects-transform-code",
+      "type": "code",
+      "language": "javascript",
+      "caption": "A common filter → map data preparation pattern.",
+      "code": "const users = [{ id: 1, name: \"Ayla\", active: true }, { id: 2, name: \"Omar\", active: false }, { id: 3, name: \"Mina\", active: true }];\nconst activeCards = users\n  .filter((user) => user.active)\n  .map(({ id, name }) => ({ id, label: name }));\nconsole.log(activeCards); // [{ id: 1, label: \"Ayla\" }, { id: 3, label: \"Mina\" }]"
+    },
+    {
+      "id": "quiz-reduce",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why should a sum calculated with reduce usually provide an initial value of 0?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It defines the accumulator's starting state and makes an empty array return 0",
+          "correct": true,
+          "feedback": "The reducer starts from zero, and an empty array returns that initial accumulator without calling the callback."
+        },
+        {
+          "id": "b",
+          "text": "It makes reduce mutate the original array",
+          "correct": false,
+          "feedback": "The initial accumulator does not cause mutation; reduce returns the accumulated result and leaves the array itself unchanged unless the callback mutates external data."
+        },
+        {
+          "id": "c",
+          "text": "It forces each array element to be converted to a number",
+          "correct": false,
+          "feedback": "An initial value does not automatically validate or convert each item; the callback defines how values are combined."
+        },
+        {
+          "id": "d",
+          "text": "It guarantees the reducer runs exactly once",
+          "correct": false,
+          "feedback": "For a non-empty array, the reducer is called for each element; for an empty array with an initial value, the callback is not called."
+        }
+      ],
+      "explanation": "An initial value makes the accumulator contract explicit and handles empty data safely."
+    },
+    {
+      "id": "quiz-destructure",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which statement extracts user.name into a local variable called displayName?",
+      "options": [
+        {
+          "id": "a",
+          "text": "const { name: displayName } = user;",
+          "correct": true,
+          "feedback": "In object destructuring, the property to read appears before the colon and the local binding appears after it."
+        },
+        {
+          "id": "b",
+          "text": "const { displayName: name } = user;",
+          "correct": false,
+          "feedback": "This reads user.displayName and creates a local binding called name, which is the reverse of the requested mapping."
+        },
+        {
+          "id": "c",
+          "text": "const [name as displayName] = user;",
+          "correct": false,
+          "feedback": "Square brackets are used for array destructuring, and this is not valid JavaScript destructuring syntax."
+        },
+        {
+          "id": "d",
+          "text": "const displayName = user: name;",
+          "correct": false,
+          "feedback": "A colon cannot be used in this position to access an object property; dot access would be user.name."
+        }
+      ],
+      "explanation": "The syntax { property: localName } reads the named property and binds its value under a different local name."
+    },
+    {
+      "id": "quiz-spread",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "After const copy = { ...original }, what is generally true when original.preferences is itself an object?",
+      "options": [
+        {
+          "id": "a",
+          "text": "copy is a new outer object, but copy.preferences can reference the same nested object",
+          "correct": true,
+          "feedback": "Object spread copies top-level property values. A nested object value is copied as a reference, not recursively cloned."
+        },
+        {
+          "id": "b",
+          "text": "Both the outer object and every nested object are guaranteed to be deep-cloned",
+          "correct": false,
+          "feedback": "Spread performs a shallow copy; it does not recursively clone nested arrays or objects."
+        },
+        {
+          "id": "c",
+          "text": "original and copy become the same outer object",
+          "correct": false,
+          "feedback": "The spread expression creates a new outer object, although some property values may still be shared."
+        },
+        {
+          "id": "d",
+          "text": "All properties from original are omitted unless they are primitives",
+          "correct": false,
+          "feedback": "Enumerable own properties are copied regardless of whether their values are primitive or objects."
+        }
+      ],
+      "explanation": "Shallow copy creates a new outer object but preserves references held by nested object-valued properties."
+    },
+    {
+      "id": "coding-exercise",
+      "type": "codingExercise",
+      "title": "Build an order summary pipeline",
+      "language": "javascript",
+      "context": "A small dashboard needs to show paid orders, format summaries, calculate revenue, and flag large or invalid totals. Implement separate functions so each result can be tested and reused.",
+      "instructions": [
+        "Implement getPaidOrders(records) to return only records whose status is paid.",
+        "Implement createSummaries(records) to create one { id, label } object per paid order; format the label as Customer: $120.00.",
+        "Implement sumPaidTotals(records) to add all paid order totals with reduce and an initial accumulator value.",
+        "Implement hasLargePaidOrder(records) with some() to detect a paid order with total greater than or equal to 100.",
+        "Implement allPricesValid(records) with every() to confirm that every total is finite and non-negative."
+      ],
+      "requirements": [
+        "Do not mutate the orders array or its order objects.",
+        "Use the named array methods where requested rather than replacing every operation with a loop.",
+        "Keep each function focused on one result and return its result instead of logging it.",
+        "Explain how your chosen methods behave for no matching paid orders."
+      ],
+      "starterCode": "const orders = [\n  { id: \"A-101\", customer: \"Mina\", total: 120, status: \"paid\" },\n  { id: \"A-102\", customer: \"Omar\", total: 45, status: \"pending\" },\n  { id: \"A-103\", customer: \"Mina\", total: 80, status: \"paid\" },\n  { id: \"A-104\", customer: \"Lea\", total: 0, status: \"cancelled\" },\n];\n\n// TODO: return only paid orders without mutating orders.\nfunction getPaidOrders(records) {\n}\n\n// TODO: map each paid order to { id, label: \"Customer: $120.00\" }.\nconst createSummaries = (records) => {\n};\n\n// TODO: add paid totals using reduce and an initial accumulator value.\nfunction sumPaidTotals(records) {\n}\n\n// TODO: use some() to detect a paid order of at least 100.\nconst hasLargePaidOrder = (records) => {\n};\n\n// TODO: use every() to confirm that every total is finite and non-negative.\nconst allPricesValid = (records) => {\n};",
+      "hints": [
+        "Start by filtering based on the status property. Destructuring can make predicates and callbacks easier to read.",
+        "For the summary labels, use toFixed(2) to format a number to two decimal places.",
+        "When reducing a possible empty array, decide explicitly what the total should be before processing the first item."
+      ],
+      "successCriteria": [
+        "getPaidOrders returns A-101 and A-103 and does not modify orders.",
+        "createSummaries returns two new summary objects with formatted customer labels.",
+        "sumPaidTotals returns 200 for the supplied dataset and 0 when no orders are paid.",
+        "hasLargePaidOrder returns true for the supplied dataset.",
+        "allPricesValid returns true for the supplied dataset and false if a total is negative or not finite."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "heading",
+      "level": 2,
+      "text": "6. Summary and interview-ready explanations"
+    },
+    {
+      "id": "summary-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Declarations, expressions and arrows all define functions, but they have different syntax and initialization behavior.",
+        "Return a result to the caller; logging is an observable side effect and is not a substitute for return.",
+        "Use map for transformation, filter for selection, find for the first match, some/every for boolean predicates, and reduce for accumulation.",
+        "Supply a reduce initial value when the empty-input behavior should be predictable.",
+        "Destructuring reads properties or positions into bindings; the colon in object patterns can rename a binding.",
+        "Spread copies only one level. Nested object references can remain shared.",
+        "Prefer small transformations whose names, inputs, outputs and side effects are easy to explain."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Functions",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function declaration",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function expression",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/function",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Arrow functions",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Array.prototype.map()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Array.prototype.reduce()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Destructuring assignment",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Spread syntax",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}
