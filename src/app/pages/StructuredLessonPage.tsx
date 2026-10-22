@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, BookOpen, CheckCircle2, Clock3, Languages } from 'lucide-react';
-import { getBootcampCurriculum, getStructuredLesson, getWeekForLesson, SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
+import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Clock3, Languages, RotateCcw } from 'lucide-react';
+import { getAdjacentStructuredLessons, getBootcampCurriculum, getStructuredLesson, getWeekForLesson, SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
 import { StructuredLessonRenderer } from '@/features/structured-lesson/StructuredLessonRenderer';
 import { useProgressStore } from '@/features/progress';
 
@@ -17,8 +17,11 @@ export default function StructuredLessonPage() {
   const week = lesson ? getWeekForLesson(lesson.id, locale) : undefined;
   const curriculum = getBootcampCurriculum(locale);
   const month = week ? curriculum.months.find((item) => item.weeks.some((entry) => entry.id === week.id)) : undefined;
+  const adjacent = lesson ? getAdjacentStructuredLessons(lesson.id, locale) : { previous: undefined, next: undefined };
 
   const markLessonOpened = useProgressStore((state) => state.markLessonOpened);
+  const markLessonCompleted = useProgressStore((state) => state.markLessonCompleted);
+  const markLessonIncomplete = useProgressStore((state) => state.markLessonIncomplete);
   const progressStatus = useProgressStore((state) =>
     lessonId ? (state.lessons[lessonId]?.status ?? 'not-started') : 'not-started',
   );
@@ -26,6 +29,14 @@ export default function StructuredLessonPage() {
   useEffect(() => {
     if (lesson) markLessonOpened(lesson.id);
   }, [lesson, markLessonOpened]);
+
+  useEffect(() => {
+    const previousLanguage = document.documentElement.lang;
+    document.documentElement.lang = locale;
+    return () => {
+      document.documentElement.lang = previousLanguage;
+    };
+  }, [locale]);
 
   const copy = locale === 'ru'
     ? {
@@ -35,8 +46,15 @@ export default function StructuredLessonPage() {
         review: 'Пилотный материал · проходит проверку',
         outcomes: 'После урока ты сможешь',
         outline: 'Содержание урока',
+        statusNotStarted: 'Не начат',
         statusStarted: 'В процессе',
         statusCompleted: 'Отмечен завершённым',
+        completionTitle: 'Отметка о завершении урока',
+        completionNote: 'Эта отметка фиксирует только твоё решение завершить чтение урока. Она не проверяет код и не доказывает освоение темы; результаты квизов и самопроверка практики отслеживаются отдельно.',
+        markComplete: 'Отметить завершённым',
+        markIncomplete: 'Вернуть в процесс',
+        previousLesson: 'Предыдущий урок',
+        nextLesson: 'Следующий урок',
         switch: 'English',
         notFound: 'Структурированный урок не найден',
         notFoundDetail: 'Этот урок пока не опубликован в новой системе контента или для него нет выбранного языка.',
@@ -50,8 +68,15 @@ export default function StructuredLessonPage() {
         review: 'Pilot content · under review',
         outcomes: 'By the end of this lesson, you will be able to',
         outline: 'Lesson outline',
+        statusNotStarted: 'Not started',
         statusStarted: 'In progress',
         statusCompleted: 'Marked complete',
+        completionTitle: 'Lesson completion marker',
+        completionNote: 'This is a self-attested marker that you have finished reviewing the lesson. It does not validate your code or prove mastery; quiz attempts and practice self-review are tracked separately.',
+        markComplete: 'Mark lesson complete',
+        markIncomplete: 'Mark incomplete',
+        previousLesson: 'Previous lesson',
+        nextLesson: 'Next lesson',
         switch: 'Русский',
         notFound: 'Structured lesson not found',
         notFoundDetail: 'This lesson is not available in the new content system yet, or the selected locale is unsupported.',
@@ -77,7 +102,7 @@ export default function StructuredLessonPage() {
 
   const otherLocale: SupportedLocale = locale === 'en' ? 'ru' : 'en';
   const outline = lesson.blocks.filter((block) => block.type === 'heading');
-  const statusLabel = progressStatus === 'completed' ? copy.statusCompleted : copy.statusStarted;
+  const statusLabel = progressStatus === 'completed' ? copy.statusCompleted : progressStatus === 'not-started' ? copy.statusNotStarted : copy.statusStarted;
 
   return (
     <div className="mx-auto w-full max-w-[1500px] px-4 pb-16 pt-6 sm:px-6 lg:px-8">
@@ -149,6 +174,56 @@ export default function StructuredLessonPage() {
           )}
         </aside>
       </div>
+
+      <section className="mt-6 rounded-2xl border border-neutral-200 bg-white p-5 shadow-subtle sm:p-6" aria-labelledby="lesson-completion-heading">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="max-w-3xl">
+            <h2 id="lesson-completion-heading" className="text-lg font-semibold text-neutral-950">{copy.completionTitle}</h2>
+            <p className="mt-2 text-sm leading-6 text-neutral-600">{copy.completionNote}</p>
+          </div>
+          {progressStatus === 'completed' ? (
+            <button
+              type="button"
+              onClick={() => lesson && markLessonIncomplete(lesson.id)}
+              className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+            >
+              <RotateCcw className="h-4 w-4" />
+              {copy.markIncomplete}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => lesson && markLessonCompleted(lesson.id)}
+              className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-primary-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+            >
+              <Check className="h-4 w-4" />
+              {copy.markComplete}
+            </button>
+          )}
+        </div>
+        {(adjacent.previous || adjacent.next) && (
+          <nav aria-label={locale === 'ru' ? 'Навигация по урокам' : 'Lesson navigation'} className="mt-5 grid gap-3 border-t border-neutral-200 pt-4 sm:grid-cols-2">
+            {adjacent.previous ? (
+              <Link to={`/${locale}/structured-lessons/${adjacent.previous.id}`} className="group flex min-h-16 items-center gap-3 rounded-xl border border-neutral-200 p-3 transition hover:border-primary-300 hover:bg-primary-50/50">
+                <ArrowLeft className="h-4 w-4 shrink-0 text-neutral-500 group-hover:text-primary-700" />
+                <span className="min-w-0">
+                  <span className="block text-xs text-neutral-500">{copy.previousLesson}</span>
+                  <span className="mt-1 block text-sm font-semibold text-neutral-900">{adjacent.previous.title}</span>
+                </span>
+              </Link>
+            ) : <span aria-hidden="true" />}
+            {adjacent.next ? (
+              <Link to={`/${locale}/structured-lessons/${adjacent.next.id}`} className="group flex min-h-16 items-center justify-end gap-3 rounded-xl border border-neutral-200 p-3 text-right transition hover:border-primary-300 hover:bg-primary-50/50">
+                <span className="min-w-0">
+                  <span className="block text-xs text-neutral-500">{copy.nextLesson}</span>
+                  <span className="mt-1 block text-sm font-semibold text-neutral-900">{adjacent.next.title}</span>
+                </span>
+                <ArrowRight className="h-4 w-4 shrink-0 text-neutral-500 group-hover:text-primary-700" />
+              </Link>
+            ) : <span aria-hidden="true" />}
+          </nav>
+        )}
+      </section>
     </div>
   );
 }

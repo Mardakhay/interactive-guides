@@ -5,7 +5,7 @@ import russianForms from './lessons/html.forms-accessibility/ru.json';
 import englishCurriculum from './curriculum/bootcamp-core.en.json';
 import russianCurriculum from './curriculum/bootcamp-core.ru.json';
 import { bootcampCurriculumSchema } from './schemas/curriculum';
-import { lessonTranslationSchema } from './schemas/lessonContent';
+import { lessonTranslationSchema, type LessonTranslation } from './schemas/lessonContent';
 
 export const SUPPORTED_LOCALES = ['en', 'ru'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
@@ -50,4 +50,24 @@ export function getCurriculumWeek(weekId: string, locale: SupportedLocale) {
 
 export function getStructuredLessonIds() {
   return [...new Set(lessonTranslations.map((lesson) => lesson.id))];
+}
+
+/** Finds neighboring available structured lessons in canonical curriculum order. */
+export function getAdjacentStructuredLessons(lessonId: string, locale: SupportedLocale): {
+  previous: LessonTranslation | undefined;
+  next: LessonTranslation | undefined;
+} {
+  const orderedLessons: LessonTranslation[] = curricula[locale].months
+    .flatMap((month) => month.weeks)
+    .flatMap((week) =>
+      week.lessonIds
+        .map((id) => lessonTranslations.find((lesson) => lesson.id === id && lesson.locale === locale))
+        .filter((lesson): lesson is LessonTranslation => lesson !== undefined),
+    );
+  const index = orderedLessons.findIndex((lesson) => lesson.id === lessonId);
+  if (index < 0) return { previous: undefined, next: undefined };
+  return {
+    previous: index > 0 ? orderedLessons[index - 1] : undefined,
+    next: index < orderedLessons.length - 1 ? orderedLessons[index + 1] : undefined,
+  };
 }

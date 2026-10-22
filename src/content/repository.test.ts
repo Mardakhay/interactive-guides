@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getBootcampCurriculum, getCurriculumWeek, getStructuredLesson, getStructuredLessonIds, getWeekForLesson } from './repository';
+import { getAdjacentStructuredLessons, getBootcampCurriculum, getCurriculumWeek, getStructuredLesson, getStructuredLessonIds, getWeekForLesson } from './repository';
 
 describe('structured content repository', () => {
   it('returns equivalent lesson IDs in both supported locales', () => {
@@ -28,5 +28,23 @@ describe('structured content repository', () => {
 
   it('returns no lesson for an unknown ID without throwing', () => {
     expect(getStructuredLesson('unknown.lesson', 'en')).toBeUndefined();
+  });
+});
+
+describe('structured lesson sequence', () => {
+  it('returns adjacent available lessons in curriculum order', () => {
+    const first = getAdjacentStructuredLessons('html.document-structure', 'en');
+    expect(first.previous).toBeUndefined();
+    expect(first.next?.id).toBe('html.forms-accessibility');
+    const second = getAdjacentStructuredLessons('html.forms-accessibility', 'ru');
+    expect(second.previous?.id).toBe('html.document-structure');
+    expect(second.next).toBeUndefined();
+  });
+
+  it('returns no neighbors for an unknown lesson ID', () => {
+    expect(getAdjacentStructuredLessons('missing.lesson', 'en')).toEqual({
+      previous: undefined,
+      next: undefined,
+    });
   });
 });
