@@ -320,7 +320,9 @@
             "Build a dashboard with multiple API calls, filters and search"
           ],
           "project": "Month 4 project: API dashboard",
-          "lessonIds": []
+          "lessonIds": [
+            "react.api-custom-hooks"
+          ]
         }
       ]
     },

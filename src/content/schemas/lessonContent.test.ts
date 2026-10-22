@@ -218,3 +218,15 @@ describe('React shared state and Context lesson translation', () => {
     expect(russianContext.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
+
+describe('React API and custom hooks lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishApiHooks.id).toBe(russianApiHooks.id);
+    expect(englishApiHooks.moduleId).toBe('month-4-week-16');
+    expect(englishApiHooks.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianApiHooks.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianApiHooks.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});

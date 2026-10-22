@@ -320,7 +320,9 @@
             "Создать dashboard с несколькими API-вызовами, фильтрами и поиском"
           ],
           "project": "Проект месяца 4: dashboard с API",
-          "lessonIds": []
+          "lessonIds": [
+            "react.api-custom-hooks"
+          ]
         }
       ]
     },
