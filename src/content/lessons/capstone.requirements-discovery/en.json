@@ -108,7 +108,7 @@
         {
           "title": "Cover the inverse operation",
           "lineStart": 10,
-          "lineEnd": 13,
+          "lineEnd": 12,
           "explanation": "A saved item usually needs a way to undo the action. Testing both directions avoids a one-way control that cannot recover from a mistake."
         }
       ]
