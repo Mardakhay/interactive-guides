@@ -27,7 +27,7 @@ describe('StorageWarningBanner', () => {
       }));
     });
 
-    expect(screen.getByRole('alert').textContent).toContain('Проблема с локальным хранилищем учебных данных');
+    expect(screen.getByRole('alert').textContent).toContain('Не удалось сохранить учебные данные');
     expect(screen.getByRole('link', { name: 'Открыть резервное копирование данных' }).getAttribute('href')).toBe('/ru/settings/data');
 
     fireEvent.click(screen.getByRole('button', { name: 'Скрыть предупреждение о сохранении' }));
