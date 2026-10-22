@@ -82,7 +82,7 @@ The sections above record the original audit of `main` and remain useful as a ba
 
 ### Structured bilingual course
 
-- The canonical JSON curriculum still represents six months and 24 weeks. The current structured repository registers 25 lesson IDs, each with an English and a Russian JSON translation (50 translation files in total).
+- The canonical JSON curriculum still represents six months and 24 weeks. The current structured repository registers 26 lesson IDs, each with an English and a Russian JSON translation (52 translation files in total).
 - Week 8 is split into two clear lessons: async JavaScript/Fetch and Git fundamentals. Every other week currently has one main structured lesson.
 - The repository imports and schema-validates all lesson translations. `getStructuredLesson`, `getWeekForLesson`, `getCurriculumWeek`, and `getAdjacentStructuredLessons` expose content and canonical navigation.
 - Lessons use stable IDs and typed blocks for prose, lists, callouts, code, code walkthroughs, knowledge checks, coding exercises and references.
