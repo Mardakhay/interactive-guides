@@ -1,3 +1,5 @@
+import englishWebBasics from './lessons/web.internet-http/en.json';
+import russianWebBasics from './lessons/web.internet-http/ru.json';
 import englishPilot from './lessons/html-document-structure/en.json';
 import russianPilot from './lessons/html-document-structure/ru.json';
 import englishForms from './lessons/html.forms-accessibility/en.json';
@@ -57,6 +59,8 @@ export const SUPPORTED_LOCALES = ['en', 'ru'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 const lessonTranslations = [
+  lessonTranslationSchema.parse(englishWebBasics),
+  lessonTranslationSchema.parse(russianWebBasics),
   lessonTranslationSchema.parse(englishPilot),
   lessonTranslationSchema.parse(russianPilot),
   lessonTranslationSchema.parse(englishForms),
