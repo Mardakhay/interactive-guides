@@ -134,3 +134,15 @@ describe('Async JavaScript and Fetch lesson translation', () => {
     expect(russianAsync.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
+
+describe('Git fundamentals lesson translation', () => {
+  it('keeps equivalent block structure in both locales', () => {
+    expect(englishGit.id).toBe(russianGit.id);
+    expect(englishGit.moduleId).toBe('month-2-week-8');
+    expect(englishGit.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianGit.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});

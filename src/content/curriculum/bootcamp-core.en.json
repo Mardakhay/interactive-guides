@@ -175,7 +175,8 @@
           ],
           "project": "Month 2 project: API-driven mini app with Git history",
           "lessonIds": [
-            "js.async-fetch"
+            "js.async-fetch",
+            "git.fundamentals"
           ]
         }
       ]
