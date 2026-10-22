@@ -47,6 +47,17 @@ interface AppCopy {
     continueWith: string;
   };
   notFoundPage: { title: string; message: string; backHome: string; };
+  lessonViewer: {
+    catalog: string; lessonNotFound: string; lessonNotFoundMessage: string; backToCatalog: string;
+    completedMovingToNext: string; lessonCompleted: string; finishedThisLesson: string;
+    markComplete: string; markIncomplete: string; allLessons: string; expandLesson: string;
+    expandedView: string; navigationLabel: string; previous: string; next: string;
+  };
+  lessonMetadata: { status: string; difficulty: string; duration: string; minutes: string; category: string; tags: string; };
+  lessonSidebar: { navigationLabel: string; };
+  notesEditor: { title: string; delete: string; placeholder: string; ariaLabel: string; saved: string; autosaves: string; };
+  bookmarkButton: { add: string; remove: string; bookmarked: string; bookmark: string; };
+  quizRenderer: { correct: string; retry: string; yourAnswer: string; answered: string; submit: string; };
   learningPathItems: Record<string, LearningPathCopy>;
   categories: Record<string, CategoryCopy>;
 }
@@ -115,6 +126,23 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
       pathCompleteMessage: 'Pick a new path to keep growing.', allPaths: 'All paths', continueWith: 'Continue with',
     },
     notFoundPage: { title: 'Page Not Found', message: "The page you're looking for doesn't exist.", backHome: 'Back to Dashboard' },
+    lessonViewer: {
+      catalog: 'Lesson catalog', lessonNotFound: 'Lesson not found',
+      lessonNotFoundMessage: "The lesson you're looking for doesn't exist or may have been removed.",
+      backToCatalog: 'Back to catalog', completedMovingToNext: 'Completed — moving to next lesson…',
+      lessonCompleted: 'You completed this lesson', finishedThisLesson: 'Finished this lesson?',
+      markComplete: 'Mark complete', markIncomplete: 'Mark incomplete', allLessons: 'All lessons',
+      expandLesson: 'Expand lesson to a larger view', expandedView: 'expanded view',
+      navigationLabel: 'Lesson navigation', previous: 'Previous', next: 'Next',
+    },
+    lessonMetadata: { status: 'Status', difficulty: 'Difficulty', duration: 'Duration', minutes: 'minutes', category: 'Category', tags: 'Tags' },
+    lessonSidebar: { navigationLabel: 'Lesson tree' },
+    notesEditor: {
+      title: 'My notes', delete: 'Delete', placeholder: 'Jot down anything worth remembering about this lesson…',
+      ariaLabel: 'Lesson notes', saved: 'Saved', autosaves: 'Autosaves as you type',
+    },
+    bookmarkButton: { add: 'Add bookmark', remove: 'Remove bookmark', bookmarked: 'Bookmarked', bookmark: 'Bookmark' },
+    quizRenderer: { correct: 'correct', retry: 'Retry quiz', yourAnswer: 'Your answer', answered: 'answered', submit: 'Submit quiz' },
     learningPathItems: {
       'frontend-foundations': {
         title: 'Frontend Foundations',
@@ -244,6 +272,23 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
       pathCompleteMessage: 'Выбери следующую траекторию для развития.', allPaths: 'Все траектории', continueWith: 'Продолжить с урока',
     },
     notFoundPage: { title: 'Страница не найдена', message: 'Такой страницы не существует.', backHome: 'На главную' },
+    lessonViewer: {
+      catalog: 'Каталог уроков', lessonNotFound: 'Урок не найден',
+      lessonNotFoundMessage: 'Такого урока не существует или он мог быть удалён.',
+      backToCatalog: 'Вернуться в каталог', completedMovingToNext: 'Завершено — переходим к следующему уроку…',
+      lessonCompleted: 'Ты завершил этот урок', finishedThisLesson: 'Закончил этот урок?',
+      markComplete: 'Отметить завершённым', markIncomplete: 'Снять отметку о завершении', allLessons: 'Все уроки',
+      expandLesson: 'Открыть урок в большем окне', expandedView: 'развёрнутый вид',
+      navigationLabel: 'Навигация по урокам', previous: 'Предыдущий', next: 'Следующий',
+    },
+    lessonMetadata: { status: 'Статус', difficulty: 'Сложность', duration: 'Длительность', minutes: 'минут', category: 'Раздел', tags: 'Теги' },
+    lessonSidebar: { navigationLabel: 'Дерево уроков' },
+    notesEditor: {
+      title: 'Мои заметки', delete: 'Удалить', placeholder: 'Запиши всё, что стоит запомнить об этом уроке…',
+      ariaLabel: 'Заметки к уроку', saved: 'Сохранено', autosaves: 'Сохраняется автоматически при вводе',
+    },
+    bookmarkButton: { add: 'Добавить в закладки', remove: 'Убрать из закладок', bookmarked: 'В закладках', bookmark: 'В закладки' },
+    quizRenderer: { correct: 'верных ответов', retry: 'Пройти тест ещё раз', yourAnswer: 'Твой ответ', answered: 'отвечено', submit: 'Отправить ответы' },
     learningPathItems: {
       'frontend-foundations': {
         title: 'Основы frontend-разработки',
@@ -370,4 +415,14 @@ export function getLearningPathCopy(locale: AppLocale, pathId: string): Learning
 
 export function getLearningPathStepNote(locale: AppLocale, pathId: string, lessonId: string, fallback = ''): string {
   return UI_COPY[locale].learningPathItems[pathId]?.stepNotes[lessonId] ?? fallback;
+}
+
+
+export function getLessonStatusLabel(locale: AppLocale, status: string): string {
+  const labels: Record<string, { en: string; ru: string }> = {
+    'not-started': { en: 'Not started', ru: 'Не начат' },
+    'in-progress': { en: 'In progress', ru: 'В процессе' },
+    completed: { en: 'Completed', ru: 'Завершён' },
+  };
+  return labels[status]?.[locale] ?? status;
 }
