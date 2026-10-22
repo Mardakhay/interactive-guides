@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { formatCatalogDescription, formatLessonCount, formatOverallProgress, getCategoryCopy, getCategoryCopyByName, getLocaleFromPathname, getOtherLocale, isAppLocale, LOCALE_STORAGE_KEY, UI_COPY } from './i18n';
+import { formatCatalogDescription, formatLessonCount, formatOverallProgress, getCategoryCopy, getCategoryCopyByName, getDifficultyLabel, getLocaleFromPathname, getOtherLocale, isAppLocale, LOCALE_STORAGE_KEY, UI_COPY } from './i18n';
 
 describe('application localization utilities', () => {
   afterEach(() => window.localStorage.clear());
@@ -26,6 +26,7 @@ describe('application localization utilities', () => {
     expect(formatLessonCount('ru', 11)).toBe('11 уроков');
     expect(formatOverallProgress('ru', 2, 8)).toBe('Общий прогресс — 2 из 8 уроков');
     expect(formatCatalogDescription('en', 100, 9)).toContain('100 interactive lessons');
+    expect(getDifficultyLabel('ru', 'beginner')).toBe('Начальный');
   });
 
   it('provides translations for known categories and switch labels', () => {
