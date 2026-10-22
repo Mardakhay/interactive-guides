@@ -49,6 +49,7 @@
             "Изучить элементы и DOM через DevTools"
           ],
           "lessonIds": [
+            "web.internet-http",
             "html.document-structure"
           ]
         },
