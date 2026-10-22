@@ -57,7 +57,7 @@ interface AppCopy {
   lessonSidebar: { navigationLabel: string; };
   notesEditor: { title: string; delete: string; placeholder: string; ariaLabel: string; saved: string; autosaves: string; };
   bookmarkButton: { add: string; remove: string; bookmarked: string; bookmark: string; };
-  quizRenderer: { correct: string; retry: string; yourAnswer: string; answered: string; submit: string; };
+  quizRenderer: { correct: string; retry: string; yourAnswer: string; answered: string; submit: string; score: string; answeredSummary: string; };
   learningPathItems: Record<string, LearningPathCopy>;
   categories: Record<string, CategoryCopy>;
 }
@@ -142,7 +142,7 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
       ariaLabel: 'Lesson notes', saved: 'Saved', autosaves: 'Autosaves as you type',
     },
     bookmarkButton: { add: 'Add bookmark', remove: 'Remove bookmark', bookmarked: 'Bookmarked', bookmark: 'Bookmark' },
-    quizRenderer: { correct: 'correct', retry: 'Retry quiz', yourAnswer: 'Your answer', answered: 'answered', submit: 'Submit quiz' },
+    quizRenderer: { correct: 'correct', retry: 'Retry quiz', yourAnswer: 'Your answer', answered: 'answered', submit: 'Submit quiz', score: '{score} / {total} correct · {percent}%', answeredSummary: '{answered} / {total} answered' },
     learningPathItems: {
       'frontend-foundations': {
         title: 'Frontend Foundations',
@@ -288,7 +288,7 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
       ariaLabel: 'Заметки к уроку', saved: 'Сохранено', autosaves: 'Сохраняется автоматически при вводе',
     },
     bookmarkButton: { add: 'Добавить в закладки', remove: 'Убрать из закладок', bookmarked: 'В закладках', bookmark: 'В закладки' },
-    quizRenderer: { correct: 'верных ответов', retry: 'Пройти тест ещё раз', yourAnswer: 'Твой ответ', answered: 'отвечено', submit: 'Отправить ответы' },
+    quizRenderer: { correct: 'верных ответов', retry: 'Пройти тест ещё раз', yourAnswer: 'Твой ответ', answered: 'отвечено', submit: 'Отправить ответы', score: '{score} из {total} верно · {percent}%', answeredSummary: 'Ответов: {answered} из {total}' },
     learningPathItems: {
       'frontend-foundations': {
         title: 'Основы frontend-разработки',
@@ -435,4 +435,17 @@ export function formatDurationMinutes(locale: AppLocale, minutes: number): strin
     : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14) ? 'минуты'
     : 'минут';
   return `${minutes} ${noun}`;
+}
+
+export function formatQuizScore(locale: AppLocale, score: number, total: number, percent: number): string {
+  return UI_COPY[locale].quizRenderer.score
+    .replace('{score}', String(score))
+    .replace('{total}', String(total))
+    .replace('{percent}', String(percent));
+}
+
+export function formatQuizAnswered(locale: AppLocale, answered: number, total: number): string {
+  return UI_COPY[locale].quizRenderer.answeredSummary
+    .replace('{answered}', String(answered))
+    .replace('{total}', String(total));
 }
