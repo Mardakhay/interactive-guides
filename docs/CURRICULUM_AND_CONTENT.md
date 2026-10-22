@@ -11,6 +11,7 @@ Structured pilot lessons now present in the application (both locales, status `r
 - Week 2: `html.forms-accessibility`
 - Week 3: `css.fundamentals`
 - Week 4: `css.flexbox-grid-responsive`
+- Week 5: `js.basics-types-control-flow`
 
 These are pilot lessons, not marked fully editorially approved/published.
 - Week 1: internet, browser, HTTP, URL, request/response; HTML document structure and semantic elements. Practice: About Me page and DevTools.
