@@ -30,4 +30,11 @@ describe('SearchPage structured lessons', () => {
     const resultLink = await screen.findByRole('link', { name: /DOM and Browser Events/ });
     expect(resultLink.getAttribute('href')).toBe('/en/structured-lessons/js.dom-events');
   });
+
+  it('searches localized difficulty labels in the selected locale', async () => {
+    useLocaleStore.setState({ locale: 'ru' });
+    render(<MemoryRouter><SearchPage /></MemoryRouter>);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Поиск' }), { target: { value: 'Начальный' } });
+    expect(await screen.findByRole('link', { name: /Структура HTML-документа/ })).toBeTruthy();
+  });
 });
