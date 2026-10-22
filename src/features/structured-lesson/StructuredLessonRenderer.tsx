@@ -258,8 +258,8 @@ function CodingExercise({
           </label>
           <p className="mt-1 text-xs text-neutral-500">
             {locale === 'ru'
-              ? 'Черновик сохраняется локально при вводе. Для HTML есть изолированный предпросмотр; другие языки пока не запускаются.'
-              : 'Your draft is saved locally as you type. HTML has an isolated preview; other languages are not executed yet.'}
+              ? 'Черновик сохраняется локально. JavaScript можно запустить в ограниченном Worker; задания с DOM, TSX и shell выполняй в своём проекте. HTML доступен в предпросмотре без скриптов.'
+              : 'Your draft is saved locally. JavaScript can run in a restricted Worker; DOM, TSX, and shell exercises must run in your own project. HTML has a script-disabled preview.'}
           </p>
           <textarea
             id={`${block.id}-editor`}
