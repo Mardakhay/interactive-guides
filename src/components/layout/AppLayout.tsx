@@ -5,6 +5,8 @@ import { TopBar } from './TopBar';
 import { MobileNav } from './MobileNav';
 import { Spinner } from '@/components/ui';
 import { useRouteFocus } from '@/hooks/useRouteFocus';
+import { NetworkStatusBanner } from '@/components/feedback/NetworkStatusBanner';
+import { PWAInstallPrompt } from '@/components/feedback/PWAInstallPrompt';
 
 export function AppLayout() {
   useRouteFocus();
@@ -15,6 +17,8 @@ export function AppLayout() {
       <Sidebar />
       <div className="lg:pl-64">
         <TopBar />
+        <NetworkStatusBanner />
+        <PWAInstallPrompt />
         <main id="main-content" className="min-h-[calc(100vh-4rem)] p-4 pb-20 lg:p-6 lg:pb-6">
           <div className="mx-auto max-w-6xl">
             <Suspense
