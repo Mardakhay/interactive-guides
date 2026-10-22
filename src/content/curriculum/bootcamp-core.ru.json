@@ -271,7 +271,9 @@
           "practice": [
             "Создать SPA из 2–3 страниц: Home, About и Posts"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.router-spa"
+          ]
         },
         {
           "id": "month-4-week-14",

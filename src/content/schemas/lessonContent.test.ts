@@ -182,3 +182,15 @@ describe('React effects and lists lesson translation', () => {
     expect(russianReactEffects.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
+
+describe('React Router lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishRouter.id).toBe(russianRouter.id);
+    expect(englishRouter.moduleId).toBe('month-4-week-13');
+    expect(englishRouter.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianRouter.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishRouter.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianRouter.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});

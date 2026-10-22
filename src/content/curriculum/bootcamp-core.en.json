@@ -271,7 +271,9 @@
           "practice": [
             "Build a 2–3 page SPA with Home, About and Posts routes"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.router-spa"
+          ]
         },
         {
           "id": "month-4-week-14",
