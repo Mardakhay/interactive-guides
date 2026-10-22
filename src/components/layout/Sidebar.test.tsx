@@ -18,7 +18,7 @@ describe('localized application navigation', () => {
     useLocaleStore.setState({ locale: 'ru' });
     render(<MemoryRouter><Sidebar /><MobileNav /></MemoryRouter>);
     expect(screen.getByRole('navigation', { name: 'Основная навигация' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Главная' })).toBeTruthy();
+    expect(screen.getAllByRole('link', { name: 'Главная' })).toHaveLength(2);
     expect(screen.getByRole('link', { name: 'Учебные траектории' })).toBeTruthy();
     expect(screen.getByRole('navigation', { name: 'Мобильная навигация' })).toBeTruthy();
     expect(screen.getAllByRole('link', { name: 'Поиск' })).toHaveLength(2);

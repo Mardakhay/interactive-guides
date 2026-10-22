@@ -22,7 +22,7 @@ describe('AppLayout locale synchronization', () => {
         </Routes>
       </MemoryRouter>,
     );
-    expect(await screen.findByRole('link', { name: 'Главная' })).toBeTruthy();
+    expect((await screen.findAllByRole('link', { name: 'Главная' })).length).toBeGreaterThan(0);
     expect(document.documentElement.lang).toBe('ru');
     expect(window.localStorage.getItem('ig:locale')).toBe('ru');
   });
