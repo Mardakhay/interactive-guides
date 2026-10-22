@@ -217,7 +217,9 @@
           "practice": [
             "Создать модуль списка пользователей с типами"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "typescript.fundamentals"
+          ]
         },
         {
           "id": "month-3-week-11",

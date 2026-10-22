@@ -158,3 +158,15 @@ describe('Node.js and project tooling lesson translation', () => {
     expect(russianTooling.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
+
+describe('TypeScript fundamentals lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishTypeScript.id).toBe(russianTypeScript.id);
+    expect(englishTypeScript.moduleId).toBe('month-3-week-10');
+    expect(englishTypeScript.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianTypeScript.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishTypeScript.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianTypeScript.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
