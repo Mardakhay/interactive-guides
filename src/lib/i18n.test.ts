@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { getLocaleFromPathname, getOtherLocale, isAppLocale, LOCALE_STORAGE_KEY, UI_COPY } from './i18n';
+import { formatCatalogDescription, formatLessonCount, formatOverallProgress, getCategoryCopy, getLocaleFromPathname, getOtherLocale, isAppLocale, LOCALE_STORAGE_KEY, UI_COPY } from './i18n';
 
 describe('application localization utilities', () => {
   afterEach(() => window.localStorage.clear());
 
-  it('recognizes only the supported interface locales', () => {
+  it('recognizes only supported interface locales', () => {
     expect(isAppLocale('en')).toBe(true);
     expect(isAppLocale('ru')).toBe(true);
     expect(isAppLocale('az')).toBe(false);
@@ -18,7 +18,20 @@ describe('application localization utilities', () => {
     expect(getLocaleFromPathname('/russian/courses')).toBeUndefined();
   });
 
-  it('keeps language switch labels consistent', () => {
+  it('localizes lesson counts and catalog/progress text', () => {
+    expect(formatLessonCount('en', 1)).toBe('1 lesson');
+    expect(formatLessonCount('en', 3)).toBe('3 lessons');
+    expect(formatLessonCount('ru', 1)).toBe('1 урок');
+    expect(formatLessonCount('ru', 3)).toBe('3 урока');
+    expect(formatLessonCount('ru', 11)).toBe('11 уроков');
+    expect(formatOverallProgress('ru', 2, 8)).toBe('Общий прогресс — 2 из 8 уроков');
+    expect(formatCatalogDescription('en', 100, 9)).toContain('100 interactive lessons');
+  });
+
+  it('provides translations for known categories and switch labels', () => {
+    expect(getCategoryCopy('ru', 'javascript')?.name).toBe('JavaScript');
+    expect(getCategoryCopy('ru', 'web-basics')?.name).toBe('Основы веба');
+    expect(getCategoryCopy('ru', 'missing-category')).toBeUndefined();
     expect(UI_COPY.en.language.shortLabel).toBe('RU');
     expect(UI_COPY.ru.language.shortLabel).toBe('EN');
     expect(getOtherLocale('en')).toBe('ru');
