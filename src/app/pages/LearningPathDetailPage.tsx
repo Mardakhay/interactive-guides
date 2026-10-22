@@ -61,7 +61,7 @@ export default function LearningPathDetailPage() {
       <Breadcrumbs
         items={[
           { label: copy.title, path: ROUTE_PATHS.LEARNING_PATHS },
-          { label: path.title },
+          { label: pathCopy?.title ?? path.title },
         ]}
       />
 
