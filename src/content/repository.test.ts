@@ -9,6 +9,7 @@ import {
 } from './repository';
 
 const expectedIds = [
+  'web.internet-http',
   'html.document-structure',
   'html.forms-accessibility',
   'css.fundamentals',
@@ -56,6 +57,7 @@ describe('structured content repository', () => {
 
   it('maps all structured lessons to their canonical week', () => {
     const expectedWeeks: Record<string, string> = {
+      'web.internet-http': 'month-1-week-1',
       'html.document-structure': 'month-1-week-1',
       'html.forms-accessibility': 'month-1-week-2',
       'css.fundamentals': 'month-1-week-3',
@@ -90,6 +92,7 @@ describe('structured content repository', () => {
 
   it('returns localized lesson IDs in the sequence of the syllabus', () => {
     const expectedSequence = [
+      'web.internet-http',
       'html.document-structure',
       'html.forms-accessibility',
       'css.fundamentals',
@@ -133,6 +136,8 @@ describe('structured content repository', () => {
   });
 
   it('can retrieve any canonical week by stable ID', () => {
+    expect(getCurriculumWeek('month-1-week-1', 'en')?.lessonIds).toContain('web.internet-http');
+    expect(getCurriculumWeek('month-1-week-1', 'ru')?.lessonIds).toContain('html.document-structure');
     expect(getCurriculumWeek('month-2-week-7', 'ru')?.lessonIds).toContain('js.dom-events');
     expect(getCurriculumWeek('month-3-week-11', 'en')?.lessonIds).toContain('react.components-jsx-state');
     expect(getCurriculumWeek('month-5-week-17', 'en')?.lessonIds).toContain('ui.design-systems');
