@@ -5,124 +5,106 @@
 **Base branch:** `main`  
 **Working branch:** `feat/learning-platform-foundation`  
 **Draft PR:** [#1 — structured bilingual lesson foundation](https://github.com/Mardakhay/interactive-guides/pull/1)  
-**Latest validated commit:** `ce27c5c63d9a0f6161968e7f34d63e4708364366`  
-**Latest GitHub Actions run:** [Run #39 — passed](https://github.com/Mardakhay/interactive-guides/actions/runs/39755299982)
+**Current branch head:** `3b61392a839b169591ac3dbdb1170cfb94b4eb4e`
 
 ## Project goal
 
-Rebuild Interactive Guides as a cohesive bilingual (English/Russian), mobile-first, PWA-ready learning platform based on the user's Notion learning notes, the supplied six-month/24-week ABB Frontend Bootcamp syllabus, carefully verified current primary documentation, and useful existing code.
+Rebuild Interactive Guides as a cohesive bilingual (English/Russian), mobile-first, PWA-ready learning platform based on the user's Notion learning notes, the supplied six-month/24-week ABB Frontend Bootcamp syllabus, carefully verified primary documentation, and useful existing code.
 
 Lessons must be deep but understandable: explain concepts and mechanisms, show worked examples, include knowledge checks and relevant coding practice, explain errors, and avoid claiming mastery just because content was opened. Scope includes HTML, CSS, browser fundamentals, JavaScript, Git, Node/npm/build/package tooling, TypeScript, React, architecture, testing, accessibility, performance, authentication, deployment and supplementary SQL/Supabase.
 
-## Verified current application before redesign
+## Verified application before redesign
 
 - React 18 + TypeScript + Vite 5 + Tailwind 3.
 - React Router, Zustand, Zod, Vitest/Testing Library and GitHub Actions CI.
-- Current catalog: `src/data/lessons.json`; existing quizzes: `src/data/quizzes.json`.
-- Legacy content map: `src/features/lesson-renderer/lessonLoader.ts`.
-- Source content: 25 standalone HTML files in `public/lessons/*.html`.
-- Existing progress store: `src/features/progress/store.ts`, backed by localStorage.
-- Existing features include dashboard, catalog, lesson reader, learning paths, bookmarks, notes, search, quizzes and local progress.
-- Existing content is category-first and did not initially represent the full 24-week core syllabus in order.
+- Existing course catalog: `src/data/lessons.json`; quiz data: `src/data/quizzes.json`.
+- Existing HTML map: `src/features/lesson-renderer/lessonLoader.ts`.
+- Legacy source content: 25 standalone files in `public/lessons/*.html`.
+- Existing progress: `src/features/progress/store.ts`, persisted in localStorage.
+- Existing features include dashboard, course catalog, lesson reader, learning paths, bookmarks, notes, search, quizzes and local progress.
 
-## Implemented on `feat/learning-platform-foundation`
+## Implemented content foundation on the working branch
 
-### Content and curriculum contracts
-- `src/content/schemas/lessonContent.ts`: Zod schemas for typed lesson blocks, metadata, quiz answer invariants, unique block IDs, references and code-walkthrough line boundaries.
-- `src/content/schemas/curriculum.ts`: validates the six-month / 24-week order and unique stable identifiers.
-- `src/content/curriculum/bootcamp-core.en.json` and `bootcamp-core.ru.json`: canonical core syllabus and six separately labelled supplementary tracks.
-- `src/content/repository.ts`, `src/content/index.ts`: validates and retrieves translations/curriculum; resolves a lesson's week and previous/next available structured lessons in syllabus order.
+- Typed lesson block/translation schema in `src/content/schemas/lessonContent.ts`.
+- Curriculum schema enforcing six months, 24 consecutive weeks and unique identifiers in `src/content/schemas/curriculum.ts`.
+- English/Russian bootcamp curriculum in `src/content/curriculum/bootcamp-core.en.json` and `bootcamp-core.ru.json`, with supplementary topics explicitly separated from the original syllabus.
+- Validated lesson repository in `src/content/repository.ts`; available structured lesson IDs currently resolve in the following sequence:
+  1. Week 1: `html.document-structure`
+  2. Week 2: `html.forms-accessibility`
+  3. Week 3: `css.fundamentals`
+  4. Week 4: `css.flexbox-grid-responsive`
+  5. Week 5: `js.basics-types-control-flow`
 
-### Structured bilingual lessons
-Available in both locales and included in the content repository:
+Each lesson has an English and Russian JSON translation under `src/content/lessons/<lesson-id>/`. All currently use the editorial status `review` and should not be called fully approved/published yet.
 
-1. Week 1 — `html.document-structure`
-   - `src/content/lessons/html-document-structure/en.json`
-   - `src/content/lessons/html-document-structure/ru.json`
-   - Document shell, metadata, semantic regions, code walkthrough, knowledge checks, independent About Me page exercise and MDN/WHATWG references.
+### Lesson topics
 
-2. Week 2 — `html.forms-accessibility`
-   - `src/content/lessons/html.forms-accessibility/en.json`
-   - `src/content/lessons/html.forms-accessibility/ru.json`
-   - Form/action/method, id/name/label, placeholders, input types, native validation, fieldset/legend, accessible errors, three checks and a registration-form exercise.
+- **Week 1 — HTML document structure:** doctype, html/head/body, metadata, semantic sections, code walkthrough, knowledge checks, independent About Me page exercise and references.
+- **Week 2 — HTML forms and accessibility:** form submission basics, label/id/name, input types, autocomplete, validation, fieldset/legend, accessible errors, three checks, registration form exercise.
+- **Week 3 — CSS fundamentals:** stylesheet placement, selectors, cascade/specificity, box model, border-box, display, checks and landing-page practice.
+- **Week 4 — Flexbox/Grid/responsive design:** flex axes and alignment, Grid tracks/fr/repeat/minmax, mobile-first media queries, responsive failure modes, checks and a responsive-card exercise.
+- **Week 5 — JavaScript basics:** let/const, primitive types, null/undefined, operators, strict equality/coercion, if/else, switch, for/while/for...of, checks and a running-order-total coding task.
 
-3. Week 3 — `css.fundamentals`
-   - `src/content/lessons/css.fundamentals/en.json`
-   - `src/content/lessons/css.fundamentals/ru.json`
-   - CSS attachment methods, selectors, cascade/specificity, box model, border-box, display types, knowledge checks, landing-page practice and MDN sources.
+## Reader and learner state
 
-4. Week 4 — `css.flexbox-grid-responsive`
-   - `src/content/lessons/css.flexbox-grid-responsive/en.json`
-   - `src/content/lessons/css.flexbox-grid-responsive/ru.json`
-   - Flexbox axes/alignment, Grid tracks/fr/repeat/minmax, mobile-first queries, common responsive failures, three checks and a responsive card-layout exercise.
+- Shared React renderer: `src/features/structured-lesson/StructuredLessonRenderer.tsx`.
+- Locale-aware route: `/:locale/structured-lessons/:lessonId`.
+- Reader includes learning outcomes, TOC, EN/RU switching, curriculum-ordered previous/next navigation and a self-attested completion marker.
+- Reader changes the document `lang` attribute when locale changes.
+- Completion is explicitly distinct from quiz results and practice evidence; it is not marketed as mastery.
+- Local structured learning store: `src/features/structured-lesson/store.ts`, tracks quiz-attempt history, code drafts, and self-review checklist state separately from the old lesson-status store.
+- The editor executes no arbitrary JavaScript. Only HTML preview is provided and runs in a sandboxed iframe with scripts disabled.
+- Schema validation now includes line-reference bounds for code walkthroughs.
 
-All four are marked `review`; they are structured pilot content, not yet fully editorially approved or published. EN/RU versions use stable lesson IDs and parallel block IDs/types.
+## PWA foundation
 
-### Reader and interactions
-- `src/features/structured-lesson/StructuredLessonRenderer.tsx`: shared renderers for prose, callouts, lists, code, code walkthroughs, knowledge checks, coding exercises and references.
-- Coding tasks save local drafts and self-review checklist ticks; HTML has an isolated sandboxed preview with scripts disabled.
-- Quiz attempts are persisted separately from lesson completion through `src/features/structured-lesson/store.ts`.
-- `src/app/pages/StructuredLessonPage.tsx` and `/:locale/structured-lessons/:lessonId`: localized reader, language switch, learning outcomes, TOC, curriculum-context panel, next/previous navigation and self-attested completion control.
-- The reader updates the document language for accessibility.
-- The existing dashboard links to the pilot lesson in English and Russian.
+- `public/manifest.webmanifest`, SVG icon assets, `public/sw.js`, production service-worker registration, network status banner and install/update UI have been added.
+- App shell, hashed assets and public legacy lesson files have basic cache strategies.
+- API/auth/functions/storage/realtime paths are explicitly excluded from service-worker caching.
+- PWA installability and offline behavior have not yet been verified on actual Android/iOS devices.
 
-### PWA foundation
-- Added `public/manifest.webmanifest`, SVG app icons, `public/sw.js`, service worker registration, offline status banner, install/update prompt and PWA static contract tests.
-- Public app assets/lesson HTML can be cached; API/auth/rest/functions/storage/realtime paths are excluded from service-worker caching.
-- This is a PWA foundation, not yet real-device-verified install/offline behavior.
+## Latest CI evidence
 
-### Learning data and tests
-- Local structured learning store tracks quiz-attempt history, code drafts and practice self-review separately from the legacy lesson-status store.
-- Tests cover lesson/curriculum schemas, stable translation structure, lesson repository lookups, neighboring lesson order, renderer interaction, completion state, local draft/attempt persistence and PWA static contract.
-- Schema now rejects walkthrough line references that exceed sample-code line count.
-- No automated arbitrary-language code execution is implemented; HTML previews remain sandboxed.
+- Latest CI run: [run #41](https://github.com/Mardakhay/interactive-guides/actions/runs/39755952551) — status `completed`, conclusion `failure`.
+The repository workflow checks `npm ci`, lint, TypeScript typecheck, tests and production build. When resuming, inspect the exact current branch head and its latest run rather than assuming a previous passing run covers subsequent commits.
 
-## Validation evidence
+## Supabase status
 
-Latest GitHub Actions run #39 passed on `ce27c5c63d9a0f6161968e7f34d63e4708364366`:
-- `npm ci`
-- `npm run lint`
-- `npm run typecheck`
-- `npm test`
-- `npm run build`
+The connected Supabase account has projects named `kaelig` and `Mardakhay's Project`; neither is named for Interactive Guides. No schema was changed. Do not repurpose an existing project or create a potentially billable one without confirming intent and cost. Never expose service-role credentials in browser code. Local-first work should proceed before cloud sync.
 
-Two earlier runs failed while introducing walkthrough line-count validation because the line-splitting literal was initially escaped incorrectly. The code now uses actual newline boundaries; run #39 passed with the corrected implementation. Keep the tests; do not remove the validation as a workaround.
+## Documents in `docs/`
 
-## Supabase discovery and constraint
-
-The connected Supabase account lists projects named `kaelig` and `Mardakhay's Project`; neither is named for Interactive Guides. Existing schemas were inspected read-only and no schema was changed. Do not repurpose an existing project or create a potentially billable project without explicit confirmation and cost review. Never expose service-role credentials to browser code.
-
-## Documentation
-
-- `docs/README.md`
-- `docs/CURRENT_STATE.md`
-- `docs/PRODUCT_REQUIREMENTS.md`
-- `docs/ARCHITECTURE.md`
-- `docs/CURRICULUM_AND_CONTENT.md`
-- `docs/LEGACY_CONTENT_INVENTORY.md`
-- `docs/PERSISTENCE_AND_SUPABASE.md`
-- `docs/PWA_AND_MOBILE.md`
-- `docs/ROADMAP.md`
-- `docs/DECISIONS.md`
-- `docs/SESSION_HANDOFF.md`
+- `README.md`
+- `CURRENT_STATE.md`
+- `PRODUCT_REQUIREMENTS.md`
+- `ARCHITECTURE.md`
+- `CURRICULUM_AND_CONTENT.md`
+- `LEGACY_CONTENT_INVENTORY.md`
+- `PERSISTENCE_AND_SUPABASE.md`
+- `PWA_AND_MOBILE.md`
+- `ROADMAP.md`
+- `DECISIONS.md`
+- `SESSION_HANDOFF.md`
 
 ## Next actions
 
-1. Continue the canonical syllabus with Week 5 — JavaScript Basics (let/const, primitives, operators, conditions and loops) in English and Russian.
-2. Add JavaScript examples and test questions that independently check coercion/types/control-flow reasoning, then an independent coding task.
-3. Keep the CSS line-reference validation and build upon schema tests.
-4. Improve local progress durability/migration/export before any cloud sync.
-5. Make PWA behavior safer and testable: add unit tests for service-worker policies where practical, ensure deployed base paths match manifest/service-worker scope, then perform device checks when a browser/device environment is available.
-6. Audit all 25 source HTML files fully; keep them until bilingual structured replacements pass review.
-7. Add Supabase after local contracts stabilize and the intended project/cost are agreed.
-8. Update this file after every logical phase and keep PR #1 in draft until review and coverage are sufficient.
+1. Verify the latest CI run for the exact current branch head and fix any failures before continuing.
+2. Continue Week 6 — functions, array methods and objects — in both locales, preserving the given syllabus order.
+3. Add the new lesson to the curriculum JSON, lesson repository and schema/locale parity tests.
+4. Audit local progress/notes/bookmarks persistence for versioned migrations and data export before cloud sync.
+5. Continue migrating the 25 HTML inputs in syllabus order, fully inspecting source content, improving accuracy, and maintaining equivalent translations.
+6. Test mobile layout and PWA behavior through actual browser/device checks when available.
+7. Implement Supabase only after local contracts stabilize and the intended project/cost are agreed.
+8. Keep PR #1 in draft until tests, content quality and scope are ready for review.
 
 ## Commit conventions
 
-Use focused Conventional Commit-style messages, for example:
-- `content(javascript): add bilingual JavaScript basics lesson`
-- `test(content): validate lesson links and translation parity`
-- `feat(progress): preserve attempts and drafts across sessions`
-- `feat(pwa): validate offline routes and update behavior`
+Use focused Conventional Commit-style messages:
+- `content(javascript): ...`
+- `content(css): ...`
+- `feat(lesson-reader): ...`
+- `feat(progress): ...`
+- `test(content): ...`
+- `docs: ...`
 
-Do not report planned features as implemented and do not delete old lessons before verified migration.
+Do not report planned features as implemented and do not delete legacy HTML until each replacement passes review.
