@@ -146,3 +146,15 @@ describe('Git fundamentals lesson translation', () => {
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
+
+describe('Node.js and project tooling lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishTooling.id).toBe(russianTooling.id);
+    expect(englishTooling.moduleId).toBe('month-3-week-9');
+    expect(englishTooling.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianTooling.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishTooling.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianTooling.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});

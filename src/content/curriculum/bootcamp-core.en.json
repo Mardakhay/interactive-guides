@@ -200,7 +200,9 @@
           "practice": [
             "Create a React project and configure linting and formatting"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "tooling.node-npm-vite"
+          ]
         },
         {
           "id": "month-3-week-10",
