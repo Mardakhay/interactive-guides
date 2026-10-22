@@ -257,8 +257,8 @@ function CodingExercise({
           </label>
           <p className="mt-1 text-xs text-neutral-500">
             {locale === 'ru'
-              ? 'Редактор сохраняет текст в текущем открытом уроке; запуск кода будет отдельной функцией.'
-              : 'This editor keeps text in the currently open lesson; code execution will be a separate feature.'}
+              ? 'Черновик сохраняется локально при вводе. Для HTML есть изолированный предпросмотр; другие языки пока не запускаются.'
+              : 'Your draft is saved locally as you type. HTML has an isolated preview; other languages are not executed yet.'}
           </p>
           <textarea
             id={`${block.id}-editor`}
