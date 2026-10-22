@@ -28,6 +28,7 @@ interface StructuredLearningStore extends PersistedState {
     criterionIndex: number,
     checked: boolean,
   ) => void;
+  setSectionComplete: (lessonId: string, sectionId: string, completed: boolean) => void;
 }
 
 const EMPTY_STATE: PersistedState = EMPTY_STRUCTURED_LEARNING_STATE;
@@ -65,6 +66,7 @@ export const useStructuredLearningStore = create<StructuredLearningStore>((set) 
         },
         codeDrafts: state.codeDrafts,
         practiceChecklists: state.practiceChecklists,
+        sectionProgress: state.sectionProgress,
       };
       persist(next);
       return next;
@@ -81,6 +83,7 @@ export const useStructuredLearningStore = create<StructuredLearningStore>((set) 
           [key]: { code, updatedAt: new Date().toISOString() },
         },
         practiceChecklists: state.practiceChecklists,
+        sectionProgress: state.sectionProgress,
       };
       persist(next);
       return next;
@@ -116,6 +119,31 @@ export const useStructuredLearningStore = create<StructuredLearningStore>((set) 
           ...state.practiceChecklists,
           [key]: {
             checkedCriteria: [...criteria].sort((a, b) => a - b),
+            updatedAt: new Date().toISOString(),
+          },
+        },
+        sectionProgress: state.sectionProgress,
+      };
+      persist(next);
+      return next;
+    });
+  },
+
+  setSectionComplete: (lessonId, sectionId, completed) => {
+    set((state) => {
+      const current = state.sectionProgress[lessonId]?.completedBlockIds ?? [];
+      const sectionIds = new Set(current);
+      if (completed) sectionIds.add(sectionId);
+      else sectionIds.delete(sectionId);
+
+      const next: PersistedState = {
+        quizAttempts: state.quizAttempts,
+        codeDrafts: state.codeDrafts,
+        practiceChecklists: state.practiceChecklists,
+        sectionProgress: {
+          ...state.sectionProgress,
+          [lessonId]: {
+            completedBlockIds: [...sectionIds],
             updatedAt: new Date().toISOString(),
           },
         },
