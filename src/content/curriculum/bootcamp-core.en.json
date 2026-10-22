@@ -248,7 +248,9 @@
             "Build an API-powered News/Posts list with loading and error states"
           ],
           "project": "Month 3 project: News / Posts List",
-          "lessonIds": []
+          "lessonIds": [
+            "react.effects-lists-composition"
+          ]
         }
       ]
     },

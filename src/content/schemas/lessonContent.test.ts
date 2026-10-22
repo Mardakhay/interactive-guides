@@ -170,3 +170,15 @@ describe('TypeScript fundamentals lesson translation', () => {
     expect(russianTypeScript.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
+
+describe('React effects and lists lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishReactEffects.id).toBe(russianReactEffects.id);
+    expect(englishReactEffects.moduleId).toBe('month-3-week-12');
+    expect(englishReactEffects.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianReactEffects.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianReactEffects.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
