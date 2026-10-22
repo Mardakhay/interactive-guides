@@ -426,3 +426,13 @@ export function getLessonStatusLabel(locale: AppLocale, status: string): string 
   };
   return labels[status]?.[locale] ?? status;
 }
+
+export function formatDurationMinutes(locale: AppLocale, minutes: number): string {
+  if (locale === 'en') return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
+  const mod10 = minutes % 10;
+  const mod100 = minutes % 100;
+  const noun = mod10 === 1 && mod100 !== 11 ? 'минута'
+    : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14) ? 'минуты'
+    : 'минут';
+  return `${minutes} ${noun}`;
+}
