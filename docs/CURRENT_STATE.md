@@ -98,7 +98,7 @@ The sections above record the original audit of `main` and remain useful as a ba
 
 ### Practice and progress
 
-- `src/features/structured-lesson/store.ts` persists quiz attempts, code drafts, and checked self-review criteria locally in a dedicated versioned key.
+- `src/features/structured-lesson/store.ts` persists quiz attempts, code drafts, and checked self-review criteria locally in a dedicated versioned key. `src/lib/storage.ts` now emits a non-data-bearing event when a local persistence write/removal fails, and `StorageWarningBanner` shows a localized warning with a route to data backup.
 - Coding exercises save drafts and expose hints/rubrics. The only live preview is HTML in an iframe with scripts disabled. **JavaScript and TypeScript exercises are not executable in the current UI.**
 - A bilingual Data Management page and `src/features/data-portability/backup.ts` implement versioned JSON export/import for progress, bookmarks, notes, legacy quiz results, structured quiz attempts, code drafts, practice checklists, last lesson and theme. Import validates before writing, previews a summary, merges instead of clearing, uses per-record conflict rules, and attempts rollback if storage writes fail; `backup.test.ts` covers these cases. Remaining gaps are migration functions for future persisted-schema changes and visible recovery feedback for ordinary autosave/quota failures, since the generic storage helper still catches write errors silently.
 
@@ -110,8 +110,8 @@ The sections above record the original audit of `main` and remain useful as a ba
 
 ### Verification status
 
-- The latest known successful CI before the Week 1 web lesson is run [#141](https://github.com/Mardakhay/interactive-guides/actions/runs/39773846222) for commit `d7fe944359468862394130dd117fb4c069646e81`.
-- The Week 1 web lesson, curriculum registration and navigation assertions were added after that checkpoint. Verify GitHub Actions for the exact latest branch HEAD before making a current-green-CI claim.
+- GitHub Actions run [#167](https://github.com/Mardakhay/interactive-guides/actions/runs/39776235742) passed for the exact current code/test HEAD `be9e050fba35082d036367e3e6b7eec47a7636c3`: `npm ci`, lint, TypeScript typecheck, tests and production build all succeeded.
+- This run includes the Week 1 web/HTTP lesson, curriculum navigation checks, local-storage failure notification and its tests. Recheck the exact HEAD after subsequent commits.
 - This is remote repository/CI evidence; no local `npm ci` or browser/device testing was executed in this environment.
 
 ### Next highest-value work
