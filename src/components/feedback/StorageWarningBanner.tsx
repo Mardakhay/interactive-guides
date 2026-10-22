@@ -8,6 +8,7 @@ import {
   type StorageErrorDetail,
 } from '@/lib/storage';
 import { useLocaleStore } from '@/stores/localeStore';
+import { retryPersistedLearningData } from '@/features/data-portability/retryPersistence';
 
 function getDetails(event: Event): StorageErrorDetail | undefined {
   if (!(event instanceof CustomEvent)) return undefined;
@@ -27,6 +28,8 @@ export function StorageWarningBanner() {
   const { pathname } = useLocation();
   const locale = useLocaleStore((state) => state.locale);
   const [storageError, setStorageError] = useState<StorageErrorDetail | null>(null);
+  const [retrySucceeded, setRetrySucceeded] = useState(false);
+  const [retryFailed, setRetryFailed] = useState(false);
   const isRussian = pathname.startsWith('/ru/') || (!pathname.startsWith('/en/') && locale === 'ru');
   const backupPath = pathname.startsWith('/ru/')
     ? '/ru/settings/data'
@@ -38,7 +41,11 @@ export function StorageWarningBanner() {
   useEffect(() => {
     const handleStorageError = (event: Event) => {
       const detail = getDetails(event);
-      if (detail) setStorageError(detail);
+      if (detail) {
+        setRetrySucceeded(false);
+        setRetryFailed(false);
+        setStorageError(detail);
+      }
     };
 
     window.addEventListener(STORAGE_ERROR_EVENT, handleStorageError);
@@ -49,7 +56,7 @@ export function StorageWarningBanner() {
     return () => window.removeEventListener(STORAGE_ERROR_EVENT, handleStorageError);
   }, []);
 
-  if (!storageError) return null;
+  if (!storageError && !retrySucceeded) return null;
 
   const copy = isRussian
     ? {
@@ -61,6 +68,10 @@ export function StorageWarningBanner() {
         removeBody: 'Новая версия данных могла быть сохранена, но старую копию не удалось удалить. Проверь данные и создай резервную копию, прежде чем вручную очищать хранилище.',
         link: 'Открыть резервное копирование данных',
         dismiss: 'Скрыть предупреждение о хранилище',
+        retry: 'Повторить сохранение',
+        retrySuccessTitle: 'Учебные данные сохранены',
+        retrySuccessBody: 'Текущие учебные данные записаны в хранилище браузера.',
+        retryFailedBody: 'Повторная попытка не удалась. Изменения остаются в текущей вкладке; проверь место в хранилище и создай резервную копию.',
       }
     : {
         writeTitle: 'Could not save learning data',
@@ -71,6 +82,10 @@ export function StorageWarningBanner() {
         removeBody: 'The new data record may have been saved, but an older copy could not be removed. Review your data and create a backup before manually clearing storage.',
         link: 'Open data backup',
         dismiss: 'Dismiss storage warning',
+        retry: 'Retry save',
+        retrySuccessTitle: 'Learning data saved',
+        retrySuccessBody: 'The current learning data was written to browser storage.',
+        retryFailedBody: 'The retry failed. Changes remain in this tab; check available storage and create a backup.',
       };
 
   const title = operation === 'read'
@@ -84,6 +99,26 @@ export function StorageWarningBanner() {
       ? copy.removeBody
       : copy.writeBody;
 
+  if (retrySucceeded) {
+    return (
+      <div role="status" className="flex items-start gap-3 border-b border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-900 sm:px-6">
+        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold">{copy.retrySuccessTitle}</p>
+          <p className="mt-0.5 leading-5 text-neutral-700">{copy.retrySuccessBody}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setRetrySucceeded(false)}
+          aria-label={copy.dismiss}
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-neutral-700 transition hover:bg-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-700"
+        >
+          <X className="h-4 w-4" aria-hidden="true" />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
       role="alert"
@@ -92,19 +127,35 @@ export function StorageWarningBanner() {
       <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
       <div className="min-w-0 flex-1">
         <p className="font-semibold">{title}</p>
-        <p className="mt-0.5 leading-5 text-amber-900">{body}</p>
-        <Link
-          to={backupPath}
-          className="mt-1 inline-flex min-h-8 items-center font-semibold underline underline-offset-2"
-        >
-          {copy.link}
-        </Link>
+        <p className="mt-0.5 leading-5 text-amber-900">{retryFailed ? copy.retryFailedBody : body}</p>
+        <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
+          <Link to={backupPath} className="inline-flex min-h-8 items-center font-semibold underline underline-offset-2">
+            {copy.link}
+          </Link>
+          {operation !== 'read' && (
+            <button
+              type="button"
+              onClick={() => {
+                const result = retryPersistedLearningData();
+                setRetryFailed(!result.success);
+                if (result.success) {
+                  setStorageError(null);
+                  setRetrySucceeded(true);
+                }
+              }}
+              className="inline-flex min-h-8 items-center font-semibold underline underline-offset-2"
+            >
+              {copy.retry}
+            </button>
+          )}
+        </div>
       </div>
       <button
         type="button"
         onClick={() => {
           clearLastStorageError();
           setStorageError(null);
+          setRetryFailed(false);
         }}
         aria-label={copy.dismiss}
         className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-amber-900 transition hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-800"
