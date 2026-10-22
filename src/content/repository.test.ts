@@ -5,7 +5,7 @@ describe('structured content repository', () => {
   it('returns equivalent lesson IDs in both supported locales', () => {
     expect(getStructuredLesson('html.document-structure', 'en')?.locale).toBe('en');
     expect(getStructuredLesson('html.document-structure', 'ru')?.locale).toBe('ru');
-    expect(getStructuredLessonIds().sort()).toEqual(['css.flexbox-grid-responsive', 'css.fundamentals', 'html.document-structure', 'html.forms-accessibility', 'js.basics-types-control-flow']);
+    expect(getStructuredLessonIds().sort()).toEqual(['css.flexbox-grid-responsive', 'css.fundamentals', 'html.document-structure', 'html.forms-accessibility', 'js.basics-types-control-flow', 'js.functions-arrays-objects']);
   });
 
   it('returns localized curriculum while preserving the canonical week IDs', () => {
@@ -24,6 +24,9 @@ describe('structured content repository', () => {
     expect(getWeekForLesson('css.fundamentals', 'en')?.id).toBe('month-1-week-3');
     expect(getWeekForLesson('css.flexbox-grid-responsive', 'ru')?.id).toBe('month-1-week-4');
     expect(getWeekForLesson('js.basics-types-control-flow', 'en')?.id).toBe('month-2-week-5');
+    expect(getWeekForLesson('js.functions-arrays-objects', 'ru')?.id).toBe('month-2-week-6');
+    expect(getStructuredLesson('js.functions-arrays-objects', 'en')?.locale).toBe('en');
+    expect(getStructuredLesson('js.functions-arrays-objects', 'ru')?.locale).toBe('ru');
     expect(getStructuredLesson('html.forms-accessibility', 'en')?.title).toContain('Forms');
     expect(getCurriculumWeek('month-1-week-1', 'ru')?.lessonIds).toContain('html.document-structure');
     expect(getCurriculumWeek('month-1-week-2', 'ru')?.lessonIds).toContain('html.forms-accessibility');
@@ -50,7 +53,10 @@ describe('structured lesson sequence', () => {
     expect(fourth.next?.id).toBe('js.basics-types-control-flow');
     const fifth = getAdjacentStructuredLessons('js.basics-types-control-flow', 'en');
     expect(fifth.previous?.id).toBe('css.flexbox-grid-responsive');
-    expect(fifth.next).toBeUndefined();
+    expect(fifth.next?.id).toBe('js.functions-arrays-objects');
+    const sixth = getAdjacentStructuredLessons('js.functions-arrays-objects', 'ru');
+    expect(sixth.previous?.id).toBe('js.basics-types-control-flow');
+    expect(sixth.next).toBeUndefined();
   });
 
   it('returns no neighbors for an unknown lesson ID', () => {
