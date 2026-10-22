@@ -141,7 +141,9 @@
           "practice": [
             "Solve dataset exercises with array methods and object transformations"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "js.functions-arrays-objects"
+          ]
         },
         {
           "id": "month-2-week-7",
