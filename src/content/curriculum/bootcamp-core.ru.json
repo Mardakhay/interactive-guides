@@ -141,7 +141,9 @@
           "practice": [
             "Решить задачи на преобразование наборов данных с помощью методов массивов и объектов"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "js.functions-arrays-objects"
+          ]
         },
         {
           "id": "month-2-week-7",
