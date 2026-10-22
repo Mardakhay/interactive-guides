@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { formatCatalogDescription, formatLessonCount, formatOverallProgress, getCategoryCopy, getCategoryCopyByName, getDifficultyLabel, getLocaleFromPathname, getOtherLocale, isAppLocale, LOCALE_STORAGE_KEY, UI_COPY } from './i18n';
+import { formatCatalogDescription, formatLessonCount, formatOverallProgress, getCategoryCopy, getCategoryCopyByName, getDifficultyLabel, getLearningPathCopy, getLearningPathStepNote, getLocaleFromPathname, getOtherLocale, isAppLocale, LOCALE_STORAGE_KEY, UI_COPY } from './i18n';
 
 describe('application localization utilities', () => {
   afterEach(() => window.localStorage.clear());
@@ -27,6 +27,14 @@ describe('application localization utilities', () => {
     expect(formatOverallProgress('ru', 2, 8)).toBe('Общий прогресс — 2 из 8 уроков');
     expect(formatCatalogDescription('en', 100, 9)).toContain('100 interactive lessons');
     expect(getDifficultyLabel('ru', 'beginner')).toBe('Начальный');
+  });
+
+  it('localizes learning path names and step notes', () => {
+    expect(getLearningPathCopy('ru', 'frontend-foundations')?.title).toBe('Основы frontend-разработки');
+    expect(getLearningPathCopy('en', 'frontend-foundations')?.title).toBe('Frontend Foundations');
+    expect(getLearningPathCopy('ru', 'missing-path')).toBeUndefined();
+    expect(getLearningPathStepNote('ru', 'frontend-foundations', 'wb-001')).toBe('Разберись, как работают интернет и браузеры.');
+    expect(getLearningPathStepNote('ru', 'missing-path', 'wb-001', 'Fallback')).toBe('Fallback');
   });
 
   it('provides translations for known categories and switch labels', () => {
