@@ -364,7 +364,9 @@
           "practice": [
             "Tune an existing project and inspect bundle size or lazy routes"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "performance.accessibility"
+          ]
         },
         {
           "id": "month-5-week-19",

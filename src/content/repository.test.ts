@@ -66,6 +66,7 @@ describe('structured content repository', () => {
       'react.context-shared-state': 'month-4-week-15',
       'react.api-custom-hooks': 'month-4-week-16',
       'ui.design-systems': 'month-5-week-17',
+      'performance.accessibility': 'month-5-week-18',
     };
     for (const [id, weekId] of Object.entries(expectedWeeks)) {
       expect(getWeekForLesson(id, 'en')?.id).toBe(weekId);
@@ -93,6 +94,7 @@ describe('structured content repository', () => {
       'react.context-shared-state',
       'react.api-custom-hooks',
       'ui.design-systems',
+      'performance.accessibility',
     ];
     for (let index = 0; index < expectedSequence.length; index += 1) {
       const id = expectedSequence[index]!;
@@ -114,5 +116,6 @@ describe('structured content repository', () => {
     expect(getCurriculumWeek('month-2-week-7', 'ru')?.lessonIds).toContain('js.dom-events');
     expect(getCurriculumWeek('month-3-week-11', 'en')?.lessonIds).toContain('react.components-jsx-state');
     expect(getCurriculumWeek('month-5-week-17', 'en')?.lessonIds).toContain('ui.design-systems');
+    expect(getCurriculumWeek('month-5-week-18', 'ru')?.lessonIds).toContain('performance.accessibility');
   });
 });

@@ -364,7 +364,9 @@
           "practice": [
             "Оптимизировать существующий проект и изучить размер bundle или ленивую загрузку маршрутов"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "performance.accessibility"
+          ]
         },
         {
           "id": "month-5-week-19",

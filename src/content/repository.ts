@@ -34,6 +34,8 @@ import englishApiHooks from './lessons/react.api-custom-hooks/en.json';
 import russianApiHooks from './lessons/react.api-custom-hooks/ru.json';
 import englishDesignSystem from './lessons/ui.design-systems/en.json';
 import russianDesignSystem from './lessons/ui.design-systems/ru.json';
+import englishPerformance from './lessons/performance.accessibility/en.json';
+import russianPerformance from './lessons/performance.accessibility/ru.json';
 import englishCurriculum from './curriculum/bootcamp-core.en.json';
 import russianCurriculum from './curriculum/bootcamp-core.ru.json';
 import { bootcampCurriculumSchema } from './schemas/curriculum';
@@ -79,6 +81,8 @@ const lessonTranslations = [
   lessonTranslationSchema.parse(russianApiHooks),
   lessonTranslationSchema.parse(englishDesignSystem),
   lessonTranslationSchema.parse(russianDesignSystem),
+  lessonTranslationSchema.parse(englishPerformance),
+  lessonTranslationSchema.parse(russianPerformance),
 ] as const;
 
 const curricula = {

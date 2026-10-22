@@ -33,6 +33,8 @@ import englishReactBasics from '../lessons/react.components-jsx-state/en.json';
 import russianReactBasics from '../lessons/react.components-jsx-state/ru.json';
 import englishDesignSystem from '../lessons/ui.design-systems/en.json';
 import russianDesignSystem from '../lessons/ui.design-systems/ru.json';
+import englishPerformance from '../lessons/performance.accessibility/en.json';
+import russianPerformance from '../lessons/performance.accessibility/ru.json';
 import { lessonTranslationSchema } from './lessonContent';
 
 describe('structured lesson content', () => {
@@ -287,6 +289,18 @@ describe('UI design system lesson translation', () => {
     expect(englishDesignSystem.moduleId).toBe('month-5-week-17');
     expect(englishDesignSystem.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianDesignSystem.blocks.map(({ id, type }) => ({ id, type })),
+    );
+  });
+});
+
+describe('Performance and accessibility lesson translation', () => {
+  it('validates both locales and preserves equivalent block structure', () => {
+    expect(lessonTranslationSchema.safeParse(englishPerformance).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianPerformance).success).toBe(true);
+    expect(englishPerformance.id).toBe(russianPerformance.id);
+    expect(englishPerformance.moduleId).toBe('month-5-week-18');
+    expect(englishPerformance.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianPerformance.blocks.map(({ id, type }) => ({ id, type })),
     );
   });
 });
