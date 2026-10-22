@@ -55,7 +55,7 @@ export function LessonMetadata({ lesson, category, statusBadge }: LessonMetadata
           className="mt-1 flex items-center gap-1.5 text-sm text-primary-600 transition-colors hover:text-primary-700"
         >
           <FolderOpen className="h-4 w-4" />
-          {category.name}
+          {categoryCopy?.name ?? category.name}
         </Link>
       </div>
 
