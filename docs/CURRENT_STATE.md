@@ -75,6 +75,53 @@ Other features should be inspected before modifying them: bookmarks and notes ha
 9. Visual styling inside each HTML lesson conflicts with the cohesive application design system.
 10. The available course set includes deployment, auth, SQL, and architecture, but should be remapped to the bootcamp syllabus and explicitly mark supplements outside the original bootcamp scope.
 
+
+## Working-branch update — 2026-10-22
+
+The sections above record the original audit of `main` and remain useful as a baseline. The implementation has since advanced on `feat/learning-platform-foundation`; do not treat the baseline gap list as the current feature list.
+
+### Structured bilingual course
+
+- The canonical JSON curriculum still represents six months and 24 weeks. The current structured repository registers 25 lesson IDs, each with an English and a Russian JSON translation (50 translation files in total).
+- Week 8 is split into two clear lessons: async JavaScript/Fetch and Git fundamentals. Every other week currently has one main structured lesson.
+- The repository imports and schema-validates all lesson translations. `getStructuredLesson`, `getWeekForLesson`, `getCurriculumWeek`, and `getAdjacentStructuredLessons` expose content and canonical navigation.
+- Lessons use stable IDs and typed blocks for prose, lists, callouts, code, code walkthroughs, knowledge checks, coding exercises and references.
+- Content covers the entire core sequence from HTML/CSS through JS/Git, tooling, TypeScript, React, Router, forms, Context, API/custom Hooks, UI systems, accessibility/performance, testing, CI/workflow and capstone.
+- All translations are still `review`, not fully editorial-approved/published. The 25 legacy HTML files remain migration inputs. A first-pass mapping exists, but source-by-source extraction/parity checks against Notion notes and legacy HTML are not complete.
+
+### Application integration
+
+- The app has a separate locale-aware structured lesson route at `/:locale/structured-lessons/:lessonId`; the reader supports EN/RU switching, document `lang`, table of contents, and previous/next lessons in syllabus order.
+- Structured lessons are integrated into the bilingual catalog and search flow; tests cover localized routes, localized difficulty labels, and lesson discovery through body content.
+- Shared React rendering handles the typed content blocks, option-level knowledge-check feedback, code copy controls, practice instructions/hints, and self-review checklists.
+- Completion is a self-attested marker, separate from quiz attempts and practice evidence. A green completion marker is not presented as proof of mastery.
+
+### Practice and progress
+
+- `src/features/structured-lesson/store.ts` persists quiz attempts, code drafts, and checked self-review criteria locally in a dedicated versioned key.
+- Coding exercises save drafts and expose hints/rubrics. The only live preview is HTML in an iframe with scripts disabled. **JavaScript and TypeScript exercises are not executable in the current UI.**
+- The generic storage helper still silently catches localStorage write failures. Versioned migration of the existing legacy progress/notes/bookmarks/quizzes, user-friendly quota errors and export/import remain outstanding.
+
+### PWA, deployment, account sync
+
+- The repository contains `public/manifest.webmanifest`, SVG icons and `public/sw.js`, plus production registration and install/update/offline UI.
+- Cache rules exclude private/auth/API/function/storage/realtime routes. Actual offline and install behavior has not been independently checked on physical mobile devices during this pass.
+- Supabase Auth/sync is not set up for a clearly dedicated Interactive Guides project. No schema was changed; project ownership and potential costs must be resolved before adding cloud resources.
+
+### Verification status
+
+- GitHub Actions run [#136](https://github.com/Mardakhay/interactive-guides/actions/runs/39772951754) passed for commit `11b149e6ca867717fcee7e3f53312241026a306d`: `npm ci`, lint, TypeScript typecheck, tests and production build succeeded.
+- Documentation-only commits were made after that code/test checkpoint. Verify the latest workflow run for the exact branch HEAD before making a current-green-CI claim.
+- This is remote repository/CI evidence; no local `npm ci` or browser/device testing was executed in this environment.
+
+### Next highest-value work
+
+1. Review the source lessons in Notion and `public/lessons`, checking technical accuracy, completeness, outdated claims, source links and EN/RU equivalence.
+2. Decide and design a safe, explicitly bounded JavaScript practice runner (including hard timeout semantics); do not equate an iframe timeout with hostile-code isolation.
+3. Add versioned storage migrations, visible storage errors and export/import before cloud sync.
+4. Finish localization/visual consistency across the legacy shell, then verify keyboard access, narrow mobile layouts and PWA update/offline behavior.
+5. Add Supabase only after a dedicated-project decision and the local data contract have been reviewed.
+
 ## Non-negotiable migration constraints
 
 - Keep the existing `main` history intact.
