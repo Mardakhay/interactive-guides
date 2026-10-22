@@ -9,6 +9,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import type { SearchableContent, SearchableLesson, SearchableCourse, SearchableNote } from '@/features/search';
 import { useLocaleStore } from '@/stores/localeStore';
 import { UI_COPY, getCategoryCopy } from '@/lib/i18n';
+import { getStructuredLesson, getStructuredLessonIds, getWeekForLesson } from '@/content/repository';
 
 const DEBOUNCE_DELAY_MS = 200;
 const MIN_QUERY_LENGTH = 2;
@@ -26,10 +27,26 @@ export default function SearchPage() {
   const searchableContent = useMemo<SearchableContent>(() => {
     const categories = getCategories();
     const categoryMap = new Map(categories.map((category) => [category.id, getCategoryCopy(locale, category.id)?.name ?? category.name]));
-    const lessons: SearchableLesson[] = getLessons().map((lesson) => ({
+    const legacyLessons: SearchableLesson[] = getLessons().map((lesson) => ({
       id: lesson.id, title: lesson.title, description: lesson.description, categoryId: lesson.categoryId,
       category: categoryMap.get(lesson.categoryId) ?? '', difficulty: lesson.difficulty, durationMinutes: lesson.durationMinutes,
     }));
+    const structuredLessons: SearchableLesson[] = getStructuredLessonIds().flatMap((id) => {
+      const lesson = getStructuredLesson(id, locale);
+      if (!lesson) return [];
+      const week = getWeekForLesson(id, locale);
+      return [{
+        id: lesson.id,
+        title: lesson.title,
+        description: [lesson.description, ...lesson.learningOutcomes, ...lesson.tags].join(' '),
+        categoryId: week?.id ?? 'structured-curriculum',
+        category: week?.title ?? UI_COPY[locale].structuredCurriculum.title,
+        difficulty: lesson.difficulty,
+        durationMinutes: lesson.estimatedMinutes,
+        path: `/${locale}/structured-lessons/${lesson.id}`,
+      }];
+    });
+    const lessons = [...legacyLessons, ...structuredLessons];
     const courses: SearchableCourse[] = categories.map((category) => ({
       id: category.id, name: getCategoryCopy(locale, category.id)?.name ?? category.name,
       description: getCategoryCopy(locale, category.id)?.description ?? category.description,
