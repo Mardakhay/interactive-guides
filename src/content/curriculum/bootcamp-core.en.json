@@ -49,6 +49,7 @@
             "Inspect elements and the DOM with DevTools"
           ],
           "lessonIds": [
+            "web.internet-http",
             "html.document-structure"
           ]
         },
