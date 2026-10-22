@@ -420,7 +420,9 @@
           "practice": [
             "Define the problem, target users, core stories and acceptance criteria"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.requirements-discovery"
+          ]
         },
         {
           "id": "month-6-week-22",

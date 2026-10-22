@@ -420,7 +420,9 @@
           "practice": [
             "Определить проблему, целевых пользователей, основные user stories и критерии приёмки"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.requirements-discovery"
+          ]
         },
         {
           "id": "month-6-week-22",
