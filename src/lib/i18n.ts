@@ -23,6 +23,14 @@ interface AppCopy {
     bookmarkActivity: string; noteActivity: string; justNow: string; minutesAgo: string; hoursAgo: string; daysAgo: string;
   };
   catalog: { title: string; description: string; exploreCategory: string; completed: string; };
+  difficulty: { beginner: string; intermediate: string; advanced: string; };
+  courseDetail: { catalog: string; categoryNotFound: string; categoryNotFoundMessage: string; backToCatalog: string; statusCompleted: string; statusInProgress: string; };
+  searchPage: {
+    title: string; description: string; searching: string; noResults: string; noResultsMessage: string;
+    resultCount: string; startTyping: string; startTypingMessage: string; filterLabel: string;
+    all: string; lessons: string; courses: string; notes: string; clearSearch: string;
+    resultTypes: { lesson: string; course: string; note: string; };
+  };
   categories: Record<string, CategoryCopy>;
 }
 
@@ -54,6 +62,21 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
       title: 'Lesson catalog',
       description: 'Browse {lessons} interactive lessons across {categories} categories. Start anywhere and learn at your own pace.',
       exploreCategory: 'Explore category', completed: 'completed',
+    },
+    difficulty: { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' },
+    courseDetail: {
+      catalog: 'Lesson catalog', categoryNotFound: 'Category not found',
+      categoryNotFoundMessage: "The category you're looking for doesn't exist.", backToCatalog: 'Back to catalog',
+      statusCompleted: 'Completed', statusInProgress: 'In progress',
+    },
+    searchPage: {
+      title: 'Search', description: 'Find lessons, courses, and your notes across the platform.',
+      searching: 'Searching…', noResults: 'No results found',
+      noResultsMessage: 'Nothing matched "{query}". Try a different term or broaden your filter.',
+      resultCount: '{count} results', startTyping: 'Start typing to search',
+      startTypingMessage: 'Search across all lessons, courses, and your personal notes. Results update as you type.',
+      filterLabel: 'Filter results by type', all: 'All', lessons: 'Lessons', courses: 'Courses', notes: 'Notes',
+      clearSearch: 'Clear search', resultTypes: { lesson: 'Lesson', course: 'Course', note: 'Note' },
     },
     categories: {
       'start-here': { name: 'Start Here', description: "New to Interactive Guides? Begin with this orientation handbook to get a bird's-eye view of the frontend landscape." },
@@ -94,6 +117,21 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
       title: 'Каталог уроков',
       description: '{lessons} интерактивных уроков в {categories} направлениях. Начни с любой темы и учись в своём темпе.',
       exploreCategory: 'Открыть раздел', completed: 'завершено',
+    },
+    difficulty: { beginner: 'Начальный', intermediate: 'Средний', advanced: 'Продвинутый' },
+    courseDetail: {
+      catalog: 'Каталог уроков', categoryNotFound: 'Раздел не найден',
+      categoryNotFoundMessage: 'Такого раздела не существует.', backToCatalog: 'Вернуться в каталог',
+      statusCompleted: 'Завершено', statusInProgress: 'В процессе',
+    },
+    searchPage: {
+      title: 'Поиск', description: 'Ищи уроки, курсы и свои заметки по всему приложению.',
+      searching: 'Ищем…', noResults: 'Ничего не найдено',
+      noResultsMessage: 'По запросу «{query}» совпадений нет. Попробуй другое слово или измени фильтр.',
+      resultCount: 'Результатов: {count}', startTyping: 'Начни вводить запрос',
+      startTypingMessage: 'Ищи по урокам, курсам и личным заметкам. Результаты обновляются по мере ввода.',
+      filterLabel: 'Фильтровать результаты по типу', all: 'Всё', lessons: 'Уроки', courses: 'Курсы', notes: 'Заметки',
+      clearSearch: 'Очистить поиск', resultTypes: { lesson: 'Урок', course: 'Курс', note: 'Заметка' },
     },
     categories: {
       'start-here': { name: 'Начни здесь', description: 'Впервые в Interactive Guides? Начни с вводного руководства, которое показывает общую картину frontend-разработки.' },
@@ -151,4 +189,11 @@ export function formatCatalogDescription(locale: AppLocale, lessons: number, cat
   return UI_COPY[locale].catalog.description
     .replace('{lessons}', String(lessons))
     .replace('{categories}', String(categories));
+}
+
+export function getDifficultyLabel(locale: AppLocale, difficulty: string): string {
+  if (difficulty === 'beginner' || difficulty === 'intermediate' || difficulty === 'advanced') {
+    return UI_COPY[locale].difficulty[difficulty];
+  }
+  return difficulty;
 }
