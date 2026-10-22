@@ -25,7 +25,9 @@ const expectedIds = [
   'react.router-spa',
   'react.forms-validation',
   'react.context-shared-state',
-  'react.api-custom-hooks'
+  'react.api-custom-hooks',
+  'ui.design-systems',
+  'performance.accessibility',
 ].sort();
 
 describe('structured content repository', () => {
