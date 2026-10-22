@@ -297,7 +297,7 @@
     },
     {
       "id": "knowledge-check-3",
-      "type": "multi-select",
+      "type": "knowledgeCheck",
       "questionType": "multi-select",
       "prompt": "Which statements about TypeScript types are correct? Select all that apply.",
       "options": [
