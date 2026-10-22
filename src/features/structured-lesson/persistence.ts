@@ -1,4 +1,4 @@
-import { STORAGE_ERROR_EVENT, type StorageOperation } from '@/lib/storage';
+import { reportStorageError } from '@/lib/storage';
 import {
   EMPTY_STRUCTURED_LEARNING_STATE,
   LEGACY_STRUCTURED_LEARNING_STORAGE_KEY,
@@ -14,15 +14,6 @@ export interface StructuredLearningReadResult {
   readonly state: StructuredLearningState;
   readonly source: 'current' | 'migrated-current' | 'migrated-legacy' | 'legacy' | 'empty' | 'invalid';
   readonly invalid: boolean;
-}
-
-function notifyStorageError(key: string, operation: StorageOperation): void {
-  if (typeof window === 'undefined' || typeof window.dispatchEvent !== 'function') return;
-  try {
-    window.dispatchEvent(new CustomEvent(STORAGE_ERROR_EVENT, { detail: { key, operation } }));
-  } catch {
-    // Reporting a storage problem must never crash the app.
-  }
 }
 
 function getDefaultStorage(): Storage | null {
@@ -59,7 +50,7 @@ function writeRecord(
     storage.setItem(key, JSON.stringify(record));
     return true;
   } catch {
-    notifyStorageError(key, 'write');
+    reportStorageError(key, 'write');
     return false;
   }
 }
@@ -71,7 +62,7 @@ function writeRecord(
 export function readStructuredLearningState(storage?: Storage): StructuredLearningReadResult {
   const target = storage ?? getDefaultStorage();
   if (!target) {
-    notifyStorageError(STRUCTURED_LEARNING_STORAGE_KEY, 'read');
+    reportStorageError(STRUCTURED_LEARNING_STORAGE_KEY, 'read');
     return { state: EMPTY_STRUCTURED_LEARNING_STATE, source: 'empty', invalid: false };
   }
 
@@ -79,14 +70,14 @@ export function readStructuredLearningState(storage?: Storage): StructuredLearni
   try {
     currentRaw = target.getItem(STRUCTURED_LEARNING_STORAGE_KEY);
   } catch {
-    notifyStorageError(STRUCTURED_LEARNING_STORAGE_KEY, 'read');
+    reportStorageError(STRUCTURED_LEARNING_STORAGE_KEY, 'read');
     return { state: EMPTY_STRUCTURED_LEARNING_STATE, source: 'empty', invalid: false };
   }
 
   if (currentRaw !== null) {
     const parsed = parseJSON(currentRaw);
     if (parsed === null) {
-      notifyStorageError(STRUCTURED_LEARNING_STORAGE_KEY, 'read');
+      reportStorageError(STRUCTURED_LEARNING_STORAGE_KEY, 'read');
       return { state: EMPTY_STRUCTURED_LEARNING_STATE, source: 'invalid', invalid: true };
     }
 
@@ -107,7 +98,7 @@ export function readStructuredLearningState(storage?: Storage): StructuredLearni
       };
     }
 
-    notifyStorageError(STRUCTURED_LEARNING_STORAGE_KEY, 'read');
+    reportStorageError(STRUCTURED_LEARNING_STORAGE_KEY, 'read');
     return { state: EMPTY_STRUCTURED_LEARNING_STATE, source: 'invalid', invalid: true };
   }
 
@@ -115,7 +106,7 @@ export function readStructuredLearningState(storage?: Storage): StructuredLearni
   try {
     legacyRaw = target.getItem(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY);
   } catch {
-    notifyStorageError(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, 'read');
+    reportStorageError(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, 'read');
     return { state: EMPTY_STRUCTURED_LEARNING_STATE, source: 'empty', invalid: false };
   }
   if (legacyRaw === null) {
@@ -127,7 +118,7 @@ export function readStructuredLearningState(storage?: Storage): StructuredLearni
     ? null
     : structuredLearningStateSchema.safeParse(legacyParsed);
   if (!legacyState || !legacyState.success) {
-    notifyStorageError(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, 'read');
+    reportStorageError(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, 'read');
     return { state: EMPTY_STRUCTURED_LEARNING_STATE, source: 'invalid', invalid: true };
   }
 
@@ -137,7 +128,7 @@ export function readStructuredLearningState(storage?: Storage): StructuredLearni
     try {
       target.removeItem(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY);
     } catch {
-      notifyStorageError(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, 'remove');
+      reportStorageError(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, 'remove');
     }
   }
 
@@ -154,7 +145,7 @@ export function saveStructuredLearningState(
 ): boolean {
   const target = storage ?? getDefaultStorage();
   if (!target) {
-    notifyStorageError(STRUCTURED_LEARNING_STORAGE_KEY, 'write');
+    reportStorageError(STRUCTURED_LEARNING_STORAGE_KEY, 'write');
     return false;
   }
 
@@ -165,7 +156,7 @@ export function saveStructuredLearningState(
   try {
     target.removeItem(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY);
   } catch {
-    notifyStorageError(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, 'remove');
+    reportStorageError(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, 'remove');
   }
   return true;
 }
@@ -175,6 +166,6 @@ export function clearLegacyStructuredLearningRecord(storage: Storage): void {
   try {
     storage.removeItem(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY);
   } catch {
-    notifyStorageError(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, 'remove');
+    reportStorageError(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, 'remove');
   }
 }

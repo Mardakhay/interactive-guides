@@ -7,17 +7,28 @@ export interface StorageErrorDetail {
   readonly operation: StorageOperation;
 }
 
-function notifyStorageError(key: string, operation: StorageOperation): void {
+let lastStorageError: StorageErrorDetail | null = null;
+
+export function getLastStorageError(): StorageErrorDetail | null {
+  return lastStorageError;
+}
+
+export function clearLastStorageError(): void {
+  lastStorageError = null;
+}
+
+/** Keeps an error visible to the app shell even if it happens before the banner mounts. */
+export function reportStorageError(key: string, operation: StorageOperation): void {
+  const detail: StorageErrorDetail = { key, operation };
+  lastStorageError = detail;
   if (typeof window === 'undefined' || typeof window.dispatchEvent !== 'function') return;
 
   try {
     window.dispatchEvent(
-      new CustomEvent<StorageErrorDetail>(STORAGE_ERROR_EVENT, {
-        detail: { key, operation },
-      }),
+      new CustomEvent<StorageErrorDetail>(STORAGE_ERROR_EVENT, { detail }),
     );
   } catch {
-    // Storage reporting must never cause the caller's state update to fail.
+    // Storage reporting must never crash the application.
   }
 }
 
@@ -27,6 +38,7 @@ export function loadJSON<T>(key: string, fallback: T): T {
     if (!raw) return fallback;
     return JSON.parse(raw) as T;
   } catch {
+    reportStorageError(key, 'read');
     return fallback;
   }
 }
@@ -37,7 +49,7 @@ export function saveJSON<T>(key: string, value: T): boolean {
     return true;
   } catch {
     // Keep the in-memory app responsive, but report that persistence did not succeed.
-    notifyStorageError(key, 'write');
+    reportStorageError(key, 'write');
     return false;
   }
 }
@@ -47,7 +59,7 @@ export function removeKey(key: string): boolean {
     localStorage.removeItem(key);
     return true;
   } catch {
-    notifyStorageError(key, 'write');
+    reportStorageError(key, 'remove');
     return false;
   }
 }

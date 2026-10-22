@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  clearLastStorageError,
   loadJSON,
   removeKey,
   saveJSON,
@@ -11,6 +12,7 @@ afterEach(() => {
   window.removeEventListener(STORAGE_ERROR_EVENT, () => undefined);
   vi.restoreAllMocks();
   localStorage.clear();
+  clearLastStorageError();
 });
 
 describe('local storage helper', () => {
@@ -48,7 +50,7 @@ describe('local storage helper', () => {
     });
 
     expect(removeKey('ig:test')).toBe(false);
-    expect(events).toEqual([{ key: 'ig:test', operation: 'write' }]);
+    expect(events).toEqual([{ key: 'ig:test', operation: 'remove' }]);
 
     window.removeEventListener(STORAGE_ERROR_EVENT, listener);
   });
