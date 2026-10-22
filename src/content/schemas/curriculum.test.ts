@@ -26,7 +26,7 @@ describe('bootcamp curriculum', () => {
 
   it('keeps extra topics outside the source bootcamp weeks', () => {
     expect(englishCurriculum.supplementaryTracks.map((track) => track.id)).toContain('supplement-auth');
-    expect(curriculum.supplementaryTracks.map((track) => track.id)).toContain('supplement-data');
+    expect(englishCurriculum.supplementaryTracks.map((track) => track.id)).toContain('supplement-data');
     expect(englishCurriculum.months.flatMap((month) => month.weeks)).toHaveLength(24);
   });
 
