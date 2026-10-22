@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Check, Clipboard, ExternalLink, Lightbulb, RotateCcw } from 'lucide-react';
 import type { LessonContentBlock, LessonTranslation } from '@/content/schemas/lessonContent';
 import type { SupportedLocale } from '@/content/repository';
+import { useStructuredLearningStore } from './store';
 
 interface StructuredLessonRendererProps {
   lesson: LessonTranslation;
@@ -87,17 +88,22 @@ function CodePanel({
 function KnowledgeCheck({
   block,
   locale,
+  lessonId,
 }: {
   block: Extract<LessonContentBlock, { type: 'knowledgeCheck' }>;
   locale: SupportedLocale;
+  lessonId: string;
 }) {
   const [selected, setSelected] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const correctIds = block.options.filter((option) => option.correct).map((option) => option.id);
-  const isCorrect =
-    submitted &&
+  const isSelectionCorrect =
     selected.length === correctIds.length &&
     selected.every((id) => correctIds.includes(id));
+  const isCorrect = submitted && isSelectionCorrect;
+  const attemptKey = lessonId + '::' + block.id;
+  const attemptHistory = useStructuredLearningStore((state) => state.quizAttempts[attemptKey]);
+  const recordQuizAttempt = useStructuredLearningStore((state) => state.recordQuizAttempt);
 
   const choose = (id: string) => {
     if (submitted) return;
@@ -115,6 +121,7 @@ function KnowledgeCheck({
   const correctLabel = locale === 'ru' ? 'Верно' : 'Correct';
   const reviewLabel = locale === 'ru' ? 'Нужно проверить ещё раз' : 'Not quite';
   const multiLabel = locale === 'ru' ? 'Выбери все подходящие варианты' : 'Select all that apply';
+  const savedAttemptsLabel = locale === 'ru' ? 'Сохранено попыток:' : 'Saved attempts:';
 
   return (
     <section className="my-7 rounded-2xl border border-primary-200 bg-primary-50/70 p-4 sm:p-5" aria-labelledby={`${block.id}-prompt`}>
@@ -129,6 +136,7 @@ function KnowledgeCheck({
           <h3 id={`${block.id}-prompt`} className="mt-2 text-base font-semibold leading-6 text-neutral-950">
             {block.prompt}
           </h3>
+          <p className="mt-1 text-xs text-neutral-500">{savedAttemptsLabel} {attemptHistory?.length ?? 0}</p>
           {block.questionType === 'multi-select' && (
             <p className="mt-1 text-sm text-neutral-600">{multiLabel}</p>
           )}
@@ -169,7 +177,10 @@ function KnowledgeCheck({
           <button
             type="button"
             disabled={selected.length === 0}
-            onClick={() => setSubmitted(true)}
+            onClick={() => {
+              recordQuizAttempt(lessonId, block.id, selected, isSelectionCorrect);
+              setSubmitted(true);
+            }}
             className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-800 disabled:cursor-not-allowed disabled:opacity-45"
           >
             {checkLabel}
@@ -201,13 +212,22 @@ function KnowledgeCheck({
 function CodingExercise({
   block,
   locale,
+  lessonId,
 }: {
   block: Extract<LessonContentBlock, { type: 'codingExercise' }>;
   locale: SupportedLocale;
+  lessonId: string;
 }) {
-  const [code, setCode] = useState(block.starterCode);
+  const draftKey = lessonId + '::' + block.id;
+  const savedCode = useStructuredLearningStore((state) => state.codeDrafts[draftKey]?.code);
+  const checkedCriteria = useStructuredLearningStore((state) => state.practiceChecklists[draftKey]?.checkedCriteria);
+  const saveCodeDraft = useStructuredLearningStore((state) => state.saveCodeDraft);
+  const resetCodeDraft = useStructuredLearningStore((state) => state.resetCodeDraft);
+  const setPracticeCriterion = useStructuredLearningStore((state) => state.setPracticeCriterion);
   const [hintsOpen, setHintsOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const code = savedCode ?? block.starterCode;
+  const checked = checkedCriteria ?? [];
 
   return (
     <section className="my-8 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-subtle">
@@ -243,11 +263,26 @@ function CodingExercise({
           <textarea
             id={`${block.id}-editor`}
             value={code}
-            onChange={(event) => setCode(event.target.value)}
+            onChange={(event) => saveCodeDraft(lessonId, block.id, event.target.value)}
             spellCheck={false}
             rows={12}
             className="mt-3 block w-full resize-y rounded-xl border border-neutral-300 bg-[#111827] p-4 font-mono text-xs leading-6 text-neutral-100 shadow-inner focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200 sm:text-sm"
           />
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => resetCodeDraft(lessonId, block.id)}
+              className="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-xs font-medium text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              {locale === 'ru' ? 'Сбросить черновик' : 'Reset draft'}
+            </button>
+            <span className="text-xs text-neutral-500">
+              {savedCode !== undefined
+                ? (locale === 'ru' ? 'Черновик сохраняется на этом устройстве.' : 'Draft is saved on this device.')
+                : (locale === 'ru' ? 'Начни писать — черновик сохранится локально.' : 'Start typing to save a local draft.')}
+            </span>
+          </div>
           {block.language.toLowerCase() === 'html' && (
             <div className="mt-3">
               <button
@@ -300,9 +335,26 @@ function CodingExercise({
         )}
         <div className="rounded-xl border border-dashed border-neutral-300 p-3">
           <h4 className="text-sm font-semibold text-neutral-900">{locale === 'ru' ? 'Критерии самопроверки' : 'Self-review criteria'}</h4>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-neutral-700">
-            {block.successCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}
+          <ul className="mt-2 space-y-2 text-sm leading-6 text-neutral-700">
+            {block.successCriteria.map((criterion, index) => (
+              <li key={criterion}>
+                <label className="flex cursor-pointer items-start gap-2">
+                  <input
+                    type="checkbox"
+                    checked={checked.includes(index)}
+                    onChange={(event) => setPracticeCriterion(lessonId, block.id, index, event.target.checked)}
+                    className="mt-1 h-4 w-4 shrink-0 rounded border-neutral-300 text-primary-700 focus:ring-primary-600"
+                  />
+                  <span>{criterion}</span>
+                </label>
+              </li>
+            ))}
           </ul>
+          <p className="mt-3 text-xs leading-5 text-neutral-500">
+            {locale === 'ru'
+              ? 'Эти отметки фиксируют твою самопроверку, но сами по себе не означают автоматическую проверку кода или подтверждённое мастерство.'
+              : 'These checks record your self-review; they do not execute or automatically validate the code and do not, by themselves, prove mastery.'}
+          </p>
         </div>
       </div>
     </section>
@@ -364,9 +416,9 @@ function renderBlock(block: LessonContentBlock, locale: SupportedLocale) {
         </div>
       );
     case 'knowledgeCheck':
-      return <KnowledgeCheck key={block.id} block={block} locale={locale} />;
+      return <KnowledgeCheck key={block.id} block={block} locale={locale} lessonId={lesson.id} />;
     case 'codingExercise':
-      return <CodingExercise key={block.id} block={block} locale={locale} />;
+      return <CodingExercise key={block.id} block={block} locale={locale} lessonId={lesson.id} />;
     case 'references':
       return (
         <section key={block.id} className="mt-10 border-t border-neutral-200 pt-6">
