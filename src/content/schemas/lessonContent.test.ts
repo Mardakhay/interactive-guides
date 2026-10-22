@@ -122,3 +122,15 @@ describe('JavaScript basics lesson translation', () => {
     expect(russianJsBasics.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
+
+describe('Async JavaScript and Fetch lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishAsync.id).toBe(russianAsync.id);
+    expect(englishAsync.moduleId).toBe('month-2-week-8');
+    expect(englishAsync.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianAsync.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishAsync.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(russianAsync.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});

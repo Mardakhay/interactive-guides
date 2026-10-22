@@ -174,7 +174,9 @@
             "Publish the project in a personal Git repository"
           ],
           "project": "Month 2 project: API-driven mini app with Git history",
-          "lessonIds": []
+          "lessonIds": [
+            "js.async-fetch"
+          ]
         }
       ]
     },
