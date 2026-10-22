@@ -18,10 +18,10 @@ export default function LearningPathDetailPage() {
   const { pathId } = useParams<{ pathId: string }>();
   const locale = useLocaleStore((state) => state.locale);
   const copy = UI_COPY[locale].learningPathsPage;
-  const pathCopy = path ? getLearningPathCopy(locale, path.id) : undefined;
   const notFoundCopy = UI_COPY[locale].notFoundPage;
 
   const path = useMemo(() => (pathId ? getLearningPathById(pathId) : undefined), [pathId]);
+  const pathCopy = path ? getLearningPathCopy(locale, path.id) : undefined;
   const lessonIds = useMemo(() => (pathId ? getLearningPathLessonIds(pathId) : []), [pathId]);
 
   const progressLessons = useProgressStore((s) => s.lessons);
