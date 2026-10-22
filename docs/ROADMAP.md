@@ -62,7 +62,8 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Add validated local-data export/import with preview, merge rules and best-effort rollback (`src/features/data-portability/backup.ts`, Data Management page, tests).
 - [ ] Add explicit migrations between persisted schema versions as storage contracts evolve.
 - [ ] Preserve existing progress, notes, bookmarks and old quiz results through data-shape changes.
-- [ ] Handle storage quota failures visibly and test retry/recovery.
+- [x] Surface localStorage write/removal failures with a localized warning and tests.
+- [ ] Add a user-triggered retry/recovery flow for failed persistence and explicit schema-version migrations.
 - Acceptance: upgrades cannot silently reset existing learner data.
 
 ## Phase 6 — Supabase auth and sync
