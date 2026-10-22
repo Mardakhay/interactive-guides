@@ -338,7 +338,7 @@
         {
           "title": "OWASP: Cross Site Scripting Prevention",
           "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
-          "kind": "security"
+          "kind": "guide"
         }
       ]
     }
