@@ -16,6 +16,7 @@ import {
 } from '@/features/data-portability/backup';
 import { useStructuredLearningStore } from '@/features/structured-lesson/store';
 import { SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
+import { useLocaleStore } from '@/stores/localeStore';
 
 function isSupportedLocale(value: string | undefined): value is SupportedLocale {
   return SUPPORTED_LOCALES.some((locale) => locale === value);
@@ -56,7 +57,8 @@ function SummaryList({ summary, locale }: { summary: BackupSummary; locale: Supp
 
 export default function DataManagementPage() {
   const { locale: localeParam } = useParams<{ locale: string }>();
-  const locale: SupportedLocale = isSupportedLocale(localeParam) ? localeParam : 'en';
+  const savedLocale = useLocaleStore((state) => state.locale);
+  const locale: SupportedLocale = isSupportedLocale(localeParam) ? localeParam : savedLocale;
   const otherLocale: SupportedLocale = locale === 'en' ? 'ru' : 'en';
   const fileInput = useRef<HTMLInputElement>(null);
   const [pendingBackup, setPendingBackup] = useState<LearningDataBackup | null>(null);
