@@ -8,6 +8,7 @@ import {
   StickyNote,
   Search,
   GraduationCap,
+  Settings,
   X,
 } from 'lucide-react';
 import { APP_NAME } from '@/lib/constants';
@@ -28,6 +29,7 @@ const navItems: NavEntry[] = [
   { label: 'Bookmarks', path: ROUTE_PATHS.BOOKMARKS, icon: Bookmark },
   { label: 'Notes', path: ROUTE_PATHS.NOTES, icon: StickyNote },
   { label: 'Search', path: ROUTE_PATHS.SEARCH, icon: Search },
+  { label: 'Data & Backup', path: ROUTE_PATHS.DATA_MANAGEMENT, icon: Settings },
 ];
 
 export function Sidebar() {
