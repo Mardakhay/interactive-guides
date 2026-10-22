@@ -5,7 +5,7 @@ export const LOCALE_STORAGE_KEY = 'ig:locale';
 interface NavigationCopy {
   dashboard: string; courses: string; learningPaths: string; bookmarks: string; notes: string; search: string;
   dataManagement: string; mainLabel: string; mobileLabel: string; openMenu: string; closeSidebar: string;
-  skipToContent: string; appVersion: string;
+  skipToContent: string; appVersion: string; breadcrumbLabel: string;
 }
 interface CategoryCopy { name: string; description: string; }
 interface AppCopy {
@@ -31,6 +31,21 @@ interface AppCopy {
     all: string; lessons: string; courses: string; notes: string; clearSearch: string;
     resultTypes: { lesson: string; course: string; note: string; };
   };
+  bookmarksPage: {
+    title: string; summary: string; emptyTitle: string; emptyMessage: string; browseCatalog: string;
+    statusCompleted: string; statusInProgress: string; durationUnit: string;
+  };
+  notesPage: {
+    title: string; summary: string; emptyTitle: string; emptyMessage: string; browseCatalog: string;
+    searchPlaceholder: string; searchLabel: string; filterLabel: string; allCourses: string;
+    noMatchesTitle: string; noMatchesMessage: string; updated: string; delete: string;
+  };
+  learningPathsPage: {
+    title: string; description: string; completed: string; estimated: string; viewPath: string;
+    continueLearning: string; pathComplete: string; pathCompleteMessage: string; allPaths: string;
+    continueWith: string;
+  };
+  notFoundPage: { title: string; message: string; backHome: string; };
   categories: Record<string, CategoryCopy>;
 }
 
@@ -40,7 +55,7 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
       dashboard: 'Dashboard', courses: 'Courses', learningPaths: 'Learning Paths', bookmarks: 'Bookmarks', notes: 'Notes',
       search: 'Search', dataManagement: 'Data & Backup', mainLabel: 'Main navigation', mobileLabel: 'Mobile navigation',
       openMenu: 'Open menu', closeSidebar: 'Close sidebar', skipToContent: 'Skip to content',
-      appVersion: 'Interactive Guides · learning preview',
+      appVersion: 'Interactive Guides · learning preview', breadcrumbLabel: 'Breadcrumb',
     },
     search: { buttonLabel: 'Search lessons, courses, and notes', placeholder: 'Search lessons, courses, notes...' },
     language: { targetName: 'Russian', buttonLabel: 'Switch interface language to Russian', shortLabel: 'RU' },
@@ -78,6 +93,26 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
       filterLabel: 'Filter results by type', all: 'All', lessons: 'Lessons', courses: 'Courses', notes: 'Notes',
       clearSearch: 'Clear search', resultTypes: { lesson: 'Lesson', course: 'Course', note: 'Note' },
     },
+    bookmarksPage: {
+      title: 'Bookmarks', summary: 'Saved lessons: {count}', emptyTitle: 'No bookmarks yet',
+      emptyMessage: "Bookmark a lesson while you're reading it and it'll show up here for quick access later.",
+      browseCatalog: 'Browse catalog', statusCompleted: 'Completed', statusInProgress: 'In progress', durationUnit: 'm',
+    },
+    notesPage: {
+      title: 'Notes', summary: 'Notes across your lessons: {count}', emptyTitle: 'No notes yet',
+      emptyMessage: "Open any lesson and jot something down — it'll show up here, organized by course.",
+      browseCatalog: 'Browse catalog', searchPlaceholder: 'Search notes...', searchLabel: 'Search notes',
+      filterLabel: 'Filter by course', allCourses: 'All courses', noMatchesTitle: 'No matching notes',
+      noMatchesMessage: 'Try a different search term or course filter.', updated: 'Updated', delete: 'Delete',
+    },
+    learningPathsPage: {
+      title: 'Learning Paths',
+      description: 'Follow a curated sequence of lessons from start to finish. Each path guides you through a skill step by step, with progress tracked along the way.',
+      completed: 'completed', estimated: 'estimated', viewPath: 'View path', continueLearning: 'Continue learning',
+      pathComplete: "You've completed this learning path!",
+      pathCompleteMessage: 'Pick a new path to keep growing.', allPaths: 'All paths', continueWith: 'Continue with',
+    },
+    notFoundPage: { title: 'Page Not Found', message: "The page you're looking for doesn't exist.", backHome: 'Back to Dashboard' },
     categories: {
       'start-here': { name: 'Start Here', description: "New to Interactive Guides? Begin with this orientation handbook to get a bird's-eye view of the frontend landscape." },
       'web-basics': { name: 'Web Basics', description: 'Understand how the internet works and master the foundational technologies of the web — HTML, CSS, and the DOM.' },
@@ -95,7 +130,7 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
       dashboard: 'Главная', courses: 'Курсы', learningPaths: 'Учебные траектории', bookmarks: 'Закладки', notes: 'Заметки',
       search: 'Поиск', dataManagement: 'Данные и резервная копия', mainLabel: 'Основная навигация', mobileLabel: 'Мобильная навигация',
       openMenu: 'Открыть меню', closeSidebar: 'Закрыть боковую панель', skipToContent: 'Перейти к содержимому',
-      appVersion: 'Interactive Guides · учебная версия',
+      appVersion: 'Interactive Guides · учебная версия', breadcrumbLabel: 'Навигационная цепочка',
     },
     search: { buttonLabel: 'Искать уроки, курсы и заметки', placeholder: 'Поиск уроков, курсов, заметок...' },
     language: { targetName: 'English', buttonLabel: 'Переключить язык интерфейса на English', shortLabel: 'EN' },
@@ -133,6 +168,26 @@ export const UI_COPY: Record<AppLocale, AppCopy> = {
       filterLabel: 'Фильтровать результаты по типу', all: 'Всё', lessons: 'Уроки', courses: 'Курсы', notes: 'Заметки',
       clearSearch: 'Очистить поиск', resultTypes: { lesson: 'Урок', course: 'Курс', note: 'Заметка' },
     },
+    bookmarksPage: {
+      title: 'Закладки', summary: 'Сохранено уроков: {count}', emptyTitle: 'Закладок пока нет',
+      emptyMessage: 'Добавляй уроки в закладки во время чтения — здесь они будут под рукой.',
+      browseCatalog: 'Открыть каталог', statusCompleted: 'Завершено', statusInProgress: 'В процессе', durationUnit: 'мин',
+    },
+    notesPage: {
+      title: 'Заметки', summary: 'Заметок в уроках: {count}', emptyTitle: 'Заметок пока нет',
+      emptyMessage: 'Открой любой урок и запиши мысль — заметка появится здесь, в списке по курсам.',
+      browseCatalog: 'Открыть каталог', searchPlaceholder: 'Поиск заметок...', searchLabel: 'Поиск заметок',
+      filterLabel: 'Фильтр по курсу', allCourses: 'Все курсы', noMatchesTitle: 'Подходящих заметок нет',
+      noMatchesMessage: 'Попробуй изменить поисковый запрос или фильтр курса.', updated: 'Обновлено', delete: 'Удалить',
+    },
+    learningPathsPage: {
+      title: 'Учебные траектории',
+      description: 'Следуй подобранной последовательности уроков от начала до конца. Каждая траектория последовательно развивает навык и сохраняет прогресс.',
+      completed: 'завершено', estimated: 'примерно', viewPath: 'Открыть траекторию', continueLearning: 'Продолжить обучение',
+      pathComplete: 'Учебная траектория завершена!',
+      pathCompleteMessage: 'Выбери следующую траекторию для развития.', allPaths: 'Все траектории', continueWith: 'Продолжить с урока',
+    },
+    notFoundPage: { title: 'Страница не найдена', message: 'Такой страницы не существует.', backHome: 'На главную' },
     categories: {
       'start-here': { name: 'Начни здесь', description: 'Впервые в Interactive Guides? Начни с вводного руководства, которое показывает общую картину frontend-разработки.' },
       'web-basics': { name: 'Основы веба', description: 'Разберись, как работает интернет, и изучи базовые веб-технологии: HTML, CSS и DOM.' },
