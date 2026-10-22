@@ -7,7 +7,7 @@ The supplied ABB bootcamp syllabus is the canonical core-track order. It covers 
 ### Month 1 — Web Fundamentals & Layout
 
 Structured lessons are present for Weeks 1–4 in both locales, all with editorial status `review`. They are content pilots, not fully approved/published.
-- Week 1: internet, browser, HTTP, URL, request/response; HTML document structure and semantic elements. Practice: About Me page and DevTools.
+- Week 1: `web.internet-http` teaches browser/client-server, URL components, DNS at a high level, HTTP requests/responses, status codes, HTTPS/TLS and Network DevTools; `html.document-structure` covers HTML document structure and semantic elements. Practice spans request inspection and an About Me page.
 - Week 2: forms, input attributes, labels, accessibility basics. Practice: login/register layout.
 - Week 3: CSS authoring, selectors/specificity, box model, display. Practice: landing page.
 - Week 4: Flexbox, Grid, media queries, mobile-first. Month project: responsive landing page.
@@ -49,6 +49,7 @@ The current app registers 25 canonical lesson IDs across the 24-week core syllab
 
 | Week | Stable lesson ID | Main scope |
 |---|---|---|
+| 1 | `web.internet-http` | Internet/Web distinction, URL anatomy, DNS, HTTP messages/statuses, HTTPS/TLS, DevTools Network |
 | 1 | `html.document-structure` | HTML document shell, metadata and semantics |
 | 2 | `html.forms-accessibility` | Forms, labels, native validation and accessible errors |
 | 3 | `css.fundamentals` | Selectors, cascade, specificity, box model and display |
