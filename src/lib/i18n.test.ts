@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { formatCatalogDescription, formatLessonCount, formatOverallProgress, getCategoryCopy, getCategoryCopyByName, getDifficultyLabel, getLearningPathCopy, getLearningPathStepNote, getLocaleFromPathname, getOtherLocale, isAppLocale, LOCALE_STORAGE_KEY, UI_COPY } from './i18n';
+import { formatCatalogDescription, formatDurationMinutes, formatLessonCount, formatOverallProgress, getCategoryCopy, getCategoryCopyByName, getDifficultyLabel, getLearningPathCopy, getLearningPathStepNote, getLocaleFromPathname, getOtherLocale, isAppLocale, LOCALE_STORAGE_KEY, UI_COPY } from './i18n';
 
 describe('application localization utilities', () => {
   afterEach(() => window.localStorage.clear());
@@ -27,6 +27,11 @@ describe('application localization utilities', () => {
     expect(formatOverallProgress('ru', 2, 8)).toBe('Общий прогресс — 2 из 8 уроков');
     expect(formatCatalogDescription('en', 100, 9)).toContain('100 interactive lessons');
     expect(getDifficultyLabel('ru', 'beginner')).toBe('Начальный');
+    expect(formatDurationMinutes('en', 1)).toBe('1 minute');
+    expect(formatDurationMinutes('en', 3)).toBe('3 minutes');
+    expect(formatDurationMinutes('ru', 1)).toBe('1 минута');
+    expect(formatDurationMinutes('ru', 4)).toBe('4 минуты');
+    expect(formatDurationMinutes('ru', 15)).toBe('15 минут');
   });
 
   it('localizes learning path names and step notes', () => {
