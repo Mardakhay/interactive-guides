@@ -158,7 +158,9 @@
           "practice": [
             "Build a To-do app using an in-memory array and DOM rendering"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "js.dom-events"
+          ]
         },
         {
           "id": "month-2-week-8",
@@ -233,7 +235,9 @@
           "practice": [
             "Build Counter and To-do components by rewriting previous tasks in React"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.components-jsx-state"
+          ]
         },
         {
           "id": "month-3-week-12",

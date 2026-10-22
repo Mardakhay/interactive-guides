@@ -1,0 +1,346 @@
+{
+  "id": "js.dom-events",
+  "locale": "ru",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-22",
+  "moduleId": "month-2-week-7",
+  "week": 7,
+  "order": 1,
+  "title": "DOM и события браузера",
+  "description": "Разберись в живом дереве документа браузера, безопасно выбирай и обновляй элементы, обрабатывай события и создай DOM-список задач на основе данных.",
+  "estimatedMinutes": 65,
+  "difficulty": "beginner",
+  "prerequisites": [
+    "js.functions-arrays-objects",
+    "html.forms-accessibility"
+  ],
+  "learningOutcomes": [
+    "Объяснять, как браузер преобразует HTML в живое DOM-дерево.",
+    "Безопасно выбирать элементы через querySelector и querySelectorAll.",
+    "Создавать, обновлять и удалять DOM-узлы с помощью API браузера.",
+    "Выбирать textContent вместо небезопасной вставки HTML для пользовательского текста.",
+    "Объяснять event.target/currentTarget, всплытие и preventDefault.",
+    "Создавать список задач, обновляя массив и отображая из него текущие данные."
+  ],
+  "tags": [
+    "javascript",
+    "dom",
+    "events",
+    "browser",
+    "forms",
+    "security"
+  ],
+  "blocks": [
+    {
+      "id": "dom-model",
+      "type": "heading",
+      "level": 2,
+      "text": "DOM — живая модель документа в браузере"
+    },
+    {
+      "id": "dom-model-body",
+      "type": "paragraph",
+      "text": "HTML-исходник описывает документ, а Document Object Model (DOM) — структурированное дерево, которое браузер создаёт из исходника. JavaScript может читать и изменять это дерево, пока страница открыта. DOM — не скриншот и не замороженная копия первоначальной HTML-строки: после разбора браузера узлы можно добавлять, удалять и обновлять."
+    },
+    {
+      "id": "dom-select",
+      "type": "heading",
+      "level": 2,
+      "text": "Выбирай узлы и обрабатывай отсутствие совпадений"
+    },
+    {
+      "id": "dom-select-body",
+      "type": "paragraph",
+      "text": "document.querySelector(selector) возвращает первый совпавший элемент или null. document.querySelectorAll(selector) возвращает статический NodeList всех текущих совпадений. Позже добавленные элементы автоматически не появляются в статическом NodeList. Так как селектор может ничего не найти, проверяй результат querySelector до вызова методов элемента."
+    },
+    {
+      "id": "dom-select-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const heading = document.querySelector(\"h1\");\nconst cards = document.querySelectorAll(\".card\");\n\nif (heading) {\n  heading.textContent = \"Мой учебный кабинет\";\n}\n\nconsole.log(`Найдено карточек: ${cards.length}`);",
+      "steps": [
+        {
+          "title": "Найди один элемент",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "QuerySelector возвращает первый h1 или null, если такого элемента нет."
+        },
+        {
+          "title": "Получи статическую коллекцию",
+          "lineStart": 2,
+          "lineEnd": 2,
+          "explanation": "QuerySelectorAll возвращает NodeList совпадений, найденных на момент запроса."
+        },
+        {
+          "title": "Проверь наличие элемента",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "Условие явно обрабатывает null и не позволяет вызвать textContent на отсутствующем элементе."
+        },
+        {
+          "title": "Посмотри количество совпадений",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "Length сообщает число элементов в результате этого запроса; это не live-счётчик будущих карточек."
+        }
+      ]
+    },
+    {
+      "id": "create-nodes",
+      "type": "heading",
+      "level": 2,
+      "text": "Создавай и обновляй узлы через специализированные API"
+    },
+    {
+      "id": "create-nodes-body",
+      "type": "paragraph",
+      "text": "Используй createElement для создания узла, classList для управления классами, setAttribute для атрибутов, textContent для обычного текста, append для вставки и remove для удаления. Такие API отделяют содержимое от структуры. Для строк пользователя textContent безопаснее, чем интерпретация данных как HTML."
+    },
+    {
+      "id": "textcontent-callout",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Не вставляй пользовательский ввод в innerHTML",
+      "text": "InnerHTML разбирает строку как разметку. Конкатенация недоверенного ввода с ним может создать уязвимость cross-site scripting (XSS). Для обычного текста используй createElement и textContent; доверенный или безопасно очищенный HTML разбирай только при обоснованной необходимости."
+    },
+    {
+      "id": "create-node-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const list = document.querySelector(\"#todo-list\");\n\nif (list) {\n  const item = document.createElement(\"li\");\n  item.classList.add(\"todo-item\");\n  item.textContent = \"Повторить CSS Grid\";\n  list.append(item);\n}",
+      "steps": [
+        {
+          "title": "Найди родительский контейнер",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "Селектор может вернуть null, поэтому последующие действия защищены проверкой."
+        },
+        {
+          "title": "Создай и настрой узел",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "CreateElement создаёт li; classList добавляет класс, а textContent задаёт обычный текст."
+        },
+        {
+          "title": "Вставь новый узел",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "Append добавляет новый элемент в конец списка в живом DOM."
+        }
+      ]
+    },
+    {
+      "id": "events",
+      "type": "heading",
+      "level": 2,
+      "text": "События связывают действия пользователя с кодом"
+    },
+    {
+      "id": "events-body",
+      "type": "paragraph",
+      "text": "AddEventListener регистрирует callback, который браузер вызывает при получении элемента события click, input или submit. Event.target указывает, где возникло событие; event.currentTarget — элемент, обработчик которого сейчас выполняется. Многие события всплывают к предкам, что позволяет использовать делегирование, но всплывают не все события."
+    },
+    {
+      "id": "event-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const form = document.querySelector(\"#todo-form\");\nconst input = document.querySelector(\"#todo-input\");\n\nform?.addEventListener(\"submit\", (event) => {\n  event.preventDefault();\n  const title = input?.value.trim();\n  if (!title) return;\n  console.log(\"Добавить задачу:\", title);\n});",
+      "steps": [
+        {
+          "title": "Слушай submit на форме",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Обработчик submit на форме принимает отправку и через поддерживаемое клавиатурное действие, и через кнопку."
+        },
+        {
+          "title": "Отмени стандартную навигацию",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "explanation": "PreventDefault отменяет стандартное действие браузера при отправке; сам по себе он не сохраняет данные."
+        },
+        {
+          "title": "Нормализуй пользовательский ввод",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "Trim удаляет пробелы по краям, а ранний return игнорирует пустое название."
+        },
+        {
+          "title": "Оставь обработку данных явной",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "Здесь показано только событие. Настоящее приложение обновит модель данных и отобразит новое состояние."
+        }
+      ]
+    },
+    {
+      "id": "dom-quiz-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что возвращает querySelector, если совпавшего элемента нет?",
+      "options": [
+        {
+          "id": "a",
+          "text": "null",
+          "correct": true,
+          "feedback": "QuerySelector возвращает null, если подходящего элемента нет."
+        },
+        {
+          "id": "b",
+          "text": "Пустой массив",
+          "correct": false,
+          "feedback": "QuerySelector возвращает один элемент или null, но не массив."
+        },
+        {
+          "id": "c",
+          "text": "Пустой NodeList",
+          "correct": false,
+          "feedback": "QuerySelectorAll возвращает NodeList; querySelector возвращает элемент или null."
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false,
+          "feedback": "Документированный результат при отсутствии совпадения — null."
+        }
+      ],
+      "explanation": "Проверяй null до вызова методов найденного элемента."
+    },
+    {
+      "id": "dom-quiz-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "Если присвоить пользовательскую строку textContent, содержащиеся в ней HTML-теги будут разобраны в DOM-элементы.",
+      "options": [
+        {
+          "id": "true",
+          "text": "Верно",
+          "correct": false,
+          "feedback": "TextContent трактует ввод как текст и не разбирает теги в элементы."
+        },
+        {
+          "id": "false",
+          "text": "Неверно",
+          "correct": true,
+          "feedback": "HTML-разбор выполняют API вроде innerHTML; textContent вставляет текст."
+        }
+      ],
+      "explanation": "Используй текстовые API для обычного пользовательского содержимого, чтобы уменьшить риск инъекции разметки."
+    },
+    {
+      "id": "dom-quiz-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Какие утверждения о событиях браузера верны? Выбери все подходящие варианты.",
+      "options": [
+        {
+          "id": "a",
+          "text": "event.target указывает, где возникло событие",
+          "correct": true,
+          "feedback": "Target указывает на исходный источник события."
+        },
+        {
+          "id": "b",
+          "text": "event.currentTarget — элемент, чей обработчик выполняется",
+          "correct": true,
+          "feedback": "CurrentTarget — элемент, на котором зарегистрирован активный обработчик."
+        },
+        {
+          "id": "c",
+          "text": "Каждое событие всплывает через всех предков",
+          "correct": false,
+          "feedback": "Всплытие зависит от типа события."
+        },
+        {
+          "id": "d",
+          "text": "preventDefault автоматически валидирует и сохраняет форму",
+          "correct": false,
+          "feedback": "Он отменяет стандартное действие; проверка и сохранение требуют отдельной логики."
+        }
+      ],
+      "explanation": "Источник события, активный обработчик, всплытие и стандартное поведение — разные понятия."
+    },
+    {
+      "id": "dom-practice",
+      "type": "codingExercise",
+      "title": "Создай DOM-список задач на основе модели данных",
+      "language": "javascript",
+      "context": "Используй массив как источник истины и DOM API браузера для отображения задач. Платформа сохраняет черновик; отдельная песочница запускает синхронные примеры, но не DOM-шаблон этого упражнения.",
+      "instructions": [
+        "Выбери форму, текстовое поле и контейнер списка.",
+        "Храни задачи в массиве объектов с полями id, title и completed.",
+        "Создай renderTasks(), которая очищает список и создаёт li для каждой задачи.",
+        "При submit формы отмени стандартное действие, удали пробелы по краям и игнорируй пустое название.",
+        "Сначала обнови массив tasks, затем вызови renderTasks().",
+        "Используй textContent для названий и объясни, почему innerHTML опасен для произвольного пользовательского текста.",
+        "Добавь удаление через кнопку и делегирование события или опиши архитектуру удаления.",
+        "Проверь пустой ввод, несколько задач и повторные вызовы renderTasks."
+      ],
+      "requirements": [
+        "Массив — источник истины, а DOM строится на основе массива.",
+        "Событие submit обрабатывается на самой форме.",
+        "Пустые значения и строки из одних пробелов игнорируются.",
+        "Пользовательские названия отображаются как текст, а не HTML.",
+        "Повторная отрисовка не дублирует видимые элементы.",
+        "Ученик объясняет null при выборе элемента, event target и preventDefault."
+      ],
+      "starterCode": "const tasks = [];\nconst form = document.querySelector(\"#todo-form\");\nconst input = document.querySelector(\"#todo-input\");\nconst list = document.querySelector(\"#todo-list\");\nlet nextId = 1;\n\nfunction renderTasks() {\n  // TODO: очисти список и отобрази задачи из массива.\n}\n\nform?.addEventListener(\"submit\", (event) => {\n  // TODO: отмени стандартную отправку, очисти ввод, игнорируй пустое,\n  // добавь задачу, очисти поле и отобрази список заново.\n});\n\nrenderTasks();",
+      "hints": [
+        "Сначала обнови массив, а потом вызови renderTasks().",
+        "Перед новой отрисовкой очисти предыдущие узлы или согласуй их с текущими данными.",
+        "Для пользовательского названия используй createElement и textContent."
+      ],
+      "successCriteria": [
+        "Отправка непустого названия создаёт один элемент в модели и один видимый пункт.",
+        "Пустая отправка не создаёт задачу.",
+        "Повторные вызовы renderTasks не дублируют элементы.",
+        "Решение не объединяет произвольный пользовательский текст со строкой HTML.",
+        "Ты можешь объяснить, как изменение состояния приводит к отображаемому результату."
+      ]
+    },
+    {
+      "id": "dom-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "DOM — живое дерево документа браузера; querySelector возвращает элемент или null.",
+        "Используй createElement, textContent, classList, setAttribute, append и remove для осознанных изменений DOM.",
+        "Подключай addEventListener и различай target, currentTarget, всплытие и стандартные действия браузера.",
+        "Обрабатывай submit на форме и вызывай preventDefault только при замене стандартного поведения.",
+        "Для небольшого списка задач храни массив как источник истины и отображай список из его данных."
+      ]
+    },
+    {
+      "id": "dom-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Introduction to the DOM",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: Document.querySelector()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Event bubbling",
+          "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/Event_bubbling",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: Event.preventDefault()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Event/preventDefault",
+          "kind": "official-docs"
+        },
+        {
+          "title": "OWASP: Cross Site Scripting Prevention",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+          "kind": "security"
+        }
+      ]
+    }
+  ]
+}

@@ -31,6 +31,8 @@ import englishContext from '../lessons/react.context-shared-state/en.json';
 import russianContext from '../lessons/react.context-shared-state/ru.json';
 import englishApiHooks from '../lessons/react.api-custom-hooks/en.json';
 import russianApiHooks from '../lessons/react.api-custom-hooks/ru.json';
+import englishReactBasics from '../lessons/react.components-jsx-state/en.json';
+import russianReactBasics from '../lessons/react.components-jsx-state/ru.json';
 import { lessonTranslationSchema } from './lessonContent';
 
 describe('structured lesson content', () => {
@@ -250,5 +252,29 @@ describe('React API and custom hooks lesson translation', () => {
     );
     expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
     expect(russianApiHooks.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('DOM and events lesson translation', () => {
+  it('keeps stable identity and block structure in both locales', () => {
+    expect(englishDom.id).toBe(russianDom.id);
+    expect(englishDom.moduleId).toBe('month-2-week-7');
+    expect(englishDom.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianDom.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianDom.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('React fundamentals lesson translation', () => {
+  it('keeps stable identity and block structure in both locales', () => {
+    expect(englishReactBasics.id).toBe(russianReactBasics.id);
+    expect(englishReactBasics.moduleId).toBe('month-3-week-11');
+    expect(englishReactBasics.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianReactBasics.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishReactBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianReactBasics.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
