@@ -1,0 +1,405 @@
+{
+  "id": "css.flexbox-grid-responsive",
+  "locale": "en",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-22",
+  "moduleId": "month-1-week-4",
+  "week": 4,
+  "order": 4,
+  "title": "Flexbox, CSS Grid, and Responsive Design",
+  "description": "Learn to choose between one-dimensional Flexbox and two-dimensional Grid, control alignment and spacing, and build layouts that adapt from small screens to wide viewports.",
+  "estimatedMinutes": 55,
+  "difficulty": "beginner",
+  "prerequisites": [
+    "css.fundamentals"
+  ],
+  "learningOutcomes": [
+    "Identify a flex container's main axis and cross axis.",
+    "Use justify-content, align-items, gap, and flex-wrap to arrange items.",
+    "Build a grid with explicit columns and rows using repeat() and fractional units.",
+    "Choose Flexbox or Grid based on the shape of the layout problem.",
+    "Use mobile-first media queries and flexible sizing to avoid horizontal overflow."
+  ],
+  "tags": [
+    "css",
+    "flexbox",
+    "grid",
+    "responsive-design",
+    "media-queries",
+    "mobile-first"
+  ],
+  "blocks": [
+    {
+      "id": "layout-problem",
+      "type": "heading",
+      "level": 2,
+      "text": "Layout is a relationship between boxes"
+    },
+    {
+      "id": "layout-problem-body",
+      "type": "paragraph",
+      "text": "CSS layout is not mainly about pushing each element to a hand-picked pixel coordinate. A robust layout describes relationships: which items belong in a row, which areas form columns, how space is distributed, and what should happen when the available width changes. Flexbox and Grid express those relationships directly, while fixed positions and arbitrary margins often make the result brittle."
+    },
+    {
+      "id": "layout-mental-model",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Choose the shape before the properties",
+      "text": "Use Flexbox when the main problem is arranging items along one axis and distributing space between them. Use Grid when the relationship between rows and columns matters together. These are not mutually exclusive: a grid page can contain a flex header, and a grid card can use flexbox for its internal actions."
+    },
+    {
+      "id": "flexbox",
+      "type": "heading",
+      "level": 2,
+      "text": "Flexbox: arrange items along one axis"
+    },
+    {
+      "id": "flexbox-body",
+      "type": "paragraph",
+      "text": "Applying display:flex to a container makes its direct children flex items. By default, the main axis is horizontal because flex-direction defaults to row; the cross axis is perpendicular. When flex-direction changes to column, the main axis becomes vertical. This is why justify-content and align-items should be understood in terms of axes, not memorized as “horizontal” and “vertical” properties."
+    },
+    {
+      "id": "flexbox-code",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": ".toolbar {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: space-between;\n  gap: 1rem;\n  flex-wrap: wrap;\n}",
+      "steps": [
+        {
+          "title": "Create the flex formatting context",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "The element with class toolbar becomes the flex container. Its direct children—not every descendant at arbitrary depth—become flex items."
+        },
+        {
+          "title": "Set the main axis",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "row places items along the horizontal main axis in the usual left-to-right writing mode. With column, the main axis would run vertically."
+        },
+        {
+          "title": "Align along each axis",
+          "lineStart": 4,
+          "lineEnd": 5,
+          "explanation": "align-items aligns items on the cross axis. justify-content distributes free space on the main axis. Their physical directions depend on flex-direction and the writing mode."
+        },
+        {
+          "title": "Create consistent space and allow wrapping",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "gap creates space between items without adding margins to every child. flex-wrap:wrap allows items to move onto another line when a row no longer fits; it does not automatically define a complete responsive page."
+        }
+      ]
+    },
+    {
+      "id": "flex-properties",
+      "type": "heading",
+      "level": 3,
+      "text": "The Flexbox properties you should reason about"
+    },
+    {
+      "id": "flex-properties-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "justify-content: distributes free space along the main axis, for example flex-start, center, space-between, or space-around.",
+        "align-items: aligns items along the cross axis, for example stretch, center, flex-start, or flex-end.",
+        "gap: sets spacing between flex items or lines without assigning a margin to each item.",
+        "flex-wrap: controls whether items remain on a single flex line or can wrap onto multiple lines.",
+        "flex: controls how a flex item grows, shrinks, and uses its basis; do not use it as a mysterious alignment fix before identifying the available space."
+      ]
+    },
+    {
+      "id": "grid",
+      "type": "heading",
+      "level": 2,
+      "text": "CSS Grid: define rows and columns together"
+    },
+    {
+      "id": "grid-body",
+      "type": "paragraph",
+      "text": "Grid creates a two-dimensional layout model. The container defines rows and columns, and its direct children are placed into grid cells or can span multiple tracks. Grid is useful for card collections, dashboard regions, and page layouts where column relationships matter. It is not only for large page shells: a small component can use Grid as well."
+    },
+    {
+      "id": "grid-code",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": ".card-grid {\n  display: grid;\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n  gap: 1.25rem;\n}\n\n.card {\n  min-width: 0;\n}",
+      "steps": [
+        {
+          "title": "Turn on Grid",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "The element becomes a grid container. Its direct children are laid out according to grid tracks rather than ordinary block flow."
+        },
+        {
+          "title": "Define three equal columns",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "repeat(3, ...) repeats the track definition three times. 1fr represents a share of the available grid space after fixed and intrinsic contributions are accounted for."
+        },
+        {
+          "title": "Why minmax(0, 1fr) is often useful",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "A plain 1fr track has an automatic minimum that may be influenced by large content. minmax(0, 1fr) permits the track to shrink to zero minimum, while min-width:0 on a grid item helps its content fit the assigned track instead of forcing overflow."
+        },
+        {
+          "title": "Use gap for gutters",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "gap defines consistent gutters between columns and rows without adding external margins to each card."
+        }
+      ]
+    },
+    {
+      "id": "fr-and-repeat",
+      "type": "heading",
+      "level": 3,
+      "text": "Understanding fr, repeat(), and minmax()"
+    },
+    {
+      "id": "fr-and-repeat-body",
+      "type": "paragraph",
+      "text": "The fr unit represents a fraction of the available space in the grid container. Three equal 1fr tracks share available space equally, subject to track sizing constraints. repeat() avoids repeating the same track definition manually. minmax() specifies a lower and upper bound, and the common responsive pattern repeat(auto-fit, minmax(15rem, 1fr)) asks Grid to fit as many columns as can meet a minimum size, without hard-coding a separate column count for each viewport."
+    },
+    {
+      "id": "flex-vs-grid",
+      "type": "callout",
+      "tone": "important",
+      "title": "Use both when the design needs both",
+      "text": "Flexbox is a natural fit for toolbars, navigation items, button rows, and a component's actions. Grid is a natural fit for card galleries, dashboards, and layouts with aligned rows and columns. Real applications often nest the two. Choose the one that expresses the relationship clearly, not the one that happens to require fewer declarations in a toy example."
+    },
+    {
+      "id": "responsive",
+      "type": "heading",
+      "level": 2,
+      "text": "Responsive design starts with flexible constraints"
+    },
+    {
+      "id": "responsive-body",
+      "type": "paragraph",
+      "text": "A responsive layout adapts to the space available instead of assuming one screen size. Begin with a layout that works at narrow widths, prefer fluid containers and track definitions, and add media queries when the content or design needs a meaningful change. A breakpoint should respond to the content's needs, not to a list of specific device models."
+    },
+    {
+      "id": "media-query",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": ".page {\n  width: min(100% - 2rem, 72rem);\n  margin-inline: auto;\n}\n\n.card-grid {\n  display: grid;\n  grid-template-columns: 1fr;\n  gap: 1rem;\n}\n\n@media (min-width: 48rem) {\n  .card-grid {\n    grid-template-columns: repeat(2, minmax(0, 1fr));\n  }\n}\n\n@media (min-width: 72rem) {\n  .card-grid {\n    grid-template-columns: repeat(3, minmax(0, 1fr));\n  }\n}",
+      "steps": [
+        {
+          "title": "Use a fluid container with a maximum width",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "min() caps the page width at 72rem while preserving side gutters on narrower screens. margin-inline:auto centers it in the available inline space."
+        },
+        {
+          "title": "Start with one column",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "explanation": "The base rule works at narrow widths. It does not require the browser to pretend a phone is a desktop layout shrunk down to fit."
+        },
+        {
+          "title": "Add breakpoints when content can support more columns",
+          "lineStart": 12,
+          "lineEnd": 16,
+          "explanation": "At 48rem this example uses two columns; at 72rem it uses three. The values are illustrative starting points, not universally correct breakpoint values. Test where the actual cards stop having comfortable width."
+        },
+        {
+          "title": "Why mobile-first helps",
+          "lineStart": 1,
+          "lineEnd": 20,
+          "explanation": "Base rules describe the smallest supported layout and min-width media queries layer in more columns as space grows. This keeps narrow-screen behavior explicit and avoids overriding a desktop-first layout with many max-width rules."
+        }
+      ]
+    },
+    {
+      "id": "responsive-checklist",
+      "type": "heading",
+      "level": 3,
+      "text": "Prevent the most common responsive failures"
+    },
+    {
+      "id": "responsive-checklist-list",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Include the viewport meta element so mobile browsers use the device-width viewport.",
+        "Avoid fixed page widths that exceed the viewport; use percentages, min(), max-width, or grid tracks where appropriate.",
+        "Let long content wrap or scroll within a deliberate code block rather than creating page-wide horizontal overflow.",
+        "Check images and other media against the container width.",
+        "Test narrow widths such as 320px, 375px, and intermediate widths—not only a desktop and one phone preset.",
+        "Use browser DevTools to inspect computed styles, grid/flex overlays, and the element causing overflow."
+      ]
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A flex container uses flex-direction: column. Which axis is the main axis?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Vertical",
+          "correct": true,
+          "feedback": "With column, flex items are arranged along the vertical main axis in the usual writing mode."
+        },
+        {
+          "id": "b",
+          "text": "Horizontal",
+          "correct": false,
+          "feedback": "Horizontal is the main axis for the default row direction, not column."
+        },
+        {
+          "id": "c",
+          "text": "The axis defined by gap",
+          "correct": false,
+          "feedback": "Gap controls spacing; it does not define the main axis."
+        },
+        {
+          "id": "d",
+          "text": "There is no main axis in column layout",
+          "correct": false,
+          "feedback": "Flexbox always has a main axis and a perpendicular cross axis."
+        }
+      ],
+      "explanation": "The main axis follows flex-direction; the cross axis is perpendicular to it."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "A media query should always use breakpoints that correspond exactly to common phone and tablet model widths.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "Device-specific widths create brittle rules; breakpoints should follow where the content or layout needs to change."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "A content-driven breakpoint is more robust because viewports vary across devices, browser windows, and zoom settings."
+        }
+      ],
+      "explanation": "Responsive design responds to available space and content constraints, not a device-model list."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Which statements about Flexbox and Grid are correct? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Flexbox is designed primarily for relationships along one axis",
+          "correct": true,
+          "feedback": "Flexbox lays out items along a main axis, with a perpendicular cross axis for alignment."
+        },
+        {
+          "id": "b",
+          "text": "Grid can define rows and columns together",
+          "correct": true,
+          "feedback": "Grid is a two-dimensional layout system that controls both row and column tracks."
+        },
+        {
+          "id": "c",
+          "text": "Using Grid inside a Flexbox item is invalid CSS",
+          "correct": false,
+          "feedback": "A flex item can itself become a grid container; layout systems are commonly nested."
+        },
+        {
+          "id": "d",
+          "text": "A media query automatically makes fixed-width elements responsive",
+          "correct": false,
+          "feedback": "A media query only changes the declarations you specify; fixed widths can still cause overflow."
+        }
+      ],
+      "explanation": "Pick a layout method based on the relationships you want to express, and combine them where each serves a distinct role."
+    },
+    {
+      "id": "practice-responsive-layout",
+      "type": "codingExercise",
+      "title": "Build a responsive card landing page",
+      "language": "html",
+      "context": "Create a page containing a compact header, a responsive set of learning-topic cards, and a footer. The HTML preview is sandboxed and does not execute JavaScript.",
+      "instructions": [
+        "Begin with one-column cards that fit a narrow viewport.",
+        "Use CSS Grid for the card collection with a minimum track size and flexible maximum.",
+        "Use Flexbox inside the header to align the site name and navigation items.",
+        "Create a centered page container with fluid side gutters and a maximum width.",
+        "If needed, add one media query to change the grid at a content-driven breakpoint.",
+        "Test widths of 320px, 375px, 768px, and 1280px and inspect any horizontal overflow.",
+        "Explain why you used Grid for the card collection and Flexbox for the header."
+      ],
+      "requirements": [
+        "The HTML contains semantic header, nav, main, and footer regions.",
+        "The base layout works at a narrow screen width without horizontal page overflow.",
+        "The card area uses Grid with gap and a flexible sizing strategy.",
+        "The header uses Flexbox and remains usable when its available width shrinks.",
+        "At larger widths the card collection takes advantage of available space without becoming too wide to read.",
+        "The breakpoint responds to layout needs rather than naming a specific device."
+      ],
+      "starterCode": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>Learning Paths</title>\n    <style>\n      /* Add responsive layout rules here. */\n    </style>\n  </head>\n  <body>\n    <header class=\"site-header\">\n      <a class=\"brand\" href=\"#home\">Learning Paths</a>\n      <nav aria-label=\"Main navigation\">\n        <a href=\"#courses\">Courses</a>\n        <a href=\"#about\">About</a>\n      </nav>\n    </header>\n    <main id=\"home\" class=\"page\">\n      <h1>Choose a topic to explore</h1>\n      <section id=\"courses\" class=\"card-grid\" aria-label=\"Learning topics\">\n        <article class=\"card\"><h2>HTML</h2><p>Structure content meaningfully.</p></article>\n        <article class=\"card\"><h2>CSS</h2><p>Express layout and visual relationships.</p></article>\n        <article class=\"card\"><h2>JavaScript</h2><p>Add behavior and interaction.</p></article>\n      </section>\n    </main>\n    <footer id=\"about\" class=\"site-footer\">Keep learning.</footer>\n  </body>\n</html>",
+      "hints": [
+        "Start with a one-column grid and only add columns when the cards have enough room to remain readable.",
+        "For a grid that creates columns by minimum card size, inspect repeat(auto-fit, minmax(...)) after making the basic layout work.",
+        "Flexbox alignment uses main and cross axes; check flex-direction before deciding what justify-content does."
+      ],
+      "successCriteria": [
+        "The page fits a 320px viewport without page-level horizontal overflow.",
+        "The header uses Flexbox for alignment and spacing.",
+        "The card collection uses Grid and adapts its number of columns as space permits.",
+        "The maximum content width prevents excessively wide lines on large displays.",
+        "The learner can explain the main/cross axes and justify using Grid versus Flexbox.",
+        "Any breakpoint has been tested at widths just below and above it."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Flexbox arranges items along a main axis; align-items operates along the cross axis and justify-content along the main axis.",
+        "Grid defines row and column tracks together and is useful when two-dimensional alignment matters.",
+        "gap gives consistent space between items without giving every item arbitrary margins.",
+        "Mobile-first layouts begin with narrow-screen rules and add complexity as the content can support more space.",
+        "Responsive behavior must be tested across widths; a media query does not automatically fix inflexible dimensions."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Basic concepts of Flexbox",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Basic_concepts_of_flexbox",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Basic concepts of Grid layout",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Basic_concepts_of_grid_layout",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Responsive web design",
+          "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/CSS_layout/Responsive_Design",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: Using media queries",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_media_queries/Using_media_queries",
+          "kind": "official-docs"
+        },
+        {
+          "title": "web.dev: Learn CSS",
+          "url": "https://web.dev/learn/css",
+          "kind": "guide"
+        }
+      ]
+    }
+  ]
+}

@@ -99,7 +99,9 @@
             "Создать адаптивную посадочную страницу для desktop и mobile"
           ],
           "project": "Проект месяца 1: адаптивная посадочная страница",
-          "lessonIds": []
+          "lessonIds": [
+            "css.flexbox-grid-responsive"
+          ]
         }
       ]
     },

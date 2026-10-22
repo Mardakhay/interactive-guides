@@ -99,7 +99,9 @@
             "Build a responsive landing page for desktop and mobile"
           ],
           "project": "Month 1 project: Responsive Landing Page",
-          "lessonIds": []
+          "lessonIds": [
+            "css.flexbox-grid-responsive"
+          ]
         }
       ]
     },

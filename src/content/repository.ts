@@ -4,6 +4,8 @@ import englishForms from './lessons/html.forms-accessibility/en.json';
 import russianForms from './lessons/html.forms-accessibility/ru.json';
 import englishCss from './lessons/css.fundamentals/en.json';
 import russianCss from './lessons/css.fundamentals/ru.json';
+import englishLayout from './lessons/css.flexbox-grid-responsive/en.json';
+import russianLayout from './lessons/css.flexbox-grid-responsive/ru.json';
 import englishCurriculum from './curriculum/bootcamp-core.en.json';
 import russianCurriculum from './curriculum/bootcamp-core.ru.json';
 import { bootcampCurriculumSchema } from './schemas/curriculum';
@@ -19,6 +21,8 @@ const lessonTranslations = [
   lessonTranslationSchema.parse(russianForms),
   lessonTranslationSchema.parse(englishCss),
   lessonTranslationSchema.parse(russianCss),
+  lessonTranslationSchema.parse(englishLayout),
+  lessonTranslationSchema.parse(russianLayout),
 ] as const;
 
 const curricula = {

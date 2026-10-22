@@ -5,7 +5,7 @@ describe('structured content repository', () => {
   it('returns equivalent lesson IDs in both supported locales', () => {
     expect(getStructuredLesson('html.document-structure', 'en')?.locale).toBe('en');
     expect(getStructuredLesson('html.document-structure', 'ru')?.locale).toBe('ru');
-    expect(getStructuredLessonIds().sort()).toEqual(['css.fundamentals', 'html.document-structure', 'html.forms-accessibility']);
+    expect(getStructuredLessonIds().sort()).toEqual(['css.flexbox-grid-responsive', 'css.fundamentals', 'html.document-structure', 'html.forms-accessibility']);
   });
 
   it('returns localized curriculum while preserving the canonical week IDs', () => {
@@ -22,6 +22,7 @@ describe('structured content repository', () => {
     expect(getWeekForLesson('html.document-structure', 'en')?.id).toBe('month-1-week-1');
     expect(getWeekForLesson('html.forms-accessibility', 'ru')?.id).toBe('month-1-week-2');
     expect(getWeekForLesson('css.fundamentals', 'en')?.id).toBe('month-1-week-3');
+    expect(getWeekForLesson('css.flexbox-grid-responsive', 'ru')?.id).toBe('month-1-week-4');
     expect(getStructuredLesson('html.forms-accessibility', 'en')?.title).toContain('Forms');
     expect(getCurriculumWeek('month-1-week-1', 'ru')?.lessonIds).toContain('html.document-structure');
     expect(getCurriculumWeek('month-1-week-2', 'ru')?.lessonIds).toContain('html.forms-accessibility');
@@ -42,7 +43,10 @@ describe('structured lesson sequence', () => {
     expect(second.next?.id).toBe('css.fundamentals');
     const third = getAdjacentStructuredLessons('css.fundamentals', 'en');
     expect(third.previous?.id).toBe('html.forms-accessibility');
-    expect(third.next).toBeUndefined();
+    expect(third.next?.id).toBe('css.flexbox-grid-responsive');
+    const fourth = getAdjacentStructuredLessons('css.flexbox-grid-responsive', 'ru');
+    expect(fourth.previous?.id).toBe('css.fundamentals');
+    expect(fourth.next).toBeUndefined();
   });
 
   it('returns no neighbors for an unknown lesson ID', () => {

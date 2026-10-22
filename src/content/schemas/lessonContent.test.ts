@@ -5,6 +5,8 @@ import englishForms from '../lessons/html.forms-accessibility/en.json';
 import russianForms from '../lessons/html.forms-accessibility/ru.json';
 import englishCss from '../lessons/css.fundamentals/en.json';
 import russianCss from '../lessons/css.fundamentals/ru.json';
+import englishLayout from '../lessons/css.flexbox-grid-responsive/en.json';
+import russianLayout from '../lessons/css.flexbox-grid-responsive/ru.json';
 import { lessonTranslationSchema } from './lessonContent';
 
 describe('structured lesson content', () => {
@@ -15,6 +17,8 @@ describe('structured lesson content', () => {
     expect(lessonTranslationSchema.safeParse(russianForms).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(englishCss).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianCss).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(englishLayout).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianLayout).success).toBe(true);
   });
 
   it('keeps stable lesson identity and equivalent content structure across locales', () => {
@@ -76,5 +80,17 @@ describe('CSS fundamentals lesson translation', () => {
     );
     expect(englishCss.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
     expect(russianCss.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('Flexbox, Grid and responsive design lesson translation', () => {
+  it('keeps identical content-block structure in both locales', () => {
+    expect(englishLayout.id).toBe(russianLayout.id);
+    expect(englishLayout.moduleId).toBe('month-1-week-4');
+    expect(englishLayout.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianLayout.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishLayout.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianLayout.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
