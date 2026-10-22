@@ -32,3 +32,8 @@ The supplied 24-week ABB syllabus defines the core-track order. Additional topic
 ## D-008 — Disposable Worker for the first JavaScript runner
 **Status:** accepted for the initial learning-only implementation.  
 Run pure JavaScript snippets in a dedicated Worker that can be terminated by the parent page, with source/output limits and common network APIs blocked. Keep DOM-dependent work and real API interactions in the learner's own project for now. This is not a hardened security boundary for hostile code; a future untrusted-code product would need a stronger isolation/threat model than client-side API blocking.
+
+
+## D-009 — Test the Worker execution path, not only its lifecycle
+**Status:** accepted.  
+The JavaScript runner must include at least one test that builds and executes the generated Worker bootstrap with an async snippet and asserts its returned value. Mocking Worker creation/postMessage alone can pass while the generated Function body is syntactically invalid. Retain explicit limits: this is a learning runner, not a security boundary for hostile code.

@@ -5,7 +5,7 @@
 **Base branch:** `main`  
 **Working branch:** `feat/learning-platform-foundation`  
 **Draft PR:** [#1 — structured bilingual lesson foundation](https://github.com/Mardakhay/interactive-guides/pull/1)  
-**Code checkpoint before this documentation refresh:** `611f75c91634d74d06feb74a06bfcf5c9470830a`
+**Latest verified implementation checkpoint:** `ab64fcbb54f00a0bbd302da3061bd9aa1936f211`
 
 ## Project goal
 
@@ -26,7 +26,7 @@ Rebuild Interactive Guides as a cohesive English/Russian, mobile-first, PWA-read
 - Coding exercises persist drafts and self-review checklist state locally; quiz attempts are tracked separately.
 - HTML has a sandboxed preview with scripts disabled.
 - `src/features/structured-lesson/JavaScriptRunner.tsx` integrates a disposable dedicated Worker for ordinary JavaScript practice. `src/features/structured-lesson/JavaScriptWorkerProgram.ts` captures console output, reports runtime errors, blocks common network APIs and nested-worker loading, limits source to 12,000 characters and console output, and allows the parent page to terminate the Worker after 1.5 seconds.
-- The runner has tests for source construction, console output, termination, and reader integration. GitHub Actions run #192 passed all CI stages for its exact code/test checkpoint.
+- The runner has tests for source construction, console output, termination, reader integration, and actual Worker-bootstrap execution of an async snippet. A regression test now catches malformed source-prefix escaping that a mocked Worker lifecycle test missed.
 - **Important limitations:** the Worker has no browser DOM, no TypeScript/TSX transpilation, and no shell. DOM exercises explicitly direct learners to run the task in their own project; live network requests are blocked, so Fetch examples must be run locally to observe a real successful response. The runner is a learning aid, not a hardened security boundary for malicious code; dynamic browser capability risks cannot be fully eliminated in client-side code. Do not paste secrets or claim the runner is safe for hostile snippets.
 
 ## Progress and data portability
@@ -44,7 +44,7 @@ Rebuild Interactive Guides as a cohesive English/Russian, mobile-first, PWA-read
 
 - Manifest, SVG icons, service worker registration, basic cache behavior, install/update UI, and offline status UI exist.
 - No real Android/iOS install/offline acceptance test has been completed.
-- The structured reader has localization, but the entire legacy app shell and all old content still need localization/design consolidation/accessibility review.
+- The major app shell components (sidebar, top bar, mobile navigation) and principal pages use a shared EN/RU UI copy layer; perform a full end-to-end locale sweep, including banners, empty/error states and every route. Legacy standalone HTML lesson content is still predominantly English and remains migration input. Cross-page visual consistency, mobile reflow and accessibility review are still required.
 
 ## Static content audit
 
@@ -52,17 +52,18 @@ See `docs/CONTENT_AUDIT.md` for the inspected 26 lesson IDs and the exact scope/
 
 ## CI verification
 
-GitHub Actions run [#200](https://github.com/Mardakhay/interactive-guides/actions/runs/39782773247) passed for exact code checkpoint SHA `611f75c91634d74d06feb74a06bfcf5c9470830a`: `npm ci`, ESLint, TypeScript typecheck, all tests and production build succeeded. This documentation update will produce a new SHA; verify that SHA before claiming it is green.
+GitHub Actions run [#203](https://github.com/Mardakhay/interactive-guides/actions/runs/39787357810) passed for exact implementation/test checkpoint SHA `ab64fcbb54f00a0bbd302da3061bd9aa1936f211`: `npm ci`, ESLint, TypeScript typecheck, all tests (including the Worker execution regression test), and production build succeeded. Any later code commit needs its own exact-SHA check.
 
 ## Next actions
 
-1. Verify CI for the documentation checkpoint after this change; then test Worker execution under the actual deployed hosting/CSP environment and document any compatibility restrictions.
-2. Localize the remaining app shell and consolidate the design system across legacy pages; test keyboard access, narrow viewports and reduced-motion behavior.
-3. Review the 26 structured lessons against Notion and legacy HTML sources, verifying claims, links, code and EN/RU teaching parity. Use `docs/CONTENT_AUDIT.md`; all lessons remain in `review` status.
-4. Exercise the v1→v2 structured-learning migration and Retry save path against quota/security errors in a real browser; add version migrations for other stores when their schemas change.
-5. Test the PWA on supported browsers/devices, including direct routes, offline lessons, service-worker update and cache quota behavior.
-6. Decide on a dedicated Supabase project and any cost only after local data contracts stabilize and the user explicitly approves the plan.
-7. Keep PR #1 in draft until editorial review, tests and release acceptance criteria are satisfied.
+1. Use `docs/EDITORIAL_REVIEW_CHECKLIST.md` to review content quality, source accuracy, code, references and EN/RU parity. All 26 pairs remain in `review` status until this is done.
+2. Continue the full source-by-source audit of the 25 legacy HTML files; `docs/LEGACY_CONTENT_INVENTORY.md` now maps known destinations and explicitly marks supplementary IDs that still need definition.
+3. Run an end-to-end locale sweep and consolidate the design system across legacy pages; test keyboard access, narrow viewports, contrast, focus states and reduced motion.
+4. Test Worker execution under the actual deployed hosting/CSP environment and keep the non-hardened-runner limitation visible.
+5. Exercise the structured-learning v1→v2 migration, backup merge and Retry save path against quota/storage errors in a real browser; add migrations for other stores when their schemas change.
+6. Test PWA install/offline behavior on supported browsers/devices, including direct routes, offline lessons, service-worker update and cache quota behavior.
+7. Decide on dedicated Supabase ownership/cost only after local contracts stabilize and the user explicitly approves the plan.
+8. Keep PR #1 in draft until editorial review, tests and release acceptance criteria are satisfied.
 
 ## Commit conventions
 

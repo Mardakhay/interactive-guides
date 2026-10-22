@@ -18,8 +18,8 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Add tests for schema invariants, bilingual lesson structure, curriculum order, repository lookups and walkthrough line references.
 - [x] Add a full-course EN/RU block-structure and knowledge-check presence invariant.
 - [x] Run a static audit of 26 bilingual lesson pairs for block identity, walkthrough ranges, quiz answer structure, and practice completeness (`CONTENT_AUDIT.md`).
-- [ ] Map all legacy lesson files to exact curriculum/sub-track lesson IDs.
-- [ ] Add a content editorial/review/publishing checklist and workflow.
+- [x] Map all 25 legacy HTML files to existing canonical lesson IDs where available, and explicitly record TBD destinations for future supplementary content (`LEGACY_CONTENT_INVENTORY.md`).
+- [x] Add a content editorial/review/publishing checklist and workflow (`EDITORIAL_REVIEW_CHECKLIST.md`).
 - Acceptance: content loads only through schema validation, canonical ordering is stable, and CI validates content invariants.
 
 ## Phase 2 — Application UI and locale routing
@@ -42,7 +42,7 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Validate code-walkthrough line references against sample length.
 - [x] Persist completed lesson sections with a version-tolerant schema; test preservation during draft reset and backup merge.
 - [ ] Add a richer review queue.
-- [x] Add a disposable Web Worker runner for ordinary JavaScript exercises with a 1.5-second hard-stop timeout, source/output limits, common network-capability blocking and tests.
+- [x] Add a disposable Web Worker runner for ordinary JavaScript exercises with a 1.5-second hard-stop timeout, source/output limits, common network-capability blocking, actual async-snippet execution coverage and tests.
 - [ ] Evaluate separate execution support for TypeScript/TSX and DOM-dependent lessons; shell and real network workflows continue in the learner's own project.
 - Note: the Worker runner is a learning aid, not a hardened security boundary for hostile code; the UI displays this limitation explicitly.
 - [ ] Add stronger coding-practice evidence; do not confuse a checklist tick with validated correctness.
@@ -54,6 +54,7 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Create an initial Week 1 pilot and add structured Week 2–4 content in both locales.
 - [ ] Fully audit each HTML file including headings, code, diagrams, hidden answers, links and interactions.
 - [ ] Review and fact-check the new Week 1 web fundamentals and Week 8 async/Fetch/Git lessons, including EN/RU equivalence.
+- [ ] Apply the editorial checklist to every lesson pair before changing `status: review`.
 - [ ] Review source accuracy and translation parity for the four pilots.
 - [x] Create structured bilingual content for the complete 24-week core syllabus.
 - [ ] Review each mapped legacy HTML source line-by-line and reconcile it against the replacement lesson; implementation is not proof of source parity.
