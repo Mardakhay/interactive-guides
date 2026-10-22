@@ -110,8 +110,8 @@ The sections above record the original audit of `main` and remain useful as a ba
 
 ### Verification status
 
-- GitHub Actions run [#136](https://github.com/Mardakhay/interactive-guides/actions/runs/39772951754) passed for commit `11b149e6ca867717fcee7e3f53312241026a306d`: `npm ci`, lint, TypeScript typecheck, tests and production build succeeded.
-- Documentation-only commits were made after that code/test checkpoint. Verify the latest workflow run for the exact branch HEAD before making a current-green-CI claim.
+- The latest known successful CI before the Week 1 web lesson is run [#141](https://github.com/Mardakhay/interactive-guides/actions/runs/39773846222) for commit `d7fe944359468862394130dd117fb4c069646e81`.
+- The Week 1 web lesson, curriculum registration and navigation assertions were added after that checkpoint. Verify GitHub Actions for the exact latest branch HEAD before making a current-green-CI claim.
 - This is remote repository/CI evidence; no local `npm ci` or browser/device testing was executed in this environment.
 
 ### Next highest-value work
