@@ -114,9 +114,9 @@ export function JavaScriptRunner({ code, locale }: JavaScriptRunnerProps) {
     try {
       const blob = new Blob([buildWorkerSource()], { type: 'text/javascript' });
       const url = URL.createObjectURL(blob);
+      workerUrlRef.current = url;
       const worker = new Worker(url);
       workerRef.current = worker;
-      workerUrlRef.current = url;
       setStatus('running');
 
       worker.onmessage = (event: MessageEvent<WorkerMessage>) => {
