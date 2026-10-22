@@ -10,7 +10,7 @@ A mapping is a destination proposal, not proof that the old page has been fully 
 
 | Legacy HTML | Main subject | Proposed canonical destination(s) | Migration note |
 |---|---|---|---|
-| `internet-fundamentals.html` | Browser, network, HTTP, DNS, TLS | `web.internet-http` | Week 1 structured bilingual lesson exists; line-by-line source parity remains pending |
+| `internet-fundamentals.html` | Browser, network, HTTP, DNS, TLS, hosting, browser rendering and security | `web.internet-http`; `network.dns-tcp-tls`; `browser.rendering-pipeline` | Two EN/RU supplemental pairs now cover DNS/TCP/UDP/TLS/HTTP versions and the browser rendering pipeline. Hosting/resource-type sections and paragraph/example/interaction parity still need full source review. |
 | `html-reference.html` | HTML structure, metadata, semantics, forms and accessibility | `html.document-structure`, `html.forms-accessibility` | Split the reference by learning goal; retain accurate reference details in the appropriate lesson |
 | `css-reference.html` | CSS syntax, selectors, cascade, box model and layout | `css.fundamentals`, `css.flexbox-grid-responsive` | Core split exists; map advanced/reference-only sections before marking source migrated |
 | `dom-masterclass.html` | DOM, events and browser APIs | `js.dom-events` | Week 7 structured lesson exists; preserve useful browser/API edge cases after review |
@@ -61,3 +61,15 @@ Use these statuses in the migration tracker. A translation or a schema-valid fil
 4. Verify claims using current primary documentation/standards, then adapt code and test it where practical.
 5. Compare English and Russian teaching value, not just block count/order.
 6. Run CI and finish the human review checklist before updating the migration status.
+
+
+## Focused source coverage: `internet-fundamentals.html`
+
+A heading-structure inspection found 78 headings across 13 major sections, covering Internet/Web concepts, DNS resolution and caching, IP/TCP/UDP, HTTP versions, TLS, ports/sockets, hosting/resources, browser request/rendering, browser components, sandboxing and privacy.
+
+- `web.internet-http` is the core Week 1 introduction.
+- `network.dns-tcp-tls` is an optional technical deep dive into DNS, IP, TCP/UDP/QUIC, ports, TLS and HTTP versions.
+- `browser.rendering-pipeline` is an optional deep dive into DOM/CSSOM, the rendering pipeline, script loading, main-thread performance and security boundaries.
+- Hosting and resource-type detail still needs an explicit destination or a decision to omit/move it.
+
+This maps subject coverage from the source headings. It is **not** a complete migration audit of every source paragraph, code sample, link, diagram, hidden answer or interaction. The legacy HTML must stay in place until the replacement content is reviewed against the full source.

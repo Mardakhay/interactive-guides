@@ -58,12 +58,12 @@ GitHub Actions run [#203](https://github.com/Mardakhay/interactive-guides/action
 
 1. Use `docs/EDITORIAL_REVIEW_CHECKLIST.md` to review content quality, source accuracy, code, references and EN/RU parity. All 26 pairs remain in `review` status until this is done.
 2. Continue the full source-by-source audit of the 25 legacy HTML files; `docs/LEGACY_CONTENT_INVENTORY.md` now maps known destinations and explicitly marks supplementary IDs that still need definition.
-3. Run an end-to-end locale sweep and consolidate the design system across legacy pages; test keyboard access, narrow viewports, contrast, focus states and reduced motion.
-4. Test Worker execution under the actual deployed hosting/CSP environment and keep the non-hardened-runner limitation visible.
-5. Exercise the structured-learning v1→v2 migration, backup merge and Retry save path against quota/storage errors in a real browser; add migrations for other stores when their schemas change.
-6. Test PWA install/offline behavior on supported browsers/devices, including direct routes, offline lessons, service-worker update and cache quota behavior.
-7. Decide on dedicated Supabase ownership/cost only after local contracts stabilize and the user explicitly approves the plan.
-8. Keep PR #1 in draft until editorial review, tests and release acceptance criteria are satisfied.
+4. Run an end-to-end locale sweep and consolidate the design system across legacy pages; test keyboard access, narrow viewports, contrast, focus states and reduced motion.
+5. Test Worker execution under the actual deployed hosting/CSP environment and keep the non-hardened-runner limitation visible.
+6. Exercise the structured-learning v1→v2 migration, backup merge and Retry save path against quota/storage errors in a real browser; add migrations for other stores when their schemas change.
+7. Test PWA install/offline behavior on supported browsers/devices, including direct routes, offline lessons, service-worker update and cache quota behavior.
+8. Decide on dedicated Supabase ownership/cost only after local contracts stabilize and the user explicitly approves the plan.
+9. Keep PR #1 in draft until editorial review, tests and release acceptance criteria are satisfied.
 
 ## Commit conventions
 

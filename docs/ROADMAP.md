@@ -52,7 +52,7 @@ Use small, reversible phases; keep useful current behavior working while migrati
 ## Phase 4 — Content migration
 - [x] Build a first-pass inventory of 25 legacy HTML files and likely syllabus mappings.
 - [x] Create an initial Week 1 pilot and add structured Week 2–4 content in both locales.
-- [ ] Fully audit each HTML file including headings, code, diagrams, hidden answers, links and interactions.
+- [ ] Fully audit each HTML file including paragraphs, code, diagrams, hidden answers, links and interactions. `internet-fundamentals.html` has a heading-level coverage map; paragraph/example/interaction parity remains open.
 - [ ] Review and fact-check the new Week 1 web fundamentals and Week 8 async/Fetch/Git lessons, including EN/RU equivalence.
 - [ ] Apply the editorial checklist to every lesson pair before changing `status: review`.
 - [ ] Review source accuracy and translation parity for the four pilots.
