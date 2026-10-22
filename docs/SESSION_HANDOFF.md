@@ -5,7 +5,7 @@
 **Base branch:** `main`  
 **Working branch:** `feat/learning-platform-foundation`  
 **Draft PR:** [#1 — structured bilingual lesson foundation](https://github.com/Mardakhay/interactive-guides/pull/1)  
-**Checkpoint before this documentation refresh:** `d8676ba3b4813ea8d9e9483f0436704e53a9a42a`
+**Code checkpoint before this documentation refresh:** `611f75c91634d74d06feb74a06bfcf5c9470830a`
 
 ## Project goal
 
@@ -35,7 +35,9 @@ Rebuild Interactive Guides as a cohesive English/Russian, mobile-first, PWA-read
 - Structured learner state stores quiz attempt history, code drafts, practice-review checklists, and completed lesson-section IDs.
 - The section progress schema defaults missing `sectionProgress` for older v1 records, and tests cover section-state preservation through draft reset and backup merge.
 - `src/features/data-portability/backup.ts` and the Data Management page provide validated JSON backup export/import with merge rules, including progress, notes, bookmarks, quiz results, structured attempts/drafts/checklists and selected preferences.
-- Storage write/removal failures are surfaced with a localized warning; explicit version-to-version migration and user-triggered retry/recovery still need work.
+- Structured learning storage now uses the `interactive-guides:structured-learning:v2` envelope (`schemaVersion: 2`, `data`). The old raw `...:v1` key/shape migrates only after the v2 write succeeds; a malformed legacy record is preserved and reported rather than overwritten.
+- Storage warnings persist in memory if raised before the banner mounts, distinguish read/write/remove failures, and link to data management. For write/remove warnings, **Retry save** re-writes current in-memory progress, bookmarks, notes, quiz results and structured learning data. Read/validation failures intentionally do not offer an automatic overwrite retry.
+- Other feature stores retain their current validated formats; add future migrations as their schema changes rather than implying all stores already have version envelopes.
 - Cloud sync, Supabase Auth/RLS and cross-device synchronization are not implemented.
 
 ## PWA and UI
@@ -50,14 +52,14 @@ See `docs/CONTENT_AUDIT.md` for the inspected 26 lesson IDs and the exact scope/
 
 ## CI verification
 
-GitHub Actions run [#192](https://github.com/Mardakhay/interactive-guides/actions/runs/39780405732) passed for exact checkpoint SHA `8a78f48b2fccfbc04ba5c02838cfc5ba2ed4e441`: `npm ci`, ESLint, TypeScript typecheck, all tests and production build succeeded. This documentation update will produce a new SHA; verify that SHA before claiming it is green.
+GitHub Actions run [#200](https://github.com/Mardakhay/interactive-guides/actions/runs/39782773247) passed for exact code checkpoint SHA `611f75c91634d74d06feb74a06bfcf5c9470830a`: `npm ci`, ESLint, TypeScript typecheck, all tests and production build succeeded. This documentation update will produce a new SHA; verify that SHA before claiming it is green.
 
 ## Next actions
 
 1. Verify CI for the documentation checkpoint after this change; then test Worker execution under the actual deployed hosting/CSP environment and document any compatibility restrictions.
 2. Localize the remaining app shell and consolidate the design system across legacy pages; test keyboard access, narrow viewports and reduced-motion behavior.
 3. Review the 26 structured lessons against Notion and legacy HTML sources, verifying claims, links, code and EN/RU teaching parity. Use `docs/CONTENT_AUDIT.md`; all lessons remain in `review` status.
-4. Add explicit local-storage migrations and a user-triggered recovery/retry flow while preserving progress, notes, bookmarks and quiz results.
+4. Exercise the v1→v2 structured-learning migration and Retry save path against quota/security errors in a real browser; add version migrations for other stores when their schemas change.
 5. Test the PWA on supported browsers/devices, including direct routes, offline lessons, service-worker update and cache quota behavior.
 6. Decide on a dedicated Supabase project and any cost only after local data contracts stabilize and the user explicitly approves the plan.
 7. Keep PR #1 in draft until editorial review, tests and release acceptance criteria are satisfied.

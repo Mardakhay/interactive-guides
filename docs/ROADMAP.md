@@ -64,10 +64,11 @@ Use small, reversible phases; keep useful current behavior working while migrati
 ## Phase 5 — Local-first persistence
 - [x] Add local storage for structured quiz attempt history, code drafts and practice checklist state.
 - [x] Add validated local-data export/import with preview, merge rules and best-effort rollback (`src/features/data-portability/backup.ts`, Data Management page, tests).
-- [ ] Add explicit migrations between persisted schema versions as storage contracts evolve.
+- [x] Add an explicit raw-v1 to versioned-v2 migration for structured learning state, preserving old records until the new copy has been written; keep backup export/import payload format stable.
 - [ ] Preserve existing progress, notes, bookmarks and old quiz results through data-shape changes.
 - [x] Surface localStorage write/removal failures with a localized warning and tests.
-- [ ] Add a user-triggered retry/recovery flow for failed persistence and explicit schema-version migrations.
+- [x] Add a localized storage warning that distinguishes read/write/remove failures and a user-triggered retry that re-writes current in-memory progress, bookmarks, notes, quiz results and structured learning state after write failures.
+- [ ] Add migrations for other persisted stores when their data schemas change; the current explicit v1→v2 migration is scoped to structured learning.
 - Acceptance: upgrades cannot silently reset existing learner data.
 
 ## Phase 6 — Supabase auth and sync

@@ -109,3 +109,14 @@ Never expose the Supabase service-role key to the browser. A Vite `VITE_*` varia
 ## Decision still needed
 
 Whether to sync notes by default, and whether the app should support multiple providers or only one initial sign-in option. Implement after the basic content/local-first foundation.
+
+
+## Implemented local persistence recovery (feature branch)
+
+- Structured learning is stored under `interactive-guides:structured-learning:v2` as `{ schemaVersion: 2, data: ... }`.
+- Historical raw records under `interactive-guides:structured-learning:v1` migrate to the v2 envelope. The old key is removed only after the new record is written successfully; on failure, the old record stays available.
+- Invalid/unreadable structured records are preserved and surfaced to the app shell. The ordinary retry action does not overwrite read/validation failures with an empty state.
+- Storage warnings now distinguish read/write/remove failures and survive errors that happen before the banner mounts.
+- The user-triggered Retry save action re-persists current in-memory progress, bookmarks, notes, quiz results and structured learning state after a write/removal problem.
+- Backup files remain at portable format version 1 and contain normalized learner data, not the internal local-storage envelope. Backup import upgrades the structured state through the same v2 storage writer.
+- Explicit per-store migration for bookmarks, notes, progress and legacy quiz results remains future work if those store schemas change. Cloud sync is not implemented.

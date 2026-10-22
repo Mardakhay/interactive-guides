@@ -118,7 +118,7 @@ The sections above record the original audit of `main` and remain useful as a ba
 
 1. Review the source lessons in Notion and `public/lessons`, checking technical accuracy, completeness, outdated claims, source links and EN/RU equivalence.
 2. Decide and design a safe, explicitly bounded JavaScript practice runner (including hard timeout semantics); do not equate an iframe timeout with hostile-code isolation.
-3. Add explicit schema-version migrations and retry/recovery for persistence errors before cloud sync; validated export/import and localized write-failure warnings now exist.
+3. Exercise the new structured-learning v1→v2 migration and Retry save flow in a real browser; add migrations for the other local stores only when their schemas change.
 4. Finish localization/visual consistency across the legacy shell, then verify keyboard access, narrow mobile layouts and PWA update/offline behavior.
 5. Add Supabase only after a dedicated-project decision and the local data contract have been reviewed.
 
@@ -141,5 +141,5 @@ The original audit above describes `main` at the time it was inspected; the feat
 - Structured content remains in editorial `review` status. Legacy HTML source reconciliation and source-link verification are still pending.
 - Section-level lesson progress, local quiz/draft/checklist state, validated backup export/import with merge rules, and localized storage-failure warnings are implemented.
 - HTML preview runs with scripts disabled. Ordinary JavaScript snippets can run in a disposable Worker with a 1.5-second timeout; DOM-dependent exercises, TS/TSX, shell commands and live network calls still require the learner's local project. The Worker is a learning aid, not a hardened hostile-code service.
-- GitHub Actions run [#185](https://github.com/Mardakhay/interactive-guides/actions/runs/39778390430) passed the exact checkpoint SHA `d8676ba3b4813ea8d9e9483f0436704e53a9a42a`. Recheck the next commit after this documentation update.
-- Remaining highest-value work: verify the Worker runner on the deployed hosting/CSP setup, localize/consolidate the full app shell, review content against Notion and legacy sources, add explicit local-data migrations/recovery, and run real-device PWA tests.
+- GitHub Actions run [#200](https://github.com/Mardakhay/interactive-guides/actions/runs/39782773247) passed the exact code checkpoint SHA `611f75c91634d74d06feb74a06bfcf5c9470830a`: install, lint, typecheck, tests and production build succeeded. Recheck the new docs commit before saying its CI is green.
+- Remaining highest-value work: verify the Worker runner on the deployed hosting/CSP setup, localize/consolidate the full app shell, review content against Notion and legacy sources, test storage retry/migration under browser quota/security errors, and run real-device PWA tests.
