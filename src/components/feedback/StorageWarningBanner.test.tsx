@@ -1,5 +1,5 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { useLocaleStore } from '@/stores/localeStore';
 import { clearLastStorageError, reportStorageError, STORAGE_ERROR_EVENT } from '@/lib/storage';
@@ -13,6 +13,7 @@ import { StorageWarningBanner } from './StorageWarningBanner';
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   useLocaleStore.setState({ locale: 'en' });
   clearLastStorageError();
   localStorage.clear();
@@ -60,6 +61,7 @@ describe('StorageWarningBanner', () => {
 
     expect(screen.getByRole('alert').textContent).toContain('Не удалось прочитать локальные учебные данные');
     expect(screen.getByRole('alert').textContent).toContain('не была автоматически удалена');
+    expect(screen.queryByRole('button', { name: 'Повторить сохранение' })).toBeNull();
   });
 
   it('retries writing in-memory learner state and confirms success', () => {
@@ -87,4 +89,26 @@ describe('StorageWarningBanner', () => {
 
     expect(screen.getByRole('status').textContent).toContain('Learning data saved');
     expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.PROGRESS) ?? '{}').lessons['lesson.one'].status).toBe('completed');
+  });
+
+  it('keeps the warning visible when a retry still fails to write one store', () => {
+    useLocaleStore.setState({ locale: 'en' });
+    reportStorageError(STORAGE_KEYS.PROGRESS, 'write');
+    const originalSetItem = Storage.prototype.setItem;
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (key: string, value: string) {
+      if (key === STORAGE_KEYS.NOTES) throw new DOMException('Quota exceeded', 'QuotaExceededError');
+      originalSetItem.call(this, key, value);
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/en/settings/data']}>
+        <StorageWarningBanner />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Retry save' }));
+
+    expect(screen.getByRole('alert').textContent).toContain('The retry failed');
+    expect(screen.queryByRole('status')).toBeNull();
+    expect(localStorage.getItem(STORAGE_KEYS.NOTES)).toBeNull();
   });
