@@ -1,107 +1,81 @@
 # Implementation Roadmap
 
-Follow this sequence. Each phase should land as a small reviewed change; avoid one giant rewrite.
+Use small, reversible phases; keep useful current behavior working while migration proceeds.
 
 ## Phase 0 — Baseline and safeguards
-- [ ] Create working branch `feat/learning-platform-foundation`.
-- [ ] Run and record `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`.
-- [ ] Confirm default branch/CI behavior and existing user data formats.
-- [ ] Add documentation and maintain this handoff.
-- Acceptance: baseline is known, current `main` remains intact, clean rollback path exists.
-- Suggested commit: `docs: document platform redesign and migration plan`
+- [x] Create working branch `feat/learning-platform-foundation`.
+- [x] Establish a draft PR to run repository CI.
+- [x] Run baseline-quality checks through GitHub Actions for the first vertical slice.
+- [x] Record the current storage/content architecture and preserve `main` history.
+- [ ] Check out locally and capture independent `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` results if/when local access is available.
+- Acceptance: working branch is reversible, the new content contract is checked in CI, and the current main branch remains untouched by feature implementation.
+- Commit style: `docs: document platform redesign and migration plan`
 
 ## Phase 1 — Requirements, schemas and curriculum
-- [ ] Confirm route/content/localization decisions.
-- [ ] Define and validate schemas for curriculum, lesson translations and content blocks.
-- [ ] Map every current lesson to the syllabus or a labeled supplementary module.
-- [ ] Add tests for required fields, unique IDs/orders, locale completeness, valid references and answer keys.
-- [ ] Create one representative lesson in each locale to validate the authoring/rendering path.
-- Acceptance: the curriculum can be loaded without an HTML manifest; content validation runs in CI.
-- Suggested commits:
-  - `feat(content): add typed bilingual lesson schemas`
-  - `feat(curriculum): model the six-month bootcamp track`
-  - `test(content): validate lesson links and translation parity`
+- [x] Define typed lesson translation and content-block schemas.
+- [x] Define a canonical 6-month / 24-week syllabus representation with explicit supplementary tracks.
+- [x] Add a representative English/Russian HTML lesson with metadata, theory, code walkthrough, knowledge checks, coding practice and official references.
+- [x] Add tests for schema invariants, stable cross-locale IDs, curriculum ordering and the structured renderer.
+- [ ] Map every legacy lesson to the curriculum or a clearly labelled supplementary track.
+- [ ] Complete the content-author review checklist and publish workflow.
+- Acceptance: all lesson content loads through schema validation, curriculum order is canonical and CI validates the content contract.
 
 ## Phase 2 — Application UI and locale routing
-- [ ] Establish design tokens, reusable layout primitives and typography/code components.
-- [ ] Add `en`/`ru` route-aware language selection and localized UI dictionaries.
-- [ ] Update dashboard/course/module/lesson flows to use curriculum order.
-- [ ] Refine mobile navigation, reading layout and error/empty/loading states.
-- Acceptance: every route is consistent and keyboard/touch usable at mobile widths.
-- Suggested commits:
-  - `feat(i18n): add English and Russian locale routing`
-  - `refactor(ui): unify application design tokens and lesson reader`
-  - `feat(curriculum): navigate modules and lessons in syllabus order`
+- [x] Add locale-aware route for structured lessons.
+- [x] Add shared React block renderers for the pilot content types.
+- [x] Add language switching and dashboard entry points for the pilot.
+- [ ] Localize the whole application shell and all existing routes.
+- [ ] Establish design tokens, reusable layout primitives and typography/code components consistently across old and new UI.
+- [ ] Validate mobile reading, keyboard support, contrast and reduced motion.
+- Acceptance: the complete app is consistent and keyboard/touch usable at mobile sizes in both locales.
 
-## Phase 3 — Structured lesson reader
-- [ ] Build typed React renderers for content blocks.
-- [ ] Add section table of contents, reading progress and accessible code blocks.
-- [ ] Implement knowledge-check feedback per answer.
-- [ ] Implement practice task UX, attempt capture and hint/solution policies.
-- [ ] Gate “mastered” status on required practice evidence where specified.
-- Acceptance: lesson pages render without independent HTML documents; exercises remain testable and accessible.
-- Suggested commits:
-  - `feat(lesson-reader): render structured lesson blocks`
-  - `feat(practice): capture quiz and coding attempts`
-  - `feat(progress): separate completion from demonstrated mastery`
+## Phase 3 — Structured lesson reader and evidence
+- [x] Render headings, prose, lists, callouts, code, code walkthroughs, knowledge checks, coding tasks and references.
+- [x] Add per-option feedback and resettable quiz checks.
+- [x] Add isolated HTML preview for HTML coding practice with scripts disabled.
+- [ ] Persist per-lesson quiz attempts and code drafts.
+- [ ] Add exercise completion evidence and separate it from read/lesson status.
+- [ ] Add responsive table of contents and more robust error/empty states.
+- Acceptance: exercises remain accessible and testable; “mastery” reflects evidence rather than opening a lesson.
 
 ## Phase 4 — Content migration
-- [ ] Build a migration inventory from all 25 current HTML files.
-- [ ] Extract and rewrite one pilot topic; validate the translation and content depth.
-- [ ] Run source/technical review and update the pilot in both locales.
-- [ ] Migrate the remaining lessons in small topic batches in syllabus order.
-- [ ] Keep all legacy HTML until replacements are reviewed and regression checked.
-- Acceptance: no lesson is labelled migrated until both locales, exercises and source links pass review.
-- Suggested commits:
-  - `content(html): migrate semantic HTML and forms lessons`
-  - `content(css): migrate layout and responsive design lessons`
-  - `content(javascript): migrate core language lesson series`
-  - `content(react): migrate component and hooks lessons`
-  - `content(tooling): migrate Git, package and deployment lessons`
+- [ ] Audit each of the 25 legacy HTML files fully, including code examples, diagrams, quizzes, hidden answers, links and interactions.
+- [ ] Migrate one pilot through technical review and translation review (initial Week 1 pilot is under review).
+- [ ] Migrate remaining content in syllabus order; split large HTML files when they teach multiple different concepts.
+- [ ] Keep all source HTML files until replacements in both locales pass content and regression validation.
+- Acceptance: no topic is labelled migrated until content, language parity, source checks, navigation, examples and exercises pass.
 
-## Phase 5 — Local-first data foundations
-- [ ] Introduce versioned local repositories and explicit migration/export behavior.
-- [ ] Migrate existing progress, notes, bookmarks and quiz data without silent loss.
-- [ ] Add tests for malformed state, storage unavailable and migration retry.
-- Acceptance: existing saved state survives update or export/import recovery.
-- Suggested commit: `refactor(storage): add versioned local repositories`
+## Phase 5 — Local-first persistence
+- [ ] Add a versioned storage format and explicit migration/export behavior.
+- [ ] Preserve existing progress, notes, bookmarks and quiz results during schema changes.
+- [ ] Add handling for malformed state, storage quota, unavailable storage and migration retry.
+- Acceptance: upgrading never silently resets existing learner data.
 
 ## Phase 6 — Supabase auth and sync
-- [ ] Create SQL migrations and RLS policies.
+- [ ] Finalize ownership of a dedicated Supabase project before using any existing project.
+- [ ] Quote project cost and obtain explicit approval if creating a new billable project.
+- [ ] Add SQL migrations, Auth integration and RLS policies.
 - [ ] Add environment validation and a no-cloud mode.
-- [ ] Implement auth screens, session handling, repository adapters and sync states.
-- [ ] Design and test local/cloud conflict reconciliation.
-- [ ] Verify cross-user isolation and account cleanup.
-- Acceptance: two users cannot read or modify each other's data; local learning works without Supabase settings.
-- Suggested commits:
-  - `feat(auth): add Supabase session integration`
-  - `feat(sync): sync progress notes and bookmarks`
-  - `test(security): verify RLS and user data isolation`
+- [ ] Implement account restore, sync status, retry and a tested local/cloud conflict policy.
+- [ ] Verify cross-user data isolation, sign-out, account switching, export and deletion.
+- Acceptance: users cannot access one another's data and the app remains useful without Supabase configuration.
 
 ## Phase 7 — PWA and deployment
-- [ ] Add icons and web app manifest.
-- [ ] Add service worker with documented cache/update lifecycle.
-- [ ] Configure production environment and hosting/deep-link routing.
-- [ ] Add deployment workflow and post-deploy smoke checks.
-- Acceptance: installable app and documented offline scenarios pass on supported devices.
-- Suggested commits:
-  - `feat(pwa): add installable app shell and offline lesson cache`
-  - `ci(deploy): automate production build and deployment checks`
+- [ ] Add web app manifest and production-quality icons.
+- [ ] Add service worker with explicit cache, update and offline strategy.
+- [ ] Configure production hosting and SPA deep-link routing.
+- [ ] Add deployment checks and smoke tests.
+- Acceptance: installability and documented offline scenarios work on supported devices.
 
 ## Phase 8 — Capstone and release readiness
-- [ ] Build capstone-like guided project path with requirements, user stories, architecture, implementation, tests and deployment.
-- [ ] Review all learning outcomes against syllabus.
-- [ ] Audit keyboard access, contrast, mobile, bundle size, broken links and stale content.
-- [ ] Update project README, screenshots and contributor/content authoring guide.
-- Acceptance: complete learning path is usable from a fresh browser, bilingual coverage is measured, and release notes describe limitations honestly.
-- Suggested commits:
-  - `feat(curriculum): add frontend capstone learning path`
-  - `test(e2e): cover core learning and account flows`
-  - `docs: document authoring deployment and learner data portability`
+- [ ] Build a capstone learning path that covers requirements, user stories, architecture, implementation, tests and deployment.
+- [ ] Check all learning outcomes against the bootcamp syllabus.
+- [ ] Audit keyboard support, contrast, mobile, broken links, performance and stale content.
+- [ ] Update README, authoring guide, screenshots and learner-data portability docs.
+- Acceptance: a new learner can follow the path in either language and return later without losing progress.
 
 ## Commit style
 
-Use short, scoped Conventional Commit-style messages:
 - `docs: ...`
 - `feat(scope): ...`
 - `fix(scope): ...`
@@ -110,4 +84,4 @@ Use short, scoped Conventional Commit-style messages:
 - `content(scope): ...`
 - `ci(scope): ...`
 
-One commit should express one logical change. Avoid `update files`, `fix`, or huge commits mixing content, UI, schema and cloud changes.
+One commit should describe one logical change. Avoid vague messages and huge commits mixing UI, content, storage, security and tooling.
