@@ -8,6 +8,8 @@ import englishLayout from './lessons/css.flexbox-grid-responsive/en.json';
 import russianLayout from './lessons/css.flexbox-grid-responsive/ru.json';
 import englishJsBasics from './lessons/js.basics-types-control-flow/en.json';
 import russianJsBasics from './lessons/js.basics-types-control-flow/ru.json';
+import englishFunctionsArrays from './lessons/js.functions-arrays-objects/en.json';
+import russianFunctionsArrays from './lessons/js.functions-arrays-objects/ru.json';
 import englishCurriculum from './curriculum/bootcamp-core.en.json';
 import russianCurriculum from './curriculum/bootcamp-core.ru.json';
 import { bootcampCurriculumSchema } from './schemas/curriculum';
@@ -27,6 +29,8 @@ const lessonTranslations = [
   lessonTranslationSchema.parse(russianLayout),
   lessonTranslationSchema.parse(englishJsBasics),
   lessonTranslationSchema.parse(russianJsBasics),
+  lessonTranslationSchema.parse(englishFunctionsArrays),
+  lessonTranslationSchema.parse(russianFunctionsArrays),
 ] as const;
 
 const curricula = {
