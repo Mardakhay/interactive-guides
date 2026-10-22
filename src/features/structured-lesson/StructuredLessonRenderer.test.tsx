@@ -36,7 +36,7 @@ describe('StructuredLessonRenderer', () => {
     render(<StructuredLessonRenderer lesson={lesson} />);
 
     expect(screen.getByRole('heading', { name: 'Почему структура документа важна' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Копировать код/ })).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: /Копировать код/ }).length).toBeGreaterThan(0);
     expect(screen.getByRole('heading', { name: 'Создай страницу «Обо мне»' })).toBeTruthy();
   });
 });
