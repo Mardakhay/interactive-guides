@@ -6,6 +6,8 @@ import {
   getStructuredLesson,
   getStructuredLessonIds,
   getWeekForLesson,
+  getSupplementaryTrackForLesson,
+  getSupplementaryTrackById,
 } from './repository';
 
 const expectedIds = [
@@ -192,4 +194,13 @@ describe('structured content repository', () => {
     }
   });
 
+  
+  it('resolves supplemental lessons without adding them to core adjacency', () => {
+    expect(getSupplementaryTrackForLesson('network.dns-tcp-tls', 'en')?.id).toBe('supplement-network-browser');
+    expect(getSupplementaryTrackForLesson('network.dns-tcp-tls', 'ru')?.lessonIds).toEqual(['network.dns-tcp-tls']);
+    expect(getSupplementaryTrackById('supplement-browser-architecture', 'en')?.title).toMatch(/Browser/);
+    expect(getWeekForLesson('network.dns-tcp-tls', 'en')).toBeUndefined();
+    expect(getAdjacentStructuredLessons('network.dns-tcp-tls', 'en')).toEqual({ previous: undefined, next: undefined });
+    expect(getAdjacentStructuredLessons('browser.rendering-pipeline', 'ru')).toEqual({ previous: undefined, next: undefined });
+  });
 });
