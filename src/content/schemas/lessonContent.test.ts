@@ -3,6 +3,8 @@ import englishLesson from '../lessons/html-document-structure/en.json';
 import russianLesson from '../lessons/html-document-structure/ru.json';
 import englishForms from '../lessons/html.forms-accessibility/en.json';
 import russianForms from '../lessons/html.forms-accessibility/ru.json';
+import englishCss from '../lessons/css.fundamentals/en.json';
+import russianCss from '../lessons/css.fundamentals/ru.json';
 import { lessonTranslationSchema } from './lessonContent';
 
 describe('structured lesson content', () => {
@@ -11,6 +13,8 @@ describe('structured lesson content', () => {
     expect(lessonTranslationSchema.safeParse(russianLesson).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(englishForms).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianForms).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(englishCss).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianCss).success).toBe(true);
   });
 
   it('keeps stable lesson identity and equivalent content structure across locales', () => {
@@ -60,5 +64,17 @@ describe('HTML forms and accessibility lesson translation', () => {
     );
     expect(englishForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
     expect(russianForms.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('CSS fundamentals lesson translation', () => {
+  it('keeps the same learning structure in both locales', () => {
+    expect(englishCss.id).toBe(russianCss.id);
+    expect(englishCss.moduleId).toBe('month-1-week-3');
+    expect(englishCss.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianCss.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishCss.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianCss.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });

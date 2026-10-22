@@ -82,7 +82,9 @@
           "practice": [
             "Создать небольшую посадочную страницу с header, основным содержимым и footer"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "css.fundamentals"
+          ]
         },
         {
           "id": "month-1-week-4",

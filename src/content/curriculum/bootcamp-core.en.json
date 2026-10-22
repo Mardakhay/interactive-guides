@@ -82,7 +82,9 @@
           "practice": [
             "Build a small landing page with header, content and footer"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "css.fundamentals"
+          ]
         },
         {
           "id": "month-1-week-4",
