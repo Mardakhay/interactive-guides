@@ -7,7 +7,7 @@ import { Card, Badge, ProgressBar } from '@/components/ui';
 import { learningPathDetailPath } from '@/app/router/routes';
 import { DIFFICULTY_COLORS } from '@/lib/constants';
 import { useLocaleStore } from '@/stores/localeStore';
-import { UI_COPY, getDifficultyLabel } from '@/lib/i18n';
+import { UI_COPY, formatLessonCount, getDifficultyLabel, getLearningPathCopy } from '@/lib/i18n';
 
 const ICON_MAP: Record<string, LucideIcon> = { Globe, Code2, Atom, Wrench, ShieldCheck };
 
@@ -28,6 +28,7 @@ export default function LearningPathsPage() {
           const Icon = ICON_MAP[path.icon] ?? RouteIcon;
           const lessonIds = getLearningPathLessonIds(path.id);
           const stats = computeProgressStats(progressLessons, lessonIds);
+          const pathCopy = getLearningPathCopy(locale, path.id);
           return (
             <Link key={path.id} to={learningPathDetailPath(path.id)}>
               <Card interactive className="group flex h-full flex-col p-5">
@@ -35,13 +36,13 @@ export default function LearningPathsPage() {
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600"><Icon className="h-5 w-5" /></div>
                   <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${DIFFICULTY_COLORS[path.level] ?? DIFFICULTY_COLORS.beginner}`}>{getDifficultyLabel(locale, path.level)}</span>
                 </div>
-                <h2 className="mt-4 text-lg font-semibold text-neutral-900">{path.title}</h2>
-                <p className="mt-1.5 line-clamp-3 text-sm text-neutral-600">{path.description}</p>
+                <h2 className="mt-4 text-lg font-semibold text-neutral-900">{pathCopy?.title ?? path.title}</h2>
+                <p className="mt-1.5 line-clamp-3 text-sm text-neutral-600">{pathCopy?.description ?? path.description}</p>
                 <div className="mt-auto space-y-3 pt-4">
                   {stats.completed > 0 && <ProgressBar value={stats.percent} label={`${stats.completed}/${stats.total} ${copy.completed}`} />}
                   <div className="flex items-center gap-4 text-xs text-neutral-500">
-                    <Badge variant="primary">{path.lessonCount} {locale === 'ru' ? 'уроков' : (path.lessonCount === 1 ? 'lesson' : 'lessons')}</Badge>
-                    <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{path.estimatedHours}h</span>
+                    <Badge variant="primary">{formatLessonCount(locale, path.lessonCount)}</Badge>
+                    <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{locale === 'ru' ? `${path.estimatedHours} ч.` : `${path.estimatedHours}h`}</span>
                   </div>
                   <div className="flex items-center gap-1 text-sm font-medium text-primary-600 transition-colors group-hover:text-primary-700">{copy.viewPath}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /></div>
                 </div>
