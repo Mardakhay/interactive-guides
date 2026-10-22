@@ -14,8 +14,9 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Define typed lesson translation/content-block schemas.
 - [x] Define the canonical six-month / 24-week syllabus with supplementary tracks separate.
 - [x] Add structured bilingual pilot lessons for Weeks 1–4.
-- [x] Add structured Week 5 JavaScript basics lesson (pending exact latest CI validation at handoff time).
-- [x] Add tests for schema invariants, stable translation block structure, curriculum order, repository lookups and walkthrough line references.
+- [x] Add structured bilingual lessons for all 24 core weeks (25 lesson IDs, because Week 8 contains separate async/Fetch and Git lessons).
+- [x] Add tests for schema invariants, bilingual lesson structure, curriculum order, repository lookups and walkthrough line references.
+- [x] Add a full-course EN/RU block-structure and knowledge-check presence invariant.
 - [ ] Map all legacy lesson files to exact curriculum/sub-track lesson IDs.
 - [ ] Add a content editorial/review/publishing checklist and workflow.
 - Acceptance: content loads only through schema validation, canonical ordering is stable, and CI validates content invariants.
@@ -25,8 +26,9 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Add reusable React block renderers and lesson TOC.
 - [x] Add EN/RU switch preserving the current stable lesson ID.
 - [x] Add curriculum-ordered previous/next navigation between available structured lessons.
+- [x] Integrate structured lessons into localized catalog/search results and preserve locale in reader routes.
 - [x] Add explicit self-attested completion controls, separate from practice evidence/mastery.
-- [ ] Localize the whole application shell and all legacy pages.
+- [ ] Finish localizing the whole application shell and all remaining legacy pages; structured catalog/search/reader strings are localized and tested.
 - [ ] Consolidate legacy styling into a consistent application design system.
 - [ ] Verify keyboard access, contrast, reflow, reduced motion and screen-reader behavior.
 - Acceptance: the entire app is consistent and accessible at mobile sizes in both locales.
@@ -38,6 +40,7 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Persist structured quiz attempts, code drafts and self-review checklists locally.
 - [x] Validate code-walkthrough line references against sample length.
 - [ ] Persist section completion and a richer review queue.
+- [ ] Add a JavaScript/TypeScript runner with explicit execution restrictions; only HTML preview currently runs (with scripts disabled).
 - [ ] Add stronger coding-practice evidence; do not confuse a checklist tick with validated correctness.
 - [ ] Add explicit “retry/review” UX for weak quiz areas.
 - Acceptance: exercises are accessible and testable; mastery requires evidence beyond visiting a page.
@@ -48,9 +51,10 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [ ] Fully audit each HTML file including headings, code, diagrams, hidden answers, links and interactions.
 - [ ] Review and fact-check the new Week 8 async/Fetch and Git lessons, including EN/RU equivalence.
 - [ ] Review source accuracy and translation parity for the four pilots.
-- [ ] Migrate remaining topics incrementally in syllabus order, splitting large HTML files where appropriate.
+- [x] Create structured bilingual content for the complete 24-week core syllabus.
+- [ ] Review each mapped legacy HTML source line-by-line and reconcile it against the replacement lesson; implementation is not proof of source parity.
 - [ ] Keep all source HTML until both locales of its replacement pass review.
-- Week 1–5 structured pilot lesson records now exist. Editorial review and complete legacy-source parity checks remain pending.
+- All 24 core weeks now have structured bilingual content (25 lesson IDs). Editorial approval and line-by-line source parity remain pending.
 - Acceptance: a topic is only marked migrated when source checks, language parity, navigation, code and exercises pass.
 
 ## Phase 5 — Local-first persistence
