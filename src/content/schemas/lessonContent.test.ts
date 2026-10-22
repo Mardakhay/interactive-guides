@@ -9,6 +9,28 @@ import englishLayout from '../lessons/css.flexbox-grid-responsive/en.json';
 import russianLayout from '../lessons/css.flexbox-grid-responsive/ru.json';
 import englishJsBasics from '../lessons/js.basics-types-control-flow/en.json';
 import russianJsBasics from '../lessons/js.basics-types-control-flow/ru.json';
+import englishJsFunctions from '../lessons/js.functions-arrays-objects/en.json';
+import russianJsFunctions from '../lessons/js.functions-arrays-objects/ru.json';
+import englishDom from '../lessons/js.dom-events/en.json';
+import russianDom from '../lessons/js.dom-events/ru.json';
+import englishAsync from '../lessons/js.async-fetch/en.json';
+import russianAsync from '../lessons/js.async-fetch/ru.json';
+import englishGit from '../lessons/git.fundamentals/en.json';
+import russianGit from '../lessons/git.fundamentals/ru.json';
+import englishTooling from '../lessons/tooling.node-npm-vite/en.json';
+import russianTooling from '../lessons/tooling.node-npm-vite/ru.json';
+import englishTypeScript from '../lessons/typescript.fundamentals/en.json';
+import russianTypeScript from '../lessons/typescript.fundamentals/ru.json';
+import englishReactEffects from '../lessons/react.effects-lists-composition/en.json';
+import russianReactEffects from '../lessons/react.effects-lists-composition/ru.json';
+import englishRouter from '../lessons/react.router-spa/en.json';
+import russianRouter from '../lessons/react.router-spa/ru.json';
+import englishReactForms from '../lessons/react.forms-validation/en.json';
+import russianReactForms from '../lessons/react.forms-validation/ru.json';
+import englishContext from '../lessons/react.context-shared-state/en.json';
+import russianContext from '../lessons/react.context-shared-state/ru.json';
+import englishApiHooks from '../lessons/react.api-custom-hooks/en.json';
+import russianApiHooks from '../lessons/react.api-custom-hooks/ru.json';
 import { lessonTranslationSchema } from './lessonContent';
 
 describe('structured lesson content', () => {
