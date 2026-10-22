@@ -71,7 +71,7 @@ export function NoteEditor({ lessonId }: NoteEditorProps) {
 
       <p className="text-xs text-neutral-500">
         {updatedAt
-          ? `Saved \u00b7 ${new Date(updatedAt).toLocaleString(undefined, {
+          ? `${copy.saved} · ${new Date(updatedAt).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US', {
               dateStyle: 'medium',
               timeStyle: 'short',
             })}`
