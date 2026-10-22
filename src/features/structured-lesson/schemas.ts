@@ -35,7 +35,16 @@ export type PracticeChecklist = z.infer<typeof practiceChecklistSchema>;
 export type SectionProgressEntry = z.infer<typeof sectionProgressEntrySchema>;
 export type StructuredLearningState = z.infer<typeof structuredLearningStateSchema>;
 
-export const STRUCTURED_LEARNING_STORAGE_KEY = 'interactive-guides:structured-learning:v1';
+export const LEGACY_STRUCTURED_LEARNING_STORAGE_KEY = 'interactive-guides:structured-learning:v1';
+export const STRUCTURED_LEARNING_STORAGE_KEY = 'interactive-guides:structured-learning:v2';
+export const STRUCTURED_LEARNING_SCHEMA_VERSION = 2 as const;
+
+export const structuredLearningStorageRecordSchema = z.object({
+  schemaVersion: z.literal(STRUCTURED_LEARNING_SCHEMA_VERSION),
+  data: structuredLearningStateSchema,
+});
+
+export type StructuredLearningStorageRecord = z.infer<typeof structuredLearningStorageRecordSchema>;
 
 export const EMPTY_STRUCTURED_LEARNING_STATE: StructuredLearningState = {
   quizAttempts: {},

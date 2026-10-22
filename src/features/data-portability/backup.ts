@@ -7,9 +7,11 @@ import { quizResultsStateSchema } from '@/features/quizzes/schemas';
 import {
   EMPTY_STRUCTURED_LEARNING_STATE,
   STRUCTURED_LEARNING_STORAGE_KEY,
+  LEGACY_STRUCTURED_LEARNING_STORAGE_KEY,
   structuredLearningStateSchema,
   type StructuredLearningState,
 } from '@/features/structured-lesson/schemas';
+import { clearLegacyStructuredLearningRecord, createStructuredLearningStorageRecord, readStructuredLearningState } from '@/features/structured-lesson/persistence';
 
 const emptyProgress = {
   lessons: {},
@@ -91,12 +93,13 @@ function readCurrentSnapshot(storage: Storage): LearningDataSnapshot {
     bookmarks: readStoredJson(storage, STORAGE_KEYS.BOOKMARKS, bookmarksStateSchema, emptyBookmarks),
     notes: readStoredJson(storage, STORAGE_KEYS.NOTES, notesStateSchema, emptyNotes),
     quizResults: readStoredJson(storage, STORAGE_KEYS.QUIZ_RESULTS, quizResultsStateSchema, emptyQuizResults),
-    structuredLearning: readStoredJson(
-      storage,
-      STRUCTURED_LEARNING_STORAGE_KEY,
-      structuredLearningStateSchema,
-      EMPTY_STRUCTURED_LEARNING_STATE,
-    ),
+    structuredLearning: (() => {
+      const result = readStructuredLearningState(storage);
+      if (result.invalid) {
+        throw new Error('Saved structured learning data failed validation. Preserve the browser storage before importing or resetting it.');
+      }
+      return result.state;
+    })(),
     lastLesson: readOptionalString(storage, STORAGE_KEYS.LAST_LESSON),
     theme: readOptionalString(storage, STORAGE_KEYS.THEME),
   };
@@ -331,7 +334,7 @@ export function mergeLearningDataBackup(storage: Storage, backupInput: unknown):
     [STORAGE_KEYS.BOOKMARKS, JSON.stringify(merged.bookmarks)],
     [STORAGE_KEYS.NOTES, JSON.stringify(merged.notes)],
     [STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(merged.quizResults)],
-    [STRUCTURED_LEARNING_STORAGE_KEY, JSON.stringify(merged.structuredLearning)],
+    [STRUCTURED_LEARNING_STORAGE_KEY, JSON.stringify(createStructuredLearningStorageRecord(merged.structuredLearning))],
   ];
 
   if (current.lastLesson === null && merged.lastLesson !== null) {
@@ -349,6 +352,7 @@ export function mergeLearningDataBackup(storage: Storage, backupInput: unknown):
       storage.setItem(key, value);
       appliedKeys.push(key);
     }
+    clearLegacyStructuredLearningRecord(storage);
   } catch {
     for (const key of appliedKeys.reverse()) {
       try {
