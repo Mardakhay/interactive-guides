@@ -1,6 +1,6 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildWorkerSource, JavaScriptRunner } from './JavaScriptRunner';
+import { buildWorkerSource, JavaScriptRunner } from './JavaScriptWorkerProgram';
 
 class MockWorker {
   static latest: MockWorker | null = null;
