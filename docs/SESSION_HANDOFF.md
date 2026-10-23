@@ -65,26 +65,15 @@ See `docs/CONTENT_AUDIT.md` for the structural audit of the 26 core lesson IDs a
 
 ## Next actions
 
-1. Apply `docs/EDITORIAL_REVIEW_CHECKLIST.md` to both Week 14 and Week 15, then continue the source-based EN/RU review of all core and supplementary lesson pairs. All remain in `review` status.
-2. Continue source-by-source reconciliation of the 25 legacy HTML files against the new lessons; do not delete legacy source until both locales are reviewed.
-3. Run a complete end-to-end locale sweep and consolidate design-system styling across routes; test keyboard access, narrow viewports, contrast, focus states and reduced motion.
+1. Apply `docs/EDITORIAL_REVIEW_CHECKLIST.md` to Week 14 and Week 15, then continue source-based EN/RU review of all core and supplementary lesson pairs. All remain in `review` status.
+2. Reconcile all 25 legacy HTML files against their structured replacements; retain source files until both locales have been reviewed.
+3. Complete an end-to-end locale sweep and consolidate design-system styling across routes; test keyboard access, narrow viewports, contrast, focus states and reduced motion.
 4. Test Worker execution under the deployed hosting/CSP environment while preserving the warning that it is not hardened for hostile code.
 5. Exercise the structured-learning v1→v2 migration, backup merge and Retry save path against real browser storage/quota failures.
-6. Test PWA install/offline behavior on supported browsers/devices, including deep routes, cached lessons, service-worker update and cache quota behavior.
+6. Test PWA installation and offline behavior on supported browsers/devices, including deep routes, cached lessons, service-worker updates and cache quota behavior.
 7. Decide on dedicated Supabase ownership/cost only after local contracts stabilize and the user explicitly approves the plan.
 8. Keep PR #1 in draft until editorial review and release acceptance criteria are satisfied.
 
-`npm ci`, ESLint, TypeScript typecheck, all tests and production build succeeded. The original malformed-file errors and the two stale test assumptions are addressed.
-- These are GitHub-hosted checks. No local checkout/test command or physical-browser/device acceptance test was performed in this session; rerun CI for any subsequent commit.
+## Commit conventions
 
-## Next actions
-
-1. Use `docs/EDITORIAL_REVIEW_CHECKLIST.md` to review content quality, source accuracy, code, references and EN/RU parity. All 26 pairs remain in `review` status until this is done.
-2. Continue the full source-by-source audit of the 25 legacy HTML files; `docs/LEGACY_CONTENT_INVENTORY.md` now maps known destinations and explicitly marks supplementary IDs that still need definition.
-4. Run an end-to-end locale sweep and consolidate the design system across legacy pages; test keyboard access, narrow viewports, contrast, focus states and reduced motion.
-5. Test Worker execution under the actual deployed hosting/CSP environment and keep the non-hardened-runner limitation visible.
-6. Exercise the structured-learning v1→v2 migration, backup merge and Retry save path against quota/storage errors in a real browser; add migrations for other stores when their schemas change.
-7. Test PWA install/offline behavior on supported browsers/devices, including direct routes, offline lessons, service-worker update and cache quota behavior.
-8. Decide on dedicated Supabase ownership/cost only after local contracts stabilize and the user explicitly approves the plan.
-9. Keep PR #1 in draft until editorial review, tests and release acceptance criteria are satisfied.
-
+Use focused messages such as `feat(playground): add disposable worker runner`, `feat(i18n): localize remaining app shell`, `test(content): ...`, `content(javascript): ...`, and `docs: ...`.
