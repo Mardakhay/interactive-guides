@@ -1,16 +1,16 @@
 {
   "id": "capstone.review-demo",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-6-week-24",
   "week": 24,
   "order": 1,
   "title": "Capstone Part 4: Refactoring, Release Readiness, and Demo Day",
   "description": "Verify acceptance criteria, refactor safely, audit accessibility and performance, prepare reliable deployment and documentation, and tell a clear technical story during the final demo.",
-  "estimatedMinutes": 85,
+  "estimatedMinutes": 110,
   "difficulty": "intermediate",
   "prerequisites": [
     "capstone.requirements-discovery",
@@ -325,6 +325,140 @@
         "Audit functional flows, failure recovery, accessibility, responsiveness, performance, privacy, and deployment behavior.",
         "Use a clean install and the actual project quality scripts before release.",
         "Demo the main user journey and explain architecture, evidence, trade-offs, known gaps, and next steps truthfully."
+      ]
+    },
+    {
+      "id": "deep-review-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: production readiness, release evidence, and a resilient demo"
+    },
+    {
+      "id": "deep-review-model",
+      "type": "paragraph",
+      "text": "A capstone is not finished when it works on one developer's machine. Release readiness means the production build, deep links, environment configuration, critical user journeys, accessibility and error recovery have all been checked in the deployed-like environment. Separate evidence: automated CI proves only the checks it ran; a preview review checks real browser behavior; a rollback plan limits impact if the release fails."
+    },
+    {
+      "id": "deep-review-checklist",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Reproduce a clean install, then run lint, typecheck, tests and the production build; inspect warnings instead of treating a green command as the whole review.",
+        "Test a preview in a real browser: direct route load/refresh, navigation, forms, loading/empty/error states, responsive widths, keyboard focus and a representative screen reader path where feasible.",
+        "Verify client configuration contains only public values, the required runtime variables exist, and secrets are not embedded in the frontend bundle or committed files.",
+        "Check network failures and unauthorized responses; verify that server/data permissions are enforced outside the client UI.",
+        "Review performance evidence for initial bundle size, slow resources and long main-thread tasks; optimize the measured bottleneck.",
+        "Keep release evidence and a recovery path: known issues, owner, rollback procedure, and a demo fallback if an external API or network is unavailable."
+      ]
+    },
+    {
+      "id": "deep-review-trace",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Release candidate commit: <exact SHA>\n  -> CI passed on this exact commit\n  -> Preview checked in a browser\n  -> Direct deep link + refresh verified\n  -> Required env vars checked; no secrets in client bundle\n  -> Critical journeys + keyboard/accessibility checked\n  -> Known risks and rollback steps recorded\n  -> Promote or hold release",
+      "steps": [
+        {
+          "title": "Tie evidence to the exact candidate",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "If a new commit is pushed after CI passed, the earlier results do not prove the new version is valid. Record the exact commit SHA and verify required checks for it."
+        },
+        {
+          "title": "Exercise the deployed route and browser behavior",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "The development server may hide hosting issues, especially SPA fallback on direct navigation/refresh. Preview testing catches configuration and runtime behavior beyond schema checks."
+        },
+        {
+          "title": "Verify configuration, user journeys, and recovery",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Configuration/security checks, critical UI journeys, accessibility and recovery should be explicit release evidence rather than unspoken assumptions."
+        }
+      ]
+    },
+    {
+      "id": "deep-review-callout",
+      "type": "callout",
+      "tone": "warning",
+      "title": "A demo fallback should not fake a successful production state",
+      "text": "If an external service is unavailable during a demo, use clearly labeled fixture/demo data or screenshots and explain the limitation. Do not silently display stale or fabricated live results as if the backend succeeded."
+    },
+    {
+      "id": "deep-review-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "CI passed, but you pushed a new commit after the run. What is the correct release decision?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Promote immediately because the branch passed CI earlier",
+          "correct": false,
+          "feedback": "The run applies to an earlier commit; the new commit may introduce a failure."
+        },
+        {
+          "id": "b",
+          "text": "Verify required checks on the exact new commit and retest affected behavior in preview",
+          "correct": true,
+          "feedback": "Release evidence must match the candidate commit, and browser/preview checks catch issues the CI pipeline may not cover."
+        },
+        {
+          "id": "c",
+          "text": "Skip the preview if TypeScript passes",
+          "correct": false,
+          "feedback": "Type checking does not prove runtime configuration, routing, accessibility or API behavior."
+        },
+        {
+          "id": "d",
+          "text": "Add the deployment secret to the client bundle so the demo works",
+          "correct": false,
+          "feedback": "Secrets must stay on a trusted server/deployment secret store and must not be exposed to browser code."
+        }
+      ],
+      "explanation": "Release decisions require commit-specific automated evidence plus appropriate deployed-like and recovery checks."
+    },
+    {
+      "id": "deep-review-practice",
+      "type": "codingExercise",
+      "title": "Write a release gate and a demo recovery plan",
+      "language": "text",
+      "context": "Prepare evidence for a portfolio capstone release so another developer can independently decide whether to promote it.",
+      "instructions": [
+        "Write a checklist of exact CI commands and the commit SHA they must verify.",
+        "Plan preview/browser checks for direct-route refresh, forms, loading/error/empty states, accessibility and responsive behavior.",
+        "Verify environment variables and explain which values are public in a client bundle.",
+        "Identify the highest-impact failure risks and the rollback/recovery steps.",
+        "Write a transparent demo fallback for unavailable external APIs without pretending mock data is live."
+      ],
+      "requirements": [
+        "Release evidence refers to a specific candidate commit.",
+        "Automated and manual checks are distinguished.",
+        "Configuration and secret handling are verified.",
+        "Rollback/recovery has concrete steps and ownership.",
+        "Demo fallback is labeled and does not misrepresent live service success."
+      ],
+      "starterCode": "Candidate commit SHA:\n\nAutomated gates:\n- Install:\n- Lint/typecheck:\n- Tests:\n- Production build:\n\nPreview checks:\n- Direct route/refresh:\n- Forms/request states:\n- Keyboard/viewport:\n\nEnvironment/security:\n\nKnown risks + rollback:\n\nDemo fallback:",
+      "hints": [
+        "Use evidence that another person could repeat and verify.",
+        "Test deep links against the hosting environment, not just the development server.",
+        "Name demo or fixture data openly so it cannot be mistaken for live data."
+      ],
+      "successCriteria": [
+        "Defines repeatable CI and preview evidence.",
+        "Includes a concrete direct-route refresh check.",
+        "Protects secrets from client delivery.",
+        "Provides a rollback/recovery plan.",
+        "Demo limitations and fixture data are transparently labeled."
+      ]
+    },
+    {
+      "id": "deep-review-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Release readiness is evidence from the exact commit, automated gates, preview behavior, accessibility, security and recovery.",
+        "Test direct deep links and refresh in the deployment environment, not only the dev server.",
+        "Be transparent about fixture/demo data and keep secrets out of browser bundles."
       ]
     },
     {
