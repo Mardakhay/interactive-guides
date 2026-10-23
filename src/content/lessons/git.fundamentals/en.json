@@ -1,16 +1,16 @@
 {
   "id": "git.fundamentals",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-2-week-8",
   "week": 8,
   "order": 2,
   "title": "Git Fundamentals: Track, Commit, and Publish Your Work",
   "description": "Understand Git's three local areas, record focused changes as commits, connect a local repository to a remote, publish a branch, and keep generated or secret files out of version control.",
-  "estimatedMinutes": 55,
+  "estimatedMinutes": 80,
   "difficulty": "beginner",
   "prerequisites": [
     "js.basics-types-control-flow",
@@ -354,6 +354,138 @@
         "A .gitignore rule only ignores untracked paths; it does not remove a file that is already tracked.",
         "Use focused messages and inspect the staged diff before committing.",
         "Never commit secrets; if a credential has been pushed, rotate/revoke it rather than relying on deleting the file."
+      ]
+    },
+    {
+      "id": "deep-git-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: Git's three areas and choosing a safe undo"
+    },
+    {
+      "id": "deep-git-model",
+      "type": "paragraph",
+      "text": "Think of Git as separate snapshots and places where changes can live: the working tree contains your current edits, the index (staging area) records what the next commit will contain, and commits are saved snapshots connected by history. `git add` copies selected changes into the index; it does not commit them. Before undoing anything, inspect `git status` and `git diff` so you know which area contains the work."
+    },
+    {
+      "id": "deep-git-trace",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "git status\ngit diff\ngit diff --staged\ngit add src/App.tsx\ngit diff --staged\ngit commit -m \"fix: handle empty search results\"\ngit log --oneline --decorate -5",
+      "steps": [
+        {
+          "title": "Inspect unstaged edits",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "status shows the state of tracked/untracked files; diff shows edits in the working tree that are not staged."
+        },
+        {
+          "title": "Inspect the proposed commit",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "diff --staged shows the index—the exact content selected for the next commit. A file can contain both staged and unstaged changes at once."
+        },
+        {
+          "title": "Create a snapshot only after review",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "commit records the staged snapshot, and log helps confirm where HEAD now points. Commit messages should describe the intent, not just the file edited."
+        }
+      ]
+    },
+    {
+      "id": "deep-git-undo-guide",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`git restore file` discards unstaged working-tree changes for that file; inspect them first because the discarded work may be hard to recover.",
+        "`git restore --staged file` removes a file from the index but keeps the working-tree edits.",
+        "`git revert <commit>` creates a new commit that reverses a previous commit; it is usually safer on shared branches.",
+        "`git reset` moves the current branch/HEAD and changes the index or working tree depending on flags; `--hard` discards tracked work and rewrites the branch position. Avoid it until you understand the target and have checked whether work is shared.",
+        "`git stash` temporarily shelves selected uncommitted changes; `git stash list` and `git stash apply` let you inspect/reapply them. `git reflog` can help find recent local HEAD positions after a mistaken reset, but it is not a substitute for remote backup."
+      ]
+    },
+    {
+      "id": "deep-git-warning",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Undo commands are not interchangeable",
+      "text": "Use status/diff before changing state. For private, not-yet-committed work, restore or stash may fit. To undo a committed change already shared with the team, prefer revert unless your team explicitly coordinates history rewriting. Never run a destructive reset blindly to make a status screen look clean."
+    },
+    {
+      "id": "deep-git-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You pushed a commit to a shared feature branch and discover it introduced a bug. What is usually the safest undo approach?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Run git reset --hard HEAD~1 and force-push immediately",
+          "correct": false,
+          "feedback": "That rewrites shared history and may erase teammates' references or commits; it should not be done blindly."
+        },
+        {
+          "id": "b",
+          "text": "Create a git revert commit for the bad commit",
+          "correct": true,
+          "feedback": "Revert records an inverse change as a new commit, preserving published history and making the correction visible to collaborators."
+        },
+        {
+          "id": "c",
+          "text": "Delete the .git directory",
+          "correct": false,
+          "feedback": "This destroys local repository metadata and does not safely undo a shared remote commit."
+        },
+        {
+          "id": "d",
+          "text": "Run git restore on the repository root",
+          "correct": false,
+          "feedback": "Restore works on working-tree/index paths; it does not reverse a commit already published to the remote."
+        }
+      ],
+      "explanation": "Choose the undo operation by identifying where the change lives and whether its history is shared."
+    },
+    {
+      "id": "deep-git-practice",
+      "type": "codingExercise",
+      "title": "Diagnose the index and choose an undo command",
+      "language": "bash",
+      "context": "A realistic team scenario: one file has staged and unstaged edits, and a previous change has already been pushed.",
+      "instructions": [
+        "Use git status, git diff and git diff --staged to identify which changes would enter the next commit.",
+        "Unstage a file without discarding its working-tree edits.",
+        "Describe how you would safely discard only an unwanted unstaged edit after reviewing its diff.",
+        "Choose a safe approach to undo a published commit and explain why reset is different.",
+        "Explain what stash and reflog can help recover, and what they do not guarantee."
+      ],
+      "requirements": [
+        "The index is distinguished from the working tree and commit history.",
+        "The proposed commit content is checked with diff --staged.",
+        "An unstage operation is not described as deleting the file's edits.",
+        "Shared history is preserved when choosing the default correction.",
+        "Destructive commands are accompanied by preconditions and warnings."
+      ],
+      "starterCode": "# Run these commands in a disposable practice repository.\ngit status\ngit diff\ngit diff --staged\n\n# TODO: choose a safe unstage command, then inspect status again.\n# TODO: explain how you would undo a published commit without rewriting shared history.",
+      "hints": [
+        "The index is the content Git will put into the next commit.",
+        "Unstage and discard are different operations; inspect status and diff after each.",
+        "Revert adds a corrective commit; reset moves the branch/HEAD and can rewrite shared history."
+      ],
+      "successCriteria": [
+        "Correctly identifies staged versus unstaged changes.",
+        "Can unstage without losing working-tree edits.",
+        "Chooses an undo action based on whether a commit was shared.",
+        "Explains the limits and purpose of stash and reflog."
+      ]
+    },
+    {
+      "id": "deep-git-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Git status/diff inspection should precede a state-changing command.",
+        "The index represents the exact content planned for the next commit.",
+        "Prefer preserving published history; only rewrite shared history with explicit coordination."
       ]
     },
     {
