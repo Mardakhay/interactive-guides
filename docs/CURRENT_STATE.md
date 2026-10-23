@@ -145,3 +145,10 @@ The first service-worker implementation failed lint because browser worker globa
 On `feat/learning-platform-foundation`, the manifest now references PNG icons at 192px and 512px; a separate 180px Apple touch icon is linked from the HTML shell. The worker's shell precache contains those icon paths and uses a bumped cache version to force a clean shell cache on update. `public/_redirects` supplies the host's SPA rewrite for online nested-route reloads. A Vitest contract test checks the manifest, PNG dimensions, iOS link, rewrite, and same-origin/private-request caching guards.
 
 This remains a code-level foundation rather than a fully accepted PWA. Browser/device installability, offline deep-link reload, update UX and external-font fallback still require manual checks; the content cache intentionally does not promise every never-visited lesson will be available offline.
+
+
+## Application locale foundation — 2026-10-23
+
+The UI now has an English/Russian preference stored under `interactive-guides.ui-locale`, a route-aware override for `/:locale/structured-lessons`, and a language switch in the top bar. The shared sidebar/mobile navigation, dashboard headings, main catalogue/bootcamp promotion and category cards have localized strings; category lesson counts handle English and Russian plural forms. App-level `html lang` follows the active UI locale.
+
+This is the start of Phase 2, not complete app-wide localization. Course details, legacy HTML lessons, learning-path detail pages, bookmarks, notes, quizzes, search result UI and all empty/error states still need systematic translation and tests. The source lesson/catalog content remains English unless it uses the bilingual structured lesson route.

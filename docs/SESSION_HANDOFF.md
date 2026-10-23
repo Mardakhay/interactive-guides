@@ -205,3 +205,10 @@ The worker skips cross-origin requests, requests carrying Authorization and /api
 ## PWA platform asset follow-up — 2026-10-23
 
 The feature branch now includes PNG app icons (180px Apple touch, 192px and 512px manifest assets), a shell precache version bump, a Netlify SPA rewrite, and PWA contract tests in `src/pwa/pwaAssets.test.ts`. These changes are committed on `feat/learning-platform-foundation`; `main` is deliberately untouched. Wait for the exact latest-head Actions run before describing the commit as validated. The automated test cannot replace Android Chrome/iOS Safari install/offline acceptance. Remaining product-sized work still includes broad source parity review, app-wide localization, persistence migration/export, and the Supabase design/implementation.
+
+
+## Application locale foundation — 2026-10-23
+
+The UI now has an English/Russian preference stored under `interactive-guides.ui-locale`, a route-aware override for `/:locale/structured-lessons`, and a language switch in the top bar. The shared sidebar/mobile navigation, dashboard headings, main catalogue/bootcamp promotion and category cards have localized strings; category lesson counts handle English and Russian plural forms. App-level `html lang` follows the active UI locale.
+
+This is the start of Phase 2, not complete app-wide localization. Course details, legacy HTML lessons, learning-path detail pages, bookmarks, notes, quizzes, search result UI and all empty/error states still need systematic translation and tests. The source lesson/catalog content remains English unless it uses the bilingual structured lesson route.
