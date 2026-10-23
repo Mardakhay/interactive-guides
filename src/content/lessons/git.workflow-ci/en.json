@@ -1,7 +1,7 @@
 {
   "id": "git.workflow-ci",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-23",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Git Branching, Pull Requests, Code Review, and CI",
   "description": "Work safely in feature branches, keep pull requests reviewable, resolve conflicts deliberately, and use continuous integration as a repeatable quality gate.",
-  "estimatedMinutes": 90,
+  "estimatedMinutes": 110,
   "difficulty": "intermediate",
   "prerequisites": [
     "git.fundamentals",
@@ -22,7 +22,8 @@
     "Prepare a reviewable pull request with context, testing evidence, and a small logical diff.",
     "Review code for correctness, readability, accessibility, testing, and regressions.",
     "Resolve merge conflicts deliberately and understand merge versus rebase at a high level.",
-    "Explain how CI runs automated checks and why a green check is not a substitute for review."
+    "Explain how CI runs automated checks and why a green check is not a substitute for review.",
+    "Compare common branch strategies and apply Semantic Versioning to compatible and breaking changes."
   ],
   "tags": [
     "git",
@@ -424,6 +425,80 @@
       ]
     },
     {
+      "id": "git-branch-strategies",
+      "type": "heading",
+      "level": 2,
+      "text": "Choose a branch strategy to fit the team's release rhythm"
+    },
+    {
+      "id": "git-branch-strategies-body",
+      "type": "paragraph",
+      "text": "A branch model is a collaboration policy, not a Git feature that every project must adopt identically. Prefer the smallest process that lets a team integrate frequently, protect the default branch, test changes, and release safely. Long-lived branches accumulate divergence and make merges harder; short-lived branches still need tests and review."
+    },
+    {
+      "id": "git-branch-strategy-choices",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Trunk-based development keeps branches very short-lived and integrates to a shared trunk frequently, often with feature flags and strong automated checks.",
+        "GitHub Flow normally uses a protected main branch, a short-lived feature branch, a pull request, checks, review, and merge.",
+        "Git Flow adds long-lived develop and purpose-specific release/hotfix branches. It can help with scheduled or parallel release maintenance, but it introduces more coordination and branch management.",
+        "A release branch stabilizes a candidate for a release; a hotfix branch isolates an urgent correction. Their source, target and back-merge policy should be explicit.",
+        "Choose based on release cadence, team size, support obligations and the maturity of CI. Do not adopt extra branches just because a diagram contains them."
+      ]
+    },
+    {
+      "id": "git-semantic-versioning",
+      "type": "heading",
+      "level": 2,
+      "text": "Semantic Versioning communicates compatibility"
+    },
+    {
+      "id": "git-semantic-versioning-body",
+      "type": "paragraph",
+      "text": "For a public versioned API that follows Semantic Versioning, the release shape is MAJOR.MINOR.PATCH. At version 1.4.2, a backwards-compatible bug fix can become 1.4.3; a backwards-compatible feature can become 1.5.0; and an incompatible public API change generally requires 2.0.0. Pre-1.0.0 software may change its public API more freely under the SemVer specification, so document your project's policy."
+    },
+    {
+      "id": "git-semver-example",
+      "type": "code",
+      "language": "text",
+      "caption": "Illustrative changes from version 1.4.2",
+      "code": "1.4.2 -> 1.4.3  # backwards-compatible bug fix (PATCH)\n1.4.2 -> 1.5.0  # backwards-compatible feature (MINOR)\n1.4.2 -> 2.0.0  # incompatible public API change (MAJOR)"
+    },
+    {
+      "id": "git-semver-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A library is at version 1.4.2 and releases a backwards-incompatible public API change. Under Semantic Versioning, which version is the expected next release?",
+      "options": [
+        {
+          "id": "a",
+          "text": "1.4.3",
+          "correct": false,
+          "feedback": "PATCH is for backwards-compatible bug fixes, not a breaking public API change."
+        },
+        {
+          "id": "b",
+          "text": "1.5.0",
+          "correct": false,
+          "feedback": "MINOR is for backwards-compatible new functionality, not a breaking public API change."
+        },
+        {
+          "id": "c",
+          "text": "2.0.0",
+          "correct": true,
+          "feedback": "A backwards-incompatible public API change increments MAJOR."
+        },
+        {
+          "id": "d",
+          "text": "1.4.2+1",
+          "correct": false,
+          "feedback": "Build metadata does not communicate a breaking compatibility change."
+        }
+      ],
+      "explanation": "For a public stable API, SemVer uses MAJOR for incompatible changes, MINOR for backwards-compatible features, and PATCH for backwards-compatible fixes."
+    },
+    {
       "id": "git-workflow-references",
       "type": "references",
       "items": [
@@ -451,6 +526,11 @@
           "title": "GitHub Actions: Understanding workflows",
           "url": "https://docs.github.com/en/actions/about-github-actions/understanding-github-actions",
           "kind": "official-docs"
+        },
+        {
+          "title": "Semantic Versioning 2.0.0",
+          "url": "https://semver.org/spec/v2.0.0.html",
+          "kind": "standard"
         }
       ]
     }

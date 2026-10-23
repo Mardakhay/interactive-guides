@@ -170,3 +170,22 @@ This is structural validation, not a source-parity or editorial-quality sign-off
 - Check EN/RU equivalence for examples, exercise feedback and terminology; matching block counts alone are insufficient.
 
 Status remains **partial mapping / source parity pending**. Do not delete the legacy source or mark the structured lessons published based on route registration alone.
+
+
+## Focused Git source-parity audit — 2026-10-23
+
+**Sources read in this pass:** `public/lessons/git-reference.html` (64,174 bytes; 1 inline script, 21 buttons, 60+ source headings) and `public/lessons/git-workflow-cicd-guide.html` (94,686 bytes; 1 inline script, 20 buttons, 50+ source headings). The content and heading inventories were read and compared to `git.fundamentals` and `git.workflow-ci` EN/RU structured lessons. This is a focused content/interaction inventory; it is not a complete technical fact-check of every source statement.
+
+### Structured content added in this pass
+
+- `git.fundamentals` (EN/RU): a walkthrough for stash, stash re-application, global aliases and the limits of `git commit --amend`; repository hygiene for README/Pages/permissions/secrets; official Git/GitHub references added.
+- `git.workflow-ci` (EN/RU): explicit comparison of trunk-based development, GitHub Flow and Git Flow; release/hotfix purpose; Semantic Versioning with patch/minor/major examples and a scored knowledge check. SemVer 2.0.0 reference added.
+- Both translation pairs retain the same ordered IDs and block types for all existing blocks and the new blocks; changes increment the content version and remain in editorial review.
+
+### Remaining content and interaction parity
+
+- The old Git reference also includes introductory basic commands and a quick-reference panel, GitHub Markdown/README, a Pages auto-deploy sequence, collaborator management/repository settings, commit amend/aliases, and stash affordances. The new blocks address the principal missing concept areas above, but quick-reference table and UI interaction parity need a separate explicit decision.
+- The workflow source includes detailed MR review/comment guidance, branch protection, CI/CD simulator interactions, and a concrete Actions example. The structured lesson covers PRs, code review, conflict resolution, security boundaries and an Actions workflow, but the simulator's interactions are not a one-to-one port and should be marked as intentionally deferred or rebuilt as structured exercises.
+- Both legacy files use their own page shell, sidebar/search/copy or other handlers and a single inline script. These source-specific UI behaviors have not all been recreated in the shared lesson renderer. Keep the HTML sources until the remaining content/interaction mapping is resolved and reviewed by a human.
+
+The curriculum destinations remain `git.fundamentals` and `git.workflow-ci`, not new duplicate lessons. This pass improves coverage but does not mark either source fully migrated/published.
