@@ -1,16 +1,16 @@
 {
   "id": "react.api-custom-hooks",
   "locale": "ru",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-4-week-16",
   "week": 16,
   "order": 1,
   "title": "API-слой, custom hooks и надёжная загрузка данных",
   "description": "Отдели HTTP-логику от UI, инкапсулируй повторно используемое состояние запроса в custom hooks, обрабатывай несколько API-вызовов и ошибки, а также выбирай безопасные retry-стратегии.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 100,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.effects-lists-composition",
@@ -319,6 +319,139 @@
         "Показывай явные loading/success/error состояния и при необходимости отменяй устаревшую работу.",
         "Выбирай Promise.all или Promise.allSettled по требованиям к полному или частичному результату.",
         "Повторяй только подходящие операции, с ограничением попыток, задержкой, отменой и понятными правилами."
+      ]
+    },
+    {
+      "id": "deep-api-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Глубокое погружение: границы сервиса, discriminated union для запроса и безопасные повторы"
+    },
+    {
+      "id": "deep-api-model",
+      "type": "paragraph",
+      "text": "Поддерживаемый поток данных разделяет обязанности: сервис отвечает за HTTP-контракт и разбор ответа; custom Hook связывает сервис с состоянием/жизненным циклом React; компонент отображает loading, empty, success и error. Представляй взаимоисключающие состояния запроса как discriminated union, а не набор отдельных boolean, которые могут случайно описать невозможную комбинацию. Повторяй запрос только тогда, когда ошибка, вероятно, временная и операция безопасна для повтора."
+    },
+    {
+      "id": "deep-api-trace",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "type RequestState<T> =\n  | { status: 'idle' }\n  | { status: 'loading' }\n  | { status: 'success'; data: T }\n  | { status: 'error'; message: string };\n\nasync function requestJson<T>(url: string, signal?: AbortSignal): Promise<T> {\n  const response = await fetch(url, { signal });\n  if (!response.ok) throw new Error(`HTTP ${response.status}`);\n  return (await response.json()) as T;\n}\n\n// In a Hook/component:\nconst [state, setState] = useState<RequestState<User[]>>({ status: 'idle' });\n// Render each status explicitly; an empty successful array is not an error.",
+      "steps": [
+        {
+          "title": "Явно опиши взаимоисключающие исходы",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Discriminated union требует, чтобы состояние success содержало data, а error — message. При switch по status TypeScript может безопасно сузить доступные поля."
+        },
+        {
+          "title": "Сохрани HTTP-логику на границе сервиса",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "Helper отвечает за fetch, проверку response.ok и разбор тела. Функция сервиса использует helper и возвращает типизированный результат предметной области, не заставляя компоненты дублировать networking."
+        },
+        {
+          "title": "Осознанно управляй переходами UI",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "Компонент или Hook решает, как статус запроса влияет на интерфейс. Успешный пустой список показывает empty state, а отклонённый запрос — error."
+        }
+      ]
+    },
+    {
+      "id": "deep-api-failure-matrix",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Сбой транспорта: Fetch отклоняется до получения пригодного Response; если ошибка временная, повтор может помочь.",
+        "HTTP-ошибка: Fetch обычно возвращает Response и для 404/500; проверь response.ok/status и преобразуй статус в понятную ошибку сервиса/UI.",
+        "Ошибка разбора или схемы: response.json() может отклониться при некорректном JSON, а корректный JSON всё ещё может иметь неожиданную структуру. Разбор и runtime-валидация — разные этапы.",
+        "Отмена: AbortError часто означает намеренную смену жизненного цикла, а не ошибку, которую нужно показывать пользователю.",
+        "Пустой успех: корректный ответ с [] — успешный запрос без записей, а не сбой запроса."
+      ]
+    },
+    {
+      "id": "deep-api-warning",
+      "type": "callout",
+      "tone": "important",
+      "title": "TypeScript assertion не проверяет данные сервера",
+      "text": "`await response.json() as T` просит компилятор доверять автору, но не проверяет payload во время выполнения. Для данных через сетевую границу используй runtime-схему/валидатор или явный разбор. Не помещай токены и привилегированные секреты во frontend bundle. Автоматический retry нужно ограничивать безопасностью операции, допустимыми статусами/ошибками, числом попыток и backoff."
+    },
+    {
+      "id": "deep-api-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "API возвращает HTTP 200 и корректное JSON-тело `[]`. Какое состояние обычно нужно отобразить странице списка?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ошибка, потому что в списке нет записей",
+          "correct": false,
+          "feedback": "Пустой результат может быть успешным ответом; не путай его со сбоем запроса."
+        },
+        {
+          "id": "b",
+          "text": "Успех с сообщением empty state",
+          "correct": true,
+          "feedback": "Запрос успешен, но данных нет; интерфейс может объяснить, что пока нечего показывать."
+        },
+        {
+          "id": "c",
+          "text": "Бесконечную загрузку, потому что нечего отображать",
+          "correct": false,
+          "feedback": "Loading означает, что запрос ещё не завершился, а не успешный пустой результат."
+        },
+        {
+          "id": "d",
+          "text": "Автоматически повторять запрос, пока массив не заполнится",
+          "correct": false,
+          "feedback": "Пустой ответ не обязательно временный; повторы могут не изменить результат и зря расходовать ресурсы."
+        }
+      ],
+      "explanation": "Разделяй сбой транспорта, HTTP-статус, parsing, отмену и успешный пустой результат."
+    },
+    {
+      "id": "deep-api-practice",
+      "type": "codingExercise",
+      "title": "Создай типизированный сервис и надёжный Hook состояния запроса",
+      "language": "typescript",
+      "context": "Расширь базовый Fetch до проверяемой feature с границей сервиса, проверкой данных и всеми UI-состояниями.",
+      "instructions": [
+        "Создай сервис `getUsers(signal)`, который вызывает Fetch, проверяет response.ok и разбирает тело.",
+        "Представь idle/loading/success/error как один discriminated union.",
+        "Добавь отдельное empty state для успешного пустого массива.",
+        "Опиши, где нужна runtime-валидация до того, как доверять внешнему JSON как типу User.",
+        "Укажи, какие ошибки можно повторять и почему нельзя вслепую повторять create/update-мутацию."
+      ],
+      "requirements": [
+        "HTTP-статус явно проверяется до объявления успеха.",
+        "HTTP/network-логика не дублируется в каждом компоненте.",
+        "Модель состояния исключает невозможные комбинации, например одновременные loading и error.",
+        "Пустой успех отличается от ошибки и загрузки.",
+        "Runtime-валидация внешних данных и решение о безопасности повторов описаны."
+      ],
+      "starterCode": "type RequestState<T> =\n  | { status: 'idle' }\n  | { status: 'loading' }\n  | { status: 'success'; data: T }\n  | { status: 'error'; message: string };\n\nasync function getUsers(signal?: AbortSignal): Promise<User[]> {\n  // TODO: сделай fetch, проверь response.ok, разбери и провалидируй payload.\n}\n\n// TODO: свяжи статус запроса с React и отобрази empty state.",
+      "hints": [
+        "Fetch обычно выполняется и при многих HTTP-ошибках; проверь response.ok/status.",
+        "Не используй отдельные boolean loading/error, если они допускают невозможные комбинации.",
+        "Type assertion не существует во время выполнения; проверяй внешний JSON до доверия его структуре."
+      ],
+      "successCriteria": [
+        "Сервис возвращает разобранных пользователей или содержательную ошибку.",
+        "Состояние запроса представлено взаимоисключающими статусами.",
+        "Пустой массив отображается как осмысленный empty state.",
+        "Проверка внешних данных на границе запроса явная.",
+        "Правила повторов учитывают тип ошибки и безопасность операции."
+      ]
+    },
+    {
+      "id": "deep-api-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Держи HTTP-контракт в сервисе, а UI-жизненный цикл — в Hook/компоненте.",
+        "Используй явные взаимоисключающие состояния запроса и различай пустой успех и ошибку.",
+        "Проверяй внешние данные во время выполнения и повторяй запрос только при безопасной комбинации ошибки и операции."
       ]
     },
     {
