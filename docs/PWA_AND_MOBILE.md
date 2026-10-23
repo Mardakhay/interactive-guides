@@ -31,3 +31,14 @@ A responsive application that can be installed on supported phones/desktops and 
 - Lighthouse or browser audit for manifest/installability, accessible labels and performance as a diagnostic, not the sole proof.
 - Test cold load online, revisit offline, first visit offline (clearly explain if content was not yet cached), update lifecycle, offline route reload and sign-in/sync failure.
 - Validate Android Chrome and iOS Safari behavior; installation capabilities differ by browser and must not be described as identical.
+
+## Implementation status check — 2026-10-23
+
+The requirements above remain valid, but source-tree verification of feat/learning-platform-foundation found that the PWA foundation described in earlier handoffs is not present in the current implementation:
+- public/manifest.webmanifest is absent.
+- public/sw.js is absent.
+- index.html does not link a web manifest.
+- src/main.tsx does not register a service worker.
+- Install/update/offline UI and real-browser installability results must not be assumed.
+
+Treat PWA as an implementation and acceptance-testing phase, not a completed feature. Before caching content, specify cache lifecycle, offline route fallback and update UX, and explicitly exclude private/authenticated responses. Then test installability and offline reload behavior on supported browsers/devices. Structured React routes alone do not make the content available offline.

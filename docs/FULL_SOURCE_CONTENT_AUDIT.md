@@ -138,3 +138,12 @@ The source rows above have been updated to use actual structured lesson IDs from
 ## Latest CI — 2026-10-23
 
 The canonical-ID source-matrix update at feature SHA `b7fdeba6b9096d9f8336cf1071deb9d0f2d1dfc5` passed GitHub Actions [run #320](https://github.com/Mardakhay/interactive-guides/actions/runs/39964458056). This confirms the docs and previously validated application tree build/test; it does not complete the explicitly pending source-content reviews above.
+
+## Exact content-validation checkpoint — 2026-10-23
+
+At feature HEAD d47d96cb1b471468e9687ab923744ce9ec248a99, all 74 registered EN/RU structured lesson JSON files were fetched and scanned for callout tones supported by lessonContent.ts, missing references blocks, and walkthrough line ranges extending past the associated snippet.
+
+The scan found one issue category: block sql-schema-note in data.sql-postgresql/en.json and data.sql-postgresql/ru.json used tone info, while the schema accepts note, tip, important or warning. Commit 9c51012aff7631fc12b1dd5af0b74b7de9b28691 changed both values to important. No missing references blocks or out-of-range walkthrough line references were found in the same scan. Exact-head Actions run #39976179595 passed after the fix:
+https://github.com/Mardakhay/interactive-guides/actions/runs/39976179595
+
+This is structural validation, not a source-parity or editorial-quality sign-off. The legacy HTML/Notion content is still incompletely mapped at prose, code, exercise, answer and interaction level. Lesson status remains review.

@@ -5,17 +5,17 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 ## Phase 0 — Baseline and safeguards
 - [ ] Create working branch `feat/learning-platform-foundation`.
 - [ ] Run and record `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`.
-- [ ] Confirm default branch/CI behavior and existing user data formats.
-- [ ] Add documentation and maintain this handoff.
+- [x] Confirm default branch/CI behavior and inspect the existing user-data contracts.
+- [x] Add documentation and maintain this handoff.
 - Acceptance: baseline is known, current `main` remains intact, clean rollback path exists.
 - Suggested commit: `docs: document platform redesign and migration plan`
 
 ## Phase 1 — Requirements, schemas and curriculum
-- [ ] Confirm route/content/localization decisions.
-- [ ] Define and validate schemas for curriculum, lesson translations and content blocks.
-- [ ] Map every current lesson to the syllabus or a labeled supplementary module.
-- [ ] Add tests for required fields, unique IDs/orders, locale completeness, valid references and answer keys.
-- [ ] Create one representative lesson in each locale to validate the authoring/rendering path.
+- [x] Confirm the structured curriculum route/content/localization contract; app-wide localization remains a separate unfinished phase.
+- [x] Define and validate schemas for curriculum, lesson translations and content blocks.
+- [x] Map registered core and supplementary lesson IDs to the 24-week syllabus or a separately labeled track; source-content parity is tracked separately.
+- [x] Add automated schema, repository, curriculum and locale checks for required fields, IDs/order, references and answer keys.
+- [x] Create bilingual structured lessons and a React authoring/rendering path; source parity and editorial approval remain open.
 - Acceptance: the curriculum can be loaded without an HTML manifest; content validation runs in CI.
 - Suggested commits:
   - `feat(content): add typed bilingual lesson schemas`
@@ -131,3 +131,28 @@ Remaining work is substantive: finish full review of all 25 HTML files and acces
 
 
 **Latest CI:** [Run #320](https://github.com/Mardakhay/interactive-guides/actions/runs/39964458056) passed on `b7fdeba6b9096d9f8336cf1071deb9d0f2d1dfc5`. The source-to-lesson audit and editorial review remain open.
+
+## Authoritative implementation status — 2026-10-23
+
+The checked tasks above reflect the technical foundation where verified. They do not mean editorial review or all product phases are complete.
+
+| Phase | Status | Evidence and remaining work |
+|---|---|---|
+| 0. Baseline and safeguards | Complete for remote checkpoint | Feature branch exists and exact-head GitHub Actions run #39976179595 passes. Main remains unchanged. Local clone unavailable in the current environment. |
+| 1. Schemas and curriculum | Technical foundation implemented | Zod schemas, bilingual curriculum, supplementary tracks and repository checks exist. Source parity is tracked separately. |
+| 2. App UI and localization | Partial | Structured routes support EN/RU. The legacy shell and all application pages are not consistently localized/refined. |
+| 3. Structured lesson reader | Implemented foundation; mastery policy partial | React renderer, curriculum index, knowledge checks, practice, store/persistence and tests exist. Do not equate completion flags with mastery. |
+| 4. Content migration and parity | In progress; not complete | 26 core and 11 supplementary IDs are registered in both locales. All 25 legacy HTML sources remain. Most source concepts, code, exercises, answers and interactions still need full mapping/review. |
+| 5. Local-first persistence | Partial | Legacy stores and structured learning persistence exist. Cross-feature migration, export/import and preservation of all old records need further verification/implementation. |
+| 6. Supabase authentication/sync | Not started | Keep gated behind stable local contracts, RLS design and explicit project/cost checks. |
+| 7. PWA and deployment | Not implemented/verified | Current feature tree lacks public/manifest.webmanifest and public/sw.js; no manifest link or service-worker registration was found. Implement and test this phase. |
+| 8. Capstone and release readiness | Partial | Four bilingual capstone-stage lessons are registered; source audit, app-wide accessibility/localization, PWA tests and release acceptance remain. |
+
+### Exact-head validation
+- Branch: feat/learning-platform-foundation
+- SHA: 9c51012aff7631fc12b1dd5af0b74b7de9b28691
+- Actions: run #39976179595 passed npm ci, lint, typecheck, tests and build: https://github.com/Mardakhay/interactive-guides/actions/runs/39976179595
+- Merge recovery: d47d96cb1b471468e9687ab923744ce9ec248a99; bilingual SQL schema fix: 9c51012aff7631fc12b1dd5af0b74b7de9b28691.
+
+### Next priority
+Continue source-to-block parity in small syllabus-ordered batches. Record uncovered examples, exercises, answer interactions and English/Russian mismatches. Then prioritize app-wide localization and the missing PWA foundation. Keep lessons in review until editorial criteria are met.

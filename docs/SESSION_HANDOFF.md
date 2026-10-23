@@ -143,3 +143,40 @@ GitHub Actions [run #317](https://github.com/Mardakhay/interactive-guides/action
 ### Latest branch/CI status
 
 Feature head `b7fdeba6b9096d9f8336cf1071deb9d0f2d1dfc5` passed GitHub Actions [run #320](https://github.com/Mardakhay/interactive-guides/actions/runs/39964458056). PR #1 remains open, draft, and mergeable. Source review is still incomplete: source matrix targets have now been corrected to canonical IDs, but most HTML sources still need full content/interaction parity review. Keep main unchanged.
+
+## Authoritative checkpoint — 2026-10-23 (supersedes earlier status notes)
+
+### Exact refs and PR state
+- Working branch: feat/learning-platform-foundation
+- Feature HEAD at this checkpoint: 9c51012aff7631fc12b1dd5af0b74b7de9b28691
+- main remains at b13af92576e8a73753a6e3f3d26765d9f9c44397; no commit was made to main in this recovery.
+- PR #1 is open and remains Draft: https://github.com/Mardakhay/interactive-guides/pull/1
+- GitHub reported mergeable=true and mergeable_state=clean after the merge and successful CI.
+
+### Branch reconciliation
+The feature branch and main diverged from common ancestor 452a0296fc875e48f1a050e5af557ef0c08f68c8. The four main commits added only the two SQL/PostgreSQL and two production-hosting locale JSON files. The two-parent merge commit is https://github.com/Mardakhay/interactive-guides/commit/d47d96cb1b471468e9687ab923744ce9ec248a99, with feature as first parent and main as second parent.
+
+- Both production-hosting files were byte-identical on main and feature.
+- The feature PostgreSQL files are richer: 35 blocks each and 110 estimated minutes, compared with 10 blocks each and 75 minutes in the older main versions.
+- Both feature PostgreSQL files retain every block ID in the main versions and add explanations, walkthroughs, checks and practice. No main-only block IDs were lost.
+- The merge retained the richer feature files. The main ref was not moved.
+
+### Exact-head validation and fix
+GitHub Actions run #39976179595 passed on exact feature SHA 9c51012aff7631fc12b1dd5af0b74b7de9b28691: npm ci, lint, typecheck, tests and production build.
+https://github.com/Mardakhay/interactive-guides/actions/runs/39976179595
+
+The preceding run on merge commit d47d96cb1b471468e9687ab923744ce9ec248a99 failed during test module loading because the new English/Russian SQL content used unsupported callout tone info. The schema allows note, tip, important and warning. Commit 9c51012 changed that tone to important in both locale files; the exact-head Actions run then passed.
+
+A local clone could not be obtained during this session because network DNS resolution for github.com failed in the container. Current verification evidence is GitHub Actions, not a local terminal run.
+
+### Current product status
+- Structured content: 26 core lesson IDs and 11 supplementary lesson IDs, with English and Russian files (74 JSON files total).
+- Legacy source: all 25 HTML lessons remain under public/lessons/.
+- Structured routes: /:locale/structured-lessons and /:locale/structured-lessons/:lessonId.
+- The current runner uses JavaScriptRunner.tsx and JavaScriptWorkerProgram.ts with disposable Web Workers and a timeout, not the older iframe-based design.
+- PWA is not implemented in the checked feature tree: public/manifest.webmanifest and public/sw.js are absent; index.html has no manifest link and src/main.tsx does not register a service worker.
+- App-wide localization is incomplete; localized structured routes do not mean the legacy shell and all application pages are translated.
+- Source-to-block parity and editorial approval remain incomplete. Registration and passing tests are not proof of full migration or approval.
+
+### Next action
+Continue the source-to-block audit for legacy HTML and accessible Notion material. Work in small syllabus-ordered batches, record uncovered examples and exercises plus EN/RU differences, and do not create duplicate lessons when a registered destination already exists. Then prioritize app-wide localization and implement/test the missing PWA foundation. Keep this handoff synchronized with exact branch HEAD and CI evidence.

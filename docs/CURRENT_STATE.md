@@ -111,3 +111,20 @@ The 25 legacy HTML files remain migration sources. The full audit has not yet es
 
 
 **Latest CI:** feature SHA `b7fdeba6b9096d9f8336cf1071deb9d0f2d1dfc5` passed [Actions run #320](https://github.com/Mardakhay/interactive-guides/actions/runs/39964458056). This is a green build/test state, not a completed source audit.
+
+## Current verified state — 2026-10-23
+
+This section supersedes earlier status paragraphs that describe only the initial legacy-only application or claim the latest Actions status was unknown.
+
+- Feature branch: feat/learning-platform-foundation, exact validated HEAD 9c51012aff7631fc12b1dd5af0b74b7de9b28691.
+- main: b13af92576e8a73753a6e3f3d26765d9f9c44397; unchanged by this recovery.
+- PR #1: open Draft; GitHub reported mergeable/clean after reconciliation.
+- CI: Actions run #39976179595 passed npm ci, ESLint, TypeScript typecheck, Vitest and production build on the exact HEAD. https://github.com/Mardakhay/interactive-guides/actions/runs/39976179595
+- Merge recovery: commit d47d96c integrates the four content-only main commits without moving main. The feature SQL content retains the prior main block IDs and adds substantial bilingual coverage. Commit 9c51012 corrected the unsupported info callout tone in both SQL translations.
+- Content inventory: 26 core and 11 supplementary lesson IDs across 74 EN/RU JSON files; all 25 legacy HTML sources remain. Structured curriculum routes are integrated into the React app.
+- Structured JSON validation sweep: all 74 locale JSON files were checked for unsupported callout tones, missing reference blocks and walkthrough ranges past snippet length. The only detected problem was the SQL info tone in both translations; it is now corrected and exact-head CI passes. This is not editorial approval or source parity.
+- PWA reality check: public/manifest.webmanifest and public/sw.js are absent; index.html has no manifest link and src/main.tsx does not register a service worker. Treat PWA as planned work, not an existing feature.
+- Runner reality check: the current learning runner uses a disposable Web Worker, a hard timeout and capped output. It is not a production security boundary for hostile code.
+- Local verification limitation: a clone attempt failed because the environment could not resolve github.com; current verification claims refer to Actions, not local execution.
+
+Next priority: continue the documented source-to-block audit in small batches while preserving curriculum order and the review editorial status. Then tackle app-wide localization and the missing PWA implementation. See SESSION_HANDOFF.md for the exact branch/merge/CI checkpoint.
