@@ -1,9 +1,9 @@
 import type { LessonContentInput, LessonLoader, LessonManifest, LessonSource } from './types';
 
 /**
- * Registry of lessons that render from an external/static HTML file (served
- * from /public/lessons/) instead of their inline `content` field. Each entry
- * maps a lesson ID to its renderable source.
+ * Legacy registry for lessons that have not yet been migrated from standalone
+ * HTML. Non-empty bundled lesson content takes precedence so migrated lessons
+ * render inside the app instead of in an iframe.
  */
 const manifestRegistry: Record<string, LessonManifest> = {
   'sh-001': {
@@ -113,11 +113,15 @@ function getLessonManifest(lessonId: string): LessonManifest | undefined {
 }
 
 /**
- * Default loader: prefers a manifest-registered external source, and
- * falls back to rendering the lesson's own inline HTML content.
+ * Default loader: prefer authored content embedded in the lesson catalog.
+ * Fall back to the legacy iframe only while that lesson has no inline body.
  */
 export const defaultLessonLoader: LessonLoader = {
   resolve(lesson: LessonContentInput): LessonSource {
+    if (lesson.content.trim().length > 0) {
+      return { type: 'inline-html', html: lesson.content };
+    }
+
     const manifest = getLessonManifest(lesson.id);
     if (manifest) {
       return manifest.source;

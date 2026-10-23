@@ -3,19 +3,21 @@ import { BookOpen, FolderOpen, StickyNote, ChevronRight } from 'lucide-react';
 import type { SearchResult, SearchResultType } from '../types';
 import { Highlight } from './Highlight';
 import { Card } from '@/components/ui';
+import { translate, type Locale, type TranslationKey } from '@/features/localization';
 
 interface SearchResultsProps {
   results: readonly SearchResult[];
   terms: readonly string[];
+  locale?: Locale;
 }
 
-const TYPE_META: Record<SearchResultType, { label: string; icon: typeof BookOpen; badgeClass: string }> = {
-  lesson: { label: 'Lesson', icon: BookOpen, badgeClass: 'bg-primary-100 text-primary-700' },
-  course: { label: 'Course', icon: FolderOpen, badgeClass: 'bg-secondary-100 text-secondary-700' },
-  note: { label: 'Note', icon: StickyNote, badgeClass: 'bg-accent-100 text-accent-700' },
+const TYPE_META: Record<SearchResultType, { labelKey: TranslationKey; icon: typeof BookOpen; badgeClass: string }> = {
+  lesson: { labelKey: 'lessonType', icon: BookOpen, badgeClass: 'bg-primary-100 text-primary-700' },
+  course: { labelKey: 'courseType', icon: FolderOpen, badgeClass: 'bg-secondary-100 text-secondary-700' },
+  note: { labelKey: 'noteType', icon: StickyNote, badgeClass: 'bg-accent-100 text-accent-700' },
 };
 
-export function SearchResults({ results, terms }: SearchResultsProps) {
+export function SearchResults({ results, terms, locale = 'en' }: SearchResultsProps) {
   return (
     <div className="space-y-2">
       {results.map((result) => {
@@ -31,7 +33,7 @@ export function SearchResults({ results, terms }: SearchResultsProps) {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${meta.badgeClass}`}>
-                    {meta.label}
+                    {translate(locale, meta.labelKey)}
                   </span>
                   <h3 className="truncate text-sm font-semibold text-neutral-900 group-hover:text-primary-700">
                     <Highlight text={result.title} terms={terms} />

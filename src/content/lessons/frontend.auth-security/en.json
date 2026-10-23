@@ -1,0 +1,206 @@
+{
+  "id": "frontend.auth-security",
+  "locale": "en",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-23",
+  "moduleId": "supplement-auth",
+  "supplementaryTrackId": "supplement-auth",
+  "order": 1,
+  "title": "Authentication and Authorization for Frontend Developers",
+  "description": "Understand sessions, browser credential risks, OAuth/OIDC roles, and why API authorization cannot live only in the UI.",
+  "estimatedMinutes": 75,
+  "difficulty": "advanced",
+  "prerequisites": [
+    "react.router-spa",
+    "react.api-custom-hooks"
+  ],
+  "learningOutcomes": [
+    "Distinguish authentication from authorization.",
+    "Explain session, cookie and token risks relevant to browser applications.",
+    "Describe OAuth authorization-code + PKCE and the role of OpenID Connect.",
+    "Compare SPA token handling with a BFF architecture.",
+    "Build a test matrix that exercises server-side authorization rather than only route guards."
+  ],
+  "tags": [
+    "security",
+    "authentication",
+    "authorization",
+    "oauth",
+    "oidc",
+    "sessions"
+  ],
+  "blocks": [
+    {
+      "id": "auth-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Authentication, authorization, and the frontend trust boundary"
+    },
+    {
+      "id": "auth-model",
+      "type": "paragraph",
+      "text": "Authentication answers 'who are you?'; authorization answers 'may this identity perform this action on this resource?'. A frontend can guide navigation and hide unavailable actions, but client code is controlled by the user. The API/data layer must enforce access on every protected operation. A route guard improves user experience; it is not a security boundary."
+    },
+    {
+      "id": "auth-callout",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Never trust a client-only permission check",
+      "text": "A user can alter JavaScript, replay a request or call an endpoint outside the UI. Do not ship privileged API keys in a browser bundle. Enforce authorization at the trusted server/data layer and test direct requests as well as the normal screen flow."
+    },
+    {
+      "id": "auth-sessions-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Sessions, cookies, and browser threats"
+    },
+    {
+      "id": "auth-sessions",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "A server-backed session typically keeps session state on the server and gives the browser an opaque session identifier; the identifier is a credential and must be protected.",
+        "Cookie attributes such as Secure, HttpOnly and SameSite reduce specific risks, but they are not a complete security design. Cookie-authenticated state-changing requests need an explicit CSRF strategy appropriate to the application.",
+        "Tokens are credentials, not just strings to decode. A JWT payload is commonly readable by its holder; decoding the payload does not verify the signature or decide whether the token should be trusted.",
+        "Any credential readable by frontend JavaScript can be exposed by an XSS compromise. Avoid universal 'always use localStorage' or 'cookies solve everything' rules; make the storage choice against the threat model, framework and server architecture.",
+        "Logout, expiration, rotation/revocation, session fixation, XSS and CSRF belong in the threat model—not only login-form validation."
+      ]
+    },
+    {
+      "id": "auth-flow",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Browser / SPA -> Authorization Server\n  1. Start authorization-code flow with PKCE\n  2. User authenticates and grants access\n  3. Client exchanges code + PKCE verifier\n  4. Client uses access token for API requests\nAPI -> validates credential + permissions -> returns data\n\nOIDC adds an identity layer on top of OAuth 2.0.\nAn ID token and an access token serve different purposes.",
+      "steps": [
+        {
+          "title": "Separate the roles in the flow",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The authorization server authenticates the user and issues protocol responses; the API/resource server still validates the credential and enforces authorization. PKCE binds code redemption to the client instance that initiated the flow."
+        },
+        {
+          "title": "Do not confuse OAuth with sign-in identity",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "OAuth 2.0 is an authorization framework. OpenID Connect adds an authentication/identity layer. An ID token describes authentication to the client; an access token is presented to a resource server according to that API's token contract."
+        }
+      ]
+    },
+    {
+      "id": "auth-options-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "SPA token handling versus a Backend-for-Frontend (BFF)"
+    },
+    {
+      "id": "auth-options",
+      "type": "paragraph",
+      "text": "A pure SPA can use an authorization-code flow with PKCE, following the identity provider's current guidance and carefully handling token lifetime, storage and refresh. A BFF keeps OAuth tokens on the server and exposes a browser session to the SPA, reducing direct token exposure to JavaScript but adding server/session and CSRF responsibilities. This is an architecture choice, not a universal winner; choose it based on sensitivity, deployment constraints, identity-provider support and team operations."
+    },
+    {
+      "id": "auth-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A React route hides an admin page from non-admin users. What still must happen before an admin API returns protected data?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Nothing: a hidden route makes the endpoint private",
+          "correct": false,
+          "feedback": "Users can call an API directly, regardless of the rendered route."
+        },
+        {
+          "id": "b",
+          "text": "The trusted API/data layer validates the credential and authorizes the requested operation",
+          "correct": true,
+          "feedback": "Authorization is enforced at the resource boundary; the UI guard only improves the navigation experience."
+        },
+        {
+          "id": "c",
+          "text": "The frontend decodes a JWT and trusts its payload",
+          "correct": false,
+          "feedback": "Decoding alone does not verify token authenticity, expiry, audience or the API's authorization rules."
+        },
+        {
+          "id": "d",
+          "text": "The page must use a longer random URL",
+          "correct": false,
+          "feedback": "An obscure URL is not access control."
+        }
+      ],
+      "explanation": "Keep client navigation checks and server authorization distinct."
+    },
+    {
+      "id": "auth-practice",
+      "type": "codingExercise",
+      "title": "Threat-model a protected frontend feature",
+      "language": "text",
+      "context": "Review a hypothetical dashboard using sign-in, browser credentials and protected API operations.",
+      "instructions": [
+        "List which component authenticates identity and which layer authorizes access to data.",
+        "Compare an SPA code-flow-with-PKCE design and a BFF session design for the feature.",
+        "Identify XSS and CSRF risks for the selected credential transport/storage model.",
+        "Specify session/token expiry and logout behavior and what the API does after access is revoked.",
+        "Write tests for unauthenticated, authenticated-but-forbidden and authorized requests, including direct API calls."
+      ],
+      "requirements": [
+        "Authentication and authorization are explicitly distinguished.",
+        "No privileged secret is sent to browser JavaScript.",
+        "The selected storage/transport model has a threat-model rationale.",
+        "Server/data-layer authorization is required regardless of UI guards.",
+        "Tests include direct unauthorized requests and session/credential lifecycle cases."
+      ],
+      "starterCode": "Feature: admin dashboard\n\nIdentity provider:\nCredential transport/storage:\nServer/API authorization rules:\nXSS/CSRF mitigations:\nExpiry / refresh / logout:\n\nTest cases:\n- no session:\n- authenticated but forbidden:\n- authorized:\n- direct API request bypassing UI:",
+      "hints": [
+        "A route guard is UX, not access control.",
+        "PKCE protects authorization-code redemption; it does not remove the need to protect tokens and API resources.",
+        "HttpOnly cookies reduce JavaScript access but do not automatically prevent CSRF."
+      ],
+      "successCriteria": [
+        "Defines the roles of identity provider, client and API.",
+        "Explains chosen token/session architecture and threats.",
+        "Includes trusted authorization at the data boundary.",
+        "Includes lifecycle and direct-request tests."
+      ]
+    },
+    {
+      "id": "auth-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Authentication proves identity; authorization evaluates a specific operation against policy.",
+        "Frontend guards are not security boundaries—validate credentials and permissions at the API/data layer.",
+        "Cookie and token designs each have trade-offs; plan for XSS, CSRF, expiry, logout and revocation.",
+        "OAuth 2.0 authorization and OpenID Connect identity are related but distinct."
+      ]
+    },
+    {
+      "id": "auth-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "OWASP Authentication Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "OWASP Session Management Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "OAuth 2.0 Security Best Current Practice (RFC 9700)",
+          "url": "https://datatracker.ietf.org/doc/html/rfc9700",
+          "kind": "standard"
+        },
+        {
+          "title": "OpenID Connect Core 1.0",
+          "url": "https://openid.net/specs/openid-connect-core-1_0.html",
+          "kind": "standard"
+        }
+      ]
+    }
+  ]
+}

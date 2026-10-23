@@ -9,10 +9,12 @@ import { Card, Badge, ProgressBar } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { EmptyState } from '@/components/feedback';
 import { ROUTE_PATHS, lessonPath } from '@/app/router/routes';
-import { DIFFICULTY_COLORS, DIFFICULTY_LABELS } from '@/lib/constants';
+import { DIFFICULTY_COLORS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import { formatLessonCount, getLocalizedCategoryCopy, getLocalizedDifficulty, getLocalizedLearningPathCopy, translate, useUiLocale } from '@/features/localization';
 
 export default function LearningPathDetailPage() {
+  const locale = useUiLocale();
   const { pathId } = useParams<{ pathId: string }>();
 
   const path = useMemo(() => (pathId ? getLearningPathById(pathId) : undefined), [pathId]);
@@ -34,13 +36,13 @@ export default function LearningPathDetailPage() {
   if (!path) {
     return (
       <div className="space-y-6">
-        <Breadcrumbs items={[{ label: 'Learning Paths', path: ROUTE_PATHS.LEARNING_PATHS }, { label: 'Path not found' }]} />
+        <Breadcrumbs items={[{ label: translate(locale, 'learningPaths'), path: ROUTE_PATHS.LEARNING_PATHS }, { label: translate(locale, 'pathNotFoundTitle') }]} />
         <EmptyState
-          title="Learning path not found"
-          message="The path you're looking for doesn't exist."
+          title={translate(locale, 'pathNotFoundTitle')}
+          message={translate(locale, 'pathNotFoundMessage')}
           action={
             <Link to={ROUTE_PATHS.LEARNING_PATHS} className="text-sm font-medium text-primary-600 hover:text-primary-700">
-              Browse all paths
+              {translate(locale, 'browseAllPaths')}
             </Link>
           }
         />
@@ -48,30 +50,31 @@ export default function LearningPathDetailPage() {
     );
   }
 
+  const pathCopy = getLocalizedLearningPathCopy(locale, path.id, path.title, path.description);
   const isComplete = stats.total > 0 && stats.completed === stats.total;
 
   return (
     <div className="space-y-6">
       <Breadcrumbs
         items={[
-          { label: 'Learning Paths', path: ROUTE_PATHS.LEARNING_PATHS },
-          { label: path.title },
+          { label: translate(locale, 'learningPaths'), path: ROUTE_PATHS.LEARNING_PATHS },
+          { label: pathCopy.title },
         ]}
       />
 
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-semibold text-neutral-900">{path.title}</h1>
+          <h1 className="text-2xl font-semibold text-neutral-900">{pathCopy.title}</h1>
           <span className={cn('inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium', DIFFICULTY_COLORS[path.level] ?? DIFFICULTY_COLORS.beginner)}>
-            {DIFFICULTY_LABELS[path.level] ?? path.level}
+            {getLocalizedDifficulty(locale, path.level)}
           </span>
         </div>
-        <p className="text-neutral-600">{path.description}</p>
+        <p className="text-neutral-600">{pathCopy.description}</p>
         <div className="flex items-center gap-3 pt-1">
-          <Badge variant="primary">{path.steps.length} lessons</Badge>
+          <Badge variant="primary">{formatLessonCount(locale, path.steps.length)}</Badge>
           <span className="flex items-center gap-1 text-xs text-neutral-500">
             <Clock className="h-3.5 w-3.5" />
-            {path.estimatedHours}h estimated
+            {translate(locale, 'hourEstimated', { hours: path.estimatedHours })}
           </span>
         </div>
       </div>
@@ -79,7 +82,7 @@ export default function LearningPathDetailPage() {
       {stats.total > 0 && (
         <ProgressBar
           value={stats.percent}
-          label={`${stats.completed} of ${stats.total} lessons completed`}
+          label={translate(locale, 'categoryProgress', { completed: stats.completed, total: stats.total })}
         />
       )}
 
@@ -87,7 +90,7 @@ export default function LearningPathDetailPage() {
         <Link to={lessonPath(nextLesson.id)}>
           <Card interactive className="group flex items-center justify-between p-4 bg-primary-50/50 border-primary-200">
             <div>
-              <p className="text-xs font-medium text-primary-600">Continue learning</p>
+              <p className="text-xs font-medium text-primary-600">{translate(locale, 'continueLearning')}</p>
               <p className="mt-0.5 text-sm font-semibold text-neutral-900">{nextLesson.title}</p>
             </div>
             <ArrowRight className="h-5 w-5 text-primary-600 transition-transform group-hover:translate-x-0.5" />
@@ -100,7 +103,7 @@ export default function LearningPathDetailPage() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-success-100 text-success-700">
             <Check className="h-5 w-5" />
           </div>
-          <p className="text-sm font-medium text-success-800">You've completed this learning path! Pick a new path to keep growing.</p>
+          <p className="text-sm font-medium text-success-800">{translate(locale, 'pathCompletedMessage')}</p>
         </Card>
       )}
 
@@ -140,19 +143,19 @@ export default function LearningPathDetailPage() {
                     {category && (
                       <span className="flex items-center gap-1 text-xs text-neutral-500">
                         <BookOpen className="h-3 w-3" />
-                        {category.name}
+                        {getLocalizedCategoryCopy(locale, category.id, category.name, category.description).name}
                       </span>
                     )}
                     <span className={cn('inline-flex rounded-full px-2 py-0.5 text-xs font-medium', DIFFICULTY_COLORS[lesson.difficulty] ?? DIFFICULTY_COLORS.beginner)}>
-                      {DIFFICULTY_LABELS[lesson.difficulty] ?? lesson.difficulty}
+                      {getLocalizedDifficulty(locale, lesson.difficulty)}
                     </span>
                     <span className="flex items-center gap-1 text-xs text-neutral-500">
                       <Clock className="h-3 w-3" />
-                      {lesson.durationMinutes}m
+                      {lesson.durationMinutes}{translate(locale, 'minuteUnit')}
                     </span>
                     {status !== 'not-started' && (
                       <Badge variant={STATUS_BADGE_VARIANTS[status]}>
-                        {status === 'completed' ? 'Completed' : 'In progress'}
+                        {translate(locale, status === 'completed' ? 'completed' : 'inProgress')}
                       </Badge>
                     )}
                   </div>
@@ -173,14 +176,14 @@ export default function LearningPathDetailPage() {
           className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
         >
           <ArrowLeft className="h-4 w-4" />
-          All paths
+          {translate(locale, 'allPaths')}
         </Link>
         {nextLesson && !isComplete && (
           <Link
             to={lessonPath(nextLesson.id)}
             className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
           >
-            Continue with {nextLesson.title}
+            {translate(locale, 'continueWith', { title: nextLesson.title })}
             <ArrowRight className="h-4 w-4" />
           </Link>
         )}

@@ -1,0 +1,206 @@
+{
+  "id": "ui.bootstrap-mui",
+  "locale": "ru",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-23",
+  "moduleId": "supplement-ui-ecosystem",
+  "supplementaryTrackId": "supplement-ui-ecosystem",
+  "order": 1,
+  "title": "UI-библиотеки: Bootstrap Grid, Material UI и выбор build-versus-buy",
+  "description": "Сравни CSS-фреймворк с React-библиотекой компонентов и выбирай по ограничениям продукта, а не популярности.",
+  "estimatedMinutes": 75,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "html.document-structure",
+    "css.flexbox-grid-responsive",
+    "react.components-jsx-state"
+  ],
+  "learningOutcomes": [
+    "Объяснять разницу CSS-first фреймворка и React-библиотеки компонентов.",
+    "Использовать модель container/row/column и breakpoints Bootstrap.",
+    "Настраивать theme React-библиотеки через поддерживаемый API.",
+    "Оценивать версии, bundle, доступность и стоимость поддержки."
+  ],
+  "tags": [
+    "bootstrap",
+    "mui",
+    "ui-library",
+    "design-system",
+    "responsive"
+  ],
+  "blocks": [
+    {
+      "id": "uilib-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Bootstrap и Material UI решают пересекающиеся, но разные задачи"
+    },
+    {
+      "id": "uilib-model",
+      "type": "paragraph",
+      "text": "Bootstrap — CSS-first фреймворк с responsive grid, стилями компонентов и utilities; Material UI (MUI) предоставляет React-компоненты, API тем и поведение компонентов. Обе библиотеки ускоряют разработку, но различаются стилями, точками расширения, влиянием на bundle, доступностью и стоимостью миграции версий. Не считай их взаимозаменяемыми и не смешивай их соглашения без решения на уровне design system."
+    },
+    {
+      "id": "uilib-bootstrap",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<div class=\"container\">\n  <div class=\"row g-3\">\n    <div class=\"col-12 col-md-8\">Main content</div>\n    <div class=\"col-12 col-md-4\">Sidebar</div>\n  </div>\n</div>",
+      "steps": [
+        {
+          "title": "Соблюдай структуру container → row → column",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Grid Bootstrap предполагает container, row и columns. Responsive-классы описывают ширину контента на разных breakpoints; это не произвольные ширины для любых элементов."
+        },
+        {
+          "title": "Строй mobile-first layout",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "col-12 складывает содержимое по умолчанию, а col-md-* раскладывает его по колонкам начиная с medium breakpoint. Сверь точные breakpoints с версией Bootstrap проекта."
+        }
+      ]
+    },
+    {
+      "id": "uilib-mui",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import Button from '@mui/material/Button';\nimport { ThemeProvider, createTheme } from '@mui/material/styles';\n\nconst theme = createTheme({\n  palette: {\n    primary: { main: '#3451b2' }\n  }\n});\n\nfunction App() {\n  return (\n    <ThemeProvider theme={theme}>\n      <Button variant=\"contained\" color=\"primary\">Save</Button>\n    </ThemeProvider>\n  );\n}",
+      "steps": [
+        {
+          "title": "Используй публичный API библиотеки",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Импортируй компоненты из документированных entry points. Сверяй установку, peer dependencies и стиль импортов с конкретной major-версией."
+        },
+        {
+          "title": "Централизуй брендовые решения в theme",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "explanation": "Theme централизует значения дизайна для компонентов. Но это не означает, что доступность и поведение каждого компонента автоматически верны во всех сценариях."
+        },
+        {
+          "title": "Выбирай варианты по назначению",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "explanation": "Contained primary button подчёркивает главное действие, но destructive, secondary и навигационные действия могут требовать другого визуального и семантического решения."
+        }
+      ]
+    },
+    {
+      "id": "uilib-decisions",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Bootstrap может подойти responsive layout, построенному вокруг контента, utility-классов и CSS grid без отдельного React API для каждого контрола.",
+        "MUI может подойти React-приложениям, которым нужны готовое поведение компонентов, темы и кастомизация через props/theme API.",
+        "До внедрения оцени bundle, владельца CSS, темы, клавиатуру/фокус, контраст, локализацию и breaking changes.",
+        "Не копируй старые команды установки без сверки версий; версии зависимостей в legacy MUI source могут отличаться от приложения.",
+        "По возможности используй единый слой tokens/theme. Смешение независимых библиотек часто дублирует reset, typography, spacing и focus behavior."
+      ]
+    },
+    {
+      "id": "uilib-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что полезнее всего сделать перед копированием инструкции установки Material UI из старого урока?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Предположить, что у последней версии те же package names и API",
+          "correct": false,
+          "feedback": "Major-версии могут менять пакеты, peer dependencies и API."
+        },
+        {
+          "id": "b",
+          "text": "Проверить установленные версии React/MUI и открыть официальную документацию соответствующей версии",
+          "correct": true,
+          "feedback": "Пример должен соответствовать реальным зависимостям и conventions проекта."
+        },
+        {
+          "id": "c",
+          "text": "Одновременно установить все библиотеки компонентов и сравнить их в production",
+          "correct": false,
+          "feedback": "Добавление библиотек увеличивает зависимости и bundle до того, как потребность доказана."
+        },
+        {
+          "id": "d",
+          "text": "Игнорировать доступность, потому что библиотека автоматически решает любой контекст приложения",
+          "correct": false,
+          "feedback": "Библиотеки помогают с типовыми паттернами, но labels, focus, contrast и контекст страницы всё равно нужно проверять."
+        }
+      ],
+      "explanation": "Библиотека компонентов экономит повторную работу, но не отменяет выравнивание версий и ответственность за дизайн приложения."
+    },
+    {
+      "id": "uilib-practice",
+      "type": "codingExercise",
+      "title": "Выбери и настрой UI-библиотеку для dashboard",
+      "language": "text",
+      "context": "Прими обоснованное решение и определи, как библиотека впишется в существующую design system.",
+      "instructions": [
+        "Сравни Bootstrap и MUI по layout, поведению компонентов, theming, bundle, accessibility, customization и upgrade cost.",
+        "Выбери библиотеку для небольшой responsive dashboard и объясни ограничения, повлиявшие на решение.",
+        "Набросай, как брендовые цвета/spacing и focus styles останутся согласованными между компонентами.",
+        "Сверь установку и API компонентов с официальной документацией точных версий.",
+        "Перечисли проверки клавиатуры, адаптивности, контраста и локализации после установки."
+      ],
+      "requirements": [
+        "Выбор основан на ограничениях проекта, а не только популярности.",
+        "Зависимости и версии указаны явно.",
+        "Понятно, где находится владелец tokens/theme.",
+        "Доступность предусмотрена как требование к проверке, а не как автоматическая гарантия библиотеки.",
+        "Компромиссы обновления/миграции задокументированы."
+      ],
+      "starterCode": "Потребности: responsive dashboard, формы, таблицы, keyboard support\n\nВарианты: Bootstrap / Material UI\n\nСравнение:\n- модель layout:\n- API компонентов:\n- theme/tokens:\n- bundle/dependencies:\n- проверки доступности:\n- costs кастомизации и обновлений:\n\nРешение и обоснование:",
+      "hints": [
+        "Bootstrap акцентирует layout utilities и CSS-классы; MUI — React-компоненты и theme API.",
+        "Сверяй примеры с установленной major-версией.",
+        "Выбери единый источник tokens и избегай конкурирующих reset/theme слоёв."
+      ],
+      "successCriteria": [
+        "Выбор библиотеки обоснован.",
+        "Перечислены проверки версии/документации.",
+        "Есть план согласованности tokens/theme.",
+        "Включена остаточная проверка accessibility/responsive."
+      ]
+    },
+    {
+      "id": "uilib-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Bootstrap акцентирует CSS grid/utilities и responsive-классы; MUI — React-компоненты и theme API.",
+        "Выбирай по layout, поведению компонентов, доступности, кастомизации, bundle и цене обновления.",
+        "Библиотеки ускоряют работу, но не отменяют дизайн-систему, проверку версий и доступности."
+      ]
+    },
+    {
+      "id": "uilib-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "Bootstrap: Grid system",
+          "url": "https://getbootstrap.com/docs/5.3/layout/grid/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Bootstrap: Breakpoints",
+          "url": "https://getbootstrap.com/docs/5.3/layout/breakpoints/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MUI: Installation",
+          "url": "https://mui.com/material-ui/getting-started/installation/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MUI: Theming",
+          "url": "https://mui.com/material-ui/customization/theming/",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

@@ -1,25 +1,25 @@
 # Interactive Guides — Project Documentation
 
-Interactive Guides is evolving from a catalog of standalone HTML reference pages into a bilingual, curriculum-driven learning application.
+Interactive Guides is evolving from a catalog of standalone HTML reference pages into a bilingual, curriculum-driven learning application. Structured lessons are embedded in the app; legacy HTML remains as source material during migration.
 
-This folder is the handoff point for future work. Read documents in this order:
+Read these documents in order:
 
-1. [Current-state audit](./CURRENT_STATE.md) — what exists in the repository today and the verified technical constraints.
-2. [Product requirements](./PRODUCT_REQUIREMENTS.md) — target users, educational outcomes, experience, and acceptance criteria.
-3. [Architecture](./ARCHITECTURE.md) — proposed application/content architecture and important boundaries.
-4. [Curriculum and lesson model](./CURRICULUM_AND_CONTENT.md) — syllabus mapping, lesson structure, bilingual content, and quality standards.
-5. [Persistence and Supabase](./PERSISTENCE_AND_SUPABASE.md) — local-first storage, account model, data schema, synchronization, and security.
-6. [PWA and mobile](./PWA_AND_MOBILE.md) — installability, offline behavior, caching, and responsive UX.
-7. [Roadmap](./ROADMAP.md) — incremental delivery plan with acceptance criteria and commit messages.
-8. [Decision log](./DECISIONS.md) — important decisions and the rationale behind them.
-9. [Session handoff](./SESSION_HANDOFF.md) — latest verified checkpoint, open questions, and exact next action.
+1. [Current-state audit](./CURRENT_STATE.md) — implementation status and verified constraints.
+2. [Curriculum and lesson model](./CURRICULUM_AND_CONTENT.md) — canonical 24-week sequence and content expectations.
+3. [Full source content audit](./FULL_SOURCE_CONTENT_AUDIT.md) — Notion/HTML inventory, source-to-lesson mapping, coverage depth and open gaps.
+4. [Structured content audit](./CONTENT_AUDIT.md) — registered lesson catalog and schema guarantees versus editorial limits.
+5. [Legacy HTML inventory](./LEGACY_CONTENT_INVENTORY.md) — all original HTML source files and migration notes.
+6. [Week 14–15 source parity review](./CONTENT_PARITY_REVIEW_WEEK14-15.md) — focused React forms/shared-state review.
+7. [Product requirements](./PRODUCT_REQUIREMENTS.md), [architecture](./ARCHITECTURE.md), [persistence](./PERSISTENCE_AND_SUPABASE.md), [PWA/mobile](./PWA_AND_MOBILE.md), and [roadmap](./ROADMAP.md).
+8. [Session handoff](./SESSION_HANDOFF.md) — latest verified branch/CI checkpoint and next action.
 
 ## Working rules
 
-- Inspect the current implementation before replacing it. Preserve useful behavior and content unless the migration explicitly supersedes it.
-- Do not treat a lesson as mastered merely because it was opened or marked complete. Knowledge checks and coding practice need independent outcomes.
-- Course content must be technically accurate, deep but understandable, and available in both English and Russian.
-- Keep the UI cohesive, accessible, responsive, and installable as a PWA.
-- Keep local/offline learning viable. Accounts and cloud synchronization enhance the experience rather than becoming a prerequisite for reading public lessons.
-- Use small, reversible changes, validate them with CI-quality checks, and write focused commit messages.
-- This document set is the working plan, not a claim that planned features have already been implemented.
+- Preserve useful existing behavior and course content while migrating it.
+- Teach concepts with mechanisms, worked examples, mistakes, edge cases, practice and actionable feedback.
+- Keep English and Russian lessons structurally and pedagogically equivalent.
+- Keep supplementary topics outside the original bootcamp sequence.
+- Do not treat registration, schema validation or CI success as proof of full source parity or editorial approval.
+- Preserve legacy sources until source-to-block mapping and translation review are complete.
+- Update the audit and handoff at every material implementation/CI checkpoint.
+undefined

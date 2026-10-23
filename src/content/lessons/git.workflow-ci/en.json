@@ -1,0 +1,540 @@
+{
+  "id": "git.workflow-ci",
+  "locale": "en",
+  "version": 3,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-23",
+  "moduleId": "month-5-week-20",
+  "week": 20,
+  "order": 1,
+  "title": "Git Branching, Pull Requests, Code Review, and CI",
+  "description": "Work safely in feature branches, keep pull requests reviewable, resolve conflicts deliberately, and use continuous integration as a repeatable quality gate.",
+  "estimatedMinutes": 110,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "git.fundamentals",
+    "tooling.node-npm-vite"
+  ],
+  "learningOutcomes": [
+    "Explain why feature branches separate work before integration.",
+    "Create and publish a focused branch and keep it synchronized with the base branch.",
+    "Prepare a reviewable pull request with context, testing evidence, and a small logical diff.",
+    "Review code for correctness, readability, accessibility, testing, and regressions.",
+    "Resolve merge conflicts deliberately and understand merge versus rebase at a high level.",
+    "Explain how CI runs automated checks and why a green check is not a substitute for review.",
+    "Compare common branch strategies and apply Semantic Versioning to compatible and breaking changes."
+  ],
+  "tags": [
+    "git",
+    "branching",
+    "pull-request",
+    "code-review",
+    "merge-conflict",
+    "ci",
+    "github-actions"
+  ],
+  "blocks": [
+    {
+      "id": "branching-purpose",
+      "type": "heading",
+      "level": 2,
+      "text": "Branches let work evolve before integration"
+    },
+    {
+      "id": "branching-purpose-body",
+      "type": "paragraph",
+      "text": "A branch is a movable reference to a commit, which makes it possible to develop an isolated change without immediately altering the shared base branch. A feature branch should represent a coherent unit of work: a fix, feature, migration, or content update. Branches are lightweight, but unintegrated branches can drift, so keep the scope understandable and integrate when the change is ready."
+    },
+    {
+      "id": "branch-workflow",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "git switch main\ngit pull --ff-only origin main\ngit switch -c feat/search-empty-state\n# make and test the change\ngit status\ngit add src/features/search\n git commit -m \"fix(search): handle empty results\"\ngit push -u origin feat/search-empty-state",
+      "steps": [
+        {
+          "title": "Start from an up-to-date base",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "Switch to the intended base and update it. --ff-only prevents an accidental merge commit when the local branch diverges; inspect the situation if it fails."
+        },
+        {
+          "title": "Create an isolated branch",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "The branch name communicates both the type and purpose of the work. Keep names concise and scoped."
+        },
+        {
+          "title": "Inspect and record a focused change",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "Check the working tree, stage intended paths, and create a message describing one logical change. Before committing, inspect the staged diff if more than one task is present."
+        },
+        {
+          "title": "Publish the branch for collaboration",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "The first push publishes the commits to origin and sets upstream tracking for future updates."
+        }
+      ]
+    },
+    {
+      "id": "pull-request",
+      "type": "heading",
+      "level": 2,
+      "text": "A pull request is a review conversation"
+    },
+    {
+      "id": "pull-request-body",
+      "type": "paragraph",
+      "text": "A useful pull request explains why the change is needed, what changed, how it was tested, and what reviewers should pay attention to. Keep the diff narrow enough to understand. Separate unrelated formatting, dependency updates, and behavior changes where practical. Screenshots or short recordings help when the change affects UI. If a PR is still experimental, mark it draft so others do not mistake it for ready-to-merge work."
+    },
+    {
+      "id": "pr-template",
+      "type": "code",
+      "language": "markdown",
+      "caption": "A concise PR template",
+      "code": "## Why\nWhat user or maintenance problem does this solve?\n\n## What changed\n- Main behavior or design change\n\n## Validation\n- [ ] Lint / typecheck / tests / build\n- [ ] Manual checks and screenshots if relevant\n\n## Risks or follow-up\nAnything reviewers should know."
+    },
+    {
+      "id": "code-review",
+      "type": "heading",
+      "level": 2,
+      "text": "Review for behavior, not personal style"
+    },
+    {
+      "id": "code-review-body",
+      "type": "paragraph",
+      "text": "A review should look for incorrect behavior, edge cases, unsafe data handling, inaccessible interactions, missing tests, confusing abstractions, and maintainability risks. Distinguish must-fix defects from optional suggestions and explain the impact. Use the project's formatter and lint rules to resolve style debates mechanically. The author remains responsible for understanding the final code; a reviewer should not approve code they do not understand just to move the queue along."
+    },
+    {
+      "id": "merge-rebase",
+      "type": "heading",
+      "level": 2,
+      "text": "Merge and rebase: same goal, different history shape"
+    },
+    {
+      "id": "merge-rebase-body",
+      "type": "paragraph",
+      "text": "Merge combines histories and may create a merge commit when branches have diverged. Rebase replays commits on top of a new base, producing a more linear history but rewriting commit IDs. Do not rebase shared commits that teammates may already depend on unless the team explicitly uses that workflow. Choose the project convention and never force-push a shared branch casually; if a force push is required after rebasing your own branch, prefer the safer lease check."
+    },
+    {
+      "id": "conflicts",
+      "type": "heading",
+      "level": 2,
+      "text": "Resolve merge conflicts by understanding both changes"
+    },
+    {
+      "id": "conflicts-body",
+      "type": "paragraph",
+      "text": "A conflict means Git cannot decide how to combine overlapping edits automatically. Open the conflicted files, understand the intention of both sides, edit the result, remove conflict markers, then run status and inspect the diff. Run relevant tests before continuing. Do not resolve a conflict by blindly choosing ours or theirs for an entire file if doing so would discard legitimate work."
+    },
+    {
+      "id": "ci",
+      "type": "heading",
+      "level": 2,
+      "text": "CI repeats the project checks for every change"
+    },
+    {
+      "id": "ci-body",
+      "type": "paragraph",
+      "text": "Continuous integration runs automated checks in a clean, repeatable environment, commonly on every pull request and push. A frontend pipeline may install dependencies from the lockfile, run linting, type checking, tests, and a production build. A green status means those configured checks passed at the tested commit; it does not prove all requirements are correct, replace manual QA, or validate a different commit pushed afterward. Investigate the actual failing job/log instead of rerunning blindly."
+    },
+    {
+      "id": "ci-example",
+      "type": "code",
+      "language": "yaml",
+      "caption": "A simplified CI job shape",
+      "code": "name: Verify\non: [push, pull_request]\njobs:\n  verify:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 20\n          cache: npm\n      - run: npm ci\n      - run: npm run lint\n      - run: npm run typecheck\n      - run: npm test\n      - run: npm run build"
+    },
+    {
+      "id": "workflow-security",
+      "type": "callout",
+      "tone": "warning",
+      "title": "CI secrets and protected branches need care",
+      "text": "Do not print secret values in workflow logs or expose repository credentials to untrusted pull-request code. Protect important branches with review and required checks. A workflow file itself is code and should be reviewed for permissions, untrusted inputs, and external action versions."
+    },
+    {
+      "id": "git-workflow-quiz-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What makes a pull request easier and safer to review?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A focused diff with context and evidence that relevant checks passed",
+          "correct": true,
+          "feedback": "A narrow, well-explained change gives reviewers a clear scope and a way to verify it."
+        },
+        {
+          "id": "b",
+          "text": "Combining several unrelated tasks into one huge diff",
+          "correct": false,
+          "feedback": "Unrelated changes make it harder to understand scope and catch regressions."
+        },
+        {
+          "id": "c",
+          "text": "Removing tests so the PR has fewer lines",
+          "correct": false,
+          "feedback": "Tests provide evidence about behavior and reduce the risk of regressions."
+        },
+        {
+          "id": "d",
+          "text": "Merging without checking CI because local development worked",
+          "correct": false,
+          "feedback": "The shared CI environment checks the submitted commit under the configured pipeline."
+        }
+      ],
+      "explanation": "A reviewable PR is scoped, explained, and accompanied by evidence of validation."
+    },
+    {
+      "id": "git-workflow-quiz-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "Rebasing rewrites commit IDs because commits are recreated on a different base.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": true,
+          "feedback": "Rebase replays commits, and the rewritten commits have new identities."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": false,
+          "feedback": "Rebase creates new commit objects on top of the target base rather than preserving each original commit identity."
+        }
+      ],
+      "explanation": "Because rebase changes history, coordinate with collaborators and avoid rewriting commits other people already use."
+    },
+    {
+      "id": "git-workflow-quiz-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "What should be part of a responsible pull-request workflow? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Inspect the diff and run relevant checks",
+          "correct": true,
+          "feedback": "The diff and checks provide evidence that the proposed change is intentional and validated."
+        },
+        {
+          "id": "b",
+          "text": "Resolve conflicts by understanding both sides",
+          "correct": true,
+          "feedback": "A conflict represents competing edits; understand the intended combined result before proceeding."
+        },
+        {
+          "id": "c",
+          "text": "Expose secrets to pull-request code so tests can access everything",
+          "correct": false,
+          "feedback": "Untrusted code must not receive secrets unnecessarily."
+        },
+        {
+          "id": "d",
+          "text": "Treat CI success as proof that no manual review is needed",
+          "correct": false,
+          "feedback": "CI covers configured checks but does not replace code review or all manual QA."
+        }
+      ],
+      "explanation": "Safe collaboration combines focused changes, review, tests, explicit conflict resolution, and protected credentials."
+    },
+    {
+      "id": "git-workflow-practice",
+      "type": "codingExercise",
+      "title": "Prepare and review a feature pull request",
+      "language": "bash",
+      "context": "Use a personal or practice repository. The lesson editor stores your notes but does not execute Git commands.",
+      "instructions": [
+        "Update your base branch and create a named feature branch.",
+        "Make a small change with one logical purpose and inspect the diff.",
+        "Run the project's lint, typecheck, tests, and production build commands that are configured.",
+        "Commit with a focused message and push the branch.",
+        "Open a PR with why, what changed, validation evidence, and any known risks.",
+        "Review the PR as a teammate: identify one risk, one improvement, and one positive observation.",
+        "If the branch becomes stale, integrate the base according to the project's merge/rebase convention and resolve conflicts carefully.",
+        "Confirm required CI checks apply to the latest commit before marking the change ready to merge."
+      ],
+      "requirements": [
+        "The branch and commit have a single, explainable purpose.",
+        "The PR scope and testing evidence are documented.",
+        "The diff contains no accidental secrets, generated dependencies, or unrelated edits.",
+        "Relevant configured checks are run and their result is recorded.",
+        "Review feedback is specific, actionable, and respectful.",
+        "The learner can explain how the project handles conflicts and branch updates."
+      ],
+      "starterCode": "# Example checklist (use your repository's actual branch names)\ngit status\ngit switch main\ngit pull --ff-only origin main\ngit switch -c feat/meaningful-change\n\n# make one focused change, then inspect it\ngit diff\ngit status\n\n# stage only intended files and inspect the staged snapshot\ngit add src/\ngit diff --cached\ngit commit -m \"feat: describe one meaningful change\"\ngit push -u origin feat/meaningful-change\n\n# Open a PR, document validation, review CI, and request review.",
+      "hints": [
+        "Keep the PR smaller than a whole week's worth of unrelated work.",
+        "Read the CI failure's exact step and log before changing code.",
+        "When a conflict appears, read both sides and run tests after creating the resolved file."
+      ],
+      "successCriteria": [
+        "The branch starts from the intended base and represents one logical change.",
+        "The PR explains intent, scope, and validation.",
+        "The author reviews the diff and confirms the CI status belongs to the latest commit.",
+        "Review feedback is concrete and tied to behavior or maintainability.",
+        "No secret is added to files or exposed to untrusted CI code."
+      ]
+    },
+    {
+      "id": "git-workflow-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use focused branches to develop coherent changes before integration.",
+        "A useful PR explains why, what changed, how it was validated, and what remains risky.",
+        "Review behavior, edge cases, accessibility, testing, and maintainability rather than personal style preferences.",
+        "Merge and rebase produce different history shapes; coordinate before rewriting shared history.",
+        "CI provides repeatable evidence for a specific commit, not a guarantee that all behavior is correct."
+      ]
+    },
+    {
+      "id": "deep-workflow-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: branch strategy, conflict resolution, and CI as a merge gate"
+    },
+    {
+      "id": "deep-workflow-model",
+      "type": "paragraph",
+      "text": "A branch strategy should make collaboration and release risk manageable, not create ceremony for its own sake. Short-lived feature branches work well when changes are small and continuously integrated; release/hotfix branches can help when a team has explicit release trains. A pull request is a reviewable proposal, while CI is repeatable evidence that selected checks passed on a specific commit—not proof that every product requirement is correct."
+    },
+    {
+      "id": "deep-workflow-pr-checklist",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "State the user problem and observable outcome in the PR description; link the issue or acceptance criteria.",
+        "Keep the diff focused. Remove accidental formatting churn and unrelated cleanup.",
+        "Review your own diff first; inspect deleted code, generated files, secrets and unexpected dependencies.",
+        "Require appropriate automated checks: install, lint, typecheck, unit/component tests and production build where the project supports them.",
+        "Ask reviewers to check correctness, edge cases, accessibility, error/loading/empty states and maintainability—not just formatting.",
+        "Resolve requested changes, rerun checks after the final code update, then merge according to branch protection and release policy."
+      ]
+    },
+    {
+      "id": "deep-workflow-conflict",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "<<<<<<< HEAD\nconst pageTitle = 'Dashboard';\n=======\nconst pageTitle = 'Overview';\n>>>>>>> feature/rename-page",
+      "steps": [
+        {
+          "title": "Recognize conflict markers",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "HEAD and the incoming branch edited overlapping lines that Git could not safely combine automatically. The file is intentionally left in a conflicted state."
+        },
+        {
+          "title": "Choose the intended behavior, not just one side",
+          "lineStart": 2,
+          "lineEnd": 4,
+          "explanation": "Inspect the surrounding code and product requirement. The right result might be either title or a third deliberate value; blindly choosing ours or theirs may discard needed behavior."
+        },
+        {
+          "title": "Verify the resolved file",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Remove all conflict markers, run the relevant tests and inspect the resulting diff. Mark the file resolved by staging it only after reviewing the final content."
+        }
+      ]
+    },
+    {
+      "id": "deep-workflow-callout",
+      "type": "callout",
+      "tone": "warning",
+      "title": "A green CI run is commit-specific",
+      "text": "A check result applies to the commit and workflow that ran it. If you push another commit after a green run, confirm that required checks ran again on the new head. CI does not replace code review, product acceptance, security review, or a runtime test the pipeline does not perform."
+    },
+    {
+      "id": "deep-workflow-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You resolve a merge conflict locally and then make one more edit before pushing. What should you verify before merging the PR?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The previous green CI run is sufficient because the branch already passed once",
+          "correct": false,
+          "feedback": "That run tested an earlier commit. The final edit may introduce a new failure."
+        },
+        {
+          "id": "b",
+          "text": "The conflict markers are gone, the diff is reviewed, and required checks passed for the current head",
+          "correct": true,
+          "feedback": "The final content and the exact commit awaiting merge must both be reviewed and checked."
+        },
+        {
+          "id": "c",
+          "text": "Only the number of changed lines matters",
+          "correct": false,
+          "feedback": "Diff size can aid review, but it does not establish correctness or validate the latest commit."
+        },
+        {
+          "id": "d",
+          "text": "Delete the failing test until merge succeeds",
+          "correct": false,
+          "feedback": "Removing a test to bypass a failure hides evidence rather than addressing the cause."
+        }
+      ],
+      "explanation": "Review the final diff and verify status on the exact commit to be merged."
+    },
+    {
+      "id": "deep-workflow-practice",
+      "type": "codingExercise",
+      "title": "Write a merge-ready PR and resolve a conflict",
+      "language": "text",
+      "context": "Simulate the final steps of a team change: resolve overlapping edits, produce a clear PR, and verify the exact commit.",
+      "instructions": [
+        "Resolve the sample conflict to match the intended product requirement and explain why.",
+        "Write a PR summary with problem, solution, manual verification, tests and known limitations.",
+        "List the CI gates that this project should run before merge.",
+        "Explain why a green run from an earlier commit is not sufficient after the final edit.",
+        "Compare a short-lived feature-branch workflow with trunk-based development and describe one trade-off."
+      ],
+      "requirements": [
+        "No conflict markers remain in the resolved example.",
+        "The solution is justified from requirements rather than chosen by branch name alone.",
+        "The PR summary includes observable behavior and verification details.",
+        "CI, review, and runtime limitations are kept distinct.",
+        "The current commit SHA is considered when checking required CI results."
+      ],
+      "starterCode": "<<<<<<< HEAD\nconst pageTitle = 'Dashboard';\n=======\nconst pageTitle = 'Overview';\n>>>>>>> feature/rename-page\n\nPR title:\nProblem:\nChange:\nVerification:\nKnown limitations:",
+      "hints": [
+        "Conflict markers delimit two incompatible edits; inspect context and acceptance criteria.",
+        "Write verification steps that someone else can repeat.",
+        "Confirm that checks apply to the exact commit at the current branch head."
+      ],
+      "successCriteria": [
+        "Produces a valid resolved snippet without conflict markers.",
+        "Documents problem, change, and repeatable verification.",
+        "Explains that CI must cover the latest commit.",
+        "States a realistic branch-strategy trade-off."
+      ]
+    },
+    {
+      "id": "git-branch-strategies",
+      "type": "heading",
+      "level": 2,
+      "text": "Choose a branch strategy to fit the team's release rhythm"
+    },
+    {
+      "id": "git-branch-strategies-body",
+      "type": "paragraph",
+      "text": "A branch model is a collaboration policy, not a Git feature that every project must adopt identically. Prefer the smallest process that lets a team integrate frequently, protect the default branch, test changes, and release safely. Long-lived branches accumulate divergence and make merges harder; short-lived branches still need tests and review."
+    },
+    {
+      "id": "git-branch-strategy-choices",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Trunk-based development keeps branches very short-lived and integrates to a shared trunk frequently, often with feature flags and strong automated checks.",
+        "GitHub Flow normally uses a protected main branch, a short-lived feature branch, a pull request, checks, review, and merge.",
+        "Git Flow adds long-lived develop and purpose-specific release/hotfix branches. It can help with scheduled or parallel release maintenance, but it introduces more coordination and branch management.",
+        "A release branch stabilizes a candidate for a release; a hotfix branch isolates an urgent correction. Their source, target and back-merge policy should be explicit.",
+        "Choose based on release cadence, team size, support obligations and the maturity of CI. Do not adopt extra branches just because a diagram contains them."
+      ]
+    },
+    {
+      "id": "git-semantic-versioning",
+      "type": "heading",
+      "level": 2,
+      "text": "Semantic Versioning communicates compatibility"
+    },
+    {
+      "id": "git-semantic-versioning-body",
+      "type": "paragraph",
+      "text": "For a public versioned API that follows Semantic Versioning, the release shape is MAJOR.MINOR.PATCH. At version 1.4.2, a backwards-compatible bug fix can become 1.4.3; a backwards-compatible feature can become 1.5.0; and an incompatible public API change generally requires 2.0.0. Pre-1.0.0 software may change its public API more freely under the SemVer specification, so document your project's policy."
+    },
+    {
+      "id": "git-semver-example",
+      "type": "code",
+      "language": "text",
+      "caption": "Illustrative changes from version 1.4.2",
+      "code": "1.4.2 -> 1.4.3  # backwards-compatible bug fix (PATCH)\n1.4.2 -> 1.5.0  # backwards-compatible feature (MINOR)\n1.4.2 -> 2.0.0  # incompatible public API change (MAJOR)"
+    },
+    {
+      "id": "git-semver-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A library is at version 1.4.2 and releases a backwards-incompatible public API change. Under Semantic Versioning, which version is the expected next release?",
+      "options": [
+        {
+          "id": "a",
+          "text": "1.4.3",
+          "correct": false,
+          "feedback": "PATCH is for backwards-compatible bug fixes, not a breaking public API change."
+        },
+        {
+          "id": "b",
+          "text": "1.5.0",
+          "correct": false,
+          "feedback": "MINOR is for backwards-compatible new functionality, not a breaking public API change."
+        },
+        {
+          "id": "c",
+          "text": "2.0.0",
+          "correct": true,
+          "feedback": "A backwards-incompatible public API change increments MAJOR."
+        },
+        {
+          "id": "d",
+          "text": "1.4.2+1",
+          "correct": false,
+          "feedback": "Build metadata does not communicate a breaking compatibility change."
+        }
+      ],
+      "explanation": "For a public stable API, SemVer uses MAJOR for incompatible changes, MINOR for backwards-compatible features, and PATCH for backwards-compatible fixes."
+    },
+    {
+      "id": "deep-workflow-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Branch strategy balances reviewability, integration frequency, and release needs.",
+        "Resolve conflicts based on desired behavior, then review and test the final file.",
+        "Treat CI results as evidence tied to an exact commit, not as blanket proof of product quality.",
+        "Choose GitHub Flow, trunk-based development, or Git Flow based on release cadence and team needs; minimize unnecessary long-lived branches.",
+        "For stable public APIs, SemVer uses MAJOR for breaking changes, MINOR for backwards-compatible features, and PATCH for backwards-compatible fixes."
+      ]
+    },
+    {
+      "id": "git-workflow-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "Git Book: Branching and Basic Branching",
+          "url": "https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Book: Rebasing",
+          "url": "https://git-scm.com/book/en/v2/Git-Branching-Rebasing",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: About pull requests",
+          "url": "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: About status checks",
+          "url": "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/about-status-checks",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Actions: Understanding workflows",
+          "url": "https://docs.github.com/en/actions/about-github-actions/understanding-github-actions",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Semantic Versioning 2.0.0",
+          "url": "https://semver.org/spec/v2.0.0.html",
+          "kind": "standard"
+        }
+      ]
+    }
+  ]
+}

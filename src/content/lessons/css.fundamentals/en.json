@@ -1,0 +1,771 @@
+{
+  "id": "css.fundamentals",
+  "locale": "en",
+  "version": 3,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-23",
+  "moduleId": "month-1-week-3",
+  "week": 3,
+  "order": 3,
+  "title": "CSS Fundamentals: Selectors, Cascade, Visual Rules, and Accessibility",
+  "description": "Learn how selectors and the cascade choose styles, how the box model affects layout, and how to create readable visual rules with colors, typography, custom properties, transitions and accessible browser fallbacks.",
+  "estimatedMinutes": 110,
+  "difficulty": "beginner",
+  "prerequisites": [
+    "html.document-structure",
+    "html.forms-accessibility"
+  ],
+  "learningOutcomes": [
+    "Choose between external, internal, and inline CSS and explain their trade-offs.",
+    "Read basic type, class, and ID selectors.",
+    "Predict which declaration wins when rules conflict under the same cascade conditions.",
+    "Explain content, padding, border, and margin and apply border-box sizing.",
+    "Distinguish block, inline, and inline-block behavior while building a small landing page.",
+    "Distinguish CSS color formats, handle transparency, and create readable typography.",
+    "Use CSS custom properties and functions for reusable responsive values.",
+    "Create transitions with visible focus and respect prefers-reduced-motion.",
+    "Apply basic visual accessibility rules and progressive enhancement with @supports."
+  ],
+  "tags": [
+    "css",
+    "selectors",
+    "cascade",
+    "specificity",
+    "box-model",
+    "display",
+    "css-colors",
+    "typography",
+    "accessibility",
+    "browser-compatibility"
+  ],
+  "blocks": [
+    {
+      "id": "css-purpose",
+      "type": "heading",
+      "level": 2,
+      "text": "CSS separates meaning from presentation"
+    },
+    {
+      "id": "css-purpose-body",
+      "type": "paragraph",
+      "text": "HTML describes the structure and meaning of content; CSS describes how that content should look and be laid out. Keeping these roles separate makes it easier to change a design without rewriting the document, reuse the same visual rules across pages, and inspect problems systematically. A CSS declaration is a property/value pair, such as color: rebeccapurple. A rule combines a selector—which chooses elements—with a declaration block containing one or more declarations."
+    },
+    {
+      "id": "css-mental-model",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Read a CSS rule from the outside in",
+      "text": "First ask which elements the selector matches. Then inspect the declarations that apply to those elements. If several declarations target the same property, the cascade resolves the conflict; source order is only one part of that decision, not a universal “last rule always wins” rule."
+    },
+    {
+      "id": "css-attachment",
+      "type": "heading",
+      "level": 2,
+      "text": "Three ways to write CSS"
+    },
+    {
+      "id": "css-attachment-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "External stylesheet: keep rules in a .css file and attach it with a link element in head. This is usually the best default for a real multi-page application because the same file can style many pages and responsibilities remain separated.",
+        "Internal stylesheet: put rules inside a style element in the document head. This can be useful for a self-contained demonstration or a page-specific experiment, but shared styles become harder to maintain if copied across pages.",
+        "Inline style: write a declaration in an element's style attribute. It is useful in limited cases where a value is generated for a particular element, but it couples presentation to markup and is awkward to reuse. It also participates in the cascade differently from ordinary selector rules."
+      ]
+    },
+    {
+      "id": "css-attachment-example",
+      "type": "code",
+      "language": "html",
+      "caption": "Attach an external stylesheet from the document head",
+      "code": "<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Study Notes</title>\n  <link rel=\"stylesheet\" href=\"./styles.css\">\n</head>"
+    },
+    {
+      "id": "css-selectors",
+      "type": "heading",
+      "level": 2,
+      "text": "Selectors: choose the elements a rule targets"
+    },
+    {
+      "id": "css-selectors-body",
+      "type": "paragraph",
+      "text": "A type selector matches elements by tag name, a class selector begins with a dot and matches the class attribute, and an ID selector begins with # and matches an id value. Classes are usually the most reusable choice for styling components. IDs should identify a unique element in a document and generally should not be the everyday tool for reusable styling."
+    },
+    {
+      "id": "css-selectors-example",
+      "type": "code",
+      "language": "css",
+      "caption": "Type, class, ID, and descendant selectors",
+      "code": "p {\n  line-height: 1.6;\n}\n\n.card {\n  padding: 1rem;\n}\n\n#featured-card {\n  border-color: rebeccapurple;\n}\n\n.card p {\n  color: #334155;\n}"
+    },
+    {
+      "id": "css-cascade",
+      "type": "heading",
+      "level": 2,
+      "text": "The cascade and specificity"
+    },
+    {
+      "id": "css-cascade-body",
+      "type": "paragraph",
+      "text": "When multiple declarations could set the same property on one element, the browser uses the CSS cascade to decide which one applies. The complete algorithm considers origin and importance, cascade layers, specificity, scoping proximity where relevant, and then source order. For beginner-level debugging, when declarations have the same origin, importance, layer, and scope conditions, compare selector specificity; if specificity is also equal, the later declaration wins."
+    },
+    {
+      "id": "css-cascade-example",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": "/* Both selectors can match the title inside the featured card. */\n.card__title {\n  color: #2563eb;\n}\n\n#featured-card .card__title {\n  color: #7c3aed;\n}",
+      "steps": [
+        {
+          "title": "The reusable class rule",
+          "lineStart": 2,
+          "lineEnd": 4,
+          "explanation": "The class selector matches every element with class=card__title. Its specificity is one class component."
+        },
+        {
+          "title": "The more specific rule",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "This selector combines an ID selector and a class selector. Under the same cascade origin, importance, layer, and scoping conditions, its specificity is higher, so the title inside the element with id=featured-card becomes purple."
+        },
+        {
+          "title": "Why not just move the rule later?",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "Moving the lower-specificity rule later would not make it beat the higher-specificity rule under these conditions. Do not add increasingly specific selectors or !important as a first response; inspect which declaration wins and choose the simplest maintainable rule."
+        }
+      ]
+    },
+    {
+      "id": "css-specificity-note",
+      "type": "callout",
+      "tone": "important",
+      "title": "Specificity is not the whole cascade",
+      "text": "This lesson compares ordinary author rules under the same cascade conditions. Important declarations, cascade layers, user/browser styles, and scoping can affect the result before source order is considered. When DevTools disagrees with a simple specificity calculation, inspect the full cascade rather than assuming the browser is wrong."
+    },
+    {
+      "id": "box-model",
+      "type": "heading",
+      "level": 2,
+      "text": "The box model: content, padding, border, and margin"
+    },
+    {
+      "id": "box-model-body",
+      "type": "paragraph",
+      "text": "A CSS element is laid out as a box. The content area holds text or other content. Padding is the space between the content and the border. The border surrounds the padding and content. Margin creates space outside the border, separating the box from neighboring boxes. These areas solve different layout problems; using margin to create space inside a card, for example, is not equivalent to using padding."
+    },
+    {
+      "id": "box-model-example",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": "/* styles.css */\n*, *::before, *::after {\n  box-sizing: border-box;\n}\n\n.card {\n  width: 320px;\n  padding: 16px;\n  border: 2px solid #cbd5e1;\n  margin-block: 12px;\n}\n\n.card__title {\n  color: #2563eb;\n}\n\n#featured-card .card__title {\n  color: #7c3aed;\n}",
+      "steps": [
+        {
+          "title": "Use border-box sizing consistently",
+          "lineStart": 2,
+          "lineEnd": 4,
+          "explanation": "With box-sizing:border-box, the declared width and height include the content, padding, and border. Applying this rule to pseudo-elements too helps keep sizing predictable."
+        },
+        {
+          "title": "Declared width versus inner content",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "explanation": "The card's total border-box width is 320px. Because padding and the 2px borders are included in that width, the content area is narrower than 320px. With the default content-box model, the same declared width would describe only the content and the rendered outer width would grow by padding and borders."
+        },
+        {
+          "title": "Margin is outside the border",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "explanation": "The block-axis margin adds external separation between cards; it does not increase the declared border-box width. Horizontal and vertical margins may interact with surrounding layout rules, so inspect the rendered box in DevTools."
+        },
+        {
+          "title": "The selector can affect a nested title",
+          "lineStart": 19,
+          "lineEnd": 19,
+          "explanation": "The class sets a reusable default title color. The ID-plus-class selector overrides it for the featured card under the cascade conditions explained above."
+        }
+      ]
+    },
+    {
+      "id": "display",
+      "type": "heading",
+      "level": 2,
+      "text": "Block, inline, and inline-block"
+    },
+    {
+      "id": "display-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "block: normally starts on a new line and participates in block layout; width and height can be applied.",
+        "inline: flows inside a line of text. Width and height do not behave like they do for block boxes, and vertical margins do not separate lines in the same way.",
+        "inline-block: flows inline with surrounding content but accepts width and height like a block-level box.",
+        "Changing display changes layout behavior, not the semantic meaning of the HTML element. Do not pick a semantic element only because its default display looks convenient."
+      ]
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "With box-sizing: border-box, a block has width: 320px, padding: 16px on each side, and a 2px border on each side. What is the total border-box width?",
+      "options": [
+        {
+          "id": "a",
+          "text": "320px",
+          "correct": true,
+          "feedback": "Border-box includes content, horizontal padding, and both borders within the declared 320px width."
+        },
+        {
+          "id": "b",
+          "text": "352px",
+          "correct": false,
+          "feedback": "Adding padding and borders to 320px would describe the total with content-box, not border-box."
+        },
+        {
+          "id": "c",
+          "text": "356px",
+          "correct": false,
+          "feedback": "This incorrectly adds extra space beyond the declared width; border-box already includes padding and border."
+        },
+        {
+          "id": "d",
+          "text": "288px",
+          "correct": false,
+          "feedback": "This subtracts the padding from the total but omits the border; 288px would not be the total border-box width."
+        }
+      ],
+      "explanation": "The declared border-box width already includes the content, 32px of horizontal padding, and 4px of horizontal border; the content area shrinks to fit."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "If two CSS declarations have the same origin, importance, layer, specificity, and scoping conditions, the later declaration wins when both set the same property on the same element.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": true,
+          "feedback": "When the earlier cascade criteria are equal, source order is the tie-breaker and the later declaration wins."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": false,
+          "feedback": "Source order does resolve the conflict after the stated higher-priority cascade conditions and specificity are equal."
+        }
+      ],
+      "explanation": "Source order is the final tie-breaker in this simplified case, not a rule that overrides higher specificity or other cascade criteria."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Which statements about CSS authoring methods are correct? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "An external stylesheet can be shared by several HTML pages",
+          "correct": true,
+          "feedback": "A linked CSS file can be reused so design changes do not require copying declarations into every page."
+        },
+        {
+          "id": "b",
+          "text": "A style element inside head is an internal stylesheet",
+          "correct": true,
+          "feedback": "Rules inside a style element are part of the document's internal stylesheet."
+        },
+        {
+          "id": "c",
+          "text": "A style attribute on an element is inline CSS",
+          "correct": true,
+          "feedback": "The style attribute attaches declarations directly to one element's markup."
+        },
+        {
+          "id": "d",
+          "text": "Inline CSS automatically creates a reusable design system for multiple pages",
+          "correct": false,
+          "feedback": "Inline declarations are attached to individual elements; they do not automatically provide reusable shared styling."
+        }
+      ],
+      "explanation": "Each method can be understood by where the declarations live and how easily they can be reused and maintained."
+    },
+    {
+      "id": "practice-landing-page",
+      "type": "codingExercise",
+      "title": "Build a small landing page and style its boxes",
+      "language": "html",
+      "context": "Create a simple landing page with a header, main content, two cards, and a footer. Use CSS to establish typography, spacing, borders, and display behavior. The editor supports an isolated HTML preview; it does not run JavaScript.",
+      "instructions": [
+        "Use a complete HTML document and include a style element in head so you can preview the result in this exercise.",
+        "Add a header, a main region with a page heading, two content cards, and a footer.",
+        "Create a reusable .card class and a .card__title class.",
+        "Apply box-sizing: border-box consistently and explain what the card's width includes.",
+        "Use padding for space inside each card, border to outline each card, and margin to separate cards.",
+        "Give the second card id=featured-card and style its heading using a more-specific selector.",
+        "Try block, inline, or inline-block on a small element and describe the visible difference.",
+        "After the exercise, move the CSS into styles.css and attach it with a link element."
+      ],
+      "requirements": [
+        "The HTML has a clear heading hierarchy and semantic header, main, and footer regions.",
+        "The two cards share reusable class-based styles.",
+        "The stylesheet contains type, class, and ID selectors.",
+        "The featured title's color difference can be explained using the cascade and specificity.",
+        "The box model is intentional: padding is internal, margin is external, and border-box sizing is used.",
+        "The page displays without horizontal overflow at a 320px viewport."
+      ],
+      "starterCode": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>Study Notes</title>\n    <style>\n      /* Add your CSS here. */\n    </style>\n  </head>\n  <body>\n    <header class=\"site-header\">\n      <p>Study Notes</p>\n    </header>\n    <main class=\"page\">\n      <h1>Learn one concept at a time</h1>\n      <section class=\"card\">\n        <h2 class=\"card__title\">Understand</h2>\n        <p>Build a mental model before memorizing syntax.</p>\n      </section>\n      <section class=\"card\" id=\"featured-card\">\n        <h2 class=\"card__title\">Practice</h2>\n        <p>Use small examples to test your understanding.</p>\n      </section>\n    </main>\n    <footer class=\"site-footer\">Keep learning.</footer>\n  </body>\n</html>",
+      "hints": [
+        "Start with body margin and font, then style the header, page, and cards separately.",
+        "A class selector begins with a dot; an ID selector begins with #.",
+        "Use the browser's computed styles panel to see which declaration wins and the box model diagram to inspect dimensions."
+      ],
+      "successCriteria": [
+        "The landing page uses one clear page heading and semantic page regions.",
+        "Both cards receive the same reusable class styles.",
+        "The featured title receives a different color because its selector is more specific under the shown conditions.",
+        "The card width remains predictable with border-box sizing.",
+        "You can explain the difference between content, padding, border, and margin.",
+        "You can describe one practical difference between block, inline, and inline-block."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Selectors determine which elements match a rule; declarations set property/value pairs.",
+        "External CSS is usually the maintainable default for shared application styles; internal and inline CSS have narrower uses.",
+        "The cascade considers more than source order. Compare specificity only after higher-priority cascade criteria are understood.",
+        "The box model comprises content, padding, border, and margin. Border-box sizing includes padding and border in the declared width.",
+        "Block, inline, and inline-block affect layout behavior but do not change an element's semantic meaning."
+      ]
+    },
+    {
+      "id": "deep-css-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: the cascade, specificity, and the box model in debugging"
+    },
+    {
+      "id": "deep-css-model",
+      "type": "paragraph",
+      "text": "When a style seems ignored, debug in order: check whether the selector matches, whether the declaration is valid, and then which declaration wins the cascade. Specificity is only one factor: origin, importance, cascade layers, scoping and source order can also matter. After styles resolve, the box model determines the element's layout size; with `content-box`, padding and border add to the declared width, while `border-box` includes them inside that width."
+    },
+    {
+      "id": "deep-css-trace",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": ".card p {\n  color: slateblue;\n  width: 320px;\n  padding: 16px;\n  border: 2px solid;\n}\n\n#app .card p {\n  color: darkgreen;\n}\n\n* {\n  box-sizing: border-box;\n}",
+      "steps": [
+        {
+          "title": "Match the selector before comparing specificity",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "The selector affects p descendants of .card. If the DOM does not have that relationship, the declaration cannot win because it does not apply at all."
+        },
+        {
+          "title": "Compare specificity for the conflicting color",
+          "lineStart": 8,
+          "lineEnd": 10,
+          "explanation": "Both rules match the paragraph. The ID selector in #app .card p gives it greater specificity than .card p, so darkgreen wins assuming the declarations have the same cascade origin/importance/layer."
+        },
+        {
+          "title": "Re-evaluate width after box sizing",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "With border-box, a declared width of 320px includes the 32px total horizontal padding and 4px border. With the default content-box, those are added outside the 320px content width."
+        }
+      ]
+    },
+    {
+      "id": "deep-css-cascade-guide",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Inspect DevTools' computed styles and matched rules rather than adding another selector blindly.",
+        "Specificity is commonly written as IDs, classes/attributes/pseudo-classes, and elements/pseudo-elements; compare the tuple lexicographically only after higher cascade factors are accounted for.",
+        "Prefer a coherent cascade and component-level conventions over using `!important` to win every conflict; important declarations have their own cascade precedence and make future changes harder.",
+        "Margins, padding, borders and dimensions affect the actual box. Global `box-sizing: border-box` often makes width calculations more predictable.",
+        "Positioning and z-index depend on containing blocks and stacking contexts; a larger z-index inside one stacking context cannot always outrank a sibling context."
+      ]
+    },
+    {
+      "id": "deep-css-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Both selectors below match the same paragraph. Assuming the declarations have equal origin, importance and layer, which color wins?",
+      "options": [
+        {
+          "id": "a",
+          "text": "slateblue from `.card p` because it appears first",
+          "correct": false,
+          "feedback": "Source order breaks a tie only after equal cascade precedence and specificity."
+        },
+        {
+          "id": "b",
+          "text": "darkgreen from `#app .card p` because its ID selector gives it higher specificity",
+          "correct": true,
+          "feedback": "The ID contributes a higher specificity tier than the class-and-element selector, so darkgreen wins under the stated assumptions."
+        },
+        {
+          "id": "c",
+          "text": "Neither rule applies because there are two selectors",
+          "correct": false,
+          "feedback": "Both selectors may match. The cascade decides which conflicting declaration wins."
+        },
+        {
+          "id": "d",
+          "text": "The browser randomly chooses one",
+          "correct": false,
+          "feedback": "The cascade has deterministic precedence rules."
+        }
+      ],
+      "explanation": "Debug whether a rule matches first, then apply cascade precedence/specificity/order rather than relying on intuition."
+    },
+    {
+      "id": "deep-css-practice",
+      "type": "codingExercise",
+      "title": "Debug a layout regression without escalating specificity blindly",
+      "language": "css",
+      "context": "Investigate why a card overflows its container and why the intended text color does not appear.",
+      "instructions": [
+        "Given a 320px card content width plus horizontal padding and borders, calculate the resulting outer width under content-box.",
+        "Switch to border-box and explain the new outer width.",
+        "Resolve the competing color rule by calculating selector specificity.",
+        "Use DevTools to inspect matched/computed styles and identify whether the selector matches before changing it.",
+        "Describe why adding !important would be a fragile first fix."
+      ],
+      "requirements": [
+        "Content-box and border-box dimensions are calculated correctly.",
+        "Specificity comparison is explicit and assumes equal higher cascade factors.",
+        "The debugging order starts with selector matching and validity.",
+        "The fix does not introduce unnecessary !important declarations.",
+        "The final layout is tested at the relevant viewport size."
+      ],
+      "starterCode": ".card p {\n  color: slateblue;\n  width: 320px;\n  padding: 16px;\n  border: 2px solid;\n}\n\n#app .card p {\n  color: darkgreen;\n}",
+      "hints": [
+        "Under content-box, the outer width includes content + left/right padding + left/right border.",
+        "IDs contribute more specificity than classes, but importance/layers are checked first.",
+        "Use computed styles to see which declaration wins and why."
+      ],
+      "successCriteria": [
+        "Correctly calculates the outer width in both box-sizing models.",
+        "Identifies the winning selector and explains specificity.",
+        "Uses DevTools evidence instead of random selector escalation.",
+        "Explains a trade-off of !important."
+      ]
+    },
+    {
+      "id": "css-color-values",
+      "type": "heading",
+      "level": 2,
+      "text": "Color values and visual rules"
+    },
+    {
+      "id": "css-color-values-body",
+      "type": "paragraph",
+      "text": "CSS supports named colors, hexadecimal values, rgb(), and hsl(). These formats can describe the same color in different ways; RGB describes red, green, and blue components, while HSL describes hue, saturation, and lightness. Alpha controls how transparent a color is. Prefer a color with alpha for a translucent background rather than lowering opacity on the whole card, because opacity also fades its descendants."
+    },
+    {
+      "id": "css-color-values-example",
+      "type": "code",
+      "language": "css",
+      "caption": "Reusable colors and a translucent surface",
+      "code": ":root {\n  --color-ink: #1e293b;\n  --color-canvas: hsl(210 40% 98%);\n  --color-brand: rgb(79 70 229);\n}\n\nbody {\n  color: var(--color-ink);\n  background-color: var(--color-canvas);\n}\n\n.notice {\n  background-color: rgba(79, 70, 229, 0.12);\n  border-left: 4px solid var(--color-brand);\n}"
+    },
+    {
+      "id": "css-typography",
+      "type": "heading",
+      "level": 2,
+      "text": "Typography that stays readable"
+    },
+    {
+      "id": "css-typography-body",
+      "type": "paragraph",
+      "text": "Choose a font stack with generic fallbacks so text remains readable if a preferred font is unavailable. Use relative units for scalable type, a unitless line-height for predictable line spacing, and a comfortable line length for long-form content. clamp() can make a heading fluid while keeping it between a minimum and maximum size. Test the layout with zoom and longer text, not only at one viewport size."
+    },
+    {
+      "id": "css-typography-example",
+      "type": "code",
+      "language": "css",
+      "caption": "Readable defaults with fluid heading size",
+      "code": "body {\n  font-family: system-ui, -apple-system, \"Segoe UI\", sans-serif;\n  font-size: 1rem;\n  line-height: 1.6;\n}\n\nh1 {\n  font-size: clamp(2rem, 4vw, 3.5rem);\n  line-height: 1.1;\n}\n\n.article {\n  width: min(100%, 70ch);\n  margin-inline: auto;\n}"
+    },
+    {
+      "id": "css-custom-properties",
+      "type": "heading",
+      "level": 2,
+      "text": "Custom properties and CSS functions"
+    },
+    {
+      "id": "css-custom-properties-body",
+      "type": "paragraph",
+      "text": "Custom properties such as --color-brand are ordinary CSS properties that participate in inheritance and the cascade. Define shared values in :root or a component scope, then read them with var(). A fallback value inside var() is useful when a custom property is missing or invalid. calc(), min(), max(), and clamp() combine values and units at layout time; Sass variables are different because Sass variables are processed by the Sass compiler."
+    },
+    {
+      "id": "css-custom-properties-example",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": ":root {\n  --color-text: #1f2937;\n  --color-surface: #ffffff;\n  --color-brand: hsl(263 70% 50%);\n  --space-card: 1.25rem;\n}\n\n.card {\n  color: var(--color-text, #222);\n  background: var(--color-surface);\n  border-top: 4px solid var(--color-brand);\n  padding: clamp(1rem, 3vw, 2rem);\n  width: min(100%, 65ch);\n  margin-inline: auto;\n}\n\n@supports (color: color-mix(in srgb, black, white)) {\n  .card {\n    border-color: color-mix(in srgb, var(--color-brand), white 25%);\n  }\n}",
+      "steps": [
+        {
+          "title": "Define tokens once",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "The custom properties form a small design vocabulary. They can be reused by multiple components and can be overridden in a narrower scope when a component needs a variation."
+        },
+        {
+          "title": "Use fallbacks and fluid constraints",
+          "lineStart": 8,
+          "lineEnd": 15,
+          "explanation": "var(--color-text, #222) supplies a fallback when the custom property is unavailable. clamp() bounds padding between a minimum and a maximum, while min() caps the width so a card cannot grow beyond a readable line length or the available container width."
+        },
+        {
+          "title": "Enhance only when the browser supports it",
+          "lineStart": 17,
+          "lineEnd": 21,
+          "explanation": "The border has a conventional color first. The @supports feature query adds a color-mix() enhancement only when the browser recognizes that declaration; the original border remains a fallback."
+        }
+      ]
+    },
+    {
+      "id": "css-transitions",
+      "type": "heading",
+      "level": 2,
+      "text": "Transitions, transforms, and motion preferences"
+    },
+    {
+      "id": "css-transitions-body",
+      "type": "paragraph",
+      "text": "A transition interpolates a property's value between two states; common triggers include :hover, :focus-visible, or a class change. Transform functions such as translate(), rotate(), and scale() change an element's visual rendering without changing normal document flow. Animate only properties that help explain feedback, preserve a visible keyboard focus indicator, and honor prefers-reduced-motion so essential content does not depend on animation."
+    },
+    {
+      "id": "css-transitions-example",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": ".button {\n  background-color: #3730a3;\n  transition: background-color 160ms ease, transform 160ms ease;\n}\n\n.button:hover {\n  background-color: #4338ca;\n  transform: translateY(-1px);\n}\n\n.button:focus-visible {\n  outline: 3px solid #a5b4fc;\n  outline-offset: 3px;\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .button {\n    transition: none;\n  }\n}",
+      "steps": [
+        {
+          "title": "Animate a meaningful state change",
+          "lineStart": 1,
+          "lineEnd": 9,
+          "explanation": "The transition lists the properties being animated and a short duration. The hover state adds a small visual response. Avoid transitioning every property indiscriminately, because that can animate layout or obscure state changes."
+        },
+        {
+          "title": "Keep keyboard focus visible",
+          "lineStart": 11,
+          "lineEnd": 14,
+          "explanation": "The :focus-visible rule makes keyboard focus easy to locate. Do not remove an outline without providing an equally visible replacement."
+        },
+        {
+          "title": "Respect reduced-motion preferences",
+          "lineStart": 16,
+          "lineEnd": 20,
+          "explanation": "This media query detects the user's system preference and removes this non-essential transition. Apply the same principle to larger animations and movement that could cause discomfort."
+        }
+      ]
+    },
+    {
+      "id": "css-accessibility",
+      "type": "heading",
+      "level": 2,
+      "text": "Accessibility is part of visual styling"
+    },
+    {
+      "id": "css-accessibility-body",
+      "type": "paragraph",
+      "text": "CSS affects whether content is readable and controls are easy to use, but it cannot replace semantic HTML, an accessible name, or a useful interaction model. For WCAG 2.2 Level AA, normal text generally needs a contrast ratio of at least 4.5:1 and large text at least 3:1. Do not communicate success, error, or selection by color alone; pair color with text, shape, an icon, or another clear cue."
+    },
+    {
+      "id": "css-accessibility-practices",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Keep a visible :focus-visible indicator for keyboard users and check that it is not clipped or hidden under other content.",
+        "Use text/background color pairs with sufficient contrast; check the actual combination, not just the colors individually.",
+        "Use readable line-height and line length, and make sure text can enlarge without loss of content or functionality.",
+        "Do not use color as the only indicator for errors, completion, or selected state.",
+        "Honor prefers-reduced-motion for non-essential transitions and transforms.",
+        "Test hover, focus, active, disabled, and error states, including with keyboard navigation."
+      ]
+    },
+    {
+      "id": "css-browser-support",
+      "type": "heading",
+      "level": 2,
+      "text": "Browser compatibility and progressive enhancement"
+    },
+    {
+      "id": "css-browser-support-body",
+      "type": "paragraph",
+      "text": "Start with a useful base style and layer in enhancements. Browsers generally ignore declarations they cannot parse, while @supports lets you apply an enhancement only when a browser recognizes a property/value pair. This confirms syntax support, not that a feature is bug-free or behaves identically in every browser. Check real-browser support for features you rely on, use Autoprefixer when the build needs vendor prefixes, and test your chosen baseline rather than adding historical prefixes by habit."
+    },
+    {
+      "id": "css-browser-support-example",
+      "type": "code",
+      "language": "css",
+      "caption": "Provide a baseline before the enhancement",
+      "code": ".card {\n  border: 1px solid #64748b;\n  padding: 1rem;\n}\n\n@supports (color: color-mix(in srgb, black, white)) {\n  .card {\n    border-color: color-mix(in srgb, #64748b, white 25%);\n  }\n}"
+    },
+    {
+      "id": "css-quick-reference",
+      "type": "heading",
+      "level": 2,
+      "text": "Quick reference: common CSS property groups"
+    },
+    {
+      "id": "css-quick-reference-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Box model: width, height, padding, border, margin, box-sizing, overflow.",
+        "Display and positioning: display, position, inset/top/right/bottom/left, z-index, float, clear.",
+        "Flexbox: flex-direction, flex-wrap, flex, justify-content, align-items, gap.",
+        "Grid: grid-template-columns, grid-template-rows, grid-column, grid-area, gap.",
+        "Typography: font-family, font-size, font-weight, line-height, letter-spacing, text-align, text-transform.",
+        "Visuals and motion: color, background-color, border-radius, opacity, transition, transform, filter.",
+        "Reusable values and constraints: --custom-property, var(), calc(), min(), max(), clamp(), @supports."
+      ]
+    },
+    {
+      "id": "css-accessibility-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "For WCAG 2.2 Level AA, which contrast ratio is generally required for normal text?",
+      "options": [
+        {
+          "id": "a",
+          "text": "At least 4.5:1",
+          "correct": true,
+          "feedback": "The minimum contrast criterion generally requires 4.5:1 for normal text."
+        },
+        {
+          "id": "b",
+          "text": "At least 3:1 for all text",
+          "correct": false,
+          "feedback": "3:1 is the threshold for large text, not normal-size text."
+        },
+        {
+          "id": "c",
+          "text": "Any ratio is acceptable when the text is bold",
+          "correct": false,
+          "feedback": "Bold text only falls into the large-text exception when it meets the defined size threshold; bold alone is not enough."
+        },
+        {
+          "id": "d",
+          "text": "Contrast matters only for links",
+          "correct": false,
+          "feedback": "Text throughout the interface needs sufficient contrast, subject to the criterion's exceptions."
+        }
+      ],
+      "explanation": "Check contrast for the actual foreground and background pair. Large text has a 3:1 minimum under the WCAG 2.2 AA text-contrast criterion."
+    },
+    {
+      "id": "css-accessible-theme-card",
+      "type": "codingExercise",
+      "title": "Build a readable, motion-aware theme card",
+      "language": "html",
+      "context": "Extend the card to use reusable CSS tokens, responsive sizing, readable typography, a clear keyboard focus state, and a reduced-motion fallback. Use the isolated HTML preview to inspect the visual layout; it does not run JavaScript.",
+      "instructions": [
+        "Define custom properties for text, surface, accent, spacing, and corner radius in :root.",
+        "Use a system font stack, a unitless line-height, and a bounded content width.",
+        "Use padding inside the card, margin outside it, and border-box sizing.",
+        "Style the link or button with hover and focus-visible states; do not remove the focus indicator.",
+        "Add a short transition to one or two properties, then disable or reduce that transition under prefers-reduced-motion: reduce.",
+        "Check color contrast for normal text and do not rely on color alone to communicate the link's purpose."
+      ],
+      "requirements": [
+        "The CSS uses reusable custom properties and at least one var() fallback.",
+        "The layout works at 320px without horizontal overflow.",
+        "Typography remains readable and the content width is bounded.",
+        "Keyboard focus remains clearly visible.",
+        "The non-essential transition respects the reduced-motion media feature.",
+        "The interactive link or button remains understandable without color cues."
+      ],
+      "starterCode": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>Study Card</title>\n    <style>\n      /* Define your tokens and card styles here. */\n    </style>\n  </head>\n  <body>\n    <main class=\"card\">\n      <p class=\"eyebrow\">Study guide</p>\n      <h1>Build accessible interfaces</h1>\n      <p class=\"card__body\">Learn to style information so it is readable, responsive, and usable with a keyboard.</p>\n      <a class=\"button\" href=\"#details\">Read the guide</a>\n      <section id=\"details\">\n        <h2>Why details matter</h2>\n        <p>Reusable tokens make visual changes consistent and easier to maintain.</p>\n      </section>\n    </main>\n  </body>\n</html>",
+      "hints": [
+        "Use a centered .card with width: min(100% - 2rem, 65ch) or equivalent container sizing and inspect it at a 320px viewport.",
+        "The :focus-visible outline must stay visible; hover-only feedback is insufficient for keyboard users.",
+        "Use @media (prefers-reduced-motion: reduce) to disable non-essential transitions."
+      ],
+      "successCriteria": [
+        "The card uses reusable color, spacing, and radius custom properties.",
+        "The type scale and line-height support reading, and the card does not cause horizontal overflow.",
+        "The link has visible keyboard focus and a distinct hover state.",
+        "Non-essential motion is removed or reduced when the user requests reduced motion.",
+        "The styling does not depend on color alone to communicate state or meaning."
+      ]
+    },
+    {
+      "id": "deep-css-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Debug CSS from selector match and validity through cascade precedence to layout.",
+        "Specificity matters only within the full cascade rules.",
+        "Box sizing, containing blocks and stacking contexts explain many layout bugs that cannot be fixed by increasing z-index alone.",
+        "CSS color formats include names, HEX, RGB, and HSL; alpha is useful for translucent backgrounds, while opacity also affects descendants.",
+        "Custom properties, var(), calc(), min(), max(), and clamp() support reusable values and flexible constraints.",
+        "Accessible visual styling considers text contrast, visible focus, text enlargement, non-color cues, and prefers-reduced-motion.",
+        "Progressive enhancement starts with a working baseline; @supports lets you add optional enhancements when the required syntax is supported."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Getting started with CSS",
+          "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Getting_started",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: CSS selectors",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_selectors",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Introduction to the CSS cascade",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Cascade/Introduction",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: CSS box model",
+          "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Box_model",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: display",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/display",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: CSS color values",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Colors/Color_values",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: CSS values and units",
+          "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Values_and_units",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: prefers-reduced-motion",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40media/prefers-reduced-motion",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using feature queries (@supports)",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Conditional_rules/Using_feature_queries",
+          "kind": "official-docs"
+        },
+        {
+          "title": "W3C: Web Content Accessibility Guidelines (WCAG) 2.2",
+          "url": "https://www.w3.org/TR/WCAG22/",
+          "kind": "standard"
+        }
+      ]
+    }
+  ]
+}

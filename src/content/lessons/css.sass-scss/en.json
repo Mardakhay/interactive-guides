@@ -1,0 +1,186 @@
+{
+  "id": "css.sass-scss",
+  "locale": "en",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-23",
+  "moduleId": "supplement-ui-ecosystem",
+  "supplementaryTrackId": "supplement-ui-ecosystem",
+  "order": 1,
+  "title": "Sass/SCSS: Modules, Mixins, and Maintainable CSS",
+  "description": "Use Sass features deliberately, understand what compiles to CSS, and choose between Sass variables and runtime CSS custom properties.",
+  "estimatedMinutes": 75,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "css.fundamentals"
+  ],
+  "learningOutcomes": [
+    "Explain Sass compilation and its boundaries.",
+    "Use Sass modules, variables, maps and mixins deliberately.",
+    "Compare compile-time Sass variables with runtime CSS custom properties.",
+    "Debug the emitted CSS and avoid deep nesting."
+  ],
+  "tags": [
+    "sass",
+    "scss",
+    "css",
+    "design-tokens",
+    "tooling"
+  ],
+  "blocks": [
+    {
+      "id": "sass-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "What Sass adds—and what remains CSS"
+    },
+    {
+      "id": "sass-model",
+      "type": "paragraph",
+      "text": "SCSS is a stylesheet syntax that compiles into CSS. It adds variables, module imports, mixins, functions, maps and controlled generation, but it does not replace the browser's CSS cascade or layout engine. Sass variables are resolved during compilation; CSS custom properties remain in the browser and can change at runtime or under a theme selector. Choose the feature whose lifecycle matches the job."
+    },
+    {
+      "id": "sass-vars",
+      "type": "codeWalkthrough",
+      "language": "scss",
+      "code": "$brand: #3451b2;\n$space: (\n  sm: 0.5rem,\n  md: 1rem,\n  lg: 1.5rem\n );\n\n@use 'sass:map';\n\n.card {\n  color: $brand;\n  padding: map.get($space, md);\n  &__title { margin-bottom: map.get($space, sm); }\n  &:hover { border-color: darken($brand, 8%); }\n}",
+      "steps": [
+        {
+          "title": "Declare compile-time values",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "Sass variables and maps can centralize repeated values. They disappear as variables from the output CSS after compilation."
+        },
+        {
+          "title": "Use the module system",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "@use loads a Sass module with a namespace and avoids the global namespace behavior of legacy @import."
+        },
+        {
+          "title": "Nesting generates selectors",
+          "lineStart": 10,
+          "lineEnd": 15,
+          "explanation": "The nested title and hover selectors compile into regular CSS selectors. Keep nesting shallow so generated specificity and selector relationships remain predictable."
+        }
+      ]
+    },
+    {
+      "id": "sass-modules",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use partial files such as _tokens.scss and load them through @use with a namespace; @forward can build a deliberate public module API.",
+        "Mixins are useful for repeated declaration patterns with arguments. If you only need a set of values, variables/maps are usually simpler.",
+        "Functions should calculate and return values; avoid hiding large amounts of unrelated emitted CSS inside abstractions.",
+        "The legacy interactive source uses @import examples. Sass deprecated Sass @import in Dart Sass 1.80.0; follow current module-system guidance rather than copying that old pattern unchanged.",
+        "Use CSS custom properties for runtime theming or values that must be changed by selectors/JavaScript after the stylesheet is loaded; use Sass variables for compile-time organization."
+      ]
+    },
+    {
+      "id": "sass-css-output",
+      "type": "callout",
+      "tone": "important",
+      "title": "Debug the generated CSS too",
+      "text": "Browser DevTools shows the CSS the browser actually receives, not the SCSS source abstraction. When a nested rule or mixin surprises you, inspect compiled output, the selector that matched, source order and specificity before adding more nesting."
+    },
+    {
+      "id": "sass-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "When should a CSS custom property usually be preferred over a Sass variable?",
+      "options": [
+        {
+          "id": "a",
+          "text": "When the value must change at runtime under a theme or selector",
+          "correct": true,
+          "feedback": "CSS custom properties remain in the browser and participate in the cascade, so a theme can override them at runtime."
+        },
+        {
+          "id": "b",
+          "text": "Whenever the value is used more than once, regardless of lifecycle",
+          "correct": false,
+          "feedback": "Re-use matters, but the runtime-versus-compile-time distinction determines the most suitable mechanism."
+        },
+        {
+          "id": "c",
+          "text": "When the browser needs to execute Sass syntax directly",
+          "correct": false,
+          "feedback": "Browsers do not execute SCSS; it must be compiled to CSS."
+        },
+        {
+          "id": "d",
+          "text": "Only when using Bootstrap",
+          "correct": false,
+          "feedback": "CSS custom properties are a CSS feature and are not tied to a particular framework."
+        }
+      ],
+      "explanation": "Think about when and where the value needs to change, not just whether it is reusable."
+    },
+    {
+      "id": "sass-practice",
+      "type": "codingExercise",
+      "title": "Refactor repeated styles into a small Sass module",
+      "language": "scss",
+      "context": "Convert duplicated styles into an intentional token/module structure and inspect the CSS it emits.",
+      "instructions": [
+        "Create a _tokens.scss module with named spacing and color values.",
+        "Load the module using @use rather than a legacy @import.",
+        "Use a mixin only for a repeated declaration pattern that benefits from parameters.",
+        "Replace deep nesting with shallow selectors and explain the resulting specificity.",
+        "Create a CSS custom property for a value that must change between light/dark theme at runtime."
+      ],
+      "requirements": [
+        "Module dependencies are explicit and namespaced.",
+        "Generated CSS contains the intended selectors and values.",
+        "Nesting does not generate accidental high-specificity selectors.",
+        "Compile-time Sass variables and runtime CSS custom properties are used intentionally.",
+        "The solution follows modern Sass module guidance."
+      ],
+      "starterCode": "$brand: #3451b2;\n\n// TODO: move shared values to _tokens.scss and load with @use.\n.page {\n  .panel {\n    .title { color: $brand; }\n  }\n}\n\n// TODO: decide which theme value should remain a CSS custom property.",
+      "hints": [
+        "@use creates a namespace; use the namespace when accessing an exported variable.",
+        "Use shallow nesting and inspect the compiled selector.",
+        "A CSS variable such as --color-surface can be overridden by a theme selector at runtime."
+      ],
+      "successCriteria": [
+        "Shared tokens live in a namespaced Sass module.",
+        "A compiled CSS result is checked against intent.",
+        "Nesting stays shallow and maintainable.",
+        "Runtime and compile-time values are distinguished."
+      ]
+    },
+    {
+      "id": "sass-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Sass compiles authoring conveniences into ordinary CSS; the browser still applies the CSS cascade.",
+        "Prefer @use/@forward for explicit module boundaries; do not copy legacy @import examples without review.",
+        "Use Sass variables for build-time values and CSS custom properties for runtime theming."
+      ]
+    },
+    {
+      "id": "sass-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "Sass: @use",
+          "url": "https://sass-lang.com/documentation/at-rules/use/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Sass: @import deprecation",
+          "url": "https://sass-lang.com/documentation/breaking-changes/import/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using CSS custom properties",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

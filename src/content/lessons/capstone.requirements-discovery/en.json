@@ -1,0 +1,484 @@
+{
+  "id": "capstone.requirements-discovery",
+  "locale": "en",
+  "version": 2,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-23",
+  "moduleId": "month-6-week-21",
+  "week": 21,
+  "order": 1,
+  "title": "Capstone Part 1: Problem, Users, Requirements, and Journeys",
+  "description": "Turn a broad project idea into a testable product brief with target users, user stories, acceptance criteria, core journeys, MVP scope, and explicit assumptions.",
+  "estimatedMinutes": 100,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "testing.react-testing-library",
+    "git.workflow-ci",
+    "react.router-spa",
+    "react.forms-validation"
+  ],
+  "learningOutcomes": [
+    "Describe the problem, target audience, and measurable outcome of a frontend capstone.",
+    "Separate user needs and product requirements from implementation ideas.",
+    "Write concise user stories with testable acceptance criteria.",
+    "Map the main happy path, alternative paths, validation errors, empty states, and failure states.",
+    "Prioritize a realistic minimum viable product and explicitly defer out-of-scope ideas.",
+    "Record assumptions, risks, data sensitivity, and non-functional requirements before designing screens."
+  ],
+  "tags": [
+    "capstone",
+    "requirements",
+    "product-discovery",
+    "user-stories",
+    "acceptance-criteria",
+    "mvp",
+    "user-journeys"
+  ],
+  "blocks": [
+    {
+      "id": "why-requirements",
+      "type": "heading",
+      "level": 2,
+      "text": "A capstone starts with a problem, not a component tree"
+    },
+    {
+      "id": "why-requirements-body",
+      "type": "paragraph",
+      "text": "A project idea such as “build a task app” is too broad to guide implementation. Before choosing components or a database, explain who has the problem, what they are trying to accomplish, what makes the current way difficult, and what success would look like. This short discovery step reduces wasted work: technical decisions can then be justified by user needs instead of becoming features in search of a problem."
+    },
+    {
+      "id": "product-brief",
+      "type": "heading",
+      "level": 2,
+      "text": "Write a one-page product brief"
+    },
+    {
+      "id": "product-brief-body",
+      "type": "paragraph",
+      "text": "A useful brief is short enough that a teammate can understand it quickly, but concrete enough to reject unnecessary features. Describe the user, problem, desired outcome, context, and constraints. Avoid calling a feature a requirement unless you can explain which user need or acceptance criterion it serves. The brief is a working document: revise it when evidence changes, while recording important scope changes instead of silently accumulating them."
+    },
+    {
+      "id": "brief-template",
+      "type": "code",
+      "language": "markdown",
+      "caption": "A starter product brief",
+      "code": "# Project brief\n\n## Problem\nWho has which problem, and when does it occur?\n\n## Target users\nPrimary user; secondary user if needed.\n\n## Desired outcome\nWhat should become easier, faster, safer, or more reliable?\n\n## Proposed solution\nOne or two sentences; avoid listing every possible feature.\n\n## Constraints and assumptions\nTime, device/browser support, data source, privacy, authentication.\n\n## Success signals\nObservable signals that the core journey works."
+    },
+    {
+      "id": "users-needs",
+      "type": "heading",
+      "level": 2,
+      "text": "Describe users and their actual needs"
+    },
+    {
+      "id": "users-needs-body",
+      "type": "paragraph",
+      "text": "Do not invent an elaborate persona with unsupported details. Start with a specific user situation and goal: “A learner returning to the course wants to resume the last unfinished topic without searching the catalog.” That statement suggests a user need, but it does not yet prescribe the best UI or data model. A saved “last opened” reference, progress summary, and search are candidate solutions; compare them against the need and the time available."
+    },
+    {
+      "id": "user-story",
+      "type": "heading",
+      "level": 2,
+      "text": "Write user stories and acceptance criteria"
+    },
+    {
+      "id": "user-story-body",
+      "type": "paragraph",
+      "text": "A user story summarizes value from the user's perspective: “As a learner, I want to bookmark a lesson so that I can return to it quickly.” Acceptance criteria define observable conditions that make the story complete. They should be testable, avoid implementation details unless those details are a real requirement, and cover both the expected path and relevant edge cases. A story without a clear outcome is hard to prioritize and hard to verify."
+    },
+    {
+      "id": "story-example",
+      "type": "codeWalkthrough",
+      "language": "gherkin",
+      "code": "Feature: Bookmark a lesson\n\n  Scenario: Save a lesson for later\n    Given I am viewing a lesson that is not bookmarked\n    When I activate the \"Bookmark\" control\n    Then the lesson is marked as bookmarked\n    And the lesson appears in my saved lessons list\n\n  Scenario: Remove a saved lesson\n    Given the lesson is bookmarked\n    When I activate the \"Remove bookmark\" control\n    Then the lesson is no longer marked as bookmarked",
+      "steps": [
+        {
+          "title": "Describe user-visible behavior",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "The feature is framed around the result a learner needs rather than a specific state-management library or database design."
+        },
+        {
+          "title": "Set a known starting state",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Given establishes a testable precondition. When describes the user action, and Then statements describe observable outcomes."
+        },
+        {
+          "title": "Cover the inverse operation",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "explanation": "A saved item usually needs a way to undo the action. Testing both directions avoids a one-way control that cannot recover from a mistake."
+        }
+      ]
+    },
+    {
+      "id": "acceptance-quality",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Specific: state an observable result rather than “works correctly.”",
+        "Testable: a teammate can decide pass/fail without guessing the author's intention.",
+        "User-focused: connect the condition to the value of the story.",
+        "Bounded: describe this story's responsibility, not every behavior of the whole application.",
+        "Edge-aware: consider empty, invalid, slow, failed, duplicated, or unavailable data when relevant.",
+        "Independent where practical: stories can be built and reviewed in small vertical slices."
+      ]
+    },
+    {
+      "id": "journeys",
+      "type": "heading",
+      "level": 2,
+      "text": "Map the complete core journey"
+    },
+    {
+      "id": "journeys-body",
+      "type": "paragraph",
+      "text": "A user journey is a sequence of user goals and system responses, not merely a list of screens. Start with the happy path—the simplest valid journey—then examine branches where input is invalid, data is empty, a request fails, the user cancels, or permissions are missing. This creates an early inventory of loading, empty, validation, error, success, and recovery states that are easy to overlook when a project is designed only around its ideal screenshot."
+    },
+    {
+      "id": "journey-example",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Entry: the user opens the app and understands its purpose.",
+        "Find: the user reaches the relevant item through search, navigation, or a list.",
+        "Act: the user completes the primary task through an accessible control or form.",
+        "Confirm: the interface reflects the saved result and provides clear feedback.",
+        "Recover: the user can correct invalid input, retry a recoverable failure, or undo an accidental action."
+      ]
+    },
+    {
+      "id": "scope-mvp",
+      "type": "heading",
+      "level": 2,
+      "text": "Choose an MVP and protect the scope"
+    },
+    {
+      "id": "scope-mvp-body",
+      "type": "paragraph",
+      "text": "A minimum viable product is the smallest coherent version that tests the core value—not a random subset of features. Pick one or two end-to-end journeys that can be completed, validated, and demonstrated. Mark requests as must-have, should-have, or later; also list explicit non-goals. A project can use mock data initially if the goal is UI architecture, but this must be stated as a deliberate constraint rather than presented as a completed live integration."
+    },
+    {
+      "id": "scope-example",
+      "type": "code",
+      "language": "markdown",
+      "caption": "Example of explicit scope",
+      "code": "## Must have\n- View a list of lessons\n- Open a lesson and mark it complete\n- Search/filter the list\n\n## Should have if time allows\n- Bookmarks\n- Persistent progress across reloads\n\n## Out of scope for this milestone\n- Social features\n- Multi-role administration\n- Payments\n\n## Assumptions\n- Anonymous local use is acceptable for the first iteration\n- Remote account sync is a later phase"
+    },
+    {
+      "id": "nonfunctional",
+      "type": "heading",
+      "level": 2,
+      "text": "Capture non-functional requirements and risks"
+    },
+    {
+      "id": "nonfunctional-body",
+      "type": "paragraph",
+      "text": "Functional requirements say what the product does. Non-functional requirements describe qualities and constraints such as accessibility, responsiveness, performance, reliability, browser support, security, and privacy. Be concrete enough to test: “all primary flows work with keyboard only,” “the layout remains usable at a 320 CSS-pixel viewport,” or “loading and API failure have distinct feedback.” If the app stores personal data or uses authentication, document the data, access rules, and risk before choosing storage or auth services."
+    },
+    {
+      "id": "risk-register",
+      "type": "callout",
+      "tone": "important",
+      "title": "Make assumptions visible",
+      "text": "An assumption is not a confirmed requirement. Record what you do not yet know, how important it is, and the cheapest way to validate it. Examples: whether sign-in is required for the MVP, whether data must sync across devices, which API is available, and whether the project may store private information."
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which is the strongest acceptance criterion for a bookmark feature?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The bookmark should feel modern and nice",
+          "correct": false,
+          "feedback": "This is subjective and does not define pass/fail behavior."
+        },
+        {
+          "id": "b",
+          "text": "When a learner bookmarks a lesson, the saved state is visible and the lesson appears in the saved list",
+          "correct": true,
+          "feedback": "This describes observable outcomes that can be manually or automatically verified."
+        },
+        {
+          "id": "c",
+          "text": "Use Zustand to store a boolean",
+          "correct": false,
+          "feedback": "This prescribes an implementation and does not explain the expected product behavior."
+        },
+        {
+          "id": "d",
+          "text": "Implement all future social features at the same time",
+          "correct": false,
+          "feedback": "This does not define completion for the current feature and expands the scope."
+        }
+      ],
+      "explanation": "Acceptance criteria should be observable, testable, and tied to the user value of the story."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "A user story is complete as soon as its screen has been designed, even if its expected outcomes cannot be tested.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "A mockup can support the story, but it does not show that the behavior or acceptance criteria work."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "A story needs testable acceptance conditions and should be implemented and verified to the agreed scope."
+        }
+      ],
+      "explanation": "Design, implementation, and validation provide different evidence; the screen alone does not prove the requirement."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "What should be captured during capstone discovery? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "The target user's problem and desired outcome",
+          "correct": true,
+          "feedback": "This anchors decisions in the value the project should deliver."
+        },
+        {
+          "id": "b",
+          "text": "Testable acceptance criteria for the core stories",
+          "correct": true,
+          "feedback": "These make completion and review less subjective."
+        },
+        {
+          "id": "c",
+          "text": "Only the ideal success path",
+          "correct": false,
+          "feedback": "Invalid input, empty data, failures, cancellation, and recovery may be essential states."
+        },
+        {
+          "id": "d",
+          "text": "Explicit MVP scope, non-goals, assumptions, and important risks",
+          "correct": true,
+          "feedback": "These prevent scope creep and surface uncertain decisions before expensive work."
+        }
+      ],
+      "explanation": "Discovery should define value, verifiable behavior, practical scope, and uncertainties—not only the happy-path UI."
+    },
+    {
+      "id": "capstone-brief-exercise",
+      "type": "codingExercise",
+      "title": "Produce the capstone product brief",
+      "language": "markdown",
+      "context": "Choose one realistic frontend project. Complete this artifact before drawing detailed screens or writing application code. The lesson editor stores the draft; it does not grade the project automatically.",
+      "instructions": [
+        "Write a problem statement that names a target user, a situation, and a pain point.",
+        "Describe the primary outcome and identify the main user/persona without unsupported demographic assumptions.",
+        "List 3–6 user stories using a consistent “As a…, I want…, so that…” structure.",
+        "Give each must-have story 2–5 testable acceptance criteria.",
+        "Draw or write the happy-path journey and at least two failure/alternative branches.",
+        "Choose the MVP and mark should-have, later, and out-of-scope items.",
+        "Document non-functional requirements for accessibility, mobile layout, performance, security/privacy, and browser support.",
+        "List assumptions and risks, then choose one inexpensive way to validate the most important uncertainty."
+      ],
+      "requirements": [
+        "The brief names a real user need and a clear product outcome.",
+        "Each core story describes user value rather than a component or framework.",
+        "Acceptance criteria are testable and cover relevant edge cases.",
+        "The journey includes success plus failure/empty/invalid/recovery states.",
+        "MVP boundaries and non-goals are explicit.",
+        "Important non-functional requirements and data/privacy risks are documented.",
+        "Another developer can understand the first milestone without asking what “done” means."
+      ],
+      "starterCode": "# Capstone product brief\n\n## Problem and target user\n\n## Current pain point / context\n\n## Desired outcome\n\n## User stories\n1. As a ..., I want ..., so that ...\n2. As a ..., I want ..., so that ...\n3. As a ..., I want ..., so that ...\n\n## Acceptance criteria\n- Given ... When ... Then ...\n\n## Core journey\n1. Entry:\n2. Find:\n3. Act:\n4. Confirm:\n5. Recover:\n\n## MVP — must have\n\n## Should have / later\n\n## Explicit non-goals\n\n## Non-functional requirements\n- Accessibility:\n- Responsive layout:\n- Performance / reliability:\n- Security / privacy:\n- Browser support:\n\n## Assumptions and risks\n- Assumption:\n- How I will validate it:\n\n## Success signals",
+      "hints": [
+        "Prefer a few complete end-to-end stories over a long list of shallow features.",
+        "Write criteria that can be answered yes/no by another person without interpreting vague words like easy, modern, or fast.",
+        "For any data or auth requirement, state whether it is required for the MVP or deliberately deferred."
+      ],
+      "successCriteria": [
+        "The problem, target user, and desired outcome fit in a concise brief.",
+        "Each must-have story has observable acceptance criteria.",
+        "Happy path and at least two realistic alternate/error states are described.",
+        "The MVP and non-goals make the first milestone achievable.",
+        "Accessibility, responsive layout, security/privacy, and reliability considerations are recorded.",
+        "The largest assumption has a specific validation action."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Start with a user problem and desired outcome before choosing components, frameworks, or data stores.",
+        "User stories describe value; acceptance criteria define observable, testable completion.",
+        "Map happy paths and important empty, invalid, failed, cancelled, and recovery states.",
+        "Pick a coherent MVP and list explicit non-goals to prevent scope creep.",
+        "Record non-functional requirements, assumptions, and data/privacy risks before detailed design."
+      ]
+    },
+    {
+      "id": "deep-requirements-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: convert a vague request into verifiable acceptance criteria"
+    },
+    {
+      "id": "deep-requirements-model",
+      "type": "paragraph",
+      "text": "A user story is a starting hypothesis about a problem, not a complete implementation specification. Before coding, identify the user, goal, reason, observable outcomes, constraints and unanswered assumptions. Good acceptance criteria describe behavior that can be verified without dictating every internal implementation detail. Include failure and empty states, permissions, accessibility and relevant non-functional constraints—not only the happy path."
+    },
+    {
+      "id": "deep-requirements-example",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Story: As a learner, I want to bookmark a lesson so I can find it later.\n\n\nScenario: Save a bookmark\nGiven I am viewing a lesson\nWhen I activate the bookmark control\nThen the lesson appears in my saved list\nAnd the control exposes its saved state\n\nScenario: Empty saved list\nGiven I have no saved lessons\nWhen I open Saved lessons\nThen I see an empty-state explanation and a way back to the catalogue",
+      "steps": [
+        {
+          "title": "Keep the story tied to a user goal",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "The story describes who benefits and why. It does not prescribe a particular storage library or component structure."
+        },
+        {
+          "title": "Make the main behavior observable",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "explanation": "The scenario can be verified through the rendered saved list and the control's accessible state, not an internal function call."
+        },
+        {
+          "title": "Include an alternate state",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "explanation": "A usable feature also defines what happens when there is no data. Similar criteria may be needed for persistence failure, unauthenticated use or removing a saved item."
+        }
+      ]
+    },
+    {
+      "id": "deep-requirements-checklist",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Clarify the user, their goal and why the outcome matters; ask about terms that multiple stakeholders may interpret differently.",
+        "Write Given/When/Then acceptance criteria that cover success, empty, invalid input, loading/error, permissions and recovery where relevant.",
+        "Record constraints: accessibility, responsive behavior, performance, data privacy, browser support, deadlines and backend contracts.",
+        "Separate in-scope behavior from explicit out-of-scope items and assumptions that still need confirmation.",
+        "Turn acceptance criteria into a verification plan: example data, steps, expected UI, automated tests and any manual checks."
+      ]
+    },
+    {
+      "id": "deep-requirements-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which acceptance criterion is the most useful for implementation and review?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The bookmark button should look modern",
+          "correct": false,
+          "feedback": "Modern is subjective and does not provide a verifiable outcome."
+        },
+        {
+          "id": "b",
+          "text": "When a learner saves a lesson, the lesson appears in the saved list and the control exposes its saved state",
+          "correct": true,
+          "feedback": "It describes observable outcomes that can be tested without dictating internal implementation."
+        },
+        {
+          "id": "c",
+          "text": "Use Zustand and a BookmarkCard component",
+          "correct": false,
+          "feedback": "This prescribes implementation details rather than defining the user-visible behavior."
+        },
+        {
+          "id": "d",
+          "text": "Bookmarks should work perfectly",
+          "correct": false,
+          "feedback": "Perfectly is not specific or objectively testable."
+        }
+      ],
+      "explanation": "Acceptance criteria should let the team independently decide whether the expected behavior is satisfied."
+    },
+    {
+      "id": "deep-requirements-practice",
+      "type": "codingExercise",
+      "title": "Turn a vague feature idea into an implementation-ready brief",
+      "language": "text",
+      "context": "Plan the behavior before choosing components or libraries.",
+      "instructions": [
+        "Rewrite a vague request such as 'add search' as a user story with a user goal and reason.",
+        "Define acceptance criteria for matching results, no results, loading, and request failure.",
+        "Add accessibility and responsive requirements relevant to the search control and result list.",
+        "Record assumptions, open questions, out-of-scope behavior and any API dependency.",
+        "Write a verification checklist mapping each criterion to a test or manual check."
+      ],
+      "requirements": [
+        "The story identifies user, need and benefit.",
+        "Criteria describe observable behavior for success and edge states.",
+        "Non-functional requirements and constraints are explicit.",
+        "Assumptions and unresolved questions are visible rather than silently decided.",
+        "Each criterion has a proposed verification method."
+      ],
+      "starterCode": "Feature idea: add search\n\nUser story: As a ... I want ... so that ...\n\nAcceptance criteria:\n- Given ... When ... Then ...\n\nConstraints:\n- Accessibility:\n- Responsive behavior:\n- Performance/data:\n\nAssumptions and open questions:\n\nVerification plan:",
+      "hints": [
+        "Use user outcomes rather than component names as the core story.",
+        "Think about empty results, invalid/slow requests and keyboard navigation, not only a successful match.",
+        "If the requirement can be interpreted in two ways, record the question rather than silently choosing one."
+      ],
+      "successCriteria": [
+        "Produces a clear user story and verifiable criteria.",
+        "Includes success and failure/empty scenarios.",
+        "Lists meaningful constraints and open questions.",
+        "Verification plan can be followed by another developer or reviewer."
+      ]
+    },
+    {
+      "id": "deep-requirements-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "A user story communicates the problem and benefit; acceptance criteria define verifiable outcomes.",
+        "Explicitly capture empty/error states, accessibility and constraints alongside the happy path.",
+        "Map every important acceptance criterion to a way of checking it before calling the feature complete."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "Atlassian: User stories with examples and a template",
+          "url": "https://www.atlassian.com/agile/project-management/user-stories",
+          "kind": "guide"
+        },
+        {
+          "title": "Atlassian: Acceptance criteria",
+          "url": "https://www.atlassian.com/work-management/project-management/acceptance-criteria",
+          "kind": "guide"
+        },
+        {
+          "title": "GOV.UK Service Manual: Understanding users",
+          "url": "https://www.gov.uk/service-manual/user-research",
+          "kind": "guide"
+        },
+        {
+          "title": "GOV.UK Service Manual: Writing user stories",
+          "url": "https://www.gov.uk/service-manual/agile-delivery/writing-user-stories",
+          "kind": "guide"
+        },
+        {
+          "title": "W3C WAI: Planning and Managing Web Accessibility",
+          "url": "https://www.w3.org/WAI/planning-and-managing/",
+          "kind": "guide"
+        }
+      ]
+    }
+  ]
+}

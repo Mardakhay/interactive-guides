@@ -1,6 +1,6 @@
 # Session Handoff
 
-**Last updated:** 2026-10-22  
+**Last updated:** 2026-10-23  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
@@ -71,3 +71,189 @@ Use focused Conventional Commit-style messages such as:
 - `test(content): validate lesson links and translation parity`
 
 Do not mark planned features as implemented. After each phase, update this file with exact changes, validation evidence, unresolved questions and the next action.
+
+## Handoff update — 2026-10-23
+
+### Current branch and verification
+- Feature branch: `feat/learning-platform-foundation`.
+- Latest verified feature HEAD at handoff: `e2684ed0d4eba181f7305738f9aa87e412823424`.
+- PR #1 remains an open draft targeting `main`.
+- GitHub Actions run [#39922070075](https://github.com/Mardakhay/interactive-guides/actions/runs/39922070075) passed on `e2684ed0d4eba181f7305738f9aa87e412823424`: lint, typecheck, tests and build succeeded.
+- `main` currently points to `b13af92576e8a73753a6e3f3d26765d9f9c44397`. Do not rewrite or force-push it as part of this work.
+
+### GitHub Contents API incident
+- Four lesson-file commits were accidentally created against the default branch because the Contents API calls omitted `branch`: `485b04221d005452c17eb6aff04fc52d82c9b082`, `2e2e2914dc32eb150fdc23681b9d959bce4d82e3`, `f447147eda20ca415cde647dabb816296456f04d`, and `b13af92576e8a73753a6e3f3d26765d9f9c44397`. This moved `main` to the last SHA. The current PR diff includes all four lesson files, and they are retained on the feature branch.
+- Going forward, make grouped changes by creating blobs/tree/commit and then update only `feat/learning-platform-foundation` with `expected_sha`; verify branch HEAD, PR head and workflow runs after each change. Do not use create_file/update_file without an explicit branch.
+
+### Supplementary source-derived lessons present
+- JavaScript runtime/memory and object prototypes.
+- Frontend authentication/security.
+- Deployment/hosting in EN and RU.
+- SQL/PostgreSQL in EN and RU.
+- Sass/SCSS, Bootstrap/MUI comparison, frontend architecture boundaries, and advanced package workflows.
+- The curriculum/repository links these supplements in the bilingual content catalog. These lessons remain `review`, not `published`.
+
+### Audit completeness — not yet finished
+- Week 14/15 Notion + legacy HTML targeted comparison is documented in `docs/CONTENT_PARITY_REVIEW_WEEK14-15.md`.
+- The wider set of HTML sources has a mapping, but not every file has a verified section-by-section parity audit. In particular, network/hosting details, advanced JS internals, auth-security edge cases, database/RLS topics, and specific library-version steps require itemized source review against the actual HTML and current primary documentation.
+- Do not call an HTML source migrated until its headings, explanations, code samples, diagrams, exercises, answer/reveal controls, links, and key claims have been mapped to the structured destination and the EN/RU teaching coverage has been reviewed.
+- Next: continue exact source-section inventory, add a source-to-block mapping report, close or explicitly defer each uncovered concept, then run CI on the resulting feature HEAD.
+
+## Handoff — 2026-10-23
+
+- Work is on feat/learning-platform-foundation; latest content commit is 6579f9926c57317947de2f90ddfeb66a0974b61a (content(api): clarify retry limits and safety). Do not use GitHub Contents writes without branch=feat/learning-platform-foundation and an exact current content SHA.
+- Four supplementary JSON files for SQL/PostgreSQL and production hosting exist on feature, but are not wired into the app. The app still exposes 25 English legacy HTML lessons.
+- Source scope: 21 Notion pages fetched (connector marks them unverified); 25 HTML files inventoried/structurally inspected. Two HTML pages were fully read in the previous pass; the API lesson received a targeted review. The other 22 HTML files still require full text/code/exercise/answer review. This is not a complete source audit or parity completion.
+- Focused corrections: React Router uses installed react-router-dom 6.26.2 API; form-validation guidance separates UX from security and treats timing as contextual; API lesson clarifies retry counts/backoff safety, optional Axios, PATCH partial updates, and non-persistent demo writes.
+- Before documentation-only updates, lint, typecheck, tests and production build passed; tests reported 7 files / 11 tests. Rerun on exact final HEAD. Node 25 needed an in-memory Storage test stub. npm audit reported 17 dependency vulnerabilities; review separately.
+- CONTENT_AUDIT.md and CONTENT_PARITY_REVIEW_WEEK14-15.md were absent in the checkout. The source matrix lives in FULL_SOURCE_CONTENT_AUDIT.md and is the current audit record.
+- Next: finish full text/code review of remaining HTML and relevant Notion pages; implement and register complete bilingual curriculum/structured lesson reader; add parity/content invariants; rerun CI on exact feature SHA. PR #1 is open/draft; verify current head and CI after documentation commits.
+
+
+## Embedded lesson integration — 2026-10-23
+
+The active feature now embeds lesson bodies for re-003, re-004, and re-005 in src/data/lessons.json. The loader uses those bodies before consulting the legacy iframe manifest; blank lessons continue to use the old HTML source during migration. The three embedded lessons cover forms/validation, API lifecycle/error handling, and React state ownership/Context/reducers with examples and practice criteria. This is a real in-app migration checkpoint, but not full completion: the remaining catalog entries are still blank/external and Russian locale content is not supported by the current app model. Full local verification (8 files / 16 tests, lint, typecheck, production build, and browser smoke tests for re-003/re-004/re-005) passed on code SHA 667c57a27bf1c64fadaa0ec9a8e6294a9128ccf7; the following commit only updates this handoff.
+
+
+## Active continuation checkpoint — 2026-10-23
+
+- Keep all work on `feat/learning-platform-foundation`; `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`. PR #1 remains open/draft. Do not merge or force-push.
+- Restored structured curriculum is now learner-accessible through the bilingual React route and index: 26 core IDs / 52 locale files and 11 separately listed supplements / 22 locale files. The four SQL/hosting translations are registered. This is in-app embedded text, not a request to create more standalone HTML lesson pages.
+- The 2026-10-23 CI run on `26a8c7d4efe24402094f69c25678528aaa11067f` failed one curriculum-page test because Russian week count text was split into number and label nodes; lint and typecheck passed, tests had 91/92 passing, and build was skipped. The test was corrected in feature commits `6975d303ff107904baf408190755b11884bb3210` and `433855acab952074705fd0135576a31f76f104fb`; verify Actions on the exact latest SHA before reporting the fix as validated.
+- Local branch is stale/diverged from the remote and must not be pushed blindly. The branch update was made using feature-only GitHub commits with expected-head checks. Reconcile any local checkout only after inspecting its diff and ancestry; never move `main`.
+- Source audit remains open. 21 Notion pages were fetched (all connector results unverified); 25 HTML files were inventoried and structurally surveyed. Full prose/code/interaction review remains outstanding for most HTML sources. Week 14/15 and API received focused review; no claim of complete parity is valid yet.
+- Continue by polling CI for the latest feature HEAD; fix any failing check; then update audit mappings/evidence as actual source review progresses. Keep this handoff, `CURRENT_STATE.md`, `ROADMAP.md`, and `FULL_SOURCE_CONTENT_AUDIT.md` synchronized at each material checkpoint.
+
+
+## Latest verified checkpoint — 2026-10-23
+
+- Feature branch: `feat/learning-platform-foundation`; PR #1 remains open/draft. Latest verified code commit before this documentation-only checkpoint: `132636c4007141454a903e815d6f0418a3c511b0`.
+- On a clean clone of that exact SHA: `npm ci` completed; `npm run lint`, `npm run typecheck`, `npm test` (19 files, 92 tests), `npm run build`, and `git diff --check` passed. Build emits the existing Vite chunk-size warning for the structured-content repository bundle (~1.4 MB minified).
+- GitHub Actions previously failed at `26a8c7d4efe24402094f69c25678528aaa11067f` due to a localized curriculum test matcher. The latest corrected test passes locally; Actions has not returned a run for the later API-created commit(s), so the latest CI check is **unconfirmed**. Do not label CI green until a run exists and passes on the exact head.
+- Main was not modified in this continuation. PR base currently reports `452a0296fc875e48f1a050e5af557ef0c08f68c8`; feature head is the only target for these changes.
+- Source audit remains incomplete: 21 Notion fetches (unverified), 25 HTML sources structurally surveyed; full prose/code/hidden interaction review for most HTML files remains open. See `FULL_SOURCE_CONTENT_AUDIT.md` and keep lesson editorial status at review.
+- Next work: finish source-by-source HTML and Notion parity, update matrix rows with precise canonical IDs and block evidence, verify content depth/code/EN-RU parity, then obtain an actual Actions run for the resulting PR head. Do not mark the project complete yet.
+
+
+### CI confirmation — 2026-10-23
+
+GitHub Actions [run #317](https://github.com/Mardakhay/interactive-guides/actions/runs/39963932841) passed on exact feature HEAD `07bc9acfc89c0138cbd4d214e19215e4dff6f1c6` (install, lint, typecheck, 92 tests, build). PR #1 remains open/draft and mergeable. This latest result supersedes the earlier “Actions unconfirmed” note above. The source audit remains incomplete; do not mark the overall project complete. Any later docs-only head needs its own exact-head workflow verification.
+
+
+### Latest branch/CI status
+
+Feature head `b7fdeba6b9096d9f8336cf1071deb9d0f2d1dfc5` passed GitHub Actions [run #320](https://github.com/Mardakhay/interactive-guides/actions/runs/39964458056). PR #1 remains open, draft, and mergeable. Source review is still incomplete: source matrix targets have now been corrected to canonical IDs, but most HTML sources still need full content/interaction parity review. Keep main unchanged.
+
+## Authoritative checkpoint — 2026-10-23 (supersedes earlier status notes)
+
+### Exact refs and PR state
+- Working branch: feat/learning-platform-foundation
+- Feature HEAD at this checkpoint: 9c51012aff7631fc12b1dd5af0b74b7de9b28691
+- main remains at b13af92576e8a73753a6e3f3d26765d9f9c44397; no commit was made to main in this recovery.
+- PR #1 is open and remains Draft: https://github.com/Mardakhay/interactive-guides/pull/1
+- GitHub reported mergeable=true and mergeable_state=clean after the merge and successful CI.
+
+### Branch reconciliation
+The feature branch and main diverged from common ancestor 452a0296fc875e48f1a050e5af557ef0c08f68c8. The four main commits added only the two SQL/PostgreSQL and two production-hosting locale JSON files. The two-parent merge commit is https://github.com/Mardakhay/interactive-guides/commit/d47d96cb1b471468e9687ab923744ce9ec248a99, with feature as first parent and main as second parent.
+
+- Both production-hosting files were byte-identical on main and feature.
+- The feature PostgreSQL files are richer: 35 blocks each and 110 estimated minutes, compared with 10 blocks each and 75 minutes in the older main versions.
+- Both feature PostgreSQL files retain every block ID in the main versions and add explanations, walkthroughs, checks and practice. No main-only block IDs were lost.
+- The merge retained the richer feature files. The main ref was not moved.
+
+### Exact-head validation and fix
+GitHub Actions run #39976179595 passed on exact feature SHA 9c51012aff7631fc12b1dd5af0b74b7de9b28691: npm ci, lint, typecheck, tests and production build.
+https://github.com/Mardakhay/interactive-guides/actions/runs/39976179595
+
+The preceding run on merge commit d47d96cb1b471468e9687ab923744ce9ec248a99 failed during test module loading because the new English/Russian SQL content used unsupported callout tone info. The schema allows note, tip, important and warning. Commit 9c51012 changed that tone to important in both locale files; the exact-head Actions run then passed.
+
+A local clone could not be obtained during this session because network DNS resolution for github.com failed in the container. Current verification evidence is GitHub Actions, not a local terminal run.
+
+### Current product status
+- Structured content: 26 core lesson IDs and 11 supplementary lesson IDs, with English and Russian files (74 JSON files total).
+- Legacy source: all 25 HTML lessons remain under public/lessons/.
+- Structured routes: /:locale/structured-lessons and /:locale/structured-lessons/:lessonId.
+- The current runner uses JavaScriptRunner.tsx and JavaScriptWorkerProgram.ts with disposable Web Workers and a timeout, not the older iframe-based design.
+- PWA is not implemented in the checked feature tree: public/manifest.webmanifest and public/sw.js are absent; index.html has no manifest link and src/main.tsx does not register a service worker.
+- App-wide localization is incomplete; localized structured routes do not mean the legacy shell and all application pages are translated.
+- Source-to-block parity and editorial approval remain incomplete. Registration and passing tests are not proof of full migration or approval.
+
+### Next action
+Continue the source-to-block audit for legacy HTML and accessible Notion material. Work in small syllabus-ordered batches, record uncovered examples and exercises plus EN/RU differences, and do not create duplicate lessons when a registered destination already exists. Then prioritize app-wide localization and implement/test the missing PWA foundation. Keep this handoff synchronized with exact branch HEAD and CI evidence.
+
+
+## PWA foundation implementation — 2026-10-23
+
+Feature commit c794088f15fb57ba3c1b8c51032e7e76e11f72bf adds:
+- manifest link, theme/mobile metadata in index.html;
+- public/manifest.webmanifest and public/pwa-icon.svg;
+- production-only service-worker registration in src/main.tsx;
+- public/sw.js with app-shell precache, network-first navigation fallback for deep links, and runtime caching for successful same-origin GET assets.
+
+The worker skips cross-origin requests, requests carrying Authorization and /api/ paths. This is an initial offline foundation, not release acceptance: SVG-only icon support needs platform validation (PNG sizes may be needed), external Google Fonts may not load offline, and installability/cache-update/offline behavior has not yet been tested in real browsers. GitHub Actions for the PWA commit must be checked before claiming CI green. Main remains unchanged.
+
+
+## Latest PWA CI checkpoint — 2026-10-23
+
+- PWA foundation commit: c794088f15fb57ba3c1b8c51032e7e76e11f72bf.
+- Lint fix: 8d7172bf0faa128aee370afc675c9b5cdd9739ac declares service-worker runtime globals.
+- Security hardening: 9e4e08c57725e595c3f279ce6f431fabb2d49281 limits runtime caching to static asset extensions and avoids intercepting arbitrary same-origin data/document requests.
+- GitHub Actions [run #39977258811](https://github.com/Mardakhay/interactive-guides/actions/runs/39977258811) passed npm ci, lint, typecheck, tests and production build on exact SHA 9e4e08c57725e595c3f279ce6f431fabb2d49281.
+- Current branch still has no real-device installability/offline acceptance evidence. Main remains b13af92576e8a73753a6e3f3d26765d9f9c44397 and was not modified.
+
+
+## PWA platform asset follow-up — 2026-10-23
+
+The feature branch now includes PNG app icons (180px Apple touch, 192px and 512px manifest assets), a shell precache version bump, a Netlify SPA rewrite, and PWA contract tests in `src/pwa/pwaAssets.test.ts`. These changes are committed on `feat/learning-platform-foundation`; `main` is deliberately untouched. Wait for the exact latest-head Actions run before describing the commit as validated. The automated test cannot replace Android Chrome/iOS Safari install/offline acceptance. Remaining product-sized work still includes broad source parity review, app-wide localization, persistence migration/export, and the Supabase design/implementation.
+
+
+## Application locale foundation — 2026-10-23
+
+The UI now has an English/Russian preference stored under `interactive-guides.ui-locale`, a route-aware override for `/:locale/structured-lessons`, and a language switch in the top bar. The shared sidebar/mobile navigation, dashboard headings, main catalogue/bootcamp promotion and category cards have localized strings; category lesson counts handle English and Russian plural forms. App-level `html lang` follows the active UI locale.
+
+This is the start of Phase 2, not complete app-wide localization. Course details, legacy HTML lessons, learning-path detail pages, bookmarks, notes, quizzes, search result UI and all empty/error states still need systematic translation and tests. The source lesson/catalog content remains English unless it uses the bilingual structured lesson route.
+
+
+## Continuation handoff — 2026-10-23 (current PWA/update and UI locale checkpoint)
+
+- Branch: `feat/learning-platform-foundation`; tested code SHA: `5628ca69a6981a6d81357ab1d20e466c3f1d783e`.
+- GitHub Actions [run #39982235822](https://github.com/Mardakhay/interactive-guides/actions/runs/39982235822) passed install, lint, typecheck, tests and build on that exact SHA.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains open/draft. Do not merge or force-push as part of continuation.
+- PWA now has PNG assets at 180/192/512, manifest links, Netlify SPA fallback, versioned `v3` cache, and a localized learner-controlled update prompt. `public/sw.js` only activates a waiting update after an explicit `SKIP_WAITING` message and reloads only after the learner selects “Update now”.
+- UI localization now covers shell navigation, top bar language switch, dashboard headings, catalogue/category cards, category detail, learning-path list/detail, bookmarks, notes and search UI. Structured curriculum/lesson routes keep their route-specific language. This is still **partial**: legacy lesson body content, quiz controls/feedback and remaining labels/empty/error states need audit and translation.
+- Source-to-block parity for the 25 legacy HTML files is incomplete. All 26 core and 11 supplementary bilingual structured lesson IDs remain registered, but registration or schema/CI checks do not prove full instructional parity or editorial approval.
+- Persistence remains local-first with open work for cross-store legacy data migration and export/import. Supabase auth/sync has not been implemented. Real browser/device PWA acceptance has not been run in this session.
+- Next steps: check exact-head Actions after any subsequent change; continue itemized source parity in syllabus order; finish localization audit across remaining pages and content; triage the dependency audit reported by `npm ci`; then add verified PWA/manual deployment acceptance evidence. Keep editorial status at `review` until content review is complete.
+
+
+## Previous validated handoff — 2026-10-23 (superseded by the latest checkpoint below)
+
+- Branch: `feat/learning-platform-foundation`.
+- Exact validated HEAD: `3762826f6952df4a72fce4149694728ea5f1e378`.
+- GitHub Actions [run #39985536493](https://github.com/Mardakhay/interactive-guides/actions/runs/39985536493) passed dependency install, lint, typecheck, all 102 tests and production build on the exact SHA.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 is still open/Draft. Do not merge or force-push.
+- The CSS source pass compared `public/lessons/css-reference.html` (98,870 bytes; SHA `be8fb951799659672119c32def19167a9c659424`) with `css.fundamentals`, `css.flexbox-grid-responsive` and the Sass/SCSS supplement. The EN/RU `css.fundamentals` pair is version 3, 53 blocks, 110 minutes, 5 knowledge checks, 5 walkthroughs and 3 coding exercises per locale. Schema/CI and matching IDs/types confirm structural consistency—not complete parity or editorial approval.
+- Remaining CSS parity: the legacy page's live color-swatch copy behavior, duration/timing/delay transition controls, Flexbox/Grid playgrounds with generated output, section-specific copy/navigation and full quick-reference tables are not reproduced one-to-one. Positioning/z-index/float/clear details, custom web-font loading details and some filter demos also require mapping or a documented defer decision. Keep the legacy HTML intact.
+- Broad app UI localization now covers the shell/navigation, dashboard widgets, course catalog and category detail, learning paths, bookmarks, notes, lesson controls/metadata/navigation, quiz controls, search and common empty/error states. Continue auditing all remaining UI and source lesson-body content.
+- PWA foundations include PNG icons, manifest, static-asset-only runtime caching, SPA fallback, and learner-controlled service-worker activation. CI is green but no real-device install/offline acceptance was recorded. Local data migration/export/import remains incomplete; Supabase auth/sync remains not started.
+- Next: continue source-to-block parity in small batches; use exact-head CI after any change; record intentional interaction deferrals; preserve the `review` status until human editorial/source review is complete.
+
+
+## Latest validated handoff — 2026-10-23
+
+- **Working branch:** `feat/learning-platform-foundation`.
+- **Latest validated application/content snapshot:** `64dea28924aed5701452ae60b121cb57fc747598`; the current branch also contains the documentation refresh.
+- **CI:** GitHub Actions [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) passed `npm ci`, lint, typecheck, 102 tests in 22 test files, and production build on the exact SHA.
+- **Main protection:** `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`. PR #1 is still open/Draft. Do not merge or force-push without explicit instruction.
+- **Curriculum inventory:** 26 core and 11 supplementary stable lesson IDs in EN/RU (74 JSON files total). The app contains the structured curriculum route/reader. All 25 legacy HTML lesson files remain for source comparison and rollback.
+- **Current source-parity work:** CSS reference, Git reference and Git workflow got focused source-to-target audits. `css.fundamentals` v3 has 53 blocks/110 min/5 checks/5 walkthroughs/3 exercises per locale; `git.fundamentals` v3 has 38 blocks/95 min; `git.workflow-ci` v3 has 37 blocks/110 min. Git/CSS content status remains `review`; legacy demos, copy controls, navigation and quick-reference parity still need explicit mapping/defer decisions. Most other HTML/Notion content still needs full prose/code/exercise/answer review.
+- **UI locale:** broad but partial EN/RU coverage across shell, dashboard, catalogue, category details, learning paths, bookmarks, notes, lesson metadata/navigation, quiz controls and search. Do not claim every legacy lesson body is translated.
+- **PWA:** icons, manifest, service-worker caching/update prompt and Netlify-style SPA fallback are present. No real-device install/offline/update acceptance has been recorded.
+- **Data/Supabase:** local stores are active; a versioned migration and explicit export/import recovery path remain open. Supabase authentication and synchronization are not implemented.
+- **Release diagnostics:** the latest install reported 13 audit findings (8 moderate, 3 high, 2 critical). The build has a large-chunk warning and test output includes React Router future-flag warnings. Triage without unreviewed forced upgrades.
+- **Next:** continue source-to-block audits in syllabus order; close or defer the remaining UI/interactions with evidence; add and test local data portability; record browser/device PWA acceptance; triage dependency and bundle warnings. Keep lesson status at `review` until actual editorial approval.
+
+
+## Documentation snapshot — 2026-10-23 (exact current HEAD)
+
+The implementation/content snapshot reviewed for this documentation sync was `64dea28924aed5701452ae60b121cb57fc747598`, with GitHub Actions [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) passing on that exact SHA. The previous documentation sync `a4d5eadb045f03a5c7cc995b6f150b42e2ca3eb4` also passed exact-head CI [run #40008684548](https://github.com/Mardakhay/interactive-guides/actions/runs/40008684548). This commit records the handoff and does not change release blockers. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`, and PR #1 remains open as a draft.

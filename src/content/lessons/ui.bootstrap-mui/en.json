@@ -1,0 +1,206 @@
+{
+  "id": "ui.bootstrap-mui",
+  "locale": "en",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-23",
+  "moduleId": "supplement-ui-ecosystem",
+  "supplementaryTrackId": "supplement-ui-ecosystem",
+  "order": 1,
+  "title": "UI Libraries: Bootstrap Grid, Material UI, and Build-versus-Buy",
+  "description": "Compare a CSS framework with a React component library, understand their APIs, and choose based on product constraints rather than popularity.",
+  "estimatedMinutes": 75,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "html.document-structure",
+    "css.flexbox-grid-responsive",
+    "react.components-jsx-state"
+  ],
+  "learningOutcomes": [
+    "Explain the difference between a CSS-first framework and a React component library.",
+    "Use Bootstrap's container/row/column and breakpoint mental model.",
+    "Configure a React component library theme using its supported API.",
+    "Evaluate version, bundle, accessibility and maintenance trade-offs."
+  ],
+  "tags": [
+    "bootstrap",
+    "mui",
+    "ui-library",
+    "design-system",
+    "responsive"
+  ],
+  "blocks": [
+    {
+      "id": "uilib-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Bootstrap and Material UI solve overlapping but different problems"
+    },
+    {
+      "id": "uilib-model",
+      "type": "paragraph",
+      "text": "Bootstrap is a CSS-first framework with a responsive grid and styled components/utilities; Material UI (MUI) provides React components, theme APIs and component behavior. Both can speed up delivery, but their styling model, extension points, bundle implications, accessibility details and version migration differ. Do not treat them as interchangeable or combine their styling conventions everywhere without an explicit design-system decision."
+    },
+    {
+      "id": "uilib-bootstrap",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<div class=\"container\">\n  <div class=\"row g-3\">\n    <div class=\"col-12 col-md-8\">Main content</div>\n    <div class=\"col-12 col-md-4\">Sidebar</div>\n  </div>\n</div>",
+      "steps": [
+        {
+          "title": "Use the expected container → row → column structure",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Bootstrap's grid expects a container, row and columns. Responsive column classes describe how the content spans at different breakpoints; they are not arbitrary widths for unrelated elements."
+        },
+        {
+          "title": "Design for mobile-first content",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "col-12 stacks content by default, then col-md-* lays it out in columns at the medium breakpoint. Verify the exact breakpoint definitions for the Bootstrap version used by the project."
+        }
+      ]
+    },
+    {
+      "id": "uilib-mui",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import Button from '@mui/material/Button';\nimport { ThemeProvider, createTheme } from '@mui/material/styles';\n\nconst theme = createTheme({\n  palette: {\n    primary: { main: '#3451b2' }\n  }\n});\n\nfunction App() {\n  return (\n    <ThemeProvider theme={theme}>\n      <Button variant=\"contained\" color=\"primary\">Save</Button>\n    </ThemeProvider>\n  );\n}",
+      "steps": [
+        {
+          "title": "Use library components through their public API",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Import from the library's documented entry points. Check installation, peer dependencies and import conventions against the exact major version installed."
+        },
+        {
+          "title": "Centralize brand decisions in a theme",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "explanation": "A theme can centralize design values across components. It does not mean every component's accessibility or interaction behavior is automatically correct for every use case."
+        },
+        {
+          "title": "Choose variants based on intent",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "explanation": "A contained primary button signals the main action, but destructive, secondary and navigation actions may need different visual and semantic treatments."
+        }
+      ]
+    },
+    {
+      "id": "uilib-decisions",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Bootstrap may fit content-led responsive layouts where utility classes and a CSS grid are desired without adopting a component API for every control.",
+        "MUI may fit React applications that want ready-made component behavior, theming and customization through component props/theme APIs.",
+        "Audit bundle size, CSS ownership, theming, keyboard/focus behavior, contrast, localization and breaking changes before adopting either.",
+        "Do not copy old installation snippets without checking package versions; dependency versions in the legacy MUI source may differ from the app you are building.",
+        "Use one coherent token/theme layer where possible. Mixing independent libraries often duplicates resets, typography, spacing and focus behavior."
+      ]
+    },
+    {
+      "id": "uilib-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What is the most useful first step before copying a Material UI installation snippet from a legacy tutorial?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Assume the newest version has the exact same package names and API",
+          "correct": false,
+          "feedback": "Major versions can change packages, peer dependencies and APIs."
+        },
+        {
+          "id": "b",
+          "text": "Check the installed project's React/MUI versions and the matching official installation docs",
+          "correct": true,
+          "feedback": "Examples need to match the real dependency versions and conventions in the project."
+        },
+        {
+          "id": "c",
+          "text": "Install every component library at once to compare them in production",
+          "correct": false,
+          "feedback": "Adding libraries increases dependency and bundle cost before a need has been established."
+        },
+        {
+          "id": "d",
+          "text": "Ignore accessibility because the library handles every application context automatically",
+          "correct": false,
+          "feedback": "Libraries help with common patterns but usage, labels, focus, contrast and page context still require validation."
+        }
+      ],
+      "explanation": "A component library reduces repetitive work but does not remove version alignment or application-level design responsibility."
+    },
+    {
+      "id": "uilib-practice",
+      "type": "codingExercise",
+      "title": "Choose and configure a UI library for a dashboard",
+      "language": "text",
+      "context": "Make an evidence-based library decision and define how it fits the app's existing design system.",
+      "instructions": [
+        "Compare Bootstrap and MUI on layout, component behavior, theming, bundle, accessibility, customization and version upgrade cost.",
+        "Choose one for a small responsive dashboard and explain the constraints that led to the decision.",
+        "Sketch how brand colors/spacing and focus styles will stay consistent across components.",
+        "Verify installation and component APIs against official docs for the exact versions.",
+        "List keyboard, responsive, contrast and localization checks still needed after installation."
+      ],
+      "requirements": [
+        "Choice uses project constraints rather than popularity alone.",
+        "Dependencies and versions are explicit.",
+        "Design tokens/theme ownership is clear.",
+        "Accessibility is treated as a verification requirement, not assumed from library usage.",
+        "Migration/upgrade trade-offs are documented."
+      ],
+      "starterCode": "Product needs: responsive dashboard, forms, tables, keyboard support\n\nOptions: Bootstrap / Material UI\n\nComparison:\n- layout model:\n- component API:\n- theme/tokens:\n- bundle/dependencies:\n- accessibility checks:\n- customization/version costs:\n\nDecision and rationale:",
+      "hints": [
+        "Bootstrap emphasizes layout utilities and CSS classes; MUI emphasizes React components and its theme API.",
+        "Match examples to the exact installed major version.",
+        "Choose one source of truth for tokens and avoid stacking competing resets/themes."
+      ],
+      "successCriteria": [
+        "States a justified library choice.",
+        "Identifies version/documentation checks.",
+        "Provides a token/theme consistency plan.",
+        "Includes remaining accessibility/responsive validation."
+      ]
+    },
+    {
+      "id": "uilib-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Bootstrap emphasizes CSS grid/utilities and responsive classes; MUI emphasizes React components and theme APIs.",
+        "Choose based on layout needs, component behavior, accessibility, customization, bundle impact and upgrade cost.",
+        "Libraries accelerate implementation but do not eliminate design-system, version or accessibility review."
+      ]
+    },
+    {
+      "id": "uilib-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "Bootstrap: Grid system",
+          "url": "https://getbootstrap.com/docs/5.3/layout/grid/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Bootstrap: Breakpoints",
+          "url": "https://getbootstrap.com/docs/5.3/layout/breakpoints/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MUI: Installation",
+          "url": "https://mui.com/material-ui/getting-started/installation/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MUI: Theming",
+          "url": "https://mui.com/material-ui/customization/theming/",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

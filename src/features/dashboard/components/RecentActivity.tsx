@@ -3,6 +3,8 @@ import { Bookmark, StickyNote } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { EmptyState } from '@/components/feedback';
 import { lessonPath } from '@/app/router/routes';
+import { getCategoryById } from '@/features/content';
+import { getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
 import type { ActivityItem } from '../types';
 
 interface RecentActivityProps {
@@ -10,11 +12,13 @@ interface RecentActivityProps {
 }
 
 export function RecentActivity({ items }: RecentActivityProps) {
+  const locale = useUiLocale();
+
   if (items.length === 0) {
     return (
       <EmptyState
-        title="No activity yet"
-        message="Bookmark a lesson or add a note while you learn — it'll show up here."
+        title={translate(locale, 'noActivityTitle')}
+        message={translate(locale, 'noActivityMessage')}
         icon={StickyNote}
       />
     );
@@ -34,14 +38,14 @@ export function RecentActivity({ items }: RecentActivityProps) {
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-neutral-500">{item.categoryName}</p>
+                <p className="text-xs text-neutral-500">{getLocalizedCategoryCopy(locale, item.categoryId, getCategoryById(item.categoryId)?.name ?? item.categoryName, getCategoryById(item.categoryId)?.description ?? '').name}</p>
                 <h4 className="truncate text-sm font-semibold text-neutral-900 group-hover:text-primary-700">
                   {item.lessonTitle}
                 </h4>
                 {item.notePreview && <p className="mt-0.5 truncate text-xs text-neutral-500">{item.notePreview}</p>}
               </div>
               <time className="shrink-0 text-xs text-neutral-500" dateTime={item.timestamp}>
-                {formatRelativeTime(item.timestamp)}
+                {formatRelativeTime(item.timestamp, locale)}
               </time>
             </Card>
           </Link>
@@ -51,18 +55,19 @@ export function RecentActivity({ items }: RecentActivityProps) {
   );
 }
 
-function formatRelativeTime(isoTimestamp: string): string {
+function formatRelativeTime(isoTimestamp: string, locale: 'en' | 'ru'): string {
   const date = new Date(isoTimestamp);
-  const diffMinutes = Math.round((Date.now() - date.getTime()) / 60_000);
+  const localeTag = locale === 'ru' ? 'ru-RU' : 'en-US';
+  const relativeTime = new Intl.RelativeTimeFormat(localeTag, { numeric: 'auto' });
+  const diffMinutes = Math.round((date.getTime() - Date.now()) / 60_000);
 
-  if (diffMinutes < 1) return 'just now';
-  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+  if (Math.abs(diffMinutes) < 60) return relativeTime.format(diffMinutes, 'minute');
 
   const diffHours = Math.round(diffMinutes / 60);
-  if (diffHours < 24) return `${diffHours}h ago`;
+  if (Math.abs(diffHours) < 24) return relativeTime.format(diffHours, 'hour');
 
   const diffDays = Math.round(diffHours / 24);
-  if (diffDays < 30) return `${diffDays}d ago`;
+  if (Math.abs(diffDays) < 30) return relativeTime.format(diffDays, 'day');
 
-  return date.toLocaleDateString();
+  return date.toLocaleDateString(localeTag);
 }

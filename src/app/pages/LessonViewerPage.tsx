@@ -10,7 +10,7 @@ import {
   LessonNavigation,
 } from '@/features/content';
 import { LessonRenderer, resolveLessonSource } from '@/features/lesson-renderer';
-import { useProgressStore, STATUS_LABELS, STATUS_BADGE_VARIANTS } from '@/features/progress';
+import { useProgressStore, STATUS_BADGE_VARIANTS } from '@/features/progress';
 import { BookmarkButton } from '@/features/bookmarks';
 import { NoteEditor } from '@/features/notes';
 import { getQuizByLessonId, QuizRenderer } from '@/features/quizzes';
@@ -18,10 +18,12 @@ import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { EmptyState } from '@/components/feedback';
 import { Button, Badge } from '@/components/ui';
 import { ROUTE_PATHS, coursePath, lessonPath } from '@/app/router/routes';
+import { getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
 
 const AUTO_ADVANCE_DELAY_MS = 900;
 
 export default function LessonViewerPage() {
+  const locale = useUiLocale();
   const { lessonId } = useParams<{ lessonId: string }>();
   const navigate = useNavigate();
 
@@ -84,17 +86,17 @@ export default function LessonViewerPage() {
       <div className="space-y-6">
         <Breadcrumbs
           items={[
-            { label: 'Catalog', path: ROUTE_PATHS.COURSES },
-            { label: 'Lesson not found' },
+            { label: translate(locale, 'catalog'), path: ROUTE_PATHS.COURSES },
+            { label: translate(locale, 'lessonNotFoundTitle') },
           ]}
         />
         <EmptyState
-          title="Lesson not found"
-          message="The lesson you're looking for doesn't exist or may have been removed."
+          title={translate(locale, 'lessonNotFoundTitle')}
+          message={translate(locale, 'lessonNotFoundMessage')}
           icon={FileText}
           action={
             <Link to={ROUTE_PATHS.COURSES} className="text-sm font-medium text-primary-600 hover:text-primary-700">
-              Back to catalog
+              {translate(locale, 'backToCatalog')}
             </Link>
           }
         />
@@ -102,13 +104,19 @@ export default function LessonViewerPage() {
     );
   }
 
+  const categoryCopy = getLocalizedCategoryCopy(locale, category.id, category.name, category.description);
+  const localizedStatus = translate(
+    locale,
+    status === 'not-started' ? 'notStarted' : status === 'in-progress' ? 'inProgress' : 'completed',
+  );
+
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_16rem] xl:grid-cols-[1fr_18rem]">
       <div className="space-y-6">
         <Breadcrumbs
           items={[
-            { label: 'Catalog', path: ROUTE_PATHS.COURSES },
-            { label: category.name, path: coursePath(category.id) },
+            { label: translate(locale, 'catalog'), path: ROUTE_PATHS.COURSES },
+            { label: categoryCopy.name, path: coursePath(category.id) },
             { label: lesson.title },
           ]}
         />
@@ -116,11 +124,11 @@ export default function LessonViewerPage() {
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm text-neutral-500">
             <BookOpen className="h-4 w-4" />
-            <span>{category.name}</span>
+            <span>{categoryCopy.name}</span>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-2xl font-semibold text-neutral-900">{lesson.title}</h1>
-            <Badge variant={STATUS_BADGE_VARIANTS[status]}>{STATUS_LABELS[status]}</Badge>
+            <Badge variant={STATUS_BADGE_VARIANTS[status]}>{localizedStatus}</Badge>
             <BookmarkButton lessonId={lesson.id} className="ml-auto" />
           </div>
           <p className="text-neutral-600">{lesson.description}</p>
@@ -138,20 +146,20 @@ export default function LessonViewerPage() {
               <p className="flex items-center gap-2 text-sm font-medium text-success-700">
                 <Check className="h-4 w-4" />
                 {justCompleted && adjacent.next
-                  ? 'Completed — moving to next lesson\u2026'
-                  : 'You completed this lesson'}
+                  ? translate(locale, 'completedMovingNext')
+                  : translate(locale, 'youCompletedLesson')}
               </p>
               <Button variant="outline" size="sm" onClick={handleMarkIncomplete}>
                 <RotateCcw className="h-4 w-4" />
-                Mark Incomplete
+                {translate(locale, 'markIncomplete')}
               </Button>
             </>
           ) : (
             <>
-              <p className="text-sm text-neutral-600">Finished this lesson?</p>
+              <p className="text-sm text-neutral-600">{translate(locale, 'finishedThisLesson')}</p>
               <Button variant="primary" size="sm" onClick={handleMarkComplete}>
                 <Check className="h-4 w-4" />
-                Mark Complete
+                {translate(locale, 'markComplete')}
               </Button>
             </>
           )}
@@ -166,10 +174,10 @@ export default function LessonViewerPage() {
         <LessonMetadata
           lesson={lesson}
           category={category}
-          statusBadge={<Badge variant={STATUS_BADGE_VARIANTS[status]}>{STATUS_LABELS[status]}</Badge>}
+          statusBadge={<Badge variant={STATUS_BADGE_VARIANTS[status]}>{localizedStatus}</Badge>}
         />
         <div className="rounded-xl border border-neutral-200 bg-white p-3">
-          <p className="px-3 py-2 text-xs font-medium uppercase tracking-wide text-neutral-500">All Lessons</p>
+          <p className="px-3 py-2 text-xs font-medium uppercase tracking-wide text-neutral-500">{translate(locale, 'allLessons')}</p>
           <LessonSidebarTree currentLessonId={lesson.id} currentCategoryId={category.id} />
         </div>
       </aside>

@@ -106,3 +106,17 @@ A lesson may combine sections into a coherent narrative; the template is a quali
 - Create structured block content and quiz/exercise data.
 - Validate schemas, links, code-block languages, answer keys, translation completeness and curriculum links in CI.
 - Retain old HTML as a temporary migration reference until the structured replacement is reviewed in both locales.
+
+## Implementation status — 2026-10-23
+
+The curriculum and lesson template above remain the target, not the implemented application model. The current feature branch still has the 25-item legacy catalog and HTML loader; it does not yet expose a complete 24-week bilingual sequence or consume structured SQL/hosting supplements. Notion and legacy source mappings, confidence limits, and concrete coverage gaps are recorded in FULL_SOURCE_CONTENT_AUDIT.md. Counts and mappings distinguish discovered/inventoried sources from content fully read and migrated.
+
+
+## Embedded content implementation checkpoint — 2026-10-23
+
+The bilingual React content reader now exposes the canonical 24-week curriculum at `/:locale/structured-lessons` and lesson text at `/:locale/structured-lessons/:lessonId`. The repository registers 26 core lesson IDs (52 EN/RU files) plus 11 separately labeled supplementary IDs (22 EN/RU files), including the capstone stages. Lessons are structured content blocks rendered in-app; standalone HTML remains migration/source material, not the embedded lesson format.
+
+This does not mean all 25 legacy HTML sources or all Notion details have been fully audited and migrated. The current source-depth limits and exact follow-up inventory are in `FULL_SOURCE_CONTENT_AUDIT.md`; keep lesson status at review until the topic examples, edge cases, exercises, feedback, and EN/RU quality are verified against sources.
+
+
+**Validation note (2026-10-23):** at code SHA `132636c4007141454a903e815d6f0418a3c511b0`, lint/typecheck, 92 tests, production build and `git diff --check` passed locally. The repository bundle triggers Vite's >500 kB chunk warning. Source parity is still open; see the audit matrix.

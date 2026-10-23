@@ -1,0 +1,588 @@
+{
+  "id": "js.async-fetch",
+  "locale": "en",
+  "version": 2,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-23",
+  "moduleId": "month-2-week-8",
+  "week": 8,
+  "order": 1,
+  "title": "Asynchronous JavaScript, Promises, async/await, and Fetch",
+  "description": "Understand how asynchronous work is represented, coordinate Promise outcomes, write readable async/await functions, and handle HTTP responses and failures when fetching API data.",
+  "estimatedMinutes": 95,
+  "difficulty": "beginner",
+  "prerequisites": [
+    "js.basics-types-control-flow",
+    "js.functions-arrays-objects",
+    "js.dom-events"
+  ],
+  "learningOutcomes": [
+    "Explain why waiting for network data must not be treated like an immediate return value.",
+    "Describe the pending, fulfilled, and rejected states of a Promise.",
+    "Use then/catch/finally and async/await to handle asynchronous outcomes.",
+    "Distinguish a network-level fetch failure from an HTTP error status.",
+    "Parse a response body and handle loading, success, and error states explicitly.",
+    "Write a small data-fetching function and describe how an application should react to each outcome."
+  ],
+  "tags": [
+    "javascript",
+    "async",
+    "promise",
+    "async-await",
+    "fetch",
+    "http",
+    "api",
+    "error-handling"
+  ],
+  "blocks": [
+    {
+      "id": "async-problem",
+      "type": "heading",
+      "level": 2,
+      "text": "Why asynchronous work needs a different model"
+    },
+    {
+      "id": "async-problem-body",
+      "type": "paragraph",
+      "text": "A network request may take tens or hundreds of milliseconds—or fail entirely—and JavaScript cannot know its result at the moment the request is started. If the program treated every request as an immediate value, it would have to block useful work while waiting. Browser APIs represent many operations asynchronously: the program starts the operation, continues doing other work, and reacts when the operation settles."
+    },
+    {
+      "id": "async-model",
+      "type": "callout",
+      "tone": "tip",
+      "title": "A Promise is a future outcome, not the value itself",
+      "text": "Calling a function that returns a Promise gives you a Promise object now. The data the operation produces becomes available later when that Promise fulfills. Keep the Promise and its eventual result conceptually separate."
+    },
+    {
+      "id": "promise-states",
+      "type": "heading",
+      "level": 2,
+      "text": "Promise states and outcomes"
+    },
+    {
+      "id": "promise-states-body",
+      "type": "paragraph",
+      "text": "A Promise represents the eventual success or failure of an asynchronous operation. While pending, it has not settled. It then becomes fulfilled with a value or rejected with a reason. A settled Promise does not switch to the other state later. The executor passed to new Promise runs synchronously; handlers attached with then/catch execute asynchronously after settlement through the Promise job queue."
+    },
+    {
+      "id": "promise-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const resultPromise = fetch(\"https://jsonplaceholder.typicode.com/posts/1\");\nconsole.log(resultPromise); // a Promise, not the post object\n\nresultPromise\n  .then((response) => response.json())\n  .then((post) => {\n    console.log(post.title);\n  })\n  .catch((error) => {\n    console.error(\"Request failed\", error);\n  });",
+      "steps": [
+        {
+          "title": "Start an asynchronous request",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "fetch starts a network request and immediately returns a Promise. At this line the response body is not yet the resultPromise variable's value."
+        },
+        {
+          "title": "Read and parse the response body",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "The first then handler receives a Response object. response.json() reads the body asynchronously and returns another Promise that fulfills with the parsed JavaScript value."
+        },
+        {
+          "title": "Use the parsed data",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "The next then receives the parsed post object rather than a Response. This is where the program can use fields such as title."
+        },
+        {
+          "title": "Handle rejections in the chain",
+          "lineStart": 8,
+          "lineEnd": 10,
+          "explanation": "catch handles a rejection that propagates from the earlier operations. A fetch network failure or a body parsing failure can reject; an HTTP 404 alone normally does not reject fetch."
+        }
+      ]
+    },
+    {
+      "id": "then-catch-finally",
+      "type": "heading",
+      "level": 3,
+      "text": "then, catch, and finally"
+    },
+    {
+      "id": "then-catch-finally-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "then(onFulfilled) registers logic for a fulfilled Promise and returns a new Promise representing the handler's result.",
+        "catch(onRejected) handles a rejection in the chain; if the handler returns a normal value, it can recover the chain.",
+        "finally runs cleanup logic whether the preceding Promise fulfilled or rejected. It is useful for stopping a loading indicator, but should not hide or accidentally replace the original outcome.",
+        "Return a Promise from a then handler when later steps must wait for that operation. Otherwise the chain cannot coordinate that asynchronous work."
+      ]
+    },
+    {
+      "id": "async-await",
+      "type": "heading",
+      "level": 2,
+      "text": "async/await: write asynchronous logic in sequence"
+    },
+    {
+      "id": "async-await-body",
+      "type": "paragraph",
+      "text": "An async function always returns a Promise. A return value becomes that Promise's fulfillment value; a thrown error becomes a rejection. Inside an async function, await pauses that function's progress until the awaited Promise settles, then yields the fulfillment value or throws the rejection reason. It does not freeze the entire browser thread while network I/O is pending."
+    },
+    {
+      "id": "async-await-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "async function loadPost(postId) {\n  const response = await fetch(\n    `https://jsonplaceholder.typicode.com/posts/${postId}`,\n  );\n\n  if (!response.ok) {\n    throw new Error(`HTTP error: ${response.status}`);\n  }\n\n  const post = await response.json();\n  return post;\n}\n\nloadPost(1)\n  .then((post) => console.log(post.title))\n  .catch((error) => console.error(error.message));",
+      "steps": [
+        {
+          "title": "An async function returns a Promise",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "Even if the function returns a plain object later, callers receive a Promise that represents its future completion."
+        },
+        {
+          "title": "Wait for the response",
+          "lineStart": 2,
+          "lineEnd": 4,
+          "explanation": "await pauses only the current async function until fetch's Promise settles. The returned Response is assigned to response after the request produces one."
+        },
+        {
+          "title": "Check the HTTP status deliberately",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "A fetch Promise commonly fulfills when an HTTP response arrives even if it is 404 or 500. response.ok is true for successful 2xx responses; throw when the application wants non-success statuses to follow the error path."
+        },
+        {
+          "title": "Parse the body and return the result",
+          "lineStart": 10,
+          "lineEnd": 11,
+          "explanation": "response.json() is another asynchronous operation, so it is awaited separately. Returning post makes the resolved value available to the caller through the Promise returned by loadPost."
+        },
+        {
+          "title": "Handle both outcomes at the call site",
+          "lineStart": 14,
+          "lineEnd": 15,
+          "explanation": "The caller handles successful data in then and reports a rejection in catch. Calling the async function does not make its rejection disappear."
+        }
+      ]
+    },
+    {
+      "id": "fetch-http-errors",
+      "type": "heading",
+      "level": 2,
+      "text": "Fetch: network failure is not the same as an HTTP error"
+    },
+    {
+      "id": "fetch-http-errors-body",
+      "type": "paragraph",
+      "text": "fetch rejects for failures such as a network error or a request blocked by browser policy. It does not normally reject merely because the server returned a response with a 404 or 500 status. Always inspect response.ok or response.status when the application needs only successful HTTP responses. Also remember that response.json() parses the body; it can fail if the body is not valid JSON or cannot be read."
+    },
+    {
+      "id": "fetch-failure-matrix",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Network or browser-policy failure: fetch rejects and control moves to a rejection handler or catch.",
+        "HTTP 404/500: fetch usually fulfills with a Response, but response.ok is false; decide whether to throw or show a status-specific result.",
+        "Invalid JSON response: response.json() rejects even when the HTTP status was successful.",
+        "Valid HTTP and JSON: the function can return the parsed data for the interface to render."
+      ]
+    },
+    {
+      "id": "fetch-pattern",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "async function fetchPosts() {\n  const response = await fetch(\"https://jsonplaceholder.typicode.com/posts\");\n  if (!response.ok) {\n    throw new Error(`Request failed: ${response.status}`);\n  }\n  return response.json();\n}\n\nasync function main() {\n  try {\n    const posts = await fetchPosts();\n    console.log(`Loaded ${posts.length} posts`);\n  } catch (error) {\n    console.error(\"Could not load posts\", error);\n  }\n}\n\nmain();",
+      "steps": [
+        {
+          "title": "Keep the request in a reusable function",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "fetchPosts owns the HTTP interaction and returns parsed data. It throws for non-2xx responses so the caller can handle them consistently."
+        },
+        {
+          "title": "Await the data where it is needed",
+          "lineStart": 10,
+          "lineEnd": 11,
+          "explanation": "main awaits fetchPosts, so posts receives the parsed array rather than a Promise object."
+        },
+        {
+          "title": "Handle failure close to the UI workflow",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "try/catch handles network, HTTP, and body parsing errors that propagate from fetchPosts. A production UI should also expose an understandable error state instead of only logging it."
+        },
+        {
+          "title": "Call the async entry point",
+          "lineStart": 17,
+          "lineEnd": 17,
+          "explanation": "main returns a Promise too. In this small script its internal failures are handled; larger applications may also need cancellation, retry decisions, and stale-request protection."
+        }
+      ]
+    },
+    {
+      "id": "loading-error-state",
+      "type": "heading",
+      "level": 2,
+      "text": "A request is a UI state transition"
+    },
+    {
+      "id": "loading-error-state-body",
+      "type": "paragraph",
+      "text": "A real page usually needs at least three visible states: loading, success, and error. Starting the request sets loading. A successful result stores data and ends loading. A failure stores an error and ends loading. Render each state intentionally: avoid showing stale success content as if it belongs to a new request, and do not leave the interface in a perpetual loading state after a failure."
+    },
+    {
+      "id": "loading-error-state-example",
+      "type": "code",
+      "language": "javascript",
+      "caption": "A small state model for a page",
+      "code": "const state = {\n  status: \"idle\", // idle | loading | success | error\n  data: null,\n  error: null,\n};\n\n// Before a request:\nstate.status = \"loading\";\nstate.error = null;\n\n// On success:\nstate.data = posts;\nstate.status = \"success\";\n\n// On failure:\nstate.error = \"Could not load posts\";\nstate.status = \"error\";"
+    },
+    {
+      "id": "request-lifecycle-note",
+      "type": "callout",
+      "tone": "important",
+      "title": "Production requests need lifecycle rules",
+      "text": "For real applications, consider cancellation with AbortController when the user navigates away or changes a query, guarding against a slower old request overwriting a newer result, and whether a retry is safe. Retries are not automatically correct for all operations."
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does fetch usually do when the server responds with HTTP 404?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It fulfills with a Response whose ok property is false",
+          "correct": true,
+          "feedback": "An HTTP error status is still an HTTP response; fetch normally fulfills unless the request itself fails at the network/browser level."
+        },
+        {
+          "id": "b",
+          "text": "It always rejects with a TypeError",
+          "correct": false,
+          "feedback": "A TypeError rejection is typical for certain request/network failures, not merely for receiving an HTTP 404 response."
+        },
+        {
+          "id": "c",
+          "text": "It automatically retries until the server succeeds",
+          "correct": false,
+          "feedback": "fetch does not automatically retry a response with a 404 status."
+        },
+        {
+          "id": "d",
+          "text": "It parses the response body as JSON before returning",
+          "correct": false,
+          "feedback": "fetch resolves to a Response object; body parsing is a separate asynchronous step such as response.json()."
+        }
+      ],
+      "explanation": "Check response.ok or status before treating the HTTP response as successful."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "An async function returns a Promise, even when its body returns an ordinary value.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": true,
+          "feedback": "JavaScript wraps an async function's return value in a Promise that fulfills with that value."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": false,
+          "feedback": "The async keyword changes the function's return contract; callers receive a Promise rather than the raw value."
+        }
+      ],
+      "explanation": "The caller must handle or await the Promise to obtain the eventual returned value."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Which situations can lead to a Promise rejection in the example fetch pipeline? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "A network request fails before a Response is available",
+          "correct": true,
+          "feedback": "Network-level failure causes fetch's Promise to reject."
+        },
+        {
+          "id": "b",
+          "text": "response.json() cannot parse the response body as JSON",
+          "correct": true,
+          "feedback": "Body parsing can reject if the body is invalid JSON or cannot be read."
+        },
+        {
+          "id": "c",
+          "text": "The server returns HTTP 404 but the code never checks response.ok",
+          "correct": false,
+          "feedback": "fetch normally fulfills with a Response for 404; the code must inspect the status or throw to make it an error path."
+        },
+        {
+          "id": "d",
+          "text": "The response has an empty array as its valid JSON body",
+          "correct": false,
+          "feedback": "An empty JSON array is valid JSON and does not itself cause rejection."
+        }
+      ],
+      "explanation": "Separate transport failure, HTTP status handling, and body parsing; they are different failure points."
+    },
+    {
+      "id": "knowledge-check-4",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why does this code need await for the parsed response body: const data = await response.json()?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Reading and parsing the body is asynchronous and returns a Promise",
+          "correct": true,
+          "feedback": "response.json() returns a Promise that fulfills with the parsed body value."
+        },
+        {
+          "id": "b",
+          "text": "await converts a string into an array",
+          "correct": false,
+          "feedback": "await waits for a Promise outcome; the JSON parser determines the shape of the parsed value."
+        },
+        {
+          "id": "c",
+          "text": "Without await, JSON responses are not allowed by HTTP",
+          "correct": false,
+          "feedback": "HTTP can carry JSON without await; await is about how JavaScript handles the Promise returned by the API."
+        },
+        {
+          "id": "d",
+          "text": "await enables the server to send a response",
+          "correct": false,
+          "feedback": "The request is initiated separately; await only waits within the async function for the operation's Promise to settle."
+        }
+      ],
+      "explanation": "fetch and response-body reading are separate asynchronous steps, so code should handle both stages."
+    },
+    {
+      "id": "practice-fetch-posts",
+      "type": "codingExercise",
+      "title": "Load and inspect posts from a public API",
+      "language": "javascript",
+      "context": "Write an asynchronous function to fetch a list of posts and handle the different outcomes. The playground blocks network requests by design, so write the code here and reason through the outcomes rather than expecting the runner to contact the API.",
+      "instructions": [
+        "Write an async function loadPosts() that requests https://jsonplaceholder.typicode.com/posts.",
+        "Check response.ok and throw an Error with the HTTP status for a non-success response.",
+        "Parse the response body with response.json() and return the parsed array.",
+        "Write a caller that awaits loadPosts() and logs the number of posts plus the first post's title.",
+        "Handle failures with try/catch and print a useful message.",
+        "Explain the difference between a network rejection, an HTTP 404 response, and invalid JSON.",
+        "Describe how a real user interface should represent loading, success, and failure."
+      ],
+      "requirements": [
+        "The request is wrapped in an async function and the response body is awaited or returned as a Promise.",
+        "Non-2xx HTTP responses are checked explicitly.",
+        "Network, HTTP and body parsing failures can reach an error-handling path.",
+        "The success path uses parsed JSON data rather than logging the raw Response object.",
+        "The solution does not claim that the platform's isolated playground can make network requests.",
+        "The learner can explain at least three request lifecycle states."
+      ],
+      "starterCode": "const API_URL = \"https://jsonplaceholder.typicode.com/posts\";\n\nasync function loadPosts() {\n  // TODO: request data, check response.ok, parse JSON, return the posts.\n}\n\nasync function main() {\n  try {\n    // TODO: await loadPosts(), then inspect the results.\n  } catch (error) {\n    // TODO: report a useful failure message.\n  }\n}\n\nmain();",
+      "hints": [
+        "fetch returns a Promise for a Response; the body parser is a separate asynchronous operation.",
+        "Check response.ok before treating an HTTP response as successful.",
+        "Keep request logic in loadPosts and caller/UI logic in main so responsibilities stay clear."
+      ],
+      "successCriteria": [
+        "The function returns parsed post objects on success.",
+        "HTTP error responses are not silently treated as success.",
+        "The caller handles a rejected Promise.",
+        "The learner can describe loading/success/error behavior for a UI.",
+        "The learner can explain why the public API call cannot be executed from the network-disabled learning sandbox."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "A Promise represents an eventual result; it is not the result value itself.",
+        "Use then/catch/finally or async/await to handle fulfillment, rejection, and cleanup.",
+        "fetch normally rejects for network/request failures, not merely for an HTTP 404 or 500.",
+        "Check response.ok/status and parse the body separately with response.json().",
+        "Model loading, success, and error as explicit UI states, and consider cancellation and stale requests in real applications."
+      ]
+    },
+    {
+      "id": "deep-async-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: microtasks, event-loop order, and concurrent requests"
+    },
+    {
+      "id": "deep-async-model",
+      "type": "paragraph",
+      "text": "Asynchronous JavaScript does not mean ordinary callbacks execute simultaneously on the same call stack. Synchronous code runs first; after the current stack empties, queued work proceeds. Promise reactions run as microtasks and, in the common browser model, drain before the next timer task. For network requests, separately decide whether operations depend on each other, whether every outcome matters, and how stale requests are prevented from updating the UI."
+    },
+    {
+      "id": "deep-async-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "console.log('sync:start');\n\nsetTimeout(() => console.log('timer'), 0);\nPromise.resolve()\n  .then(() => console.log('promise:1'))\n  .then(() => console.log('promise:2'));\n\nconsole.log('sync:end');",
+      "steps": [
+        {
+          "title": "Run the current synchronous stack first",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "The first log happens immediately while the current script is running."
+        },
+        {
+          "title": "Queue a timer task and Promise reactions",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "explanation": "The timeout callback is scheduled as a task. The first then handler is queued as a microtask; the next reaction is queued after the previous Promise settles."
+        },
+        {
+          "title": "Finish synchronous execution",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "sync:end is logged before any queued callback runs."
+        },
+        {
+          "title": "Drain Promise microtasks before the timer task",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "explanation": "Expected order: sync:start, sync:end, promise:1, promise:2, timer. A zero delay does not interrupt the running script or outrun the queued Promise reactions."
+        }
+      ]
+    },
+    {
+      "id": "deep-async-strategies",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use sequential `await` when the next operation needs the previous result. Start independent requests together, then await `Promise.all([a(), b()])`.",
+        "`Promise.all` rejects when one input rejects but does not cancel the other operations. `Promise.allSettled` is useful when every outcome must be inspected. `Promise.race` returns the first settlement, not necessarily the first success.",
+        "`fetch()` resolving means a Response arrived, not that the HTTP status was successful. Check `response.ok`, then parse the body; network failure, HTTP failure and invalid JSON are distinct failure points."
+      ]
+    },
+    {
+      "id": "deep-async-callout",
+      "type": "callout",
+      "tone": "important",
+      "title": "Cancellation and stale responses are separate concerns",
+      "text": "An AbortController can request cancellation when a user navigates away or changes a search query. A freshness guard may still be needed so an older request cannot overwrite newer data if cancellation arrives too late or the operation is not abortable. Do not automatically retry every request: repeating a non-idempotent mutation can create duplicate effects."
+    },
+    {
+      "id": "deep-async-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What is the expected output order for the event-loop trace above in a browser?",
+      "options": [
+        {
+          "id": "a",
+          "text": "sync:start → timer → promise:1 → promise:2 → sync:end",
+          "correct": false,
+          "feedback": "A timer callback cannot interrupt the currently running synchronous script."
+        },
+        {
+          "id": "b",
+          "text": "sync:start → sync:end → promise:1 → promise:2 → timer",
+          "correct": true,
+          "feedback": "Synchronous code finishes first; Promise reactions drain as microtasks before the timer task in this trace."
+        },
+        {
+          "id": "c",
+          "text": "promise:1 → promise:2 → sync:start → sync:end → timer",
+          "correct": false,
+          "feedback": "Even a fulfilled Promise queues its then handlers as microtasks after the current stack."
+        },
+        {
+          "id": "d",
+          "text": "sync:start → sync:end → timer → promise:1 → promise:2",
+          "correct": false,
+          "feedback": "In this browser event-loop trace, queued Promise microtasks run before the next timer task."
+        }
+      ],
+      "explanation": "Do not confuse the synchronous Promise executor with Promise reaction callbacks; then handlers are queued microtasks."
+    },
+    {
+      "id": "deep-async-practice",
+      "type": "codingExercise",
+      "title": "Trace the queues and choose a network strategy",
+      "language": "javascript",
+      "context": "Predict scheduling order, then apply request-concurrency and cancellation reasoning to a changing search query.",
+      "instructions": [
+        "Predict the exact output order for the starter code without running it.",
+        "Explain when two independent requests can start concurrently and be awaited with Promise.all.",
+        "Describe the difference between Promise.all and Promise.allSettled when one request fails.",
+        "Design a search flow that aborts a previous Fetch and protects against stale results replacing newer results.",
+        "Explain why a fulfilled Fetch Promise still requires checking response.ok."
+      ],
+      "requirements": [
+        "Synchronous logs are placed before queued callbacks and Promise reactions before the timer in the trace.",
+        "Concurrency is based on data dependencies, not just preference.",
+        "Promise.all and Promise.allSettled behavior is described correctly.",
+        "The search flow includes cancellation or a freshness guard.",
+        "Network, HTTP-status, and JSON parsing errors are distinguished."
+      ],
+      "starterCode": "console.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');\n\n// TODO: sketch two independent Fetch calls running concurrently.\n// TODO: explain how a changing search term cancels or invalidates old work.",
+      "hints": [
+        "Write all synchronous statements first; callbacks cannot interrupt them.",
+        "Promise reactions run as microtasks, while setTimeout schedules a task.",
+        "For changing search terms, pair AbortController with a request identity/freshness check where needed."
+      ],
+      "successCriteria": [
+        "The queue output order is correctly stated and justified.",
+        "The concurrency strategy matches the dependency between operations.",
+        "The failure behavior of Promise.all and Promise.allSettled is understood.",
+        "Older search results cannot silently overwrite newer intent.",
+        "HTTP errors and transport errors are treated separately."
+      ]
+    },
+    {
+      "id": "deep-async-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Trace synchronous execution, Promise microtasks, and timer tasks as separate stages.",
+        "Choose sequential or concurrent requests based on data dependencies.",
+        "Model loading/success/error plus cancellation and freshness explicitly in network-driven UI."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Using promises",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: async function",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: await",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using the Fetch API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: Response.ok",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Response/ok",
+          "kind": "official-docs"
+        },
+        {
+          "title": "JSONPlaceholder public API",
+          "url": "https://jsonplaceholder.typicode.com/",
+          "kind": "guide"
+        }
+      ]
+    }
+  ]
+}
