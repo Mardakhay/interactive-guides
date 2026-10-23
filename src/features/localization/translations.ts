@@ -27,7 +27,35 @@ const en = {
   "bootcampDescription": "A complete, bilingual curriculum with guided lessons, worked examples, knowledge checks, coding practice and separate supplementary tracks.",
   "openCurriculum": "Open structured curriculum",
   "exploreCategory": "Explore category",
-  "completedProgress": "{completed}/{total} completed"
+  "completedProgress": "{completed}/{total} completed",
+  "pathListDescription": "Follow a curated sequence of lessons from start to finish. Each path guides you through a skill step by step, with progress tracked along the way.",
+  "viewPath": "View path",
+  "hourUnit": "h",
+  "savedLessonsSummary": "{count} saved",
+  "savedLessonsFallback": "Your saved lessons will appear here.",
+  "bookmarksEmptyTitle": "No bookmarks yet",
+  "bookmarksEmptyMessage": "Bookmark a lesson while you're reading it and it'll show up here for quick access later.",
+  "completed": "Completed",
+  "inProgress": "In progress",
+  "notesSummary": "{count} across your lessons",
+  "notesSummaryEmpty": "Your lesson notes will appear here.",
+  "notesEmptyTitle": "No notes yet",
+  "notesEmptyMessage": "Open any lesson and jot something down — it'll show up here, organized by course.",
+  "searchNotesPlaceholder": "Search notes...",
+  "searchNotesAria": "Search notes",
+  "filterByCourse": "Filter by course",
+  "allCourses": "All courses",
+  "noMatchingNotesTitle": "No matching notes",
+  "noMatchingNotesMessage": "Try a different search term or course filter.",
+  "updated": "Updated",
+  "delete": "Delete",
+  "catalog": "Catalog",
+  "categoryNotFound": "Category not found",
+  "categoryNotFoundMessage": "The category you're looking for doesn't exist.",
+  "backToCatalog": "Back to catalog",
+  "categoryProgress": "{completed} of {total} lessons completed",
+  "lessons": "Lessons",
+  "lessonsWord": "lessons"
 } as const;
 const ru: Record<keyof typeof en, string> = {
   "skipToContent": "Перейти к содержимому",
@@ -56,7 +84,35 @@ const ru: Record<keyof typeof en, string> = {
   "bootcampDescription": "Полная двуязычная программа: объяснения, разобранные примеры, проверка знаний, практика с кодом и отдельные дополнительные треки.",
   "openCurriculum": "Открыть структурированную программу",
   "exploreCategory": "Изучить категорию",
-  "completedProgress": "Завершено: {completed} из {total}"
+  "completedProgress": "Завершено: {completed} из {total}",
+  "pathListDescription": "Проходите подобранную последовательность уроков от начала до конца. Каждый маршрут пошагово развивает навык, а прогресс сохраняется по мере обучения.",
+  "viewPath": "Открыть маршрут",
+  "hourUnit": "ч",
+  "savedLessonsSummary": "В закладках: {count}",
+  "savedLessonsFallback": "Сохранённые уроки появятся здесь.",
+  "bookmarksEmptyTitle": "Пока нет закладок",
+  "bookmarksEmptyMessage": "Добавляйте уроки в закладки во время чтения — здесь они будут доступны для быстрого перехода.",
+  "completed": "Завершено",
+  "inProgress": "В процессе",
+  "notesSummary": "заметок к урокам: {count}",
+  "notesSummaryEmpty": "Ваши заметки к урокам появятся здесь.",
+  "notesEmptyTitle": "Пока нет заметок",
+  "notesEmptyMessage": "Откройте любой урок и запишите мысль — заметка появится здесь и будет сгруппирована по курсу.",
+  "searchNotesPlaceholder": "Поиск по заметкам...",
+  "searchNotesAria": "Поиск по заметкам",
+  "filterByCourse": "Фильтр по курсу",
+  "allCourses": "Все курсы",
+  "noMatchingNotesTitle": "Подходящих заметок нет",
+  "noMatchingNotesMessage": "Попробуйте изменить запрос или выбрать другой курс.",
+  "updated": "Обновлено",
+  "delete": "Удалить",
+  "catalog": "Каталог",
+  "categoryNotFound": "Категория не найдена",
+  "categoryNotFoundMessage": "Такой категории не существует.",
+  "backToCatalog": "Вернуться в каталог",
+  "categoryProgress": "Завершено уроков: {completed} из {total}",
+  "lessons": "Уроки",
+  "lessonsWord": "уроков"
 };
 
 export const translations: Record<Locale, Record<keyof typeof en, string>> = { en, ru };
@@ -137,4 +193,22 @@ export function getLocalizedCategoryCopy(
 ): { name: string; description: string } {
   if (locale === 'en') return { name: fallbackName, description: fallbackDescription };
   return categoryTranslations[id] ?? { name: fallbackName, description: fallbackDescription };
+}
+
+
+export function formatNoteCount(locale: Locale, count: number): string {
+  if (locale === 'en') return `${count} ${count === 1 ? 'note' : 'notes'}`;
+  const lastTwoDigits = count % 100;
+  const lastDigit = count % 10;
+  const word = lastDigit === 1 && lastTwoDigits !== 11
+    ? 'заметка'
+    : [2, 3, 4].includes(lastDigit) && (lastTwoDigits < 12 || lastTwoDigits > 14)
+      ? 'заметки'
+      : 'заметок';
+  return `${count} ${word}`;
+}
+
+export function getLocalizedDifficulty(locale: Locale, level: string): string {
+  if (locale === 'en') return ({ beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' } as Record<string, string>)[level] ?? level;
+  return ({ beginner: 'Начальный', intermediate: 'Средний', advanced: 'Продвинутый' } as Record<string, string>)[level] ?? level;
 }

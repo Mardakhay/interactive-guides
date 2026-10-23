@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { useLocaleStore } from './localeStore';
-import { formatCategoryCount, formatLessonCount, getLocalizedCategoryCopy, translate, translations } from './translations';
+import { formatCategoryCount, formatLessonCount, formatNoteCount, getLocalizedCategoryCopy, getLocalizedDifficulty, translate, translations } from './translations';
 
 describe('application localization', () => {
   it('keeps English and Russian dictionaries structurally aligned', () => {
@@ -16,6 +16,11 @@ describe('application localization', () => {
     expect(formatLessonCount('ru', 24)).toBe('24 урока');
     expect(formatLessonCount('ru', 25)).toBe('25 уроков');
     expect(formatCategoryCount('ru', 9)).toBe('9 категориях');
+    expect(formatNoteCount('ru', 1)).toBe('1 заметка');
+    expect(formatNoteCount('ru', 3)).toBe('3 заметки');
+    expect(formatNoteCount('ru', 5)).toBe('5 заметок');
+    expect(formatNoteCount('en', 2)).toBe('2 notes');
+    expect(getLocalizedDifficulty('ru', 'advanced')).toBe('Продвинутый');
   });
 
   it('localizes known catalogue categories and preserves a fallback for unknown IDs', () => {

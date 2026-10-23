@@ -9,8 +9,10 @@ import { EmptyState } from '@/components/feedback';
 import { DIFFICULTY_COLORS, DIFFICULTY_LABELS } from '@/lib/constants';
 import { ROUTE_PATHS, coursePath, lessonPath } from '@/app/router/routes';
 import { cn } from '@/lib/utils';
+import { formatLessonCount, getLocalizedCategoryCopy, getLocalizedDifficulty, translate, useUiLocale } from '@/features/localization';
 
 export default function BookmarksPage() {
+  const locale = useUiLocale();
   const bookmarkedLessons = useBookmarkStore((s) => s.lessons);
   const progressLessons = useProgressStore((s) => s.lessons);
 
@@ -29,24 +31,24 @@ export default function BookmarksPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold text-neutral-900">Bookmarks</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900">{translate(locale, 'bookmarks')}</h1>
         <p className="text-neutral-600">
           {bookmarks.length > 0
-            ? `${bookmarks.length} saved ${bookmarks.length === 1 ? 'lesson' : 'lessons'}`
-            : 'Your saved lessons will appear here.'}
+            ? translate(locale, 'savedLessonsSummary', { count: formatLessonCount(locale, bookmarks.length) })
+            : translate(locale, 'savedLessonsFallback')}
         </p>
       </div>
 
       {bookmarks.length === 0 ? (
         <EmptyState
-          title="No bookmarks yet"
-          message="Bookmark a lesson while you're reading it and it'll show up here for quick access later."
+          title={translate(locale, 'bookmarksEmptyTitle')}
+          message={translate(locale, 'bookmarksEmptyMessage')}
           icon={Bookmark}
           action={
             <Link to={ROUTE_PATHS.COURSES}>
               <Button variant="primary" size="sm">
                 <Compass className="h-4 w-4" />
-                Browse catalog
+                {translate(locale, 'browseCatalog')}
               </Button>
             </Link>
           }
@@ -89,14 +91,14 @@ export default function BookmarksPage() {
                       to={coursePath(category.id)}
                       className="relative z-10 mt-1 inline-block text-xs text-neutral-500 hover:text-primary-600"
                     >
-                      {category.name}
+                      {getLocalizedCategoryCopy(locale, category.id, category.name, category.description).name}
                     </Link>
                   )}
                 </div>
                 <div className="relative z-10 flex shrink-0 items-center gap-3">
                   {status !== 'not-started' && (
                     <Badge variant={STATUS_BADGE_VARIANTS[status]}>
-                      {status === 'completed' ? 'Completed' : 'In progress'}
+                      {translate(locale, status === 'completed' ? 'completed' : 'inProgress')}
                     </Badge>
                   )}
                   <span
@@ -105,7 +107,7 @@ export default function BookmarksPage() {
                       DIFFICULTY_COLORS[lesson.difficulty] ?? DIFFICULTY_COLORS.beginner,
                     )}
                   >
-                    {DIFFICULTY_LABELS[lesson.difficulty] ?? lesson.difficulty}
+                    {getLocalizedDifficulty(locale, lesson.difficulty)}
                   </span>
                   <span className="hidden items-center gap-1 text-xs text-neutral-500 sm:flex">
                     <Clock className="h-3.5 w-3.5" />

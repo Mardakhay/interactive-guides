@@ -7,10 +7,12 @@ import { Card, Badge, Button, Input } from '@/components/ui';
 import { EmptyState } from '@/components/feedback';
 import { ROUTE_PATHS, coursePath, lessonPath } from '@/app/router/routes';
 import { cn } from '@/lib/utils';
+import { formatNoteCount, getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
 
 const ALL_CATEGORIES = 'all';
 
 export default function NotesPage() {
+  const locale = useUiLocale();
   const noteLessons = useNoteStore((s) => s.lessons);
   const deleteNote = useNoteStore((s) => s.deleteNote);
 
@@ -46,24 +48,24 @@ export default function NotesPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold text-neutral-900">Notes</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900">{translate(locale, 'notes')}</h1>
         <p className="text-neutral-600">
           {notes.length > 0
-            ? `${notes.length} ${notes.length === 1 ? 'note' : 'notes'} across your lessons`
-            : 'Your lesson notes will appear here.'}
+            ? translate(locale, 'notesSummary', { count: formatNoteCount(locale, notes.length) })
+            : translate(locale, 'notesSummaryEmpty')}
         </p>
       </div>
 
       {notes.length === 0 ? (
         <EmptyState
-          title="No notes yet"
-          message="Open any lesson and jot something down — it'll show up here, organized by course."
+          title={translate(locale, 'notesEmptyTitle')}
+          message={translate(locale, 'notesEmptyMessage')}
           icon={StickyNote}
           action={
             <Link to={ROUTE_PATHS.COURSES}>
               <Button variant="primary" size="sm">
                 <Compass className="h-4 w-4" />
-                Browse catalog
+                {translate(locale, 'browseCatalog')}
               </Button>
             </Link>
           }
@@ -74,23 +76,23 @@ export default function NotesPage() {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search notes..."
-              aria-label="Search notes"
+              placeholder={translate(locale, 'searchNotesPlaceholder')}
+              aria-label={translate(locale, 'searchNotesAria')}
               className="sm:max-w-xs"
             />
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              aria-label="Filter by course"
+              aria-label={translate(locale, 'filterByCourse')}
               className={cn(
                 'h-10 rounded-lg border border-neutral-300 bg-white px-3 text-sm text-neutral-900',
                 'transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30',
               )}
             >
-              <option value={ALL_CATEGORIES}>All courses</option>
+              <option value={ALL_CATEGORIES}>{translate(locale, 'allCourses')}</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
-                  {category.name}
+                  {getLocalizedCategoryCopy(locale, category.id, category.name, category.description).name}
                 </option>
               ))}
             </select>
@@ -98,8 +100,8 @@ export default function NotesPage() {
 
           {filteredNotes.length === 0 ? (
             <EmptyState
-              title="No matching notes"
-              message="Try a different search term or course filter."
+              title={translate(locale, 'noMatchingNotesTitle')}
+              message={translate(locale, 'noMatchingNotesMessage')}
               icon={StickyNote}
             />
           ) : (
@@ -117,12 +119,12 @@ export default function NotesPage() {
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-neutral-500">
                         {category && (
                           <Link to={coursePath(category.id)} className="hover:text-primary-600">
-                            <Badge variant="neutral">{category.name}</Badge>
+                            <Badge variant="neutral">{getLocalizedCategoryCopy(locale, category.id, category.name, category.description).name}</Badge>
                           </Link>
                         )}
                         <span>
-                          Updated{' '}
-                          {new Date(updatedAt).toLocaleString(undefined, {
+                          {translate(locale, 'updated')}{' '}
+                          {new Date(updatedAt).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US', {
                             dateStyle: 'medium',
                             timeStyle: 'short',
                           })}
@@ -131,7 +133,7 @@ export default function NotesPage() {
                     </div>
                     <Button variant="ghost" size="sm" onClick={() => deleteNote(lesson.id)}>
                       <Trash2 className="h-4 w-4" />
-                      Delete
+                      {translate(locale, 'delete')}
                     </Button>
                   </div>
                   <p className="mt-3 whitespace-pre-wrap text-sm text-neutral-700">{content}</p>
