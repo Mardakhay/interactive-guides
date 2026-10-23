@@ -37,3 +37,9 @@ Run pure JavaScript snippets in a dedicated Worker that can be terminated by the
 ## D-009 — Test the Worker execution path, not only its lifecycle
 **Status:** accepted.  
 The JavaScript runner must include at least one test that builds and executes the generated Worker bootstrap with an async snippet and asserts its returned value. Mocking Worker creation/postMessage alone can pass while the generated Function body is syntactically invalid. Retain explicit limits: this is a learning runner, not a security boundary for hostile code.
+
+
+## D-010 — Derive content-registry expectations from the canonical curriculum
+
+**Status:** accepted.  
+The canonical curriculum defines the stable core lesson order, while supplementary lessons are registered separately. Repository tests should derive expected core-week ownership and adjacency from that curriculum, and derive the full registry inventory from core plus supplementary IDs, rather than maintaining a second full hard-coded registry in tests. Duplicate-track tests must duplicate a track containing an actual lesson ID so they exercise the schema's duplicate-assignment rule.

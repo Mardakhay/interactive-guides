@@ -45,7 +45,7 @@ Structured bilingual lessons are registered for Weeks 5–8. Week 8 is split int
 
 ## Structured lesson inventory and implementation status
 
-The current app registers 25 canonical lesson IDs across the 24-week core syllabus. Each ID has an English and Russian structured JSON translation. All translations remain status `review`; this means the material is implemented but still requires editorial/source review before it should be presented as fully approved.
+The current app registers 26 canonical core lesson IDs across the 24-week core syllabus, each with an English and Russian structured JSON translation (52 locale files). It also registers two supplementary lesson IDs — `network.dns-tcp-tls` and `browser.rendering-pipeline` — on separate supplementary tracks, with both translations. All translations remain status `review`; implementation and structural validation do not constitute editorial approval.
 
 | Week | Stable lesson ID | Main scope |
 |---|---|---|
@@ -76,7 +76,9 @@ The current app registers 25 canonical lesson IDs across the 24-week core syllab
 | 23 | `capstone.implementation` | Integrating features, data, routing and tests |
 | 24 | `capstone.review-demo` | Refactoring, QA, accessibility, performance and demo |
 
-The catalog, search, lesson reader and previous/next navigation recognize these structured lessons. Registration and block schemas are tested in CI. Source-by-source parity with the original 25 legacy HTML documents is not yet complete and should not be conflated with the structured lessons existing in the app.
+The catalog, search, lesson reader and core previous/next navigation recognize these structured lessons. Supplementary IDs are registered and discoverable without being inserted into the original core-week order. Registration and block schemas are tested in CI. Source-by-source parity with the original 25 legacy HTML documents is not yet complete and should not be conflated with the structured lessons existing in the app.
+
+The Week 15 lesson `react.context-shared-state` now includes a bilingual typed `useReducer` + Context walkthrough, guidance on provider scope/context splitting, and localized Russian quiz prompts. Week 14 Russian quiz localization was also corrected. Both lesson pairs remain in editorial `review` pending source and human review.
 
 ## Additional topics the user requests
 

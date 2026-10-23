@@ -1,11 +1,11 @@
 # Session Handoff
 
-**Last updated:** 2026-10-22  
+**Last updated:** 2026-10-23  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Base branch:** `main`  
 **Working branch:** `feat/learning-platform-foundation`  
 **Draft PR:** [#1 — structured bilingual lesson foundation](https://github.com/Mardakhay/interactive-guides/pull/1)  
-**Latest verified implementation checkpoint:** `ab64fcbb54f00a0bbd302da3061bd9aa1936f211`
+**Latest verified implementation checkpoint:** `495467a470828ffad5f689f2c4b2015771be18a5`
 
 ## Project goal
 
@@ -14,7 +14,7 @@ Rebuild Interactive Guides as a cohesive English/Russian, mobile-first, PWA-read
 ## Verified architecture and content status
 
 - Stack: React 18, TypeScript, Vite 5, Tailwind CSS, React Router, Zustand, Zod, Vitest/Testing Library and GitHub Actions.
-- Structured content has all 26 core lesson IDs in both EN and RU: 52 JSON locale files covering the six-month/24-week syllabus. Week 1 splits Internet/HTTP and HTML; Week 8 splits async/Fetch and Git.
+- The core curriculum has 26 lesson IDs with EN/RU translations (52 locale files). The repository also registers two supplementary lesson IDs — `network.dns-tcp-tls` and `browser.rendering-pipeline` — with both translations, for 28 stable IDs / 56 locale files registered overall. Supplementary lessons remain outside core-week navigation. Week 1 splits Internet/HTTP and HTML; Week 8 splits async/Fetch and Git.
 - Content is served by Zod-validated JSON from `src/content/lessons/<lesson-id>/<locale>.json`, with shared schema validation and a canonical curriculum in `src/content/curriculum/bootcamp-core.en.json` and `bootcamp-core.ru.json`.
 - `src/content/repository.ts` registers the structured lessons and provides curriculum lookup/adjacent lesson navigation.
 - `src/features/structured-lesson/StructuredLessonRenderer.tsx` renders lesson blocks. `src/app/pages/StructuredLessonPage.tsx` provides the structured lesson page with locale switching, curriculum navigation, and completion control.
@@ -48,11 +48,34 @@ Rebuild Interactive Guides as a cohesive English/Russian, mobile-first, PWA-read
 
 ## Static content audit
 
-See `docs/CONTENT_AUDIT.md` for the inspected 26 lesson IDs and the exact scope/limitations. A successful structural audit is not editorial approval.
+See `docs/CONTENT_AUDIT.md` for the structural audit of the 26 core lesson IDs and its exact scope/limitations. The two supplementary lesson pairs are registered and schema-validated separately. A successful structural audit is not editorial approval.
+
+## Recovery and recent content work — 2026-10-23
+
+- Fixed the malformed tail in `src/content/repository.ts` by removing an orphaned duplicate navigation block; the valid locale-aware previous/next implementation remains. See [repository fix](https://github.com/Mardakhay/interactive-guides/commit/73fb9199690b4bdb8198e3ba42976d201d1a780f).
+- Made repository tests derive expected registered lesson IDs, core-week ownership and adjacency order from the canonical curricula. Corrected the supplementary-track duplicate test to duplicate a populated track rather than an empty one. See [test fix](https://github.com/Mardakhay/interactive-guides/commit/b074e73213f66f849e5b7a76830be53baf275906).
+- Expanded `react.context-shared-state` in both locales with a typed `useReducer` + Context walkthrough and provider-boundary/context-splitting guidance informed by the accessible Notion Part 4 notes. Fixed untranslated Russian quiz prompts in Week 14 and Week 15. Week 14 and Week 15 translations remain editorial `review`, not approved.
+- EN/RU Week 15 block IDs/types match; the added 49-line walkthrough's line references were checked before committing. CI also validated the structured content schema.
 
 ## CI verification
 
-GitHub Actions run [#203](https://github.com/Mardakhay/interactive-guides/actions/runs/39787357810) passed for exact implementation/test checkpoint SHA `ab64fcbb54f00a0bbd302da3061bd9aa1936f211`: `npm ci`, ESLint, TypeScript typecheck, all tests (including the Worker execution regression test), and production build succeeded. Any later code commit needs its own exact-SHA check.
+- GitHub Actions [run #211](https://github.com/Mardakhay/interactive-guides/actions/runs/39909323859) passed on test-repair checkpoint `b074e73213f66f849e5b7a76830be53baf275906`: `npm ci`, ESLint, TypeScript typecheck, all tests and production build succeeded.
+- GitHub Actions [run #212](https://github.com/Mardakhay/interactive-guides/actions/runs/39909489666) passed on the current implementation/content checkpoint `495467a470828ffad5f689f2c4b2015771be18a5`: `npm ci`, ESLint, TypeScript typecheck, all tests and production build succeeded. The original malformed-file errors and the two stale test assumptions are addressed.
+- These are GitHub-hosted checks. No local checkout/test command or physical-browser/device acceptance test was performed in this session; rerun CI for any subsequent commit.
+
+## Next actions
+
+1. Apply `docs/EDITORIAL_REVIEW_CHECKLIST.md` to both Week 14 and Week 15, then continue the source-based EN/RU review of all core and supplementary lesson pairs. All remain in `review` status.
+2. Continue source-by-source reconciliation of the 25 legacy HTML files against the new lessons; do not delete legacy source until both locales are reviewed.
+3. Run a complete end-to-end locale sweep and consolidate design-system styling across routes; test keyboard access, narrow viewports, contrast, focus states and reduced motion.
+4. Test Worker execution under the deployed hosting/CSP environment while preserving the warning that it is not hardened for hostile code.
+5. Exercise the structured-learning v1→v2 migration, backup merge and Retry save path against real browser storage/quota failures.
+6. Test PWA install/offline behavior on supported browsers/devices, including deep routes, cached lessons, service-worker update and cache quota behavior.
+7. Decide on dedicated Supabase ownership/cost only after local contracts stabilize and the user explicitly approves the plan.
+8. Keep PR #1 in draft until editorial review and release acceptance criteria are satisfied.
+
+`npm ci`, ESLint, TypeScript typecheck, all tests and production build succeeded. The original malformed-file errors and the two stale test assumptions are addressed.
+- These are GitHub-hosted checks. No local checkout/test command or physical-browser/device acceptance test was performed in this session; rerun CI for any subsequent commit.
 
 ## Next actions
 
@@ -65,6 +88,3 @@ GitHub Actions run [#203](https://github.com/Mardakhay/interactive-guides/action
 8. Decide on dedicated Supabase ownership/cost only after local contracts stabilize and the user explicitly approves the plan.
 9. Keep PR #1 in draft until editorial review, tests and release acceptance criteria are satisfied.
 
-## Commit conventions
-
-Use focused messages such as `feat(playground): add disposable worker runner`, `feat(i18n): localize remaining app shell`, `test(content): ...`, `content(javascript): ...`, and `docs: ...`.
