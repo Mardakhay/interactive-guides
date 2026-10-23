@@ -1,0 +1,191 @@
+{
+  "id": "data.sql-postgresql",
+  "locale": "ru",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-23",
+  "moduleId": "supplement-data",
+  "supplementaryTrackId": "supplement-data",
+  "order": 1,
+  "title": "SQL и PostgreSQL для frontend-разработчиков",
+  "description": "Безопасно работай с реляционными данными: JOIN, агрегации, NULL, ограничения и контроль доступа.",
+  "estimatedMinutes": 75,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "web.internet-http",
+    "typescript.fundamentals"
+  ],
+  "learningOutcomes": [
+    "Писать SELECT/JOIN/агрегации.",
+    "Корректно использовать NULL и фильтрацию групп.",
+    "Объяснять ограничения данных и параметризованные запросы.",
+    "Отличать frontend-фильтр от доверенной авторизации."
+  ],
+  "tags": [
+    "sql",
+    "postgresql",
+    "relational-data",
+    "security"
+  ],
+  "blocks": [
+    {
+      "id": "sql-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Разберись в связях данных перед написанием SQL"
+    },
+    {
+      "id": "sql-model",
+      "type": "paragraph",
+      "text": "Таблицы содержат строки и столбцы; ключи связывают записи, а ограничения защищают инварианты. SQL декларативен: опиши результат, а база выберет план. Изучи отношения между записями перед JOIN и агрегацией."
+    },
+    {
+      "id": "sql-query",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "SELECT c.id, c.name, COUNT(o.id) AS order_count\nFROM customers AS c\nLEFT JOIN orders AS o ON o.customer_id = c.id\nWHERE c.active = TRUE\nGROUP BY c.id, c.name\nHAVING COUNT(o.id) >= 2\nORDER BY order_count DESC\nLIMIT 20;",
+      "steps": [
+        {
+          "title": "Соедини связанные таблицы",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "LEFT JOIN сохраняет клиентов без заказов. COUNT(o.id) считает совпавшие ID заказов, а COUNT(*) считает результирующие строки."
+        },
+        {
+          "title": "Фильтруй строки и группы на разных этапах",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "WHERE фильтрует строки до группировки. HAVING фильтрует группы после вычисления агрегатов."
+        },
+        {
+          "title": "Отсортируй и ограничь результат",
+          "lineStart": 7,
+          "lineEnd": 8,
+          "explanation": "LIMIT ограничивает результат; для устойчивой пагинации часто нужен уникальный ключ сортировки."
+        }
+      ]
+    },
+    {
+      "id": "sql-null",
+      "type": "heading",
+      "level": 2,
+      "text": "NULL, ограничения и безопасное построение запросов"
+    },
+    {
+      "id": "sql-null-text",
+      "type": "paragraph",
+      "text": "Используй IS NULL или IS NOT NULL для проверки SQL NULL; это не обычное значение, поэтому = NULL неверно. Ограничения PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK и NOT NULL обеспечивают целостность сверх frontend. Параметризуй пользовательские значения через доверенный API/сервер, не склеивай их с SQL."
+    },
+    {
+      "id": "sql-warning",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Не раскрывай credentials базы в браузере",
+      "text": "Доступ к базе должен идти через доверенный сервер либо платформу с ограниченным клиентским доступом и обязательным row-level security. Фильтр frontend не ограничивает строки, которые может запросить атакующий."
+    },
+    {
+      "id": "sql-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Какой предикат находит строки, у которых deleted_at отсутствует?",
+      "options": [
+        {
+          "id": "a",
+          "text": "deleted_at = NULL",
+          "correct": false,
+          "feedback": "SQL NULL не проверяется обычным равенством."
+        },
+        {
+          "id": "b",
+          "text": "deleted_at IS NULL",
+          "correct": true,
+          "feedback": "IS NULL — SQL-предикат для отсутствующего/неизвестного значения."
+        },
+        {
+          "id": "c",
+          "text": "deleted_at == undefined",
+          "correct": false,
+          "feedback": "undefined — значение JavaScript, а не SQL-синтаксис."
+        },
+        {
+          "id": "d",
+          "text": "deleted_at = ''",
+          "correct": false,
+          "feedback": "Пустая строка отличается от NULL."
+        }
+      ],
+      "explanation": "Обработка NULL меняет логику запроса; не заменяй его пустой строкой или значением JavaScript."
+    },
+    {
+      "id": "sql-practice",
+      "type": "codingExercise",
+      "title": "Безопасно запрашивай данные учебной commerce-схемы",
+      "language": "sql",
+      "context": "Используй customers(id, name, active) и orders(id, customer_id, total, created_at) в учебной PostgreSQL-базе.",
+      "instructions": [
+        "Верни активных клиентов и количество заказов, включая клиентов без заказов.",
+        "Найди клиентов минимум с двумя заказами и отсортируй по количеству.",
+        "Выбери заказы с NULL в created_at.",
+        "Объясни параметризацию customer ID, введённого пользователем, на API-сервере.",
+        "Назови ограничение для orders.customer_id и объясни, почему фильтр frontend не авторизует запрос."
+      ],
+      "requirements": [
+        "Агрегация использует явный join и группировку.",
+        "Клиенты без заказов сохраняются там, где нужно.",
+        "NULL проверяется через IS NULL/IS NOT NULL.",
+        "Ввод параметризуется, а не склеивается с SQL.",
+        "Ограничения целостности отличены от авторизации."
+      ],
+      "starterCode": "SELECT c.id, c.name, COUNT(o.id) AS order_count\nFROM customers AS c\n-- TODO: choose a join that retains customers with no orders\n-- TODO: filter active customers and group the result\n;",
+      "hints": [
+        "Используй LEFT JOIN, если нужно сохранить строки без совпадения.",
+        "COUNT(column) игнорирует NULL в этом столбце.",
+        "Параметризация не заменяет авторизацию."
+      ],
+      "successCriteria": [
+        "Возвращает ожидаемые строки.",
+        "WHERE и HAVING применены на правильном этапе.",
+        "NULL обработан верно.",
+        "Объяснены параметризация и авторизация.",
+        "Названо подходящее ограничение схемы."
+      ]
+    },
+    {
+      "id": "sql-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Используй JOIN и агрегацию с учётом связей схемы.",
+        "Явно обрабатывай NULL и используй constraints для целостности.",
+        "Параметризуй ввод и проверяй доступ на доверенном сервере/слое данных."
+      ]
+    },
+    {
+      "id": "sql-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "PostgreSQL: The SQL Language",
+          "url": "https://www.postgresql.org/docs/current/tutorial.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "PostgreSQL: Constraints",
+          "url": "https://www.postgresql.org/docs/current/ddl-constraints.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "OWASP: SQL Injection Prevention",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Supabase: Row Level Security",
+          "url": "https://supabase.com/docs/guides/database/postgres/row-level-security",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}
