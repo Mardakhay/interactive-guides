@@ -168,3 +168,17 @@ The initial manifest/service-worker foundation is implemented on the feature bra
 The UI now has an English/Russian preference stored under `interactive-guides.ui-locale`, a route-aware override for `/:locale/structured-lessons`, and a language switch in the top bar. The shared sidebar/mobile navigation, dashboard headings, main catalogue/bootcamp promotion and category cards have localized strings; category lesson counts handle English and Russian plural forms. App-level `html lang` follows the active UI locale.
 
 This is the start of Phase 2, not complete app-wide localization. Course details, legacy HTML lessons, learning-path detail pages, bookmarks, notes, quizzes, search result UI and all empty/error states still need systematic translation and tests. The source lesson/catalog content remains English unless it uses the bilingual structured lesson route.
+
+
+## Continuation status — 2026-10-23
+
+Latest validated implementation checkpoint: feature code SHA `5628ca69a6981a6d81357ab1d20e466c3f1d783e`, with all CI checks passing in [run #39982235822](https://github.com/Mardakhay/interactive-guides/actions/runs/39982235822). This checkpoint adds the PWA update prompt/explicit activation handshake and expands UI translations. It does not close the larger phases below.
+
+- **Phase 2 — UI/localization:** partial. EN/RU selector and persistent preference work; shell, dashboard, catalogue, category detail, learning paths, bookmarks, notes and search have translated strings. Remaining screens and legacy lesson body content need a dedicated localization audit.
+- **Phase 4 — source migration/parity:** in progress. Keep all 25 HTML source files; map prose, code, exercises, answers/solution toggles, interactive controls and references to structured destinations before marking migrated.
+- **Phase 5 — local-first persistence:** partial. Verify legacy record migration and provide an explicit export/import path before wider release.
+- **Phase 6 — Supabase:** not started. Do not add client-side service-role credentials; scope auth/sync and RLS separately.
+- **Phase 7 — PWA/release:** implementation foundation exists, acceptance still open. The `v3` worker uses an explicit user-approved update; tests pass, but Android Chrome/iOS Safari install and offline behavior must be recorded manually.
+- **Security/release gates:** recent install logs reported dependency audit findings; triage with the lockfile context before attempting forced major upgrades. No browser/device or deployed-hosting smoke evidence is claimed yet.
+
+Keep `main` at `b13af92576e8a73753a6e3f3d26765d9f9c44397`, keep PR #1 as a draft until the above gates are addressed, and never report the whole product as finished while the audit and release phases remain open.

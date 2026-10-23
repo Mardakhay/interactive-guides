@@ -212,3 +212,15 @@ The feature branch now includes PNG app icons (180px Apple touch, 192px and 512p
 The UI now has an English/Russian preference stored under `interactive-guides.ui-locale`, a route-aware override for `/:locale/structured-lessons`, and a language switch in the top bar. The shared sidebar/mobile navigation, dashboard headings, main catalogue/bootcamp promotion and category cards have localized strings; category lesson counts handle English and Russian plural forms. App-level `html lang` follows the active UI locale.
 
 This is the start of Phase 2, not complete app-wide localization. Course details, legacy HTML lessons, learning-path detail pages, bookmarks, notes, quizzes, search result UI and all empty/error states still need systematic translation and tests. The source lesson/catalog content remains English unless it uses the bilingual structured lesson route.
+
+
+## Continuation handoff — 2026-10-23 (current PWA/update and UI locale checkpoint)
+
+- Branch: `feat/learning-platform-foundation`; tested code SHA: `5628ca69a6981a6d81357ab1d20e466c3f1d783e`.
+- GitHub Actions [run #39982235822](https://github.com/Mardakhay/interactive-guides/actions/runs/39982235822) passed install, lint, typecheck, tests and build on that exact SHA.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains open/draft. Do not merge or force-push as part of continuation.
+- PWA now has PNG assets at 180/192/512, manifest links, Netlify SPA fallback, versioned `v3` cache, and a localized learner-controlled update prompt. `public/sw.js` only activates a waiting update after an explicit `SKIP_WAITING` message and reloads only after the learner selects “Update now”.
+- UI localization now covers shell navigation, top bar language switch, dashboard headings, catalogue/category cards, category detail, learning-path list/detail, bookmarks, notes and search UI. Structured curriculum/lesson routes keep their route-specific language. This is still **partial**: legacy lesson body content, quiz controls/feedback and remaining labels/empty/error states need audit and translation.
+- Source-to-block parity for the 25 legacy HTML files is incomplete. All 26 core and 11 supplementary bilingual structured lesson IDs remain registered, but registration or schema/CI checks do not prove full instructional parity or editorial approval.
+- Persistence remains local-first with open work for cross-store legacy data migration and export/import. Supabase auth/sync has not been implemented. Real browser/device PWA acceptance has not been run in this session.
+- Next steps: check exact-head Actions after any subsequent change; continue itemized source parity in syllabus order; finish localization audit across remaining pages and content; triage the dependency audit reported by `npm ci`; then add verified PWA/manual deployment acceptance evidence. Keep editorial status at `review` until content review is complete.

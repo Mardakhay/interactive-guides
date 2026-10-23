@@ -69,3 +69,12 @@ The feature branch now includes:
 - `src/pwa/pwaAssets.test.ts` checks manifest fields, PNG headers/dimensions, iOS icon wiring, deep-link rewrite presence and the service worker's same-origin/private-request guardrails.
 
 The automated checks do **not** certify browser installability or offline UX. Still required: test clean install, online deep-link refresh, revisit while offline, an unvisited structured lesson while offline, worker update activation, storage-quota failure and external-font fallback in Android Chrome and iOS Safari. Record browser/OS versions and outcomes before calling the PWA release-ready.
+
+
+## Authoritative PWA update-lifecycle status — 2026-10-23
+
+The active feature branch now has a versioned `v3` shell/asset cache and a learner-controlled service-worker update flow. The worker no longer calls `skipWaiting()` automatically during install; it accepts `SKIP_WAITING` only after the app's localized update prompt is acknowledged. The prompt reloads the current page only after the new controller takes over and the learner explicitly selected the update action. Foreground visibility triggers a best-effort worker update check. PWA asset tests now protect this message handshake and cache-version contract.
+
+GitHub Actions [run #39982235822](https://github.com/Mardakhay/interactive-guides/actions/runs/39982235822) passed on exact code SHA `5628ca69a6981a6d81357ab1d20e466c3f1d783e`: `npm ci`, ESLint, TypeScript typecheck, Vitest and production build.
+
+**Release acceptance remains open.** Still test a clean install, waiting-worker update while a coding exercise/note is in progress, online reload on localized deep links, revisit offline, not-yet-visited lesson offline expectations, update activation, iOS Add to Home Screen, Android install prompt, font fallback and browser console errors on real supported browser/OS versions. Record results before calling the PWA complete.
