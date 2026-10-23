@@ -1,0 +1,185 @@
+{
+  "id": "deployment.production-hosting",
+  "locale": "ru",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-23",
+  "moduleId": "supplement-deployment",
+  "supplementaryTrackId": "supplement-deployment",
+  "order": 1,
+  "title": "Production hosting: сборка, окружение, deep links и rollback",
+  "description": "Подготовь Vite SPA к production и проверь маршруты, конфигурацию и восстановление в deployed preview.",
+  "estimatedMinutes": 75,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "tooling.node-npm-vite",
+    "react.router-spa"
+  ],
+  "learningOutcomes": [
+    "Различать dev server, production build и deployment.",
+    "Отделять публичную конфигурацию браузера от серверных секретов.",
+    "Проверять прямое открытие маршрута и SPA fallback.",
+    "Планировать preview, smoke tests, мониторинг и rollback."
+  ],
+  "tags": [
+    "deployment",
+    "vite",
+    "hosting",
+    "ci-cd"
+  ],
+  "blocks": [
+    {
+      "id": "deploy-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Production-релиз — это pipeline"
+    },
+    {
+      "id": "deploy-model",
+      "type": "paragraph",
+      "text": "Работа на dev-сервере не доказывает готовность production. Надёжный релиз включает воспроизводимую установку, quality gates, сборку assets, правильную конфигурацию, проверку deployed preview и план восстановления. Прямой URL и refresh могут вести себя иначе, чем переход по ссылке после загрузки приложения."
+    },
+    {
+      "id": "deploy-flow",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Clean checkout\n  -> npm ci\n  -> lint + typecheck + tests\n  -> npm run build\n  -> deploy preview\n  -> verify routes, assets and env config\n  -> test critical user journeys\n  -> promote release\n  -> monitor and rollback if needed",
+      "steps": [
+        {
+          "title": "Выполни воспроизводимую установку и quality gates",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "CI должен использовать закоммиченный lockfile и запускать реальные quality scripts проекта. Проверь их названия вместо предположений по примеру."
+        },
+        {
+          "title": "Проверь hosted preview",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "Проверь прямое открытие и refresh вложенных маршрутов, assets, формы и состояния запросов. Dev server может скрывать отсутствие SPA fallback."
+        },
+        {
+          "title": "Планируй релиз вместе с восстановлением",
+          "lineStart": 8,
+          "lineEnd": 9,
+          "explanation": "Сохрани заведомо рабочий deployment, укажи ответственного за rollback и наблюдаемые условия отката."
+        }
+      ]
+    },
+    {
+      "id": "deploy-env",
+      "type": "heading",
+      "level": 2,
+      "text": "Переменные окружения и SPA fallback"
+    },
+    {
+      "id": "deploy-env-text",
+      "type": "paragraph",
+      "text": "Переменные Vite с префиксом VITE_ доступны browser-коду и могут быть извлечены из bundle. Размещай там публичные значения, например API base URL, но не private key или пароль базы. Настрой хостинг так, чтобы маршруты приложения отдавали SPA entry document, а assets и API продолжали обрабатываться корректно."
+    },
+    {
+      "id": "deploy-warning",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Клиентская конфигурация публична",
+      "text": "Всё, что отправляется в браузер, нужно считать публичным. Храни секреты на сервере или в deployment secret store. Frontend guard не авторизует доступ к защищённым данным."
+    },
+    {
+      "id": "deploy-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Какое значение подходит для переменной Vite с префиксом VITE_?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Приватный пароль production-базы",
+          "correct": false,
+          "feedback": "Клиентские значения можно извлечь из bundle браузера."
+        },
+        {
+          "id": "b",
+          "text": "Публичный API base URL",
+          "correct": true,
+          "feedback": "Публичный base URL может быть клиентской конфигурацией; привилегированные credentials остаются на сервере."
+        },
+        {
+          "id": "c",
+          "text": "Серверный ключ подписи токенов",
+          "correct": false,
+          "feedback": "Signing keys нельзя помещать в клиентский JavaScript."
+        },
+        {
+          "id": "d",
+          "text": "Секрет с обфусцированным именем переменной",
+          "correct": false,
+          "feedback": "Переименование клиентской переменной не делает значение секретным."
+        }
+      ],
+      "explanation": "Классифицируй значения по тому, должен ли их получать браузер, а не по имени переменной."
+    },
+    {
+      "id": "deploy-practice",
+      "type": "codingExercise",
+      "title": "Подготовь smoke-test и rollback-план deployment",
+      "language": "text",
+      "context": "Подготовь релиз, который другой разработчик сможет проверить в hosting preview.",
+      "instructions": [
+        "Перечисли clean install, lint, typecheck, tests и production-build gates.",
+        "Раздели публичные browser values и серверные секреты.",
+        "Проверь прямое открытие и refresh вложенного маршрута в deployed preview.",
+        "Проверь assets, формы, состояния запросов, клавиатуру и узкие экраны.",
+        "Определи мониторинг, владельца rollback и наблюдаемый trigger."
+      ],
+      "requirements": [
+        "Зафиксированы проверяемый commit и build.",
+        "Привилегированные секреты не попадают в browser code.",
+        "Deep links проверены в hosted-среде.",
+        "Smoke-tests покрывают критические сценарии.",
+        "План rollback конкретен и применим."
+      ],
+      "starterCode": "Release candidate SHA:\n\nQuality gates:\n- clean install:\n- lint / typecheck:\n- tests:\n- production build:\n\nPreview checks:\n- direct route / refresh:\n- assets and env config:\n- forms and request states:\n\nSecrets and public config:\n\nRollback owner / trigger / steps:",
+      "hints": [
+        "Проверь refresh вложенного маршрута, а не только внутреннюю навигацию.",
+        "VITE_* значения публичны в клиентском bundle.",
+        "Используй наблюдаемые rollback-триггеры, например сломанный критический сценарий."
+      ],
+      "successCriteria": [
+        "Перечислены воспроизводимые automated gates.",
+        "Публичная конфигурация отделена от секретов.",
+        "Проверен прямой маршрут в deployment.",
+        "Определены условия rollback и ответственный."
+      ]
+    },
+    {
+      "id": "deploy-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Build, preview и promotion — разные этапы; успех в development не доказывает готовность production.",
+        "Клиентские переменные публичны; credentials хранятся на сервере.",
+        "Проверяй прямые URL, assets, ключевые сценарии и recovery в deployment-среде."
+      ]
+    },
+    {
+      "id": "deploy-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "Vite: Static Deploy",
+          "url": "https://vite.dev/guide/static-deploy",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Netlify: Redirects and rewrites",
+          "url": "https://docs.netlify.com/routing/redirects/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vercel: Vite deployment",
+          "url": "https://vercel.com/docs/frameworks/frontend/vite",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

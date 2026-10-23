@@ -1,0 +1,191 @@
+{
+  "id": "data.sql-postgresql",
+  "locale": "en",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-23",
+  "moduleId": "supplement-data",
+  "supplementaryTrackId": "supplement-data",
+  "order": 1,
+  "title": "SQL and PostgreSQL for Frontend Developers",
+  "description": "Query relational data safely and understand joins, aggregation, NULL, constraints, and access control.",
+  "estimatedMinutes": 75,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "web.internet-http",
+    "typescript.fundamentals"
+  ],
+  "learningOutcomes": [
+    "Write SELECT/JOIN/aggregate queries.",
+    "Handle NULL and grouped filtering correctly.",
+    "Explain data constraints and parameterized queries.",
+    "Distinguish frontend filtering from trusted authorization."
+  ],
+  "tags": [
+    "sql",
+    "postgresql",
+    "relational-data",
+    "security"
+  ],
+  "blocks": [
+    {
+      "id": "sql-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Think in relations before writing SQL"
+    },
+    {
+      "id": "sql-model",
+      "type": "paragraph",
+      "text": "Tables contain rows and columns; keys connect related rows and constraints protect invariants. SQL is declarative: describe the result and let the database choose a plan. Understand the relationship between records before joining tables or adding aggregates."
+    },
+    {
+      "id": "sql-query",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "SELECT c.id, c.name, COUNT(o.id) AS order_count\nFROM customers AS c\nLEFT JOIN orders AS o ON o.customer_id = c.id\nWHERE c.active = TRUE\nGROUP BY c.id, c.name\nHAVING COUNT(o.id) >= 2\nORDER BY order_count DESC\nLIMIT 20;",
+      "steps": [
+        {
+          "title": "Join related tables",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "LEFT JOIN preserves customers without matching orders. COUNT(o.id) counts matched order IDs; COUNT(*) counts joined rows."
+        },
+        {
+          "title": "Filter rows and groups at different stages",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "WHERE filters rows before grouping. HAVING filters groups after aggregate values are calculated."
+        },
+        {
+          "title": "Sort and limit results",
+          "lineStart": 7,
+          "lineEnd": 8,
+          "explanation": "LIMIT bounds the result; stable pagination often also requires a unique ordering key."
+        }
+      ]
+    },
+    {
+      "id": "sql-null",
+      "type": "heading",
+      "level": 2,
+      "text": "NULL, constraints, and safe query construction"
+    },
+    {
+      "id": "sql-null-text",
+      "type": "paragraph",
+      "text": "Use IS NULL or IS NOT NULL to test SQL NULL; it is not an ordinary value and = NULL is not the correct predicate. PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK and NOT NULL constraints enforce integrity beyond the frontend. Parameterize user-supplied values through a trusted API/server instead of concatenating them into SQL."
+    },
+    {
+      "id": "sql-warning",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Do not expose database credentials to the browser",
+      "text": "Database access should go through a trusted server or a platform whose public client access is restricted by enforced row-level security. A frontend filter does not restrict which rows an attacker can request."
+    },
+    {
+      "id": "sql-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which predicate finds rows where deleted_at is missing?",
+      "options": [
+        {
+          "id": "a",
+          "text": "deleted_at = NULL",
+          "correct": false,
+          "feedback": "Ordinary equality is not how SQL tests NULL."
+        },
+        {
+          "id": "b",
+          "text": "deleted_at IS NULL",
+          "correct": true,
+          "feedback": "IS NULL is the SQL predicate for a missing/unknown value."
+        },
+        {
+          "id": "c",
+          "text": "deleted_at == undefined",
+          "correct": false,
+          "feedback": "undefined is a JavaScript value, not SQL syntax."
+        },
+        {
+          "id": "d",
+          "text": "deleted_at = ''",
+          "correct": false,
+          "feedback": "An empty string is different from NULL."
+        }
+      ],
+      "explanation": "NULL handling changes query logic; do not replace it with empty strings or JavaScript values."
+    },
+    {
+      "id": "sql-practice",
+      "type": "codingExercise",
+      "title": "Query a small commerce schema safely",
+      "language": "sql",
+      "context": "Use customers(id, name, active) and orders(id, customer_id, total, created_at) in a PostgreSQL practice database.",
+      "instructions": [
+        "Return active customers and order counts including customers with zero orders.",
+        "Find customers with at least two orders and sort by count descending.",
+        "Select orders whose created_at value is NULL.",
+        "Describe how an API server should parameterize a user-provided customer ID.",
+        "Name an integrity constraint for orders.customer_id and explain why frontend filtering is not authorization."
+      ],
+      "requirements": [
+        "The aggregate query uses an explicit join and grouping.",
+        "Zero-order customers are preserved when required.",
+        "NULL is tested with IS NULL/IS NOT NULL.",
+        "User input is parameterized, not concatenated into SQL.",
+        "Integrity constraints and authorization are distinguished."
+      ],
+      "starterCode": "SELECT c.id, c.name, COUNT(o.id) AS order_count\nFROM customers AS c\n-- TODO: choose a join that retains customers with no orders\n-- TODO: filter active customers and group the result\n;",
+      "hints": [
+        "Use LEFT JOIN if unmatched rows must remain.",
+        "COUNT(column) ignores NULL values in that column.",
+        "Parameterization does not replace authorization."
+      ],
+      "successCriteria": [
+        "Returns the intended rows.",
+        "Uses WHERE and HAVING at the right stage.",
+        "Handles NULL correctly.",
+        "Explains parameterization and authorization.",
+        "Names an appropriate relational constraint."
+      ]
+    },
+    {
+      "id": "sql-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use JOIN and aggregation based on the schema relationships.",
+        "Handle NULL explicitly and use constraints to preserve integrity.",
+        "Parameterize input and enforce row access on the trusted server/data layer."
+      ]
+    },
+    {
+      "id": "sql-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "PostgreSQL: The SQL Language",
+          "url": "https://www.postgresql.org/docs/current/tutorial.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "PostgreSQL: Constraints",
+          "url": "https://www.postgresql.org/docs/current/ddl-constraints.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "OWASP: SQL Injection Prevention",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Supabase: Row Level Security",
+          "url": "https://supabase.com/docs/guides/database/postgres/row-level-security",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

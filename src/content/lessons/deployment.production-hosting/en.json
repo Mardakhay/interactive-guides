@@ -1,0 +1,185 @@
+{
+  "id": "deployment.production-hosting",
+  "locale": "en",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-23",
+  "moduleId": "supplement-deployment",
+  "supplementaryTrackId": "supplement-deployment",
+  "order": 1,
+  "title": "Production Hosting: Build, Environment, Deep Links, and Rollback",
+  "description": "Prepare a Vite SPA for production and verify routing, configuration, and recovery in a deployed preview.",
+  "estimatedMinutes": 75,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "tooling.node-npm-vite",
+    "react.router-spa"
+  ],
+  "learningOutcomes": [
+    "Distinguish dev server, production build and deployment.",
+    "Separate public browser configuration from server secrets.",
+    "Verify direct-route refresh and SPA fallback.",
+    "Plan preview, smoke tests, monitoring and rollback."
+  ],
+  "tags": [
+    "deployment",
+    "vite",
+    "hosting",
+    "ci-cd"
+  ],
+  "blocks": [
+    {
+      "id": "deploy-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "A production release is a pipeline"
+    },
+    {
+      "id": "deploy-model",
+      "type": "paragraph",
+      "text": "Running on a development server is not production evidence. A reliable release starts from a reproducible dependency install, runs quality gates, builds static assets, uses correct environment configuration, tests the deployed preview, and preserves a recovery path. Direct URL loads and refresh can behave differently from clicking a link after the app is loaded."
+    },
+    {
+      "id": "deploy-flow",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Clean checkout\n  -> npm ci\n  -> lint + typecheck + tests\n  -> npm run build\n  -> deploy preview\n  -> verify routes, assets and env config\n  -> test critical user journeys\n  -> promote release\n  -> monitor and rollback if needed",
+      "steps": [
+        {
+          "title": "Install reproducibly and run quality gates",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "CI should use the committed lockfile and run the project's actual quality scripts. Verify script names rather than assuming an example matches every repository."
+        },
+        {
+          "title": "Validate the hosted preview",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "Check direct loads and refresh on nested paths, assets, forms and request states. A dev server may hide missing SPA fallback configuration."
+        },
+        {
+          "title": "Release with recovery in mind",
+          "lineStart": 8,
+          "lineEnd": 9,
+          "explanation": "Keep a known-good deployment and define who can roll back plus observable rollback triggers."
+        }
+      ]
+    },
+    {
+      "id": "deploy-env",
+      "type": "heading",
+      "level": 2,
+      "text": "Environment variables and SPA fallback"
+    },
+    {
+      "id": "deploy-env-text",
+      "type": "paragraph",
+      "text": "Vite variables prefixed with VITE_ are exposed to browser code and can be recovered from the built bundle. Put public values such as an API base URL there, never a private key or database password. Configure the host to return the SPA entry document for app routes while still serving real assets and API responses correctly."
+    },
+    {
+      "id": "deploy-warning",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Client configuration is public",
+      "text": "Anything shipped to the browser must be treated as public. Keep secrets in a server-side runtime or deployment secret store. A frontend guard does not authorize access to protected data."
+    },
+    {
+      "id": "deploy-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which value is appropriate for a Vite variable prefixed with VITE_?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A private production database password",
+          "correct": false,
+          "feedback": "Client-exposed values can be read from the browser bundle."
+        },
+        {
+          "id": "b",
+          "text": "A public API base URL",
+          "correct": true,
+          "feedback": "A public base URL can be browser configuration; privileged credentials must stay server-side."
+        },
+        {
+          "id": "c",
+          "text": "A server-only token signing key",
+          "correct": false,
+          "feedback": "Signing keys must never be shipped in client JavaScript."
+        },
+        {
+          "id": "d",
+          "text": "A secret whose variable name is obfuscated",
+          "correct": false,
+          "feedback": "Renaming a client variable does not make its value secret."
+        }
+      ],
+      "explanation": "Classify values by whether the browser must receive them, not by the variable name."
+    },
+    {
+      "id": "deploy-practice",
+      "type": "codingExercise",
+      "title": "Create a deployment smoke-test and rollback plan",
+      "language": "text",
+      "context": "Prepare a release that another developer can verify in the hosting preview.",
+      "instructions": [
+        "List clean install, lint, typecheck, tests and production-build gates.",
+        "Classify configuration values as public browser values or server secrets.",
+        "Test a direct nested route load and refresh in the deployed preview.",
+        "Verify assets, forms, request states, keyboard use and narrow layouts.",
+        "Define monitoring evidence, rollback owner and an observable trigger."
+      ],
+      "requirements": [
+        "The tested commit and build are recorded.",
+        "No privileged secret is exposed to browser code.",
+        "Direct deep links are tested in the hosted environment.",
+        "Smoke tests cover critical user journeys.",
+        "A rollback path is specific and actionable."
+      ],
+      "starterCode": "Release candidate SHA:\n\nQuality gates:\n- clean install:\n- lint / typecheck:\n- tests:\n- production build:\n\nPreview checks:\n- direct route / refresh:\n- assets and env config:\n- forms and request states:\n\nSecrets and public config:\n\nRollback owner / trigger / steps:",
+      "hints": [
+        "Check refresh on a nested route, not only in-app navigation.",
+        "VITE_* values are public in the client bundle.",
+        "Use observable rollback triggers such as a broken critical journey."
+      ],
+      "successCriteria": [
+        "Lists repeatable automated gates.",
+        "Separates public configuration from secrets.",
+        "Includes deployed direct-route verification.",
+        "Defines clear rollback criteria and responsibility."
+      ]
+    },
+    {
+      "id": "deploy-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Build, preview and promotion are separate steps; development success is not production evidence.",
+        "Client-exposed variables are public; keep credentials server-side.",
+        "Test direct URLs, assets, critical journeys and recovery in the deployed environment."
+      ]
+    },
+    {
+      "id": "deploy-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "Vite: Static Deploy",
+          "url": "https://vite.dev/guide/static-deploy",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Netlify: Redirects and rewrites",
+          "url": "https://docs.netlify.com/routing/redirects/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vercel: Vite deployment",
+          "url": "https://vercel.com/docs/frameworks/frontend/vite",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

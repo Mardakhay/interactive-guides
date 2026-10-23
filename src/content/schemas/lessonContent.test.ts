@@ -112,7 +112,7 @@ describe('HTML forms and accessibility lesson translation', () => {
     expect(englishForms.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianForms.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(russianForms.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
@@ -124,7 +124,7 @@ describe('CSS fundamentals lesson translation', () => {
     expect(englishCss.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianCss.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishCss.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishCss.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(russianCss.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
@@ -136,7 +136,7 @@ describe('Flexbox, Grid and responsive design lesson translation', () => {
     expect(englishLayout.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianLayout.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishLayout.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishLayout.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(russianLayout.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
@@ -160,7 +160,7 @@ describe('JavaScript basics lesson translation', () => {
     expect(englishJsBasics.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianJsBasics.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishJsBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishJsBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
     expect(russianJsBasics.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
@@ -172,7 +172,7 @@ describe('Async JavaScript and Fetch lesson translation', () => {
     expect(englishAsync.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianAsync.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishAsync.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishAsync.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
     expect(russianAsync.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
@@ -184,7 +184,7 @@ describe('Git fundamentals lesson translation', () => {
     expect(englishGit.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGit.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
@@ -196,7 +196,7 @@ describe('Node.js and project tooling lesson translation', () => {
     expect(englishTooling.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianTooling.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishTooling.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishTooling.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(russianTooling.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
@@ -208,7 +208,7 @@ describe('TypeScript fundamentals lesson translation', () => {
     expect(englishTypeScript.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianTypeScript.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishTypeScript.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishTypeScript.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(russianTypeScript.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
@@ -220,7 +220,7 @@ describe('React effects and lists lesson translation', () => {
     expect(englishReactEffects.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianReactEffects.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(russianReactEffects.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
@@ -232,7 +232,7 @@ describe('React Router lesson translation', () => {
     expect(englishRouter.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianRouter.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishRouter.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishRouter.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(russianRouter.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
@@ -268,7 +268,7 @@ describe('React API and custom hooks lesson translation', () => {
     expect(englishApiHooks.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianApiHooks.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(russianApiHooks.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
@@ -280,7 +280,7 @@ describe('DOM and events lesson translation', () => {
     expect(englishDom.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianDom.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(russianDom.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
@@ -292,7 +292,7 @@ describe('React fundamentals lesson translation', () => {
     expect(englishReactBasics.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianReactBasics.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishReactBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishReactBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(russianReactBasics.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
