@@ -1,16 +1,16 @@
 {
   "id": "web.internet-http",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-1-week-1",
   "week": 1,
   "order": 0,
   "title": "How the Web Works: URLs, HTTP, and Browser DevTools",
   "description": "Follow a browser request from a URL to an HTTP response, learn the roles of DNS and HTTPS, read common status codes, and investigate real requests in the Network panel.",
-  "estimatedMinutes": 55,
+  "estimatedMinutes": 80,
   "difficulty": "beginner",
   "prerequisites": [],
   "learningOutcomes": [
@@ -457,6 +457,138 @@
         "An HTTP message has a method/status, headers, and sometimes a body; common status families are 2xx, 3xx, 4xx, and 5xx.",
         "HTTPS uses TLS to protect data in transit and help authenticate the host, but it does not replace application authorization.",
         "Use the Network panel to observe requests, headers, status, response content, initiator, and timing before debugging."
+      ]
+    },
+    {
+      "id": "deep-web-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: trace a request and diagnose network failures"
+    },
+    {
+      "id": "deep-web-model",
+      "type": "paragraph",
+      "text": "Entering a URL involves several related but distinct steps: the browser resolves the host name (possibly from cache), establishes or reuses a secure transport connection, sends an HTTP request, receives a status/headers/body, and then parses and renders resources. A failure at one step looks different from a failure at another. Use DevTools Network to inspect the request URL, method, status, timing, response headers and body rather than guessing from the page's visual result."
+    },
+    {
+      "id": "deep-web-trace",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Browser address: https://app.example.test/users?sort=name\nDNS: app.example.test -> an IP address (possibly cached)\nConnection: TCP + TLS, or a negotiated modern transport\nRequest: GET /users?sort=name\nResponse: status + headers + body\nBrowser: parse HTML/CSS/JS and render the page",
+      "steps": [
+        {
+          "title": "Separate host resolution from the URL path",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "DNS resolves the host name, not the full URL path or query string. A cached DNS answer can skip a fresh resolution round trip."
+        },
+        {
+          "title": "Establish a secure connection before the HTTP exchange",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "HTTPS protects traffic using TLS; the negotiated transport can depend on browser/server support. Reused connections and caches mean the exact network sequence is not always repeated for every request."
+        },
+        {
+          "title": "Read the HTTP response as a structured result",
+          "lineStart": 4,
+          "lineEnd": 5,
+          "explanation": "A response includes status, headers and possibly a body. `fetch` may resolve for HTTP errors such as 404; application code must inspect response.ok/status."
+        },
+        {
+          "title": "Distinguish networking from browser rendering",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "A successful document response does not guarantee every JS/CSS/image request succeeded or that code executed without error. Inspect the failing resource and Console separately."
+        }
+      ]
+    },
+    {
+      "id": "deep-web-diagnostics",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "DNS failure: the host cannot be resolved; inspect the hostname, resolver/caching and DNS errors.",
+        "Connection/TLS failure: the browser may fail before any HTTP status exists; inspect certificate/protocol errors and network reachability.",
+        "HTTP 401 vs 403: 401 typically means authentication is missing/invalid; 403 means the server refuses the operation despite the request's authentication context. Both remain server-side decisions.",
+        "HTTP 404 vs 500: 404 indicates the requested route/resource was not found; 500 indicates a server-side failure. Inspect response body and server-side logs where available.",
+        "Cache-related behavior: inspect cache headers and disable cache in DevTools while diagnosing, but remember that development settings do not necessarily reproduce production caching.",
+        "HTTPS provides encryption, integrity and server identity verification; it does not make the application logic or the data returned by the server automatically trustworthy."
+      ]
+    },
+    {
+      "id": "deep-web-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A Fetch call receives an HTTP 404 response. What should frontend code generally do before treating the returned data as success?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Assume fetch rejects automatically because the status is 404",
+          "correct": false,
+          "feedback": "Fetch usually resolves with a Response for HTTP statuses such as 404 or 500."
+        },
+        {
+          "id": "b",
+          "text": "Inspect response.ok/status and map the failure to the appropriate UI behavior",
+          "correct": true,
+          "feedback": "The caller must distinguish HTTP failure from transport failure and decide how to present it."
+        },
+        {
+          "id": "c",
+          "text": "Retry the request forever until it returns 200",
+          "correct": false,
+          "feedback": "404 is not generally transient, and infinite retry wastes resources."
+        },
+        {
+          "id": "d",
+          "text": "Ignore the status because HTTPS encrypts the response",
+          "correct": false,
+          "feedback": "TLS protects transport properties; it does not change the semantic meaning of HTTP status codes."
+        }
+      ],
+      "explanation": "Networking, HTTP status, response parsing, and UI rendering are separate diagnostic layers."
+    },
+    {
+      "id": "deep-web-practice",
+      "type": "codingExercise",
+      "title": "Write a network failure diagnosis from DevTools evidence",
+      "language": "text",
+      "context": "Use a realistic incident report to separate DNS, transport, HTTP, parsing and rendering problems.",
+      "instructions": [
+        "Given a request URL and Network entry, identify which stage failed and what evidence supports the diagnosis.",
+        "Explain what you would check if no HTTP status is present.",
+        "Explain how a 404 response differs from a rejected Fetch Promise caused by a network failure.",
+        "Describe the difference between 401 and 403 for an authenticated API call.",
+        "Make a checklist for verifying whether the page, script, stylesheet or image request failed."
+      ],
+      "requirements": [
+        "Diagnosis uses request/response/timing evidence rather than visual symptoms alone.",
+        "Transport failures are distinguished from HTTP responses.",
+        "HTTP statuses are explained without overstating their security meaning.",
+        "Response body/Console/related requests are checked when appropriate.",
+        "Next debugging steps are actionable and do not assume a single universal cause."
+      ],
+      "starterCode": "Request: GET https://app.example.test/api/users/42\nObserved status: 404\nResponse body: { \"message\": \"User not found\" }\n\n// TODO: classify the failure layer and explain the next two checks.\n// TODO: compare with a request that fails before an HTTP status exists.",
+      "hints": [
+        "DNS resolves the host name; it does not resolve the path/query.",
+        "A 404 is an HTTP response, whereas some network failures provide no Response at all.",
+        "Use Network for request evidence and Console for parsing/runtime errors."
+      ],
+      "successCriteria": [
+        "Correctly classifies the observed 404 as an HTTP response.",
+        "Distinguishes no-status transport failures from HTTP errors.",
+        "Uses evidence in the debugging checklist.",
+        "Separates authentication, authorization and transport concepts."
+      ]
+    },
+    {
+      "id": "deep-web-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Trace host resolution, connection, HTTP exchange and browser rendering as distinct steps.",
+        "Use DevTools Network and Console to diagnose the failing layer instead of inferring from a blank screen.",
+        "HTTPS secures transport; the app must still handle statuses, validate data and enforce authorization correctly."
       ]
     },
     {
