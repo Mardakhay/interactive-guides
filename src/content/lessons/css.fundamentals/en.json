@@ -33,7 +33,11 @@
     "cascade",
     "specificity",
     "box-model",
-    "display"
+    "display",
+    "css-colors",
+    "typography",
+    "accessibility",
+    "browser-compatibility"
   ],
   "blocks": [
     {

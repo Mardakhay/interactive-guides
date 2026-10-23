@@ -33,7 +33,11 @@
     "cascade",
     "specificity",
     "box-model",
-    "display"
+    "display",
+    "css-colors",
+    "typography",
+    "accessibility",
+    "browser-compatibility"
   ],
   "blocks": [
     {
@@ -506,22 +510,22 @@
       "code": ":root {\n  --color-text: #1f2937;\n  --color-surface: #ffffff;\n  --color-brand: hsl(263 70% 50%);\n  --space-card: 1.25rem;\n}\n\n.card {\n  color: var(--color-text, #222);\n  background: var(--color-surface);\n  border-top: 4px solid var(--color-brand);\n  padding: clamp(1rem, 3vw, 2rem);\n  width: min(100%, 65ch);\n  margin-inline: auto;\n}\n\n@supports (color: color-mix(in srgb, black, white)) {\n  .card {\n    border-color: color-mix(in srgb, var(--color-brand), white 25%);\n  }\n}",
       "steps": [
         {
-          "title": "Define tokens once",
+          "title": "Определи токены один раз",
           "lineStart": 1,
           "lineEnd": 6,
-          "explanation": "The custom properties form a small design vocabulary. They can be reused by multiple components and can be overridden in a narrower scope when a component needs a variation."
+          "explanation": "Пользовательские свойства задают небольшой набор дизайн-значений. Их можно повторно использовать в компонентах и переопределять в более узкой области действия."
         },
         {
-          "title": "Use fallbacks and fluid constraints",
+          "title": "Используй резервные значения и гибкие ограничения",
           "lineStart": 8,
           "lineEnd": 15,
-          "explanation": "var(--color-text, #222) supplies a fallback when the custom property is unavailable. clamp() bounds padding between a minimum and a maximum, while min() caps the width so a card cannot grow beyond a readable line length or the available container width."
+          "explanation": "var(--color-text, #222) задаёт резервное значение, если пользовательское свойство недоступно. clamp() ограничивает padding минимумом и максимумом, а min() ограничивает ширину доступным контейнером и комфортной длиной строки."
         },
         {
-          "title": "Enhance only when the browser supports it",
+          "title": "Добавляй улучшения при поддержке браузера",
           "lineStart": 17,
           "lineEnd": 21,
-          "explanation": "The border has a conventional color first. The @supports feature query adds a color-mix() enhancement only when the browser recognizes that declaration; the original border remains a fallback."
+          "explanation": "У рамки уже задан обычный цвет. @supports добавляет улучшение на основе color-mix() только если браузер распознаёт эту декларацию; исходный цвет остаётся запасным вариантом."
         }
       ]
     },
@@ -543,22 +547,22 @@
       "code": ".button {\n  background-color: #3730a3;\n  transition: background-color 160ms ease, transform 160ms ease;\n}\n\n.button:hover {\n  background-color: #4338ca;\n  transform: translateY(-1px);\n}\n\n.button:focus-visible {\n  outline: 3px solid #a5b4fc;\n  outline-offset: 3px;\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .button {\n    transition: none;\n  }\n}",
       "steps": [
         {
-          "title": "Animate a meaningful state change",
+          "title": "Анимируй значимое изменение состояния",
           "lineStart": 1,
           "lineEnd": 9,
-          "explanation": "The transition lists the properties being animated and a short duration. The hover state adds a small visual response. Avoid transitioning every property indiscriminately, because that can animate layout or obscure state changes."
+          "explanation": "В transition перечислены анимируемые свойства и короткая длительность. Состояние hover добавляет небольшую визуальную реакцию. Не анимируй все свойства подряд: это может менять раскладку или скрывать изменения состояния."
         },
         {
-          "title": "Keep keyboard focus visible",
+          "title": "Оставляй видимый клавиатурный фокус",
           "lineStart": 11,
           "lineEnd": 14,
-          "explanation": "The :focus-visible rule makes keyboard focus easy to locate. Do not remove an outline without providing an equally visible replacement."
+          "explanation": "Правило :focus-visible помогает находить фокус при навигации клавиатурой. Не удаляй outline без равноценной заметной замены."
         },
         {
-          "title": "Respect reduced-motion preferences",
+          "title": "Учитывай предпочтения уменьшенного движения",
           "lineStart": 16,
           "lineEnd": 20,
-          "explanation": "This media query detects the user's system preference and removes this non-essential transition. Apply the same principle to larger animations and movement that could cause discomfort."
+          "explanation": "Медиазапрос определяет системное предпочтение и отключает этот необязательный переход. Тот же принцип применяй к крупным анимациям и движениям, которые могут вызвать дискомфорт."
         }
       ]
     },
@@ -679,7 +683,7 @@
         "Необязательный переход учитывает media feature reduced-motion.",
         "Ссылка или кнопка понятна и без цветовых подсказок."
       ],
-      "starterCode": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>Study Card</title>\n    <style>\n      /* Define your tokens and card styles here. */\n    </style>\n  </head>\n  <body>\n    <main class=\"card\">\n      <p class=\"eyebrow\">Study guide</p>\n      <h1>Build accessible interfaces</h1>\n      <p class=\"card__body\">Learn to style information so it is readable, responsive, and usable with a keyboard.</p>\n      <a class=\"button\" href=\"#details\">Read the guide</a>\n      <section id=\"details\">\n        <h2>Why details matter</h2>\n        <p>Reusable tokens make visual changes consistent and easier to maintain.</p>\n      </section>\n    </main>\n  </body>\n</html>",
+      "starterCode": "<!doctype html>\n<html lang=\"ru\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>Учебная карточка</title>\n    <style>\n      /* Определи токены и стили карточки здесь. */\n    </style>\n  </head>\n  <body>\n    <main class=\"card\">\n      <p class=\"eyebrow\">Учебное руководство</p>\n      <h1>Создавай доступные интерфейсы</h1>\n      <p class=\"card__body\">Учись оформлять информацию так, чтобы её было легко читать, а интерфейс оставался адаптивным и доступным с клавиатуры.</p>\n      <a class=\"button\" href=\"#details\">Открыть руководство</a>\n      <section id=\"details\">\n        <h2>Почему важны детали</h2>\n        <p>Повторно используемые токены делают визуальные изменения единообразными и упрощают поддержку.</p>\n      </section>\n    </main>\n  </body>\n</html>",
       "hints": [
         "Центрируй .card, ограничивая ширину через width: min(...) или аналогичную схему контейнера, затем проверь ширину 320px.",
         "Индикатор :focus-visible должен оставаться заметным; реакции только на hover недостаточно для пользователей клавиатуры.",
