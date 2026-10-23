@@ -10,16 +10,16 @@
   "order": 1,
   "title": "SQL and PostgreSQL for Frontend Developers",
   "description": "Query relational data safely and understand joins, aggregation, NULL, constraints, and access control.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 110,
   "difficulty": "intermediate",
   "prerequisites": [
     "web.internet-http",
     "typescript.fundamentals"
   ],
   "learningOutcomes": [
-    "Write SELECT/JOIN/aggregate queries.",
-    "Handle NULL and grouped filtering correctly.",
-    "Explain data constraints and parameterized queries.",
+    "Write SELECT, JOIN, subquery, and aggregate queries.",
+    "Handle NULL's three-valued logic, including NOT IN edge cases.",
+    "Explain join grain, constraints, transactions, and parameterized values.",
     "Distinguish frontend filtering from trusted authorization."
   ],
   "tags": [
@@ -83,6 +83,299 @@
       "tone": "warning",
       "title": "Do not expose database credentials to the browser",
       "text": "Database access should go through a trusted server or a platform whose public client access is restricted by enforced row-level security. A frontend filter does not restrict which rows an attacker can request."
+    },
+    {
+      "id": "sql-select-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Read the query in logical stages"
+    },
+    {
+      "id": "sql-select-body",
+      "type": "paragraph",
+      "text": "SQL is declarative: the text is written SELECT-first, but a useful mental model is FROM/JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT. This explains why a SELECT alias is usually unavailable in WHERE, and why filtering an aggregate belongs in HAVING. The database optimizer may execute a different physical plan; logical order is for reasoning, not a promise about execution."
+    },
+    {
+      "id": "sql-select-example",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "SELECT id, email\nFROM customers\nWHERE active = TRUE\n  AND created_at >= DATE '2026-01-01'\nORDER BY created_at DESC, id ASC\nLIMIT 20;",
+      "steps": [
+        {
+          "title": "Choose rows from a relation",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "FROM names the relation; WHERE keeps rows that satisfy the predicate. Multiple predicates can be composed with AND/OR—use parentheses when precedence would be unclear."
+        },
+        {
+          "title": "Sort deterministically and bound the result",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "ORDER BY sorts after filtering. Adding id as a tie-breaker makes equal timestamps deterministic; LIMIT without an order does not promise which rows appear."
+        }
+      ]
+    },
+    {
+      "id": "sql-null-edge-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "NULL uses three-valued logic"
+    },
+    {
+      "id": "sql-null-edge-body",
+      "type": "paragraph",
+      "text": "A predicate involving NULL can be TRUE, FALSE, or UNKNOWN. WHERE retains only TRUE, so comparisons such as score > 0 silently discard NULL rows. Use IS NULL for missing values and COALESCE only when substituting a deliberate display/calculation default. Watch NOT IN: if its set contains NULL, the result may be UNKNOWN for every candidate; a correlated NOT EXISTS is often safer."
+    },
+    {
+      "id": "sql-null-edge-example",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "SELECT c.id\nFROM customers AS c\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM blocked_customers AS b\n  WHERE b.customer_id = c.id\n);",
+      "steps": [
+        {
+          "title": "Correlate the inner query to the current row",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "The inner query tests whether a matching blocked-customer row exists for this customer."
+        },
+        {
+          "title": "Keep only rows with no match",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "NOT EXISTS is boolean and avoids the NULL trap of NOT IN. If customer_id can itself be NULL, decide explicitly whether such rows should be included."
+        }
+      ]
+    },
+    {
+      "id": "sql-join-grain-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Join grain and row multiplication"
+    },
+    {
+      "id": "sql-join-grain-body",
+      "type": "paragraph",
+      "text": "Before joining, state what one row represents on each side. A one-to-many join repeats the parent row; joining two one-to-many tables can multiply both child sets. COUNT(DISTINCT ...) may correct a count, but it is not a universal repair for sums or incorrect data modeling. Aggregate each child relation to the required grain first when needed."
+    },
+    {
+      "id": "sql-join-grain-example",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "SELECT c.id,\n       COUNT(DISTINCT o.id) AS orders,\n       COUNT(DISTINCT r.id) AS reviews\nFROM customers AS c\nLEFT JOIN orders AS o ON o.customer_id = c.id\nLEFT JOIN reviews AS r ON r.customer_id = c.id\nGROUP BY c.id;",
+      "steps": [
+        {
+          "title": "Notice the two independent one-to-many joins",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "A customer with two orders and three reviews produces six joined rows before grouping."
+        },
+        {
+          "title": "Count identities, not multiplied rows",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "DISTINCT avoids double-counting these IDs. For sums or larger queries, pre-aggregate orders and reviews in separate subqueries/CTEs instead of relying on DISTINCT."
+        }
+      ]
+    },
+    {
+      "id": "sql-subqueries-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Subqueries and conditional results"
+    },
+    {
+      "id": "sql-subqueries-body",
+      "type": "paragraph",
+      "text": "Use EXISTS when the question is whether a related row exists; use a join when columns from the related relation are needed. A scalar subquery must return at most one row. CASE expresses conditional values in the result and can make reports clearer, but it does not replace filtering or constraints."
+    },
+    {
+      "id": "sql-subqueries-example",
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT id,\n       CASE WHEN total >= 100 THEN 'large' ELSE 'standard' END AS order_size\nFROM orders\nWHERE customer_id = $1;"
+    },
+    {
+      "id": "sql-schema-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Пусть ограничения защищают данные"
+    },
+    {
+      "id": "sql-schema-body",
+      "type": "paragraph",
+      "text": "PRIMARY KEY identifies a row; FOREIGN KEY requires a related parent row; NOT NULL rejects missing values; UNIQUE prevents duplicate keys; CHECK enforces a row-level rule. Constraints protect writes from every client, unlike form validation. Choose ON DELETE behavior deliberately: cascading deletion can be correct for dependent data, but dangerous for shared records."
+    },
+    {
+      "id": "sql-schema-example",
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE TABLE orders (\n  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  customer_id BIGINT NOT NULL REFERENCES customers(id),\n  total NUMERIC(12, 2) NOT NULL CHECK (total >= 0),\n  status TEXT NOT NULL,\n  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),\n  UNIQUE (customer_id, created_at)\n);"
+    },
+    {
+      "id": "sql-schema-note",
+      "type": "callout",
+      "tone": "info",
+      "title": "A constraint is part of the data contract",
+      "text": "Application checks improve feedback; database constraints are the final integrity gate. Handle constraint errors as expected outcomes, not impossible crashes."
+    },
+    {
+      "id": "sql-transactions-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Use transactions for related writes"
+    },
+    {
+      "id": "sql-transactions-body",
+      "type": "paragraph",
+      "text": "A transaction groups database changes so they succeed or fail together. Keep it short, check the returned rows, and roll back when a required step fails. A transaction does not automatically solve concurrent updates: use a suitable constraint, lock, or isolation level for the invariant."
+    },
+    {
+      "id": "sql-transactions-example",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "BEGIN;\nUPDATE inventory\nSET quantity = quantity - 1\nWHERE product_id = $1 AND quantity > 0\nRETURNING product_id, quantity;\n-- Commit only if one row was returned\nCOMMIT;",
+      "steps": [
+        {
+          "title": "Guard the update in the database",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "The predicate prevents a negative quantity in this statement; RETURNING lets the caller verify whether a row changed."
+        },
+        {
+          "title": "Commit or roll back based on the result",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "The comment is an application decision point: if no row was returned, issue ROLLBACK instead. Parameter $1 must be bound through the driver."
+        }
+      ]
+    },
+    {
+      "id": "sql-parameterization-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Parameterize values at the trusted boundary"
+    },
+    {
+      "id": "sql-parameterization-body",
+      "type": "paragraph",
+      "text": "Bind data values separately from SQL syntax. Parameters prevent a value from changing the query structure; they do not authorize the caller, validate business rules, or make dynamic identifiers safe. For table/column names that cannot be parameters, choose from a strict allowlist. Never concatenate untrusted input into a query."
+    },
+    {
+      "id": "sql-parameterized-example",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "const customerId = request.params.customerId;\nconst result = await db.query(\n  'SELECT id, name FROM customers WHERE id = $1',\n  [customerId],\n);\nreturn result.rows;",
+      "steps": [
+        {
+          "title": "Keep query structure fixed",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The SQL text contains a placeholder; the driver binds the value separately rather than interpolating it into SQL."
+        },
+        {
+          "title": "Apply authorization independently",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "explanation": "A safe parameterized query can still expose another user's row. Check the authenticated user's permission on the server/database policy."
+        }
+      ]
+    },
+    {
+      "id": "sql-security-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does parameterization guarantee?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The caller can only read their own rows",
+          "correct": false,
+          "feedback": "Authorization is a separate rule enforced by a trusted server or database policy."
+        },
+        {
+          "id": "b",
+          "text": "The supplied value is treated as data, not SQL syntax",
+          "correct": true,
+          "feedback": "Bound parameters separate values from query structure; they do not grant or restrict access."
+        },
+        {
+          "id": "c",
+          "text": "All dynamic table names are safe",
+          "correct": false,
+          "feedback": "Identifiers usually need strict allowlisting rather than value parameters."
+        },
+        {
+          "id": "d",
+          "text": "The query always uses an index",
+          "correct": false,
+          "feedback": "Parameterization is a safety property, not a query-plan guarantee."
+        }
+      ],
+      "explanation": "SQL safety, authorization, validation and performance are separate concerns."
+    },
+    {
+      "id": "sql-having-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Where should a filter such as COUNT(order_id) >= 2 go?",
+      "options": [
+        {
+          "id": "a",
+          "text": "WHERE, before grouping",
+          "correct": false,
+          "feedback": "WHERE filters input rows; it cannot filter the aggregate result."
+        },
+        {
+          "id": "b",
+          "text": "HAVING, after grouping",
+          "correct": true,
+          "feedback": "HAVING filters groups using aggregate values."
+        },
+        {
+          "id": "c",
+          "text": "ORDER BY",
+          "correct": false,
+          "feedback": "ORDER BY changes presentation order, not which groups qualify."
+        },
+        {
+          "id": "d",
+          "text": "LIMIT",
+          "correct": false,
+          "feedback": "LIMIT bounds output rows but does not express an aggregate condition."
+        }
+      ],
+      "explanation": "Separate row filters (WHERE) from group filters (HAVING)."
+    },
+    {
+      "id": "sql-practice-query-design",
+      "type": "codingExercise",
+      "title": "Design a query from a reporting requirement",
+      "language": "sql",
+      "context": "A dashboard needs one row per active customer, including those with zero purchases, plus the most recent purchase date.",
+      "instructions": [
+        "Write a query that preserves active customers without purchase rows.",
+        "Return the number of purchases and latest timestamp.",
+        "Add a second version that returns only customers with at least three purchases.",
+        "Explain the result when a customer has no purchases and MAX(purchased_at) is NULL."
+      ],
+      "requirements": [
+        "The result grain is one row per customer.",
+        "The join type preserves zero-purchase customers.",
+        "COUNT counts matched purchase IDs rather than the null-extended row.",
+        "HAVING is used only for the aggregate threshold."
+      ],
+      "starterCode": "SELECT c.id, COUNT(p.id) AS purchase_count, MAX(p.purchased_at) AS latest_purchase\nFROM customers AS c\n-- TODO: preserve customers with zero purchases\n-- TODO: group by the customer key\n;",
+      "hints": [
+        "Use LEFT JOIN and COUNT(p.id), not COUNT(*), for the zero-match case.",
+        "MAX ignores NULL inputs and returns NULL when there are no non-NULL values.",
+        "Put purchase_count >= 3 in HAVING."
+      ],
+      "successCriteria": [
+        "The output has one row per active customer.",
+        "Zero-purchase customers have count 0 and latest_purchase NULL.",
+        "The threshold version uses HAVING correctly.",
+        "You explain the LEFT JOIN/COUNT distinction."
+      ]
     },
     {
       "id": "sql-check",

@@ -10,16 +10,16 @@
   "order": 1,
   "title": "SQL и PostgreSQL для frontend-разработчиков",
   "description": "Безопасно работай с реляционными данными: JOIN, агрегации, NULL, ограничения и контроль доступа.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 110,
   "difficulty": "intermediate",
   "prerequisites": [
     "web.internet-http",
     "typescript.fundamentals"
   ],
   "learningOutcomes": [
-    "Писать SELECT/JOIN/агрегации.",
-    "Корректно использовать NULL и фильтрацию групп.",
-    "Объяснять ограничения данных и параметризованные запросы.",
+    "Писать запросы SELECT, JOIN, подзапросы и агрегации.",
+    "Учитывать трёхзначную логику NULL, включая edge cases NOT IN.",
+    "Объяснять зерно JOIN, ограничения, транзакции и параметризованные значения.",
     "Отличать frontend-фильтр от доверенной авторизации."
   ],
   "tags": [
@@ -85,6 +85,299 @@
       "text": "Доступ к базе должен идти через доверенный сервер либо платформу с ограниченным клиентским доступом и обязательным row-level security. Фильтр frontend не ограничивает строки, которые может запросить атакующий."
     },
     {
+      "id": "sql-select-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Читай запрос по логическим этапам"
+    },
+    {
+      "id": "sql-select-body",
+      "type": "paragraph",
+      "text": "SQL декларативен: текст начинается с SELECT, но для рассуждения полезна модель FROM/JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT. Она объясняет, почему alias из SELECT обычно недоступен в WHERE, а фильтр агрегата относится к HAVING. Оптимизатор может выполнить другой физический план; логический порядок помогает понимать запрос, но не обещает порядок исполнения."
+    },
+    {
+      "id": "sql-select-example",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "SELECT id, email\nFROM customers\nWHERE active = TRUE\n  AND created_at >= DATE '2026-01-01'\nORDER BY created_at DESC, id ASC\nLIMIT 20;",
+      "steps": [
+        {
+          "title": "Выбери строки из отношения",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "FROM задаёт отношение, WHERE оставляет строки, подходящие предикату. Несколько условий можно соединять через AND/OR; используй скобки, если приоритет неочевиден."
+        },
+        {
+          "title": "Задай устойчивую сортировку и ограничь результат",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "ORDER BY сортирует результат фильтрации. id как дополнительный критерий делает порядок устойчивым при одинаковом времени; LIMIT без сортировки не гарантирует набор строк."
+        }
+      ]
+    },
+    {
+      "id": "sql-null-edge-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Для NULL действует трёхзначная логика"
+    },
+    {
+      "id": "sql-null-edge-body",
+      "type": "paragraph",
+      "text": "Предикат с NULL может быть TRUE, FALSE или UNKNOWN. WHERE оставляет только TRUE, поэтому сравнение score > 0 исключит строки с NULL. Проверяй отсутствие через IS NULL, а COALESCE используй только для осознанной подстановки значения. Будь осторожен с NOT IN: если набор содержит NULL, результат может быть UNKNOWN для всех кандидатов; часто безопаснее коррелированный NOT EXISTS."
+    },
+    {
+      "id": "sql-null-edge-example",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "SELECT c.id\nFROM customers AS c\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM blocked_customers AS b\n  WHERE b.customer_id = c.id\n);",
+      "steps": [
+        {
+          "title": "Свяжи внутренний запрос с текущей строкой",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Внутренний запрос проверяет, есть ли запись blocked-customer для этого клиента."
+        },
+        {
+          "title": "Оставь строки без совпадения",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "NOT EXISTS возвращает логический результат и избегает NULL-ловушки NOT IN. Если customer_id может быть NULL, отдельно реши, должны ли такие строки попасть в выборку."
+        }
+      ]
+    },
+    {
+      "id": "sql-join-grain-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Зерно JOIN и размножение строк"
+    },
+    {
+      "id": "sql-join-grain-body",
+      "type": "paragraph",
+      "text": "Перед JOIN сформулируй, что означает одна строка каждой таблицы. Связь один-ко-многим повторяет родительскую строку; соединение двух таких таблиц может перемножить дочерние наборы. COUNT(DISTINCT ...) иногда исправляет подсчёт, но не является универсальным решением для сумм или неверной модели данных. При необходимости сначала агрегируй каждую дочернюю таблицу до нужного зерна."
+    },
+    {
+      "id": "sql-join-grain-example",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "SELECT c.id,\n       COUNT(DISTINCT o.id) AS orders,\n       COUNT(DISTINCT r.id) AS reviews\nFROM customers AS c\nLEFT JOIN orders AS o ON o.customer_id = c.id\nLEFT JOIN reviews AS r ON r.customer_id = c.id\nGROUP BY c.id;",
+      "steps": [
+        {
+          "title": "Заметь две независимые связи один-ко-многим",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Для клиента с двумя заказами и тремя отзывами до группировки образуется шесть строк."
+        },
+        {
+          "title": "Считай идентификаторы, а не размноженные строки",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "DISTINCT предотвращает повторный подсчёт этих ID. Для сумм и больших запросов предварительно агрегируй orders и reviews в отдельных подзапросах/CTE."
+        }
+      ]
+    },
+    {
+      "id": "sql-subqueries-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Подзапросы и условные результаты"
+    },
+    {
+      "id": "sql-subqueries-body",
+      "type": "paragraph",
+      "text": "Используй EXISTS, когда нужно проверить наличие связанной строки; JOIN — когда нужны её столбцы. Скалярный подзапрос должен вернуть максимум одну строку. CASE задаёт условное значение в результате и упрощает отчёты, но не заменяет фильтрацию или ограничения целостности."
+    },
+    {
+      "id": "sql-subqueries-example",
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT id,\n       CASE WHEN total >= 100 THEN 'large' ELSE 'standard' END AS order_size\nFROM orders\nWHERE customer_id = $1;"
+    },
+    {
+      "id": "sql-schema-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Поручи ограничениям защищать данные"
+    },
+    {
+      "id": "sql-schema-body",
+      "type": "paragraph",
+      "text": "PRIMARY KEY задаёт идентификатор строки; FOREIGN KEY требует связанную родительскую запись; NOT NULL запрещает пропуск; UNIQUE предотвращает дубли ключей; CHECK проверяет правило строки. Ограничения защищают запись из любого клиента, в отличие от валидации формы. Осознанно выбирай поведение ON DELETE: каскад подходит зависимым данным, но опасен для общих записей."
+    },
+    {
+      "id": "sql-schema-example",
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE TABLE orders (\n  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  customer_id BIGINT NOT NULL REFERENCES customers(id),\n  total NUMERIC(12, 2) NOT NULL CHECK (total >= 0),\n  status TEXT NOT NULL,\n  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),\n  UNIQUE (customer_id, created_at)\n);"
+    },
+    {
+      "id": "sql-schema-note",
+      "type": "callout",
+      "tone": "info",
+      "title": "Ограничение — часть контракта данных",
+      "text": "Проверки приложения улучшают обратную связь; ограничение базы — последняя защита целостности. Обрабатывай ошибки ограничений как ожидаемый результат, а не невозможный сбой."
+    },
+    {
+      "id": "sql-transactions-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Используй транзакции для связанных записей"
+    },
+    {
+      "id": "sql-transactions-body",
+      "type": "paragraph",
+      "text": "Транзакция объединяет изменения базы: они фиксируются вместе или вместе откатываются. Делай её короткой, проверяй возвращённые строки и откатывай, если обязательный шаг не выполнен. Транзакция сама по себе не решает гонки: для инварианта нужны подходящее ограничение, блокировка или уровень изоляции."
+    },
+    {
+      "id": "sql-transactions-example",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "BEGIN;\nUPDATE inventory\nSET quantity = quantity - 1\nWHERE product_id = $1 AND quantity > 0\nRETURNING product_id, quantity;\n-- Commit only if one row was returned\nCOMMIT;",
+      "steps": [
+        {
+          "title": "Защити изменение на стороне базы",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Предикат не позволяет этому запросу сделать остаток отрицательным; RETURNING даёт проверить, изменилась ли строка."
+        },
+        {
+          "title": "Зафиксируй или откати по результату",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "Комментарий обозначает решение приложения: если строк не вернулось, выполни ROLLBACK. Параметр $1 передавай через драйвер."
+        }
+      ]
+    },
+    {
+      "id": "sql-parameterization-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Параметризуй значения на доверенной границе"
+    },
+    {
+      "id": "sql-parameterization-body",
+      "type": "paragraph",
+      "text": "Передавай значения отдельно от SQL-синтаксиса. Параметры не дают значению изменить структуру запроса, но не авторизуют пользователя, не проверяют бизнес-правила и не делают динамические имена безопасными. Для имён таблиц/столбцов, которые нельзя параметризовать, используй строгий allowlist. Не склеивай недоверенный ввод с запросом."
+    },
+    {
+      "id": "sql-parameterized-example",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "const customerId = request.params.customerId;\nconst result = await db.query(\n  'SELECT id, name FROM customers WHERE id = $1',\n  [customerId],\n);\nreturn result.rows;",
+      "steps": [
+        {
+          "title": "Оставь структуру запроса неизменной",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "SQL содержит placeholder; драйвер передаёт значение отдельно, а не вставляет его текстом в запрос."
+        },
+        {
+          "title": "Отдельно проверь права",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "explanation": "Даже безопасный запрос может открыть чужую запись. Проверяй разрешение пользователя на сервере или политике базы."
+        }
+      ]
+    },
+    {
+      "id": "sql-security-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что гарантирует параметризация?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Пользователь читает только свои строки",
+          "correct": false,
+          "feedback": "Авторизация — отдельное правило доверенного сервера или политики базы."
+        },
+        {
+          "id": "b",
+          "text": "Переданное значение считается данными, а не SQL-синтаксисом",
+          "correct": true,
+          "feedback": "Bound parameters отделяют значения от структуры запроса, но не управляют доступом."
+        },
+        {
+          "id": "c",
+          "text": "Все динамические имена таблиц безопасны",
+          "correct": false,
+          "feedback": "Идентификаторы обычно нужно проверять строгим allowlist, а не параметром значения."
+        },
+        {
+          "id": "d",
+          "text": "Запрос всегда использует индекс",
+          "correct": false,
+          "feedback": "Параметризация защищает от инъекции, но не гарантирует план запроса."
+        }
+      ],
+      "explanation": "Безопасность SQL, авторизация, валидация и производительность — разные задачи."
+    },
+    {
+      "id": "sql-having-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Куда поместить условие COUNT(order_id) >= 2?",
+      "options": [
+        {
+          "id": "a",
+          "text": "В WHERE до группировки",
+          "correct": false,
+          "feedback": "WHERE фильтрует входные строки и не фильтрует результат агрегата."
+        },
+        {
+          "id": "b",
+          "text": "В HAVING после группировки",
+          "correct": true,
+          "feedback": "HAVING фильтрует группы по значениям агрегатов."
+        },
+        {
+          "id": "c",
+          "text": "В ORDER BY",
+          "correct": false,
+          "feedback": "ORDER BY меняет порядок вывода, а не состав групп."
+        },
+        {
+          "id": "d",
+          "text": "В LIMIT",
+          "correct": false,
+          "feedback": "LIMIT ограничивает число строк, но не задаёт агрегатное условие."
+        }
+      ],
+      "explanation": "Разделяй фильтр строк (WHERE) и фильтр групп (HAVING)."
+    },
+    {
+      "id": "sql-practice-query-design",
+      "type": "codingExercise",
+      "title": "Спроектируй запрос по требованию отчёта",
+      "language": "sql",
+      "context": "Дашборду нужна одна строка на активного клиента, включая клиентов без покупок, и дата последней покупки.",
+      "instructions": [
+        "Напиши запрос, сохраняющий активных клиентов без покупок.",
+        "Верни число покупок и время последней покупки.",
+        "Добавь версию, оставляющую клиентов минимум с тремя покупками.",
+        "Объясни результат, если покупок нет и MAX(purchased_at) равен NULL."
+      ],
+      "requirements": [
+        "Зерно результата — одна строка на клиента.",
+        "Тип соединения сохраняет клиентов без покупок.",
+        "COUNT считает совпавшие ID покупок, а не строку с NULL после LEFT JOIN.",
+        "HAVING применяется только для порога агрегата."
+      ],
+      "starterCode": "SELECT c.id, COUNT(p.id) AS purchase_count, MAX(p.purchased_at) AS latest_purchase\nFROM customers AS c\n-- TODO: сохрани клиентов без покупок\n-- TODO: сгруппируй по ключу клиента\n;",
+      "hints": [
+        "Используй LEFT JOIN и COUNT(p.id), не COUNT(*), для случая без совпадений.",
+        "MAX игнорирует входные NULL и вернёт NULL, если значений нет.",
+        "Порог purchase_count >= 3 помести в HAVING."
+      ],
+      "successCriteria": [
+        "В результате одна строка на активного клиента.",
+        "Без покупок count равен 0, latest_purchase — NULL.",
+        "Для пороговой версии правильно использован HAVING.",
+        "Объяснено различие LEFT JOIN и COUNT."
+      ]
+    },
+    {
       "id": "sql-check",
       "type": "knowledgeCheck",
       "questionType": "single-choice",
@@ -137,7 +430,7 @@
         "Ввод параметризуется, а не склеивается с SQL.",
         "Ограничения целостности отличены от авторизации."
       ],
-      "starterCode": "SELECT c.id, c.name, COUNT(o.id) AS order_count\nFROM customers AS c\n-- TODO: choose a join that retains customers with no orders\n-- TODO: filter active customers and group the result\n;",
+      "starterCode": "SELECT c.id, c.name, COUNT(o.id) AS order_count\nFROM customers AS c\n-- TODO: выбери тип соединения, сохраняющий клиентов без заказов\n-- TODO: отфильтруй активных клиентов и сгруппируй результат\n;",
       "hints": [
         "Используй LEFT JOIN, если нужно сохранить строки без совпадения.",
         "COUNT(column) игнорирует NULL в этом столбце.",
