@@ -99,3 +99,12 @@ Do not mark planned features as implemented. After each phase, update this file 
 - Do not call an HTML source migrated until its headings, explanations, code samples, diagrams, exercises, answer/reveal controls, links, and key claims have been mapped to the structured destination and the EN/RU teaching coverage has been reviewed.
 - Next: continue exact source-section inventory, add a source-to-block mapping report, close or explicitly defer each uncovered concept, then run CI on the resulting feature HEAD.
 
+## Handoff — 2026-10-23
+
+- Work is on feat/learning-platform-foundation; latest content commit is 6579f9926c57317947de2f90ddfeb66a0974b61a (content(api): clarify retry limits and safety). Do not use GitHub Contents writes without branch=feat/learning-platform-foundation and an exact current content SHA.
+- Four supplementary JSON files for SQL/PostgreSQL and production hosting exist on feature, but are not wired into the app. The app still exposes 25 English legacy HTML lessons.
+- Source scope: 21 Notion pages fetched (connector marks them unverified); 25 HTML files inventoried/structurally inspected. Two HTML pages were fully read in the previous pass; the API lesson received a targeted review. The other 22 HTML files still require full text/code/exercise/answer review. This is not a complete source audit or parity completion.
+- Focused corrections: React Router uses installed react-router-dom 6.26.2 API; form-validation guidance separates UX from security and treats timing as contextual; API lesson clarifies retry counts/backoff safety, optional Axios, PATCH partial updates, and non-persistent demo writes.
+- Before documentation-only updates, lint, typecheck, tests and production build passed; tests reported 7 files / 11 tests. Rerun on exact final HEAD. Node 25 needed an in-memory Storage test stub. npm audit reported 17 dependency vulnerabilities; review separately.
+- CONTENT_AUDIT.md and CONTENT_PARITY_REVIEW_WEEK14-15.md were absent in the checkout. The source matrix lives in FULL_SOURCE_CONTENT_AUDIT.md and is the current audit record.
+- Next: finish full text/code review of remaining HTML and relevant Notion pages; implement and register complete bilingual curriculum/structured lesson reader; add parity/content invariants; rerun CI on exact feature SHA. PR #1 is open/draft; verify current head and CI after documentation commits.
