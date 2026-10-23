@@ -95,3 +95,10 @@ The source audit reconciles 21 fetched Notion pages and 25 HTML files. Notion co
 ## Embedded lesson migration checkpoint — 2026-10-23
 
 Three catalog lessons now have authored content embedded directly in src/data/lessons.json: re-003 (forms and validation), re-004 (API/request lifecycle), and re-005 (shared state and reducers). The lesson loader now prefers non-empty catalog content and uses the iframe mapping only as a migration fallback. This is a partial migration, not a full course conversion: 22 other lesson bodies are still blank and use standalone HTML, and the app has no locale-aware EN/RU lesson pairing. See FULL_SOURCE_CONTENT_AUDIT.md for exact source evidence and gaps.
+
+
+## Current feature-branch correction — 2026-10-23
+
+The historical “current state” paragraphs above describe an earlier app snapshot and are superseded for `feat/learning-platform-foundation`. The feature branch now contains a structured, bilingual, Zod-validated content repository and learner-facing React renderer. The curriculum index is `/:locale/structured-lessons`; lesson routes are `/:locale/structured-lessons/:lessonId`. The app registers 26 core lesson IDs in both locales (52 files) and 11 supplementary IDs in both locales (22 files); supplements are displayed separately from the 24-week core. These lessons are embedded content, not separate HTML pages.
+
+The 25 legacy HTML files remain migration sources. The full audit has not yet established paragraph/code/exercise parity for all sources; only two HTML pages received full reads in the focused pass, with one additional API-focused review. The Notion connector returned 21 pages and marked each fetch unverified. See `FULL_SOURCE_CONTENT_AUDIT.md` for explicit scope and limitations. CI run on the current routing/test changes must be checked before recording a pass; do not use earlier SHAs as final evidence.

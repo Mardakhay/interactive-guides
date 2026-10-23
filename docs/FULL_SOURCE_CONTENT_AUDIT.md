@@ -1,13 +1,13 @@
 # Full source content audit
 
 **Audit date:** 2026-10-23  
-**Repository ref audited:** `feat/learning-platform-foundation` at `0d51ff6e1ed2aba09e02ef48307169c8dd574298`  
+**Initial repository ref audited:** `feat/learning-platform-foundation` at `0d51ff6e1ed2aba09e02ef48307169c8dd574298` (historical snapshot; current status below)  
 **PR:** [#1](https://github.com/Mardakhay/interactive-guides/pull/1)  
 **Result:** the source inventory is reconciled, but source-to-course parity is not complete.
 
 ## Scope and repository facts
 
-The checked out feature branch contains the original React 18 / TypeScript / Vite 5 app, 25 catalog lesson IDs and 25 files in `public/lessons/`. The app renders those HTML files through `src/features/lesson-renderer/lessonLoader.ts`. It does **not** contain `src/content/repository.ts`, the structured lesson schemas or a 26-lesson EN/RU curriculum described in earlier handoff expectations. The four files under `src/content/lessons/` are English/Russian SQL and production-hosting JSON; the current app has no loader or route that consumes them. This matters to every “covered in the course” judgment below.
+This paragraph records a historical snapshot before structured content was restored. It is superseded by the current embedded-curriculum checkpoint below; the source matrices retain their initial target labels and must be interpreted with that mapping correction.
 
 The Notion search returned 21 unique pages. Twenty are instructional/curriculum sources or an instructional-format specification; the English interview assessment is not frontend curriculum. The 25 HTML files in the repository agree with the filenames in `docs/LEGACY_CONTENT_INVENTORY.md`. The inventory previously described them as sampled and not fully reviewed. This report does not upgrade that to “migrated”: two interactive React HTML files were read in full, all 25 documents were structurally inspected for headings and interactive controls, and the remaining HTML body/code still needs line-by-line parity and accuracy review. Every Notion page fetched reported `unverified`; a successful fetch is not a content-authority check.
 
@@ -96,3 +96,25 @@ All 25 files exist in the feature tree and are listed in `docs/LEGACY_CONTENT_IN
 Targeted corrections: react-ecosystem-course.html now matches the installed React Router DOM 6.26.2 browser API; react-forms-tutorial.html no longer frames blur as universally best validation timing or client validation as a security boundary. In react-api-hooks-lesson.html, Axios is identified as optional/not installed, partial updates use PATCH, JSONPlaceholder writes are identified as non-persistent, and retry guidance distinguishes retries from total attempts, caps exponential backoff, and requires caller-supplied retry classification.
 
 This is not a completed source parity audit. The defensible count remains 21 fetched Notion pages (all marked unverified by the connector) and 25 HTML files inventoried; only two HTML documents were fully read in the prior pass. No claim is made that all 25 bodies or every Notion example/exercise has been fully mapped and quality-checked. Structured SQL/hosting JSON is still not consumed by the current app reader.
+
+
+## Current embedded-curriculum checkpoint — 2026-10-23
+
+The earlier repository-facts paragraph and the legacy target IDs in the matrices above are a historical snapshot and are superseded here. The active feature tree now contains `src/content/repository.ts`, Zod-validated structured lesson schemas, locale-specific core curricula and the in-app renderer at `/:locale/structured-lessons/:lessonId`. The discoverable curriculum index is `/:locale/structured-lessons`.
+
+The repository registers 26 core lesson IDs in EN/RU (52 locale JSON files), spanning the six-month/24-week curriculum, plus 11 supplementary lesson IDs in EN/RU (22 locale JSON files). All are registered in the repository; the four SQL/PostgreSQL and production-hosting translations are included. The 24-week list and supplements are surfaced separately in the bilingual curriculum page. This is embedded text/content, not an HTML iframe migration.
+
+The full-source audit is **not complete**. Evidence currently supports: 21 Notion pages fetched (20 course-related plus one English interview assessment; connector marked every fetch unverified); all 25 legacy HTML files inventoried and structurally checked for titles/headings/controls; the React forms and React ecosystem sources received full reading in the earlier focused pass; the API lesson received a targeted factual pass. The remaining HTML documents have not all received complete prose/code/hidden-answer/interaction review, and source-by-source coverage depth remains pending. Do not promote the matrix statuses to “fully migrated” from file registration alone. All lesson JSON is runtime parsed against schemas, but editorial correctness, natural EN/RU parity, and real execution of every sample remain review tasks.
+
+### Current structured targets (canonical IDs)
+
+| Curriculum area | Embedded lesson IDs | State |
+|---|---|---|
+| Web/HTML/CSS | `web.internet-http`, `html.document-structure`, `html.forms-accessibility`, `css.fundamentals`, `css.flexbox-grid-responsive` | Registered EN/RU, learner-accessible |
+| JavaScript / DOM / Git | `js.basics-types-control-flow`, `js.functions-arrays-objects`, `js.dom-events`, `js.async-fetch`, `git.fundamentals` | Registered EN/RU, learner-accessible |
+| Tooling / TypeScript | `tooling.node-npm-vite`, `typescript.fundamentals` | Registered EN/RU, learner-accessible |
+| React / UI / quality / workflow | `react.components-jsx-state`, `react.effects-lists-composition`, `react.router-spa`, `react.forms-validation`, `react.context-shared-state`, `react.api-custom-hooks`, `ui.design-systems`, `performance.accessibility`, `testing.react-testing-library`, `git.workflow-ci` | Registered EN/RU, learner-accessible |
+| Capstone | `capstone.requirements-discovery`, `capstone.design-architecture-planning`, `capstone.implementation`, `capstone.review-demo` | Registered EN/RU, learner-accessible |
+| Supplementary | `network.dns-tcp-tls`, `browser.rendering-pipeline`, `js.runtime-memory`, `js.object-prototypes`, `frontend.auth-security`, `deployment.production-hosting`, `data.sql-postgresql`, `css.sass-scss`, `ui.bootstrap-mui`, `frontend.architecture-boundaries`, `tooling.advanced-package-workflows` | Registered EN/RU separately from the core |
+
+“Learner-accessible” confirms application registration/routing only; it does not imply full source parity or editorial approval. Track validation and next source reviews in this document and `docs/SESSION_HANDOFF.md` on each implementation checkpoint.

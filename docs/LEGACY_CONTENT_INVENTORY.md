@@ -50,3 +50,10 @@ The table is an initial subject mapping based on filenames and sampled content, 
 ## Follow-up source audit status — 2026-10-23
 
 The repository inventory reconciles to 25 HTML files. A structural pass inspected headings and interactive-control presence across all 25; full content/code review was completed only for react-forms-tutorial.html and react-ecosystem-course.html in the prior pass. react-api-hooks-lesson.html also received a targeted factual review for client choice, partial-update semantics, demo API persistence, and retry behavior. The remaining HTML documents still need body/code/example/feedback review before this inventory can be called fully audited. See FULL_SOURCE_CONTENT_AUDIT.md for source-to-target status and limitations.
+
+
+## Embedded migration checkpoint — 2026-10-23
+
+The inventory above is the source list and first-pass topic map; it is not a claim of completed migration. The feature branch now includes a bilingual structured curriculum of 26 core IDs / 52 locale files and 11 supplementary IDs / 22 locale files, accessible through the React text renderer and curriculum index. Legacy HTML remains source material and is not the learner-facing format for these structured lessons.
+
+Source review depth is still incomplete: all 25 files were checked for existence and structurally surveyed (titles/headings/control markers); the React forms and React ecosystem HTML received full reads, with targeted API-source review. The other files still need full prose, code, hidden/revealed content, exercise, answer, link, and behavior checks. Keep each source listed until a source-to-block mapping and depth assessment exists in `docs/FULL_SOURCE_CONTENT_AUDIT.md`. Registration of a similarly named lesson is not parity evidence.
