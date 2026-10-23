@@ -214,7 +214,7 @@
     {
       "id": "sql-schema-note",
       "type": "callout",
-      "tone": "info",
+      "tone": "important",
       "title": "A constraint is part of the data contract",
       "text": "Application checks improve feedback; database constraints are the final integrity gate. Handle constraint errors as expected outcomes, not impossible crashes."
     },
