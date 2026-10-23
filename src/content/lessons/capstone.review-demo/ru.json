@@ -1,16 +1,16 @@
 {
   "id": "capstone.review-demo",
   "locale": "ru",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-6-week-24",
   "week": 24,
   "order": 1,
   "title": "Capstone, часть 4: рефакторинг, готовность к релизу и Demo Day",
   "description": "Проверь критерии приёмки, безопасно рефактори, проведи аудит доступности и производительности, подготовь deployment и README и расскажи понятную техническую историю на финальном демо.",
-  "estimatedMinutes": 85,
+  "estimatedMinutes": 110,
   "difficulty": "intermediate",
   "prerequisites": [
     "capstone.requirements-discovery",
@@ -325,6 +325,140 @@
         "Аудируй функциональные пути, восстановление после ошибок, доступность, адаптивность, производительность, приватность и deployment.",
         "Перед релизом используй чистую установку и реальные quality scripts проекта.",
         "На демо показывай основной сценарий и объясняй архитектуру, доказательства, компромиссы, пробелы и следующие шаги честно."
+      ]
+    },
+    {
+      "id": "deep-review-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Глубокое погружение: production readiness, доказательства релиза и устойчивое демо"
+    },
+    {
+      "id": "deep-review-model",
+      "type": "paragraph",
+      "text": "Capstone не закончен, если он работает только на компьютере разработчика. Release readiness означает, что production build, deep links, конфигурация окружения, ключевые сценарии, доступность и восстановление после ошибок проверены в окружении, похожем на deployment. Разделяй доказательства: автоматический CI подтверждает только те проверки, которые выполнил; preview проверяет реальное поведение браузера; план rollback ограничивает последствия неудачного релиза."
+    },
+    {
+      "id": "deep-review-checklist",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Проверь чистую установку, затем lint, typecheck, тесты и production build; изучай предупреждения, не считая зелёную команду полной проверкой.",
+        "Проверь preview в браузере: прямую загрузку/refresh маршрутов, навигацию, формы, loading/empty/error, разные ширины, клавиатурный фокус и доступность ключевого сценария.",
+        "Убедись, что в клиентской конфигурации только публичные значения, необходимые runtime-переменные заданы, а секреты не попали в bundle и коммиты.",
+        "Проверь сетевые ошибки и ответы без прав; права на стороне сервера/данных должны обеспечиваться вне клиентского UI.",
+        "Изучи performance: размер initial bundle, медленные ресурсы и длительные задачи main thread; оптимизируй измеренное узкое место.",
+        "Сохрани доказательства релиза и путь восстановления: известные проблемы, ответственного, rollback-процедуру и запасной вариант демо при недоступном API/сети."
+      ]
+    },
+    {
+      "id": "deep-review-trace",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Release candidate commit: <exact SHA>\n  -> CI passed on this exact commit\n  -> Preview checked in a browser\n  -> Direct deep link + refresh verified\n  -> Required env vars checked; no secrets in client bundle\n  -> Critical journeys + keyboard/accessibility checked\n  -> Known risks and rollback steps recorded\n  -> Promote or hold release",
+      "steps": [
+        {
+          "title": "Привяжи доказательства к точному кандидату",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Если после успешного CI отправлен новый коммит, прежние результаты не подтверждают новую версию. Запиши SHA кандидата и проверь обязательные статусы именно для него."
+        },
+        {
+          "title": "Проверь маршруты и поведение в deployment-подобной среде",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "Development server может скрывать проблемы хостинга, особенно SPA fallback для прямой навигации/refresh. Preview выявляет конфигурационные и runtime-проблемы сверх schema-checks."
+        },
+        {
+          "title": "Проверь конфигурацию, ключевые сценарии и восстановление",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Проверки конфигурации/безопасности, ключевые UI-сценарии, доступность и recovery должны быть явными доказательствами релиза, а не неозвученными допущениями."
+        }
+      ]
+    },
+    {
+      "id": "deep-review-callout",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Запасной вариант демо не должен имитировать успешный production",
+      "text": "Если внешний сервис недоступен, используй явно подписанные fixture/demo-данные или скриншоты и объясни ограничение. Не показывай молча устаревший или придуманный результат так, будто backend реально ответил успешно."
+    },
+    {
+      "id": "deep-review-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "CI прошёл, но затем ты отправил новый коммит. Как правильно принять решение о релизе?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Сразу выпускать, потому что ветка ранее прошла CI",
+          "correct": false,
+          "feedback": "Запуск относится к предыдущему коммиту; новый мог добавить ошибку."
+        },
+        {
+          "id": "b",
+          "text": "Проверить обязательные статусы на новом SHA и повторить нужные проверки в preview",
+          "correct": true,
+          "feedback": "Доказательства должны относиться к кандидату, а preview выявляет проблемы, которые CI может не проверять."
+        },
+        {
+          "id": "c",
+          "text": "Пропустить preview, если TypeScript проходит",
+          "correct": false,
+          "feedback": "Type checking не доказывает корректность runtime-конфигурации, routing, доступности или API-поведения."
+        },
+        {
+          "id": "d",
+          "text": "Добавить секрет deployment в клиентский bundle, чтобы демо заработало",
+          "correct": false,
+          "feedback": "Секреты должны храниться на доверенном сервере/в deployment secret store и не попадать в браузерный код."
+        }
+      ],
+      "explanation": "Для решения о релизе нужны привязанные к коммиту автоматические проверки и подходящие проверки в deployment-подобной среде и восстановления."
+    },
+    {
+      "id": "deep-review-practice",
+      "type": "codingExercise",
+      "title": "Составь release gate и план восстановления демо",
+      "language": "text",
+      "context": "Подготовь проверяемые доказательства для выпуска capstone-проекта, чтобы другой разработчик мог принять решение о релизе независимо.",
+      "instructions": [
+        "Составь список точных CI-команд и SHA коммита, который они должны проверять.",
+        "Запланируй preview/browser проверки прямого refresh маршрутов, форм, loading/error/empty, доступности и адаптивности.",
+        "Проверь переменные окружения и объясни, какие значения публичны в клиентском bundle.",
+        "Определи риски с максимальным влиянием и шаги rollback/recovery.",
+        "Опиши прозрачный запасной вариант демо при отказе внешнего API, не выдавая mock-данные за live."
+      ],
+      "requirements": [
+        "Доказательства релиза связаны с конкретным commit candidate.",
+        "Автоматические и ручные проверки разделены.",
+        "Конфигурация и обработка секретов проверены.",
+        "Rollback/recovery имеет конкретные шаги и ответственного.",
+        "Демо-ограничения и fixture-данные подписаны честно."
+      ],
+      "starterCode": "Candidate commit SHA:\n\nAutomated gates:\n- Install:\n- Lint/typecheck:\n- Tests:\n- Production build:\n\nPreview checks:\n- Direct route/refresh:\n- Forms/request states:\n- Keyboard/viewport:\n\nEnvironment/security:\n\nKnown risks + rollback:\n\nDemo fallback:",
+      "hints": [
+        "Используй доказательства, которые другой человек может повторить и проверить.",
+        "Проверь deep links в окружении хостинга, а не только на dev server.",
+        "Явно подпиши demo/fixture-данные, чтобы их нельзя было принять за реальные."
+      ],
+      "successCriteria": [
+        "Определены воспроизводимые CI и preview проверки.",
+        "Есть конкретная проверка direct-route refresh.",
+        "Секреты защищены от попадания в клиент.",
+        "Предусмотрен rollback/recovery.",
+        "Ограничения демо и fixture-данные явно обозначены."
+      ]
+    },
+    {
+      "id": "deep-review-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Готовность релиза подтверждают exact-commit проверки, preview-поведение, доступность, безопасность и восстановление.",
+        "Проверяй прямые deep links и refresh в deployment-среде, а не только на dev server.",
+        "Честно обозначай fixture/demo-данные и не передавай секреты в browser bundle."
       ]
     },
     {
