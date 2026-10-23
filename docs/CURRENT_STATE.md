@@ -171,3 +171,11 @@ This is the newest checkpoint and supersedes earlier working-branch verification
 - Prior block/schema parity checks did not prove that all source teaching steps and activities had been migrated. Week 14 has now gained the multi-field state pattern, native validation constraints, validation timing, a complete RHF example, common mistakes, ten checks and five practice tasks. Week 15 now has a custom-Hook ownership example, BookClub reducer walkthrough/project, and more explicit state-tool choice guidance.
 - The source map was corrected: `react-ecosystem-course.html` spans routing, forms, Context, reducer and BookClub topics; it is not only a Week 13 router source. See `docs/CONTENT_PARITY_REVIEW_WEEK14-15.md`.
 - Both pairs remain in editorial `review`. The authoring UI does not compile TSX; no runtime execution of these new TSX examples occurred in this pass. The original HTML sources have not been deleted.
+
+
+## Supplementary content and source audit update — 2026-10-23
+
+- The structured curriculum now keeps the 26 core IDs / 52 EN/RU files separate from 11 supplementary IDs / 22 files; total registered content is 37 stable IDs / 74 locale files. The core 24-week order is unchanged.
+- Supplementary topics added during this pass: JS runtime/memory, JS prototypes/object model, frontend architecture boundaries, authentication/authorization, production deployment/hosting, SQL/PostgreSQL, Sass/SCSS, Bootstrap/MUI, and advanced package-manager workflows. All are bilingual, Zod-validated and registered in the repository/curriculum.
+- Week 14–15 remain the only completed focused comparison against the specific Notion Part 4 sections and the two related interactive HTML tutorials. A structural scan was completed for all 25 HTML sources; it does not establish paragraph-level or interactive-behavior parity. See `docs/SOURCE_PARITY_AUDIT.md`.
+- GitHub Actions run #279 passed all checks on commit `59000b4c15d34403378d4d3c862a3b59983b3d99`. Lesson content remains in editorial `review`; no claim is made about real-device PWA verification or execution of TSX snippets in a real host app.

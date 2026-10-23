@@ -94,3 +94,21 @@ The original static audit above checks structural invariants; it does **not** es
 The new review found and filled concrete gaps in both lesson pairs. Week 14 now includes the multi-field `name` handler, native constraints, validation timing, full React Hook Form flow, common mistakes, ten quiz checks and five scaffolded practice tasks. Week 15 now distinguishes custom Hook reuse from shared state and includes a BookClub reducer walkthrough, action/data flow, project exercise and expanded tool-choice guidance. Both EN/RU ordered block structures and code-walkthrough line ranges were checked; the lesson schema tests check knowledge-check answer shape and exercise scaffolding.
 
 See [`CONTENT_PARITY_REVIEW_WEEK14-15.md`](./CONTENT_PARITY_REVIEW_WEEK14-15.md) for the concept map and the limits of this pass. The new examples have not been executed in a real React project; the lesson editor does not compile TSX. The original HTML files are retained, and both lesson pairs remain `review`. This is a targeted review, not proof that all legacy sources are fully migrated.
+
+
+## Supplementary lessons and source-structure audit — 2026-10-23
+
+The supplementary registry has expanded beyond the two original network/browser companions. In addition to the 26 core IDs (52 locale files), the curriculum/repository now registers 11 supplementary IDs (22 locale files):
+
+- `js.runtime-memory` and `js.object-prototypes` — JavaScript execution/memory and the object/prototype model.
+- `frontend.architecture-boundaries` — dependency direction, state ownership and refactoring.
+- `frontend.auth-security` — sessions/tokens, OAuth/OIDC and the frontend trust boundary.
+- `deployment.production-hosting` — build/deployment, public browser configuration and deep links.
+- `data.sql-postgresql` — relational queries, constraints, NULL and parameterization.
+- `tooling.advanced-package-workflows` — lockfiles, SemVer and reproducible CI installs.
+- `css.sass-scss` and `ui.bootstrap-mui` — optional UI-ecosystem coverage.
+- Original `network.dns-tcp-tls` and `browser.rendering-pipeline` supplements remain registered.
+
+The latest verified application checkpoint before documentation changes is `59000b4c15d34403378d4d3c862a3b59983b3d99`; GitHub Actions [run #279](https://github.com/Mardakhay/interactive-guides/actions/runs/39921024455) passed lint, typecheck, tests and build on that exact commit. The new JSON pairs are validated at startup by Zod and the supplementary registry has tests, but technical/editorial review remains required.
+
+A structural scan was performed across all 25 files in `public/lessons/` to identify page titles, heading outlines, code markers and obvious interactive controls. That scan improves the inventory, but it is not a semantic guarantee: full paragraph/example/link/hidden-answer/interaction parity remains open except for the explicitly focused Week 14–15 pass. Keep the legacy sources.

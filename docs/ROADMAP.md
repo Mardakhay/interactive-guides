@@ -4,13 +4,13 @@ Use small, reversible phases; keep useful current behavior working while migrati
 
 ## Verified checkpoint — 2026-10-23
 
-- Repaired `src/content/repository.ts` by removing the orphaned duplicate navigation block without weakening TypeScript settings or removing the valid adjacency implementation.
-- Updated content registry tests to derive expectations from the canonical curriculum and corrected a supplementary-track test fixture that had duplicated an empty track.
-- Added a bilingual `useReducer` + Context walkthrough and provider-scope guidance to Week 15; translated previously English quiz prompts in Russian Week 14/15 content.
-- Compared Weeks 14–15 with the specific Notion sections and retained HTML sources. Filled in the missing multi-field form, validation timing, complete RHF example, common mistakes, quiz/exercise progression, custom-Hook state ownership and BookClub reducer project. See `docs/CONTENT_PARITY_REVIEW_WEEK14-15.md`.
-- GitHub Actions [run #212](https://github.com/Mardakhay/interactive-guides/actions/runs/39909489666) passed for code/content SHA `495467a470828ffad5f689f2c4b2015771be18a5`: `npm ci`, lint, typecheck, tests and production build.
-- The repository registers 26 core lesson IDs plus two supplementary lesson IDs (28 stable IDs / 56 locale files). The core 24-week order is unchanged; all lesson content remains in editorial `review`.
-- Local and real-device testing were not performed. Continue human editorial review, actual React/TSX example verification, wider source parity review, localization/accessibility, storage and PWA acceptance rather than claiming release readiness.
+- The 26 core lesson IDs remain in the same six-month / 24-week sequence. Focused source-based expansions now cover the selected Notion Part 4 sections and both Week 14–15 HTML references; the concept map and limitations are documented in `docs/CONTENT_PARITY_REVIEW_WEEK14-15.md`.
+- The other core lessons received deeper examples, code walkthroughs, quizzes and coding practice across JS runtime/control flow/objects/DOM/async, Git, tooling, TypeScript, React state/effects/router/API, HTML forms/semantics, CSS cascade/layout, accessibility/testing and capstone workflows.
+- Added nine supplementary bilingual lessons for JavaScript runtime/memory, prototypes, architecture boundaries, auth/security, deployment/hosting, SQL/PostgreSQL, Sass/SCSS, Bootstrap/MUI, and advanced package workflows. Registered these in `src/content/repository.ts` and the EN/RU supplementary tracks. Together with the original network/browser supplements, this is 26 core IDs + 11 supplementary IDs = 37 stable IDs / 74 locale files.
+- The registry now has a supplementary-content validation test; quiz-count and reader tests were updated after content expansion. The lessons remain `review`, not published.
+- GitHub Actions [run #279](https://github.com/Mardakhay/interactive-guides/actions/runs/39921024455) passed on exact implementation/content SHA `59000b4c15d34403378d4d3c862a3b59983b3d99`: `npm ci`, lint, typecheck, tests and production build.
+- A heading/code/interactive-marker inventory has now been run over all 25 legacy HTML files. This is a structural scan, not proof of full semantic parity. All source files remain in place; see `docs/SOURCE_PARITY_AUDIT.md` and `docs/LEGACY_CONTENT_INVENTORY.md`.
+- No claim is made that new React/TSX excerpts have been executed in a real host app, that every hidden/interactive source section is mapped, or that real-device/PWA acceptance is complete. Continue editorial, accessibility, runtime and deployment validation.
 
 ## Phase 0 — Baseline and safeguards
 - [x] Create working branch `feat/learning-platform-foundation`.
@@ -28,7 +28,7 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Add tests for schema invariants, bilingual lesson structure, curriculum order, repository lookups and walkthrough line references.
 - [x] Add a full-course EN/RU block-structure and knowledge-check presence invariant.
 - [x] Run a static audit of 26 bilingual lesson pairs for block identity, walkthrough ranges, quiz answer structure, and practice completeness (`CONTENT_AUDIT.md`).
-- [x] Map all 25 legacy HTML files to existing canonical lesson IDs where available, and explicitly record TBD destinations for future supplementary content (`LEGACY_CONTENT_INVENTORY.md`).
+- [x] Map all 25 legacy HTML files to core/supplementary destinations, using explicit stable IDs for the newly created supplements (`LEGACY_CONTENT_INVENTORY.md`); full line-by-line parity remains open.
 - [x] Add a content editorial/review/publishing checklist and workflow (`EDITORIAL_REVIEW_CHECKLIST.md`).
 - Acceptance: content loads only through schema validation, canonical ordering is stable, and CI validates content invariants.
 
@@ -60,9 +60,9 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - Acceptance: exercises are accessible and testable; mastery requires evidence beyond visiting a page.
 
 ## Phase 4 — Content migration
-- [x] Build a first-pass inventory of 25 legacy HTML files and likely syllabus mappings.
+- [x] Complete a structural title/heading/code/interaction-marker inventory for all 25 legacy HTML files; full semantic source audit remains open.
 - [x] Create an initial Week 1 pilot and add structured Week 2–4 content in both locales.
-- [ ] Fully audit each HTML file including paragraphs, code, diagrams, hidden answers, links and interactions. `internet-fundamentals.html` has a heading-level coverage map; paragraph/example/interaction parity remains open.
+- [ ] Fully audit each HTML file including paragraphs, code, diagrams, hidden answers, links and interactions. `internet-fundamentals.html` has a deeper heading map and all 25 files have a structural map in `SOURCE_PARITY_AUDIT.md`; paragraph/example/hidden-answer/interaction parity remains open.
 - [ ] Review and fact-check the new Week 1 web fundamentals and Week 8 async/Fetch/Git lessons, including EN/RU equivalence.
 - [ ] Apply the editorial checklist to every lesson pair before changing `status: review`.
 - [ ] Review source accuracy and translation parity for the four pilots.

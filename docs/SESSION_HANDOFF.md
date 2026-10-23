@@ -5,7 +5,7 @@
 **Base branch:** `main`  
 **Working branch:** `feat/learning-platform-foundation`  
 **Draft PR:** [#1 — structured bilingual lesson foundation](https://github.com/Mardakhay/interactive-guides/pull/1)  
-**Latest verified implementation/content checkpoint:** `5a0264c658ad9e67988e24bc3d85cc1491c3ddfd`
+**Latest verified implementation/content checkpoint:** `59000b4c15d34403378d4d3c862a3b59983b3d99`
 
 ## Project goal
 
@@ -14,12 +14,12 @@ Rebuild Interactive Guides as a cohesive English/Russian, mobile-first, PWA-read
 ## Verified architecture and content status
 
 - Stack: React 18, TypeScript, Vite 5, Tailwind CSS, React Router, Zustand, Zod, Vitest/Testing Library and GitHub Actions.
-- The core curriculum has 26 lesson IDs with EN/RU translations (52 locale files). The repository also registers two supplementary lesson IDs — `network.dns-tcp-tls` and `browser.rendering-pipeline` — with both translations, for 28 stable IDs / 56 locale files registered overall. Supplementary lessons remain outside core-week navigation. Week 1 splits Internet/HTTP and HTML; Week 8 splits async/Fetch and Git.
+- The core curriculum has 26 lesson IDs with EN/RU translations (52 locale files). The repository registers 11 supplementary lesson IDs with both translations (22 files) covering network/DNS, browser rendering, JS runtime and prototypes, architecture, auth/security, deployment, SQL, package workflows, Sass/SCSS and Bootstrap/MUI: 37 stable IDs / 74 locale files overall. Supplementary lessons remain outside the 24-week core-week sequence. Week 1 splits Internet/HTTP and HTML; Week 8 splits async/Fetch and Git.
 - Content is served by Zod-validated JSON from `src/content/lessons/<lesson-id>/<locale>.json`, with shared schema validation and a canonical curriculum in `src/content/curriculum/bootcamp-core.en.json` and `bootcamp-core.ru.json`.
 - `src/content/repository.ts` registers the structured lessons and provides curriculum lookup/adjacent lesson navigation.
 - `src/features/structured-lesson/StructuredLessonRenderer.tsx` renders lesson blocks. `src/app/pages/StructuredLessonPage.tsx` provides the structured lesson page with locale switching, curriculum navigation, and completion control.
 - All structured lessons are in editorial `review` status, not published/approved.
-- Static content audit found no block-ID duplicates, EN/RU ordered block-shape mismatches, invalid walkthrough line ranges, bad single-answer counts, duplicate quiz-option IDs, or incomplete practice task scaffolds in the 52 files. Full semantic/source parity is still unreviewed; see `docs/CONTENT_AUDIT.md`.
+- Static checks and GitHub-hosted CI validate schemas, current lesson registrations, EN/RU parity and practice/quiz invariants. The latest verified commit is `59000b4c15d34403378d4d3c862a3b59983b3d99`; CI run #279 passed the complete pipeline. Full semantic source parity is still incomplete; see `docs/CONTENT_AUDIT.md` and `docs/SOURCE_PARITY_AUDIT.md`.
 
 ## Practice execution
 
@@ -46,31 +46,30 @@ Rebuild Interactive Guides as a cohesive English/Russian, mobile-first, PWA-read
 - No real Android/iOS install/offline acceptance test has been completed.
 - The major app shell components (sidebar, top bar, mobile navigation) and principal pages use a shared EN/RU UI copy layer; perform a full end-to-end locale sweep, including banners, empty/error states and every route. Legacy standalone HTML lesson content is still predominantly English and remains migration input. Cross-page visual consistency, mobile reflow and accessibility review are still required.
 
-## Static content audit
+## Content/source audit
 
-See `docs/CONTENT_AUDIT.md` for the structural audit of the 26 core lesson IDs and its exact scope/limitations. The two supplementary lesson pairs are registered and schema-validated separately. A successful structural audit is not editorial approval.
+See `docs/CONTENT_AUDIT.md` for the audit scope and `docs/SOURCE_PARITY_AUDIT.md` for the inventory of all 25 source HTML pages, their structural markers, destinations and open semantic review steps. A successful schema/test/CI run does not mean every source paragraph or interaction has been migrated. The 26 core pairs plus 11 supplementary pairs remain in editorial `review`; a successful structural audit is not editorial approval.
 
-## Recovery and source-parity work — 2026-10-23
+## Content expansion and source-parity work — 2026-10-23
 
-- Fixed the malformed tail of `src/content/repository.ts` by removing an orphaned duplicate navigation block; the valid locale-aware adjacent-lesson implementation remains. [Commit](https://github.com/Mardakhay/interactive-guides/commit/73fb9199690b4bdb8198e3ba42976d201d1a780f).
-- Made registry and navigation tests derive expectations from canonical EN/RU curricula; corrected the supplementary-track duplicate test so it duplicates a populated track. [Commit](https://github.com/Mardakhay/interactive-guides/commit/b074e73213f66f849e5b7a76830be53baf275906).
-- Compared Week 14 against Notion Part 4 §§ 4.5–4.7 and `public/lessons/react-forms-tutorial.html`. Added a multi-field `name` handler walkthrough, native constraints, validation timing, complete React Hook Form flow, common-mistake list, ten knowledge checks, and five scaffolded coding exercises.
-- Compared Week 15 against Notion Part 4 §§ 4.8–4.14 and the state-related portions of `public/lessons/react-ecosystem-course.html`. Added the distinction between custom Hook reuse and shared state, a source-derived BookClub reducer walkthrough/project, and expanded the state-tool selection guide. Do not copy the legacy page's React Router examples verbatim because the source and application use different major versions.
-- Added `docs/CONTENT_PARITY_REVIEW_WEEK14-15.md`, corrected source destinations in `docs/LEGACY_CONTENT_INVENTORY.md`, and updated `docs/CURRICULUM_AND_CONTENT.md`, `docs/CURRENT_STATE.md`, and `docs/ROADMAP.md`. The parity report records what has been mapped and which interactions were translated into the structured block system rather than reproduced one-to-one.
-- Week 14 has 48 blocks, ten knowledge checks and five coding exercises in each locale. Week 15 has 34 blocks, six knowledge checks and two exercises in each locale. Ordered EN/RU block IDs/types and walkthrough line ranges were validated before commit.
-- Both pairs remain `review`, not `published`. The lesson authoring UI does not compile TSX, React Hook Form was not added as an app dependency, and these examples still need execution/review in a real React project. The original HTML sources remain in place.
+- Compared Week 14 against Notion Part 4 §§ 4.5–4.7 and `react-forms-tutorial.html`; expanded multi-field state, native validation constraints, timing, RHF, common mistakes and five scaffolded exercises.
+- Compared Week 15 against Notion Part 4 §§ 4.8–4.14 and state portions of `react-ecosystem-course.html`; added custom-Hook instance ownership, a BookClub reducer/project and state-tool decision guidance.
+- Expanded the other core lesson pairs with deeper tracing/practice on TDZ, closures/object identity, DOM delegation, event-loop ordering, Git undo/CI, package lockfiles, TypeScript runtime validation, React state snapshots/effects/API, URL state, HTML semantics/forms, CSS cascade/layout, accessibility/performance, RTL testing and capstone workflows.
+- Added nine new bilingual supplementary lessons: `js.runtime-memory`, `js.object-prototypes`, `frontend.architecture-boundaries`, `frontend.auth-security`, `deployment.production-hosting`, `data.sql-postgresql`, `css.sass-scss`, `ui.bootstrap-mui`, and `tooling.advanced-package-workflows`.
+- Registered the new lessons and updated both EN/RU curriculum tracks; added `src/content/schemas/supplementaryLessons.test.ts`. Source IDs and destinations are tracked in `docs/LEGACY_CONTENT_INVENTORY.md`; a 25-file structural scan is summarized in `docs/SOURCE_PARITY_AUDIT.md`.
+- Fix commits after failed checks: `e7c89400813f0f0fe93b5a6e0a6ebe192efb61e7` adds the two missing deployment/SQL pairs to the tracked branch and updates old count/reader assertions; `59000b4c15d34403378d4d3c862a3b59983b3d99` fixes required metadata and aligns the Sass/Bootstrap/MUI track IDs.
+- All lesson statuses remain `review`. The audit includes structural markers across all sources, but paragraph-by-paragraph and hidden-interaction parity remains open; new TSX examples have not been executed in a real React host app.
 
 ## CI verification
 
-- GitHub Actions [run #217](https://github.com/Mardakhay/interactive-guides/actions/runs/39911961311) passed on exact code/content/test checkpoint `5a0264c658ad9e67988e24bc3d85cc1491c3ddfd`: `npm ci`, ESLint, TypeScript typecheck, the full test suite and production build all succeeded.
-- GitHub Actions [run #218](https://github.com/Mardakhay/interactive-guides/actions/runs/39912113116) passed on source-parity documentation checkpoint `ab076ca8b59c3e48843f4b6882931a75ab1eab13`: install, lint, typecheck, full tests and production build all succeeded.
-- The earlier content-only run failed because two lesson tests still expected exactly three quiz questions. The tests now correctly expect ten for Week 14 and six for Week 15. The current checkpoint's complete suite passes.
-- These are GitHub-hosted checks. No local checkout, physical-browser/device acceptance test, or real React/TSX example execution was performed in this session.
+- GitHub Actions [run #279](https://github.com/Mardakhay/interactive-guides/actions/runs/39921024455) passed on exact code/content/test commit `59000b4c15d34403378d4d3c862a3b59983b3d99`: `npm ci`, ESLint, TypeScript typecheck, the full test suite and production build all succeeded.
+- Prior runs failed during the expansion while the quiz-count assertions, reader selectors, missing branch files and lesson metadata were corrected. Those failures were inspected from CI logs and corrected before the currently verified checkpoint.
+- These are GitHub-hosted checks. No independent local checkout, real-device acceptance test, or actual React/TSX code execution has been performed. The documentation-only source audit commit will trigger another run and must be checked before treating its exact head as green.
 
 ## Next actions
 
-1. Human-review Week 14 and Week 15 against `docs/CONTENT_PARITY_REVIEW_WEEK14-15.md`, execute/review the new TSX examples in a real React project, and continue the source-based EN/RU review. All lesson pairs remain in `review` status.
-2. Reconcile all 25 legacy HTML files against their structured replacements; retain source files until both locales have been reviewed.
+1. Continue paragraph/example/hidden-answer/interaction mapping for the 25 sources using `docs/SOURCE_PARITY_AUDIT.md`; the current scan is structural, not full semantic parity.
+2. Human-review each EN/RU lesson pair, execute/review new TSX examples in a real React project and only then change any lesson status from `review`.
 3. Complete an end-to-end locale sweep and consolidate design-system styling across routes; test keyboard access, narrow viewports, contrast, focus states and reduced motion.
 4. Test Worker execution under the deployed hosting/CSP environment while preserving the warning that it is not hardened for hostile code.
 5. Exercise the structured-learning v1→v2 migration, backup merge and Retry save path against real browser storage/quota failures.
