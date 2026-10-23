@@ -16,7 +16,7 @@ describe('QuizRenderer', () => {
       </MemoryRouter>,
     );
     await user.click(screen.getByLabelText('Correct'));
-    await user.click(screen.getByRole('button', { name: 'Submit Quiz' }));
+    await user.click(screen.getByRole('button', { name: 'Submit quiz' }));
     expect(await screen.findByText('1 / 1 correct · 100%')).toBeInTheDocument();
   });
 });
