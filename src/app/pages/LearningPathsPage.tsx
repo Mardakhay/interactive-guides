@@ -6,12 +6,11 @@ import { getLearningPathLessonIds } from '@/features/learning-paths';
 import { useProgressStore, computeProgressStats } from '@/features/progress';
 import { Card, Badge, ProgressBar } from '@/components/ui';
 import { learningPathDetailPath } from '@/app/router/routes';
-import { DIFFICULTY_COLORS, DIFFICULTY_LABELS } from '@/lib/constants';
+import { DIFFICULTY_COLORS } from '@/lib/constants';
 import { formatLessonCount, getLocalizedDifficulty, translate, useUiLocale } from '@/features/localization';
 
 const ICON_MAP: Record<string, LucideIcon> = { Globe, Code2, Atom, Wrench, ShieldCheck };
 const LEVEL_COLORS = DIFFICULTY_COLORS;
-const LEVEL_LABELS = DIFFICULTY_LABELS;
 
 export default function LearningPathsPage() {
   const locale = useUiLocale();

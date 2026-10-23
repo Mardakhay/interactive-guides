@@ -6,7 +6,7 @@ import { useProgressStore, STATUS_BADGE_VARIANTS } from '@/features/progress';
 import { useBookmarkStore, BookmarkButton } from '@/features/bookmarks';
 import { Card, Badge, Button } from '@/components/ui';
 import { EmptyState } from '@/components/feedback';
-import { DIFFICULTY_COLORS, DIFFICULTY_LABELS } from '@/lib/constants';
+import { DIFFICULTY_COLORS } from '@/lib/constants';
 import { ROUTE_PATHS, coursePath, lessonPath } from '@/app/router/routes';
 import { cn } from '@/lib/utils';
 import { formatLessonCount, getLocalizedCategoryCopy, getLocalizedDifficulty, translate, useUiLocale } from '@/features/localization';
