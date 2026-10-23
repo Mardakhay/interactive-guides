@@ -1,0 +1,198 @@
+{
+  "id": "js.object-prototypes",
+  "locale": "ru",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-23",
+  "moduleId": "supplement-js-internals",
+  "supplementaryTrackId": "supplement-js-internals",
+  "order": 2,
+  "title": "Модель объектов JavaScript: прототипы, new, классы и this",
+  "description": "Прослеживай поиск свойств по цепочке прототипов, объясняй поведение конструктора/new и выбирай правильную привязку this.",
+  "estimatedMinutes": 75,
+  "difficulty": "advanced",
+  "prerequisites": [
+    "js.functions-arrays-objects"
+  ],
+  "learningOutcomes": [
+    "Различать внутреннюю ссылку на прототип и Constructor.prototype.",
+    "Прослеживать поиск свойства и определять собственные/унаследованные свойства.",
+    "Объяснять new и размещение методов классов в прототипах.",
+    "Предсказывать this и сравнивать call/apply/bind.",
+    "Осознанно использовать private fields и наследование."
+  ],
+  "tags": [
+    "javascript",
+    "objects",
+    "prototypes",
+    "classes",
+    "this",
+    "inheritance"
+  ],
+  "blocks": [
+    {
+      "id": "object-model-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Объекты делегируют поиск свойств через прототипы"
+    },
+    {
+      "id": "object-model-paragraph",
+      "type": "paragraph",
+      "text": "Объект может читать свойства, которыми не владеет напрямую, следуя внутренней ссылке [[Prototype]]. Эта ссылка отличается от Constructor.prototype: последнее — объект, к которому могут делегировать поиск экземпляры, созданные через new Constructor(). Классы JavaScript используют эту прототипную модель, а не заменяют её отдельной классической системой."
+    },
+    {
+      "id": "object-model-callout",
+      "type": "callout",
+      "tone": "important",
+      "title": "Не путай эти значения",
+      "text": "obj — экземпляр. Object.getPrototypeOf(obj) возвращает ссылку на его прототип. Constructor.prototype обычно связан с экземплярами, созданными через new Constructor(). Эти значения часто связаны, но не являются одним и тем же объектом во всех случаях."
+    },
+    {
+      "id": "object-model-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const animal = { speak() { return 'sound'; } };\nconst dog = Object.create(animal);\ndog.name = 'Milo';\n\nconsole.log(Object.hasOwn(dog, 'name'));  // true\nconsole.log(Object.hasOwn(dog, 'speak')); // false\nconsole.log(dog.speak());                 // 'sound'",
+      "steps": [
+        {
+          "title": "Создай объект со ссылкой на прототип",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "У dog есть собственное свойство name, а поиск делегируется animal. Свойства animal не копируются в dog."
+        },
+        {
+          "title": "Различай собственные и унаследованные свойства",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "name — собственное свойство, а speak находится через цепочку прототипов. Object.hasOwn проверяет владение, а обычный доступ может найти унаследованное свойство."
+        },
+        {
+          "title": "Проследи цепочку для поиска метода",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "dog.speak находится на animal, так как собственное свойство speak у dog отсутствует."
+        }
+      ]
+    },
+    {
+      "id": "object-model-new",
+      "type": "heading",
+      "level": 2,
+      "text": "Что концептуально делает new"
+    },
+    {
+      "id": "object-model-new-text",
+      "type": "paragraph",
+      "text": "При обычном вызове конструктора через new создаётся объект, его прототип связывается с Constructor.prototype, конструктор вызывается с this, указывающим на новый объект, а затем возвращается явно возвращённый объект, если он есть, иначе — созданный экземпляр. Конструкторы class добавляют более строгие правила, в том числе обязательный new."
+    },
+    {
+      "id": "object-model-this",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "При obj.method() this обычно относится к obj в этом вызове.",
+        "Если извлечь const method = obj.method и позже вызвать method(), связь с объектом теряется; не ожидай, что this останется obj.",
+        "Стрелочные функции не создают собственного this, а лексически захватывают его.",
+        "call/apply сразу вызывают функцию с заданным this; bind возвращает новую привязанную функцию.",
+        "Методы класса обычно хранятся в прототипе; поля со стрелочными функциями создают функцию для каждого экземпляра и имеют другие затраты памяти/ссылок."
+      ]
+    },
+    {
+      "id": "object-model-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Для const child = Object.create(parent), где будет найдено свойство, если у child его нет, но оно есть у parent?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Оно автоматически копируется из parent в child",
+          "correct": false,
+          "feedback": "Object.create связывает прототип, а не копирует свойства parent."
+        },
+        {
+          "id": "b",
+          "text": "Поиск следует по цепочке прототипов к parent",
+          "correct": true,
+          "feedback": "Обычный доступ сначала ищет собственное свойство, затем при необходимости следует по прототипам."
+        },
+        {
+          "id": "c",
+          "text": "JavaScript создаёт глобальную привязку с таким именем",
+          "correct": false,
+          "feedback": "Поиск свойства объекта не создаёт глобальные переменные."
+        },
+        {
+          "id": "d",
+          "text": "Его можно найти только через JSON.parse",
+          "correct": false,
+          "feedback": "JSON parsing не связан с поиском свойств по прототипам."
+        }
+      ],
+      "explanation": "Проверка собственных свойств и обычный поиск свойства отвечают на разные вопросы."
+    },
+    {
+      "id": "object-model-practice",
+      "type": "codingExercise",
+      "title": "Проследи prototype lookup и исправь отсоединённый метод",
+      "language": "javascript",
+      "context": "Запусти примеры в JavaScript runtime и объясни результаты правилами модели объектов.",
+      "instructions": [
+        "Создай объект, делегирующий прототипу, и докажи, какие свойства собственные, а какие унаследованные.",
+        "Создай конструктор, экземпляры которого используют общий метод greet из Constructor.prototype.",
+        "Исправь отсоединённый callback, чтобы он использовал нужный объект; выбери bind, явный параметр или подходящую стрелочную обёртку.",
+        "Объясни отличие приватного поля класса #value от свойства с именем _value."
+      ],
+      "requirements": [
+        "Поиск свойства прослежен по цепочке прототипов.",
+        "Экземпляры конструктора используют общий метод прототипа без его копирования в каждый экземпляр.",
+        "Привязка this в callback предсказуема и намеренна.",
+        "Объяснение различает приватные поля языка и соглашения именования."
+      ],
+      "starterCode": "const base = { describe() { return this.name; } };\nconst item = Object.create(base);\nitem.name = 'Ada';\n\nconst detached = item.describe;\n// TODO: сделай так, чтобы вызов надёжно вернул 'Ada', и объясни почему.\n\nfunction Person(name) {\n  // TODO: инициализируй this.name\n}\n// TODO: добавь greet через Person.prototype",
+      "hints": [
+        "Object.create связывает объект с прототипом, а не копирует свойства.",
+        "this обычного метода обычно определяется местом вызова.",
+        "bind возвращает новую функцию, а call вызывает сразу."
+      ],
+      "successCriteria": [
+        "Собственные и унаследованные свойства различаются.",
+        "Экземпляры конструктора используют общий метод прототипа.",
+        "Отсоединённый метод использует намеренное значение this.",
+        "Модели приватности объяснены корректно."
+      ]
+    },
+    {
+      "id": "object-model-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Поиск свойств делегирует через [[Prototype]]; Constructor.prototype — отдельное понятие.",
+        "new создаёт экземпляр, связанный с Constructor.prototype, и инициализирует this конструктора.",
+        "У обычного метода this зависит от места вызова; стрелки лексически захватывают this, call/apply вызывают, bind возвращает привязанную функцию.",
+        "Используй private fields и наследование осознанно — исходя из требований инкапсуляции и взаимозаменяемости."
+      ]
+    },
+    {
+      "id": "object-model-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Inheritance and the prototype chain",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Inheritance_and_the_prototype_chain",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Classes",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function.prototype.bind()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}
