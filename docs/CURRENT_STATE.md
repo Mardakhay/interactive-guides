@@ -128,3 +128,8 @@ This section supersedes earlier status paragraphs that describe only the initial
 - Local verification limitation: a clone attempt failed because the environment could not resolve github.com; current verification claims refer to Actions, not local execution.
 
 Next priority: continue the documented source-to-block audit in small batches while preserving curriculum order and the review editorial status. Then tackle app-wide localization and the missing PWA implementation. See SESSION_HANDOFF.md for the exact branch/merge/CI checkpoint.
+
+
+## PWA foundation — 2026-10-23
+
+Commit c794088f15fb57ba3c1b8c51032e7e76e11f72bf adds manifest metadata, an SVG app icon, production-only service-worker registration, app-shell precaching, navigation fallback and same-origin GET runtime caching. The worker deliberately skips cross-origin requests, Authorization-bearing requests and /api/ paths. This is not a completed PWA acceptance result: platform installability, PNG icon requirements, offline cache lifecycle, deep-link reload and external font fallback still require real-browser checks. Check exact-head Actions before claiming this commit validated.

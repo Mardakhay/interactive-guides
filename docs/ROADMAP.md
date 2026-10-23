@@ -156,3 +156,8 @@ The checked tasks above reflect the technical foundation where verified. They do
 
 ### Next priority
 Continue source-to-block parity in small syllabus-ordered batches. Record uncovered examples, exercises, answer interactions and English/Russian mismatches. Then prioritize app-wide localization and the missing PWA foundation. Keep lessons in review until editorial criteria are met.
+
+
+## PWA foundation checkpoint — 2026-10-23
+
+The initial manifest/service-worker foundation is implemented on the feature branch (commit c794088f15fb57ba3c1b8c51032e7e76e11f72bf). Phase 7 remains open until installability is verified, icon requirements are validated across target platforms, cache/update UX and hosting deep-link fallback are tested, and deployment smoke checks are in place.

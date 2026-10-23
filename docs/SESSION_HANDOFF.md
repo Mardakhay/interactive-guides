@@ -180,3 +180,14 @@ A local clone could not be obtained during this session because network DNS reso
 
 ### Next action
 Continue the source-to-block audit for legacy HTML and accessible Notion material. Work in small syllabus-ordered batches, record uncovered examples and exercises plus EN/RU differences, and do not create duplicate lessons when a registered destination already exists. Then prioritize app-wide localization and implement/test the missing PWA foundation. Keep this handoff synchronized with exact branch HEAD and CI evidence.
+
+
+## PWA foundation implementation — 2026-10-23
+
+Feature commit c794088f15fb57ba3c1b8c51032e7e76e11f72bf adds:
+- manifest link, theme/mobile metadata in index.html;
+- public/manifest.webmanifest and public/pwa-icon.svg;
+- production-only service-worker registration in src/main.tsx;
+- public/sw.js with app-shell precache, network-first navigation fallback for deep links, and runtime caching for successful same-origin GET assets.
+
+The worker skips cross-origin requests, requests carrying Authorization and /api/ paths. This is an initial offline foundation, not release acceptance: SVG-only icon support needs platform validation (PNG sizes may be needed), external Google Fonts may not load offline, and installability/cache-update/offline behavior has not yet been tested in real browsers. GitHub Actions for the PWA commit must be checked before claiming CI green. Main remains unchanged.

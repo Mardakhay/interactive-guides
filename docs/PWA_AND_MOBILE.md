@@ -42,3 +42,10 @@ The requirements above remain valid, but source-tree verification of feat/learni
 - Install/update/offline UI and real-browser installability results must not be assumed.
 
 Treat PWA as an implementation and acceptance-testing phase, not a completed feature. Before caching content, specify cache lifecycle, offline route fallback and update UX, and explicitly exclude private/authenticated responses. Then test installability and offline reload behavior on supported browsers/devices. Structured React routes alone do not make the content available offline.
+
+
+## Initial implementation — 2026-10-23
+
+The feature branch includes a web manifest, SVG app icon, manifest/theme/mobile metadata, and a production-only service-worker registration. The worker precaches the app shell, uses network-first navigation with an app-shell fallback for localized/deep links, and runtime-caches successful same-origin GET resources. It skips cross-origin requests, requests with Authorization headers and /api/ endpoints.
+
+This is a first offline foundation, not a claim of verified installability or comprehensive offline behavior. Before release, validate whether platform-recommended PNG icon sizes are required, test install prompts and iOS Add to Home Screen behavior, deep-link reload, cache updates and offline access on real supported browsers. Google Fonts remain external and may not load offline.
