@@ -1,16 +1,16 @@
 {
   "id": "js.dom-events",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-2-week-7",
   "week": 7,
   "order": 1,
   "title": "The DOM and Browser Events",
   "description": "Understand the browser's live document tree, select and update elements, handle events, and build a data-driven DOM to-do list.",
-  "estimatedMinutes": 65,
+  "estimatedMinutes": 90,
   "difficulty": "beginner",
   "prerequisites": [
     "js.functions-arrays-objects",
@@ -309,6 +309,137 @@
         "Use addEventListener for browser interactions and distinguish target, currentTarget, bubbling, and default actions.",
         "Handle submit on the form and call preventDefault only when replacing normal submission behavior.",
         "For a small to-do app, keep an array as source of truth and render the visible list from it."
+      ]
+    },
+    {
+      "id": "deep-dom-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: event delegation, DOM collection behavior, and safe rendering"
+    },
+    {
+      "id": "deep-dom-model",
+      "type": "paragraph",
+      "text": "The DOM is a tree, so events can travel through capturing, target, and bubbling phases. Delegation uses bubbling: one stable parent listener handles actions on many current or future children. The event target may be a nested icon or span, not the button itself, so find the intended control with `closest()` and verify it belongs to the delegated container. For untrusted text, use `textContent`; `innerHTML` parses markup and can introduce injection risks."
+    },
+    {
+      "id": "deep-dom-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const list = document.querySelector('#tasks');\n\nlist.addEventListener('click', (event) => {\n  const target = event.target;\n  if (!(target instanceof Element)) return;\n\n  const button = target.closest('button[data-action=\"remove\"]');\n  if (!button || !list.contains(button)) return;\n\n  button.closest('li')?.remove();\n});\n\nfunction addTask(text) {\n  const item = document.createElement('li');\n  const label = document.createElement('span');\n  label.textContent = text;\n  const button = document.createElement('button');\n  button.type = 'button';\n  button.dataset.action = 'remove';\n  button.textContent = 'Remove';\n  item.append(label, button);\n  list.append(item);\n}",
+      "steps": [
+        {
+          "title": "Listen on a stable ancestor",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "The list receives bubbling clicks from descendants. Dynamically added buttons need no individual listeners."
+        },
+        {
+          "title": "Account for nested event targets",
+          "lineStart": 4,
+          "lineEnd": 5,
+          "explanation": "If the click begins on a child element inside a button, event.target points to that child. The guard also avoids assuming every EventTarget is an Element."
+        },
+        {
+          "title": "Find the action and check ownership",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "closest() climbs to a matching remove button. contains() ensures the matching element is inside this list, and the closest li is then removed."
+        },
+        {
+          "title": "Insert untrusted text as text",
+          "lineStart": 14,
+          "lineEnd": 23,
+          "explanation": "textContent does not parse the task string as HTML. Building nodes also avoids interpolating a user-supplied string into markup."
+        }
+      ]
+    },
+    {
+      "id": "deep-dom-collections",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`querySelectorAll()` returns a static NodeList; later changes to the DOM do not update that collection.",
+        "`getElementsByClassName()` returns a live HTMLCollection that reflects matching elements as they are added or removed.",
+        "Event delegation depends on event propagation and target resolution; it is not a replacement for validating the action and its container.",
+        "Use `textContent` for untrusted text. If rich user-authored HTML is a requirement, it needs an explicit, reviewed sanitization strategy."
+      ]
+    },
+    {
+      "id": "deep-dom-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why does a delegated click handler use `target.closest(...)` instead of assuming `event.target` is the remove button?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The click may begin on a nested element inside the button",
+          "correct": true,
+          "feedback": "A span or SVG inside the button may be the direct target. closest() walks upward to find the intended control."
+        },
+        {
+          "id": "b",
+          "text": "Bubbling skips button elements",
+          "correct": false,
+          "feedback": "Bubbling goes from the target through its ancestors; the direct target may be nested content inside the button."
+        },
+        {
+          "id": "c",
+          "text": "closest() automatically sanitizes user HTML",
+          "correct": false,
+          "feedback": "closest() searches ancestors. Use textContent or a reviewed HTML sanitizer for untrusted content."
+        },
+        {
+          "id": "d",
+          "text": "The event target does not exist until after the parent handler",
+          "correct": false,
+          "feedback": "The event target is established during dispatch, and bubbling is what lets the parent observe the event."
+        }
+      ],
+      "explanation": "Delegation lets one parent listener manage dynamic descendants, but the handler must still resolve the intended control and verify that it belongs to the parent."
+    },
+    {
+      "id": "deep-dom-practice",
+      "type": "codingExercise",
+      "title": "Build a delegated task list without unsafe HTML",
+      "language": "javascript",
+      "context": "Implement and reason through dynamic DOM behavior. Run this exercise in a browser project with a task list because the JavaScript sandbox does not provide a DOM.",
+      "instructions": [
+        "Create task items with createElement, textContent and append.",
+        "Use one click handler on the list to remove descendants marked with `data-action=remove`.",
+        "Handle clicks that start on nested content inside the remove button.",
+        "Explain the difference between a static NodeList and a live HTMLCollection.",
+        "Describe why inserting an untrusted task string with innerHTML is unsafe."
+      ],
+      "requirements": [
+        "Adding items does not register one listener per button.",
+        "A click on nested button content removes the correct list item.",
+        "User text is inserted as text rather than parsed as HTML.",
+        "Matching controls outside the list are ignored.",
+        "The solution explains whether its chosen DOM collection is static or live."
+      ],
+      "starterCode": "const list = document.querySelector('#tasks');\n\nfunction addTask(text) {\n  // TODO: create an li, a text span and a type=button remove control.\n}\n\nlist.addEventListener('click', (event) => {\n  // TODO: find the remove control, check containment, and remove its li.\n});",
+      "hints": [
+        "event.target can be a child of a button; use closest() to locate the button.",
+        "Use list.contains(button) to ensure the action belongs to this list.",
+        "Do not interpolate user input into an HTML string; assign it to textContent."
+      ],
+      "successCriteria": [
+        "New and existing items use the same parent listener.",
+        "Nested click targets work.",
+        "User text is inserted safely.",
+        "Controls outside the list are ignored.",
+        "Static/live collection behavior is explained accurately."
+      ]
+    },
+    {
+      "id": "deep-dom-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Delegation relies on bubbling; explicitly resolve nested targets and validate container ownership.",
+        "DOM selectors differ in whether their collections are static or live.",
+        "Insert untrusted text with textContent and use HTML parsing only with an intentional, reviewed policy."
       ]
     },
     {
