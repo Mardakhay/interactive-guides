@@ -1,12 +1,13 @@
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const lessonHtml = readFileSync(
-  new URL('../../../public/lessons/react-ecosystem-course.html', import.meta.url),
+  resolve(process.cwd(), 'public/lessons/react-ecosystem-course.html'),
   'utf8',
 );
 const projectPackage = JSON.parse(
-  readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'),
+  readFileSync(resolve(process.cwd(), 'package.json'), 'utf8'),
 ) as { dependencies: Record<string, string> };
 
 describe('React ecosystem lesson compatibility', () => {
