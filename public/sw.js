@@ -45,6 +45,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Restrict runtime caching to static build assets. Do not intercept arbitrary
+  // same-origin document/data requests that may contain private learner state.
+  if (!/\.(?:js|css|svg|png|jpe?g|webp|ico|woff2?|ttf|otf|json)$/i.test(url.pathname)) return;
+
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;
