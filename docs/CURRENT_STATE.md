@@ -90,3 +90,8 @@ Other features should be inspected before modifying them: bookmarks and notes ha
 The active work is on feat/learning-platform-foundation (PR #1), not main. The four SQL/PostgreSQL and production-hosting JSON files exist on this feature branch, but the current app catalog/legacy HTML loader does not register or render those structured files; they are not learner-accessible lessons yet. The catalog remains 25 IDs mapped to 25 English HTML files, not the expected 26 bilingual structured core lessons.
 
 The source audit reconciles 21 fetched Notion pages and 25 HTML files. Notion connector results were marked unverified. Two HTML pages received a full read in the previous pass, with a targeted additional review of the API lesson; the other HTML pages were structurally inspected, not fully audited. Router v6 usage, form-validation/security wording, and API retry caveats were corrected on the feature branch. Current lint, typecheck, build and test evidence is recorded in the session handoff; these focused fixes do not complete curriculum migration or source parity.
+
+
+## Embedded lesson migration checkpoint — 2026-10-23
+
+Three catalog lessons now have authored content embedded directly in src/data/lessons.json: re-003 (forms and validation), re-004 (API/request lifecycle), and re-005 (shared state and reducers). The lesson loader now prefers non-empty catalog content and uses the iframe mapping only as a migration fallback. This is a partial migration, not a full course conversion: 22 other lesson bodies are still blank and use standalone HTML, and the app has no locale-aware EN/RU lesson pairing. See FULL_SOURCE_CONTENT_AUDIT.md for exact source evidence and gaps.
