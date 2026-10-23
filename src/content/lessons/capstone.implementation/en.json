@@ -1,16 +1,16 @@
 {
   "id": "capstone.implementation",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-6-week-23",
   "week": 23,
   "order": 1,
   "title": "Capstone Part 3: Implementing the Core User Journeys",
   "description": "Build the MVP in vertical slices, keep UI/service boundaries clear, handle CRUD and async states, validate data at boundaries, and integrate authentication and persistence only when the project requires them.",
-  "estimatedMinutes": 85,
+  "estimatedMinutes": 110,
   "difficulty": "intermediate",
   "prerequisites": [
     "capstone.requirements-discovery",
@@ -325,6 +325,131 @@
         "Model async lifecycle states and prevent stale requests from overwriting newer results when relevant.",
         "Never trust client visibility or TypeScript assertions as security/runtime data validation.",
         "Run tests and project quality gates after every meaningful slice, not only at the end."
+      ]
+    },
+    {
+      "id": "deep-implementation-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: integrate a user journey across UI, API, state, and tests"
+    },
+    {
+      "id": "deep-implementation-model",
+      "type": "paragraph",
+      "text": "Implementation is more than finishing isolated components. Trace one user journey end to end: trigger, validation, request/service call, state transition, visible result, recovery and test. Keep boundaries clear so each step can be reasoned about. When a mutation updates server-owned data, consider duplicate submission, pending/error feedback and whether optimistic UI is worth the rollback complexity. Client-side checks improve usability, but authorization and data validity must be enforced by the trusted backend."
+    },
+    {
+      "id": "deep-implementation-flow",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "User action: save a lesson\n  -> Validate local preconditions\n  -> Disable duplicate submit / show pending state\n  -> Call bookmarkService.save(lessonId)\n  -> Server authorizes user and validates input\n  -> Success: update canonical state and show confirmation\n  -> Failure: show error and preserve a retry path\n\nTest the journey:\n  success / already saved / not signed in / server error / repeat click",
+      "steps": [
+        {
+          "title": "Start from an observable user action",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "The interface should immediately communicate pending work and avoid accidental duplicate submissions while the request is in flight."
+        },
+        {
+          "title": "Call a service with a clear contract",
+          "lineStart": 4,
+          "lineEnd": 5,
+          "explanation": "The service sends the operation, but the trusted backend must verify identity, permission and payload. A hidden button or client guard is not authorization."
+        },
+        {
+          "title": "Define both success and recovery",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "explanation": "Success updates the canonical view and confirms the outcome. Failure should preserve enough state for a safe retry; tests should cover duplicates, permission failures and repeat clicks."
+        }
+      ]
+    },
+    {
+      "id": "deep-implementation-principles",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Keep validation close to the appropriate boundary: immediate UX checks on the client, authoritative rules on the server/data layer.",
+        "Represent request lifecycle and server state explicitly; do not leave the interface looking idle while a mutation is running.",
+        "Optimistic updates can make an interface feel faster, but require a rollback or reconciliation strategy when the server rejects the mutation or concurrent changes occur.",
+        "Make repeated actions safe where possible: disable duplicate submits while pending and use backend idempotency/uniqueness rules when duplicate requests would be harmful.",
+        "Test the integrated user journey, including loading, empty/error/recovery and permission boundaries—not only isolated helper functions."
+      ]
+    },
+    {
+      "id": "deep-implementation-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A frontend hides the Delete button from users who are not admins. What additional control is required for real authorization?",
+      "options": [
+        {
+          "id": "a",
+          "text": "No additional control; hidden buttons cannot be triggered",
+          "correct": false,
+          "feedback": "Users can call APIs directly or modify client code; hidden UI is not a security boundary."
+        },
+        {
+          "id": "b",
+          "text": "The API/backend must verify the user's permission for each delete operation",
+          "correct": true,
+          "feedback": "Authorization must be enforced by the trusted server/data layer, regardless of what the client displays."
+        },
+        {
+          "id": "c",
+          "text": "Add a higher z-index to the admin button",
+          "correct": false,
+          "feedback": "Stacking order does not affect authorization."
+        },
+        {
+          "id": "d",
+          "text": "Move the button into a custom Hook",
+          "correct": false,
+          "feedback": "Code organization does not enforce permissions."
+        }
+      ],
+      "explanation": "Client-side guards and display logic improve UX; trusted server-side authorization protects the data operation."
+    },
+    {
+      "id": "deep-implementation-practice",
+      "type": "codingExercise",
+      "title": "Implement and test a save-bookmark user journey",
+      "language": "text",
+      "context": "Design the integrated workflow from click through API success/failure and back to the UI.",
+      "instructions": [
+        "Define the Save action's loading, success, duplicate/already-saved and error behavior.",
+        "Create a service contract with an explicit lesson ID and a clear success/error result.",
+        "Describe server-side authorization and data-integrity checks.",
+        "Decide whether the UI needs optimistic state or should wait for a confirmed server response.",
+        "Write a test matrix including success, forbidden, network failure, repeat-click and recovery."
+      ],
+      "requirements": [
+        "Every request outcome maps to visible UI feedback.",
+        "Duplicate submission is prevented or safe by design.",
+        "Client UI checks are distinguished from backend authorization.",
+        "Optimistic behavior has a rollback/reconciliation plan if chosen.",
+        "The test matrix includes failure and retry behavior."
+      ],
+      "starterCode": "async function saveBookmark(lessonId) {\n  // TODO: define what the service returns and how failures are represented.\n}\n\n// UI states to design:\n// idle -> pending -> success\n//             -> recoverable error\n// also consider duplicate clicks and forbidden responses.",
+      "hints": [
+        "Separate transport/service failure from the UI's display decision.",
+        "Server-owned data must be authorized even if the client hides the action.",
+        "Optimistic UI is optional; if used, describe how to restore state on failure."
+      ],
+      "successCriteria": [
+        "Service contract and UI states are explicit.",
+        "Permission and data-integrity checks are enforced on the trusted side.",
+        "Duplicate actions have a safe strategy.",
+        "Recovery and test cases are detailed."
+      ]
+    },
+    {
+      "id": "deep-implementation-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Integrate features by tracing the whole user journey, not only isolated components.",
+        "Handle pending, success, error, retry, duplicate actions and permissions deliberately.",
+        "Keep trusted authorization/data validation on the backend and test failure recovery end to end."
       ]
     },
     {
