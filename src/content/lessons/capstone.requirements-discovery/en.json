@@ -1,16 +1,16 @@
 {
   "id": "capstone.requirements-discovery",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-6-week-21",
   "week": 21,
   "order": 1,
   "title": "Capstone Part 1: Problem, Users, Requirements, and Journeys",
   "description": "Turn a broad project idea into a testable product brief with target users, user stories, acceptance criteria, core journeys, MVP scope, and explicit assumptions.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 100,
   "difficulty": "intermediate",
   "prerequisites": [
     "testing.react-testing-library",
@@ -322,6 +322,131 @@
         "Map happy paths and important empty, invalid, failed, cancelled, and recovery states.",
         "Pick a coherent MVP and list explicit non-goals to prevent scope creep.",
         "Record non-functional requirements, assumptions, and data/privacy risks before detailed design."
+      ]
+    },
+    {
+      "id": "deep-requirements-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: convert a vague request into verifiable acceptance criteria"
+    },
+    {
+      "id": "deep-requirements-model",
+      "type": "paragraph",
+      "text": "A user story is a starting hypothesis about a problem, not a complete implementation specification. Before coding, identify the user, goal, reason, observable outcomes, constraints and unanswered assumptions. Good acceptance criteria describe behavior that can be verified without dictating every internal implementation detail. Include failure and empty states, permissions, accessibility and relevant non-functional constraints—not only the happy path."
+    },
+    {
+      "id": "deep-requirements-example",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Story: As a learner, I want to bookmark a lesson so I can find it later.\n\n\nScenario: Save a bookmark\nGiven I am viewing a lesson\nWhen I activate the bookmark control\nThen the lesson appears in my saved list\nAnd the control exposes its saved state\n\nScenario: Empty saved list\nGiven I have no saved lessons\nWhen I open Saved lessons\nThen I see an empty-state explanation and a way back to the catalogue",
+      "steps": [
+        {
+          "title": "Keep the story tied to a user goal",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "The story describes who benefits and why. It does not prescribe a particular storage library or component structure."
+        },
+        {
+          "title": "Make the main behavior observable",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "explanation": "The scenario can be verified through the rendered saved list and the control's accessible state, not an internal function call."
+        },
+        {
+          "title": "Include an alternate state",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "explanation": "A usable feature also defines what happens when there is no data. Similar criteria may be needed for persistence failure, unauthenticated use or removing a saved item."
+        }
+      ]
+    },
+    {
+      "id": "deep-requirements-checklist",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Clarify the user, their goal and why the outcome matters; ask about terms that multiple stakeholders may interpret differently.",
+        "Write Given/When/Then acceptance criteria that cover success, empty, invalid input, loading/error, permissions and recovery where relevant.",
+        "Record constraints: accessibility, responsive behavior, performance, data privacy, browser support, deadlines and backend contracts.",
+        "Separate in-scope behavior from explicit out-of-scope items and assumptions that still need confirmation.",
+        "Turn acceptance criteria into a verification plan: example data, steps, expected UI, automated tests and any manual checks."
+      ]
+    },
+    {
+      "id": "deep-requirements-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which acceptance criterion is the most useful for implementation and review?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The bookmark button should look modern",
+          "correct": false,
+          "feedback": "Modern is subjective and does not provide a verifiable outcome."
+        },
+        {
+          "id": "b",
+          "text": "When a learner saves a lesson, the lesson appears in the saved list and the control exposes its saved state",
+          "correct": true,
+          "feedback": "It describes observable outcomes that can be tested without dictating internal implementation."
+        },
+        {
+          "id": "c",
+          "text": "Use Zustand and a BookmarkCard component",
+          "correct": false,
+          "feedback": "This prescribes implementation details rather than defining the user-visible behavior."
+        },
+        {
+          "id": "d",
+          "text": "Bookmarks should work perfectly",
+          "correct": false,
+          "feedback": "Perfectly is not specific or objectively testable."
+        }
+      ],
+      "explanation": "Acceptance criteria should let the team independently decide whether the expected behavior is satisfied."
+    },
+    {
+      "id": "deep-requirements-practice",
+      "type": "codingExercise",
+      "title": "Turn a vague feature idea into an implementation-ready brief",
+      "language": "text",
+      "context": "Plan the behavior before choosing components or libraries.",
+      "instructions": [
+        "Rewrite a vague request such as 'add search' as a user story with a user goal and reason.",
+        "Define acceptance criteria for matching results, no results, loading, and request failure.",
+        "Add accessibility and responsive requirements relevant to the search control and result list.",
+        "Record assumptions, open questions, out-of-scope behavior and any API dependency.",
+        "Write a verification checklist mapping each criterion to a test or manual check."
+      ],
+      "requirements": [
+        "The story identifies user, need and benefit.",
+        "Criteria describe observable behavior for success and edge states.",
+        "Non-functional requirements and constraints are explicit.",
+        "Assumptions and unresolved questions are visible rather than silently decided.",
+        "Each criterion has a proposed verification method."
+      ],
+      "starterCode": "Feature idea: add search\n\nUser story: As a ... I want ... so that ...\n\nAcceptance criteria:\n- Given ... When ... Then ...\n\nConstraints:\n- Accessibility:\n- Responsive behavior:\n- Performance/data:\n\nAssumptions and open questions:\n\nVerification plan:",
+      "hints": [
+        "Use user outcomes rather than component names as the core story.",
+        "Think about empty results, invalid/slow requests and keyboard navigation, not only a successful match.",
+        "If the requirement can be interpreted in two ways, record the question rather than silently choosing one."
+      ],
+      "successCriteria": [
+        "Produces a clear user story and verifiable criteria.",
+        "Includes success and failure/empty scenarios.",
+        "Lists meaningful constraints and open questions.",
+        "Verification plan can be followed by another developer or reviewer."
+      ]
+    },
+    {
+      "id": "deep-requirements-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "A user story communicates the problem and benefit; acceptance criteria define verifiable outcomes.",
+        "Explicitly capture empty/error states, accessibility and constraints alongside the happy path.",
+        "Map every important acceptance criterion to a way of checking it before calling the feature complete."
       ]
     },
     {
