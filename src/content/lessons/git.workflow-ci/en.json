@@ -1,16 +1,16 @@
 {
   "id": "git.workflow-ci",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-5-week-20",
   "week": 20,
   "order": 1,
   "title": "Git Branching, Pull Requests, Code Review, and CI",
   "description": "Work safely in feature branches, keep pull requests reviewable, resolve conflicts deliberately, and use continuous integration as a repeatable quality gate.",
-  "estimatedMinutes": 65,
+  "estimatedMinutes": 90,
   "difficulty": "intermediate",
   "prerequisites": [
     "git.fundamentals",
@@ -288,6 +288,139 @@
         "Review behavior, edge cases, accessibility, testing, and maintainability rather than personal style preferences.",
         "Merge and rebase produce different history shapes; coordinate before rewriting shared history.",
         "CI provides repeatable evidence for a specific commit, not a guarantee that all behavior is correct."
+      ]
+    },
+    {
+      "id": "deep-workflow-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: branch strategy, conflict resolution, and CI as a merge gate"
+    },
+    {
+      "id": "deep-workflow-model",
+      "type": "paragraph",
+      "text": "A branch strategy should make collaboration and release risk manageable, not create ceremony for its own sake. Short-lived feature branches work well when changes are small and continuously integrated; release/hotfix branches can help when a team has explicit release trains. A pull request is a reviewable proposal, while CI is repeatable evidence that selected checks passed on a specific commit—not proof that every product requirement is correct."
+    },
+    {
+      "id": "deep-workflow-pr-checklist",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "State the user problem and observable outcome in the PR description; link the issue or acceptance criteria.",
+        "Keep the diff focused. Remove accidental formatting churn and unrelated cleanup.",
+        "Review your own diff first; inspect deleted code, generated files, secrets and unexpected dependencies.",
+        "Require appropriate automated checks: install, lint, typecheck, unit/component tests and production build where the project supports them.",
+        "Ask reviewers to check correctness, edge cases, accessibility, error/loading/empty states and maintainability—not just formatting.",
+        "Resolve requested changes, rerun checks after the final code update, then merge according to branch protection and release policy."
+      ]
+    },
+    {
+      "id": "deep-workflow-conflict",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "<<<<<<< HEAD\nconst pageTitle = 'Dashboard';\n=======\nconst pageTitle = 'Overview';\n>>>>>>> feature/rename-page",
+      "steps": [
+        {
+          "title": "Recognize conflict markers",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "HEAD and the incoming branch edited overlapping lines that Git could not safely combine automatically. The file is intentionally left in a conflicted state."
+        },
+        {
+          "title": "Choose the intended behavior, not just one side",
+          "lineStart": 2,
+          "lineEnd": 4,
+          "explanation": "Inspect the surrounding code and product requirement. The right result might be either title or a third deliberate value; blindly choosing ours or theirs may discard needed behavior."
+        },
+        {
+          "title": "Verify the resolved file",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Remove all conflict markers, run the relevant tests and inspect the resulting diff. Mark the file resolved by staging it only after reviewing the final content."
+        }
+      ]
+    },
+    {
+      "id": "deep-workflow-callout",
+      "type": "callout",
+      "tone": "warning",
+      "title": "A green CI run is commit-specific",
+      "text": "A check result applies to the commit and workflow that ran it. If you push another commit after a green run, confirm that required checks ran again on the new head. CI does not replace code review, product acceptance, security review, or a runtime test the pipeline does not perform."
+    },
+    {
+      "id": "deep-workflow-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You resolve a merge conflict locally and then make one more edit before pushing. What should you verify before merging the PR?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The previous green CI run is sufficient because the branch already passed once",
+          "correct": false,
+          "feedback": "That run tested an earlier commit. The final edit may introduce a new failure."
+        },
+        {
+          "id": "b",
+          "text": "The conflict markers are gone, the diff is reviewed, and required checks passed for the current head",
+          "correct": true,
+          "feedback": "The final content and the exact commit awaiting merge must both be reviewed and checked."
+        },
+        {
+          "id": "c",
+          "text": "Only the number of changed lines matters",
+          "correct": false,
+          "feedback": "Diff size can aid review, but it does not establish correctness or validate the latest commit."
+        },
+        {
+          "id": "d",
+          "text": "Delete the failing test until merge succeeds",
+          "correct": false,
+          "feedback": "Removing a test to bypass a failure hides evidence rather than addressing the cause."
+        }
+      ],
+      "explanation": "Review the final diff and verify status on the exact commit to be merged."
+    },
+    {
+      "id": "deep-workflow-practice",
+      "type": "codingExercise",
+      "title": "Write a merge-ready PR and resolve a conflict",
+      "language": "text",
+      "context": "Simulate the final steps of a team change: resolve overlapping edits, produce a clear PR, and verify the exact commit.",
+      "instructions": [
+        "Resolve the sample conflict to match the intended product requirement and explain why.",
+        "Write a PR summary with problem, solution, manual verification, tests and known limitations.",
+        "List the CI gates that this project should run before merge.",
+        "Explain why a green run from an earlier commit is not sufficient after the final edit.",
+        "Compare a short-lived feature-branch workflow with trunk-based development and describe one trade-off."
+      ],
+      "requirements": [
+        "No conflict markers remain in the resolved example.",
+        "The solution is justified from requirements rather than chosen by branch name alone.",
+        "The PR summary includes observable behavior and verification details.",
+        "CI, review, and runtime limitations are kept distinct.",
+        "The current commit SHA is considered when checking required CI results."
+      ],
+      "starterCode": "<<<<<<< HEAD\nconst pageTitle = 'Dashboard';\n=======\nconst pageTitle = 'Overview';\n>>>>>>> feature/rename-page\n\nPR title:\nProblem:\nChange:\nVerification:\nKnown limitations:",
+      "hints": [
+        "Conflict markers delimit two incompatible edits; inspect context and acceptance criteria.",
+        "Write verification steps that someone else can repeat.",
+        "Confirm that checks apply to the exact commit at the current branch head."
+      ],
+      "successCriteria": [
+        "Produces a valid resolved snippet without conflict markers.",
+        "Documents problem, change, and repeatable verification.",
+        "Explains that CI must cover the latest commit.",
+        "States a realistic branch-strategy trade-off."
+      ]
+    },
+    {
+      "id": "deep-workflow-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Branch strategy balances reviewability, integration frequency, and release needs.",
+        "Resolve conflicts based on desired behavior, then review and test the final file.",
+        "Treat CI results as evidence tied to an exact commit, not as blanket proof of product quality."
       ]
     },
     {
