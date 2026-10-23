@@ -1,17 +1,23 @@
 import { Outlet } from 'react-router-dom';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { MobileNav } from './MobileNav';
 import { Spinner } from '@/components/ui';
 import { useRouteFocus } from '@/hooks/useRouteFocus';
+import { translate, useUiLocale } from '@/features/localization';
 
 export function AppLayout() {
+  const locale = useUiLocale();
   useRouteFocus();
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <a href="#main-content" className="skip-link">Skip to content</a>
+      <a href="#main-content" className="skip-link">{translate(locale, 'skipToContent')}</a>
       <Sidebar />
       <div className="lg:pl-64">
         <TopBar />
