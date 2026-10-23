@@ -1,16 +1,16 @@
 {
   "id": "css.fundamentals",
   "locale": "ru",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-1-week-3",
   "week": 3,
   "order": 3,
   "title": "Основы CSS: селекторы, каскад и блочная модель",
   "description": "Изучи, как CSS-правила находят элементы, как каскад выбирает между конфликтующими объявлениями, как подключаются таблицы стилей и как box model и display влияют на раскладку.",
-  "estimatedMinutes": 50,
+  "estimatedMinutes": 75,
   "difficulty": "beginner",
   "prerequisites": [
     "html.document-structure",
@@ -331,6 +331,131 @@
         "Каскад учитывает больше, чем порядок источника. Сравнивай специфичность после понимания критериев более высокого приоритета.",
         "Блочная модель включает content, padding, border и margin. При border-box заданная ширина включает padding и border.",
         "Block, inline и inline-block влияют на раскладку, но не меняют семантическое значение элемента."
+      ]
+    },
+    {
+      "id": "deep-css-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Глубокое погружение: cascade, specificity и box model при отладке"
+    },
+    {
+      "id": "deep-css-model",
+      "type": "paragraph",
+      "text": "Когда кажется, что стиль игнорируется, проверяй по порядку: соответствует ли селектор DOM, корректно ли объявление и какое правило выигрывает в cascade. Specificity — только один фактор: также учитываются origin, importance, cascade layers, scope и порядок исходника. После вычисления стилей box model определяет размеры элемента; при `content-box` padding и border добавляются к заданной ширине, а при `border-box` включены внутрь неё."
+    },
+    {
+      "id": "deep-css-trace",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": ".card p {\n  color: slateblue;\n  width: 320px;\n  padding: 16px;\n  border: 2px solid;\n}\n\n#app .card p {\n  color: darkgreen;\n}\n\n* {\n  box-sizing: border-box;\n}",
+      "steps": [
+        {
+          "title": "Сначала убедись, что селектор подходит",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "Селектор применяется к p внутри .card. Если в DOM нет такой связи, правило не может выиграть, потому что вовсе не применяется."
+        },
+        {
+          "title": "Сравни specificity для конфликтующего цвета",
+          "lineStart": 8,
+          "lineEnd": 10,
+          "explanation": "Оба правила подходят абзацу. ID в #app .card p даёт большую специфичность, чем .card p, поэтому darkgreen выигрывает, если origin/importance/layer одинаковы."
+        },
+        {
+          "title": "Пересчитай ширину после изменения box sizing",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "При border-box заданная ширина 320px включает суммарные 32px горизонтального padding и 4px border. При стандартном content-box они добавились бы снаружи ширины контента 320px."
+        }
+      ]
+    },
+    {
+      "id": "deep-css-cascade-guide",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Сначала изучи computed styles и matched rules в DevTools, вместо того чтобы вслепую добавлять ещё один селектор.",
+        "Specificity обычно записывают как ID, классы/атрибуты/pseudo-classes и элементы/pseudo-elements; сравнивай кортежи после учёта более высоких факторов cascade.",
+        "Предпочитай согласованную cascade и правила компонентов вместо `!important` для каждого конфликта; у важных объявлений свой приоритет, и они усложняют будущие изменения.",
+        "Margin, padding, border и размеры определяют реальный box. Глобальный `box-sizing: border-box` часто делает расчёт ширины предсказуемее.",
+        "Positioning и z-index зависят от containing block и stacking context; большой z-index внутри одного контекста не всегда перекрывает соседний контекст."
+      ]
+    },
+    {
+      "id": "deep-css-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Оба селектора ниже соответствуют одному абзацу. Если origin, importance и layer объявлений равны, какой цвет выиграет?",
+      "options": [
+        {
+          "id": "a",
+          "text": "slateblue из `.card p`, потому что правило записано раньше",
+          "correct": false,
+          "feedback": "Порядок исходника решает только при равной каскадной precedence и специфичности."
+        },
+        {
+          "id": "b",
+          "text": "darkgreen из `#app .card p`, потому что ID повышает специфичность",
+          "correct": true,
+          "feedback": "ID находится на более высоком уровне специфичности, чем селектор с классом и элементом, поэтому при заданных условиях выигрывает darkgreen."
+        },
+        {
+          "id": "c",
+          "text": "Ни одно правило не применяется, потому что селекторов два",
+          "correct": false,
+          "feedback": "Оба селектора могут соответствовать элементу; каскад решает конфликт объявлений."
+        },
+        {
+          "id": "d",
+          "text": "Браузер выбирает случайно",
+          "correct": false,
+          "feedback": "У каскада есть детерминированные правила приоритета."
+        }
+      ],
+      "explanation": "Сначала проверь соответствие селектора, затем применяй приоритет cascade/specificity/порядок, а не интуицию."
+    },
+    {
+      "id": "deep-css-practice",
+      "type": "codingExercise",
+      "title": "Исправь регрессию layout без слепого повышения specificity",
+      "language": "css",
+      "context": "Разберись, почему карточка выходит за контейнер, а текст не получает ожидаемый цвет.",
+      "instructions": [
+        "Для карточки с шириной контента 320px, горизонтальным padding и border вычисли внешнюю ширину при content-box.",
+        "Переключи элемент на border-box и объясни новую внешнюю ширину.",
+        "Разреши конфликт цветов, рассчитав specificity селекторов.",
+        "Проверь matched/computed styles в DevTools и выясни, подходит ли селектор до изменения правил.",
+        "Объясни, почему добавление !important — хрупкое первое решение."
+      ],
+      "requirements": [
+        "Размеры content-box и border-box рассчитаны правильно.",
+        "Сравнение specificity явно учитывает равные более высокие факторы cascade.",
+        "Порядок отладки начинается с совпадения селектора и корректности объявления.",
+        "Исправление не добавляет лишние !important.",
+        "Итоговый layout проверен на нужной ширине viewport."
+      ],
+      "starterCode": ".card p {\n  color: slateblue;\n  width: 320px;\n  padding: 16px;\n  border: 2px solid;\n}\n\n#app .card p {\n  color: darkgreen;\n}",
+      "hints": [
+        "При content-box внешняя ширина включает контент + левый/правый padding + левую/правую границу.",
+        "ID даёт большую specificity, но сначала проверяются importance и layers.",
+        "Вычисленные стили покажут, какое объявление победило и почему."
+      ],
+      "successCriteria": [
+        "Верно рассчитана внешняя ширина в обеих моделях box-sizing.",
+        "Назван выигравший селектор и объяснена его specificity.",
+        "Для отладки использованы данные DevTools, а не случайное усиление селектора.",
+        "Объяснён компромисс использования !important."
+      ]
+    },
+    {
+      "id": "deep-css-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Отлаживай CSS от соответствия селектора и корректности до cascade и layout.",
+        "Specificity важна только в контексте всех правил каскада.",
+        "Box sizing, containing blocks и stacking contexts объясняют многие ошибки, которые нельзя исправить одним увеличением z-index."
       ]
     },
     {
