@@ -1,16 +1,16 @@
 {
   "id": "typescript.fundamentals",
   "locale": "ru",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-3-week-10",
   "week": 10,
   "order": 1,
   "title": "Основы TypeScript: типы, union и обобщённые коллекции",
   "description": "Изучи, как TypeScript добавляет статическую проверку к JavaScript, моделируй структуру объектов, сужай типы неопределённых значений и используй типы, делающие преобразования данных безопаснее.",
-  "estimatedMinutes": 65,
+  "estimatedMinutes": 90,
   "difficulty": "beginner",
   "prerequisites": [
     "tooling.node-npm-vite",
@@ -377,6 +377,152 @@
         "Unknown безопаснее any, так как требует сужения перед специфичными операциями.",
         "Используй interface/type для описания формы, union для альтернатив, optional для отсутствия свойства и generics для сохранения связи типов.",
         "Типы сами не проверяют внешний JSON во время выполнения; валидируй данные на границах доверия."
+      ]
+    },
+    {
+      "id": "deep-ts-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Глубокое погружение: narrowing, discriminated unions и границы доверия runtime-данным"
+    },
+    {
+      "id": "deep-ts-model",
+      "type": "paragraph",
+      "text": "TypeScript проверяет отношения между значениями во время сборки, но типы удаляются из готового JavaScript. Аннотация типа или `as User` не проверяет payload, полученный с сервера. Считай внешние данные `unknown`, проверь их во время выполнения и только после этого возвращай доверенный тип предметной области. Discriminated unions помогают компилятору сузить допустимые поля для каждого состояния и выявить необработанные варианты."
+    },
+    {
+      "id": "deep-ts-trace",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "type LoadState<T> =\n  | { status: 'idle' }\n  | { status: 'loading' }\n  | { status: 'success'; data: T }\n  | { status: 'error'; message: string };\n\nfunction assertNever(value: never): never {\n  throw new Error(`Unhandled state: ${value}`);\n}\n\nfunction describe<T>(state: LoadState<T>): string {\n  switch (state.status) {\n    case 'idle': return 'Not started';\n    case 'loading': return 'Loading';\n    case 'success': return 'Loaded';\n    case 'error': return state.message;\n    default: return assertNever(state);\n  }\n}",
+      "steps": [
+        {
+          "title": "Свяжи состояние с данными через discriminant",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "У каждого варианта union есть литеральный status. Только success содержит data, а только error — message, поэтому код не может случайно обращаться к несуществующим полям текущего состояния."
+        },
+        {
+          "title": "Позволь control flow сузить тип",
+          "lineStart": 11,
+          "lineEnd": 18,
+          "explanation": "switch по status сужает state до конкретного участника union в каждой ветке. Компилятор знает, что state.message существует в ветке error."
+        },
+        {
+          "title": "Сделай пропущенные варианты заметными",
+          "lineStart": 7,
+          "lineEnd": 9,
+          "explanation": "assertNever принимает только never. Если добавить новый status, но не обновить switch, вызов перестанет проходить проверку типов."
+        }
+      ]
+    },
+    {
+      "id": "deep-ts-runtime-boundary",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Типы исчезают во время выполнения",
+      "text": "Это не валидация: `const user = payload as User`. Выражение меняет представление компилятора о значении, а не сам payload. Для сетевых данных разбирай `unknown` с runtime-схемой или явными проверками полей, которые реально нужны приложению."
+    },
+    {
+      "id": "deep-ts-example",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "type User = { id: number; name: string };\n\nfunction parseUser(value: unknown): User {\n  if (typeof value !== 'object' || value === null) {\n    throw new Error('User must be an object');\n  }\n  const candidate = value as Record<string, unknown>;\n  if (typeof candidate.id !== 'number' || typeof candidate.name !== 'string') {\n    throw new Error('Invalid user shape');\n  }\n  return { id: candidate.id, name: candidate.name };\n}",
+      "steps": [
+        {
+          "title": "Принимай unknown на недоверенной границе",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "unknown заставляет реализацию доказать наличие нужных свойств. Первая проверка отвергает null и значения, которые не являются объектами."
+        },
+        {
+          "title": "Проверь каждое обязательное поле",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "explanation": "Форма объекта проверяется до создания доверенного результата User. Для больших payload лучше использовать поддерживаемый schema validator, а не длинную цепочку ручных проверок."
+        },
+        {
+          "title": "Верни контракт приложения",
+          "lineStart": 11,
+          "lineEnd": 11,
+          "explanation": "Возвращённый объект содержит только проверенные поля из примера; дополнительные серверные свойства автоматически не считаются доверенными."
+        }
+      ]
+    },
+    {
+      "id": "deep-ts-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что гарантирует во время выполнения `const user = payload as User`, если payload пришёл из HTTP-ответа?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Проверяет, что payload содержит числовой id и строковый name",
+          "correct": false,
+          "feedback": "Type assertion удаляется при компиляции и не исследует ответ во время выполнения."
+        },
+        {
+          "id": "b",
+          "text": "Просит компилятор считать выражение User, но не валидирует фактическое значение",
+          "correct": true,
+          "feedback": "Payload всё ещё может быть неправильной формы. На внешней границе используй runtime-валидацию."
+        },
+        {
+          "id": "c",
+          "text": "Преобразует JSON в экземпляр класса",
+          "correct": false,
+          "feedback": "Type assertion не преобразует значение и не создаёт экземпляр."
+        },
+        {
+          "id": "d",
+          "text": "Удаляет все дополнительные ключи payload",
+          "correct": false,
+          "feedback": "Assertion не меняет содержимое объекта."
+        }
+      ],
+      "explanation": "Статическая проверка типов и runtime-валидация связаны, но решают разные задачи."
+    },
+    {
+      "id": "deep-ts-practice",
+      "type": "codingExercise",
+      "title": "Провалидируй unknown из API и исчерпывающе обработай состояние запроса",
+      "language": "typescript",
+      "context": "Построй безопасную границу типов вместо слепого доверия JSON через assertion.",
+      "instructions": [
+        "Реализуй runtime-парсер unknown для значения формы `{ id: number, name: string }`.",
+        "Отклоняй null, массивы и объекты с обязательными полями неправильных типов.",
+        "После проверки возвращай новый объект User.",
+        "Реализуй switch для discriminated union LoadState и сделай пропущенные статусы заметными во время проверки типов.",
+        "Объясни, где schema validator снизит стоимость поддержки для более крупного payload."
+      ],
+      "requirements": [
+        "Недоверенный ввод начинается как unknown.",
+        "Парсер проверяет runtime-данные до возврата User.",
+        "Неверные значения отклоняются явно, а не проходят через assertion.",
+        "Каждая ветка состояния использует поля, допустимые для её status.",
+        "Проверка исчерпывающего набора укажет на новый вариант union, если для него нет ветки."
+      ],
+      "starterCode": "type User = { id: number; name: string };\n\nfunction parseUser(value: unknown): User {\n  // TODO: проверь значение во время выполнения и верни только доверенные поля.\n}\n\ntype LoadState<T> =\n  | { status: 'loading' }\n  | { status: 'success'; data: T }\n  | { status: 'error'; message: string };\n\nfunction describe<T>(state: LoadState<T>): string {\n  // TODO: используй switch по status и обработай все варианты.\n}",
+      "hints": [
+        "unknown запрещает обращаться к полям до runtime-проверок.",
+        "typeof null равно 'object', поэтому проверяй null отдельно.",
+        "Используй helper с never в default-ветке, чтобы проверять полноту switch."
+      ],
+      "successCriteria": [
+        "Парсер отклоняет некорректные runtime-значения.",
+        "Валидный payload возвращает типизированный User.",
+        "Обработка состояния использует narrowing по discriminant.",
+        "Пропущенный вариант union приводит к ошибке type-check или явной проверки исчерпывающего набора."
+      ]
+    },
+    {
+      "id": "deep-ts-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Используй unknown на внешних границах и проверяй данные до того, как доверять типу предметной области.",
+        "Discriminated unions связывают тег состояния с полями, допустимыми в этом состоянии.",
+        "Проверяй исчерпывающий набор вариантов, чтобы новые состояния требовали явного обновления кода."
       ]
     },
     {
