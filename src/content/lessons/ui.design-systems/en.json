@@ -1,16 +1,16 @@
 {
   "id": "ui.design-systems",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-5-week-17",
   "week": 17,
   "order": 1,
   "title": "UI Kits, Design Tokens, and Reusable Components",
   "description": "Build a small and consistent component system with clear APIs, semantic tokens, documented variants, and accessibility built into shared primitives.",
-  "estimatedMinutes": 60,
+  "estimatedMinutes": 85,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -264,6 +264,132 @@
         "Component APIs should be explicit, typed, and intentionally small.",
         "Prefer composition and native semantic HTML to many boolean flags or clickable divs.",
         "Include keyboard, focus, disabled, error, and contrast requirements in shared components."
+      ]
+    },
+    {
+      "id": "deep-design-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: tokens, component contracts, and accessible variants"
+    },
+    {
+      "id": "deep-design-model",
+      "type": "paragraph",
+      "text": "A design system is a set of decisions that should remain consistent as the product grows: tokens name visual values, components encode repeated behavior, and usage guidance explains which component belongs to which job. A reusable component needs a constrained public API. A prop such as `variant: string` admits misspellings and unknown values; a union limits the contract. Avoid a single 'god component' with many unrelated boolean props."
+    },
+    {
+      "id": "deep-design-trace",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type ButtonVariant = 'primary' | 'secondary' | 'danger';\ntype ButtonSize = 'sm' | 'md' | 'lg';\n\ntype ButtonProps = {\n  variant?: ButtonVariant;\n  size?: ButtonSize;\n  disabled?: boolean;\n  loading?: boolean;\n  children: React.ReactNode;\n};\n\nfunction Button({ variant = 'primary', size = 'md', disabled = false, loading = false, children }: ButtonProps) {\n  return (\n    <button type=\"button\" className={`button button--${variant} button--${size}`}\n      disabled={disabled || loading} aria-busy={loading || undefined}>\n      {loading ? 'Loading…' : children}\n    </button>\n  );\n}",
+      "steps": [
+        {
+          "title": "Restrict public choices with union types",
+          "lineStart": 1,
+          "lineEnd": 9,
+          "explanation": "The supported variants and sizes are explicit, and consumers cannot pass arbitrary misspelled strings without a type error."
+        },
+        {
+          "title": "Encode behavior, not only visuals",
+          "lineStart": 11,
+          "lineEnd": 12,
+          "explanation": "Disabled and loading have meaningful behavior. A loading action cannot be submitted repeatedly, and aria-busy can communicate the pending state to assistive technology."
+        },
+        {
+          "title": "Keep semantic HTML and a small API",
+          "lineStart": 13,
+          "lineEnd": 18,
+          "explanation": "A native button supplies keyboard behavior and activation semantics. Prefer a clear variant/size contract over unrelated props that change the component into multiple hidden components."
+        }
+      ]
+    },
+    {
+      "id": "deep-design-decisions",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Tokens centralize color, spacing, type scale, radii and elevation so themes and global tuning do not require editing every component.",
+        "Variants should describe a small, intentional set of semantic choices (`primary`, `danger`), not arbitrary style strings that let each caller invent new design language.",
+        "Use native button/link semantics; icon-only controls need an accessible name, disabled/loading states need visible feedback, and focus indicators must remain visible.",
+        "Composition often scales better than a component with many unrelated boolean props; use slots or subcomponents when the structure itself is meaningful.",
+        "Adopting MUI or another library is a product trade-off: consider accessibility, theming, bundle impact, version churn, customization cost and the team's existing patterns."
+      ]
+    },
+    {
+      "id": "deep-design-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why is `variant: 'primary' | 'secondary' | 'danger'` a better component contract than `variant: string`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It guarantees the component can never render incorrectly at runtime",
+          "correct": false,
+          "feedback": "Types catch many authoring mistakes at compile time, but runtime values and visual/accessibility bugs still need testing."
+        },
+        {
+          "id": "b",
+          "text": "It documents and constrains the supported variants, catching misspellings during type checking",
+          "correct": true,
+          "feedback": "A finite union makes the public API explicit and allows the compiler to reject unsupported variants."
+        },
+        {
+          "id": "c",
+          "text": "It makes CSS selectors unnecessary",
+          "correct": false,
+          "feedback": "The component still needs styling rules for each supported variant."
+        },
+        {
+          "id": "d",
+          "text": "It automatically implements dark mode",
+          "correct": false,
+          "feedback": "Theme support comes from design tokens and theme architecture, not the variant type alone."
+        }
+      ],
+      "explanation": "A component's type is part of its API and should constrain choices rather than accepting any string."
+    },
+    {
+      "id": "deep-design-practice",
+      "type": "codingExercise",
+      "title": "Design a Button API and a token set",
+      "language": "tsx",
+      "context": "Create a small reusable component contract that handles visual variants and interaction/accessibility consistently.",
+      "instructions": [
+        "Define design tokens for brand, danger, spacing and radii instead of duplicating values.",
+        "Create a ButtonVariant union and a ButtonSize union.",
+        "Implement disabled and loading behavior with a native button element.",
+        "Add a visible focus state and an accessible name for icon-only usage.",
+        "Write usage examples and explain when a link should be used instead of a button."
+      ],
+      "requirements": [
+        "Component props restrict variants and sizes to supported values.",
+        "Design values are named tokens rather than repeated unexplained literals.",
+        "Disabled/loading states prevent inappropriate repeated actions and communicate status.",
+        "Keyboard focus remains visible and controls have accessible names.",
+        "Navigation is represented with a link; an in-page action is represented with a button."
+      ],
+      "starterCode": "type ButtonVariant = 'primary' | 'secondary' | 'danger';\ntype ButtonSize = 'sm' | 'md' | 'lg';\n\ntype ButtonProps = {\n  variant?: ButtonVariant;\n  size?: ButtonSize;\n  disabled?: boolean;\n  loading?: boolean;\n  children: React.ReactNode;\n};\n\n// TODO: implement the native button and matching token-based CSS.",
+      "hints": [
+        "A union catches misspellings that string does not.",
+        "Choose a semantic native control first, then add visual variants.",
+        "Token names express a role (`color-danger`) rather than an isolated hex value."
+      ],
+      "successCriteria": [
+        "Invalid variant/size values fail type checking.",
+        "The component has sensible defaults and a small API.",
+        "Loading/disabled/focus behavior is accessible.",
+        "Tokens are centrally named and reused.",
+        "The usage explanation distinguishes navigation from actions."
+      ]
+    },
+    {
+      "id": "deep-design-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Tokens preserve design consistency; component contracts preserve consistent behavior.",
+        "Constrain variants and prefer composition over many unrelated boolean props.",
+        "Accessibility and semantics are part of the component API, not optional polish added at the end."
       ]
     },
     {
