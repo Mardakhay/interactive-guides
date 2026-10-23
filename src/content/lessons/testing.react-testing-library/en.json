@@ -1,16 +1,16 @@
 {
   "id": "testing.react-testing-library",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-5-week-19",
   "week": 19,
   "order": 1,
   "title": "Testing React Components with Testing Library",
   "description": "Write behavior-focused component tests, query the UI through accessible roles and names, handle asynchronous updates, and keep test scope aligned with the project's actual runner.",
-  "estimatedMinutes": 70,
+  "estimatedMinutes": 95,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -292,6 +292,139 @@
         "Prefer role/name and label queries; use findBy... for asynchronous appearances.",
         "Control external boundaries and shared state so tests stay deterministic.",
         "Use the test runner already configured by the project and keep the same checks in CI."
+      ]
+    },
+    {
+      "id": "deep-testing-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: test user-visible contracts and choose the right query"
+    },
+    {
+      "id": "deep-testing-model",
+      "type": "paragraph",
+      "text": "A useful UI test protects a behavior a user or another part of the app depends on, not the component's private implementation. Testing Library encourages queries that resemble how people find controls—role and accessible name first. Query choice communicates timing: `getBy` expects an immediate match, `queryBy` is useful to assert absence, and `findBy` waits for an asynchronous appearance. In this repository use its Vitest setup rather than copying Jest-only setup commands from older reference material."
+    },
+    {
+      "id": "deep-testing-trace",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "it('shows the loaded profile', async () => {\n  render(<ProfilePage userId=\"42\" />);\n\n  expect(screen.getByRole('status')).toHaveTextContent(/loading/i);\n\n  expect(\n    await screen.findByRole('heading', { name: 'Ada Lovelace' })\n  ).toBeInTheDocument();\n\n  expect(screen.queryByRole('alert')).not.toBeInTheDocument();\n});",
+      "steps": [
+        {
+          "title": "Assert the observable loading state",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The test renders the public component and checks a visible/accessibly exposed status rather than inspecting a private state variable."
+        },
+        {
+          "title": "Wait for asynchronous UI with findBy",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "The heading appears only after the request completes, so findByRole waits for it. An immediate getByRole here would be timing-sensitive."
+        },
+        {
+          "title": "Use queryBy to verify absence",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "explanation": "queryBy returns null when no match exists, making it suitable for absence assertions. getBy would throw before the assertion could check absence."
+        }
+      ]
+    },
+    {
+      "id": "deep-testing-query-guide",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`getByRole` is a strong default for accessible controls; include the accessible name when multiple controls share a role.",
+        "`getBy...` throws when there is no match now; `queryBy...` returns null and is useful for absence; `findBy...` retries while waiting for an asynchronous match.",
+        "Use `userEvent.setup()` and await user interactions when the action can cause asynchronous behavior.",
+        "Assert outcomes such as error text, disabled controls, navigation or submitted content rather than internal Hook calls or exact implementation details.",
+        "Mock external boundaries intentionally. Tests should cover loading, success, empty and error behavior without depending on live third-party services."
+      ]
+    },
+    {
+      "id": "deep-testing-warning",
+      "type": "callout",
+      "tone": "important",
+      "title": "An async UI test needs to await the condition, not sleep",
+      "text": "Avoid fixed timeouts like `await new Promise(resolve => setTimeout(resolve, 1000))` as a general solution. Wait for the expected element/state with the proper async query or waitFor, so the test is both faster and less timing-sensitive."
+    },
+    {
+      "id": "deep-testing-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A heading appears only after a mocked API request finishes. Which Testing Library query is the best fit to wait for it?",
+      "options": [
+        {
+          "id": "a",
+          "text": "getByRole immediately",
+          "correct": false,
+          "feedback": "getBy queries synchronously and throws if the heading is not present at the time of the call."
+        },
+        {
+          "id": "b",
+          "text": "findByRole",
+          "correct": true,
+          "feedback": "findBy queries retry while waiting for the matching element to appear asynchronously."
+        },
+        {
+          "id": "c",
+          "text": "queryByRole only",
+          "correct": false,
+          "feedback": "queryBy is useful for checking absence without throwing; it does not wait for an element to appear."
+        },
+        {
+          "id": "d",
+          "text": "document.querySelector in a fixed one-second timeout",
+          "correct": false,
+          "feedback": "Direct DOM queries and fixed sleeps are usually brittle and bypass Testing Library's user-facing query strategy."
+        }
+      ],
+      "explanation": "Choose a query based on expected presence and timing, then assert the behavior visible to the user."
+    },
+    {
+      "id": "deep-testing-practice",
+      "type": "codingExercise",
+      "title": "Test loading, success, empty and error states",
+      "language": "tsx",
+      "context": "Use the repository's Vitest and React Testing Library setup. Keep the network mocked so the suite is deterministic.",
+      "instructions": [
+        "Write a test that confirms the loading status appears while a request is pending.",
+        "Resolve the mocked request and wait for a user-visible heading/list with findByRole.",
+        "Add a successful empty-array case and assert that an empty-state message appears.",
+        "Add an error case and assert an understandable error message or alert is rendered.",
+        "Use an accessible query, await userEvent interactions, and avoid fixed sleeps or assertions about internal Hook calls."
+      ],
+      "requirements": [
+        "The tests do not call a live external API.",
+        "Async UI assertions wait for the actual expected condition.",
+        "Empty success differs from loading and error.",
+        "Queries prefer semantic role and accessible name.",
+        "Tests cover user-visible behavior rather than component internals."
+      ],
+      "starterCode": "it('shows a loaded profile', async () => {\n  render(<ProfilePage userId=\"42\" />);\n  // TODO: assert loading; wait for the result with findByRole.\n});\n\nit('shows an empty state', async () => {\n  // TODO: mock a successful empty response and assert user-visible text.\n});\n\nit('shows an error', async () => {\n  // TODO: mock a rejected request and assert accessible feedback.\n});",
+      "hints": [
+        "Use getByRole for a present synchronous status, findByRole for asynchronous appearance, and queryByRole to assert absence.",
+        "Mock the API boundary so tests do not depend on third-party availability.",
+        "Make error and empty messages visible and accessible before asserting them."
+      ],
+      "successCriteria": [
+        "Loading state is asserted while the request is pending.",
+        "Success, empty and error paths are tested separately.",
+        "Async assertions are awaited without fixed delays.",
+        "Selectors use semantic roles/names where possible.",
+        "Tests assert the user-visible result."
+      ]
+    },
+    {
+      "id": "deep-testing-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Test the public behavior a user depends on instead of the component's private implementation.",
+        "Choose getBy/queryBy/findBy based on whether the element should exist now, be absent, or appear asynchronously.",
+        "Mock external boundaries and cover loading, success, empty and error as distinct UI states."
       ]
     },
     {
