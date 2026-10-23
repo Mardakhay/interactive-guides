@@ -1,16 +1,16 @@
 {
   "id": "typescript.fundamentals",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-3-week-10",
   "week": 10,
   "order": 1,
   "title": "TypeScript Fundamentals: Types, Unions, and Generic Collections",
   "description": "Learn how TypeScript adds static checking to JavaScript, model object shapes, narrow uncertain values, and use types that make common data transformations safer.",
-  "estimatedMinutes": 65,
+  "estimatedMinutes": 90,
   "difficulty": "beginner",
   "prerequisites": [
     "tooling.node-npm-vite",
@@ -377,6 +377,152 @@
         "unknown is safer than any because it requires narrowing before specific operations.",
         "Use interface/type to model shapes, unions for alternatives, optional fields for absence, and generics to preserve type relationships.",
         "Types do not validate external JSON by themselves; validate data at runtime when it crosses a trust boundary."
+      ]
+    },
+    {
+      "id": "deep-ts-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: narrowing, discriminated unions, and runtime trust boundaries"
+    },
+    {
+      "id": "deep-ts-model",
+      "type": "paragraph",
+      "text": "TypeScript checks relationships between values at build time, but its types are erased from emitted JavaScript. A type annotation or `as User` cannot validate a payload received from a server. Treat external input as `unknown`, inspect it at runtime, and only then expose a trusted domain type. Discriminated unions let the compiler narrow the allowed fields for each state and can make unhandled cases visible."
+    },
+    {
+      "id": "deep-ts-trace",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "type LoadState<T> =\n  | { status: 'idle' }\n  | { status: 'loading' }\n  | { status: 'success'; data: T }\n  | { status: 'error'; message: string };\n\nfunction assertNever(value: never): never {\n  throw new Error(`Unhandled state: ${value}`);\n}\n\nfunction describe<T>(state: LoadState<T>): string {\n  switch (state.status) {\n    case 'idle': return 'Not started';\n    case 'loading': return 'Loading';\n    case 'success': return 'Loaded';\n    case 'error': return state.message;\n    default: return assertNever(state);\n  }\n}",
+      "steps": [
+        {
+          "title": "Use a discriminant to connect state and data",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Every union member has a status literal. Only success carries data and only error carries message, so callers cannot accidentally access fields that do not exist for the current state."
+        },
+        {
+          "title": "Let control flow narrow the type",
+          "lineStart": 11,
+          "lineEnd": 18,
+          "explanation": "The switch on status narrows state to a specific union member in each case. The compiler can see that state.message exists in the error branch."
+        },
+        {
+          "title": "Make missing cases obvious",
+          "lineStart": 7,
+          "lineEnd": 9,
+          "explanation": "assertNever accepts only never. If a new status is added and the switch is not updated, the supposedly exhaustive call stops type-checking."
+        }
+      ]
+    },
+    {
+      "id": "deep-ts-runtime-boundary",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Types disappear at runtime",
+      "text": "This is not validation: `const user = payload as User`. It changes the compiler's belief, not the payload. For network data, parse from `unknown` with a runtime schema or explicit guards that check the fields the application actually uses."
+    },
+    {
+      "id": "deep-ts-example",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "type User = { id: number; name: string };\n\nfunction parseUser(value: unknown): User {\n  if (typeof value !== 'object' || value === null) {\n    throw new Error('User must be an object');\n  }\n  const candidate = value as Record<string, unknown>;\n  if (typeof candidate.id !== 'number' || typeof candidate.name !== 'string') {\n    throw new Error('Invalid user shape');\n  }\n  return { id: candidate.id, name: candidate.name };\n}",
+      "steps": [
+        {
+          "title": "Accept unknown at an untrusted boundary",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "unknown forces the implementation to prove the properties it uses. The first guard rejects null and non-object values."
+        },
+        {
+          "title": "Validate each required property",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "explanation": "The shape is checked before constructing the trusted User result. Larger payloads should use a maintained schema validator rather than a long hand-written chain of checks."
+        },
+        {
+          "title": "Return the application contract",
+          "lineStart": 11,
+          "lineEnd": 11,
+          "explanation": "The returned object contains only the validated fields expected by this example; extra server properties are not automatically trusted."
+        }
+      ]
+    },
+    {
+      "id": "deep-ts-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does `const user = payload as User` guarantee at runtime when payload comes from an HTTP response?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It verifies that payload has numeric id and string name",
+          "correct": false,
+          "feedback": "A type assertion is erased during compilation and does not inspect the response at runtime."
+        },
+        {
+          "id": "b",
+          "text": "It tells the compiler to treat the expression as User without validating the actual value",
+          "correct": true,
+          "feedback": "The payload may still be malformed. Use runtime validation at external boundaries."
+        },
+        {
+          "id": "c",
+          "text": "It converts the JSON value to a class instance",
+          "correct": false,
+          "feedback": "A TypeScript assertion does not transform or instantiate a value."
+        },
+        {
+          "id": "d",
+          "text": "It removes all extra keys from payload",
+          "correct": false,
+          "feedback": "Assertions do not change object contents."
+        }
+      ],
+      "explanation": "Static type checking and runtime validation solve related but different problems."
+    },
+    {
+      "id": "deep-ts-practice",
+      "type": "codingExercise",
+      "title": "Validate unknown API data and exhaustively handle request state",
+      "language": "typescript",
+      "context": "Write type-safe boundaries rather than trusting JSON through assertions alone.",
+      "instructions": [
+        "Implement a runtime parser for an unknown value representing `{ id: number, name: string }`.",
+        "Reject null, arrays, and objects whose required fields have the wrong types.",
+        "Return a newly constructed User value after validation.",
+        "Implement a switch over a discriminated LoadState union and make missing statuses compile-time visible.",
+        "Explain where a schema validator would reduce maintenance cost for a larger payload."
+      ],
+      "requirements": [
+        "Untrusted input begins as unknown.",
+        "The parser checks runtime data before returning User.",
+        "Invalid values fail explicitly rather than passing silently through an assertion.",
+        "Each request-state branch handles the fields valid for that status.",
+        "The exhaustive check flags a future union member if its branch is missing."
+      ],
+      "starterCode": "type User = { id: number; name: string };\n\nfunction parseUser(value: unknown): User {\n  // TODO: validate value at runtime and return only trusted fields.\n}\n\ntype LoadState<T> =\n  | { status: 'loading' }\n  | { status: 'success'; data: T }\n  | { status: 'error'; message: string };\n\nfunction describe<T>(state: LoadState<T>): string {\n  // TODO: switch on status and make the branches exhaustive.\n}",
+      "hints": [
+        "unknown prevents access until runtime checks narrow the value.",
+        "typeof null is 'object', so check null explicitly.",
+        "Use a never helper in the default branch to make the switch exhaustive."
+      ],
+      "successCriteria": [
+        "The parser rejects malformed runtime values.",
+        "Valid payloads produce a typed User result.",
+        "State handling uses discriminant narrowing.",
+        "Missing union cases fail the type-check or explicit exhaustiveness check."
+      ]
+    },
+    {
+      "id": "deep-ts-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use unknown at external boundaries and validate before trusting a domain type.",
+        "Discriminated unions connect a state tag to the fields that are valid for that state.",
+        "Use exhaustive checks so new variants cause a compiler-visible follow-up rather than a silent runtime gap."
       ]
     },
     {
