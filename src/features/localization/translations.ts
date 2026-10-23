@@ -59,9 +59,6 @@ const en = {
   "hourEstimated": "{hours}h estimated",
   "minuteUnit": "m",
   "allResults": "All",
-  "lessons": "Lessons",
-  "courses": "Courses",
-  "notes": "Notes",
   "filterResultsByType": "Filter results by type",
   "lessonType": "Lesson",
   "courseType": "Course",
@@ -75,6 +72,7 @@ const en = {
   "searchStartMessage": "Search across all lessons, courses, and your personal notes. Results update as you type.",
   "result": "result",
   "results": "results",
+  "pathNotFoundTitle": "Learning path not found",
   "pathNotFoundMessage": "The path you're looking for doesn't exist.",
   "pathCompletedMessage": "You've completed this learning path! Pick a new path to keep growing.",
   "allPaths": "All paths",
@@ -140,9 +138,6 @@ const ru: Record<keyof typeof en, string> = {
   "hourEstimated": "Оценка: {hours} ч",
   "minuteUnit": " мин",
   "allResults": "Все",
-  "lessons": "Уроки",
-  "courses": "Курсы",
-  "notes": "Заметки",
   "filterResultsByType": "Фильтр результатов по типу",
   "lessonType": "Урок",
   "courseType": "Курс",
@@ -156,6 +151,7 @@ const ru: Record<keyof typeof en, string> = {
   "searchStartMessage": "Ищите по урокам, курсам и личным заметкам. Результаты обновляются по мере ввода.",
   "result": "результат",
   "results": "результатов",
+  "pathNotFoundTitle": "Учебный маршрут не найден",
   "pathNotFoundMessage": "Такого учебного маршрута не существует.",
   "pathCompletedMessage": "Вы завершили этот учебный маршрут! Выберите новый, чтобы продолжить развиваться.",
   "allPaths": "Все маршруты",
@@ -292,4 +288,16 @@ export function formatNoteCount(locale: Locale, count: number): string {
 export function getLocalizedDifficulty(locale: Locale, level: string): string {
   if (locale === 'en') return ({ beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' } as Record<string, string>)[level] ?? level;
   return ({ beginner: 'Начальный', intermediate: 'Средний', advanced: 'Продвинутый' } as Record<string, string>)[level] ?? level;
+}
+
+export function formatResultCount(locale: Locale, count: number): string {
+  if (locale === 'en') return `${count} ${count === 1 ? 'result' : 'results'}`;
+  const lastTwoDigits = count % 100;
+  const lastDigit = count % 10;
+  const word = lastDigit === 1 && lastTwoDigits !== 11
+    ? 'результат'
+    : [2, 3, 4].includes(lastDigit) && (lastTwoDigits < 12 || lastTwoDigits > 14)
+      ? 'результата'
+      : 'результатов';
+  return `${count} ${word}`;
 }

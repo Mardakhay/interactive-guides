@@ -3,6 +3,7 @@ export {
   formatCategoryCount,
   formatLessonCount,
   formatNoteCount,
+  formatResultCount,
   getLocalizedDifficulty,
   getLocalizedCategoryCopy,
   getLocalizedLearningPathCopy,
