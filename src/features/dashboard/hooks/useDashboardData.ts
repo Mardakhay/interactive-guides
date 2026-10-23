@@ -77,6 +77,7 @@ function buildRecentActivity(
       lessonId,
       lessonTitle: lesson.title,
       categoryName: getCategoryById(lesson.categoryId)?.name ?? '',
+      categoryId: lesson.categoryId,
       timestamp: entry.createdAt,
     });
   }
@@ -89,6 +90,7 @@ function buildRecentActivity(
       lessonId,
       lessonTitle: lesson.title,
       categoryName: getCategoryById(lesson.categoryId)?.name ?? '',
+      categoryId: lesson.categoryId,
       timestamp: entry.updatedAt,
       notePreview:
         entry.content.length > NOTE_PREVIEW_LENGTH
