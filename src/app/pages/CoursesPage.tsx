@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Lock,
   Database,
+  BookOpen,
   ArrowRight,
   type LucideIcon,
 } from 'lucide-react';
@@ -51,6 +52,25 @@ export default function CoursesPage() {
           Browse {totalLessons} interactive lessons across {catalog.length} categories. Start anywhere, learn at your pace.
         </p>
       </div>
+
+      <section aria-labelledby="structured-course-title" className="rounded-2xl border border-primary-200 bg-gradient-to-r from-primary-50 to-white p-5 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-primary-700 shadow-subtle">
+              <BookOpen className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary-700">Structured · English / Русский</p>
+              <h2 id="structured-course-title" className="mt-1 text-lg font-semibold text-neutral-950">24-week Frontend Development Bootcamp</h2>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-neutral-600">A complete, bilingual curriculum with guided lessons, worked examples, knowledge checks, coding practice and separate supplementary tracks.</p>
+            </div>
+          </div>
+          <Link to="/en/structured-lessons" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-primary-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700">
+            Open structured curriculum
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </div>
+      </section>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {catalog.map((category) => {
