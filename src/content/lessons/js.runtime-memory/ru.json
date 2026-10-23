@@ -1,0 +1,275 @@
+{
+  "id": "js.runtime-memory",
+  "locale": "ru",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-23",
+  "moduleId": "supplement-js-internals",
+  "supplementaryTrackId": "supplement-js-internals",
+  "order": 1,
+  "title": "Runtime JavaScript: контексты выполнения, стек, куча и сборка мусора",
+  "description": "Отслеживай execution contexts и замыкания, рассуждай о достижимости объектов и диагностируй переполнение стека и удержание памяти.",
+  "estimatedMinutes": 75,
+  "difficulty": "advanced",
+  "prerequisites": [
+    "js.basics-types-control-flow",
+    "js.functions-arrays-objects"
+  ],
+  "learningOutcomes": [
+    "Объяснять execution context и модель его создания/выполнения на концептуальном уровне.",
+    "Прослеживать вложенные вызовы через call stack и находить неконтролируемую рекурсию.",
+    "Различать идентичность значения, ссылки на объекты и достижимость.",
+    "Объяснять сборку мусора через reachability/mark-and-sweep как модель.",
+    "Диагностировать удержание памяти замыканиями и неожиданный рост потребления по данным измерений."
+  ],
+  "tags": [
+    "javascript",
+    "runtime",
+    "call-stack",
+    "memory",
+    "closures",
+    "garbage-collection"
+  ],
+  "blocks": [
+    {
+      "id": "runtime-why",
+      "type": "heading",
+      "level": 2,
+      "text": "Как внутреннее устройство runtime помогает отладке?"
+    },
+    {
+      "id": "runtime-overview",
+      "type": "paragraph",
+      "text": "Исходный код JavaScript выполняется внутри runtime, который управляет лексическими окружениями, активными вызовами функций, памятью объектов, очередями задач и API окружения. Спецификация ECMAScript определяет поведение языка; движки вроде V8 выбирают реализации. Диаграммы stack/heap — полезные модели, а не точная карта физической памяти и не гарантия оптимизации в каждом движке."
+    },
+    {
+      "id": "runtime-model",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Разделяй вопросы",
+      "text": "Execution context: какая среда выполняется сейчас? Call stack: какие вызовы активны и в каком порядке? Heap/reachability: какие выделенные объекты остаются достижимыми? Event loop/очереди окружения: когда queued work может выполниться после завершения текущего JavaScript-стека? Эти вопросы связаны, но не взаимозаменяемы."
+    },
+    {
+      "id": "runtime-context",
+      "type": "heading",
+      "level": 2,
+      "text": "Execution context и call stack"
+    },
+    {
+      "id": "runtime-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function outer() {\n  const label = 'outer';\n  inner();\n  console.log('outer finished');\n}\n\nfunction inner() {\n  const label = 'inner';\n  console.log(label);\n}\n\nouter();",
+      "steps": [
+        {
+          "title": "Вызов outer добавляет активный вызов",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Runtime создаёт контекст выполнения функции и вычисляет её выражения. Локальный label — привязка в лексическом окружении конкретного вызова."
+        },
+        {
+          "title": "Вложенный вызов становится верхним кадром стека",
+          "lineStart": 7,
+          "lineEnd": 9,
+          "explanation": "inner выполняется до продолжения outer. Его локальный label перекрывает внешнее одноимённое имя, поэтому выводится inner."
+        },
+        {
+          "title": "Возврат восстанавливает выполнение вызывающей функции",
+          "lineStart": 3,
+          "lineEnd": 12,
+          "explanation": "Когда inner возвращается, его кадр снимается и outer продолжает выполнение после inner(). Стек следует порядку LIFO."
+        }
+      ]
+    },
+    {
+      "id": "runtime-overflow",
+      "type": "heading",
+      "level": 2,
+      "text": "Рекурсия и переполнение стека"
+    },
+    {
+      "id": "runtime-overflow-text",
+      "type": "paragraph",
+      "text": "Каждый вложенный вызов функции требует bookkeeping выполнения. Рекурсия корректна, когда гарантированы progress и base case; цикл вызовов без приближения к условию остановки может исчерпать стек движка и привести к RangeError вроде 'Maximum call stack size exceeded'. Изучи stack trace и найди повторяющийся путь, а не увеличивай лимит стека как первое решение."
+    },
+    {
+      "id": "runtime-memory",
+      "type": "heading",
+      "level": 2,
+      "text": "Объекты heap, достижимость и сборка мусора"
+    },
+    {
+      "id": "runtime-memory-text",
+      "type": "paragraph",
+      "text": "Объекты и замыкания могут оставаться выделенными, пока достижимы из корней: активных стеков, глобальных привязок или ссылок, удерживаемых окружением. Распространённая модель GC — mark-and-sweep: определить достижимые объекты, затем освободить недостижимые. Реальные движки используют generational, incremental и concurrent стратегии, поэтому время сборки непредсказуемо и память не обязательно сразу возвращается операционной системе."
+    },
+    {
+      "id": "runtime-closure-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function createCounter() {\n  let count = 0;\n  const largeCache = new Array(100_000).fill('cached');\n  return {\n    increment() { count += 1; return count; },\n    size() { return largeCache.length; }\n  };\n}\n\nlet counter = createCounter();\ncounter.increment(); // 1\ncounter = null; // The returned object is no longer reachable here",
+      "steps": [
+        {
+          "title": "Возвращённые методы замыкают локальные привязки",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "Методы возвращённого объекта могут использовать count и largeCache после возврата createCounter. Замыкание сохраняет эти привязки достижимыми, пока методы доступны."
+        },
+        {
+          "title": "Достижимое замыкание может удерживать больше, чем ожидаешь",
+          "lineStart": 10,
+          "lineEnd": 11,
+          "explanation": "Пока counter достижим, его методы могут пользоваться захваченными значениями; кэш нельзя освободить только потому, что фабричная функция завершилась."
+        },
+        {
+          "title": "Удаление последней ссылки делает сборку возможной, но не мгновенной",
+          "lineStart": 12,
+          "lineEnd": 12,
+          "explanation": "Если другие ссылки не удерживают объект или окружение, они становятся кандидатами на сборку. В JavaScript нет общей команды для детерминированного 'освободи сейчас'."
+        }
+      ]
+    },
+    {
+      "id": "runtime-leaks",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Удалённые из видимого DOM узлы могут оставаться достижимыми, если их удерживает массив или listener.",
+        "Обработчики, подписки, таймеры и observers требуют очистки по жизненному циклу, если они удерживают объекты компонентов.",
+        "Неограниченный кэш или замыкание над большой структурой может быть проблемой дизайна даже при корректной работе GC.",
+        "Для расследования используй heap snapshots и allocation timeline; одно высокое значение памяти само по себе не доказывает утечку."
+      ]
+    },
+    {
+      "id": "runtime-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Функция возвращает объект с методом, замыкающим локальный массив. Почему массив может остаться в памяти после возврата фабрики?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Все локальные переменные хранятся навсегда",
+          "correct": false,
+          "feedback": "Локальные значения могут стать недостижимыми; runtime не хранит каждую локальную привязку навсегда."
+        },
+        {
+          "id": "b",
+          "text": "Возвращённый метод сохраняет достижимость захваченного окружения",
+          "correct": true,
+          "feedback": "Метод по-прежнему может читать привязку, поэтому окружение и массив достижимы через возвращённый объект."
+        },
+        {
+          "id": "c",
+          "text": "Сборка мусора работает только для чисел",
+          "correct": false,
+          "feedback": "GC освобождает недостижимые управляемые объекты; причина здесь в достижимости, а не в числовом типе."
+        },
+        {
+          "id": "d",
+          "text": "Замыкание навсегда копирует все значения в call stack",
+          "correct": false,
+          "feedback": "Замыкание сохраняет доступ к лексическим привязкам; оно не фиксирует копию каждого значения на стеке навсегда."
+        }
+      ],
+      "explanation": "Рассуждай о достижимости от корней, а не о том, как давно завершилась функция, создавшая объект."
+    },
+    {
+      "id": "runtime-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Как лучше всего начать разбираться с повторяющимся 'Maximum call stack size exceeded'?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Найти повторяющийся цикл вызовов и задать условие остановки",
+          "correct": true,
+          "feedback": "Повторяющаяся цепочка часто указывает на отсутствующий base case или взаимную неконтролируемую рекурсию."
+        },
+        {
+          "id": "b",
+          "text": "Считать, что исчерпана heap-память",
+          "correct": false,
+          "feedback": "Обычно ошибка указывает на исчерпание стека из-за слишком глубокой вложенности, а не на нехватку heap."
+        },
+        {
+          "id": "c",
+          "text": "Добавить setTimeout в каждую функцию без анализа потока",
+          "correct": false,
+          "feedback": "Отложенное планирование меняет время выполнения, но не обязательно исправляет бесконечный цикл вызовов."
+        },
+        {
+          "id": "d",
+          "text": "Удалить все замыкания из приложения",
+          "correct": false,
+          "feedback": "Замыкания — обычная возможность языка и не являются общей причиной переполнения стека."
+        }
+      ],
+      "explanation": "Используй stack trace, чтобы найти путь вызовов, который не продвигается к завершению."
+    },
+    {
+      "id": "runtime-practice",
+      "type": "codingExercise",
+      "title": "Найди удержание памяти и runaway recursion",
+      "language": "javascript",
+      "context": "Подготовь объяснение на основании наблюдений, а не догадок по графику памяти или одному исключению.",
+      "instructions": [
+        "Проследи стек вызовов outer() → inner() и объясни, какой вызов продолжится после возврата inner.",
+        "Исправь рекурсивную функцию, указав base case и меру прогресса к нему.",
+        "Определи, какие ссылки удерживают объект и захваченный массив в createCounter().",
+        "Предложи воспроизводимое исследование heap snapshot/allocation timeline для предполагаемой утечки.",
+        "Различи объект, удерживаемый намеренно, и объект, который удерживается непреднамеренно."
+      ],
+      "requirements": [
+        "Объяснение стека следует LIFO.",
+        "Исправление рекурсии гарантирует прогресс к base case.",
+        "В объяснении памяти названы конкретные удерживающие ссылки.",
+        "Исследование сравнивает повторяемые сценарии и не выводит утечку из одного снимка."
+      ],
+      "starterCode": "function countdown(n) {\n  // TODO: определи base case и шаг, приближающий к нему.\n  return countdown(n);\n}\n\nfunction createReader() {\n  const cache = new Array(100_000).fill('item');\n  return () => cache.length;\n}\n\nlet readCache = createReader();\n// TODO: объясни, когда cache достижим и как прекратить удержание.",
+      "hints": [
+        "Каждый рекурсивный вызов должен приближать к base case.",
+        "Возвращённое замыкание может удерживать лексическое окружение.",
+        "Для проверки утечки сравнивай снимки после повторяемых действий и cleanup."
+      ],
+      "successCriteria": [
+        "Рекурсия завершается при допустимом входе.",
+        "Удерживающая ссылка названа правильно.",
+        "Описано воспроизводимое исследование памяти.",
+        "Намеренная достижимость отличена от непреднамеренного удержания."
+      ]
+    },
+    {
+      "id": "runtime-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Execution context моделирует активное окружение; call stack хранит вложенные вызовы в порядке LIFO.",
+        "Объекты сохраняются, пока достижимы; время GC недетерминировано.",
+        "Замыкания могут удерживать большие структуры, а утечку нужно подтверждать непреднамеренным удержанием во времени.",
+        "Специфичные для движка оптимизации — детали реализации, а не гарантии языка."
+      ]
+    },
+    {
+      "id": "runtime-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: JavaScript execution model",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Memory management",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_management",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Closures",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}
