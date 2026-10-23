@@ -29,7 +29,7 @@ describe('StructuredCurriculumPage', () => {
     renderCurriculum('/ru/structured-lessons');
     expect(document.documentElement.lang).toBe('ru');
     expect(screen.getByRole('heading', { name: /Учебная программа ABB Frontend Development Bootcamp/ })).toBeInTheDocument();
-    expect(screen.getByText('24 недели')).toBeInTheDocument();
+    expect(screen.getByText('24', { exact: true })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Структура HTML-документа и семантические области страницы/ })).toHaveAttribute(
       'href',
       '/ru/structured-lessons/html.document-structure',
