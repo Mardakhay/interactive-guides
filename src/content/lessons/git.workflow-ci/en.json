@@ -415,16 +415,6 @@
       ]
     },
     {
-      "id": "deep-workflow-summary",
-      "type": "list",
-      "ordered": false,
-      "items": [
-        "Branch strategy balances reviewability, integration frequency, and release needs.",
-        "Resolve conflicts based on desired behavior, then review and test the final file.",
-        "Treat CI results as evidence tied to an exact commit, not as blanket proof of product quality."
-      ]
-    },
-    {
       "id": "git-branch-strategies",
       "type": "heading",
       "level": 2,
@@ -497,6 +487,18 @@
         }
       ],
       "explanation": "For a public stable API, SemVer uses MAJOR for incompatible changes, MINOR for backwards-compatible features, and PATCH for backwards-compatible fixes."
+    },
+    {
+      "id": "deep-workflow-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Branch strategy balances reviewability, integration frequency, and release needs.",
+        "Resolve conflicts based on desired behavior, then review and test the final file.",
+        "Treat CI results as evidence tied to an exact commit, not as blanket proof of product quality.",
+        "Choose GitHub Flow, trunk-based development, or Git Flow based on release cadence and team needs; minimize unnecessary long-lived branches.",
+        "For stable public APIs, SemVer uses MAJOR for breaking changes, MINOR for backwards-compatible features, and PATCH for backwards-compatible fixes."
+      ]
     },
     {
       "id": "git-workflow-references",

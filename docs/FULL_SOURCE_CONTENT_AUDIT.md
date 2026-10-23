@@ -174,7 +174,7 @@ Status remains **partial mapping / source parity pending**. Do not delete the le
 
 ## Focused Git source-parity audit — 2026-10-23
 
-**Sources read in this pass:** `public/lessons/git-reference.html` (64,174 bytes; 1 inline script, 21 buttons, 60+ source headings) and `public/lessons/git-workflow-cicd-guide.html` (94,686 bytes; 1 inline script, 20 buttons, 50+ source headings). The content and heading inventories were read and compared to `git.fundamentals` and `git.workflow-ci` EN/RU structured lessons. This is a focused content/interaction inventory; it is not a complete technical fact-check of every source statement.
+**Sources structurally inspected in this pass:** `public/lessons/git-reference.html` (64,174 bytes; 1 inline script, 21 buttons) and `public/lessons/git-workflow-cicd-guide.html` (94,686 bytes; 1 inline script, 20 buttons). I inspected the source heading/section inventory and interactive-control counts, then compared those concepts against the registered EN/RU structured lesson blocks and reviewed selected block details. I did **not** perform a paragraph-by-paragraph technical fact-check or line-by-line code/exercise parity review of either entire HTML source.
 
 ### Structured content added in this pass
 
