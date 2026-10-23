@@ -244,7 +244,7 @@ describe('React forms and validation lesson translation', () => {
     expect(englishReactForms.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianReactForms.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishReactForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishReactForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
     expect(russianReactForms.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
@@ -256,7 +256,7 @@ describe('React shared state and Context lesson translation', () => {
     expect(englishContext.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianContext.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishContext.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishContext.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
     expect(russianContext.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
