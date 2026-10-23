@@ -1,16 +1,16 @@
 {
   "id": "react.effects-lists-composition",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-3-week-12",
   "week": 12,
   "order": 1,
   "title": "React Effects, Component Composition, and Lists",
   "description": "Understand when effects are needed, how dependencies control synchronization, why list keys matter, and how to compose a small API-driven posts list with loading and error states.",
-  "estimatedMinutes": 70,
+  "estimatedMinutes": 95,
   "difficulty": "beginner",
   "prerequisites": [
     "react.components-jsx-state",
@@ -335,6 +335,144 @@
         "Compose components around clear responsibilities and pass only the props they need.",
         "Stable keys identify list items across changes; they are not ordinary props.",
         "Represent loading, success, empty and error states explicitly when fetching data."
+      ]
+    },
+    {
+      "id": "deep-effects-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: effect lifecycle, request races, and stable list identity"
+    },
+    {
+      "id": "deep-effects-model",
+      "type": "paragraph",
+      "text": "An Effect synchronizes a committed render with an external system; it is not a default place to calculate values that can be derived during render. React runs cleanup for the previous Effect before setting up the next one when dependencies change, and on unmount. Every reactive value read by the Effect belongs in its dependency model. For requests, cleanup/cancellation and stale-result protection prevent a slow response for an old prop from overwriting the current screen."
+    },
+    {
+      "id": "deep-effects-trace",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "useEffect(() => {\n  const controller = new AbortController();\n  let ignore = false;\n\n  async function loadUser() {\n    setStatus('loading');\n    try {\n      const response = await fetch(`/api/users/${userId}`, { signal: controller.signal });\n      if (!response.ok) throw new Error(`HTTP ${response.status}`);\n      const data = await response.json();\n      if (!ignore) { setUser(data); setStatus('success'); }\n    } catch (error) {\n      const aborted = error instanceof Error && error.name === 'AbortError';\n      if (!ignore && !aborted) setStatus('error');\n    }\n  }\n\n  void loadUser();\n  return () => { ignore = true; controller.abort(); };\n}, [userId]);",
+      "steps": [
+        {
+          "title": "Create one controller for this Effect instance",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "When userId changes, React cleans up the old Effect instance and runs a new setup. The new controller represents the new request lifecycle."
+        },
+        {
+          "title": "Check HTTP status and parse the response",
+          "lineStart": 5,
+          "lineEnd": 11,
+          "explanation": "Fetch does not reject solely for status 404/500, so response.ok must be checked. The body is parsed asynchronously and state is updated only while this request is still current."
+        },
+        {
+          "title": "Ignore cancellation without hiding real failures",
+          "lineStart": 12,
+          "lineEnd": 15,
+          "explanation": "Abort is expected during cleanup and should not appear as a user-facing failure. Other errors still produce an error state while this Effect instance is current."
+        },
+        {
+          "title": "Clean up when inputs change or the component unmounts",
+          "lineStart": 18,
+          "lineEnd": 20,
+          "explanation": "Abort asks Fetch to stop and ignore prevents a stale continuation from updating state. Including userId expresses the reactive input that starts a new request."
+        }
+      ]
+    },
+    {
+      "id": "deep-effects-debugging",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Missing dependencies can leave an Effect using a stale closure; adding dependencies may reveal that the synchronization logic needs redesign rather than a lint suppression.",
+        "An empty dependency array means the Effect does not re-run for later prop changes; it does not mean the callback is guaranteed to run only once in every development environment.",
+        "Derived values such as `visibleItems = items.filter(...)` normally belong in render, not in state synchronized by an Effect.",
+        "List keys identify item identity across insertions, deletions, and reordering. Array indices are risky keys when items can move or be removed because component state can become attached to the wrong item."
+      ]
+    },
+    {
+      "id": "deep-effects-callout",
+      "type": "callout",
+      "tone": "important",
+      "title": "Cleanup does not mean every Effect is wrong",
+      "text": "Effects are appropriate for synchronizing subscriptions, timers, browser APIs and network requests. Avoid using them to mirror props into state or calculate a value that can be computed from current props/state. When setup is repeated in development, the setup/cleanup pair should remain correct and reversible."
+    },
+    {
+      "id": "deep-effects-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A user switches quickly from `/users/1` to `/users/2`. Which design prevents a late response for user 1 from replacing user 2 on screen?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Fetch during render so the latest render always wins",
+          "correct": false,
+          "feedback": "Fetching during render repeats work during rendering and does not provide a reliable race-control mechanism."
+        },
+        {
+          "id": "b",
+          "text": "Use Effect cleanup to abort/ignore the previous request and update state only for the current request",
+          "correct": true,
+          "feedback": "Cancellation reduces unnecessary work, while a freshness/ignore guard protects state from a late continuation."
+        },
+        {
+          "id": "c",
+          "text": "Remove userId from the dependency list",
+          "correct": false,
+          "feedback": "That can leave the Effect synchronized to an old user ID instead of the current route."
+        },
+        {
+          "id": "d",
+          "text": "Use array index as the key for the user page",
+          "correct": false,
+          "feedback": "Keys identify list items; they do not control network response ordering."
+        }
+      ],
+      "explanation": "Request lifecycle and rendering identity are different concerns; use cleanup/freshness control for asynchronous work."
+    },
+    {
+      "id": "deep-effects-practice",
+      "type": "codingExercise",
+      "title": "Fix an Effect race and an unstable list",
+      "language": "tsx",
+      "context": "Run this in a React project. The lesson sandbox does not compile TSX, so use the checklist to review your implementation in the app.",
+      "instructions": [
+        "Implement user loading that re-runs when userId changes.",
+        "Check response.ok and separate loading, success and error states.",
+        "Cancel or ignore the old request in Effect cleanup and do not surface AbortError as a normal failure.",
+        "Replace index keys with stable IDs in a list that can be sorted, filtered or deleted.",
+        "Move purely derived display data out of Effect-managed state."
+      ],
+      "requirements": [
+        "Every reactive dependency used by the Effect is declared.",
+        "Previous request work is cancelled/ignored during cleanup.",
+        "HTTP status failures and abort cancellations are handled differently.",
+        "List keys are stable identifiers from the data where available.",
+        "Derived display values are computed from current props/state instead of duplicated state."
+      ],
+      "starterCode": "useEffect(() => {\n  // TODO: request the current userId and guard against stale results.\n  // TODO: return cleanup when userId changes or the component unmounts.\n}, [userId]);\n\nconst visibleItems = items.filter(item => item.active);\nreturn visibleItems.map((item, index) => (\n  <Row key={index} item={item} />\n));",
+      "hints": [
+        "Read every variable referenced inside the Effect and decide whether it is reactive.",
+        "Use AbortController for Fetch and an ignore/freshness guard for state updates.",
+        "Use the item's stable id for key; index does not represent identity after reordering."
+      ],
+      "successCriteria": [
+        "Changing userId starts synchronization for the new user.",
+        "Old results cannot overwrite the current user's UI.",
+        "Loading/success/error and abort are distinguishable.",
+        "Reordered/deleted list items retain the correct component identity.",
+        "Derived data is not duplicated into state without a reason."
+      ]
+    },
+    {
+      "id": "deep-effects-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Effects synchronize with external systems; derived values usually belong in render.",
+        "Cleanup is required when the old synchronization must stop or be undone.",
+        "Protect asynchronous state from stale results and use stable keys to preserve item identity."
       ]
     },
     {
