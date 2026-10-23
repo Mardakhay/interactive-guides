@@ -723,7 +723,7 @@
     <h1>React <span>Ecosystem</span></h1>
     <p>Master routing, forms, validation, and global state management. Build modern Single Page Applications with confidence.</p>
     <div class="hero-pills">
-      <span class="pill blue">React Router v7</span>
+      <span class="pill blue">React Router 6.26.2</span>
       <span class="pill green">Forms & Validation</span>
       <span class="pill">React Hook Form</span>
       <span class="pill purple">Context API</span>
@@ -751,7 +751,7 @@
         <div class="flow-arrow">↓</div>
         <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;">
           <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
-            <div class="flow-box blue" style="text-align:center;">React Router v7</div>
+            <div class="flow-box blue" style="text-align:center;">React Router 6.26.2</div>
             <div class="flow-label">URL → Components</div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
@@ -779,7 +779,7 @@
     <div class="section-header">
       <div class="section-num">01</div>
       <div class="section-title-wrap">
-        <div class="section-title">React Router v7</div>
+        <div class="section-title">React Router 6.26.2</div>
         <div class="section-subtitle">Client-side navigation for Single Page Applications</div>
       </div>
     </div>
@@ -812,17 +812,17 @@
     </div>
 
     <h3 class="sub-heading">Installation & Core Setup</h3>
-    <p>React Router v7 made a key change: the package is now <code>react-router</code> instead of <code>react-router-dom</code>. Everything else imports from there.</p>
+    <p>This project uses React Router 6.26.2. Browser APIs are imported from <code>react-router-dom</code>. The examples below use the data-router API supported by this installed version.</p>
 
     <div class="code-block">
       <div class="code-header">
         <span class="code-filename">terminal</span>
         <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       </div>
-      <pre><span class="cm"># Install React Router v7</span>
-npm install react-router
+      <pre><span class="cm"># Install the version used by this project</span>
+npm install react-router-dom@6.26.2
 
-<span class="cm"># Note: v7 uses "react-router" — NOT "react-router-dom"</span></pre>
+<span class="cm"># Browser APIs are imported from react-router-dom</span></pre>
     </div>
 
     <h3 class="sub-heading">Core API Reference</h3>
@@ -836,7 +836,7 @@ npm install react-router
     </div>
 
     <h3 class="sub-heading">Setting Up Routes</h3>
-    <p>In v7, routes are defined as an <strong>array of objects</strong> rather than JSX <code>&lt;Route&gt;</code> elements. This is cleaner, more testable, and easier to reason about.</p>
+    <p>React Router 6.26.2 supports both declarative JSX routes and data-router configuration. This lesson uses <code>createBrowserRouter</code> and <code>RouterProvider</code>; choose one style consistently rather than assuming either is always cleaner.</p>
 
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab(this,'tab-router-1')">router.tsx</button>
@@ -848,7 +848,7 @@ npm install react-router
           <span class="code-filename">router.tsx</span>
           <button class="copy-btn" onclick="copyCode(this)">Copy</button>
         </div>
-        <pre><span class="kw">import</span> { createBrowserRouter } <span class="kw">from</span> <span class="str">'react-router'</span>;
+        <pre><span class="kw">import</span> { createBrowserRouter } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
 <span class="kw">import</span> Layout   <span class="kw">from</span> <span class="str">'./components/Layout'</span>;
 <span class="kw">import</span> Home     <span class="kw">from</span> <span class="str">'./pages/Home'</span>;
 <span class="kw">import</span> About    <span class="kw">from</span> <span class="str">'./pages/About'</span>;
@@ -877,7 +877,7 @@ npm install react-router
           <button class="copy-btn" onclick="copyCode(this)">Copy</button>
         </div>
         <pre><span class="kw">import</span> { createRoot }    <span class="kw">from</span> <span class="str">'react-dom/client'</span>;
-<span class="kw">import</span> { RouterProvider } <span class="kw">from</span> <span class="str">'react-router'</span>;
+<span class="kw">import</span> { RouterProvider } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
 <span class="kw">import</span> { router }        <span class="kw">from</span> <span class="str">'./router'</span>;
 
 <span class="fn">createRoot</span>(document.<span class="fn">getElementById</span>(<span class="str">'root'</span>)!).<span class="fn">render</span>(
@@ -913,7 +913,7 @@ npm install react-router
         <span class="code-filename">Layout.tsx</span>
         <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       </div>
-      <pre><span class="kw">import</span> { Outlet } <span class="kw">from</span> <span class="str">'react-router'</span>;
+      <pre><span class="kw">import</span> { Outlet } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
 
 <span class="kw">function</span> <span class="fn">Layout</span>() {
   <span class="kw">return</span> (
@@ -932,7 +932,7 @@ npm install react-router
     <h3 class="sub-heading">Link vs NavLink vs &lt;a&gt;</h3>
     <div class="card warning">
       <div class="card-title">⚠️ Common Mistake</div>
-      <p style="font-size:13.5px;margin:0;color:var(--text2);">Never use a raw <code>&lt;a href="/about"&gt;</code> in React Router. It triggers a full page reload, discarding all your React state. Always use <code>&lt;Link to="/about"&gt;</code>.</p>
+      <p style="font-size:13.5px;margin:0;color:var(--text2);">For an internal client-side route, use <code>Link</code> instead of a raw anchor. A native anchor performs a full document navigation and may discard in-memory UI state; it remains appropriate for external URLs or when full navigation is intended.</p>
     </div>
 
     <div class="code-block">
@@ -940,7 +940,7 @@ npm install react-router
         <span class="code-filename">Navbar.tsx</span>
         <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       </div>
-      <pre><span class="kw">import</span> { Link, NavLink } <span class="kw">from</span> <span class="str">'react-router'</span>;
+      <pre><span class="kw">import</span> { Link, NavLink } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
 
 <span class="cm">// Link — basic client-side navigation</span>
 &lt;<span class="tag">Link</span> to=<span class="str">"/about"</span>&gt;About&lt;/<span class="tag">Link</span>&gt;
@@ -967,7 +967,7 @@ npm install react-router
         <span class="code-filename">PostDetail.tsx</span>
         <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       </div>
-      <pre><span class="kw">import</span> { useParams } <span class="kw">from</span> <span class="str">'react-router'</span>;
+      <pre><span class="kw">import</span> { useParams } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
 
 <span class="kw">function</span> <span class="fn">PostDetail</span>() {
   <span class="cm">// :id from URL → e.g. /posts/42 → id = "42"</span>
@@ -1029,7 +1029,7 @@ npm install react-router
           <p style="font-size:13.5px;color:var(--text2);margin-bottom:10px;">Replace <code>&lt;a href&gt;</code> with <code>&lt;Link to&gt;</code> from React Router. The <code>&lt;a&gt;</code> tag bypasses React's virtual DOM and causes a full reload.</p>
           <div class="code-block">
             <div class="code-header"><span class="code-filename">FixedNav.tsx — CORRECT</span></div>
-            <pre><span class="kw">import</span> { Link } <span class="kw">from</span> <span class="str">'react-router'</span>;
+            <pre><span class="kw">import</span> { Link } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
 
 <span class="kw">function</span> <span class="fn">Navbar</span>() {
   <span class="kw">return</span> (
@@ -1790,7 +1790,7 @@ dispatch({ type: <span class="str">'DELETE'</span>, id: <span class="num">123</s
       <h3>📚 BookClub — A Reading Tracker App</h3>
       <p style="font-size:13.5px;color:var(--text2);margin-top:8px;">You'll build a small SPA that lets users browse books, add new ones via a form, and track reading status. It uses all three pillars from this module.</p>
       <ul class="req-list">
-        <li>Multiple pages with React Router v7 (Home, Books, Add Book)</li>
+        <li>Multiple pages with React Router 6.26.2 (Home, Books, Add Book)</li>
         <li>A form with validation (React Hook Form) to add new books</li>
         <li>Global book list managed with Context + useReducer</li>
         <li>NavLink highlighting the active page</li>
@@ -1902,7 +1902,7 @@ dispatch({ type: <span class="str">'DELETE'</span>, id: <span class="num">123</s
     <div class="tab-content" id="proj-2">
       <div class="code-block" style="margin:0;border-top:none;border-radius:0 var(--radius) var(--radius) var(--radius);">
         <div class="code-header"><span class="code-filename">router.tsx</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><span class="kw">import</span> { createBrowserRouter } <span class="kw">from</span> <span class="str">'react-router'</span>;
+        <pre><span class="kw">import</span> { createBrowserRouter } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
 <span class="kw">import</span> Layout     <span class="kw">from</span> <span class="str">'./components/Layout'</span>;
 <span class="kw">import</span> Home       <span class="kw">from</span> <span class="str">'./pages/Home'</span>;
 <span class="kw">import</span> Books      <span class="kw">from</span> <span class="str">'./pages/Books'</span>;
@@ -1928,7 +1928,7 @@ dispatch({ type: <span class="str">'DELETE'</span>, id: <span class="num">123</s
       <div class="code-block" style="margin:0;border-top:none;border-radius:0 var(--radius) var(--radius) var(--radius);">
         <div class="code-header"><span class="code-filename">pages/AddBook.tsx</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
         <pre><span class="kw">import</span> { useForm }    <span class="kw">from</span> <span class="str">'react-hook-form'</span>;
-<span class="kw">import</span> { useNavigate } <span class="kw">from</span> <span class="str">'react-router'</span>;
+<span class="kw">import</span> { useNavigate } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
 <span class="kw">import</span> { useBooks }  <span class="kw">from</span> <span class="str">'../context/BookContext'</span>;
 
 <span class="kw">interface</span> <span class="type-c">FormValues</span> { title: <span class="type-c">string</span>; author: <span class="type-c">string</span>; year: <span class="type-c">number</span>; }
@@ -1972,7 +1972,7 @@ dispatch({ type: <span class="str">'DELETE'</span>, id: <span class="num">123</s
       <div class="code-block" style="margin:0;border-top:none;border-radius:0 var(--radius) var(--radius) var(--radius);">
         <div class="code-header"><span class="code-filename">main.tsx</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
         <pre><span class="kw">import</span> { createRoot }    <span class="kw">from</span> <span class="str">'react-dom/client'</span>;
-<span class="kw">import</span> { RouterProvider } <span class="kw">from</span> <span class="str">'react-router'</span>;
+<span class="kw">import</span> { RouterProvider } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
 <span class="kw">import</span> { router }        <span class="kw">from</span> <span class="str">'./router'</span>;
 <span class="kw">import</span> { BookProvider }  <span class="kw">from</span> <span class="str">'./context/BookContext'</span>;
 
@@ -2005,7 +2005,7 @@ dispatch({ type: <span class="str">'DELETE'</span>, id: <span class="num">123</s
 
     <div class="card success" style="margin-top:28px;">
       <div class="card-title">🎉</div>
-      <p style="font-size:13.5px;margin:0;color:var(--text2);">You now know how to build navigated SPAs with React Router v7, handle user input with both manual validation and React Hook Form, and manage shared application state with Context API and useReducer. These are the foundations of every professional React application.</p>
+      <p style="font-size:13.5px;margin:0;color:var(--text2);">You now know how to build navigated SPAs with React Router 6.26.2, handle user input with both manual validation and React Hook Form, and manage shared application state with Context API and useReducer. These are the foundations of every professional React application.</p>
     </div>
   </section>
 
