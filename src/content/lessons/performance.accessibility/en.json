@@ -1,0 +1,487 @@
+{
+  "id": "performance.accessibility",
+  "locale": "en",
+  "version": 2,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-23",
+  "moduleId": "month-5-week-18",
+  "week": 18,
+  "order": 1,
+  "title": "React Performance and Web Accessibility",
+  "description": "Measure before optimizing, understand memoization and code splitting, and apply semantic and keyboard-friendly accessibility patterns to real interfaces.",
+  "estimatedMinutes": 95,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "react.components-jsx-state",
+    "react.effects-lists-composition",
+    "ui.design-systems"
+  ],
+  "learningOutcomes": [
+    "Explain why performance optimization should start with evidence and profiling.",
+    "Distinguish React.memo, useMemo, and useCallback and know when they are unnecessary.",
+    "Use lazy loading and Suspense to defer large code that is not needed immediately.",
+    "Build interfaces with semantic elements, accessible names, keyboard operation, and visible focus.",
+    "Explain contrast, reduced-motion preferences, and status announcements.",
+    "Audit a React screen for performance and accessibility and record before/after evidence."
+  ],
+  "tags": [
+    "react",
+    "performance",
+    "profiling",
+    "memoization",
+    "lazy-loading",
+    "accessibility",
+    "keyboard",
+    "aria"
+  ],
+  "blocks": [
+    {
+      "id": "measure-first",
+      "type": "heading",
+      "level": 2,
+      "text": "Measure before optimizing"
+    },
+    {
+      "id": "measure-first-body",
+      "type": "paragraph",
+      "text": "Performance is a user-experience property, not a contest to use the most memoization Hooks. Start with an observed problem and a repeatable scenario: a slow page load, excessive renders, a large bundle, a long main-thread task, or a sluggish interaction. Browser DevTools and React Profiler help locate the expensive work. Optimize a measured bottleneck and measure again; an optimization that adds complexity without improving the delay is not a win."
+    },
+    {
+      "id": "react-memo-tools",
+      "type": "heading",
+      "level": 2,
+      "text": "React.memo, useMemo, and useCallback solve different problems"
+    },
+    {
+      "id": "react-memo-tools-body",
+      "type": "paragraph",
+      "text": "React.memo can skip rendering a component when its props compare equal. useMemo can reuse a calculation result while its dependencies remain unchanged, and useCallback can reuse a function identity under the same dependency rule. These are performance optimizations, not correctness guarantees. They are helpful when they avoid costly repeated work or keep references stable for a memoized child. They are not automatically useful for every value or callback."
+    },
+    {
+      "id": "memo-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { memo, useCallback, useMemo, useState } from \"react\";\n\ntype Product = { id: string; name: string };\n\nconst ProductRow = memo(function ProductRow({ product, onSelect }: {\n  product: Product;\n  onSelect: (id: string) => void;\n}) {\n  return <button onClick={() => onSelect(product.id)}>{product.name}</button>;\n});\n\nfunction ProductList({ products }: { products: Product[] }) {\n  const [query, setQuery] = useState(\"\");\n  const [selectedId, setSelectedId] = useState<string | null>(null);\n  const visibleProducts = useMemo(\n    () => products.filter((product) => product.name.toLowerCase().includes(query.toLowerCase())),\n    [products, query],\n  );\n  const handleSelect = useCallback((id: string) => setSelectedId(id), []);\n  return <>{visibleProducts.map((product) => <ProductRow key={product.id} product={product} onSelect={handleSelect} />)}</>;\n}",
+      "steps": [
+        {
+          "title": "Memoize a child only if skipping its renders helps",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "explanation": "memo may skip ProductRow's render when props compare equal. This matters only if it avoids meaningful repeated work in the actual application; it does not make the component correct by itself."
+        },
+        {
+          "title": "Cache filtering while its inputs are stable",
+          "lineStart": 15,
+          "lineEnd": 18,
+          "explanation": "useMemo reuses the filtered array while products and query retain the same dependencies. If filtering is cheap or products is recreated every render, the benefit may be negligible."
+        },
+        {
+          "title": "Keep a callback identity stable for a consumer",
+          "lineStart": 19,
+          "lineEnd": 19,
+          "explanation": "useCallback preserves the function identity while its dependency list remains stable. That can help the memoized child; elsewhere it may be unnecessary."
+        },
+        {
+          "title": "Retain stable list identity",
+          "lineStart": 20,
+          "lineEnd": 20,
+          "explanation": "key identifies a product across list changes. Memoization never removes the need for correct, stable keys."
+        }
+      ]
+    },
+    {
+      "id": "memo-pitfall",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Memoization is not a correctness fix",
+      "text": "Wrong dependencies, mutated state, or unstable keys can still cause bugs. Fix the data model and measure the bottleneck first. Incorrect dependencies can preserve stale results; memoized values are not a substitute for state or effects."
+    },
+    {
+      "id": "code-splitting",
+      "type": "heading",
+      "level": 2,
+      "text": "Defer code the user does not need yet"
+    },
+    {
+      "id": "code-splitting-body",
+      "type": "paragraph",
+      "text": "Dynamic import allows a bundler to put code in a separate chunk that loads later. React.lazy loads a component when it is first rendered, and Suspense displays fallback UI while it loads. This can help with large, infrequently visited routes or tools. Splitting every tiny component can add overhead and make the code harder to follow. Also consider what users see if a chunk fails to load."
+    },
+    {
+      "id": "lazy-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Lazy-load a large route component",
+      "code": "import { lazy, Suspense } from \"react\";\n\nconst AnalyticsPage = lazy(() => import(\"./AnalyticsPage\"));\n\nfunction AnalyticsRoute() {\n  return (\n    <Suspense fallback={<p>Loading analytics…</p>}>\n      <AnalyticsPage />\n    </Suspense>\n  );\n}"
+    },
+    {
+      "id": "semantic-html",
+      "type": "heading",
+      "level": 2,
+      "text": "Accessibility starts with semantic HTML"
+    },
+    {
+      "id": "semantic-html-body",
+      "type": "paragraph",
+      "text": "Use the element that matches the interaction: a button for an action, an anchor for navigation, a label for a form control, and headings for document structure. Native elements provide roles, keyboard activation, and focus behavior that a clickable div does not. ARIA can add an accessible name or state when needed, but it does not automatically implement missing keyboard interactions or turn a semantically wrong control into a correct one."
+    },
+    {
+      "id": "keyboard-focus",
+      "type": "heading",
+      "level": 2,
+      "text": "Verify keyboard flow and focus"
+    },
+    {
+      "id": "keyboard-focus-body",
+      "type": "paragraph",
+      "text": "A page should work with a keyboard: Tab order should be understandable, focus should remain visible, and dialogs should manage focus intentionally. Avoid positive tabindex values that create a separate artificial order. When an action opens a dialog, decide where focus moves; when the dialog closes, return focus to a sensible trigger. Use the browser's native interactions where possible instead of recreating them."
+    },
+    {
+      "id": "contrast-motion-status",
+      "type": "heading",
+      "level": 2,
+      "text": "Check contrast, reduced motion, and status announcements"
+    },
+    {
+      "id": "contrast-motion-status-body",
+      "type": "paragraph",
+      "text": "Do not communicate important meaning through color alone. Check text and control contrast in every theme and state. Respect prefers-reduced-motion for nonessential animation. For a dynamic message such as “Changes saved,” use an appropriate status/live-region pattern when assistive technology needs to hear the update; avoid making the entire page a live region."
+    },
+    {
+      "id": "status-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Expose a concise status message",
+      "code": "function SaveStatus({ saved }: { saved: boolean }) {\n  return (\n    <p role=\"status\" aria-live=\"polite\">\n      {saved ? \"Changes saved.\" : \"Unsaved changes.\"}\n    </p>\n  );\n}"
+    },
+    {
+      "id": "manual-audit",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Navigate with Tab and Shift+Tab and verify a visible focus indicator.",
+        "Use the keyboard to activate every button, link, menu, dialog, and form control.",
+        "Review heading order, accessible names, field labels, error descriptions, and status messages.",
+        "Inspect contrast for normal text, controls, focus, disabled states, and dark mode.",
+        "Test narrow viewports, zoom, and reduced-motion preferences.",
+        "Use automated checks as a signal, then manually test real workflows and assistive-technology output."
+      ]
+    },
+    {
+      "id": "performance-quiz-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What is the best first step when a React page seems slow?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Measure a representative slow scenario and identify the bottleneck",
+          "correct": true,
+          "feedback": "Profiling identifies the work responsible for the delay before more complexity is added."
+        },
+        {
+          "id": "b",
+          "text": "Wrap every component in React.memo",
+          "correct": false,
+          "feedback": "Memoization may not affect the actual bottleneck and can complicate code."
+        },
+        {
+          "id": "c",
+          "text": "Add useCallback to every function",
+          "correct": false,
+          "feedback": "Stable callbacks matter only for particular reference-sensitive cases."
+        },
+        {
+          "id": "d",
+          "text": "Split every component into a separate chunk",
+          "correct": false,
+          "feedback": "Excessive code splitting adds overhead and is not a replacement for measurement."
+        }
+      ],
+      "explanation": "Find and measure the actual bottleneck before choosing an optimization."
+    },
+    {
+      "id": "performance-quiz-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "ARIA on a clickable div automatically gives it the keyboard behavior of a native button.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "ARIA can expose semantics but does not automatically implement button keyboard activation or focus behavior."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "Prefer native controls; custom controls need correct keyboard, focus, and activation behavior of their own."
+        }
+      ],
+      "explanation": "Semantics and interaction behavior are related but distinct. Native HTML provides important behavior by default."
+    },
+    {
+      "id": "performance-quiz-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Which are reasonable performance or accessibility practices? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use React Profiler or browser tools to find expensive work",
+          "correct": true,
+          "feedback": "Profiling helps prioritize changes against measured problems."
+        },
+        {
+          "id": "b",
+          "text": "Use useMemo when caching a calculation has a meaningful benefit",
+          "correct": true,
+          "feedback": "Memoization has costs and should be justified by a real performance or reference-stability need."
+        },
+        {
+          "id": "c",
+          "text": "Use color alone as the only indication of an error",
+          "correct": false,
+          "feedback": "Important error meaning must also be communicated through text or semantics."
+        },
+        {
+          "id": "d",
+          "text": "Support keyboard operation and visible focus",
+          "correct": true,
+          "feedback": "Keyboard operation and visible focus are essential accessible interaction behaviors."
+        }
+      ],
+      "explanation": "Combine evidence-based optimization with accessibility built into normal interaction patterns."
+    },
+    {
+      "id": "performance-practice",
+      "type": "codingExercise",
+      "title": "Audit and improve a React dashboard",
+      "language": "tsx",
+      "context": "Use a running project and browser tools. The lesson editor stores your plan but does not execute or profile your app.",
+      "instructions": [
+        "Choose one dashboard route and document its current loading or interaction behavior.",
+        "Use the Performance panel or React Profiler to identify one measurable bottleneck.",
+        "Optimize only that path and justify whether memoization, simpler derived work, or code splitting helps.",
+        "Audit keyboard navigation, focus, semantic controls, headings, labels, and error announcements.",
+        "Check contrast in light/dark themes and reduced-motion behavior.",
+        "Fix the most important accessibility issue and repeat the same test path.",
+        "Record before/after evidence and describe trade-offs or added complexity."
+      ],
+      "requirements": [
+        "The initial problem and repeatable test scenario are recorded.",
+        "The optimization is supported by measured evidence.",
+        "Memoization and code splitting are used only where justified.",
+        "Keyboard and focus behavior are manually tested.",
+        "Errors and meaningful states are not conveyed by color alone.",
+        "The report identifies both improvements and remaining problems."
+      ],
+      "starterCode": "# Audit notes — complete these against your running project\n\nPerformance:\n- Route / interaction:\n- Measurement before:\n- Largest observed bottleneck:\n- Change proposed:\n- Measurement after:\n- Did it improve?\n\nAccessibility:\n- Keyboard path tested:\n- Focus visibility:\n- Names/labels/errors reviewed:\n- Contrast/theme check:\n- Reduced-motion check:\n- Fix made:\n- Remaining issue or trade-off:",
+      "hints": [
+        "Use the same interaction and representative data before and after.",
+        "Do not assume React.memo helps if props change every render or repeated child work is trivial.",
+        "A keyboard-only pass often reveals invisible focus, blocked controls, and dialogs that lose focus."
+      ],
+      "successCriteria": [
+        "A baseline and an after measurement are documented.",
+        "The change addresses the bottleneck observed in profiling.",
+        "Keyboard accessibility and focus are verified.",
+        "Accessible names, contrast, and error announcements are reviewed.",
+        "The write-up distinguishes gains, trade-offs, and unresolved defects."
+      ]
+    },
+    {
+      "id": "performance-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Measure performance before optimizing and repeat the measurement afterward.",
+        "React.memo can skip a render, useMemo caches a calculation, and useCallback caches a function identity; none is automatically needed.",
+        "Use lazy loading and Suspense when they defer large code that is not immediately needed.",
+        "Prefer semantic HTML, visible focus, keyboard operation, accessible names, and associated field errors.",
+        "Check contrast, reduced motion, and appropriate announcements for dynamic status changes."
+      ]
+    },
+    {
+      "id": "deep-performance-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: measure bottlenecks first, preserve keyboard behavior"
+    },
+    {
+      "id": "deep-performance-model",
+      "type": "paragraph",
+      "text": "Performance work should follow evidence. A slow page may be waiting on network resources, parsing/executing a large JavaScript bundle, rendering an expensive subtree, decoding images, or blocking the main thread. `memo`, `useMemo` and `useCallback` only address some render-related costs and can add complexity; they do not fix slow APIs or oversized assets. Accessibility is also behavior: a menu that looks right but cannot be opened, operated and closed with a keyboard is incomplete."
+    },
+    {
+      "id": "deep-performance-trace",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "const visibleProducts = products.filter(product => {\n  return product.name.toLowerCase().includes(query.toLowerCase());\n});\n\nreturn (\n  <ul>\n    {visibleProducts.map(product => (\n      <li key={product.id}>\n        <a href={`/products/${product.id}`}>{product.name}</a>\n      </li>\n    ))}\n  </ul>\n  // Before memoizing, measure the slow interaction with React Profiler.\n);",
+      "steps": [
+        {
+          "title": "Keep the simple derived list readable",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "Filtering from current props/state is derived data and does not need its own state plus Effect. For ordinary list sizes, this straightforward code may be fast enough."
+        },
+        {
+          "title": "Use stable keys and semantic navigation",
+          "lineStart": 5,
+          "lineEnd": 12,
+          "explanation": "Stable product IDs preserve item identity, and real links support keyboard use, open-in-new-tab and copy-link behavior that a clickable div would need to recreate."
+        },
+        {
+          "title": "Measure before memoizing",
+          "lineStart": 13,
+          "lineEnd": 14,
+          "explanation": "Use React Profiler and browser performance/network tools to identify the actual bottleneck. Add memoization only when repeated work is measurable and its comparison/maintenance cost makes sense."
+        }
+      ]
+    },
+    {
+      "id": "deep-accessibility-guide",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Check the full user path with keyboard only: Tab/Shift+Tab, Enter/Space, Escape where appropriate, visible focus, and a sensible focus destination after closing overlays.",
+        "Use native controls and semantic links/buttons first; ARIA supplements semantics but does not supply keyboard behavior automatically.",
+        "Accessible controls need a programmatic name. Icon-only buttons require a text alternative such as an accessible label; labels should describe the action rather than repeat a decorative icon name.",
+        "Do not remove focus outlines without replacing them with a clearly visible focus style. Do not convey selected/error/success state by color alone.",
+        "For performance, inspect network waterfalls, bundle chunks and main-thread traces before deciding between code splitting, asset optimization or React memoization."
+      ]
+    },
+    {
+      "id": "deep-performance-warning",
+      "type": "callout",
+      "tone": "important",
+      "title": "Memoization is an optimization, not a correctness guarantee",
+      "text": "A memoized component can still render because its own state or consumed Context changes. `useMemo` and `useCallback` also have comparison and mental overhead. First simplify data flow and measure; keep an optimization when profiling shows it helps the real interaction."
+    },
+    {
+      "id": "deep-performance-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A product page is slow because it downloads and parses a very large initial bundle. Which investigation or fix should generally come before adding useCallback to many handlers?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Profile network and bundle chunks, then consider route-level code splitting or asset reduction",
+          "correct": true,
+          "feedback": "This matches the suspected cost. Callback identity does not reduce the bytes or parse work in the initial bundle."
+        },
+        {
+          "id": "b",
+          "text": "Wrap every component in React.memo without measuring",
+          "correct": false,
+          "feedback": "Memoization targets some rendering costs, not download or JavaScript parse cost."
+        },
+        {
+          "id": "c",
+          "text": "Add tabindex=0 to every element",
+          "correct": false,
+          "feedback": "That harms keyboard navigation and does not address performance."
+        },
+        {
+          "id": "d",
+          "text": "Replace every button with a clickable div",
+          "correct": false,
+          "feedback": "It removes native semantics without reducing the underlying bundle or execution bottleneck."
+        }
+      ],
+      "explanation": "Match the optimization to the measured bottleneck and preserve semantic interaction behavior."
+    },
+    {
+      "id": "deep-performance-practice",
+      "type": "codingExercise",
+      "title": "Audit a slow and mouse-only product screen",
+      "language": "tsx",
+      "context": "Prepare an evidence-led plan for a product page that renders slowly and has a keyboard-inaccessible menu.",
+      "instructions": [
+        "List how you would distinguish network delay, large bundle/parse time, expensive rendering and large assets using browser tools.",
+        "Choose one measurable performance hypothesis and describe the before/after measurement.",
+        "Decide whether route-level code splitting, asset optimization or React memoization best matches the hypothesis.",
+        "Make the menu operable by keyboard with visible focus and appropriate open/close behavior.",
+        "Ensure all controls have accessible names and state is not communicated by color alone."
+      ],
+      "requirements": [
+        "The plan starts with measurement and identifies a concrete bottleneck.",
+        "The chosen optimization targets the identified cost rather than using memoization by habit.",
+        "Keyboard interaction has predictable focus/open/close behavior.",
+        "Native semantics and accessible names are preserved.",
+        "Success is defined by both performance evidence and user-observable behavior."
+      ],
+      "starterCode": "// Review this interaction rather than blindly memoizing it.\nfunction MenuButton() {\n  const [open, setOpen] = useState(false);\n  return <div onClick={() => setOpen(!open)}>\n    <span>☰</span>\n    {open && <div className=\"menu\">...</div>}\n  </div>;\n}\n\n// TODO: define a profiling plan and refactor the interaction accessibly.",
+      "hints": [
+        "Start by observing network and Performance panels, then check the React Profiler if render cost is implicated.",
+        "Use a native button for the menu trigger and expose its state with aria-expanded and aria-controls where applicable.",
+        "Define a keyboard interaction checklist before adjusting styling."
+      ],
+      "successCriteria": [
+        "Proposes a way to isolate the real performance cost.",
+        "Chooses an optimization aligned to evidence.",
+        "Menu trigger is keyboard-operable and semantically correct.",
+        "Focus and accessible names are handled.",
+        "Defines an observable before/after outcome."
+      ]
+    },
+    {
+      "id": "deep-performance-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Measure the network, bundle, main thread and render path to find the actual performance bottleneck.",
+        "Use memoization selectively when it reduces a measured render cost.",
+        "Keyboard interaction, semantics, focus and accessible names are part of a complete UI, not optional decoration."
+      ]
+    },
+    {
+      "id": "performance-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "React: React Developer Tools",
+          "url": "https://react.dev/learn/react-developer-tools",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: memo",
+          "url": "https://react.dev/reference/react/memo",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: useMemo",
+          "url": "https://react.dev/reference/react/useMemo",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: useCallback",
+          "url": "https://react.dev/reference/react/useCallback",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: lazy",
+          "url": "https://react.dev/reference/react/lazy",
+          "kind": "official-docs"
+        },
+        {
+          "title": "W3C WAI: Keyboard Accessibility",
+          "url": "https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/",
+          "kind": "guide"
+        },
+        {
+          "title": "W3C WAI: Understanding Contrast Minimum",
+          "url": "https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: prefers-reduced-motion",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

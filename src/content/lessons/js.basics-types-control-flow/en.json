@@ -1,0 +1,684 @@
+{
+  "id": "js.basics-types-control-flow",
+  "locale": "en",
+  "version": 2,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-23",
+  "moduleId": "month-2-week-5",
+  "week": 5,
+  "order": 1,
+  "title": "JavaScript Basics: Values, Operators, Conditions, and Loops",
+  "description": "Build a precise foundation for everyday JavaScript: declarations, primitive values, expressions, comparisons, branching, and iteration. Focus on predicting behavior and writing code you can explain.",
+  "estimatedMinutes": 85,
+  "difficulty": "beginner",
+  "prerequisites": [
+    "html.document-structure",
+    "html.forms-accessibility"
+  ],
+  "learningOutcomes": [
+    "Choose between let and const based on whether a binding must be reassigned.",
+    "Recognize the primitive data types and distinguish null from undefined.",
+    "Use arithmetic, comparison, logical, and assignment operators without relying on accidental coercion.",
+    "Write if/else and switch branches that cover the intended cases.",
+    "Choose a suitable for, while, or for...of loop and trace its iterations.",
+    "Write a small program using values, conditions, and loops and explain how it reaches its result."
+  ],
+  "tags": [
+    "javascript",
+    "variables",
+    "types",
+    "operators",
+    "conditions",
+    "loops"
+  ],
+  "blocks": [
+    {
+      "id": "why-fundamentals",
+      "type": "heading",
+      "level": 2,
+      "text": "The goal is to reason about values and control flow"
+    },
+    {
+      "id": "why-fundamentals-body",
+      "type": "paragraph",
+      "text": "Most small JavaScript programs combine a few building blocks: values stored under names, expressions that calculate new values, conditions that choose between paths, and loops that repeat work. Understanding these basics is not just memorizing syntax. You need to predict which value an expression produces, when a branch runs, how a loop changes state, and what would happen for an edge case such as an empty string or a list with no items."
+    },
+    {
+      "id": "fundamental-model",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Trace a program in a fixed order",
+      "text": "For each statement, ask: which values are read, what value is calculated, which binding changes, and which statement executes next? This simple trace is the basis of debugging and helps separate what the code actually says from what you expect it to say."
+    },
+    {
+      "id": "declarations",
+      "type": "heading",
+      "level": 2,
+      "text": "Variables: let and const"
+    },
+    {
+      "id": "declarations-body",
+      "type": "paragraph",
+      "text": "A declaration introduces a binding—a name through which code can access a value. Use const by default when the binding should not be reassigned. Use let when the same binding needs to point to a different value later, such as a counter or a running total. The preference for const is a readability practice, not a claim that the value can never change in any sense."
+    },
+    {
+      "id": "declarations-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "let itemCount = 2;\nconst unitPrice = 15;\nlet total = itemCount * unitPrice;\n\nitemCount += 1;\ntotal = itemCount * unitPrice;\nconsole.log(total); // 45",
+      "steps": [
+        {
+          "title": "Create bindings with initial values",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "itemCount and total use let because later statements reassign them. unitPrice uses const because the program does not need to reassign that binding."
+        },
+        {
+          "title": "Update the running state",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "The compound assignment itemCount += 1 reads the previous count, adds one, and stores the new value in the same binding. The next line recalculates total using that updated count."
+        },
+        {
+          "title": "Read the result",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "After the update, itemCount is 3 and unitPrice is 15, so total becomes 45. The console output reflects the current value, not the value total had before the update."
+        }
+      ]
+    },
+    {
+      "id": "const-nuance",
+      "type": "callout",
+      "tone": "important",
+      "title": "const prevents reassignment, not all mutation",
+      "text": "A const object or array binding cannot be reassigned to a different object, but its properties or elements can still be changed. const protects the binding, not a deep, immutable copy of every nested value."
+    },
+    {
+      "id": "primitive-types",
+      "type": "heading",
+      "level": 2,
+      "text": "Primitive values"
+    },
+    {
+      "id": "primitive-types-body",
+      "type": "paragraph",
+      "text": "JavaScript has seven primitive types: string, number, bigint, boolean, undefined, symbol, and null. Primitives are values, not ordinary mutable objects. Objects and functions are non-primitive values; arrays are objects too. You do not need to use every primitive every day, but you should recognize the types and know the difference between a missing value and a deliberately empty one."
+    },
+    {
+      "id": "primitive-types-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "string represents text, such as \"hello\" or \"42\".",
+        "number represents ordinary numeric values, including integers and floating-point numbers; NaN is a special numeric value used for an invalid numeric result.",
+        "bigint represents integers outside the safe range of number, using a suffix such as 123n.",
+        "boolean has only the values true and false.",
+        "undefined commonly indicates that a value has not been assigned, a property is missing, or a function has no explicit return value.",
+        "null is an intentional absence of an object-like value, often assigned by a programmer.",
+        "symbol creates a unique primitive value, often used as a unique property key."
+      ]
+    },
+    {
+      "id": "null-undefined",
+      "type": "heading",
+      "level": 3,
+      "text": "null and undefined are different"
+    },
+    {
+      "id": "null-undefined-body",
+      "type": "paragraph",
+      "text": "undefined often appears when a value is missing or has not been provided. null is usually an explicit choice to represent “no value”. They are not equal under strict equality, even though the loose equality operator treats null and undefined as equal to each other. Also, typeof null returns \"object\" for historical reasons; that result is a long-standing language quirk, not evidence that null is an ordinary object."
+    },
+    {
+      "id": "type-example",
+      "type": "code",
+      "language": "javascript",
+      "caption": "Inspect values instead of guessing their types",
+      "code": "typeof \"42\";       // \"string\"\ntypeof 42;          // \"number\"\ntypeof true;        // \"boolean\"\ntypeof undefined;   // \"undefined\"\nnull === undefined; // false\ntypeof null;        // \"object\" (historical quirk)"
+    },
+    {
+      "id": "operators",
+      "type": "heading",
+      "level": 2,
+      "text": "Operators build expressions"
+    },
+    {
+      "id": "operators-body",
+      "type": "paragraph",
+      "text": "An operator takes one or more values and produces a result or changes a binding. Learn operator families, then use parentheses when an expression has several operations and the intended order is not immediately obvious. Readability is more valuable than compressing an expression into one line."
+    },
+    {
+      "id": "operators-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Arithmetic: +, -, *, /, %, and **. The + operator can also concatenate strings, so operand types matter.",
+        "Comparison: <, <=, >, >=, ===, and !==. Prefer strict equality for ordinary comparisons because it does not first coerce the operands to a common type.",
+        "Logical: &&, ||, and !. The && and || operators short-circuit and return an operand value, not necessarily a boolean.",
+        "Assignment: =, +=, -=, and similar compound operators update a binding.",
+        "Conditional expression: condition ? valueWhenTrue : valueWhenFalse. Use it for a small value choice; use if/else when branching logic should be easier to read."
+      ]
+    },
+    {
+      "id": "strict-equality",
+      "type": "heading",
+      "level": 3,
+      "text": "Strict equality and coercion"
+    },
+    {
+      "id": "strict-equality-body",
+      "type": "paragraph",
+      "text": "JavaScript sometimes converts values when an operator requires it; this is called coercion. For example, the + operator concatenates when a string is involved, while other operators may convert string values to numbers. Strict equality (===) compares without this type conversion. When learning or debugging, choose explicit conversions such as Number(input) and validate the result instead of depending on implicit conversions that can surprise future readers."
+    },
+    {
+      "id": "strict-equality-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "console.log(5 + 2);       // 7\nconsole.log(\"5\" + 2);     // \"52\"\nconsole.log(\"5\" === 5);   // false\nconsole.log(Number(\"5\") === 5); // true",
+      "steps": [
+        {
+          "title": "Numbers are added",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "Both operands are numbers, so + performs numeric addition and produces 7."
+        },
+        {
+          "title": "A string changes the meaning of +",
+          "lineStart": 2,
+          "lineEnd": 2,
+          "explanation": "The left operand is a string, so + concatenates the textual representations and produces the string \"52\" instead of the number 7."
+        },
+        {
+          "title": "Strict equality keeps types distinct",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "The string \"5\" and the number 5 are different types, so strict equality returns false."
+        },
+        {
+          "title": "Convert deliberately when intended",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "Number(\"5\") explicitly produces the number 5, so the final comparison is true. In production code, still validate whether the converted result is usable—for example, it could be NaN."
+        }
+      ]
+    },
+    {
+      "id": "truthiness",
+      "type": "heading",
+      "level": 2,
+      "text": "Conditions and truthiness"
+    },
+    {
+      "id": "truthiness-body",
+      "type": "paragraph",
+      "text": "An if statement evaluates a condition and executes one branch when the condition is truthy. An optional else branch executes when it is falsy; else if allows an ordered set of alternatives. The falsy values are false, 0, -0, 0n, the empty string, null, undefined, and NaN. Most other values—including empty arrays and empty objects—are truthy. Do not assume that “empty” always means false."
+    },
+    {
+      "id": "if-else-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const score = 72;\n\nif (score >= 90) {\n  console.log(\"Excellent\");\n} else if (score >= 60) {\n  console.log(\"Passed\");\n} else {\n  console.log(\"Try again\");\n}",
+      "steps": [
+        {
+          "title": "Check the first condition",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "JavaScript tests score >= 90 first. For score 72, the condition is false, so that branch is skipped."
+        },
+        {
+          "title": "Evaluate else if only after the earlier branch fails",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "The condition score >= 60 is true, so the program prints Passed and skips the remaining else branch."
+        },
+        {
+          "title": "Branch order matters",
+          "lineStart": 3,
+          "lineEnd": 9,
+          "explanation": "The first matching branch wins. If the conditions were reordered carelessly, a broad condition could capture values intended for a more specific case."
+        }
+      ]
+    },
+    {
+      "id": "truthiness-warning",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Do not use truthiness when zero is valid data",
+      "text": "if (count) treats both zero and missing/invalid values as a falsy case. If zero is a meaningful count, compare explicitly (for example, count === 0) or validate the type and range you require."
+    },
+    {
+      "id": "switch",
+      "type": "heading",
+      "level": 2,
+      "text": "Use switch for a set of discrete cases"
+    },
+    {
+      "id": "switch-body",
+      "type": "paragraph",
+      "text": "switch is useful when one expression is compared against several discrete case values. Case matching uses strict equality. Use break when the selected case should finish rather than continue into the next case; omission of break causes fall-through. Include a default branch for values not listed explicitly."
+    },
+    {
+      "id": "switch-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const plan = \"pro\";\nlet monthlyLimit;\n\nswitch (plan) {\n  case \"free\":\n    monthlyLimit = 10;\n    break;\n  case \"pro\":\n    monthlyLimit = 100;\n    break;\n  default:\n    monthlyLimit = 0;\n}\nconsole.log(monthlyLimit); // 100",
+      "steps": [
+        {
+          "title": "Evaluate the switch expression",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "The switch expression produces the string \"pro\". JavaScript compares it to each case value using strict equality."
+        },
+        {
+          "title": "Run the matching case",
+          "lineStart": 8,
+          "lineEnd": 10,
+          "explanation": "The pro case assigns 100 to monthlyLimit. break exits the switch instead of continuing into default."
+        },
+        {
+          "title": "Use default to define the unmatched case",
+          "lineStart": 11,
+          "lineEnd": 13,
+          "explanation": "If neither listed case matches, default assigns zero. In this example the pro case matched, so default is skipped."
+        }
+      ]
+    },
+    {
+      "id": "loops",
+      "type": "heading",
+      "level": 2,
+      "text": "Loops repeat work while a rule allows it"
+    },
+    {
+      "id": "loops-body",
+      "type": "paragraph",
+      "text": "Use a loop when the same kind of work must be performed for multiple items or until a condition changes. Make the stopping condition explicit. A loop that never changes the state used by its condition may run forever; an off-by-one error may skip an item or repeat one too many times."
+    },
+    {
+      "id": "loops-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "for is useful when you need explicit initialization, a continuation condition, and an update step.",
+        "while checks its condition before each iteration and is useful when the number of iterations is not known in advance.",
+        "for...of iterates over values from an iterable such as an array or string, which makes it a natural choice for processing every array item.",
+        "break exits the loop; continue skips the rest of the current iteration and begins the next one."
+      ]
+    },
+    {
+      "id": "loops-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const prices = [12, 8, 5];\nlet total = 0;\n\nfor (const price of prices) {\n  total += price;\n}\n\nlet attempts = 0;\nwhile (attempts < 2) {\n  attempts += 1;\n}\nconsole.log(total, attempts); // 25 2",
+      "steps": [
+        {
+          "title": "Iterate over values with for...of",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "The loop visits each value in prices in order: 12, then 8, then 5. The loop body adds each value to the running total."
+        },
+        {
+          "title": "Track each update",
+          "lineStart": 2,
+          "lineEnd": 5,
+          "explanation": "total starts at zero and is reassigned on each iteration. After three values it equals 25."
+        },
+        {
+          "title": "Use while for condition-driven repetition",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "The while condition is checked before each iteration. attempts increases from zero to one, then two; when attempts < 2 becomes false, the loop stops."
+        },
+        {
+          "title": "Choose loops based on intent",
+          "lineStart": 1,
+          "lineEnd": 10,
+          "explanation": "for...of clearly expresses “for each value in this collection”. while clearly expresses “repeat until this condition becomes false”. The code should make the reason for repetition easy to see."
+        }
+      ]
+    },
+    {
+      "id": "loop-debugging",
+      "type": "heading",
+      "level": 3,
+      "text": "Debug loops by tracing state"
+    },
+    {
+      "id": "loop-debugging-list",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Write down the initial values before the loop starts.",
+        "Evaluate the loop condition before the first iteration.",
+        "Trace only the statements executed inside one iteration.",
+        "Record every variable used by the stopping condition.",
+        "Check the condition again and continue until it becomes false."
+      ]
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which statement about const is accurate?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The binding cannot be reassigned to a new value",
+          "correct": true,
+          "feedback": "const prevents reassignment of the binding after initialization."
+        },
+        {
+          "id": "b",
+          "text": "A const object becomes deeply immutable",
+          "correct": false,
+          "feedback": "const does not freeze the object's properties or nested objects; it only protects reassignment of the binding."
+        },
+        {
+          "id": "c",
+          "text": "A const variable always has the value null",
+          "correct": false,
+          "feedback": "const can bind any value and requires an initializer in a normal declaration."
+        },
+        {
+          "id": "d",
+          "text": "A const variable can be read before its declaration in the same scope",
+          "correct": false,
+          "feedback": "Accessing a const binding before its declaration is initialized throws a ReferenceError because of the temporal dead zone."
+        }
+      ],
+      "explanation": "const protects the binding from reassignment; it does not make an object immutable and does not permit access before initialization."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does this expression evaluate to: \"5\" === 5 ?",
+      "options": [
+        {
+          "id": "a",
+          "text": "false",
+          "correct": true,
+          "feedback": "Strict equality compares both type and value without coercing the string into a number."
+        },
+        {
+          "id": "b",
+          "text": "true",
+          "correct": false,
+          "feedback": "The string and number are different types, so strict equality does not consider them equal."
+        },
+        {
+          "id": "c",
+          "text": "\"55\"",
+          "correct": false,
+          "feedback": "Concatenation occurs with the + operator, not with strict equality."
+        },
+        {
+          "id": "d",
+          "text": "NaN",
+          "correct": false,
+          "feedback": "Comparing a string and number with strict equality returns a boolean, not NaN."
+        }
+      ],
+      "explanation": "Strict equality (===) does not convert the operands to the same type before comparison."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "In JavaScript, an empty array [] is a falsy value in an if condition.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "Arrays are objects, and even an empty array is truthy in JavaScript."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "An empty array is truthy; its emptiness does not make the object itself falsy."
+        }
+      ],
+      "explanation": "Truthiness is about the value category and its defined coercion behavior, not whether a collection contains elements."
+    },
+    {
+      "id": "knowledge-check-4",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Which constructs can repeat a block of code? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "for",
+          "correct": true,
+          "feedback": "A for statement repeats its body while its continuation condition remains true."
+        },
+        {
+          "id": "b",
+          "text": "while",
+          "correct": true,
+          "feedback": "A while statement checks its condition before each iteration and repeats while it is true."
+        },
+        {
+          "id": "c",
+          "text": "for...of",
+          "correct": true,
+          "feedback": "for...of repeats once for each value produced by an iterable."
+        },
+        {
+          "id": "d",
+          "text": "switch",
+          "correct": false,
+          "feedback": "switch selects a case branch; it does not repeat the branch automatically."
+        }
+      ],
+      "explanation": "for, while, and for...of are iteration constructs. switch is selection, not repetition."
+    },
+    {
+      "id": "practice-order-total",
+      "type": "codingExercise",
+      "title": "Calculate an order total with conditions and loops",
+      "language": "javascript",
+      "context": "Write a small program that totals a list of item prices and applies a membership discount only when the order qualifies. The editor saves your draft, but JavaScript execution and automated grading have not yet been added to the platform.",
+      "instructions": [
+        "Use the supplied prices array and initialize a running subtotal.",
+        "Use a loop to add every price to the subtotal; do not hard-code the number of elements.",
+        "Set a discount rate to zero initially.",
+        "Use a conditional to apply a 10% discount only when the customer has membership and the subtotal is at least 50.",
+        "Calculate the final total from subtotal and discount rate.",
+        "Print subtotal, discount rate, and final total so the result is inspectable.",
+        "Manually trace at least three cases: membership with a qualifying subtotal, membership with a smaller subtotal, and no membership."
+      ],
+      "requirements": [
+        "The program uses let/const correctly and does not reassign a const binding.",
+        "The subtotal is calculated by iterating through the array, not by listing the values in a single expression.",
+        "The discount is applied only when both membership and the minimum-subtotal condition are true.",
+        "The program works if an extra price is added to the array.",
+        "The final total is calculated from the subtotal and discount rate.",
+        "The learner can explain the values after each loop iteration and the truth value of the discount condition."
+      ],
+      "starterCode": "const prices = [12, 8.5, 30, 5];\nconst hasMembership = true;\n\nlet subtotal = 0;\n// TODO: loop over prices and accumulate the subtotal.\n\nlet discountRate = 0;\n// TODO: use a condition to decide whether the discount applies.\n\nconst total = subtotal * (1 - discountRate);\nconsole.log({ subtotal, discountRate, total });",
+      "hints": [
+        "The subtotal should start at zero and change as each price is processed.",
+        "The discount rule has two requirements; both must be true before the rate changes.",
+        "Trace the same program after changing one input at a time to test each condition."
+      ],
+      "successCriteria": [
+        "The subtotal includes each price exactly once.",
+        "The discount rate remains zero whenever either qualification fails.",
+        "The final total reflects the selected discount rate.",
+        "The program handles a shorter or longer prices array without changing the loop.",
+        "You can explain the loop's stopping behavior and why each branch runs."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use const for bindings that should not be reassigned and let for bindings that must change.",
+        "Recognize primitive types and keep null and undefined distinct.",
+        "Prefer strict equality for ordinary comparisons and make any needed conversions explicit.",
+        "Use conditions to choose a path and loops to repeat work; order branches deliberately and define clear stopping conditions.",
+        "Be able to trace values and state changes, not just predict the final console output."
+      ]
+    },
+    {
+      "id": "deep-execution-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: bindings, hoisting, and the temporal dead zone"
+    },
+    {
+      "id": "deep-execution-model",
+      "type": "paragraph",
+      "text": "JavaScript does not literally move source lines upward. Before a scope executes, the engine establishes bindings; initialization then follows the rules of each declaration form. `var` is initialized to `undefined`, a function declaration is available as a function, while `let` and `const` exist but cannot be read before initialization (the temporal dead zone, or TDZ). This model predicts many bugs without guessing."
+    },
+    {
+      "id": "deep-execution-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function announce() {\n  return 'ready';\n}\n\nconsole.log(announce());\nconsole.log(score);\nvar score = 3;\n\n{\n  // console.log(label); // Uncommenting this line throws ReferenceError.\n  let label = 'inside block';\n  console.log(label);\n}",
+      "steps": [
+        {
+          "title": "The function declaration is available",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "The function declaration is initialized during scope setup, so calling it before its textual location would also work. Here it returns the string ready."
+        },
+        {
+          "title": "The var binding exists before assignment",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "The declaration creates score with the value undefined during setup. The assignment of 3 occurs only when execution reaches line 7."
+        },
+        {
+          "title": "A block-scoped binding has a TDZ",
+          "lineStart": 9,
+          "lineEnd": 13,
+          "explanation": "The name label belongs to this block, but it is not initialized before its let declaration. Reading it early throws ReferenceError; it does not fall back to an outer binding with the same name."
+        }
+      ]
+    },
+    {
+      "id": "deep-execution-callout",
+      "type": "callout",
+      "tone": "important",
+      "title": "Do not describe hoisting as physical code movement",
+      "text": "A strong interview explanation is: declarations create bindings during environment setup, then execution initializes or assigns values. Distinguish `undefined` for a pre-assignment var read, a callable function declaration, and `ReferenceError` for a let/const read inside the TDZ."
+    },
+    {
+      "id": "deep-execution-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What happens when code reads a `let` binding before its declaration has executed within the same scope?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It returns undefined, like var",
+          "correct": false,
+          "feedback": "That describes the initial value of a var binding, not a let binding in its TDZ."
+        },
+        {
+          "id": "b",
+          "text": "It throws ReferenceError and stops that execution path",
+          "correct": true,
+          "feedback": "The binding exists but is uninitialized. The engine does not continue searching outer scopes for a different binding with the same name."
+        },
+        {
+          "id": "c",
+          "text": "The engine moves the declaration above the read",
+          "correct": false,
+          "feedback": "Hoisting is a shorthand for binding-setup behavior, not literal source-code movement."
+        },
+        {
+          "id": "d",
+          "text": "It returns null until assignment",
+          "correct": false,
+          "feedback": "JavaScript does not automatically initialize let bindings to null."
+        }
+      ],
+      "explanation": "Trace scope creation and initialization separately; this also explains why typeof on a TDZ binding can throw."
+    },
+    {
+      "id": "deep-execution-practice",
+      "type": "codingExercise",
+      "title": "Predict the output and diagnose the TDZ",
+      "language": "javascript",
+      "context": "Interview-style tracing: explain what runs, what gets logged, and the first error. Execute variants separately after writing your prediction.",
+      "instructions": [
+        "Predict the result of `console.log(total); var total = 4;` and explain why.",
+        "Predict the result of `start(); function start() { console.log('go'); }`.",
+        "Explain why `{ console.log(name); let name = 'Ada'; }` throws instead of logging undefined.",
+        "Move the declaration or read so the final example is valid without changing its intended block scope."
+      ],
+      "requirements": [
+        "Distinguish declaration setup from assignment time.",
+        "State the exact first thrown error in the TDZ example.",
+        "Do not claim that let variables are searched in outer scopes after a TDZ binding is found.",
+        "Provide a corrected snippet that preserves block scope."
+      ],
+      "starterCode": "console.log(total);\nvar total = 4;\n\nstart();\nfunction start() {\n  console.log('go');\n}\n\n{\n  // Diagnose and fix this block: read a let binding too early.\n  // console.log(name);\n  let name = 'Ada';\n  console.log(name);\n}",
+      "hints": [
+        "Trace the first statement separately from the assignment below it.",
+        "Function declarations and variable declarations have different initialization behavior.",
+        "A TDZ error is a ReferenceError; reordering the read is usually the correct fix."
+      ],
+      "successCriteria": [
+        "Correctly predicts the pre-assignment var result.",
+        "Correctly explains the function declaration call.",
+        "Identifies the TDZ read as ReferenceError.",
+        "Supplies a working block-scoped correction."
+      ]
+    },
+    {
+      "id": "deep-execution-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Scope determines which binding a name refers to; the nearest binding wins even if it is currently uninitialized.",
+        "Hoisting describes observable declaration behavior, not physical source-code movement.",
+        "Separate binding creation, initialization, assignment, and reads when tracing execution."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: JavaScript data types and data structures",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: let",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: const",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Expressions and operators",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Expressions_and_operators",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: Control flow and error handling",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Control_flow_and_error_handling",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: Loops and iteration",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Loops_and_iteration",
+          "kind": "guide"
+        }
+      ]
+    }
+  ]
+}

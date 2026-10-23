@@ -1,0 +1,855 @@
+{
+  "id": "react.forms-validation",
+  "locale": "en",
+  "version": 2,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-23",
+  "moduleId": "month-4-week-14",
+  "week": 14,
+  "order": 1,
+  "title": "React Forms, Validation, and Accessible Errors",
+  "description": "Build usable forms in React, distinguish controlled and uncontrolled inputs, validate data without losing accessibility, and understand when a form library is useful.",
+  "estimatedMinutes": 90,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "react.components-jsx-state",
+    "typescript.fundamentals",
+    "html.forms-accessibility"
+  ],
+  "learningOutcomes": [
+    "Distinguish controlled inputs from uncontrolled inputs and choose intentionally.",
+    "Use form submit handlers and prevent the browser's default navigation when handling submission in React.",
+    "Validate required fields, formats, and cross-field conditions while keeping validation separate from server authorization.",
+    "Render accessible error messages associated with the correct fields.",
+    "Explain what a form library such as React Hook Form manages and what it does not replace.",
+    "Build a registration form that handles input, validation, success, and server-error states.",
+    "Choose when to validate a field (onChange, onBlur, or onSubmit).",
+    "Use one typed object and a name-based handler for a multi-field form.",
+    "Use React Hook Form registration, submission, errors and pending state while understanding its limits."
+  ],
+  "tags": [
+    "react",
+    "forms",
+    "validation",
+    "controlled-inputs",
+    "react-hook-form",
+    "accessibility",
+    "errors"
+  ],
+  "blocks": [
+    {
+      "id": "form-purpose",
+      "type": "heading",
+      "level": 2,
+      "text": "A form is a data-entry contract"
+    },
+    {
+      "id": "form-purpose-body",
+      "type": "paragraph",
+      "text": "A form collects values, communicates what is required, validates them, and submits a deliberate payload. In React, decide which values need to be state, which can be read from native form controls, and when validation should run. Good form behavior includes keyboard support, meaningful labels, clear error messages, preservation of entered data after a correctable error, and explicit loading/success/failure feedback."
+    },
+    {
+      "id": "controlled",
+      "type": "heading",
+      "level": 2,
+      "text": "Controlled and uncontrolled inputs"
+    },
+    {
+      "id": "controlled-body",
+      "type": "paragraph",
+      "text": "A controlled input receives its displayed value from React state and updates that state in onChange. This gives the component direct access to the current value and makes conditional behavior easier, but it requires careful updates and can add state work for every keystroke. An uncontrolled input keeps its current value in the DOM; React can read it at submission through FormData or a ref. Both patterns are valid—choose based on the form's needs, not a blanket rule."
+    },
+    {
+      "id": "controlled-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState } from \"react\";\n\nfunction EmailField() {\n  const [email, setEmail] = useState(\"\");\n\n  return (\n    <label>\n      Email address\n      <input\n        type=\"email\"\n        value={email}\n        onChange={(event) => setEmail(event.target.value)}\n        autoComplete=\"email\"\n      />\n    </label>\n  );\n}",
+      "steps": [
+        {
+          "title": "Keep the controlled value in state",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "The email string is the source of truth for the input value in this component."
+        },
+        {
+          "title": "Bind the input value",
+          "lineStart": 9,
+          "lineEnd": 9,
+          "explanation": "The value prop tells React what the input should display. Passing a defined string keeps it controlled."
+        },
+        {
+          "title": "Update state as the user types",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "explanation": "The change event reads the new DOM value and asks React to update state. On the next render the input reflects the new value."
+        },
+        {
+          "title": "Use native semantics where useful",
+          "lineStart": 11,
+          "lineEnd": 11,
+          "explanation": "type=email and autocomplete provide browser-level affordances, but they do not replace application/server validation."
+        }
+      ]
+    },
+    {
+      "id": "uncontrolled-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Read an uncontrolled form using FormData",
+      "code": "function SearchForm() {\n  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {\n    event.preventDefault();\n    const formData = new FormData(event.currentTarget);\n    const query = String(formData.get(\"query\") ?? \"\").trim();\n    console.log(\"Search for:\", query);\n  }\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <label htmlFor=\"query\">Search lessons</label>\n      <input id=\"query\" name=\"query\" type=\"search\" />\n      <button type=\"submit\">Search</button>\n    </form>\n  );\n}"
+    },
+    {
+      "id": "multi-field-state",
+      "type": "heading",
+      "level": 2,
+      "text": "One state object for a multi-field form"
+    },
+    {
+      "id": "multi-field-state-body",
+      "type": "paragraph",
+      "text": "A single typed object makes the form payload easier to inspect and submit. Give each input a name matching its property and use one handler to update that property. Spread the previous object first, otherwise the other values can be lost."
+    },
+    {
+      "id": "multi-field-state-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState } from \"react\";\n\ntype RegistrationValues = {\n  name: string;\n  email: string;\n  password: string;\n  confirmPassword: string;\n};\n\nfunction RegistrationFields() {\n  const [formData, setFormData] = useState<RegistrationValues>({\n    name: \"\",\n    email: \"\",\n    password: \"\",\n    confirmPassword: \"\",\n  });\n\n  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {\n    const { name, value } = event.currentTarget;\n    const field = name as keyof RegistrationValues;\n    setFormData((current) => ({ ...current, [field]: value }));\n  }\n\n  return (\n    <>\n      <label htmlFor=\"name\">Name</label>\n      <input id=\"name\" name=\"name\" value={formData.name} onChange={handleChange} />\n      <label htmlFor=\"email\">Email</label>\n      <input id=\"email\" name=\"email\" value={formData.email} onChange={handleChange} />\n      <label htmlFor=\"password\">Password</label>\n      <input id=\"password\" name=\"password\" type=\"password\" value={formData.password} onChange={handleChange} />\n      <label htmlFor=\"confirmPassword\">Confirm password</label>\n      <input id=\"confirmPassword\" name=\"confirmPassword\" type=\"password\" value={formData.confirmPassword} onChange={handleChange} />\n    </>\n  );\n}",
+      "steps": [
+        {
+          "title": "Keep fields in one typed object",
+          "lineStart": 11,
+          "lineEnd": 16,
+          "explanation": "The object describes the payload; every field reads from one source of truth."
+        },
+        {
+          "title": "Use name to identify the edited field",
+          "lineStart": 19,
+          "lineEnd": 21,
+          "explanation": "The name attribute links an input to a property; the actual name must match an object key."
+        },
+        {
+          "title": "Spread the previous object before updating one field",
+          "lineStart": 21,
+          "lineEnd": 21,
+          "explanation": "Without spread, updating one field could discard other values."
+        },
+        {
+          "title": "Connect every field to the shared state",
+          "lineStart": 26,
+          "lineEnd": 33,
+          "explanation": "Each input uses value/onChange, and its name matches an object property."
+        }
+      ]
+    },
+    {
+      "id": "validation",
+      "type": "heading",
+      "level": 2,
+      "text": "Validation has layers"
+    },
+    {
+      "id": "validation-body",
+      "type": "paragraph",
+      "text": "Native HTML constraints such as required, type=email, minLength, and pattern can catch common mistakes early and provide basic browser feedback. Application validation handles rules specific to the product, such as matching password fields or disallowed combinations. The server must validate again because client-side checks can be bypassed. Validation improves data quality and user experience; it is not an authorization or security boundary."
+    },
+    {
+      "id": "validation-pattern",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type FormValues = { email: string; password: string };\n\nfunction validate(values: FormValues) {\n  const errors: Partial<Record<keyof FormValues, string>> = {};\n  if (!values.email.includes(\"@\")) errors.email = \"Enter a valid email address.\";\n  if (values.password.length < 8) errors.password = \"Use at least 8 characters.\";\n  return errors;\n}",
+      "steps": [
+        {
+          "title": "Model field-specific errors",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The errors object can contain a message for each field but does not require a message for every field. This shape helps render an error next to the input that caused it."
+        },
+        {
+          "title": "Validate each rule deliberately",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "Each condition represents one product rule. These checks are only illustrative; production password and email policies should match documented product requirements."
+        },
+        {
+          "title": "Return the validation result",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "The caller can decide whether to display errors or proceed. A validator should report the result rather than unexpectedly modifying unrelated UI state."
+        }
+      ]
+    },
+    {
+      "id": "native-constraints-example",
+      "type": "heading",
+      "level": 2,
+      "text": "Use the browser's built-in constraints deliberately"
+    },
+    {
+      "id": "native-constraints-body",
+      "type": "paragraph",
+      "text": "required demands a value, type=\"email\" checks an email-shaped value, minLength sets a minimum text length, and pattern checks a regular expression. These constraints give early feedback but do not cover every product rule, prove an email exists, or replace server validation."
+    },
+    {
+      "id": "native-constraints-code",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Native HTML constraints in JSX",
+      "code": "<label htmlFor=\"email\">Email</label>\n<input id=\"email\" name=\"email\" type=\"email\" required autoComplete=\"email\" />\n<label htmlFor=\"password\">Password</label>\n<input id=\"password\" name=\"password\" type=\"password\" required minLength={8} />\n<label htmlFor=\"phone\">Phone number</label>\n<input id=\"phone\" name=\"phone\" type=\"tel\" pattern=\"[0-9]{7,15}\" title=\"Enter 7–15 digits.\"/>"
+    },
+    {
+      "id": "validation-timing",
+      "type": "heading",
+      "level": 2,
+      "text": "Choose when validation should run"
+    },
+    {
+      "id": "validation-timing-body",
+      "type": "paragraph",
+      "text": "Validation timing affects UX. Give the user time to finish entering a value, while still showing feedback soon enough to correct it. A common approach is onBlur first, then revalidation after edits; a short form may validate on submit, while a password-strength meter can react immediately."
+    },
+    {
+      "id": "validation-timing-strategies",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "onChange — validate after each edit. Useful for a password-strength meter, but may show premature errors.",
+        "onBlur — validate when the field loses focus, including keyboard Tab navigation. Often a good starting point for field errors.",
+        "onSubmit — validate on submission. Simple for short forms, but feedback arrives later.",
+        "After first interaction, revalidate as fields change if helpful. Avoid showing every required-field error on initial render."
+      ]
+    },
+    {
+      "id": "accessible-errors",
+      "type": "heading",
+      "level": 2,
+      "text": "Make errors accessible and actionable"
+    },
+    {
+      "id": "accessible-errors-body",
+      "type": "paragraph",
+      "text": "Every field needs a programmatic label. When a field is invalid, display a specific message close to the field, associate it using aria-describedby, and set aria-invalid when appropriate. After submission, consider moving focus to an error summary or the first invalid field. Do not communicate errors by color alone, and avoid messages such as “Invalid input” when the learner needs to know how to fix the value."
+    },
+    {
+      "id": "accessible-errors-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Associate an error message with its field",
+      "code": "<label htmlFor=\"email\">Email address</label>\n<input\n  id=\"email\"\n  name=\"email\"\n  type=\"email\"\n  aria-invalid={Boolean(errors.email)}\n  aria-describedby={errors.email ? \"email-error\" : undefined}\n/>\n{errors.email && <p id=\"email-error\">{errors.email}</p>}"
+    },
+    {
+      "id": "form-library",
+      "type": "heading",
+      "level": 2,
+      "text": "When a form library helps"
+    },
+    {
+      "id": "form-library-body",
+      "type": "paragraph",
+      "text": "A library such as React Hook Form can manage field registration, validation state, submission, and performance-sensitive subscriptions with less custom wiring. A schema library can centralize rules and reuse them at boundaries. These tools do not replace semantic HTML, accessible error relationships, understanding controlled versus uncontrolled inputs, or server-side validation. Select a library when the form's complexity justifies it, and keep the form contract understandable."
+    },
+    {
+      "id": "rhf-complete-example",
+      "type": "heading",
+      "level": 2,
+      "text": "A complete React Hook Form example"
+    },
+    {
+      "id": "rhf-complete-example-body",
+      "type": "paragraph",
+      "text": "This shows the core flow: useForm creates helpers, register connects inputs and rules, handleSubmit calls the callback after validation, formState.errors stores field errors, and mode: \"onBlur\" chooses the timing. The library reduces manual wiring, but does not replace labels, accessible errors, server validation, or handling the request result. Install the package in your own project."
+    },
+    {
+      "id": "rhf-complete-example-code",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useForm } from \"react-hook-form\";\n\ntype RegistrationValues = { email: string; password: string };\n\nfunction RegistrationForm() {\n  const {\n    register,\n    handleSubmit,\n    formState: { errors, isSubmitting },\n  } = useForm<RegistrationValues>({ mode: \"onBlur\" });\n\n  async function onSubmit(data: RegistrationValues) {\n    // Replace this log with your application's async request.\n    console.log(\"Validated values\", data);\n  }\n\n  return (\n    <form onSubmit={handleSubmit(onSubmit)}>\n      <label htmlFor=\"email\">Email</label>\n      <input id=\"email\" type=\"email\"\n        aria-invalid={Boolean(errors.email)}\n        aria-describedby={errors.email ? \"email-error\" : undefined}\n        {...register(\"email\", {\n          required: \"Email is required\",\n          pattern: { value: /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, message: \"Enter a valid email.\" },\n        })}\n      />\n      {errors.email && <p id=\"email-error\">{errors.email.message}</p>}\n      <label htmlFor=\"password\">Password</label>\n      <input id=\"password\" type=\"password\"\n        aria-invalid={Boolean(errors.password)}\n        aria-describedby={errors.password ? \"password-error\" : undefined}\n        {...register(\"password\", {\n          required: \"Password is required\",\n          minLength: { value: 8, message: \"Use at least 8 characters.\" },\n        })}\n      />\n      {errors.password && <p id=\"password-error\">{errors.password.message}</p>}\n      <button type=\"submit\" disabled={isSubmitting}>\n        {isSubmitting ? \"Submitting...\" : \"Create account\"}\n      </button>\n    </form>\n  );\n}",
+      "steps": [
+        {
+          "title": "Describe values and validation timing",
+          "lineStart": 3,
+          "lineEnd": 10,
+          "explanation": "The type describes submitted values. onBlur validates when the field loses focus."
+        },
+        {
+          "title": "Register a field and its rules",
+          "lineStart": 23,
+          "lineEnd": 25,
+          "explanation": "register connects the field to the library and returns its name, ref, and handlers."
+        },
+        {
+          "title": "Render accessible error feedback",
+          "lineStart": 21,
+          "lineEnd": 28,
+          "explanation": "The same error drives aria-invalid, aria-describedby, and the visible message."
+        },
+        {
+          "title": "Use the submit wrapper and pending state",
+          "lineStart": 18,
+          "lineEnd": 40,
+          "explanation": "handleSubmit calls the callback after validation. A real async request keeps isSubmitting active while pending."
+        }
+      ]
+    },
+    {
+      "id": "submission-states",
+      "type": "heading",
+      "level": 2,
+      "text": "Represent the whole submit lifecycle"
+    },
+    {
+      "id": "submission-states-body",
+      "type": "paragraph",
+      "text": "A form submission is not finished just because the click handler ran. A typical lifecycle includes idle/edited, client-invalid, submitting, success, and server-error states. Disable duplicate submits when appropriate, show progress feedback, preserve safe entered values after a recoverable error, and never assume a client-side success means a server mutation was authorized or persisted."
+    },
+    {
+      "id": "submission-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "A simple submission-state shape",
+      "code": "type SubmitState =\n  | { status: \"idle\" }\n  | { status: \"submitting\" }\n  | { status: \"success\"; message: string }\n  | { status: \"error\"; message: string };\n\n// Render feedback based on state.status rather than several unrelated booleans."
+    },
+    {
+      "id": "common-form-mistakes",
+      "type": "heading",
+      "level": 2,
+      "text": "Common form mistakes"
+    },
+    {
+      "id": "common-form-mistakes-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Without event.preventDefault(), the browser may perform its default navigation or reload.",
+        "Mixing controlled/uncontrolled patterns or changing undefined to a string can cause warnings. Choose one model and initialize controlled text inputs with strings.",
+        "A controlled input with value but no onChange is effectively read-only.",
+        "Showing all errors on initial render overwhelms users; track touched fields or choose a different mode.",
+        "Client validation does not prove the request succeeded. Display server errors and preserve entered values when safe.",
+        "A red border alone does not explain the error. Add clear text and aria-describedby when appropriate."
+      ]
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What makes an input controlled in React?",
+      "options": [
+        {
+          "id": "a",
+          "text": "React state supplies its value and an onChange handler updates that state",
+          "correct": true,
+          "feedback": "A controlled input displays a value provided by React and reports edits so state can be updated."
+        },
+        {
+          "id": "b",
+          "text": "It must be disabled while the component renders",
+          "correct": false,
+          "feedback": "Disabled is an interaction property and does not define controlled versus uncontrolled behavior."
+        },
+        {
+          "id": "c",
+          "text": "The browser never keeps an input value",
+          "correct": false,
+          "feedback": "The DOM displays the input value; React state is the source of truth for a controlled input."
+        },
+        {
+          "id": "d",
+          "text": "Its value can only be read through FormData on submission",
+          "correct": false,
+          "feedback": "FormData is commonly used for uncontrolled forms; controlled values are available from React state."
+        }
+      ],
+      "explanation": "Controlled input behavior is established by binding value to state and updating state in response to user input."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "Client-side validation alone is sufficient to enforce security-sensitive data rules.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "Client validation can be bypassed; the server must validate and authorize operations independently."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "Client-side validation improves experience, while server-side validation is required for trustworthy enforcement."
+        }
+      ],
+      "explanation": "Validation in the UI improves feedback but is not a security boundary."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Which practices improve form accessibility and reliability? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Associate a field label with its input",
+          "correct": true,
+          "feedback": "A programmatic label helps assistive technology and users identify the purpose of the input."
+        },
+        {
+          "id": "b",
+          "text": "Connect field errors to inputs with aria-describedby when appropriate",
+          "correct": true,
+          "feedback": "The relationship can expose the relevant error description when the user focuses the field."
+        },
+        {
+          "id": "c",
+          "text": "Use color alone to indicate that a field is invalid",
+          "correct": false,
+          "feedback": "Color alone is not a reliable accessible error indicator; use clear text and semantics too."
+        },
+        {
+          "id": "d",
+          "text": "Treat a successful click event as proof that the server saved the form",
+          "correct": false,
+          "feedback": "The client must handle the actual submission result, including server rejection or network failure."
+        }
+      ],
+      "explanation": "Accessible forms make relationships and errors explicit and handle submission as a full asynchronous lifecycle."
+    },
+    {
+      "id": "knowledge-check-4",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which validation timing is often a reasonable default for field errors?",
+      "options": [
+        {
+          "id": "a",
+          "text": "onChange from the first character",
+          "correct": false,
+          "feedback": "This can show premature errors while the user is typing."
+        },
+        {
+          "id": "b",
+          "text": "onBlur, when the user leaves the field",
+          "correct": true,
+          "feedback": "The user has time to finish entering the value."
+        },
+        {
+          "id": "c",
+          "text": "On initial render before interaction",
+          "correct": false,
+          "feedback": "Showing all errors immediately can overwhelm users."
+        },
+        {
+          "id": "d",
+          "text": "Never validate in the browser",
+          "correct": false,
+          "feedback": "Client validation improves feedback."
+        }
+      ],
+      "explanation": "Choose timing to fit the interaction; onBlur is often a practical starting point."
+    },
+    {
+      "id": "knowledge-check-5",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does event.preventDefault() do in a client-handled form submit?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Automatically validates all fields",
+          "correct": false,
+          "feedback": "It does not perform validation."
+        },
+        {
+          "id": "b",
+          "text": "Cancels the browser's default action, such as navigation or reload",
+          "correct": true,
+          "feedback": "The handler can remain in the current document."
+        },
+        {
+          "id": "c",
+          "text": "Sends data to the backend",
+          "correct": false,
+          "feedback": "The request must be performed separately."
+        },
+        {
+          "id": "d",
+          "text": "Clears the fields",
+          "correct": false,
+          "feedback": "Resetting is a separate operation."
+        }
+      ],
+      "explanation": "preventDefault cancels the default browser action; it does not validate or send data."
+    },
+    {
+      "id": "knowledge-check-6",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What is register(\"email\", rules) used for in React Hook Form?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Creates an account on the backend",
+          "correct": false,
+          "feedback": "Account creation is separate application/server work."
+        },
+        {
+          "id": "b",
+          "text": "Connects the input and validation rules to the form",
+          "correct": true,
+          "feedback": "The returned props connect the field, and rules describe validation."
+        },
+        {
+          "id": "c",
+          "text": "Replaces labels and accessible messages",
+          "correct": false,
+          "feedback": "Accessibility still needs to be implemented."
+        },
+        {
+          "id": "d",
+          "text": "Persists values in localStorage",
+          "correct": false,
+          "feedback": "Persistence is a separate concern."
+        }
+      ],
+      "explanation": "register connects a field; it does not submit or persist data."
+    },
+    {
+      "id": "knowledge-check-7",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why should a controlled text input normally start with an empty string?",
+      "options": [
+        {
+          "id": "a",
+          "text": "An empty string disables the input",
+          "correct": false,
+          "feedback": "An empty value does not disable the field."
+        },
+        {
+          "id": "b",
+          "text": "Changing from undefined to a string can switch the input to controlled",
+          "correct": true,
+          "feedback": "Keep the value defined from the first render."
+        },
+        {
+          "id": "c",
+          "text": "React stores it in localStorage",
+          "correct": false,
+          "feedback": "There is no automatic persistence."
+        },
+        {
+          "id": "d",
+          "text": "A controlled input cannot be edited",
+          "correct": false,
+          "feedback": "Updating state lets the input change."
+        }
+      ],
+      "explanation": "Initialize controlled text inputs consistently, usually with an empty string."
+    },
+    {
+      "id": "knowledge-check-8",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which HTML attribute checks an input value against a pattern?",
+      "options": [
+        {
+          "id": "a",
+          "text": "format",
+          "correct": false,
+          "feedback": "This is not the standard constraint-validation attribute."
+        },
+        {
+          "id": "b",
+          "text": "validate",
+          "correct": false,
+          "feedback": "This is not the standard input attribute for regex validation."
+        },
+        {
+          "id": "c",
+          "text": "pattern",
+          "correct": true,
+          "feedback": "pattern defines a regular-expression constraint."
+        },
+        {
+          "id": "d",
+          "text": "match",
+          "correct": false,
+          "feedback": "This is not the standard input attribute for this purpose."
+        }
+      ],
+      "explanation": "The pattern attribute provides native regular-expression constraint validation."
+    },
+    {
+      "id": "knowledge-check-9",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "How can SearchForm read an uncontrolled field at submit time?",
+      "options": [
+        {
+          "id": "a",
+          "text": "From localStorage",
+          "correct": false,
+          "feedback": "The browser does not automatically persist it there."
+        },
+        {
+          "id": "b",
+          "text": "With FormData created from event.currentTarget",
+          "correct": true,
+          "feedback": "FormData reads named controls from the form."
+        },
+        {
+          "id": "c",
+          "text": "With setState on every character",
+          "correct": false,
+          "feedback": "That is the controlled-input approach."
+        },
+        {
+          "id": "d",
+          "text": "preventDefault returns field values",
+          "correct": false,
+          "feedback": "preventDefault does not return form data."
+        }
+      ],
+      "explanation": "FormData reads named controls from an uncontrolled form at submission."
+    },
+    {
+      "id": "knowledge-check-10",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why use {...current, [name]: value} for a formData object?",
+      "options": [
+        {
+          "id": "a",
+          "text": "To clear other fields",
+          "correct": false,
+          "feedback": "That would discard other field values."
+        },
+        {
+          "id": "b",
+          "text": "To preserve other fields and update one property",
+          "correct": true,
+          "feedback": "The spread preserves the object, and the computed key updates one field."
+        },
+        {
+          "id": "c",
+          "text": "To make the input uncontrolled",
+          "correct": false,
+          "feedback": "value and onChange still define controlled behavior."
+        },
+        {
+          "id": "d",
+          "text": "To submit the form automatically",
+          "correct": false,
+          "feedback": "Updating state does not submit the form."
+        }
+      ],
+      "explanation": "Spread preserves prior values while updating one property."
+    },
+    {
+      "id": "practice-registration-form",
+      "type": "codingExercise",
+      "title": "Build a registration form with validation",
+      "language": "tsx",
+      "context": "Implement the form in a React project. The editor stores your draft but does not compile or run TSX.",
+      "instructions": [
+        "Create name, email, password, and confirmPassword fields with labels/autocomplete.",
+        "Choose controlled or uncontrolled inputs and explain your choice.",
+        "Validate required fields, email shape, minimum eight-character password, and matching passwords.",
+        "Show field-specific errors linked accessibly to inputs.",
+        "Handle submit in React and prevent default navigation.",
+        "Model submitting/success/error states.",
+        "Explain which checks must be repeated on the server and why.",
+        "Use a form library only when you can explain its benefit; it does not replace server validation."
+      ],
+      "requirements": [
+        "Each input has a label.",
+        "Required/email/password/confirmation errors are specific.",
+        "Correctable errors preserve entered values.",
+        "Submit shows success/error and avoids duplicates where appropriate.",
+        "Client validation is not a security boundary.",
+        "Errors are not indicated by color alone."
+      ],
+      "starterCode": "type RegistrationValues = {\n  name: string; email: string; password: string; confirmPassword: string;\n};\nfunction validate(values: RegistrationValues) {\n  // TODO: return field-specific errors.\n}\nexport function RegistrationForm() {\n  // TODO: fields, accessible errors, submit handler, and async states.\n}",
+      "hints": [
+        "Separate validate(values) from rendering.",
+        "Connect labels/errors using htmlFor/id and aria-describedby.",
+        "Compare confirmPassword with password.",
+        "Client success must reflect the real request result."
+      ],
+      "successCriteria": [
+        "All inputs have labels and actionable messages.",
+        "Confirmation validation is explicit.",
+        "Submit models async outcomes.",
+        "Client and server checks are distinguished.",
+        "Input pattern/library choice is justified."
+      ]
+    },
+    {
+      "id": "practice-controlled-name",
+      "type": "codingExercise",
+      "language": "tsx",
+      "title": "Build a live controlled name input",
+      "context": "The lesson editor saves your draft but does not compile TSX. Complete the task in your own React project.",
+      "instructions": [
+        "Create a name state value initialized to an empty string.",
+        "Add a labeled controlled input with value and onChange.",
+        "Show Hello, [name]! as the user types and Hello, stranger! when empty."
+      ],
+      "requirements": [
+        "Initial value is a string.",
+        "The input has a label and value/onChange.",
+        "Greeting updates on every keystroke and handles the empty value."
+      ],
+      "starterCode": "import { useState } from \"react\";\n\nexport function NameGreeting() {\n  // TODO: add state, a controlled input, and a greeting.\n}",
+      "hints": [
+        "Start with useState(\"\").",
+        "Bind value to state and update from event.currentTarget.value.",
+        "Use name || \"stranger\"."
+      ],
+      "successCriteria": [
+        "You can explain controlled behavior.",
+        "Empty and non-empty values produce the expected greeting."
+      ]
+    },
+    {
+      "id": "practice-multi-field-registration",
+      "type": "codingExercise",
+      "language": "tsx",
+      "title": "Build a multi-field form",
+      "context": "The lesson editor saves your draft but does not compile TSX. Complete the task in your own React project.",
+      "instructions": [
+        "Create a typed object for name/email/password/confirmPassword.",
+        "Use one handler that updates the field identified by name.",
+        "Prevent the default submit action and inspect the complete object.",
+        "Explain why the previous object must be spread."
+      ],
+      "requirements": [
+        "Each input name matches a key.",
+        "Updating one field preserves the others.",
+        "Every input has a label and value/onChange."
+      ],
+      "starterCode": "type RegistrationValues = {\n  name: string;\n  email: string;\n  password: string;\n  confirmPassword: string;\n};\nfunction MultiFieldForm() {\n  // TODO: state object, name-based handler, labeled inputs, submit handler.\n}",
+      "hints": [
+        "Read name and value from event.currentTarget.",
+        "Use setFormData(current => ({ ...current, [name]: value })).",
+        "Keep validation in a separate validate function."
+      ],
+      "successCriteria": [
+        "Other fields are preserved.",
+        "Submit can inspect the full object."
+      ]
+    },
+    {
+      "id": "practice-refactor-to-rhf",
+      "type": "codingExercise",
+      "language": "tsx",
+      "title": "Refactor the form to React Hook Form",
+      "context": "Install react-hook-form in your React project; the lesson editor does not install packages.",
+      "instructions": [
+        "Replace manual form/error state with useForm.",
+        "Register each field and its rules.",
+        "Use handleSubmit, formState.errors, and isSubmitting.",
+        "Connect errors to fields accessibly.",
+        "Explain which responsibilities remain in application code."
+      ],
+      "requirements": [
+        "Fields have rules and specific errors.",
+        "Labels and ARIA relationships are preserved.",
+        "Async results are handled; the library does not replace server validation."
+      ],
+      "starterCode": "import { useForm } from \"react-hook-form\";\ntype RegistrationValues = {\n  name: string;\n  email: string;\n  password: string;\n  confirmPassword: string;\n};\nexport function RegistrationForm() {\n  // TODO: useForm, register fields, error rendering and submit state.\n}",
+      "hints": [
+        "Start with mode: \"onBlur\".",
+        "Compare confirmPassword with password.",
+        "Use aria-invalid and aria-describedby."
+      ],
+      "successCriteria": [
+        "The library manages field/error state where appropriate.",
+        "Pending/success/failure are explicit."
+      ]
+    },
+    {
+      "id": "practice-debug-broken-form",
+      "type": "codingExercise",
+      "language": "tsx",
+      "title": "Debug a broken controlled form",
+      "context": "Find the bugs before changing the code.",
+      "instructions": [
+        "Fix the undefined initial value.",
+        "Prevent the default submit action.",
+        "Add onChange to the controlled input.",
+        "Explain each bug's symptom."
+      ],
+      "requirements": [
+        "Initial value is a string.",
+        "Submit does not reload the document.",
+        "The input updates and shows the current value."
+      ],
+      "starterCode": "import { useState } from \"react\";\nfunction BuggyForm() {\n  const [email, setEmail] = useState<string | undefined>();\n  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {\n    // TODO: prevent the default form action.\n    console.log(\"Submitted\", email);\n  }\n  return (\n    <form onSubmit={handleSubmit}>\n      <label htmlFor=\"email\">Email</label>\n      <input id=\"email\" value={email} />\n      <button type=\"submit\">Submit</button>\n    </form>\n  );\n}",
+      "hints": [
+        "Is undefined a suitable controlled value?",
+        "A native form has a browser default action.",
+        "A controlled input reports edits through onChange."
+      ],
+      "successCriteria": [
+        "The field is initialized predictably.",
+        "Typing updates state.",
+        "Submit keeps the current document."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Controlled inputs are driven by React state; uncontrolled inputs keep their current value in the DOM and can be read at submission.",
+        "Native constraints, application rules, and server validation serve complementary roles.",
+        "Use labels, associated errors, aria-invalid/aria-describedby where appropriate, and helpful messages.",
+        "Model submit lifecycle states explicitly and handle asynchronous failures.",
+        "Form libraries reduce wiring; they do not replace semantic HTML, accessibility, or server-side checks."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "React: Sharing State Between Components",
+          "url": "https://react.dev/learn/sharing-state-between-components",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Managing State",
+          "url": "https://react.dev/learn/managing-state",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React Hook Form: Get Started",
+          "url": "https://react-hook-form.com/get-started",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Constraint validation",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Constraint_validation",
+          "kind": "guide"
+        },
+        {
+          "title": "W3C WAI: Forms Tutorial",
+          "url": "https://www.w3.org/WAI/tutorials/forms/",
+          "kind": "guide"
+        },
+        {
+          "title": "Notion notes: React ecosystem — sections 4.5–4.7",
+          "url": "https://app.notion.com/p/3ba855c6fbb08075a08ef30c3ac20d89",
+          "kind": "article"
+        },
+        {
+          "title": "Source lesson (legacy HTML): React Forms & Validation",
+          "url": "https://github.com/Mardakhay/interactive-guides/blob/feat/learning-platform-foundation/public/lessons/react-forms-tutorial.html",
+          "kind": "article"
+        }
+      ]
+    }
+  ]
+}
