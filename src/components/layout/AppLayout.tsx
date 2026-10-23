@@ -6,6 +6,7 @@ import { MobileNav } from './MobileNav';
 import { Spinner } from '@/components/ui';
 import { useRouteFocus } from '@/hooks/useRouteFocus';
 import { translate, useUiLocale } from '@/features/localization';
+import { ServiceWorkerUpdatePrompt } from '@/pwa/ServiceWorkerUpdatePrompt';
 
 export function AppLayout() {
   const locale = useUiLocale();
@@ -36,6 +37,7 @@ export function AppLayout() {
         </main>
       </div>
       <MobileNav />
+      <ServiceWorkerUpdatePrompt />
     </div>
   );
 }

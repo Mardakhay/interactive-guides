@@ -1,7 +1,7 @@
 /* global self, caches, URL, fetch, Response */
 /* App-shell offline fallback; never cache cross-origin or private API responses. */
 const CACHE_PREFIX = 'interactive-guides';
-const VERSION = 'v2';
+const VERSION = 'v3';
 const SHELL_CACHE = `${CACHE_PREFIX}-shell-${VERSION}`;
 const ASSET_CACHE = `${CACHE_PREFIX}-assets-${VERSION}`;
 const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/pwa-icon.svg', '/pwa-180.png', '/pwa-192.png', '/pwa-512.png'];
@@ -9,9 +9,16 @@ const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(SHELL_CACHE)
-      .then((cache) => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting()),
+      .then((cache) => cache.addAll(APP_SHELL)),
   );
+});
+
+// Keep an update waiting until the learner explicitly opts in, so the app is not
+// replaced in the middle of writing a note or running a coding exercise.
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    void self.skipWaiting();
+  }
 });
 
 self.addEventListener('activate', (event) => {

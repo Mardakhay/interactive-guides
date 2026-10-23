@@ -77,7 +77,10 @@ const en = {
   "pathCompletedMessage": "You've completed this learning path! Pick a new path to keep growing.",
   "allPaths": "All paths",
   "browseAllPaths": "Browse all paths",
-  "continueWith": "Continue with {title}"
+  "continueWith": "Continue with {title}",
+  "updateAvailable": "Update available",
+  "updatePromptMessage": "A new version of Interactive Guides is ready. Update when you are ready.",
+  "updateNow": "Update now"
 } as const;
 const ru: Record<keyof typeof en, string> = {
   "skipToContent": "Перейти к содержимому",
@@ -156,7 +159,10 @@ const ru: Record<keyof typeof en, string> = {
   "pathCompletedMessage": "Вы завершили этот учебный маршрут! Выберите новый, чтобы продолжить развиваться.",
   "allPaths": "Все маршруты",
   "browseAllPaths": "Посмотреть все маршруты",
-  "continueWith": "Продолжить: {title}"
+  "continueWith": "Продолжить: {title}",
+  "updateAvailable": "Доступно обновление",
+  "updatePromptMessage": "Новая версия Interactive Guides готова. Обновите приложение, когда будете готовы.",
+  "updateNow": "Обновить"
 };
 
 export const translations: Record<Locale, Record<keyof typeof en, string>> = { en, ru };
