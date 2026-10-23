@@ -82,8 +82,13 @@ GitHub Actions [run #39982235822](https://github.com/Mardakhay/interactive-guide
 
 ## Latest exact-head CI checkpoint — 2026-10-23
 
-GitHub Actions [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388) passed on feature SHA `9dfa157ce36123144ad84c2f327abdb41984a3a7`: dependency install, ESLint, TypeScript typecheck, 102 tests across 22 files, and production build.
+GitHub Actions [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) passed on feature SHA `64dea28924aed5701452ae60b121cb57fc747598`: dependency install, ESLint, TypeScript typecheck, 102 tests across 22 files, and production build.
 
 The app-shell/PWA implementation described above is present at that ref: PNG icons, web manifest, Netlify-style SPA fallback, same-origin static-asset runtime cache, and a learner-controlled service-worker update prompt. This is only automated validation. No evidence is recorded yet for real Android Chrome/iOS Safari install prompts, offline revisit, localized deep-link reload or update behavior on a device.
 
 The same install step reported **13 dependency audit findings** (8 moderate, 3 high, 2 critical). The build emitted a large-chunk warning and the tests emitted React Router v7 future-flag warnings. These warnings did not fail CI; record triage separately rather than running an unreviewed forced dependency upgrade.
+
+
+## Documentation snapshot — 2026-10-23 (exact current HEAD)
+
+The latest feature branch HEAD at this documentation pass is `64dea28924aed5701452ae60b121cb57fc747598`. GitHub Actions [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) completed successfully on that exact SHA. The change is documentation-only; it does not change the release blockers above. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`, and PR #1 remains open as a draft.

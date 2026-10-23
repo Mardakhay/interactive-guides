@@ -8,8 +8,8 @@ This audit is based on the repository root, source directory listings, current p
 
 ## Authoritative implementation snapshot — 2026-10-23
 
-- **Latest validated application/content snapshot:** `9dfa157ce36123144ad84c2f327abdb41984a3a7` (subsequent branch commits in this continuation are documentation-only).
-- **Validation:** GitHub Actions [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388) passed `npm ci`, ESLint, TypeScript typecheck, all 102 tests across 22 test files, and production build on this exact SHA.
+- **Latest validated application/content snapshot:** `64dea28924aed5701452ae60b121cb57fc747598` (subsequent branch commits in this continuation are documentation-only).
+- **Validation:** GitHub Actions [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) passed `npm ci`, ESLint, TypeScript typecheck, all 102 tests across 22 test files, and production build on this exact SHA.
 - **Branch safety:** PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) remains open and Draft. `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; this implementation work targets `feat/learning-platform-foundation`.
 - **Structured curriculum:** 26 core and 11 supplementary lesson IDs are registered in English and Russian (74 JSON files). The React reader and curriculum routes are integrated. All 25 legacy HTML files remain as source material; registration/schema validation does not mean source parity or editorial review is complete.
 - **Recent source-focused content work:** `css.fundamentals` is version 3 (53 blocks, 110 minutes, 5 knowledge checks, 5 walkthroughs, 3 coding exercises per locale); `git.fundamentals` is version 3 (38 blocks, 95 minutes per locale); `git.workflow-ci` is version 3 (37 blocks, 110 minutes per locale). EN/RU structures are checked in CI, while all three remain in editorial review and their legacy interaction parity is incomplete.
@@ -181,7 +181,7 @@ This is the start of Phase 2, not complete app-wide localization. Course details
 The project is **not release-complete** while source-to-block parity, all-screen/content localization, data-portability review and real-device acceptance remain open.
 
 
-## Release blockers and next steps — exact state at `9dfa157ce36123144ad84c2f327abdb41984a3a7`
+## Release blockers and next steps — exact state at `64dea28924aed5701452ae60b121cb57fc747598`
 
 1. Continue source-to-block review for the retained HTML and unverified Notion material; document explicit decisions where a legacy interaction is deferred rather than rebuilt.
 2. Finish localization coverage for remaining less-common strings/edge states and review source lesson-body equivalence, not only UI labels.
@@ -190,3 +190,8 @@ The project is **not release-complete** while source-to-block parity, all-screen
 5. Triage the dependency audit findings and production bundle-size warning without applying an unreviewed forced dependency upgrade.
 
 Do not mark overall release readiness complete until the source audit, learner-data portability and manual PWA acceptance gates have evidence.
+
+
+## Documentation snapshot — 2026-10-23 (exact current HEAD)
+
+The latest feature branch HEAD at this documentation pass is `64dea28924aed5701452ae60b121cb57fc747598`. GitHub Actions [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) completed successfully on that exact SHA. The change is documentation-only; it does not change the release blockers above. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`, and PR #1 remains open as a draft.

@@ -192,8 +192,8 @@ Keep `main` at `b13af92576e8a73753a6e3f3d26765d9f9c44397`, keep PR #1 as a draft
 
 ## Authoritative checkpoint — 2026-10-23
 
-- **Latest validated application/content snapshot:** `9dfa157ce36123144ad84c2f327abdb41984a3a7` (later commits in this checkpoint update documentation only).
-- **CI:** [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388) passed dependency install, lint, typecheck, all 102 tests across 22 files, and production build on the exact feature HEAD.
+- **Latest validated application/content snapshot:** `64dea28924aed5701452ae60b121cb57fc747598` (later commits in this checkpoint update documentation only).
+- **CI:** [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) passed dependency install, lint, typecheck, all 102 tests across 22 files, and production build on the exact feature HEAD.
 - **Branch/PR:** PR #1 remains open/Draft and mergeable. `main` remains unchanged at `b13af92576e8a73753a6e3f3d26765d9f9c44397`.
 - **Structured content:** 26 core + 11 supplementary lesson IDs, EN/RU, 74 locale JSON files. The full legacy source set of 25 HTML files remains. Source parity/editorial review is in progress.
 - **Recent lesson improvements:** `css.fundamentals` v3 / 53 blocks / 110 min; `git.fundamentals` v3 / 38 blocks / 95 min; `git.workflow-ci` v3 / 37 blocks / 110 min. All remain `review` status; matching structural IDs and passing CI do not prove complete source parity.
@@ -203,3 +203,8 @@ Keep `main` at `b13af92576e8a73753a6e3f3d26765d9f9c44397`, keep PR #1 as a draft
 - **Build/security follow-up:** `npm ci` reported 13 dependency audit findings (8 moderate, 3 high, 2 critical); build warns about a large chunk, and React Router emits future-flag warnings. Triage these separately; do not run a blind `npm audit fix --force`.
 
 The release acceptance gates remain open. Keep this roadmap as a work plan and do not mark the product complete.
+
+
+## Documentation snapshot — 2026-10-23 (exact current HEAD)
+
+The latest feature branch HEAD at this documentation pass is `64dea28924aed5701452ae60b121cb57fc747598`. GitHub Actions [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) completed successfully on that exact SHA. The change is documentation-only; it does not change the release blockers above. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`, and PR #1 remains open as a draft.

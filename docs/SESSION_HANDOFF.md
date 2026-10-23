@@ -242,8 +242,8 @@ This is the start of Phase 2, not complete app-wide localization. Course details
 ## Latest validated handoff — 2026-10-23
 
 - **Working branch:** `feat/learning-platform-foundation`.
-- **Latest validated application/content snapshot:** `9dfa157ce36123144ad84c2f327abdb41984a3a7`; the current branch also contains the documentation refresh.
-- **CI:** GitHub Actions [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388) passed `npm ci`, lint, typecheck, 102 tests in 22 test files, and production build on the exact SHA.
+- **Latest validated application/content snapshot:** `64dea28924aed5701452ae60b121cb57fc747598`; the current branch also contains the documentation refresh.
+- **CI:** GitHub Actions [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) passed `npm ci`, lint, typecheck, 102 tests in 22 test files, and production build on the exact SHA.
 - **Main protection:** `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`. PR #1 is still open/Draft. Do not merge or force-push without explicit instruction.
 - **Curriculum inventory:** 26 core and 11 supplementary stable lesson IDs in EN/RU (74 JSON files total). The app contains the structured curriculum route/reader. All 25 legacy HTML lesson files remain for source comparison and rollback.
 - **Current source-parity work:** CSS reference, Git reference and Git workflow got focused source-to-target audits. `css.fundamentals` v3 has 53 blocks/110 min/5 checks/5 walkthroughs/3 exercises per locale; `git.fundamentals` v3 has 38 blocks/95 min; `git.workflow-ci` v3 has 37 blocks/110 min. Git/CSS content status remains `review`; legacy demos, copy controls, navigation and quick-reference parity still need explicit mapping/defer decisions. Most other HTML/Notion content still needs full prose/code/exercise/answer review.
@@ -252,3 +252,8 @@ This is the start of Phase 2, not complete app-wide localization. Course details
 - **Data/Supabase:** local stores are active; a versioned migration and explicit export/import recovery path remain open. Supabase authentication and synchronization are not implemented.
 - **Release diagnostics:** the latest install reported 13 audit findings (8 moderate, 3 high, 2 critical). The build has a large-chunk warning and test output includes React Router future-flag warnings. Triage without unreviewed forced upgrades.
 - **Next:** continue source-to-block audits in syllabus order; close or defer the remaining UI/interactions with evidence; add and test local data portability; record browser/device PWA acceptance; triage dependency and bundle warnings. Keep lesson status at `review` until actual editorial approval.
+
+
+## Documentation snapshot — 2026-10-23 (exact current HEAD)
+
+The latest feature branch HEAD at this documentation pass is `64dea28924aed5701452ae60b121cb57fc747598`. GitHub Actions [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) completed successfully on that exact SHA. The change is documentation-only; it does not change the release blockers above. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`, and PR #1 remains open as a draft.
