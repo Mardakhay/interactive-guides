@@ -5,7 +5,7 @@
 **Base branch:** `main`  
 **Working branch:** `feat/learning-platform-foundation`  
 **Draft PR:** [#1 — structured bilingual lesson foundation](https://github.com/Mardakhay/interactive-guides/pull/1)  
-**Latest verified implementation checkpoint:** `495467a470828ffad5f689f2c4b2015771be18a5`
+**Latest verified implementation checkpoint:** `5a0264c658ad9e67988e24bc3d85cc1491c3ddfd`
 
 ## Project goal
 
@@ -50,22 +50,25 @@ Rebuild Interactive Guides as a cohesive English/Russian, mobile-first, PWA-read
 
 See `docs/CONTENT_AUDIT.md` for the structural audit of the 26 core lesson IDs and its exact scope/limitations. The two supplementary lesson pairs are registered and schema-validated separately. A successful structural audit is not editorial approval.
 
-## Recovery and recent content work — 2026-10-23
+## Recovery and source-parity work — 2026-10-23
 
-- Fixed the malformed tail in `src/content/repository.ts` by removing an orphaned duplicate navigation block; the valid locale-aware previous/next implementation remains. See [repository fix](https://github.com/Mardakhay/interactive-guides/commit/73fb9199690b4bdb8198e3ba42976d201d1a780f).
-- Made repository tests derive expected registered lesson IDs, core-week ownership and adjacency order from the canonical curricula. Corrected the supplementary-track duplicate test to duplicate a populated track rather than an empty one. See [test fix](https://github.com/Mardakhay/interactive-guides/commit/b074e73213f66f849e5b7a76830be53baf275906).
-- Expanded `react.context-shared-state` in both locales with a typed `useReducer` + Context walkthrough and provider-boundary/context-splitting guidance informed by the accessible Notion Part 4 notes. Fixed untranslated Russian quiz prompts in Week 14 and Week 15. Week 14 and Week 15 translations remain editorial `review`, not approved.
-- EN/RU Week 15 block IDs/types match; the added 49-line walkthrough's line references were checked before committing. CI also validated the structured content schema.
+- Fixed the malformed tail of `src/content/repository.ts` by removing an orphaned duplicate navigation block; the valid locale-aware adjacent-lesson implementation remains. [Commit](https://github.com/Mardakhay/interactive-guides/commit/73fb9199690b4bdb8198e3ba42976d201d1a780f).
+- Made registry and navigation tests derive expectations from canonical EN/RU curricula; corrected the supplementary-track duplicate test so it duplicates a populated track. [Commit](https://github.com/Mardakhay/interactive-guides/commit/b074e73213f66f849e5b7a76830be53baf275906).
+- Compared Week 14 against Notion Part 4 §§ 4.5–4.7 and `public/lessons/react-forms-tutorial.html`. Added a multi-field `name` handler walkthrough, native constraints, validation timing, complete React Hook Form flow, common-mistake list, ten knowledge checks, and five scaffolded coding exercises.
+- Compared Week 15 against Notion Part 4 §§ 4.8–4.14 and the state-related portions of `public/lessons/react-ecosystem-course.html`. Added the distinction between custom Hook reuse and shared state, a source-derived BookClub reducer walkthrough/project, and expanded the state-tool selection guide. Do not copy the legacy page's React Router examples verbatim because the source and application use different major versions.
+- Added `docs/CONTENT_PARITY_REVIEW_WEEK14-15.md`, corrected source destinations in `docs/LEGACY_CONTENT_INVENTORY.md`, and updated `docs/CURRICULUM_AND_CONTENT.md`, `docs/CURRENT_STATE.md`, and `docs/ROADMAP.md`. The parity report records what has been mapped and which interactions were translated into the structured block system rather than reproduced one-to-one.
+- Week 14 has 48 blocks, ten knowledge checks and five coding exercises in each locale. Week 15 has 34 blocks, six knowledge checks and two exercises in each locale. Ordered EN/RU block IDs/types and walkthrough line ranges were validated before commit.
+- Both pairs remain `review`, not `published`. The lesson authoring UI does not compile TSX, React Hook Form was not added as an app dependency, and these examples still need execution/review in a real React project. The original HTML sources remain in place.
 
 ## CI verification
 
-- GitHub Actions [run #211](https://github.com/Mardakhay/interactive-guides/actions/runs/39909323859) passed on test-repair checkpoint `b074e73213f66f849e5b7a76830be53baf275906`: `npm ci`, ESLint, TypeScript typecheck, all tests and production build succeeded.
-- GitHub Actions [run #212](https://github.com/Mardakhay/interactive-guides/actions/runs/39909489666) passed on the current implementation/content checkpoint `495467a470828ffad5f689f2c4b2015771be18a5`: `npm ci`, ESLint, TypeScript typecheck, all tests and production build succeeded. The original malformed-file errors and the two stale test assumptions are addressed.
-- These are GitHub-hosted checks. No local checkout/test command or physical-browser/device acceptance test was performed in this session; rerun CI for any subsequent commit.
+- GitHub Actions [run #218](https://github.com/Mardakhay/interactive-guides/actions/runs/39911961311) passed on exact content/test checkpoint `5a0264c658ad9e67988e24bc3d85cc1491c3ddfd`: `npm ci`, ESLint, TypeScript typecheck, the full test suite and production build all succeeded.
+- The earlier content-only run failed because two lesson tests still expected exactly three quiz questions. The tests now correctly expect ten for Week 14 and six for Week 15. The current checkpoint's complete suite passes.
+- These are GitHub-hosted checks. No local checkout, physical-browser/device acceptance test, or real React/TSX example execution was performed in this session.
 
 ## Next actions
 
-1. Apply `docs/EDITORIAL_REVIEW_CHECKLIST.md` to Week 14 and Week 15, then continue source-based EN/RU review of all core and supplementary lesson pairs. All remain in `review` status.
+1. Human-review Week 14 and Week 15 against `docs/CONTENT_PARITY_REVIEW_WEEK14-15.md`, execute/review the new TSX examples in a real React project, and continue the source-based EN/RU review. All lesson pairs remain in `review` status.
 2. Reconcile all 25 legacy HTML files against their structured replacements; retain source files until both locales have been reviewed.
 3. Complete an end-to-end locale sweep and consolidate design-system styling across routes; test keyboard access, narrow viewports, contrast, focus states and reduced motion.
 4. Test Worker execution under the deployed hosting/CSP environment while preserving the warning that it is not hardened for hostile code.
