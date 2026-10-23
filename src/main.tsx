@@ -14,3 +14,13 @@ createRoot(container).render(
     <RouterProvider router={router} />
   </StrictMode>,
 );
+
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    void navigator.serviceWorker.register('/sw.js').catch((error: unknown) => {
+      // Offline support is progressive enhancement; a registration failure
+      // must not prevent the learning app from starting.
+      console.error('Service worker registration failed', error);
+    });
+  }, { once: true });
+}
