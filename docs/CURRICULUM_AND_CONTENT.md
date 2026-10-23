@@ -147,3 +147,10 @@ A lesson may combine sections into a coherent narrative; the template is a quali
 - Create structured block content and quiz/exercise data.
 - Validate schemas, links, code-block languages, answer keys, translation completeness and curriculum links in CI.
 - Retain old HTML as a temporary migration reference until the structured replacement is reviewed in both locales.
+
+
+## Week 14–15 source-parity checkpoint — 2026-10-23
+
+A focused comparison with Notion Part 4 (§§ 4.5–4.14) and the legacy forms/ecosystem HTML found missing instructional steps beyond what schema/block parity tests can detect. Week 14 now includes a multi-field form walkthrough, native constraints, validation timing, a complete RHF flow, common mistakes, ten knowledge checks and five scaffolded exercises. Week 15 now covers custom-Hook state ownership, BookClub reducer transitions, the multi-consumer feature flow and a project exercise.
+
+See [`CONTENT_PARITY_REVIEW_WEEK14-15.md`](./CONTENT_PARITY_REVIEW_WEEK14-15.md) for a concept-by-concept map of sources, additions, migration choices and remaining review limits. This is not editorial approval: both locale pairs remain in `review`, examples still need human/runtime review, and the original HTML sources must be retained.

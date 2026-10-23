@@ -163,3 +163,11 @@ This is the newest checkpoint and supersedes earlier working-branch verification
 2. Reconcile each legacy HTML lesson line-by-line with its replacement and retain the source files until migration is reviewed in both locales.
 3. Finish end-to-end app localization, visual consistency, responsive/accessibility QA, Worker-hosting/CSP tests, storage-failure testing and real-device PWA acceptance.
 4. Keep cloud sync blocked on a dedicated Supabase ownership/cost decision and explicit approval.
+
+
+## Source-parity checkpoint — 2026-10-23
+
+- A focused review compared Week 14 with Notion Part 4 §§ 4.5–4.7 and `react-forms-tutorial.html`, and Week 15 with Notion §§ 4.8–4.14 and the state-management sections of `react-ecosystem-course.html`.
+- Prior block/schema parity checks did not prove that all source teaching steps and activities had been migrated. Week 14 has now gained the multi-field state pattern, native validation constraints, validation timing, a complete RHF example, common mistakes, ten checks and five practice tasks. Week 15 now has a custom-Hook ownership example, BookClub reducer walkthrough/project, and more explicit state-tool choice guidance.
+- The source map was corrected: `react-ecosystem-course.html` spans routing, forms, Context, reducer and BookClub topics; it is not only a Week 13 router source. See `docs/CONTENT_PARITY_REVIEW_WEEK14-15.md`.
+- Both pairs remain in editorial `review`. The authoring UI does not compile TSX; no runtime execution of these new TSX examples occurred in this pass. The original HTML sources have not been deleted.

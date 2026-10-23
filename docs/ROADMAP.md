@@ -7,9 +7,10 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - Repaired `src/content/repository.ts` by removing the orphaned duplicate navigation block without weakening TypeScript settings or removing the valid adjacency implementation.
 - Updated content registry tests to derive expectations from the canonical curriculum and corrected a supplementary-track test fixture that had duplicated an empty track.
 - Added a bilingual `useReducer` + Context walkthrough and provider-scope guidance to Week 15; translated previously English quiz prompts in Russian Week 14/15 content.
+- Compared Weeks 14–15 with the specific Notion sections and retained HTML sources. Filled in the missing multi-field form, validation timing, complete RHF example, common mistakes, quiz/exercise progression, custom-Hook state ownership and BookClub reducer project. See `docs/CONTENT_PARITY_REVIEW_WEEK14-15.md`.
 - GitHub Actions [run #212](https://github.com/Mardakhay/interactive-guides/actions/runs/39909489666) passed for code/content SHA `495467a470828ffad5f689f2c4b2015771be18a5`: `npm ci`, lint, typecheck, tests and production build.
 - The repository registers 26 core lesson IDs plus two supplementary lesson IDs (28 stable IDs / 56 locale files). The core 24-week order is unchanged; all lesson content remains in editorial `review`.
-- Local and real-device testing were not performed. Continue editorial/source parity review, localization/accessibility, storage and PWA acceptance rather than claiming release readiness.
+- Local and real-device testing were not performed. Continue human editorial review, actual React/TSX example verification, wider source parity review, localization/accessibility, storage and PWA acceptance rather than claiming release readiness.
 
 ## Phase 0 — Baseline and safeguards
 - [x] Create working branch `feat/learning-platform-foundation`.
