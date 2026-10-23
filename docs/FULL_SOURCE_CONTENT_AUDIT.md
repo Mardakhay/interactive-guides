@@ -147,3 +147,26 @@ The scan found one issue category: block sql-schema-note in data.sql-postgresql/
 https://github.com/Mardakhay/interactive-guides/actions/runs/39976179595
 
 This is structural validation, not a source-parity or editorial-quality sign-off. The legacy HTML/Notion content is still incompletely mapped at prose, code, exercise, answer and interaction level. Lesson status remains review.
+
+
+## Full HTML source review — html-reference.html — 2026-10-23
+
+**Source:** public/lessons/html-reference.html, SHA bd7da030a8e6135d39513188bf66fc1187c12829 (86,813 bytes). This is a full-file text/structure inspection, not a claim that every teaching statement has been fact-checked against standards.
+
+### Source inventory
+- Main topics: document anatomy and doctype/lang/head/body; basic elements and text formatting; links/images; tables; forms and input types; semantic regions; media; head/meta tags; global attributes; quick-reference tables.
+- 40+ source headings are present, including nested quick-reference headings. The document contains 28 buttons, multiple CODE/PREVIEW tab groups, copy controls, a sidebar toggle, navigation-section selection, sidebar search, accordion handlers and scroll-progress behavior.
+- The document has a single inline script and no iframe. Interactive handlers are registered through DOMContentLoaded/document listeners, rather than inline onclick attributes.
+
+### Current structured targets
+- html.document-structure (EN and RU): 27 blocks each, 60 minutes, 2 code walkthroughs, 3 knowledge checks, 2 coding exercises and a references block. Coverage explicitly includes document structure, metadata, semantic regions, landmarks and accessible names.
+- html.forms-accessibility (EN and RU): registered as the companion topic for forms, labels and accessible input behavior.
+- Related CSS and DOM behavior should not be migrated as HTML semantics without checking the dedicated CSS/DOM lessons.
+
+### Parity gaps to resolve before calling this source migrated
+- Verify the companion forms lesson covers the source's input-type catalog, required/name/label behavior and native validation examples.
+- Map or explicitly defer tables (including colspan/rowspan), media elements, SEO/meta-tag examples, global/data-* attributes and the full quick-reference tables.
+- Map every meaningful CODE/PREVIEW demo, copy action, sidebar navigation/search and accordion behavior to equivalent learner-facing content or document why the legacy-only navigation behavior is not part of the new reader.
+- Check EN/RU equivalence for examples, exercise feedback and terminology; matching block counts alone are insufficient.
+
+Status remains **partial mapping / source parity pending**. Do not delete the legacy source or mark the structured lessons published based on route registration alone.

@@ -133,3 +133,8 @@ Next priority: continue the documented source-to-block audit in small batches wh
 ## PWA foundation — 2026-10-23
 
 Commit c794088f15fb57ba3c1b8c51032e7e76e11f72bf adds manifest metadata, an SVG app icon, production-only service-worker registration, app-shell precaching, navigation fallback and same-origin GET runtime caching. The worker deliberately skips cross-origin requests, Authorization-bearing requests and /api/ paths. This is not a completed PWA acceptance result: platform installability, PNG icon requirements, offline cache lifecycle, deep-link reload and external font fallback still require real-browser checks. Check exact-head Actions before claiming this commit validated.
+
+
+## PWA verification update — 2026-10-23
+
+The first service-worker implementation failed lint because browser worker globals were not declared; commit 8d7172bf0faa128aee370afc675c9b5cdd9739ac fixes that. Commit 9e4e08c57725e595c3f279ce6f431fabb2d49281 narrows runtime caching to static asset extensions so arbitrary same-origin learner data is not intercepted. GitHub Actions [run #39977258811](https://github.com/Mardakhay/interactive-guides/actions/runs/39977258811) passed all configured checks on that exact SHA. This is code-level CI evidence only, not real-browser PWA acceptance.

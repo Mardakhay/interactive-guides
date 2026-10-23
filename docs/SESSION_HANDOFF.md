@@ -191,3 +191,12 @@ Feature commit c794088f15fb57ba3c1b8c51032e7e76e11f72bf adds:
 - public/sw.js with app-shell precache, network-first navigation fallback for deep links, and runtime caching for successful same-origin GET assets.
 
 The worker skips cross-origin requests, requests carrying Authorization and /api/ paths. This is an initial offline foundation, not release acceptance: SVG-only icon support needs platform validation (PNG sizes may be needed), external Google Fonts may not load offline, and installability/cache-update/offline behavior has not yet been tested in real browsers. GitHub Actions for the PWA commit must be checked before claiming CI green. Main remains unchanged.
+
+
+## Latest PWA CI checkpoint — 2026-10-23
+
+- PWA foundation commit: c794088f15fb57ba3c1b8c51032e7e76e11f72bf.
+- Lint fix: 8d7172bf0faa128aee370afc675c9b5cdd9739ac declares service-worker runtime globals.
+- Security hardening: 9e4e08c57725e595c3f279ce6f431fabb2d49281 limits runtime caching to static asset extensions and avoids intercepting arbitrary same-origin data/document requests.
+- GitHub Actions [run #39977258811](https://github.com/Mardakhay/interactive-guides/actions/runs/39977258811) passed npm ci, lint, typecheck, tests and production build on exact SHA 9e4e08c57725e595c3f279ce6f431fabb2d49281.
+- Current branch still has no real-device installability/offline acceptance evidence. Main remains b13af92576e8a73753a6e3f3d26765d9f9c44397 and was not modified.

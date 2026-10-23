@@ -49,3 +49,10 @@ Treat PWA as an implementation and acceptance-testing phase, not a completed fea
 The feature branch includes a web manifest, SVG app icon, manifest/theme/mobile metadata, and a production-only service-worker registration. The worker precaches the app shell, uses network-first navigation with an app-shell fallback for localized/deep links, and runtime-caches successful same-origin GET resources. It skips cross-origin requests, requests with Authorization headers and /api/ endpoints.
 
 This is a first offline foundation, not a claim of verified installability or comprehensive offline behavior. Before release, validate whether platform-recommended PNG icon sizes are required, test install prompts and iOS Add to Home Screen behavior, deep-link reload, cache updates and offline access on real supported browsers. Google Fonts remain external and may not load offline.
+
+
+## CI checkpoint — 2026-10-23
+
+The initial service-worker implementation failed ESLint due to undeclared worker globals; this was corrected. Runtime caching is now restricted to static asset extensions, avoiding interception of arbitrary same-origin documents/data. GitHub Actions run #39977258811 passed lint, typecheck, tests and production build on feature SHA 9e4e08c57725e595c3f279ce6f431fabb2d49281: https://github.com/Mardakhay/interactive-guides/actions/runs/39977258811
+
+Still required before calling this phase complete: browser/device installability checks, platform icon validation, offline deep-link reload and cache update tests, deployment rewrite configuration, and confirmation that no private learner state is cached.
