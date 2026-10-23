@@ -7,7 +7,7 @@ import { useProgressStore, computeProgressStats } from '@/features/progress';
 import { Card, Badge, ProgressBar } from '@/components/ui';
 import { learningPathDetailPath } from '@/app/router/routes';
 import { DIFFICULTY_COLORS } from '@/lib/constants';
-import { formatLessonCount, getLocalizedDifficulty, translate, useUiLocale } from '@/features/localization';
+import { formatLessonCount, getLocalizedDifficulty, getLocalizedLearningPathCopy, translate, useUiLocale } from '@/features/localization';
 
 const ICON_MAP: Record<string, LucideIcon> = { Globe, Code2, Atom, Wrench, ShieldCheck };
 const LEVEL_COLORS = DIFFICULTY_COLORS;
@@ -29,6 +29,7 @@ export default function LearningPathsPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {paths.map((path) => {
           const Icon = ICON_MAP[path.icon] ?? RouteIcon;
+          const pathCopy = getLocalizedLearningPathCopy(locale, path.id, path.title, path.description);
           const lessonIds = getLearningPathLessonIds(path.id);
           const stats = computeProgressStats(progressLessons, lessonIds);
           return (
@@ -44,8 +45,8 @@ export default function LearningPathsPage() {
                     {getLocalizedDifficulty(locale, path.level)}
                   </span>
                 </div>
-                <h2 className="mt-4 text-lg font-semibold text-neutral-900">{path.title}</h2>
-                <p className="mt-1.5 line-clamp-3 text-sm text-neutral-600">{path.description}</p>
+                <h2 className="mt-4 text-lg font-semibold text-neutral-900">{pathCopy.title}</h2>
+                <p className="mt-1.5 line-clamp-3 text-sm text-neutral-600">{pathCopy.description}</p>
                 <div className="mt-auto space-y-3 pt-4">
                   {stats.completed > 0 && (
                     <ProgressBar value={stats.percent} label={translate(locale, 'completedProgress', { completed: stats.completed, total: stats.total })} />

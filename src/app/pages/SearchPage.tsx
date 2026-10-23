@@ -7,11 +7,13 @@ import { SearchBar, FilterTabs, SearchResults } from '@/features/search';
 import { EmptyState } from '@/components/feedback';
 import { useDebounce } from '@/hooks/useDebounce';
 import type { SearchableContent, SearchableLesson, SearchableCourse, SearchableNote } from '@/features/search';
+import { formatResultCount, translate, useUiLocale } from '@/features/localization';
 
 const DEBOUNCE_DELAY_MS = 200;
 const MIN_QUERY_LENGTH = 2;
 
 export default function SearchPage() {
+  const locale = useUiLocale();
   const query = useSearchStore((s) => s.query);
   const filter = useSearchStore((s) => s.filter);
   const setQuery = useSearchStore((s) => s.setQuery);
@@ -81,30 +83,30 @@ export default function SearchPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold text-neutral-900">Search</h1>
-        <p className="text-neutral-600">Find lessons, courses, and your notes across the platform.</p>
+        <h1 className="text-2xl font-semibold text-neutral-900">{translate(locale, 'search')}</h1>
+        <p className="text-neutral-600">{translate(locale, 'searchPageDescription')}</p>
       </div>
 
-      <SearchBar value={query} onChange={setQuery} autoFocus />
+      <SearchBar value={query} onChange={setQuery} autoFocus locale={locale} />
 
       {hasQuery && (
         <>
-          <FilterTabs filter={filter} counts={counts} onChange={setFilter} />
+          <FilterTabs filter={filter} counts={counts} onChange={setFilter} locale={locale} />
 
           {isDebouncing ? (
-            <p className="py-8 text-center text-sm text-neutral-500">Searching…</p>
+            <p className="py-8 text-center text-sm text-neutral-500">{translate(locale, 'searching')}</p>
           ) : results.length === 0 ? (
             <EmptyState
-              title="No results found"
-              message={`Nothing matched "${debouncedQuery}". Try a different term or broaden your filter.`}
+              title={translate(locale, 'noSearchResultsTitle')}
+              message={translate(locale, 'noSearchResultsMessage', { query: debouncedQuery })}
               icon={SearchIcon}
             />
           ) : (
             <>
               <p className="text-sm text-neutral-500">
-                {results.length} {results.length === 1 ? 'result' : 'results'}
+                {formatResultCount(locale, results.length)}
               </p>
-              <SearchResults results={results} terms={terms} />
+              <SearchResults results={results} terms={terms} locale={locale} />
             </>
           )}
         </>
@@ -112,8 +114,8 @@ export default function SearchPage() {
 
       {!hasQuery && (
         <EmptyState
-          title="Start typing to search"
-          message="Search across all lessons, courses, and your personal notes. Results update as you type."
+          title={translate(locale, 'searchStartTitle')}
+          message={translate(locale, 'searchStartMessage')}
           icon={SearchIcon}
         />
       )}
