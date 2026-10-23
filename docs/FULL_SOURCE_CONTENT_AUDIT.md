@@ -232,3 +232,12 @@ The curriculum destinations remain `git.fundamentals` and `git.workflow-ci`, not
 5. PWA code is tested in CI, but real-browser/device installability, offline and update acceptance remain outstanding.
 
 Do not interpret matching block counts, Zod validation or green CI as proof of complete source parity or editorial approval.
+
+
+## Final handoff snapshot — 2026-10-23
+
+- Reviewed implementation/content snapshot: `64dea28924aed5701452ae60b121cb57fc747598`; exact-head CI [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) passed.
+- Previous documentation-only sync: `a4d5eadb045f03a5c7cc995b6f150b42e2ca3eb4`; exact-head CI [run #40008684548](https://github.com/Mardakhay/interactive-guides/actions/runs/40008684548) passed.
+- Default branch `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`. PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) remains open and draft.
+- Do not mark the project complete: content parity/editorial review, complete EN/RU UI/content localization, local-data migration/export/import, Supabase auth/sync, dependency/bundle warning triage, and real-browser/device PWA acceptance remain open.
+- Resume by reading `docs/SESSION_HANDOFF.md`, then `docs/CURRENT_STATE.md`, `docs/ROADMAP.md`, `docs/FULL_SOURCE_CONTENT_AUDIT.md`, and `docs/PWA_AND_MOBILE.md`. Keep work on `feat/learning-platform-foundation`; do not merge or force-push.
