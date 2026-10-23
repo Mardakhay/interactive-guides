@@ -133,3 +133,8 @@ The active feature now embeds lesson bodies for re-003, re-004, and re-005 in sr
 - Main was not modified in this continuation. PR base currently reports `452a0296fc875e48f1a050e5af557ef0c08f68c8`; feature head is the only target for these changes.
 - Source audit remains incomplete: 21 Notion fetches (unverified), 25 HTML sources structurally surveyed; full prose/code/hidden interaction review for most HTML files remains open. See `FULL_SOURCE_CONTENT_AUDIT.md` and keep lesson editorial status at review.
 - Next work: finish source-by-source HTML and Notion parity, update matrix rows with precise canonical IDs and block evidence, verify content depth/code/EN-RU parity, then obtain an actual Actions run for the resulting PR head. Do not mark the project complete yet.
+
+
+### CI confirmation — 2026-10-23
+
+GitHub Actions [run #317](https://github.com/Mardakhay/interactive-guides/actions/runs/39963932841) passed on exact feature HEAD `07bc9acfc89c0138cbd4d214e19215e4dff6f1c6` (install, lint, typecheck, 92 tests, build). PR #1 remains open/draft and mergeable. This latest result supersedes the earlier “Actions unconfirmed” note above. The source audit remains incomplete; do not mark the overall project complete. Any later docs-only head needs its own exact-head workflow verification.

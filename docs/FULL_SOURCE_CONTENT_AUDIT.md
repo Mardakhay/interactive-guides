@@ -123,3 +123,8 @@ The full-source audit is **not complete**. Evidence currently supports: 21 Notio
 ## Verification checkpoint — 2026-10-23
 
 Exact application/content code verified in a clean clone at feature commit `132636c4007141454a903e815d6f0418a3c511b0`: `npm run lint`, `npm run typecheck`, `npm test` (19 files / 92 tests), `npm run build`, and `git diff --check` passed. Production build retains a chunk-size warning for the repository/content bundle (~1.4 MB minified). GitHub Actions did not expose a run for the API-created latest commits, so this is local validation, **not** a green Actions check. The content-source audit remains incomplete as stated above.
+
+
+## Exact-head CI verification — 2026-10-23
+
+GitHub Actions [run #317](https://github.com/Mardakhay/interactive-guides/actions/runs/39963932841) passed on feature SHA `07bc9acfc89c0138cbd4d214e19215e4dff6f1c6`: install, lint, typecheck, all 92 tests, and production build. The content-source completeness limitation above remains unchanged; passing CI proves structural/runtime checks, not source parity or editorial approval.

@@ -105,3 +105,6 @@ The 25 legacy HTML files remain migration sources. The full audit has not yet es
 
 
 **Latest local verification (2026-10-23):** exact code SHA `132636c4007141454a903e815d6f0418a3c511b0` in a fresh feature-branch clone passed ESLint, TypeScript, all 92 Vitest tests (19 files), production build and `git diff --check`. Vite warns that the content repository bundle is ~1.4 MB minified. No Actions run was returned for the latest API-created commit, so CI status is unconfirmed rather than green.
+
+
+**CI update (2026-10-23):** GitHub Actions [run #317](https://github.com/Mardakhay/interactive-guides/actions/runs/39963932841) passed on feature SHA `07bc9acfc89c0138cbd4d214e19215e4dff6f1c6`, including all 92 tests and production build. This supersedes the prior note that latest CI was unconfirmed. Full source parity remains open.
