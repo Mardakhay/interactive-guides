@@ -1,16 +1,16 @@
 {
   "id": "js.async-fetch",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-2-week-8",
   "week": 8,
   "order": 1,
   "title": "Asynchronous JavaScript, Promises, async/await, and Fetch",
   "description": "Understand how asynchronous work is represented, coordinate Promise outcomes, write readable async/await functions, and handle HTTP responses and failures when fetching API data.",
-  "estimatedMinutes": 70,
+  "estimatedMinutes": 95,
   "difficulty": "beginner",
   "prerequisites": [
     "js.basics-types-control-flow",
@@ -409,6 +409,143 @@
         "fetch normally rejects for network/request failures, not merely for an HTTP 404 or 500.",
         "Check response.ok/status and parse the body separately with response.json().",
         "Model loading, success, and error as explicit UI states, and consider cancellation and stale requests in real applications."
+      ]
+    },
+    {
+      "id": "deep-async-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: microtasks, event-loop order, and concurrent requests"
+    },
+    {
+      "id": "deep-async-model",
+      "type": "paragraph",
+      "text": "Asynchronous JavaScript does not mean ordinary callbacks execute simultaneously on the same call stack. Synchronous code runs first; after the current stack empties, queued work proceeds. Promise reactions run as microtasks and, in the common browser model, drain before the next timer task. For network requests, separately decide whether operations depend on each other, whether every outcome matters, and how stale requests are prevented from updating the UI."
+    },
+    {
+      "id": "deep-async-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "console.log('sync:start');\n\nsetTimeout(() => console.log('timer'), 0);\nPromise.resolve()\n  .then(() => console.log('promise:1'))\n  .then(() => console.log('promise:2'));\n\nconsole.log('sync:end');",
+      "steps": [
+        {
+          "title": "Run the current synchronous stack first",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "The first log happens immediately while the current script is running."
+        },
+        {
+          "title": "Queue a timer task and Promise reactions",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "explanation": "The timeout callback is scheduled as a task. The first then handler is queued as a microtask; the next reaction is queued after the previous Promise settles."
+        },
+        {
+          "title": "Finish synchronous execution",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "sync:end is logged before any queued callback runs."
+        },
+        {
+          "title": "Drain Promise microtasks before the timer task",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "explanation": "Expected order: sync:start, sync:end, promise:1, promise:2, timer. A zero delay does not interrupt the running script or outrun the queued Promise reactions."
+        }
+      ]
+    },
+    {
+      "id": "deep-async-strategies",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use sequential `await` when the next operation needs the previous result. Start independent requests together, then await `Promise.all([a(), b()])`.",
+        "`Promise.all` rejects when one input rejects but does not cancel the other operations. `Promise.allSettled` is useful when every outcome must be inspected. `Promise.race` returns the first settlement, not necessarily the first success.",
+        "`fetch()` resolving means a Response arrived, not that the HTTP status was successful. Check `response.ok`, then parse the body; network failure, HTTP failure and invalid JSON are distinct failure points."
+      ]
+    },
+    {
+      "id": "deep-async-callout",
+      "type": "callout",
+      "tone": "important",
+      "title": "Cancellation and stale responses are separate concerns",
+      "text": "An AbortController can request cancellation when a user navigates away or changes a search query. A freshness guard may still be needed so an older request cannot overwrite newer data if cancellation arrives too late or the operation is not abortable. Do not automatically retry every request: repeating a non-idempotent mutation can create duplicate effects."
+    },
+    {
+      "id": "deep-async-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What is the expected output order for the event-loop trace above in a browser?",
+      "options": [
+        {
+          "id": "a",
+          "text": "sync:start → timer → promise:1 → promise:2 → sync:end",
+          "correct": false,
+          "feedback": "A timer callback cannot interrupt the currently running synchronous script."
+        },
+        {
+          "id": "b",
+          "text": "sync:start → sync:end → promise:1 → promise:2 → timer",
+          "correct": true,
+          "feedback": "Synchronous code finishes first; Promise reactions drain as microtasks before the timer task in this trace."
+        },
+        {
+          "id": "c",
+          "text": "promise:1 → promise:2 → sync:start → sync:end → timer",
+          "correct": false,
+          "feedback": "Even a fulfilled Promise queues its then handlers as microtasks after the current stack."
+        },
+        {
+          "id": "d",
+          "text": "sync:start → sync:end → timer → promise:1 → promise:2",
+          "correct": false,
+          "feedback": "In this browser event-loop trace, queued Promise microtasks run before the next timer task."
+        }
+      ],
+      "explanation": "Do not confuse the synchronous Promise executor with Promise reaction callbacks; then handlers are queued microtasks."
+    },
+    {
+      "id": "deep-async-practice",
+      "type": "codingExercise",
+      "title": "Trace the queues and choose a network strategy",
+      "language": "javascript",
+      "context": "Predict scheduling order, then apply request-concurrency and cancellation reasoning to a changing search query.",
+      "instructions": [
+        "Predict the exact output order for the starter code without running it.",
+        "Explain when two independent requests can start concurrently and be awaited with Promise.all.",
+        "Describe the difference between Promise.all and Promise.allSettled when one request fails.",
+        "Design a search flow that aborts a previous Fetch and protects against stale results replacing newer results.",
+        "Explain why a fulfilled Fetch Promise still requires checking response.ok."
+      ],
+      "requirements": [
+        "Synchronous logs are placed before queued callbacks and Promise reactions before the timer in the trace.",
+        "Concurrency is based on data dependencies, not just preference.",
+        "Promise.all and Promise.allSettled behavior is described correctly.",
+        "The search flow includes cancellation or a freshness guard.",
+        "Network, HTTP-status, and JSON parsing errors are distinguished."
+      ],
+      "starterCode": "console.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');\n\n// TODO: sketch two independent Fetch calls running concurrently.\n// TODO: explain how a changing search term cancels or invalidates old work.",
+      "hints": [
+        "Write all synchronous statements first; callbacks cannot interrupt them.",
+        "Promise reactions run as microtasks, while setTimeout schedules a task.",
+        "For changing search terms, pair AbortController with a request identity/freshness check where needed."
+      ],
+      "successCriteria": [
+        "The queue output order is correctly stated and justified.",
+        "The concurrency strategy matches the dependency between operations.",
+        "The failure behavior of Promise.all and Promise.allSettled is understood.",
+        "Older search results cannot silently overwrite newer intent.",
+        "HTTP errors and transport errors are treated separately."
+      ]
+    },
+    {
+      "id": "deep-async-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Trace synchronous execution, Promise microtasks, and timer tasks as separate stages.",
+        "Choose sequential or concurrent requests based on data dependencies.",
+        "Model loading/success/error plus cancellation and freshness explicitly in network-driven UI."
       ]
     },
     {
