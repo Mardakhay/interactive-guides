@@ -1405,7 +1405,7 @@
     <div class="section-header">
       <div class="section-label">Section 03</div>
       <h2>Axios Client Setup</h2>
-      <p>Axios is a library that makes HTTP requests easier than the built-in <code>fetch()</code>. Let's see why, then configure it properly.</p>
+      <p>Axios is an optional HTTP client. This project uses the built-in <code>fetch()</code> and does not install Axios; the service and hook boundaries shown here work with either choice. Add a library only when its behavior is useful to the project.</p>
     </div>
 
     <h3 style="margin-bottom: 16px;">fetch() vs Axios — Side by Side</h3>
@@ -1704,10 +1704,10 @@ apiClient.interceptors.response.<span class="fn">use</span>(
     <span class="kw">return</span> data;
   },
 
-  <span class="cmt">// UPDATE — replace user data (full update)</span>
+  <span class="cmt">// PATCH — partially update user data</span>
   <span class="cmt">// Partial&lt;User&gt; means: any subset of User fields is OK</span>
   <span class="fn">update</span>: <span class="kw">async</span> (id: <span class="typ">number</span>, user: <span class="typ">Partial</span>&lt;<span class="typ">User</span>&gt;): <span class="typ">Promise</span>&lt;<span class="typ">User</span>&gt; <span class="op">=></span> {
-    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">put</span>&lt;<span class="typ">User</span>&gt;(<span class="str">`/users/</span><span class="op">${</span>id<span class="op">}</span><span class="str">`</span>, user);
+    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">patch</span>&lt;<span class="typ">User</span>&gt;(<span class="str">`/users/</span><span class="op">${</span>id<span class="op">}</span><span class="str">`</span>, user);
     <span class="kw">return</span> data;
   },
 
@@ -2029,7 +2029,7 @@ apiClient.interceptors.response.<span class="fn">use</span>(
         <div class="callout-icon">⚡</div>
         <div class="callout-body">
           <h4>Why Debounce Matters</h4>
-          <p>If you type "john" (4 letters) in a search box, <em>without</em> debounce you make 4 API calls: "j", "jo", "joh", "john". With a 300ms debounce, you make just 1 — only when you pause typing.</p>
+          <p>If you type "john" (4 letters) in a search box, <em>without</em> debounce you make 4 API calls: "j", "jo", "joh", "john". With a 300ms debounce, the example sends one request after the user pauses. This reduces request volume, but does not make a response arrive faster; cancel or ignore stale responses when a newer query starts.</p>
         </div>
       </div>
 
@@ -2278,6 +2278,7 @@ apiClient.interceptors.response.<span class="fn">use</span>(
     </div>
 
     <h3 style="margin-bottom: 16px; margin-top: 28px;">Retry with Exponential Backoff</h3>
+    <div class="callout warning"><strong>Retry boundaries:</strong> Retry only transient failures and operations that are safe to repeat. Do not retry validation, authorization or not-found errors. A production policy should cap delay, add jitter, honor <code>Retry-After</code> when present, and support cancellation.</div>
     <div class="callout callout-info">
       <div class="callout-icon">📈</div>
       <div class="callout-body">
@@ -2593,7 +2594,7 @@ apiClient.interceptors.response.<span class="fn">use</span>(
       </div>
       <div class="task-body">
         <p><strong>Goal:</strong> Create <code>api/todoService.ts</code> for the <code>/todos</code> endpoint.</p>
-        <p>JSONPlaceholder has a <code>/todos</code> endpoint. Each todo has: <code>id</code>, <code>userId</code>, <code>title</code>, <code>completed</code>.</p>
+        <p>JSONPlaceholder has a <code>/todos</code> endpoint. Each todo has: <code>id</code>, <code>userId</code>, <code>title</code>, <code>completed</code>. It is a demo API: writes return simulated responses and are not durably saved, so keep optimistic UI examples local to the exercise.</p>
         <p><strong>Implement these functions:</strong></p>
         <ul style="color:var(--text2);font-size:14px;padding-left:20px;line-height:2;">
           <li><code>getAll()</code> — fetch all todos</li>
