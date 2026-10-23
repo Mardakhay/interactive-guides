@@ -54,6 +54,24 @@ import englishCapstoneImplementation from './lessons/capstone.implementation/en.
 import russianCapstoneImplementation from './lessons/capstone.implementation/ru.json';
 import englishCapstoneReview from './lessons/capstone.review-demo/en.json';
 import russianCapstoneReview from './lessons/capstone.review-demo/ru.json';
+import englishRuntime from './lessons/js.runtime-memory/en.json';
+import russianRuntime from './lessons/js.runtime-memory/ru.json';
+import englishPrototypes from './lessons/js.object-prototypes/en.json';
+import russianPrototypes from './lessons/js.object-prototypes/ru.json';
+import englishAuth from './lessons/frontend.auth-security/en.json';
+import russianAuth from './lessons/frontend.auth-security/ru.json';
+import englishDeployment from './lessons/deployment.production-hosting/en.json';
+import russianDeployment from './lessons/deployment.production-hosting/ru.json';
+import englishSql from './lessons/data.sql-postgresql/en.json';
+import russianSql from './lessons/data.sql-postgresql/ru.json';
+import englishSass from './lessons/css.sass-scss/en.json';
+import russianSass from './lessons/css.sass-scss/ru.json';
+import englishUiLibraries from './lessons/ui.bootstrap-mui/en.json';
+import russianUiLibraries from './lessons/ui.bootstrap-mui/ru.json';
+import englishArchitecture from './lessons/frontend.architecture-boundaries/en.json';
+import russianArchitecture from './lessons/frontend.architecture-boundaries/ru.json';
+import englishAdvancedTooling from './lessons/tooling.advanced-package-workflows/en.json';
+import russianAdvancedTooling from './lessons/tooling.advanced-package-workflows/ru.json';
 import englishCurriculum from './curriculum/bootcamp-core.en.json';
 import russianCurriculum from './curriculum/bootcamp-core.ru.json';
 import { bootcampCurriculumSchema } from './schemas/curriculum';
@@ -119,6 +137,24 @@ const lessonTranslations = [
   lessonTranslationSchema.parse(russianCapstoneImplementation),
   lessonTranslationSchema.parse(englishCapstoneReview),
   lessonTranslationSchema.parse(russianCapstoneReview),
+  lessonTranslationSchema.parse(englishRuntime),
+  lessonTranslationSchema.parse(russianRuntime),
+  lessonTranslationSchema.parse(englishPrototypes),
+  lessonTranslationSchema.parse(russianPrototypes),
+  lessonTranslationSchema.parse(englishAuth),
+  lessonTranslationSchema.parse(russianAuth),
+  lessonTranslationSchema.parse(englishDeployment),
+  lessonTranslationSchema.parse(russianDeployment),
+  lessonTranslationSchema.parse(englishSql),
+  lessonTranslationSchema.parse(russianSql),
+  lessonTranslationSchema.parse(englishSass),
+  lessonTranslationSchema.parse(russianSass),
+  lessonTranslationSchema.parse(englishUiLibraries),
+  lessonTranslationSchema.parse(russianUiLibraries),
+  lessonTranslationSchema.parse(englishArchitecture),
+  lessonTranslationSchema.parse(russianArchitecture),
+  lessonTranslationSchema.parse(englishAdvancedTooling),
+  lessonTranslationSchema.parse(russianAdvancedTooling),
 ] as const;
 
 const curricula = {

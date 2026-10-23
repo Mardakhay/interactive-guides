@@ -1,6 +1,6 @@
 {
   "id": "abb-frontend-bootcamp-core",
-  "version": 1,
+  "version": 2,
   "title": "Учебная программа ABB Frontend Development Bootcamp — основная программа",
   "description": "Каноническая шестимесячная программа из 24 учебных недель, предоставленная для ABB Frontend Development Bootcamp. Дополнительные темы перечислены отдельно и не выдаются за исходные недели буткемпа.",
   "targetLevel": "Младший Frontend Developer",
@@ -491,7 +491,10 @@
         "Stack/heap и garbage collection"
       ],
       "note": "Дополнительная углублённая программа; согласовать с конспектами пользователя в Notion.",
-      "lessonIds": []
+      "lessonIds": [
+        "js.runtime-memory",
+        "js.object-prototypes"
+      ]
     },
     {
       "id": "supplement-architecture",
@@ -505,7 +508,9 @@
         "Технические компромиссы"
       ],
       "note": "Расширяет программу практическими архитектурными решениями, характерными для production.",
-      "lessonIds": []
+      "lessonIds": [
+        "frontend.architecture-boundaries"
+      ]
     },
     {
       "id": "supplement-auth",
@@ -517,7 +522,9 @@
         "Безопасное хранение и распространённые браузерные угрозы"
       ],
       "note": "Дополнительная программа по безопасности; примеры требуют проверки по актуальным первичным источникам.",
-      "lessonIds": []
+      "lessonIds": [
+        "frontend.auth-security"
+      ]
     },
     {
       "id": "supplement-deployment",
@@ -530,7 +537,9 @@
         "Deployment через CI/CD"
       ],
       "note": "Расширяет операционные темы заключительных недель.",
-      "lessonIds": []
+      "lessonIds": [
+        "deployment.production-hosting"
+      ]
     },
     {
       "id": "supplement-data",
@@ -543,7 +552,9 @@
         "Безопасная интеграция frontend и синхронизация"
       ],
       "note": "Дополнительная программа; не входит в исходные 24 недели основной программы.",
-      "lessonIds": []
+      "lessonIds": [
+        "data.sql-postgresql"
+      ]
     },
     {
       "id": "supplement-tooling",
@@ -556,7 +567,9 @@
         "ESLint, Prettier и CI"
       ],
       "note": "Углубляет темы инструментов из недели 9.",
-      "lessonIds": []
+      "lessonIds": [
+        "tooling.advanced-package-workflows"
+      ]
     },
     {
       "id": "supplement-network-browser",
@@ -588,6 +601,22 @@
       "note": "Углублённая программа по браузеру и производительности, не меняющая последовательность 24 основных недель.",
       "lessonIds": [
         "browser.rendering-pipeline"
+      ]
+    },
+    {
+      "id": "supplement-ui-ecosystem",
+      "title": "Препроцессоры CSS и UI-библиотеки",
+      "topics": [
+        "Модули и mixins Sass/SCSS",
+        "Compile-time tokens и CSS custom properties",
+        "Responsive grid Bootstrap",
+        "Компоненты и темы Material UI",
+        "Компромиссы версий и доступности"
+      ],
+      "note": "Дополнительное покрытие UI-экосистемы по интерактивным HTML-источникам; не входит в ядро из 24 недель.",
+      "lessonIds": [
+        "css.sass-scss",
+        "ui.bootstrap-mui"
       ]
     }
   ]

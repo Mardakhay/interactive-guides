@@ -1,6 +1,6 @@
 {
   "id": "abb-frontend-bootcamp-core",
-  "version": 1,
+  "version": 2,
   "title": "ABB Frontend Development Bootcamp — Core Curriculum",
   "description": "The canonical six-month, 24-week track supplied for the ABB Frontend Development Bootcamp. Supplementary topics are listed separately and are not presented as original bootcamp weeks.",
   "targetLevel": "Junior Frontend Developer",
@@ -491,7 +491,10 @@
         "Stack/heap and garbage collection"
       ],
       "note": "Supplementary depth beyond the weekly bootcamp outline; align with the user's Notion notes.",
-      "lessonIds": []
+      "lessonIds": [
+        "js.runtime-memory",
+        "js.object-prototypes"
+      ]
     },
     {
       "id": "supplement-architecture",
@@ -505,7 +508,9 @@
         "Technical trade-offs"
       ],
       "note": "Extend the curriculum with practical, production-oriented architecture decisions.",
-      "lessonIds": []
+      "lessonIds": [
+        "frontend.architecture-boundaries"
+      ]
     },
     {
       "id": "supplement-auth",
@@ -517,7 +522,9 @@
         "Secure storage and common browser threats"
       ],
       "note": "Supplementary security track; examples require current primary-source verification.",
-      "lessonIds": []
+      "lessonIds": [
+        "frontend.auth-security"
+      ]
     },
     {
       "id": "supplement-deployment",
@@ -530,7 +537,9 @@
         "CI/CD deployments"
       ],
       "note": "Expands the final weeks with operational understanding.",
-      "lessonIds": []
+      "lessonIds": [
+        "deployment.production-hosting"
+      ]
     },
     {
       "id": "supplement-data",
@@ -543,7 +552,9 @@
         "Safe frontend integration and sync"
       ],
       "note": "Supplementary track; not represented as part of the original 24-week core syllabus.",
-      "lessonIds": []
+      "lessonIds": [
+        "data.sql-postgresql"
+      ]
     },
     {
       "id": "supplement-tooling",
@@ -556,7 +567,9 @@
         "ESLint, Prettier and CI"
       ],
       "note": "Expands Week 9 tooling into a deeper reference track.",
-      "lessonIds": []
+      "lessonIds": [
+        "tooling.advanced-package-workflows"
+      ]
     },
     {
       "id": "supplement-network-browser",
@@ -588,6 +601,22 @@
       "note": "An optional browser/performance deep dive that does not change the 24-week core sequence.",
       "lessonIds": [
         "browser.rendering-pipeline"
+      ]
+    },
+    {
+      "id": "supplement-ui-ecosystem",
+      "title": "CSS Preprocessing and UI Libraries",
+      "topics": [
+        "Sass/SCSS modules and mixins",
+        "Compile-time tokens vs CSS custom properties",
+        "Bootstrap responsive grid",
+        "Material UI components and theming",
+        "Version and accessibility trade-offs"
+      ],
+      "note": "Optional UI ecosystem coverage for topics from the interactive HTML sources; separate from the 24-week core.",
+      "lessonIds": [
+        "css.sass-scss",
+        "ui.bootstrap-mui"
       ]
     }
   ]
