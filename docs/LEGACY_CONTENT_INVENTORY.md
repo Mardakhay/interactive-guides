@@ -46,3 +46,7 @@
 ## Important limitation
 
 The table is an initial subject mapping based on filenames and sampled content, not a full line-by-line audit of all 25 large HTML files. Before each file is rewritten, inspect its complete content and preserve useful examples and nuanced explanations where they are accurate. The migration should be curriculum-driven: split a legacy file when it contains several separate learnable concepts.
+
+## Follow-up source audit status — 2026-10-23
+
+The repository inventory reconciles to 25 HTML files. A structural pass inspected headings and interactive-control presence across all 25; full content/code review was completed only for react-forms-tutorial.html and react-ecosystem-course.html in the prior pass. react-api-hooks-lesson.html also received a targeted factual review for client choice, partial-update semantics, demo API persistence, and retry behavior. The remaining HTML documents still need body/code/example/feedback review before this inventory can be called fully audited. See FULL_SOURCE_CONTENT_AUDIT.md for source-to-target status and limitations.
