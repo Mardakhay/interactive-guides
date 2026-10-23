@@ -21,6 +21,8 @@ describe('application localization', () => {
     expect(formatNoteCount('ru', 5)).toBe('5 заметок');
     expect(formatNoteCount('en', 2)).toBe('2 notes');
     expect(getLocalizedDifficulty('ru', 'advanced')).toBe('Продвинутый');
+    expect(translate('ru', 'markComplete')).toBe('Отметить завершённым');
+    expect(translate('en', 'dashboardOverallProgress', { completed: 3, total: 25 })).toBe('Overall progress — 3 of 25 lessons');
     expect(formatResultCount('en', 2)).toBe('2 results');
     expect(formatResultCount('ru', 1)).toBe('1 результат');
     expect(formatResultCount('ru', 3)).toBe('3 результата');
