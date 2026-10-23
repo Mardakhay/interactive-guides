@@ -1,16 +1,16 @@
 {
   "id": "css.fundamentals",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-1-week-3",
   "week": 3,
   "order": 3,
   "title": "CSS Fundamentals: Selectors, Cascade, and the Box Model",
   "description": "Learn how CSS rules match elements, how the cascade decides between conflicting declarations, how stylesheets are attached, and how the box model and display values affect layout.",
-  "estimatedMinutes": 50,
+  "estimatedMinutes": 75,
   "difficulty": "beginner",
   "prerequisites": [
     "html.document-structure",
@@ -331,6 +331,131 @@
         "The cascade considers more than source order. Compare specificity only after higher-priority cascade criteria are understood.",
         "The box model comprises content, padding, border, and margin. Border-box sizing includes padding and border in the declared width.",
         "Block, inline, and inline-block affect layout behavior but do not change an element's semantic meaning."
+      ]
+    },
+    {
+      "id": "deep-css-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: the cascade, specificity, and the box model in debugging"
+    },
+    {
+      "id": "deep-css-model",
+      "type": "paragraph",
+      "text": "When a style seems ignored, debug in order: check whether the selector matches, whether the declaration is valid, and then which declaration wins the cascade. Specificity is only one factor: origin, importance, cascade layers, scoping and source order can also matter. After styles resolve, the box model determines the element's layout size; with `content-box`, padding and border add to the declared width, while `border-box` includes them inside that width."
+    },
+    {
+      "id": "deep-css-trace",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": ".card p {\n  color: slateblue;\n  width: 320px;\n  padding: 16px;\n  border: 2px solid;\n}\n\n#app .card p {\n  color: darkgreen;\n}\n\n* {\n  box-sizing: border-box;\n}",
+      "steps": [
+        {
+          "title": "Match the selector before comparing specificity",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "The selector affects p descendants of .card. If the DOM does not have that relationship, the declaration cannot win because it does not apply at all."
+        },
+        {
+          "title": "Compare specificity for the conflicting color",
+          "lineStart": 8,
+          "lineEnd": 10,
+          "explanation": "Both rules match the paragraph. The ID selector in #app .card p gives it greater specificity than .card p, so darkgreen wins assuming the declarations have the same cascade origin/importance/layer."
+        },
+        {
+          "title": "Re-evaluate width after box sizing",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "With border-box, a declared width of 320px includes the 32px total horizontal padding and 4px border. With the default content-box, those are added outside the 320px content width."
+        }
+      ]
+    },
+    {
+      "id": "deep-css-cascade-guide",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Inspect DevTools' computed styles and matched rules rather than adding another selector blindly.",
+        "Specificity is commonly written as IDs, classes/attributes/pseudo-classes, and elements/pseudo-elements; compare the tuple lexicographically only after higher cascade factors are accounted for.",
+        "Prefer a coherent cascade and component-level conventions over using `!important` to win every conflict; important declarations have their own cascade precedence and make future changes harder.",
+        "Margins, padding, borders and dimensions affect the actual box. Global `box-sizing: border-box` often makes width calculations more predictable.",
+        "Positioning and z-index depend on containing blocks and stacking contexts; a larger z-index inside one stacking context cannot always outrank a sibling context."
+      ]
+    },
+    {
+      "id": "deep-css-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Both selectors below match the same paragraph. Assuming the declarations have equal origin, importance and layer, which color wins?",
+      "options": [
+        {
+          "id": "a",
+          "text": "slateblue from `.card p` because it appears first",
+          "correct": false,
+          "feedback": "Source order breaks a tie only after equal cascade precedence and specificity."
+        },
+        {
+          "id": "b",
+          "text": "darkgreen from `#app .card p` because its ID selector gives it higher specificity",
+          "correct": true,
+          "feedback": "The ID contributes a higher specificity tier than the class-and-element selector, so darkgreen wins under the stated assumptions."
+        },
+        {
+          "id": "c",
+          "text": "Neither rule applies because there are two selectors",
+          "correct": false,
+          "feedback": "Both selectors may match. The cascade decides which conflicting declaration wins."
+        },
+        {
+          "id": "d",
+          "text": "The browser randomly chooses one",
+          "correct": false,
+          "feedback": "The cascade has deterministic precedence rules."
+        }
+      ],
+      "explanation": "Debug whether a rule matches first, then apply cascade precedence/specificity/order rather than relying on intuition."
+    },
+    {
+      "id": "deep-css-practice",
+      "type": "codingExercise",
+      "title": "Debug a layout regression without escalating specificity blindly",
+      "language": "css",
+      "context": "Investigate why a card overflows its container and why the intended text color does not appear.",
+      "instructions": [
+        "Given a 320px card content width plus horizontal padding and borders, calculate the resulting outer width under content-box.",
+        "Switch to border-box and explain the new outer width.",
+        "Resolve the competing color rule by calculating selector specificity.",
+        "Use DevTools to inspect matched/computed styles and identify whether the selector matches before changing it.",
+        "Describe why adding !important would be a fragile first fix."
+      ],
+      "requirements": [
+        "Content-box and border-box dimensions are calculated correctly.",
+        "Specificity comparison is explicit and assumes equal higher cascade factors.",
+        "The debugging order starts with selector matching and validity.",
+        "The fix does not introduce unnecessary !important declarations.",
+        "The final layout is tested at the relevant viewport size."
+      ],
+      "starterCode": ".card p {\n  color: slateblue;\n  width: 320px;\n  padding: 16px;\n  border: 2px solid;\n}\n\n#app .card p {\n  color: darkgreen;\n}",
+      "hints": [
+        "Under content-box, the outer width includes content + left/right padding + left/right border.",
+        "IDs contribute more specificity than classes, but importance/layers are checked first.",
+        "Use computed styles to see which declaration wins and why."
+      ],
+      "successCriteria": [
+        "Correctly calculates the outer width in both box-sizing models.",
+        "Identifies the winning selector and explains specificity.",
+        "Uses DevTools evidence instead of random selector escalation.",
+        "Explains a trade-off of !important."
+      ]
+    },
+    {
+      "id": "deep-css-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Debug CSS from selector match and validity through cascade precedence to layout.",
+        "Specificity matters only within the full cascade rules.",
+        "Box sizing, containing blocks and stacking contexts explain many layout bugs that cannot be fixed by increasing z-index alone."
       ]
     },
     {
