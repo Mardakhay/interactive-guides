@@ -1,16 +1,16 @@
 {
   "id": "react.context-shared-state",
   "locale": "ru",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-4-week-15",
   "week": 15,
   "order": 1,
   "title": "Общее состояние, lifting state up и Context API",
   "description": "Выбирай владельца общего состояния, поднимай его к ближайшему общему родителю и используй React Context, чтобы передавать сквозные значения без прокидывания props через каждый промежуточный слой.",
-  "estimatedMinutes": 60,
+  "estimatedMinutes": 90,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -22,7 +22,9 @@
     "Объяснять prop drilling и когда явные props всё ещё являются самым простым решением.",
     "Создавать типизированный Context и Provider для общего значения и функции обновления.",
     "Понимать, что Context распространяет значение, но не устраняет автоматически все задачи проектирования состояния.",
-    "Создавать пример переключения темы и общего состояния пользователя с понятным владением и логикой обновления."
+    "Создавать пример переключения темы и общего состояния пользователя с понятным владением и логикой обновления.",
+    "Объяснять, почему каждый вызов custom Hook владеет собственным состоянием и когда нужны общий владелец или Context.",
+    "Использовать useReducer для явных переходов по действиям и сочетать его с Context, если потомкам нужно одно состояние функции."
   ],
   "tags": [
     "react",
@@ -140,11 +142,106 @@
       "type": "list",
       "ordered": false,
       "items": [
-        "Локальный useState: значение принадлежит одному компоненту или небольшому поддереву.",
-        "Поднятое состояние и props: соседним компонентам нужно общее значение, а поток данных остаётся понятным.",
-        "Context: значения, которые нужны многим потомкам, например тема, язык или текущий аутентифицированный пользователь.",
-        "Специализированная библиотека состояния или внешний store может помочь, когда обновления, selectors, persistence или производное глобальное состояние становятся сложнее.",
-        "Выбирай самый простой инструмент, который выполняет реальные требования. Context автоматически не обеспечивает сохранение, синхронизацию с сервером, инвалидирование кеша или авторизацию."
+        "Локальный useState: состояние одного компонента или небольшого поддерева.",
+        "Поднятое состояние и props: соседним компонентам нужно одно значение, а поток данных остаётся понятным.",
+        "Context: сквозные и часто относительно стабильные значения — тема, язык, текущий пользователь, — если они нужны многим потомкам.",
+        "useReducer: согласованные переходы состояния с явными типами действий, даже если состояние локальное.",
+        "Context + useReducer: нескольким потомкам нужно читать/изменять функцию с множеством действий.",
+        "Zustand/Redux могут пригодиться, когда глобальные обновления, selectors, devtools или несколько state slices оправдывают сложность.",
+        "Server state (posts, users, products) требует кеширования, проверки актуальности, повторной загрузки, обработки ошибок и синхронизации. Не помещай его в Context лишь потому, что данные читают несколько компонентов.",
+        "Начинай с простого подхода. Context сам по себе не обеспечивает persistence, инвалидацию кеша, синхронизацию или авторизацию."
+      ]
+    },
+    {
+      "id": "custom-hook-instance",
+      "type": "heading",
+      "level": 2,
+      "text": "Custom Hooks переиспользуют логику, но не разделяют состояние автоматически"
+    },
+    {
+      "id": "custom-hook-instance-body",
+      "type": "paragraph",
+      "text": "Custom Hook вызывает React Hooks и объединяет повторно используемое поведение. Вызов одного Hook двумя компонентами не создаёт одно общее состояние: каждый вызов владеет своим useState/useReducer. Для переиспользования логики подходит custom Hook; для общего значения нужен общий владелец или Context."
+    },
+    {
+      "id": "custom-hook-instance-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState } from \"react\";\nfunction useCounter() {\n  const [count, setCount] = useState(0);\n  return { count, increment: () => setCount((current) => current + 1) };\n}\nfunction CounterA() {\n  const { count, increment } = useCounter();\n  return <button onClick={increment}>A: {count}</button>;\n}\nfunction CounterB() {\n  const { count, increment } = useCounter();\n  return <button onClick={increment}>B: {count}</button>;\n}",
+      "steps": [
+        {
+          "title": "Опиши повторно используемую логику в custom Hook",
+          "lineStart": 2,
+          "lineEnd": 4,
+          "explanation": "Hook объединяет состояние и действие за небольшим API."
+        },
+        {
+          "title": "Каждый компонент вызывает Hook отдельно",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "explanation": "У каждого вызова свой экземпляр useState; имя Hook не делает его состояние общим."
+        },
+        {
+          "title": "Общая логика не равна общему состоянию",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "explanation": "Клик по A обновляет A, не B. Общее состояние требует общего владельца или контекста."
+        }
+      ]
+    },
+    {
+      "id": "bookclub-reducer",
+      "type": "heading",
+      "level": 2,
+      "text": "Reducer для реальной функции: трекер чтения BookClub"
+    },
+    {
+      "id": "bookclub-reducer-body",
+      "type": "paragraph",
+      "text": "Старый React ecosystem-урок объединяет Context и useReducer в BookClub, где отдельные компоненты добавляют книги, меняют статус чтения и удаляют записи. Reducer изолирует эти переходы. Вызывающий компонент создаёт ID до dispatch ADD_BOOK; reducer остаётся чистой функцией."
+    },
+    {
+      "id": "bookclub-reducer-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type Book = {\n  id: string;\n  title: string;\n  author: string;\n  year: number;\n  isRead: boolean;\n};\ntype BookAction =\n  | { type: \"ADD_BOOK\"; book: Book }\n  | { type: \"TOGGLE_READ\"; id: string }\n  | { type: \"DELETE_BOOK\"; id: string };\n\nfunction bookReducer(state: Book[], action: BookAction): Book[] {\n  switch (action.type) {\n    case \"ADD_BOOK\":\n      return [...state, action.book];\n    case \"TOGGLE_READ\":\n      return state.map((book) =>\n        book.id === action.id ? { ...book, isRead: !book.isRead } : book\n      );\n    case \"DELETE_BOOK\":\n      return state.filter((book) => book.id !== action.id);\n    default: {\n      const exhaustiveCheck: never = action;\n      return exhaustiveCheck;\n    }\n  }\n}",
+      "steps": [
+        {
+          "title": "Опиши книгу и допустимые действия",
+          "lineStart": 1,
+          "lineEnd": 11,
+          "explanation": "Union действий перечисляет добавление, переключение статуса и удаление."
+        },
+        {
+          "title": "Обработай ADD_BOOK иммутабельно",
+          "lineStart": 15,
+          "lineEnd": 16,
+          "explanation": "Reducer возвращает новый массив. ID должен быть создан вызывающим компонентом до dispatch."
+        },
+        {
+          "title": "Переключи одну книгу без мутации",
+          "lineStart": 17,
+          "lineEnd": 19,
+          "explanation": "map создаёт новый массив и новый объект только для совпавшей книги."
+        },
+        {
+          "title": "Удаляй по ID и проверяй все действия",
+          "lineStart": 21,
+          "lineEnd": 25,
+          "explanation": "filter исключает выбранную книгу; never помогает обнаружить неучтённое новое действие."
+        }
+      ]
+    },
+    {
+      "id": "bookclub-state-flow",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "BookProvider хранит reducer state и предоставляет список с dispatch через Context.",
+        "AddBook отправляет ADD_BOOK после валидации формы из Week 14 и подготовки книги с ID.",
+        "BooksList читает список и отправляет TOGGLE_READ или DELETE_BOOK.",
+        "Сводка вычисляет количество прочитанных книг из списка, не храня дублирующий счётчик.",
+        "Маршрутизация остаётся в Week 13, форма — в Week 14; этот проект сосредоточен на общем состоянии и действиях."
       ]
     },
     {
@@ -302,6 +399,105 @@
       "explanation": "Context помогает распространять значения; выбирай его область исходя из владения данными и сценариев доступа."
     },
     {
+      "id": "knowledge-check-4",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Если два компонента вызывают один custom Hook с useState, будут ли они разделять одно состояние?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да, React объединяет state по имени Hook",
+          "correct": false,
+          "feedback": "Переиспользование кода не объединяет отдельные вызовы."
+        },
+        {
+          "id": "b",
+          "text": "Нет, каждый вызов имеет свой state, если нет общего владельца/Context",
+          "correct": true,
+          "feedback": "Custom Hook переиспользует логику, а не один экземпляр состояния."
+        },
+        {
+          "id": "c",
+          "text": "Только если Hook в отдельном файле",
+          "correct": false,
+          "feedback": "Файл не меняет принадлежность state."
+        },
+        {
+          "id": "d",
+          "text": "Да, если оба компонента рендерятся вместе",
+          "correct": false,
+          "feedback": "Совместный рендер не объединяет состояние."
+        }
+      ],
+      "explanation": "Для общего значения нужен общий владелец или Context."
+    },
+    {
+      "id": "knowledge-check-5",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Какое значение читает useContext(SomeContext)?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ближайший подходящий Provider выше компонента в дереве",
+          "correct": true,
+          "feedback": "Context берёт значение ближайшего подходящего Provider-предка."
+        },
+        {
+          "id": "b",
+          "text": "Последний Provider в исходном файле",
+          "correct": false,
+          "feedback": "Порядок текста не определяет Context lookup."
+        },
+        {
+          "id": "c",
+          "text": "Автоматически созданный отдельный state",
+          "correct": false,
+          "feedback": "Context читает предоставленное значение."
+        },
+        {
+          "id": "d",
+          "text": "Значение из localStorage",
+          "correct": false,
+          "feedback": "Persistence нужно реализовать отдельно."
+        }
+      ],
+      "explanation": "Потребитель читает ближайший Context Provider в дереве предков."
+    },
+    {
+      "id": "knowledge-check-6",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "За что отвечает useReducer в сочетании с Context?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Context задаёт переходы, а reducer передаёт props",
+          "correct": false,
+          "feedback": "Reducer содержит правила переходов."
+        },
+        {
+          "id": "b",
+          "text": "Reducer вычисляет state по предыдущему значению и action; Context распространяет state/dispatch",
+          "correct": true,
+          "feedback": "Так переходы явные, а лишняя передача props не нужна."
+        },
+        {
+          "id": "c",
+          "text": "Автоматически кеширует API и обеспечивает авторизацию",
+          "correct": false,
+          "feedback": "Кеширование и авторизация — другие задачи."
+        },
+        {
+          "id": "d",
+          "text": "Мутирует массив для общего обновления",
+          "correct": false,
+          "feedback": "Reducer должен возвращать новое состояние."
+        }
+      ],
+      "explanation": "Reducer владеет переходами, Context предоставляет значения потомкам."
+    },
+    {
       "id": "practice-theme-user",
       "type": "codingExercise",
       "title": "Создай общее состояние темы и пользователя",
@@ -340,6 +536,42 @@
       ]
     },
     {
+      "id": "practice-bookclub-shared-state",
+      "type": "codingExercise",
+      "language": "tsx",
+      "title": "Создай слой общего состояния для BookClub",
+      "context": "Используй паттерны маршрутизации и форм из Weeks 13–14. Редактор урока не компилирует TSX.",
+      "instructions": [
+        "Определи поля Book: id, title, author, year и isRead.",
+        "Определи действия ADD_BOOK, TOGGLE_READ, DELETE_BOOK и реализуй чистый bookReducer.",
+        "Создай BookContext, Provider с useReducer и hook useBooks с понятной ошибкой вне Provider.",
+        "Создавай стабильный ID в обработчике отправки до dispatch ADD_BOOK.",
+        "Создай компонент списка с переключением/удалением и сводку из списка.",
+        "Объясни, зачем нужен единый источник истины для списка."
+      ],
+      "requirements": [
+        "Reducer возвращает новые массивы/объекты и не мутирует предыдущее состояние.",
+        "У каждого действия есть типизированные данные и явный переход.",
+        "Context распространяет reducer state, но не владеет правилами переходов.",
+        "Количество прочитанных книг вычисляется из общего списка.",
+        "Несколько потребителей видят одно и то же обновлённое состояние."
+      ],
+      "starterCode": "type Book = { id: string; title: string; author: string; year: number; isRead: boolean };\ntype BookAction =\n  | { type: \"ADD_BOOK\"; book: Book }\n  | { type: \"TOGGLE_READ\"; id: string }\n  | { type: \"DELETE_BOOK\"; id: string };\n\n// TODO: реализуй чистый reducer.\n// TODO: предоставь state/dispatch через BookContext.\n// TODO: создай guarded useBooks и компоненты списка.",
+      "hints": [
+        "Используй map для переключения статуса и filter для удаления.",
+        "Создавай копию книги через spread, не мутируй объект.",
+        "Сгенерируй ID вне reducer до dispatch ADD_BOOK.",
+        "Вычисляй число прочитанных книг через books.filter(book => book.isRead).length."
+      ],
+      "successCriteria": [
+        "ADD_BOOK добавляет книгу, не меняя старый массив.",
+        "TOGGLE_READ меняет только книгу с выбранным ID.",
+        "DELETE_BOOK удаляет только выбранный ID.",
+        "Вычисляемый счётчик обновляется без второго состояния.",
+        "Ты можешь объяснить роли Context, reducer и custom Hook."
+      ]
+    },
+    {
       "id": "summary",
       "type": "list",
       "ordered": false,
@@ -374,6 +606,16 @@
           "title": "React: useContext",
           "url": "https://react.dev/reference/react/useContext",
           "kind": "official-docs"
+        },
+        {
+          "title": "Конспект Notion: Экосистема React — §§ 4.8–4.14",
+          "url": "https://app.notion.com/p/3ba855c6fbb08075a08ef30c3ac20d89",
+          "kind": "article"
+        },
+        {
+          "title": "Исходный интерактивный урок: React Ecosystem",
+          "url": "https://github.com/Mardakhay/interactive-guides/blob/feat/learning-platform-foundation/public/lessons/react-ecosystem-course.html",
+          "kind": "article"
         }
       ]
     }

@@ -1,16 +1,16 @@
 {
   "id": "react.context-shared-state",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-4-week-15",
   "week": 15,
   "order": 1,
   "title": "Shared State, Lifting State Up, and Context API",
   "description": "Choose a clear owner for shared state, lift it to the nearest common parent, and use React Context to make cross-cutting values available without threading every prop through every layer.",
-  "estimatedMinutes": 60,
+  "estimatedMinutes": 90,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -22,7 +22,9 @@
     "Explain prop drilling and when explicit props are still the simplest option.",
     "Create a typed Context and Provider for a shared value and update function.",
     "Understand that context distributes a value but does not automatically make all state design concerns disappear.",
-    "Build a theme toggle and shared user state example with clear ownership and update behavior."
+    "Build a theme toggle and shared user state example with clear ownership and update behavior.",
+    "Explain why each call to a custom Hook owns its own local state and when shared ownership or Context is required.",
+    "Use useReducer for explicit action-based transitions and combine it with Context when descendants need the same feature state."
   ],
   "tags": [
     "react",
@@ -140,11 +142,106 @@
       "type": "list",
       "ordered": false,
       "items": [
-        "Local useState: values owned by one component or a small subtree.",
-        "Lifted state plus props: siblings need a shared value and the data flow remains easy to follow.",
-        "Context: values many descendants need, such as theme, locale, or current authenticated user.",
-        "A dedicated state library or external store can help when updates, selectors, persistence, or derived global state become more complex.",
-        "Choose the simplest tool that meets the actual requirements. Context does not provide persistence, server synchronization, cache invalidation, or authorization automatically."
+        "Local useState: state owned by one component or a small subtree.",
+        "Lifted state plus props: siblings need one value and data flow stays clear.",
+        "Context: cross-cutting, often stable values such as theme, locale or current user when many descendants need them.",
+        "useReducer: coordinated state transitions with explicit action types, even when state is local.",
+        "Context + useReducer: several descendants need the same feature state and its multiple actions.",
+        "Zustand/Redux can help when global updates, selectors, devtools or multiple state slices justify the added complexity.",
+        "Server state (posts, users, products) has caching, freshness, refetching, error and synchronization concerns. Do not put it in Context just because several components read it.",
+        "Start simple. Context alone does not provide persistence, cache invalidation, synchronization or authorization."
+      ]
+    },
+    {
+      "id": "custom-hook-instance",
+      "type": "heading",
+      "level": 2,
+      "text": "Custom Hooks reuse logic; they do not share state automatically"
+    },
+    {
+      "id": "custom-hook-instance-body",
+      "type": "paragraph",
+      "text": "A custom Hook calls React Hooks and packages reusable behavior. Calling it in two components does not create one shared state: each call owns its useState/useReducer state. Use a custom Hook to reuse logic; for a shared value, use a common owner or Context."
+    },
+    {
+      "id": "custom-hook-instance-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState } from \"react\";\nfunction useCounter() {\n  const [count, setCount] = useState(0);\n  return { count, increment: () => setCount((current) => current + 1) };\n}\nfunction CounterA() {\n  const { count, increment } = useCounter();\n  return <button onClick={increment}>A: {count}</button>;\n}\nfunction CounterB() {\n  const { count, increment } = useCounter();\n  return <button onClick={increment}>B: {count}</button>;\n}",
+      "steps": [
+        {
+          "title": "Define reusable logic in a custom Hook",
+          "lineStart": 2,
+          "lineEnd": 4,
+          "explanation": "The Hook packages state and an action behind a small API."
+        },
+        {
+          "title": "Each component calls the Hook independently",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "explanation": "Each call owns its own useState instance; the Hook name does not make it shared."
+        },
+        {
+          "title": "Reusable logic is not shared state",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "explanation": "Clicking A updates A, not B. Shared state needs a common owner or Context."
+        }
+      ]
+    },
+    {
+      "id": "bookclub-reducer",
+      "type": "heading",
+      "level": 2,
+      "text": "A reducer for a real feature: the BookClub reading tracker"
+    },
+    {
+      "id": "bookclub-reducer-body",
+      "type": "paragraph",
+      "text": "The legacy React ecosystem lesson combines Context and useReducer in BookClub, where separate components add books, toggle reading status, and delete records. The reducer isolates these transitions. The caller creates the ID before dispatching ADD_BOOK; the reducer stays pure."
+    },
+    {
+      "id": "bookclub-reducer-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type Book = {\n  id: string;\n  title: string;\n  author: string;\n  year: number;\n  isRead: boolean;\n};\ntype BookAction =\n  | { type: \"ADD_BOOK\"; book: Book }\n  | { type: \"TOGGLE_READ\"; id: string }\n  | { type: \"DELETE_BOOK\"; id: string };\n\nfunction bookReducer(state: Book[], action: BookAction): Book[] {\n  switch (action.type) {\n    case \"ADD_BOOK\":\n      return [...state, action.book];\n    case \"TOGGLE_READ\":\n      return state.map((book) =>\n        book.id === action.id ? { ...book, isRead: !book.isRead } : book\n      );\n    case \"DELETE_BOOK\":\n      return state.filter((book) => book.id !== action.id);\n    default: {\n      const exhaustiveCheck: never = action;\n      return exhaustiveCheck;\n    }\n  }\n}",
+      "steps": [
+        {
+          "title": "Model the book and allowed actions",
+          "lineStart": 1,
+          "lineEnd": 11,
+          "explanation": "The action union describes adding, toggling, and deleting."
+        },
+        {
+          "title": "Handle ADD_BOOK immutably",
+          "lineStart": 15,
+          "lineEnd": 16,
+          "explanation": "The reducer returns a new array. The caller creates the ID before dispatch."
+        },
+        {
+          "title": "Toggle one book without mutation",
+          "lineStart": 17,
+          "lineEnd": 19,
+          "explanation": "map creates a new array and a new object only for the matching book."
+        },
+        {
+          "title": "Delete by ID and check all actions",
+          "lineStart": 21,
+          "lineEnd": 25,
+          "explanation": "filter removes the selected book; never helps flag an unhandled new action."
+        }
+      ]
+    },
+    {
+      "id": "bookclub-state-flow",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "BookProvider owns reducer state and exposes the list and dispatch through Context.",
+        "AddBook dispatches ADD_BOOK after Week 14 form validation and preparing a book with an ID.",
+        "BooksList reads the list and dispatches TOGGLE_READ or DELETE_BOOK.",
+        "A summary derives the number of read books from the list instead of storing a duplicate counter.",
+        "Routing stays in Week 13, forms in Week 14; this project focuses on shared state and actions."
       ]
     },
     {
@@ -302,6 +399,105 @@
       "explanation": "Context helps distribute values; choose its scope based on data ownership and access patterns."
     },
     {
+      "id": "knowledge-check-4",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "If two components call the same custom Hook with useState, do they share one state value?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Yes, React merges state because the Hook name is the same",
+          "correct": false,
+          "feedback": "Reusing code does not merge separate Hook calls."
+        },
+        {
+          "id": "b",
+          "text": "No, each call owns state unless there is a shared owner/Context",
+          "correct": true,
+          "feedback": "A custom Hook reuses logic, not a single state instance."
+        },
+        {
+          "id": "c",
+          "text": "Only if the Hook is in another file",
+          "correct": false,
+          "feedback": "The file does not change state ownership."
+        },
+        {
+          "id": "d",
+          "text": "Yes, if both components render together",
+          "correct": false,
+          "feedback": "Simultaneous rendering does not merge state."
+        }
+      ],
+      "explanation": "Shared values require a common owner or Context."
+    },
+    {
+      "id": "knowledge-check-5",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which value does useContext(SomeContext) read?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The closest matching provider above the component",
+          "correct": true,
+          "feedback": "Context reads the nearest matching provider ancestor."
+        },
+        {
+          "id": "b",
+          "text": "The last provider in the source file",
+          "correct": false,
+          "feedback": "Source text order does not determine lookup."
+        },
+        {
+          "id": "c",
+          "text": "A newly created independent state",
+          "correct": false,
+          "feedback": "Context reads a provided value."
+        },
+        {
+          "id": "d",
+          "text": "A value from localStorage",
+          "correct": false,
+          "feedback": "Persistence is separate."
+        }
+      ],
+      "explanation": "A consumer reads the nearest provider in the rendered ancestor tree."
+    },
+    {
+      "id": "knowledge-check-6",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does useReducer do when paired with Context?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Context defines transitions; reducer passes props",
+          "correct": false,
+          "feedback": "The reducer contains transition rules."
+        },
+        {
+          "id": "b",
+          "text": "Reducer calculates next state from previous state and action; Context distributes state/dispatch",
+          "correct": true,
+          "feedback": "This keeps transitions explicit and avoids repetitive prop passing."
+        },
+        {
+          "id": "c",
+          "text": "Automatically caches APIs and authorizes users",
+          "correct": false,
+          "feedback": "Caching and authorization are separate concerns."
+        },
+        {
+          "id": "d",
+          "text": "Mutates the array for shared updates",
+          "correct": false,
+          "feedback": "A reducer should return new state."
+        }
+      ],
+      "explanation": "The reducer owns transitions; Context distributes values."
+    },
+    {
       "id": "practice-theme-user",
       "type": "codingExercise",
       "title": "Create shared theme and user state",
@@ -340,6 +536,42 @@
       ]
     },
     {
+      "id": "practice-bookclub-shared-state",
+      "type": "codingExercise",
+      "language": "tsx",
+      "title": "Build the shared state layer for BookClub",
+      "context": "Use the existing routing/form patterns from Weeks 13–14. The lesson editor does not compile TSX.",
+      "instructions": [
+        "Define Book fields id, title, author, year, and isRead.",
+        "Define ADD_BOOK, TOGGLE_READ, DELETE_BOOK actions and implement a pure bookReducer.",
+        "Create BookContext, a BookProvider that owns useReducer, and a useBooks hook that throws a clear error outside the provider.",
+        "Create a stable ID in the submit handler before dispatching ADD_BOOK.",
+        "Build a list consumer that toggles/deletes books and a summary derived from that list.",
+        "Explain why there should be one source of truth for the list."
+      ],
+      "requirements": [
+        "The reducer returns new arrays/objects and never mutates prior state.",
+        "Each action has typed data and an explicit transition.",
+        "Context distributes reducer state; it does not own transition rules.",
+        "Read/unread counts derive from the shared list.",
+        "Multiple consumers see the same updated list."
+      ],
+      "starterCode": "type Book = { id: string; title: string; author: string; year: number; isRead: boolean };\ntype BookAction =\n  | { type: \"ADD_BOOK\"; book: Book }\n  | { type: \"TOGGLE_READ\"; id: string }\n  | { type: \"DELETE_BOOK\"; id: string };\n\n// TODO: implement a pure reducer.\n// TODO: expose state/dispatch through BookContext.\n// TODO: create a guarded useBooks hook and list consumers.",
+      "hints": [
+        "Use map to toggle a book and filter to delete it.",
+        "Spread the matched book instead of mutating it.",
+        "Generate the ID outside the reducer before dispatching ADD_BOOK.",
+        "Derive the read count with books.filter(book => book.isRead).length."
+      ],
+      "successCriteria": [
+        "ADD_BOOK appends without changing the old array.",
+        "TOGGLE_READ changes only the matching ID.",
+        "DELETE_BOOK removes only the selected ID.",
+        "The derived count updates without a second state value.",
+        "You can explain the roles of Context, reducer, and custom Hook."
+      ]
+    },
+    {
       "id": "summary",
       "type": "list",
       "ordered": false,
@@ -374,6 +606,16 @@
           "title": "React: useContext",
           "url": "https://react.dev/reference/react/useContext",
           "kind": "official-docs"
+        },
+        {
+          "title": "Notion notes: React ecosystem — sections 4.8–4.14",
+          "url": "https://app.notion.com/p/3ba855c6fbb08075a08ef30c3ac20d89",
+          "kind": "article"
+        },
+        {
+          "title": "Source lesson (legacy HTML): React Ecosystem",
+          "url": "https://github.com/Mardakhay/interactive-guides/blob/feat/learning-platform-foundation/public/lessons/react-ecosystem-course.html",
+          "kind": "article"
         }
       ]
     }
