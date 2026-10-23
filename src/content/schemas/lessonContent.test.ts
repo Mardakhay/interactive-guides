@@ -124,8 +124,11 @@ describe('CSS fundamentals lesson translation', () => {
     expect(englishCss.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianCss.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishCss.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishCss.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
     expect(russianCss.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    expect(englishCss.blocks.map((block) => block.id)).toContain('css-color-values');
+    expect(englishCss.blocks.map((block) => block.id)).toContain('css-accessibility');
+    expect(englishCss.blocks.map((block) => block.id)).toContain('css-accessible-theme-card');
   });
 });
 
