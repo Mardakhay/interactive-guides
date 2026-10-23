@@ -1,16 +1,16 @@
 {
   "id": "css.fundamentals",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-23",
   "moduleId": "month-1-week-3",
   "week": 3,
   "order": 3,
-  "title": "CSS Fundamentals: Selectors, Cascade, and the Box Model",
-  "description": "Learn how CSS rules match elements, how the cascade decides between conflicting declarations, how stylesheets are attached, and how the box model and display values affect layout.",
-  "estimatedMinutes": 75,
+  "title": "CSS Fundamentals: Selectors, Cascade, Visual Rules, and Accessibility",
+  "description": "Learn how selectors and the cascade choose styles, how the box model affects layout, and how to create readable visual rules with colors, typography, custom properties, transitions and accessible browser fallbacks.",
+  "estimatedMinutes": 110,
   "difficulty": "beginner",
   "prerequisites": [
     "html.document-structure",
@@ -21,7 +21,11 @@
     "Read basic type, class, and ID selectors.",
     "Predict which declaration wins when rules conflict under the same cascade conditions.",
     "Explain content, padding, border, and margin and apply border-box sizing.",
-    "Distinguish block, inline, and inline-block behavior while building a small landing page."
+    "Distinguish block, inline, and inline-block behavior while building a small landing page.",
+    "Distinguish CSS color formats, handle transparency, and create readable typography.",
+    "Use CSS custom properties and functions for reusable responsive values.",
+    "Create transitions with visible focus and respect prefers-reduced-motion.",
+    "Apply basic visual accessibility rules and progressive enhancement with @supports."
   ],
   "tags": [
     "css",
@@ -449,13 +453,258 @@
       ]
     },
     {
+      "id": "css-color-values",
+      "type": "heading",
+      "level": 2,
+      "text": "Color values and visual rules"
+    },
+    {
+      "id": "css-color-values-body",
+      "type": "paragraph",
+      "text": "CSS supports named colors, hexadecimal values, rgb(), and hsl(). These formats can describe the same color in different ways; RGB describes red, green, and blue components, while HSL describes hue, saturation, and lightness. Alpha controls how transparent a color is. Prefer a color with alpha for a translucent background rather than lowering opacity on the whole card, because opacity also fades its descendants."
+    },
+    {
+      "id": "css-color-values-example",
+      "type": "code",
+      "language": "css",
+      "caption": "Reusable colors and a translucent surface",
+      "code": ":root {\n  --color-ink: #1e293b;\n  --color-canvas: hsl(210 40% 98%);\n  --color-brand: rgb(79 70 229);\n}\n\nbody {\n  color: var(--color-ink);\n  background-color: var(--color-canvas);\n}\n\n.notice {\n  background-color: rgba(79, 70, 229, 0.12);\n  border-left: 4px solid var(--color-brand);\n}"
+    },
+    {
+      "id": "css-typography",
+      "type": "heading",
+      "level": 2,
+      "text": "Typography that stays readable"
+    },
+    {
+      "id": "css-typography-body",
+      "type": "paragraph",
+      "text": "Choose a font stack with generic fallbacks so text remains readable if a preferred font is unavailable. Use relative units for scalable type, a unitless line-height for predictable line spacing, and a comfortable line length for long-form content. clamp() can make a heading fluid while keeping it between a minimum and maximum size. Test the layout with zoom and longer text, not only at one viewport size."
+    },
+    {
+      "id": "css-typography-example",
+      "type": "code",
+      "language": "css",
+      "caption": "Readable defaults with fluid heading size",
+      "code": "body {\n  font-family: system-ui, -apple-system, \"Segoe UI\", sans-serif;\n  font-size: 1rem;\n  line-height: 1.6;\n}\n\nh1 {\n  font-size: clamp(2rem, 4vw, 3.5rem);\n  line-height: 1.1;\n}\n\n.article {\n  width: min(100%, 70ch);\n  margin-inline: auto;\n}"
+    },
+    {
+      "id": "css-custom-properties",
+      "type": "heading",
+      "level": 2,
+      "text": "Custom properties and CSS functions"
+    },
+    {
+      "id": "css-custom-properties-body",
+      "type": "paragraph",
+      "text": "Custom properties such as --color-brand are ordinary CSS properties that participate in inheritance and the cascade. Define shared values in :root or a component scope, then read them with var(). A fallback value inside var() is useful when a custom property is missing or invalid. calc(), min(), max(), and clamp() combine values and units at layout time; Sass variables are different because Sass variables are processed by the Sass compiler."
+    },
+    {
+      "id": "css-custom-properties-example",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": ":root {\n  --color-text: #1f2937;\n  --color-surface: #ffffff;\n  --color-brand: hsl(263 70% 50%);\n  --space-card: 1.25rem;\n}\n\n.card {\n  color: var(--color-text, #222);\n  background: var(--color-surface);\n  border-top: 4px solid var(--color-brand);\n  padding: clamp(1rem, 3vw, 2rem);\n  width: min(100%, 65ch);\n  margin-inline: auto;\n}\n\n@supports (color: color-mix(in srgb, black, white)) {\n  .card {\n    border-color: color-mix(in srgb, var(--color-brand), white 25%);\n  }\n}",
+      "steps": [
+        {
+          "title": "Define tokens once",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "The custom properties form a small design vocabulary. They can be reused by multiple components and can be overridden in a narrower scope when a component needs a variation."
+        },
+        {
+          "title": "Use fallbacks and fluid constraints",
+          "lineStart": 8,
+          "lineEnd": 15,
+          "explanation": "var(--color-text, #222) supplies a fallback when the custom property is unavailable. clamp() bounds padding between a minimum and a maximum, while min() caps the width so a card cannot grow beyond a readable line length or the available container width."
+        },
+        {
+          "title": "Enhance only when the browser supports it",
+          "lineStart": 17,
+          "lineEnd": 21,
+          "explanation": "The border has a conventional color first. The @supports feature query adds a color-mix() enhancement only when the browser recognizes that declaration; the original border remains a fallback."
+        }
+      ]
+    },
+    {
+      "id": "css-transitions",
+      "type": "heading",
+      "level": 2,
+      "text": "Transitions, transforms, and motion preferences"
+    },
+    {
+      "id": "css-transitions-body",
+      "type": "paragraph",
+      "text": "A transition interpolates a property's value between two states; common triggers include :hover, :focus-visible, or a class change. Transform functions such as translate(), rotate(), and scale() change an element's visual rendering without changing normal document flow. Animate only properties that help explain feedback, preserve a visible keyboard focus indicator, and honor prefers-reduced-motion so essential content does not depend on animation."
+    },
+    {
+      "id": "css-transitions-example",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": ".button {\n  background-color: #3730a3;\n  transition: background-color 160ms ease, transform 160ms ease;\n}\n\n.button:hover {\n  background-color: #4338ca;\n  transform: translateY(-1px);\n}\n\n.button:focus-visible {\n  outline: 3px solid #a5b4fc;\n  outline-offset: 3px;\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .button {\n    transition: none;\n  }\n}",
+      "steps": [
+        {
+          "title": "Animate a meaningful state change",
+          "lineStart": 1,
+          "lineEnd": 9,
+          "explanation": "The transition lists the properties being animated and a short duration. The hover state adds a small visual response. Avoid transitioning every property indiscriminately, because that can animate layout or obscure state changes."
+        },
+        {
+          "title": "Keep keyboard focus visible",
+          "lineStart": 11,
+          "lineEnd": 14,
+          "explanation": "The :focus-visible rule makes keyboard focus easy to locate. Do not remove an outline without providing an equally visible replacement."
+        },
+        {
+          "title": "Respect reduced-motion preferences",
+          "lineStart": 16,
+          "lineEnd": 20,
+          "explanation": "This media query detects the user's system preference and removes this non-essential transition. Apply the same principle to larger animations and movement that could cause discomfort."
+        }
+      ]
+    },
+    {
+      "id": "css-accessibility",
+      "type": "heading",
+      "level": 2,
+      "text": "Accessibility is part of visual styling"
+    },
+    {
+      "id": "css-accessibility-body",
+      "type": "paragraph",
+      "text": "CSS affects whether content is readable and controls are easy to use, but it cannot replace semantic HTML, an accessible name, or a useful interaction model. For WCAG 2.2 Level AA, normal text generally needs a contrast ratio of at least 4.5:1 and large text at least 3:1. Do not communicate success, error, or selection by color alone; pair color with text, shape, an icon, or another clear cue."
+    },
+    {
+      "id": "css-accessibility-practices",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Keep a visible :focus-visible indicator for keyboard users and check that it is not clipped or hidden under other content.",
+        "Use text/background color pairs with sufficient contrast; check the actual combination, not just the colors individually.",
+        "Use readable line-height and line length, and make sure text can enlarge without loss of content or functionality.",
+        "Do not use color as the only indicator for errors, completion, or selected state.",
+        "Honor prefers-reduced-motion for non-essential transitions and transforms.",
+        "Test hover, focus, active, disabled, and error states, including with keyboard navigation."
+      ]
+    },
+    {
+      "id": "css-browser-support",
+      "type": "heading",
+      "level": 2,
+      "text": "Browser compatibility and progressive enhancement"
+    },
+    {
+      "id": "css-browser-support-body",
+      "type": "paragraph",
+      "text": "Start with a useful base style and layer in enhancements. Browsers generally ignore declarations they cannot parse, while @supports lets you apply an enhancement only when a browser recognizes a property/value pair. This confirms syntax support, not that a feature is bug-free or behaves identically in every browser. Check real-browser support for features you rely on, use Autoprefixer when the build needs vendor prefixes, and test your chosen baseline rather than adding historical prefixes by habit."
+    },
+    {
+      "id": "css-browser-support-example",
+      "type": "code",
+      "language": "css",
+      "caption": "Provide a baseline before the enhancement",
+      "code": ".card {\n  border: 1px solid #64748b;\n  padding: 1rem;\n}\n\n@supports (color: color-mix(in srgb, black, white)) {\n  .card {\n    border-color: color-mix(in srgb, #64748b, white 25%);\n  }\n}"
+    },
+    {
+      "id": "css-quick-reference",
+      "type": "heading",
+      "level": 2,
+      "text": "Quick reference: common CSS property groups"
+    },
+    {
+      "id": "css-quick-reference-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Box model: width, height, padding, border, margin, box-sizing, overflow.",
+        "Display and positioning: display, position, inset/top/right/bottom/left, z-index, float, clear.",
+        "Flexbox: flex-direction, flex-wrap, flex, justify-content, align-items, gap.",
+        "Grid: grid-template-columns, grid-template-rows, grid-column, grid-area, gap.",
+        "Typography: font-family, font-size, font-weight, line-height, letter-spacing, text-align, text-transform.",
+        "Visuals and motion: color, background-color, border-radius, opacity, transition, transform, filter.",
+        "Reusable values and constraints: --custom-property, var(), calc(), min(), max(), clamp(), @supports."
+      ]
+    },
+    {
+      "id": "css-accessibility-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "For WCAG 2.2 Level AA, which contrast ratio is generally required for normal text?",
+      "options": [
+        {
+          "id": "a",
+          "text": "At least 4.5:1",
+          "correct": true,
+          "feedback": "The minimum contrast criterion generally requires 4.5:1 for normal text."
+        },
+        {
+          "id": "b",
+          "text": "At least 3:1 for all text",
+          "correct": false,
+          "feedback": "3:1 is the threshold for large text, not normal-size text."
+        },
+        {
+          "id": "c",
+          "text": "Any ratio is acceptable when the text is bold",
+          "correct": false,
+          "feedback": "Bold text only falls into the large-text exception when it meets the defined size threshold; bold alone is not enough."
+        },
+        {
+          "id": "d",
+          "text": "Contrast matters only for links",
+          "correct": false,
+          "feedback": "Text throughout the interface needs sufficient contrast, subject to the criterion's exceptions."
+        }
+      ],
+      "explanation": "Check contrast for the actual foreground and background pair. Large text has a 3:1 minimum under the WCAG 2.2 AA text-contrast criterion."
+    },
+    {
+      "id": "css-accessible-theme-card",
+      "type": "codingExercise",
+      "title": "Build a readable, motion-aware theme card",
+      "language": "html",
+      "context": "Extend the card to use reusable CSS tokens, responsive sizing, readable typography, a clear keyboard focus state, and a reduced-motion fallback. Use the isolated HTML preview to inspect the visual layout; it does not run JavaScript.",
+      "instructions": [
+        "Define custom properties for text, surface, accent, spacing, and corner radius in :root.",
+        "Use a system font stack, a unitless line-height, and a bounded content width.",
+        "Use padding inside the card, margin outside it, and border-box sizing.",
+        "Style the link or button with hover and focus-visible states; do not remove the focus indicator.",
+        "Add a short transition to one or two properties, then disable or reduce that transition under prefers-reduced-motion: reduce.",
+        "Check color contrast for normal text and do not rely on color alone to communicate the link's purpose."
+      ],
+      "requirements": [
+        "The CSS uses reusable custom properties and at least one var() fallback.",
+        "The layout works at 320px without horizontal overflow.",
+        "Typography remains readable and the content width is bounded.",
+        "Keyboard focus remains clearly visible.",
+        "The non-essential transition respects the reduced-motion media feature.",
+        "The interactive link or button remains understandable without color cues."
+      ],
+      "starterCode": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>Study Card</title>\n    <style>\n      /* Define your tokens and card styles here. */\n    </style>\n  </head>\n  <body>\n    <main class=\"card\">\n      <p class=\"eyebrow\">Study guide</p>\n      <h1>Build accessible interfaces</h1>\n      <p class=\"card__body\">Learn to style information so it is readable, responsive, and usable with a keyboard.</p>\n      <a class=\"button\" href=\"#details\">Read the guide</a>\n      <section id=\"details\">\n        <h2>Why details matter</h2>\n        <p>Reusable tokens make visual changes consistent and easier to maintain.</p>\n      </section>\n    </main>\n  </body>\n</html>",
+      "hints": [
+        "Use a centered .card with width: min(100% - 2rem, 65ch) or equivalent container sizing and inspect it at a 320px viewport.",
+        "The :focus-visible outline must stay visible; hover-only feedback is insufficient for keyboard users.",
+        "Use @media (prefers-reduced-motion: reduce) to disable non-essential transitions."
+      ],
+      "successCriteria": [
+        "The card uses reusable color, spacing, and radius custom properties.",
+        "The type scale and line-height support reading, and the card does not cause horizontal overflow.",
+        "The link has visible keyboard focus and a distinct hover state.",
+        "Non-essential motion is removed or reduced when the user requests reduced motion.",
+        "The styling does not depend on color alone to communicate state or meaning."
+      ]
+    },
+    {
       "id": "deep-css-summary",
       "type": "list",
       "ordered": false,
       "items": [
         "Debug CSS from selector match and validity through cascade precedence to layout.",
         "Specificity matters only within the full cascade rules.",
-        "Box sizing, containing blocks and stacking contexts explain many layout bugs that cannot be fixed by increasing z-index alone."
+        "Box sizing, containing blocks and stacking contexts explain many layout bugs that cannot be fixed by increasing z-index alone.",
+        "CSS color formats include names, HEX, RGB, and HSL; alpha is useful for translucent backgrounds, while opacity also affects descendants.",
+        "Custom properties, var(), calc(), min(), max(), and clamp() support reusable values and flexible constraints.",
+        "Accessible visual styling considers text contrast, visible focus, text enlargement, non-color cues, and prefers-reduced-motion.",
+        "Progressive enhancement starts with a working baseline; @supports lets you add optional enhancements when the required syntax is supported."
       ]
     },
     {
@@ -486,6 +735,31 @@
           "title": "MDN: display",
           "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/display",
           "kind": "official-docs"
+        },
+        {
+          "title": "MDN: CSS color values",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Colors/Color_values",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: CSS values and units",
+          "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Values_and_units",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: prefers-reduced-motion",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40media/prefers-reduced-motion",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using feature queries (@supports)",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Conditional_rules/Using_feature_queries",
+          "kind": "official-docs"
+        },
+        {
+          "title": "W3C: Web Content Accessibility Guidelines (WCAG) 2.2",
+          "url": "https://www.w3.org/TR/WCAG22/",
+          "kind": "standard"
         }
       ]
     }
