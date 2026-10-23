@@ -1,3 +1,4 @@
+/* global self, caches, URL, fetch, Response */
 /* App-shell offline fallback; never cache cross-origin or private API responses. */
 const CACHE_PREFIX = 'interactive-guides';
 const VERSION = 'v1';
