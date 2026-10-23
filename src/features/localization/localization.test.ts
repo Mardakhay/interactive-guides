@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { useLocaleStore } from './localeStore';
-import { formatCategoryCount, formatLessonCount, formatNoteCount, getLocalizedCategoryCopy, getLocalizedDifficulty, translate, translations } from './translations';
+import { formatCategoryCount, formatLessonCount, formatNoteCount, getLocalizedCategoryCopy, getLocalizedDifficulty, getLocalizedLearningPathCopy, translate, translations } from './translations';
 
 describe('application localization', () => {
   it('keeps English and Russian dictionaries structurally aligned', () => {
@@ -27,6 +27,13 @@ describe('application localization', () => {
     expect(getLocalizedCategoryCopy('ru', 'web-basics', 'Web Basics', 'Fallback').name).toBe('Основы веба');
     expect(getLocalizedCategoryCopy('ru', 'unknown', 'Unknown', 'Fallback').description).toBe('Fallback');
     expect(getLocalizedCategoryCopy('en', 'web-basics', 'Web Basics', 'Fallback').name).toBe('Web Basics');
+  });
+
+  it('localizes known learning paths and has a safe fallback', () => {
+    expect(getLocalizedLearningPathCopy('ru', 'javascript-mastery', 'Fallback', 'Fallback description').title)
+      .toBe('Мастерство JavaScript');
+    expect(getLocalizedLearningPathCopy('ru', 'unknown', 'Fallback', 'Fallback description').title)
+      .toBe('Fallback');
   });
 
   it('persists the selected UI locale', () => {

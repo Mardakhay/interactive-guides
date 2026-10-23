@@ -5,6 +5,7 @@ export {
   formatNoteCount,
   getLocalizedDifficulty,
   getLocalizedCategoryCopy,
+  getLocalizedLearningPathCopy,
   translate,
   translations,
   type Locale,

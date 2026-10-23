@@ -55,7 +55,31 @@ const en = {
   "backToCatalog": "Back to catalog",
   "categoryProgress": "{completed} of {total} lessons completed",
   "lessons": "Lessons",
-  "lessonsWord": "lessons"
+  "lessonsWord": "lessons",
+  "hourEstimated": "{hours}h estimated",
+  "minuteUnit": "m",
+  "allResults": "All",
+  "lessons": "Lessons",
+  "courses": "Courses",
+  "notes": "Notes",
+  "filterResultsByType": "Filter results by type",
+  "lessonType": "Lesson",
+  "courseType": "Course",
+  "noteType": "Note",
+  "clearSearch": "Clear search",
+  "searchPageDescription": "Find lessons, courses, and your notes across the platform.",
+  "searching": "Searching…",
+  "noSearchResultsTitle": "No results found",
+  "noSearchResultsMessage": "Nothing matched “{query}”. Try a different term or broaden your filter.",
+  "searchStartTitle": "Start typing to search",
+  "searchStartMessage": "Search across all lessons, courses, and your personal notes. Results update as you type.",
+  "result": "result",
+  "results": "results",
+  "pathNotFoundMessage": "The path you're looking for doesn't exist.",
+  "pathCompletedMessage": "You've completed this learning path! Pick a new path to keep growing.",
+  "allPaths": "All paths",
+  "browseAllPaths": "Browse all paths",
+  "continueWith": "Continue with {title}"
 } as const;
 const ru: Record<keyof typeof en, string> = {
   "skipToContent": "Перейти к содержимому",
@@ -112,7 +136,31 @@ const ru: Record<keyof typeof en, string> = {
   "backToCatalog": "Вернуться в каталог",
   "categoryProgress": "Завершено уроков: {completed} из {total}",
   "lessons": "Уроки",
-  "lessonsWord": "уроков"
+  "lessonsWord": "уроков",
+  "hourEstimated": "Оценка: {hours} ч",
+  "minuteUnit": " мин",
+  "allResults": "Все",
+  "lessons": "Уроки",
+  "courses": "Курсы",
+  "notes": "Заметки",
+  "filterResultsByType": "Фильтр результатов по типу",
+  "lessonType": "Урок",
+  "courseType": "Курс",
+  "noteType": "Заметка",
+  "clearSearch": "Очистить поиск",
+  "searchPageDescription": "Ищите уроки, курсы и свои заметки по всей платформе.",
+  "searching": "Ищем…",
+  "noSearchResultsTitle": "Ничего не найдено",
+  "noSearchResultsMessage": "По запросу «{query}» ничего не найдено. Попробуйте изменить запрос или фильтр.",
+  "searchStartTitle": "Начните вводить запрос",
+  "searchStartMessage": "Ищите по урокам, курсам и личным заметкам. Результаты обновляются по мере ввода.",
+  "result": "результат",
+  "results": "результатов",
+  "pathNotFoundMessage": "Такого учебного маршрута не существует.",
+  "pathCompletedMessage": "Вы завершили этот учебный маршрут! Выберите новый, чтобы продолжить развиваться.",
+  "allPaths": "Все маршруты",
+  "browseAllPaths": "Посмотреть все маршруты",
+  "continueWith": "Продолжить: {title}"
 };
 
 export const translations: Record<Locale, Record<keyof typeof en, string>> = { en, ru };
@@ -156,6 +204,39 @@ const categoryTranslations: Record<string, { name: string; description: string }
     "description": "Эффективно работайте с данными: от SELECT и JOIN до агрегирования и основ проектирования баз данных."
   }
 };
+
+const learningPathTranslations: Record<string, { title: string; description: string }> = {
+  "frontend-foundations": {
+    "title": "Основы frontend",
+    "description": "Путь от нуля до первой веб-страницы. Разберитесь, как работает интернет, изучите HTML и CSS и освоите DOM — три основы перед переходом к фреймворкам."
+  },
+  "javascript-mastery": {
+    "title": "Мастерство JavaScript",
+    "description": "Изучите JavaScript от фундаментальных принципов до асинхронных шаблонов: основной язык, объекты и прототипы, память и асинхронный код."
+  },
+  "react-developer": {
+    "title": "Путь React-разработчика",
+    "description": "Освойте разработку на React: начните с useState и хуков, изучите формы и API, маршрутизацию SPA, производительность и доступность."
+  },
+  "full-stack-tooling": {
+    "title": "Инструменты и публикация",
+    "description": "Настройте профессиональный процесс разработки: окружение, Git, CI/CD и публикацию приложений в production."
+  },
+  "production-ready": {
+    "title": "Frontend для production",
+    "description": "Углубите навыки: архитектура frontend, комплексное тестирование, аутентификация и безопасность production-приложений."
+  }
+};
+
+export function getLocalizedLearningPathCopy(
+  locale: Locale,
+  id: string,
+  fallbackTitle: string,
+  fallbackDescription: string,
+): { title: string; description: string } {
+  if (locale === 'en') return { title: fallbackTitle, description: fallbackDescription };
+  return learningPathTranslations[id] ?? { title: fallbackTitle, description: fallbackDescription };
+}
 
 export function translate(
   locale: Locale,
