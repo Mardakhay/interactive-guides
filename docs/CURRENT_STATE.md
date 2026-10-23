@@ -108,3 +108,6 @@ The 25 legacy HTML files remain migration sources. The full audit has not yet es
 
 
 **CI update (2026-10-23):** GitHub Actions [run #317](https://github.com/Mardakhay/interactive-guides/actions/runs/39963932841) passed on feature SHA `07bc9acfc89c0138cbd4d214e19215e4dff6f1c6`, including all 92 tests and production build. This supersedes the prior note that latest CI was unconfirmed. Full source parity remains open.
+
+
+**Latest CI:** feature SHA `b7fdeba6b9096d9f8336cf1071deb9d0f2d1dfc5` passed [Actions run #320](https://github.com/Mardakhay/interactive-guides/actions/runs/39964458056). This is a green build/test state, not a completed source audit.

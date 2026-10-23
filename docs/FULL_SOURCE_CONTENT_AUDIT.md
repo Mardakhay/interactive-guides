@@ -133,3 +133,8 @@ GitHub Actions [run #317](https://github.com/Mardakhay/interactive-guides/action
 ## Canonical-ID correction — 2026-10-23
 
 The source rows above have been updated to use actual structured lesson IDs from `src/content/repository.ts`, replacing historic `wb-*`, `js-*`, `re-*`, `tl-*`, `qa-*`, `sec-*`, and `dt-*` catalog IDs. Supplementary themes now point to their registered supplementary lesson IDs. This fixes traceability, not content parity: most HTML prose/code/interaction details remain marked pending, and Notion search/fetch completeness remains bounded by the connector's unverified status.
+
+
+## Latest CI — 2026-10-23
+
+The canonical-ID source-matrix update at feature SHA `b7fdeba6b9096d9f8336cf1071deb9d0f2d1dfc5` passed GitHub Actions [run #320](https://github.com/Mardakhay/interactive-guides/actions/runs/39964458056). This confirms the docs and previously validated application tree build/test; it does not complete the explicitly pending source-content reviews above.

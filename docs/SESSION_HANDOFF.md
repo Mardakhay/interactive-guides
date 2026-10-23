@@ -138,3 +138,8 @@ The active feature now embeds lesson bodies for re-003, re-004, and re-005 in sr
 ### CI confirmation — 2026-10-23
 
 GitHub Actions [run #317](https://github.com/Mardakhay/interactive-guides/actions/runs/39963932841) passed on exact feature HEAD `07bc9acfc89c0138cbd4d214e19215e4dff6f1c6` (install, lint, typecheck, 92 tests, build). PR #1 remains open/draft and mergeable. This latest result supersedes the earlier “Actions unconfirmed” note above. The source audit remains incomplete; do not mark the overall project complete. Any later docs-only head needs its own exact-head workflow verification.
+
+
+### Latest branch/CI status
+
+Feature head `b7fdeba6b9096d9f8336cf1071deb9d0f2d1dfc5` passed GitHub Actions [run #320](https://github.com/Mardakhay/interactive-guides/actions/runs/39964458056). PR #1 remains open, draft, and mergeable. Source review is still incomplete: source matrix targets have now been corrected to canonical IDs, but most HTML sources still need full content/interaction parity review. Keep main unchanged.

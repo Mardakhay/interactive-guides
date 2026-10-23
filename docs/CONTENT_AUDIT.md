@@ -24,3 +24,6 @@ Keep standalone HTML files as sources until each relevant subsection has block-l
 undefined
 
 **CI evidence:** [run #317](https://github.com/Mardakhay/interactive-guides/actions/runs/39963932841) passed on `07bc9acfc89c0138cbd4d214e19215e4dff6f1c6` (92 tests plus lint/typecheck/build). Editorial/source-parity gaps listed above remain unresolved by CI.
+
+
+**Latest CI:** [Run #320](https://github.com/Mardakhay/interactive-guides/actions/runs/39964458056) passed on feature SHA `b7fdeba6b9096d9f8336cf1071deb9d0f2d1dfc5`; source parity status remains partial.
