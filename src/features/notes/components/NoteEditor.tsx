@@ -3,8 +3,6 @@ import { StickyNote, Trash2 } from 'lucide-react';
 import { useNoteStore } from '../store';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Textarea, Button } from '@/components/ui';
-import { useLocaleStore } from '@/stores/localeStore';
-import { UI_COPY } from '@/lib/i18n';
 
 const AUTOSAVE_DELAY_MS = 600;
 
@@ -13,8 +11,6 @@ interface NoteEditorProps {
 }
 
 export function NoteEditor({ lessonId }: NoteEditorProps) {
-  const locale = useLocaleStore((state) => state.locale);
-  const copy = UI_COPY[locale].notesEditor;
   const savedContent = useNoteStore((s) => s.lessons[lessonId]?.content ?? '');
   const updatedAt = useNoteStore((s) => s.lessons[lessonId]?.updatedAt);
   const setNote = useNoteStore((s) => s.setNote);
@@ -51,12 +47,12 @@ export function NoteEditor({ lessonId }: NoteEditorProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
           <StickyNote className="h-4 w-4 text-neutral-500" />
-          {copy.title}
+          My Notes
         </div>
         {draft.trim().length > 0 && (
           <Button variant="ghost" size="sm" onClick={handleDelete}>
             <Trash2 className="h-4 w-4" />
-            {copy.delete}
+            Delete
           </Button>
         )}
       </div>
@@ -64,18 +60,18 @@ export function NoteEditor({ lessonId }: NoteEditorProps) {
       <Textarea
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
-        placeholder={copy.placeholder}
+        placeholder="Jot down anything worth remembering about this lesson..."
         rows={5}
-        aria-label={copy.ariaLabel}
+        aria-label="Lesson notes"
       />
 
       <p className="text-xs text-neutral-500">
         {updatedAt
-          ? `${copy.saved} · ${new Date(updatedAt).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US', {
+          ? `Saved \u00b7 ${new Date(updatedAt).toLocaleString(undefined, {
               dateStyle: 'medium',
               timeStyle: 'short',
             })}`
-          : copy.autosaves}
+          : 'Autosaves as you type'}
       </p>
     </div>
   );

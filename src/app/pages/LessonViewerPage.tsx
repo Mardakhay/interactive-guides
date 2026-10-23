@@ -10,7 +10,7 @@ import {
   LessonNavigation,
 } from '@/features/content';
 import { LessonRenderer, resolveLessonSource } from '@/features/lesson-renderer';
-import { useProgressStore, STATUS_BADGE_VARIANTS } from '@/features/progress';
+import { useProgressStore, STATUS_LABELS, STATUS_BADGE_VARIANTS } from '@/features/progress';
 import { BookmarkButton } from '@/features/bookmarks';
 import { NoteEditor } from '@/features/notes';
 import { getQuizByLessonId, QuizRenderer } from '@/features/quizzes';
@@ -18,16 +18,12 @@ import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { EmptyState } from '@/components/feedback';
 import { Button, Badge } from '@/components/ui';
 import { ROUTE_PATHS, coursePath, lessonPath } from '@/app/router/routes';
-import { useLocaleStore } from '@/stores/localeStore';
-import { UI_COPY, getCategoryCopy, getLessonStatusLabel } from '@/lib/i18n';
 
 const AUTO_ADVANCE_DELAY_MS = 900;
 
 export default function LessonViewerPage() {
   const { lessonId } = useParams<{ lessonId: string }>();
   const navigate = useNavigate();
-  const locale = useLocaleStore((state) => state.locale);
-  const copy = UI_COPY[locale].lessonViewer;
 
   const lesson = useMemo(() => (lessonId ? getLessonById(lessonId) : undefined), [lessonId]);
   const category = useMemo(
@@ -83,25 +79,22 @@ export default function LessonViewerPage() {
     markLessonIncomplete(lessonId);
   };
 
-  const categoryCopy = category ? getCategoryCopy(locale, category.id) : undefined;
-  const categoryName = categoryCopy?.name ?? category?.name ?? '';
-
   if (!lesson || !category) {
     return (
       <div className="space-y-6">
         <Breadcrumbs
           items={[
-            { label: copy.catalog, path: ROUTE_PATHS.COURSES },
-            { label: copy.lessonNotFound },
+            { label: 'Catalog', path: ROUTE_PATHS.COURSES },
+            { label: 'Lesson not found' },
           ]}
         />
         <EmptyState
-          title={copy.lessonNotFound}
-          message={copy.lessonNotFoundMessage}
+          title="Lesson not found"
+          message="The lesson you're looking for doesn't exist or may have been removed."
           icon={FileText}
           action={
             <Link to={ROUTE_PATHS.COURSES} className="text-sm font-medium text-primary-600 hover:text-primary-700">
-              {copy.backToCatalog}
+              Back to catalog
             </Link>
           }
         />
@@ -114,8 +107,8 @@ export default function LessonViewerPage() {
       <div className="space-y-6">
         <Breadcrumbs
           items={[
-            { label: copy.catalog, path: ROUTE_PATHS.COURSES },
-            { label: categoryName, path: coursePath(category.id) },
+            { label: 'Catalog', path: ROUTE_PATHS.COURSES },
+            { label: category.name, path: coursePath(category.id) },
             { label: lesson.title },
           ]}
         />
@@ -123,11 +116,11 @@ export default function LessonViewerPage() {
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm text-neutral-500">
             <BookOpen className="h-4 w-4" />
-            <span>{categoryName}</span>
+            <span>{category.name}</span>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-2xl font-semibold text-neutral-900">{lesson.title}</h1>
-            <Badge variant={STATUS_BADGE_VARIANTS[status]}>{getLessonStatusLabel(locale, status)}</Badge>
+            <Badge variant={STATUS_BADGE_VARIANTS[status]}>{STATUS_LABELS[status]}</Badge>
             <BookmarkButton lessonId={lesson.id} className="ml-auto" />
           </div>
           <p className="text-neutral-600">{lesson.description}</p>
@@ -150,15 +143,15 @@ export default function LessonViewerPage() {
               </p>
               <Button variant="outline" size="sm" onClick={handleMarkIncomplete}>
                 <RotateCcw className="h-4 w-4" />
-                {copy.markIncomplete}
+                Mark Incomplete
               </Button>
             </>
           ) : (
             <>
-              <p className="text-sm text-neutral-600">{copy.finishedThisLesson}</p>
+              <p className="text-sm text-neutral-600">Finished this lesson?</p>
               <Button variant="primary" size="sm" onClick={handleMarkComplete}>
                 <Check className="h-4 w-4" />
-                {copy.markComplete}
+                Mark Complete
               </Button>
             </>
           )}
@@ -173,10 +166,10 @@ export default function LessonViewerPage() {
         <LessonMetadata
           lesson={lesson}
           category={category}
-          statusBadge={<Badge variant={STATUS_BADGE_VARIANTS[status]}>{getLessonStatusLabel(locale, status)}</Badge>}
+          statusBadge={<Badge variant={STATUS_BADGE_VARIANTS[status]}>{STATUS_LABELS[status]}</Badge>}
         />
         <div className="rounded-xl border border-neutral-200 bg-white p-3">
-          <p className="px-3 py-2 text-xs font-medium uppercase tracking-wide text-neutral-500">{copy.allLessons}</p>
+          <p className="px-3 py-2 text-xs font-medium uppercase tracking-wide text-neutral-500">All Lessons</p>
           <LessonSidebarTree currentLessonId={lesson.id} currentCategoryId={category.id} />
         </div>
       </aside>

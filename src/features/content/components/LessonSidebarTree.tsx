@@ -4,8 +4,6 @@ import { ChevronDown, FileText } from 'lucide-react';
 import { getCategories, getLessonsByCategory, getCategoryIcon } from '@/features/content';
 import { lessonPath } from '@/app/router/routes';
 import { cn } from '@/lib/utils';
-import { useLocaleStore } from '@/stores/localeStore';
-import { UI_COPY, getCategoryCopy } from '@/lib/i18n';
 
 interface LessonSidebarTreeProps {
   currentLessonId?: string;
@@ -13,7 +11,6 @@ interface LessonSidebarTreeProps {
 }
 
 export function LessonSidebarTree({ currentLessonId, currentCategoryId }: LessonSidebarTreeProps) {
-  const locale = useLocaleStore((state) => state.locale);
   const categories = getCategories();
   const [expanded, setExpanded] = useState<Set<string>>(
     () => new Set(currentCategoryId ? [currentCategoryId] : []),
@@ -41,12 +38,11 @@ export function LessonSidebarTree({ currentLessonId, currentCategoryId }: Lesson
   }
 
   return (
-    <nav aria-label={UI_COPY[locale].lessonSidebar.navigationLabel} className="space-y-0.5">
+    <nav aria-label="Lesson tree" className="space-y-0.5">
       {categories.map((category) => {
         const isExpanded = expanded.has(category.id);
         const lessons = getLessonsByCategory(category.id);
         const Icon = getCategoryIcon(category.icon);
-        const categoryCopy = getCategoryCopy(locale, category.id);
         const isCurrentCategory = currentCategoryId === category.id;
 
         return (
@@ -62,7 +58,7 @@ export function LessonSidebarTree({ currentLessonId, currentCategoryId }: Lesson
               aria-expanded={isExpanded}
             >
               <Icon className="h-4 w-4 shrink-0" />
-              <span className="flex-1 text-left">{categoryCopy?.name ?? category.name}</span>
+              <span className="flex-1 text-left">{category.name}</span>
               <span className="text-xs text-neutral-500">{lessons.length}</span>
               <ChevronDown
                 className={cn('h-4 w-4 shrink-0 text-neutral-500 transition-transform', isExpanded && 'rotate-180')}

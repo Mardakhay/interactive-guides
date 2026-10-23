@@ -2,8 +2,6 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Lesson } from '@/features/content/types';
 import { lessonPath } from '@/app/router/routes';
-import { useLocaleStore } from '@/stores/localeStore';
-import { UI_COPY } from '@/lib/i18n';
 
 interface LessonNavigationProps {
   previous: Lesson | null;
@@ -11,12 +9,10 @@ interface LessonNavigationProps {
 }
 
 export function LessonNavigation({ previous, next }: LessonNavigationProps) {
-  const locale = useLocaleStore((state) => state.locale);
-  const copy = UI_COPY[locale].lessonViewer;
   if (!previous && !next) return null;
 
   return (
-    <nav className="flex items-stretch justify-between gap-4 border-t border-neutral-200 pt-6" aria-label={copy.navigationLabel}>
+    <nav className="flex items-stretch justify-between gap-4 border-t border-neutral-200 pt-6" aria-label="Lesson navigation">
       {previous ? (
         <Link
           to={lessonPath(previous.id)}

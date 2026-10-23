@@ -3,4 +3,3 @@ export { EmptyState } from './EmptyState';
 export { LoadingState } from './LoadingState';
 export { Skeleton } from './Skeleton';
 export { RouteErrorBoundary } from './RouteErrorBoundary';
-export { StorageWarningBanner } from './StorageWarningBanner';

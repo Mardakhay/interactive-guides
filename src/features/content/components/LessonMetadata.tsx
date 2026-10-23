@@ -2,11 +2,9 @@ import { Link } from 'react-router-dom';
 import { Clock, Tag, FolderOpen } from 'lucide-react';
 import type { Lesson, Category } from '@/features/content/types';
 import { Badge } from '@/components/ui';
-import { DIFFICULTY_COLORS } from '@/lib/constants';
+import { DIFFICULTY_COLORS, DIFFICULTY_LABELS } from '@/lib/constants';
 import { coursePath } from '@/app/router/routes';
 import { cn } from '@/lib/utils';
-import { useLocaleStore } from '@/stores/localeStore';
-import { UI_COPY, formatDurationMinutes, getCategoryCopy, getDifficultyLabel } from '@/lib/i18n';
 
 interface LessonMetadataProps {
   lesson: Lesson;
@@ -16,46 +14,43 @@ interface LessonMetadataProps {
 }
 
 export function LessonMetadata({ lesson, category, statusBadge }: LessonMetadataProps) {
-  const locale = useLocaleStore((state) => state.locale);
-  const copy = UI_COPY[locale].lessonMetadata;
-  const categoryCopy = getCategoryCopy(locale, category.id);
   return (
     <div className="space-y-4 rounded-xl border border-neutral-200 bg-white p-4">
       {statusBadge && (
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">{copy.status}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Status</p>
           <div className="mt-1">{statusBadge}</div>
         </div>
       )}
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">{copy.difficulty}</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Difficulty</p>
         <span
           className={cn(
             'mt-1 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium',
             DIFFICULTY_COLORS[lesson.difficulty] ?? DIFFICULTY_COLORS.beginner,
           )}
         >
-          {getDifficultyLabel(locale, lesson.difficulty)}
+          {DIFFICULTY_LABELS[lesson.difficulty] ?? lesson.difficulty}
         </span>
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">{copy.duration}</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Duration</p>
         <p className="mt-1 flex items-center gap-1.5 text-sm text-neutral-700">
           <Clock className="h-4 w-4 text-neutral-500" />
-          {formatDurationMinutes(locale, lesson.durationMinutes)}
+          {lesson.durationMinutes} minutes
         </p>
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">{copy.category}</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Category</p>
         <Link
           to={coursePath(category.id)}
           className="mt-1 flex items-center gap-1.5 text-sm text-primary-600 transition-colors hover:text-primary-700"
         >
           <FolderOpen className="h-4 w-4" />
-          {categoryCopy?.name ?? category.name}
+          {category.name}
         </Link>
       </div>
 
@@ -63,7 +58,7 @@ export function LessonMetadata({ lesson, category, statusBadge }: LessonMetadata
         <div>
           <p className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-neutral-500">
             <Tag className="h-3 w-3" />
-            {copy.tags}
+            Tags
           </p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {lesson.tags.map((tag) => (

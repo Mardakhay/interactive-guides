@@ -5,16 +5,12 @@
 The supplied ABB bootcamp syllabus is the canonical core-track order. It covers six months and 24 weeks. The application may include optional supplementary modules, but must label them as extensions rather than silently placing them inside the original syllabus.
 
 ### Month 1 — Web Fundamentals & Layout
-
-Structured lessons are present for Weeks 1–4 in both locales, all with editorial status `review`. They are content pilots, not fully approved/published.
-- Week 1: `web.internet-http` teaches browser/client-server, URL components, DNS at a high level, HTTP requests/responses, status codes, HTTPS/TLS and Network DevTools; `html.document-structure` covers HTML document structure and semantic elements. Practice spans request inspection and an About Me page.
+- Week 1: internet, browser, HTTP, URL, request/response; HTML document structure and semantic elements. Practice: About Me page and DevTools.
 - Week 2: forms, input attributes, labels, accessibility basics. Practice: login/register layout.
 - Week 3: CSS authoring, selectors/specificity, box model, display. Practice: landing page.
 - Week 4: Flexbox, Grid, media queries, mobile-first. Month project: responsive landing page.
 
 ### Month 2 — JavaScript Core & Git
-
-Structured bilingual lessons are registered for Weeks 5–8. Week 8 is split into two lessons (async JavaScript/Fetch and Git fundamentals) to keep the concepts separate.
 - Week 5: let/const, primitives, operators, conditionals and loops. Practice: array/condition/loop tasks.
 - Week 6: functions, declarations vs expressions, arrow functions, map/filter/reduce/find/some/every, objects, destructuring and spread. Practice: dataset exercises.
 - Week 7: DOM selection/manipulation and click/input/submit events. Project: DOM To-do app.
@@ -42,43 +38,6 @@ Structured bilingual lessons are registered for Weeks 5–8. Week 8 is split int
 - Weeks 21–22: requirements, user stories, Figma/wireframes, endpoints/pages/component tree, sprint plan.
 - Week 23: feature-based structure, API, routing, forms, state, CRUD/basic auth if required, critical tests.
 - Week 24: code review, refactoring, QA, performance/accessibility, demo and technical Q&A.
-
-## Structured lesson inventory and implementation status
-
-The current app registers 26 canonical core lesson IDs across the 24-week core syllabus, each with an English and Russian structured JSON translation (52 locale files). It also registers two supplementary lesson IDs — `network.dns-tcp-tls` and `browser.rendering-pipeline` — on separate supplementary tracks, with both translations. All translations remain status `review`; implementation and structural validation do not constitute editorial approval.
-
-| Week | Stable lesson ID | Main scope |
-|---|---|---|
-| 1 | `web.internet-http` | Internet/Web distinction, URL anatomy, DNS, HTTP messages/statuses, HTTPS/TLS, DevTools Network |
-| 1 | `html.document-structure` | HTML document shell, metadata and semantics |
-| 2 | `html.forms-accessibility` | Forms, labels, native validation and accessible errors |
-| 3 | `css.fundamentals` | Selectors, cascade, specificity, box model and display |
-| 4 | `css.flexbox-grid-responsive` | Flexbox, Grid and responsive design |
-| 5 | `js.basics-types-control-flow` | Variables, primitives, operators and control flow |
-| 6 | `js.functions-arrays-objects` | Functions, callbacks, array methods, objects, destructuring and spread; optional deep dive into lexical scope, environment records, name shadowing and independent closures |
-| 7 | `js.dom-events` | DOM APIs, events, forms and event delegation |
-| 8 | `js.async-fetch` | Promise, async/await, Fetch and request states |
-| 8 | `git.fundamentals` | Staging, commit history, remotes, push and .gitignore |
-| 9 | `tooling.node-npm-vite` | Node.js, npm, package metadata, lockfiles, Vite and quality tools |
-| 10 | `typescript.fundamentals` | Inference, unknown, union/object types and generics |
-| 11 | `react.components-jsx-state` | Components, JSX, props and useState |
-| 12 | `react.effects-lists-composition` | useEffect, cleanup, composition and stable list keys |
-| 13 | `react.router-spa` | SPA routing, parameters, nested layouts and not-found paths |
-| 14 | `react.forms-validation` | Controlled/uncontrolled forms, validation and accessible errors |
-| 15 | `react.context-shared-state` | State ownership, lifting state, Context API |
-| 16 | `react.api-custom-hooks` | API/service layer, custom Hooks and error handling |
-| 17 | `ui.design-systems` | Design tokens and reusable UI components |
-| 18 | `performance.accessibility` | Performance, keyboard access and ARIA |
-| 19 | `testing.react-testing-library` | Component testing and Testing Library patterns |
-| 20 | `git.workflow-ci` | Branch strategy, reviews, pull requests and CI/CD |
-| 21 | `capstone.requirements-discovery` | User stories, requirements and acceptance criteria |
-| 22 | `capstone.design-architecture-planning` | Wireframes, component architecture and technical planning |
-| 23 | `capstone.implementation` | Integrating features, data, routing and tests |
-| 24 | `capstone.review-demo` | Refactoring, QA, accessibility, performance and demo |
-
-The catalog, search, lesson reader and core previous/next navigation recognize these structured lessons. Supplementary IDs are registered and discoverable without being inserted into the original core-week order. Registration and block schemas are tested in CI. Source-by-source parity with the original 25 legacy HTML documents is not yet complete and should not be conflated with the structured lessons existing in the app.
-
-The Week 15 lesson `react.context-shared-state` now includes a bilingual typed `useReducer` + Context walkthrough, guidance on provider scope/context splitting, and localized Russian quiz prompts. Week 14 Russian quiz localization was also corrected. Both lesson pairs remain in editorial `review` pending source and human review.
 
 ## Additional topics the user requests
 
@@ -147,10 +106,3 @@ A lesson may combine sections into a coherent narrative; the template is a quali
 - Create structured block content and quiz/exercise data.
 - Validate schemas, links, code-block languages, answer keys, translation completeness and curriculum links in CI.
 - Retain old HTML as a temporary migration reference until the structured replacement is reviewed in both locales.
-
-
-## Week 14–15 source-parity checkpoint — 2026-10-23
-
-A focused comparison with Notion Part 4 (§§ 4.5–4.14) and the legacy forms/ecosystem HTML found missing instructional steps beyond what schema/block parity tests can detect. Week 14 now includes a multi-field form walkthrough, native constraints, validation timing, a complete RHF flow, common mistakes, ten knowledge checks and five scaffolded exercises. Week 15 now covers custom-Hook state ownership, BookClub reducer transitions, the multi-consumer feature flow and a project exercise.
-
-See [`CONTENT_PARITY_REVIEW_WEEK14-15.md`](./CONTENT_PARITY_REVIEW_WEEK14-15.md) for a concept-by-concept map of sources, additions, migration choices and remaining review limits. This is not editorial approval: both locale pairs remain in `review`, examples still need human/runtime review, and the original HTML sources must be retained.
