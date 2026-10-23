@@ -118,3 +118,8 @@ The full-source audit is **not complete**. Evidence currently supports: 21 Notio
 | Supplementary | `network.dns-tcp-tls`, `browser.rendering-pipeline`, `js.runtime-memory`, `js.object-prototypes`, `frontend.auth-security`, `deployment.production-hosting`, `data.sql-postgresql`, `css.sass-scss`, `ui.bootstrap-mui`, `frontend.architecture-boundaries`, `tooling.advanced-package-workflows` | Registered EN/RU separately from the core |
 
 “Learner-accessible” confirms application registration/routing only; it does not imply full source parity or editorial approval. Track validation and next source reviews in this document and `docs/SESSION_HANDOFF.md` on each implementation checkpoint.
+
+
+## Verification checkpoint — 2026-10-23
+
+Exact application/content code verified in a clean clone at feature commit `132636c4007141454a903e815d6f0418a3c511b0`: `npm run lint`, `npm run typecheck`, `npm test` (19 files / 92 tests), `npm run build`, and `git diff --check` passed. Production build retains a chunk-size warning for the repository/content bundle (~1.4 MB minified). GitHub Actions did not expose a run for the API-created latest commits, so this is local validation, **not** a green Actions check. The content-source audit remains incomplete as stated above.

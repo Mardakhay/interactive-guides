@@ -22,3 +22,4 @@ Read these documents in order:
 - Do not treat registration, schema validation or CI success as proof of full source parity or editorial approval.
 - Preserve legacy sources until source-to-block mapping and translation review are complete.
 - Update the audit and handoff at every material implementation/CI checkpoint.
+undefined

@@ -123,3 +123,13 @@ The active feature now embeds lesson bodies for re-003, re-004, and re-005 in sr
 - Local branch is stale/diverged from the remote and must not be pushed blindly. The branch update was made using feature-only GitHub commits with expected-head checks. Reconcile any local checkout only after inspecting its diff and ancestry; never move `main`.
 - Source audit remains open. 21 Notion pages were fetched (all connector results unverified); 25 HTML files were inventoried and structurally surveyed. Full prose/code/interaction review remains outstanding for most HTML sources. Week 14/15 and API received focused review; no claim of complete parity is valid yet.
 - Continue by polling CI for the latest feature HEAD; fix any failing check; then update audit mappings/evidence as actual source review progresses. Keep this handoff, `CURRENT_STATE.md`, `ROADMAP.md`, and `FULL_SOURCE_CONTENT_AUDIT.md` synchronized at each material checkpoint.
+
+
+## Latest verified checkpoint — 2026-10-23
+
+- Feature branch: `feat/learning-platform-foundation`; PR #1 remains open/draft. Latest verified code commit before this documentation-only checkpoint: `132636c4007141454a903e815d6f0418a3c511b0`.
+- On a clean clone of that exact SHA: `npm ci` completed; `npm run lint`, `npm run typecheck`, `npm test` (19 files, 92 tests), `npm run build`, and `git diff --check` passed. Build emits the existing Vite chunk-size warning for the structured-content repository bundle (~1.4 MB minified).
+- GitHub Actions previously failed at `26a8c7d4efe24402094f69c25678528aaa11067f` due to a localized curriculum test matcher. The latest corrected test passes locally; Actions has not returned a run for the later API-created commit(s), so the latest CI check is **unconfirmed**. Do not label CI green until a run exists and passes on the exact head.
+- Main was not modified in this continuation. PR base currently reports `452a0296fc875e48f1a050e5af557ef0c08f68c8`; feature head is the only target for these changes.
+- Source audit remains incomplete: 21 Notion fetches (unverified), 25 HTML sources structurally surveyed; full prose/code/hidden interaction review for most HTML files remains open. See `FULL_SOURCE_CONTENT_AUDIT.md` and keep lesson editorial status at review.
+- Next work: finish source-by-source HTML and Notion parity, update matrix rows with precise canonical IDs and block evidence, verify content depth/code/EN-RU parity, then obtain an actual Actions run for the resulting PR head. Do not mark the project complete yet.

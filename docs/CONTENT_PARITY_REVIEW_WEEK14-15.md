@@ -31,3 +31,4 @@ The EN/RU JSON pairs use matching ordered block IDs/types and are schema-validat
 Lesson content: `src/content/lessons/react.forms-validation/{en,ru}.json` and `src/content/lessons/react.context-shared-state/{en,ru}.json`.  
 Audit matrix and remaining source scope: [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md).  
 Application entry point: `/:locale/structured-lessons/:lessonId`.
+undefined

@@ -21,3 +21,4 @@ The lesson schema/tests cover required lesson structure, stable unique block IDs
 This file does not claim complete parity. The full source inventory and Notion/HTML evidence matrix are maintained in [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md). At the latest checkpoint, 21 Notion pages had been fetched (all marked unverified by the connector) and 25 HTML files were inventoried and structurally surveyed. Two React HTML sources had full reads in the focused pass and the API material received targeted factual review; most remaining HTML bodies, code samples, hidden answers and interactions still require full review against the structured blocks.
 
 Keep standalone HTML files as sources until each relevant subsection has block-level mapping, a depth assessment (explanation, walkthrough, reasoning, pitfalls, practice, feedback), technical verification, and EN/RU review. CI green alone is not a publication approval.
+undefined

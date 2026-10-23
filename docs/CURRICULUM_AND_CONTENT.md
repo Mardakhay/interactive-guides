@@ -117,3 +117,6 @@ The curriculum and lesson template above remain the target, not the implemented 
 The bilingual React content reader now exposes the canonical 24-week curriculum at `/:locale/structured-lessons` and lesson text at `/:locale/structured-lessons/:lessonId`. The repository registers 26 core lesson IDs (52 EN/RU files) plus 11 separately labeled supplementary IDs (22 EN/RU files), including the capstone stages. Lessons are structured content blocks rendered in-app; standalone HTML remains migration/source material, not the embedded lesson format.
 
 This does not mean all 25 legacy HTML sources or all Notion details have been fully audited and migrated. The current source-depth limits and exact follow-up inventory are in `FULL_SOURCE_CONTENT_AUDIT.md`; keep lesson status at review until the topic examples, edge cases, exercises, feedback, and EN/RU quality are verified against sources.
+
+
+**Validation note (2026-10-23):** at code SHA `132636c4007141454a903e815d6f0418a3c511b0`, lint/typecheck, 92 tests, production build and `git diff --check` passed locally. The repository bundle triggers Vite's >500 kB chunk warning. Source parity is still open; see the audit matrix.
