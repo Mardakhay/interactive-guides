@@ -10,37 +10,20 @@ import {
   getSupplementaryTrackById,
 } from './repository';
 
-const expectedIds = [
-  'web.internet-http',
-  'html.document-structure',
-  'html.forms-accessibility',
-  'css.fundamentals',
-  'css.flexbox-grid-responsive',
-  'js.basics-types-control-flow',
-  'js.functions-arrays-objects',
-  'js.dom-events',
-  'js.async-fetch',
-  'git.fundamentals',
-  'tooling.node-npm-vite',
-  'typescript.fundamentals',
-  'react.components-jsx-state',
-  'react.effects-lists-composition',
-  'react.router-spa',
-  'react.forms-validation',
-  'react.context-shared-state',
-  'react.api-custom-hooks',
-  'ui.design-systems',
-  'performance.accessibility',
-  'testing.react-testing-library',
-  'git.workflow-ci',
-  'capstone.requirements-discovery',
-  'capstone.design-architecture-planning',
-  'capstone.implementation',
-  'capstone.review-demo',
-].sort();
+function getCurriculumLessonIds(locale: 'en' | 'ru') {
+  const curriculum = getBootcampCurriculum(locale);
+  const coreLessonIds = curriculum.months.flatMap((month) =>
+    month.weeks.flatMap((week) => week.lessonIds),
+  );
+  const supplementaryLessonIds = curriculum.supplementaryTracks.flatMap((track) => track.lessonIds);
+  return [...new Set([...coreLessonIds, ...supplementaryLessonIds])].sort();
+}
+
+const expectedIds = getCurriculumLessonIds('en');
 
 describe('structured content repository', () => {
   it('registers every bilingual lesson exactly once by stable ID', () => {
+    expect(getCurriculumLessonIds('ru')).toEqual(expectedIds);
     expect(getStructuredLessonIds().sort()).toEqual(expectedIds);
     for (const id of expectedIds) {
       expect(getStructuredLesson(id, 'en')?.locale).toBe('en');
@@ -58,74 +41,31 @@ describe('structured content repository', () => {
   });
 
   it('maps all structured lessons to their canonical week', () => {
-    const expectedWeeks: Record<string, string> = {
-      'web.internet-http': 'month-1-week-1',
-      'html.document-structure': 'month-1-week-1',
-      'html.forms-accessibility': 'month-1-week-2',
-      'css.fundamentals': 'month-1-week-3',
-      'css.flexbox-grid-responsive': 'month-1-week-4',
-      'js.basics-types-control-flow': 'month-2-week-5',
-      'js.functions-arrays-objects': 'month-2-week-6',
-      'js.dom-events': 'month-2-week-7',
-      'js.async-fetch': 'month-2-week-8',
-      'git.fundamentals': 'month-2-week-8',
-      'tooling.node-npm-vite': 'month-3-week-9',
-      'typescript.fundamentals': 'month-3-week-10',
-      'react.components-jsx-state': 'month-3-week-11',
-      'react.effects-lists-composition': 'month-3-week-12',
-      'react.router-spa': 'month-4-week-13',
-      'react.forms-validation': 'month-4-week-14',
-      'react.context-shared-state': 'month-4-week-15',
-      'react.api-custom-hooks': 'month-4-week-16',
-      'ui.design-systems': 'month-5-week-17',
-      'performance.accessibility': 'month-5-week-18',
-      'testing.react-testing-library': 'month-5-week-19',
-      'git.workflow-ci': 'month-5-week-20',
-      'capstone.requirements-discovery': 'month-6-week-21',
-      'capstone.design-architecture-planning': 'month-6-week-22',
-      'capstone.implementation': 'month-6-week-23',
-      'capstone.review-demo': 'month-6-week-24',
-    };
-    for (const [id, weekId] of Object.entries(expectedWeeks)) {
-      expect(getWeekForLesson(id, 'en')?.id).toBe(weekId);
-      expect(getWeekForLesson(id, 'ru')?.id).toBe(weekId);
+    for (const locale of ['en', 'ru'] as const) {
+      const curriculum = getBootcampCurriculum(locale);
+      for (const month of curriculum.months) {
+        for (const week of month.weeks) {
+          for (const lessonId of week.lessonIds) {
+            expect(getWeekForLesson(lessonId, locale)?.id).toBe(week.id);
+          }
+        }
+      }
     }
   });
 
   it('returns localized lesson IDs in the sequence of the syllabus', () => {
-    const expectedSequence = [
-      'web.internet-http',
-      'html.document-structure',
-      'html.forms-accessibility',
-      'css.fundamentals',
-      'css.flexbox-grid-responsive',
-      'js.basics-types-control-flow',
-      'js.functions-arrays-objects',
-      'js.dom-events',
-      'js.async-fetch',
-      'git.fundamentals',
-      'tooling.node-npm-vite',
-      'typescript.fundamentals',
-      'react.components-jsx-state',
-      'react.effects-lists-composition',
-      'react.router-spa',
-      'react.forms-validation',
-      'react.context-shared-state',
-      'react.api-custom-hooks',
-      'ui.design-systems',
-      'performance.accessibility',
-      'testing.react-testing-library',
-      'git.workflow-ci',
-      'capstone.requirements-discovery',
-      'capstone.design-architecture-planning',
-      'capstone.implementation',
-      'capstone.review-demo',
-    ];
-    for (let index = 0; index < expectedSequence.length; index += 1) {
-      const id = expectedSequence[index]!;
-      const result = getAdjacentStructuredLessons(id, 'en');
-      expect(result.previous?.id).toBe(index > 0 ? expectedSequence[index - 1] : undefined);
-      expect(result.next?.id).toBe(index < expectedSequence.length - 1 ? expectedSequence[index + 1] : undefined);
+    for (const locale of ['en', 'ru'] as const) {
+      const expectedSequence = getBootcampCurriculum(locale).months.flatMap((month) =>
+        month.weeks.flatMap((week) => week.lessonIds),
+      );
+      for (let index = 0; index < expectedSequence.length; index += 1) {
+        const id = expectedSequence[index]!;
+        const result = getAdjacentStructuredLessons(id, locale);
+        expect(result.previous?.id).toBe(index > 0 ? expectedSequence[index - 1] : undefined);
+        expect(result.next?.id).toBe(
+          index < expectedSequence.length - 1 ? expectedSequence[index + 1] : undefined,
+        );
+      }
     }
   });
 

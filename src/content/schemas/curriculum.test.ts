@@ -63,7 +63,9 @@ describe('supplementary track schema', () => {
   it('rejects the same supplementary lesson assigned to multiple tracks', () => {
     const parsed = bootcampCurriculumSchema.parse(englishCurriculum);
     const invalid = structuredClone(parsed);
-    invalid.supplementaryTracks.push({ ...invalid.supplementaryTracks[0]!, id: 'duplicate-track' });
+    const populatedTrack = invalid.supplementaryTracks.find((track) => track.lessonIds.length > 0);
+    expect(populatedTrack).toBeDefined();
+    invalid.supplementaryTracks.push({ ...populatedTrack!, id: 'duplicate-track' });
     expect(bootcampCurriculumSchema.safeParse(invalid).success).toBe(false);
   });
 });
