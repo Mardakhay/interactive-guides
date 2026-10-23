@@ -1,16 +1,16 @@
 {
   "id": "react.api-custom-hooks",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-4-week-16",
   "week": 16,
   "order": 1,
   "title": "API Layers, Custom Hooks, and Reliable Data Loading",
   "description": "Separate HTTP concerns from UI, encapsulate reusable request state in custom hooks, handle concurrent API calls and failures, and reason about safe retry strategies.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 100,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.effects-lists-composition",
@@ -319,6 +319,139 @@
         "Expose explicit loading, success, and error states, and cancel outdated work when appropriate.",
         "Choose Promise.all versus Promise.allSettled according to all-or-nothing or partial-result UX.",
         "Retry only appropriate operations with bounded attempts, delay, cancellation, and clear rules."
+      ]
+    },
+    {
+      "id": "deep-api-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: service boundaries, discriminated request state, and retry safety"
+    },
+    {
+      "id": "deep-api-model",
+      "type": "paragraph",
+      "text": "A maintainable data flow separates responsibilities: a service owns the HTTP contract and parsing; a custom Hook connects that service to React state/lifecycle; a component renders loading, empty, success and error states. Model mutually exclusive request states as a discriminated union rather than unrelated booleans that can accidentally produce impossible combinations. Retry only when the failure is plausibly transient and repeating the operation is safe."
+    },
+    {
+      "id": "deep-api-trace",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "type RequestState<T> =\n  | { status: 'idle' }\n  | { status: 'loading' }\n  | { status: 'success'; data: T }\n  | { status: 'error'; message: string };\n\nasync function requestJson<T>(url: string, signal?: AbortSignal): Promise<T> {\n  const response = await fetch(url, { signal });\n  if (!response.ok) throw new Error(`HTTP ${response.status}`);\n  return (await response.json()) as T;\n}\n\n// In a Hook/component:\nconst [state, setState] = useState<RequestState<User[]>>({ status: 'idle' });\n// Render each status explicitly; an empty successful array is not an error.",
+      "steps": [
+        {
+          "title": "Represent exclusive outcomes explicitly",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "A discriminated union means a success state must include data and an error state must include a message. Code that switches on status can narrow the allowed fields safely."
+        },
+        {
+          "title": "Keep HTTP handling in the service boundary",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "The helper owns fetch, response.ok checking and body parsing. A service function can use this helper and return a typed domain result, keeping components from repeating networking details."
+        },
+        {
+          "title": "Keep UI state transitions intentional",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "The component or Hook decides how the request status maps to UI. A successful empty list should render an empty state, while rejected requests render an error state."
+        }
+      ]
+    },
+    {
+      "id": "deep-api-failure-matrix",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Transport failure: Fetch rejects before a usable Response is received; a retry may help if the error is transient.",
+        "HTTP failure: Fetch usually resolves with a Response for 404/500; check response.ok/status and map the status to an actionable UI/service error.",
+        "Body parsing or schema failure: response.json() can reject for invalid JSON, and valid JSON can still have an unexpected shape. Treat parsing and runtime validation as separate steps.",
+        "Cancellation: AbortError often reflects an intentional lifecycle change, not a user-facing failure.",
+        "Empty success: a valid response containing [] is a successful request with no records, not a failed request."
+      ]
+    },
+    {
+      "id": "deep-api-warning",
+      "type": "callout",
+      "tone": "important",
+      "title": "A TypeScript assertion does not validate server data",
+      "text": "`await response.json() as T` tells the compiler to trust the author; it does not check the runtime payload. For data crossing a network boundary, use a runtime schema/validator or explicit parsing. Never put tokens or privileged secrets in a frontend bundle. Automatic retry should be limited by operation safety, retryable status/errors, attempt count and backoff."
+    },
+    {
+      "id": "deep-api-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "An API returns HTTP 200 with a valid JSON body `[]`. Which UI state is normally appropriate for a list page?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Error, because the list contains no records",
+          "correct": false,
+          "feedback": "An empty result can be a valid successful response and should not be confused with request failure."
+        },
+        {
+          "id": "b",
+          "text": "Success with an empty-state message",
+          "correct": true,
+          "feedback": "The request succeeded and supplied no records; the UI can explain that there is nothing to display yet."
+        },
+        {
+          "id": "c",
+          "text": "Loading forever because there is no item to render",
+          "correct": false,
+          "feedback": "Loading represents a request that has not settled, not a successful empty result."
+        },
+        {
+          "id": "d",
+          "text": "Retry automatically until the array has data",
+          "correct": false,
+          "feedback": "An empty response is not inherently transient; repeated requests may not change the result and can waste resources."
+        }
+      ],
+      "explanation": "Model transport, HTTP, parsing, cancellation and empty success as distinct outcomes."
+    },
+    {
+      "id": "deep-api-practice",
+      "type": "codingExercise",
+      "title": "Build a typed service and reliable request-state Hook",
+      "language": "typescript",
+      "context": "Extend a basic Fetch example into a reviewable feature with a service boundary, validated data and complete UI states.",
+      "instructions": [
+        "Create a `getUsers(signal)` service that calls Fetch, checks response.ok and parses the body.",
+        "Represent idle/loading/success/error as one discriminated union.",
+        "Add a separate empty state when successful data is an empty array.",
+        "Describe where runtime validation should happen before untrusted JSON is treated as a User type.",
+        "Specify which error classes are retryable and why a create/update mutation must not be blindly repeated."
+      ],
+      "requirements": [
+        "HTTP status is checked explicitly before declaring success.",
+        "Service/network logic is not duplicated in every component.",
+        "State representation prevents impossible combinations such as both loading and error being true.",
+        "Empty success is distinct from error and loading.",
+        "Runtime data validation and retry-safety decisions are documented."
+      ],
+      "starterCode": "type RequestState<T> =\n  | { status: 'idle' }\n  | { status: 'loading' }\n  | { status: 'success'; data: T }\n  | { status: 'error'; message: string };\n\nasync function getUsers(signal?: AbortSignal): Promise<User[]> {\n  // TODO: fetch, check response.ok, parse and validate payload.\n}\n\n// TODO: connect request status to React and render an empty state.",
+      "hints": [
+        "Fetch resolves for many HTTP error statuses; inspect response.ok/status.",
+        "Do not use separate loading/error booleans if they can describe impossible combinations.",
+        "Type assertions are erased at runtime; validate external JSON before trusting its shape."
+      ],
+      "successCriteria": [
+        "Service returns parsed users or a meaningful error.",
+        "Request state is represented as mutually exclusive statuses.",
+        "An empty array renders an intentional empty state.",
+        "Validation at the network boundary is explicit.",
+        "Retry behavior has a safety and failure-classification rule."
+      ]
+    },
+    {
+      "id": "deep-api-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Keep HTTP contracts in a service boundary and UI lifecycle in a Hook/component.",
+        "Use explicit mutually exclusive request states and distinguish empty success from error.",
+        "Validate external data at runtime and retry only when both the failure and operation make it safe."
       ]
     },
     {
