@@ -1,16 +1,16 @@
 {
   "id": "capstone.design-architecture-planning",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-6-week-22",
   "week": 22,
   "order": 1,
   "title": "Capstone Part 2: Wireframes, Architecture, API Contracts, and Sprint Plan",
   "description": "Turn the approved product brief into a buildable plan: map pages and states, sketch wireframes, define module boundaries and data contracts, and split the MVP into small verifiable increments.",
-  "estimatedMinutes": 80,
+  "estimatedMinutes": 105,
   "difficulty": "intermediate",
   "prerequisites": [
     "capstone.requirements-discovery",
@@ -359,6 +359,138 @@
         "Architecture boundaries should follow responsibility, reuse, and state ownership—not arbitrary file count.",
         "API contracts document requests, successful responses, errors, and authorization assumptions; types alone do not validate external data.",
         "Plan demoable vertical slices with acceptance checks, dependencies, tests, and time for accessibility and integration."
+      ]
+    },
+    {
+      "id": "deep-architecture-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: plan data flow, state ownership, and module boundaries"
+    },
+    {
+      "id": "deep-architecture-model",
+      "type": "paragraph",
+      "text": "Architecture should make the next change easier to locate and safer to review. Start from screens and user journeys, identify data sources and UI states, then assign responsibilities to modules. Keep dependency direction deliberate: reusable UI should not import route pages; presentation should not need to know low-level network details; features should expose a small interface. Choose folder conventions that match the team's scale and change patterns instead of adopting the most complex architecture by default."
+    },
+    {
+      "id": "deep-architecture-map",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Route/Page\n  -> Feature container (owns page-specific orchestration)\n      -> Custom Hook (loading, error, request lifecycle)\n          -> Service/API client (HTTP contract, parsing)\n      -> UI components (props in, events out)\n      -> Shared primitives/tokens (buttons, inputs, spacing)\n\nUser-visible states to plan:\n  idle/loading -> success with data\n                 -> success with empty data\n                 -> error with retry/recovery",
+      "steps": [
+        {
+          "title": "Begin from a screen and its user journey",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "A route/page composes a user-facing workflow. Its feature container coordinates the workflow but should not necessarily implement every visual element or networking detail."
+        },
+        {
+          "title": "Separate request lifecycle from transport",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "The Hook manages React lifecycle/state transitions; the service owns HTTP details and response parsing. This separation makes each responsibility easier to test."
+        },
+        {
+          "title": "Use shared UI as a contract, not a dependency sink",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "Shared components receive values through props and signal actions through callbacks. Low-level shared primitives should not import application pages or feature-specific data services."
+        },
+        {
+          "title": "Plan states alongside the happy path",
+          "lineStart": 8,
+          "lineEnd": 11,
+          "explanation": "A design and implementation plan should include empty success and recoverable error states. Otherwise these cases tend to appear as afterthoughts during QA."
+        }
+      ]
+    },
+    {
+      "id": "deep-architecture-tradeoffs",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Colocate files that change together, but avoid a folder structure that hides module ownership or creates circular imports.",
+        "Feature-based organization groups related UI, logic, tests and API contracts; technical-type folders can work well in a small application. Neither layout is universally correct.",
+        "Barrel exports can simplify imports but may hide dependency direction, create cycles or pull unintended modules into a bundle. Use them deliberately.",
+        "Keep server state, local UI state, URL state and derived values distinct. State belongs where its consumers and update rules can be explained clearly.",
+        "Write down important architecture decisions with the problem, chosen option, alternatives, trade-offs and signals that would justify revisiting the choice."
+      ]
+    },
+    {
+      "id": "deep-architecture-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Where should HTTP response parsing and response.ok handling usually live when several features consume the same API?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Repeated independently in every presentational component",
+          "correct": false,
+          "feedback": "That duplicates transport concerns and leads to inconsistent error handling."
+        },
+        {
+          "id": "b",
+          "text": "At a service/API boundary, with Hooks/features managing UI lifecycle and components rendering results",
+          "correct": true,
+          "feedback": "A clear boundary keeps network contracts reusable and separates them from React presentation."
+        },
+        {
+          "id": "c",
+          "text": "Inside a CSS token file",
+          "correct": false,
+          "feedback": "Tokens define visual values and have no responsibility for HTTP contracts."
+        },
+        {
+          "id": "d",
+          "text": "Only in a route guard, so the API never needs error handling",
+          "correct": false,
+          "feedback": "Route guards do not replace API error handling or server authorization."
+        }
+      ],
+      "explanation": "Architecture should align code boundaries with reasons to change and make data flow traceable."
+    },
+    {
+      "id": "deep-architecture-practice",
+      "type": "codingExercise",
+      "title": "Plan the architecture of a searchable learning dashboard",
+      "language": "text",
+      "context": "Propose an architecture before building UI; optimize for clear ownership and easy verification.",
+      "instructions": [
+        "Draw the route-to-feature-to-hook-to-service-to-UI flow for a page with search, category filters and a saved list.",
+        "Decide which state belongs in the URL, which is local UI state, which comes from the server and which is derived.",
+        "Identify module responsibilities and allowed import directions.",
+        "Plan loading, empty, error/retry, and permission-related states.",
+        "Record one important architectural decision with alternatives and trade-offs."
+      ],
+      "requirements": [
+        "Each module has a clear responsibility and owner.",
+        "State placement is justified by sharing, persistence and source of truth.",
+        "Dependencies do not create obvious circular direction.",
+        "The plan includes non-happy paths and verification points.",
+        "At least one decision records alternatives and a revisit signal."
+      ],
+      "starterCode": "Screen: Learning dashboard\n\nRoute/Page:\nFeature modules:\nCustom Hooks:\nServices/API:\nShared UI:\n\nState map:\n- URL:\n- Local UI:\n- Server:\n- Derived:\n\nUser-visible states:\n\nDecision / alternatives / trade-off:",
+      "hints": [
+        "Start with the screen and its user journey, not a folder template.",
+        "Share URL state when it should be bookmarkable; do not duplicate derived values in state.",
+        "Choose module boundaries based on independent reasons to change and test."
+      ],
+      "successCriteria": [
+        "Flow from route to data source is clear.",
+        "State ownership is justified.",
+        "Module import direction is explicit.",
+        "Loading/empty/error/recovery states are included.",
+        "Trade-offs and future revisit conditions are documented."
+      ]
+    },
+    {
+      "id": "deep-architecture-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Plan from user journeys and states, then assign responsibilities to modules.",
+        "Choose architecture patterns for the product's scale and change rate rather than complexity for its own sake.",
+        "Document key trade-offs and keep data flow, state ownership and dependency direction understandable."
       ]
     },
     {
