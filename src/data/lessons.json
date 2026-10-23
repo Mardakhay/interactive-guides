@@ -6,7 +6,13 @@
     "description": "A comprehensive deep-notes handbook covering web fundamentals, JavaScript core, Git, tooling, TypeScript, React foundations, the React ecosystem, advanced topics, and capstone project skills — the perfect orientation for your frontend journey.",
     "categoryId": "start-here",
     "difficulty": "beginner",
-    "tags": ["frontend", "handbook", "overview", "fundamentals", "career"],
+    "tags": [
+      "frontend",
+      "handbook",
+      "overview",
+      "fundamentals",
+      "career"
+    ],
     "durationMinutes": 45,
     "content": "",
     "order": 0
@@ -18,7 +24,14 @@
     "description": "Understand how the internet works — network protocols, IP addresses, domain names, DNS, HTTP, TLS, hosting, and how browsers render pages.",
     "categoryId": "web-basics",
     "difficulty": "beginner",
-    "tags": ["internet", "networking", "dns", "http", "protocols", "browsers"],
+    "tags": [
+      "internet",
+      "networking",
+      "dns",
+      "http",
+      "protocols",
+      "browsers"
+    ],
     "durationMinutes": 30,
     "content": "",
     "order": 0
@@ -30,7 +43,13 @@
     "description": "A comprehensive HTML reference covering element categories, document structure, semantic tags, forms, and accessibility attributes.",
     "categoryId": "web-basics",
     "difficulty": "beginner",
-    "tags": ["html", "semantics", "elements", "structure", "forms"],
+    "tags": [
+      "html",
+      "semantics",
+      "elements",
+      "structure",
+      "forms"
+    ],
     "durationMinutes": 35,
     "content": "",
     "order": 1
@@ -42,7 +61,13 @@
     "description": "Master CSS syntax, selectors, the box model, display types, visual formatting, and layout properties with this interactive reference guide.",
     "categoryId": "web-basics",
     "difficulty": "beginner",
-    "tags": ["css", "selectors", "box-model", "layout", "typography"],
+    "tags": [
+      "css",
+      "selectors",
+      "box-model",
+      "layout",
+      "typography"
+    ],
     "durationMinutes": 35,
     "content": "",
     "order": 2
@@ -54,7 +79,13 @@
     "description": "An interactive deep dive into the Document Object Model — tree structure, nodes vs elements, selectors, traversal, manipulation, and events.",
     "categoryId": "web-basics",
     "difficulty": "intermediate",
-    "tags": ["dom", "javascript", "browser", "events", "manipulation"],
+    "tags": [
+      "dom",
+      "javascript",
+      "browser",
+      "events",
+      "manipulation"
+    ],
     "durationMinutes": 50,
     "content": "",
     "order": 3
@@ -66,7 +97,13 @@
     "description": "A broad interactive JavaScript book covering core language fundamentals, data types, operators, control flow, functions, and practical examples.",
     "categoryId": "javascript",
     "difficulty": "beginner",
-    "tags": ["javascript", "fundamentals", "syntax", "functions", "data-types"],
+    "tags": [
+      "javascript",
+      "fundamentals",
+      "syntax",
+      "functions",
+      "data-types"
+    ],
     "durationMinutes": 40,
     "content": "",
     "order": 0
@@ -78,7 +115,13 @@
     "description": "Master JavaScript objects, the prototype chain, ES6 classes, and inheritance patterns through interactive exercises.",
     "categoryId": "javascript",
     "difficulty": "intermediate",
-    "tags": ["javascript", "objects", "prototypes", "classes", "inheritance"],
+    "tags": [
+      "javascript",
+      "objects",
+      "prototypes",
+      "classes",
+      "inheritance"
+    ],
     "durationMinutes": 45,
     "content": "",
     "order": 1
@@ -90,7 +133,14 @@
     "description": "An interactive deep dive into JavaScript memory management — the memory lifecycle, stack vs heap, the call stack, primitives vs references, and shallow vs deep copying.",
     "categoryId": "javascript",
     "difficulty": "intermediate",
-    "tags": ["javascript", "memory", "stack", "heap", "call-stack", "garbage-collection"],
+    "tags": [
+      "javascript",
+      "memory",
+      "stack",
+      "heap",
+      "call-stack",
+      "garbage-collection"
+    ],
     "durationMinutes": 50,
     "content": "",
     "order": 2
@@ -102,7 +152,14 @@
     "description": "Master asynchronous JavaScript — the event loop, callbacks, Promises, async/await, the Fetch API, and REST integration with a final quiz.",
     "categoryId": "javascript",
     "difficulty": "advanced",
-    "tags": ["javascript", "async", "event-loop", "promises", "async-await", "fetch-api"],
+    "tags": [
+      "javascript",
+      "async",
+      "event-loop",
+      "promises",
+      "async-await",
+      "fetch-api"
+    ],
     "durationMinutes": 45,
     "content": "",
     "order": 3
@@ -114,7 +171,13 @@
     "description": "A deep dive into the useState hook — state with different data types, functional updates, batching, and forms integration.",
     "categoryId": "react",
     "difficulty": "beginner",
-    "tags": ["react", "usestate", "hooks", "state", "forms"],
+    "tags": [
+      "react",
+      "usestate",
+      "hooks",
+      "state",
+      "forms"
+    ],
     "durationMinutes": 35,
     "content": "",
     "order": 0
@@ -126,7 +189,13 @@
     "description": "Master the full React hooks API — useState, useEffect, useReducer, useContext, and common patterns for building robust components.",
     "categoryId": "react",
     "difficulty": "intermediate",
-    "tags": ["react", "hooks", "useeffect", "usereducer", "patterns"],
+    "tags": [
+      "react",
+      "hooks",
+      "useeffect",
+      "usereducer",
+      "patterns"
+    ],
     "durationMinutes": 45,
     "content": "",
     "order": 1
@@ -138,9 +207,15 @@
     "description": "An interactive course on React forms — controlled and uncontrolled components, validation strategies, and handling user input effectively.",
     "categoryId": "react",
     "difficulty": "intermediate",
-    "tags": ["react", "forms", "validation", "controlled-components", "input"],
+    "tags": [
+      "react",
+      "forms",
+      "validation",
+      "controlled-components",
+      "input"
+    ],
     "durationMinutes": 45,
-    "content": "",
+    "content": "<article>\n  <section aria-labelledby=\"forms-model\">\n    <h2 id=\"forms-model\">React forms: choose who owns the value</h2>\n    <p>A form starts with browser behavior: an input has a value, the browser can validate it, and submit attempts to send it. React adds another possible owner of that value. The key design question is not “which hook do I use?” but “which layer needs to read or change this value, and when?”</p>\n    <h3>Controlled inputs</h3>\n    <p>A controlled input receives its current value from React state and reports edits through an event. React is the source of truth. This makes conditional UI, live formatting, dependent fields, and immediate validation straightforward, but every edit causes state updates and the input must stay controlled for its whole lifetime.</p>\n    <pre><code>const [email, setEmail] = useState('');\n&lt;input\n  type=\"email\"\n  value={email}\n  onChange={(event) =&gt; setEmail(event.target.value)}\n/&gt;</code></pre>\n    <p>On each keystroke, the browser emits an input event; the handler reads the new string; the state setter schedules a render; and the next render passes that value back to the input. If you omit onChange, the displayed value cannot be edited. If the value starts as undefined and later becomes a string, React warns that the input changed from uncontrolled to controlled. Initialize text fields with an empty string, not undefined.</p>\n    <h3>Uncontrolled inputs</h3>\n    <p>With an uncontrolled input, the DOM keeps the current value. Use a ref when React needs a particular value, or FormData in the submit handler when reading the whole form. This can reduce state plumbing for a simple form, but React will not automatically re-render dependent UI as the user types.</p>\n    <pre><code>function handleSubmit(event: React.FormEvent&lt;HTMLFormElement&gt;) {\n  event.preventDefault();\n  const data = new FormData(event.currentTarget);\n  const email = String(data.get('email') ?? '');\n}</code></pre>\n    <p>Do not mix the models accidentally: an input should use either value/onChange or defaultValue/ref, not both as competing sources of truth.</p>\n  </section>\n\n  <section aria-labelledby=\"validation-layers\">\n    <h2 id=\"validation-layers\">Validation is layered, not a security boundary</h2>\n    <p>Native HTML constraints such as required, type=\"email\", min, max, and minLength provide useful browser feedback and expose validity through the Constraint Validation API. By default, an invalid form does not dispatch its submit event; the browser focuses a failing control and presents its own message. If you add noValidate, you opt out of that automatic submit blocking and must implement the equivalent checks yourself.</p>\n    <p>Client-side validation improves feedback, but it can be bypassed. The server must validate every submitted value and enforce authorization. Validation also does not prevent SQL injection or cross-site scripting: use parameterized database queries, context-appropriate output encoding, and server-side security controls.</p>\n    <h3>Custom validation and timing</h3>\n    <p>Custom rules are useful for relationships the browser cannot express, such as matching password fields or a date range. Showing an error on every keystroke can be noisy; waiting until submit can hide a fixable problem. A common pattern is to show a field error after it has been blurred once or after a submit attempt, then re-check it on later edits. This is a choice, not a universal rule: test keyboard use, screen-reader announcements, and how disruptive the feedback feels.</p>\n    <pre><code>const [email, setEmail] = useState('');\nconst [touched, setTouched] = useState(false);\nconst emailError =\n  touched &amp;&amp; !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)\n    ? 'Enter a valid email address.'\n    : '';\n\n&lt;label htmlFor=\"email\"&gt;Email&lt;/label&gt;\n&lt;input\n  id=\"email\"\n  type=\"email\"\n  value={email}\n  onChange={(event) =&gt; setEmail(event.target.value)}\n  onBlur={() =&gt; setTouched(true)}\n  aria-invalid={Boolean(emailError)}\n  aria-describedby={emailError ? 'email-error' : undefined}\n/&gt;\n{emailError &amp;&amp; &lt;p id=\"email-error\"&gt;{emailError}&lt;/p&gt;</code></pre>\n    <p>Associate each control with a visible label. Connect its error with aria-describedby and set aria-invalid only when it is invalid. On submit, focus the first invalid field or provide a summary that links to invalid controls. Do not rely on color alone.</p>\n  </section>\n\n  <section aria-labelledby=\"worked-submit\">\n    <h2 id=\"worked-submit\">Walkthrough: submit, validate, then report</h2>\n    <ol>\n      <li>The browser first applies native constraints unless the form uses noValidate.</li>\n      <li>For a valid submission, React receives the submit event. Call preventDefault to stop a page navigation when the app handles the request itself.</li>\n      <li>Run cross-field and domain rules. Keep errors next to the fields they describe.</li>\n      <li>Set a submitting state before awaiting the request; disable duplicate submission and announce progress accessibly.</li>\n      <li>Handle server field errors, network failure, and success as distinct outcomes. A client check can never guarantee that the server will accept the data.</li>\n      <li>In finally, clear the submitting state. Preserve entered values after recoverable failures so the learner does not have to retype them.</li>\n    </ol>\n    <p>Debug a form by inspecting the actual submit event and its defaultPrevented value, checking input.value and input.validity in DevTools, and looking at the Network panel. Confirm whether a request was sent, whether the server returned a validation error, and whether the UI translated that response into useful feedback.</p>\n  </section>\n\n  <section aria-labelledby=\"library-tradeoffs\">\n    <h2 id=\"library-tradeoffs\">When a form library helps</h2>\n    <p>React Hook Form can reduce rerendering and repetitive registration/error wiring, especially for larger forms. It commonly uses uncontrolled fields and refs internally; Controller adapts controlled third-party widgets. A schema resolver can share domain rules, but browser and server validation still have separate responsibilities.</p>\n    <p>A library adds concepts, bundle weight, and another API to debug. For a small form with a few fields, native constraints and a small amount of React state may be clearer. Choose based on field count, conditional sections, validation complexity, accessibility requirements, and team familiarity—not on the assumption that every form needs a library.</p>\n  </section>\n\n  <section aria-labelledby=\"practice-form\">\n    <h2 id=\"practice-form\">Practice: build a registration form</h2>\n    <p>Implement name, email, password, and confirm-password fields. Use controlled values for any field that drives live UI; choose intentionally for the rest. Keep the server response simulated, but make loading, success, and recoverable error states visible.</p>\n    <ul>\n      <li>Use semantic form markup, associated labels, appropriate input types, and autocomplete tokens.</li>\n      <li>Require a name, validate email format, and require the two passwords to match.</li>\n      <li>Do not announce untouched-field errors immediately; after blur or submit, update feedback as the learner edits.</li>\n      <li>Prevent duplicate submits, show a pending state, and preserve values on simulated network failure.</li>\n      <li>Explain in a short note which fields are controlled and why, and what validation the server must repeat.</li>\n    </ul>\n    <h3>Success criteria</h3>\n    <ul>\n      <li>A keyboard-only user can identify every field, error, and submit status.</li>\n      <li>Invalid data is blocked with actionable feedback; the first invalid field can be found without guessing.</li>\n      <li>Valid data produces one request; pending, failure, and success states are distinguishable.</li>\n      <li>Changing a value cannot leave a stale error visible after the value becomes valid.</li>\n      <li>The implementation does not claim client validation makes untrusted input safe.</li>\n    </ul>\n    <h3>Debugging challenge</h3>\n    <p>A submit handler never runs, even though its button is clicked. Inspect the form’s native validity state first: a required field or type constraint may be blocking submission before React receives the event. Then check whether noValidate was added and whether custom validation now covers the rules you still need.</p>\n  </section>\n</article>",
     "order": 2
   },
   {
@@ -150,7 +225,13 @@
     "description": "Learn how to build an API layer with Axios, create service files, write custom hooks for data fetching, and handle errors with retry logic.",
     "categoryId": "react",
     "difficulty": "intermediate",
-    "tags": ["react", "api", "custom-hooks", "axios", "error-handling"],
+    "tags": [
+      "react",
+      "api",
+      "custom-hooks",
+      "axios",
+      "error-handling"
+    ],
     "durationMinutes": 50,
     "content": "",
     "order": 3
@@ -162,7 +243,13 @@
     "description": "Explore the React ecosystem — SPA vs traditional websites, React Router setup, nested routes, dynamic params, Link vs NavLink, and controlled inputs.",
     "categoryId": "react",
     "difficulty": "intermediate",
-    "tags": ["react", "routing", "react-router", "spa", "navigation"],
+    "tags": [
+      "react",
+      "routing",
+      "react-router",
+      "spa",
+      "navigation"
+    ],
     "durationMinutes": 40,
     "content": "",
     "order": 4
@@ -174,7 +261,13 @@
     "description": "Master React performance optimization — the re-render cascade, React.memo, useMemo, useCallback, lazy loading, bundle size, and building accessible apps.",
     "categoryId": "react",
     "difficulty": "advanced",
-    "tags": ["react", "performance", "memoization", "accessibility", "lazy-loading"],
+    "tags": [
+      "react",
+      "performance",
+      "memoization",
+      "accessibility",
+      "lazy-loading"
+    ],
     "durationMinutes": 35,
     "content": "",
     "order": 5
@@ -186,7 +279,13 @@
     "description": "Learn what design systems are, how they're structured with design tokens, popular UI libraries, build-vs-buy decisions, and component design principles with props and variants.",
     "categoryId": "ui-design",
     "difficulty": "intermediate",
-    "tags": ["design-system", "design-tokens", "components", "ui-libraries", "variants"],
+    "tags": [
+      "design-system",
+      "design-tokens",
+      "components",
+      "ui-libraries",
+      "variants"
+    ],
     "durationMinutes": 45,
     "content": "",
     "order": 0
@@ -198,7 +297,13 @@
     "description": "An interactive masterclass on Material UI — setting up MUI, ThemeProvider, Button, TextField, Card components, and building a login form.",
     "categoryId": "ui-design",
     "difficulty": "intermediate",
-    "tags": ["material-ui", "react", "theming", "components", "mui"],
+    "tags": [
+      "material-ui",
+      "react",
+      "theming",
+      "components",
+      "mui"
+    ],
     "durationMinutes": 35,
     "content": "",
     "order": 1
@@ -210,7 +315,13 @@
     "description": "A comprehensive interactive Git reference — basic commands, branching, merging, rebasing, stash, tags, and a quick reference cheat sheet.",
     "categoryId": "tooling",
     "difficulty": "intermediate",
-    "tags": ["git", "version-control", "branching", "merging", "rebase"],
+    "tags": [
+      "git",
+      "version-control",
+      "branching",
+      "merging",
+      "rebase"
+    ],
     "durationMinutes": 40,
     "content": "",
     "order": 0
@@ -222,7 +333,14 @@
     "description": "Master Git workflow and CI/CD — branching strategies, pull requests, GitHub Actions, testing pipelines, and deployment automation.",
     "categoryId": "tooling",
     "difficulty": "intermediate",
-    "tags": ["git", "ci-cd", "github-actions", "workflow", "deployment", "automation"],
+    "tags": [
+      "git",
+      "ci-cd",
+      "github-actions",
+      "workflow",
+      "deployment",
+      "automation"
+    ],
     "durationMinutes": 40,
     "content": "",
     "order": 1
@@ -234,7 +352,13 @@
     "description": "A complete guide to setting up your development environment — installing Node.js, npm, editors, extensions, and configuring your first project.",
     "categoryId": "tooling",
     "difficulty": "beginner",
-    "tags": ["dev-environment", "nodejs", "npm", "vscode", "setup"],
+    "tags": [
+      "dev-environment",
+      "nodejs",
+      "npm",
+      "vscode",
+      "setup"
+    ],
     "durationMinutes": 30,
     "content": "",
     "order": 2
@@ -246,7 +370,13 @@
     "description": "Learn how to deploy web applications — build outputs, environment variables, hosting platforms, DNS configuration, and CI/CD deployment pipelines.",
     "categoryId": "tooling",
     "difficulty": "intermediate",
-    "tags": ["deployment", "hosting", "ci-cd", "dns", "environment-variables"],
+    "tags": [
+      "deployment",
+      "hosting",
+      "ci-cd",
+      "dns",
+      "environment-variables"
+    ],
     "durationMinutes": 35,
     "content": "",
     "order": 3
@@ -258,7 +388,13 @@
     "description": "Learn frontend architecture fundamentals — requirements analysis, tech stack selection, project structure, component design, state management, and scalability patterns.",
     "categoryId": "quality",
     "difficulty": "advanced",
-    "tags": ["architecture", "planning", "project-structure", "state-management", "scalability"],
+    "tags": [
+      "architecture",
+      "planning",
+      "project-structure",
+      "state-management",
+      "scalability"
+    ],
     "durationMinutes": 45,
     "content": "",
     "order": 0
@@ -270,7 +406,14 @@
     "description": "A comprehensive interactive testing guide — unit tests, integration tests, E2E tests, testing frameworks, mocking, and testing best practices.",
     "categoryId": "quality",
     "difficulty": "intermediate",
-    "tags": ["testing", "unit-tests", "integration-tests", "e2e", "mocking", "frameworks"],
+    "tags": [
+      "testing",
+      "unit-tests",
+      "integration-tests",
+      "e2e",
+      "mocking",
+      "frameworks"
+    ],
     "durationMinutes": 40,
     "content": "",
     "order": 1
@@ -282,7 +425,14 @@
     "description": "Master frontend authentication — session vs token-based auth, JWT, OAuth, secure token storage, route protection, and common security pitfalls.",
     "categoryId": "security",
     "difficulty": "advanced",
-    "tags": ["security", "authentication", "jwt", "oauth", "tokens", "route-protection"],
+    "tags": [
+      "security",
+      "authentication",
+      "jwt",
+      "oauth",
+      "tokens",
+      "route-protection"
+    ],
     "durationMinutes": 40,
     "content": "",
     "order": 0
@@ -294,7 +444,13 @@
     "description": "An interactive SQL tutorial — SELECT queries, filtering, joins, aggregations, subqueries, and database design fundamentals with hands-on exercises.",
     "categoryId": "data",
     "difficulty": "beginner",
-    "tags": ["sql", "databases", "queries", "joins", "aggregations"],
+    "tags": [
+      "sql",
+      "databases",
+      "queries",
+      "joins",
+      "aggregations"
+    ],
     "durationMinutes": 45,
     "content": "",
     "order": 0
