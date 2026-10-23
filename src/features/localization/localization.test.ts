@@ -23,6 +23,8 @@ describe('application localization', () => {
     expect(getLocalizedDifficulty('ru', 'advanced')).toBe('Продвинутый');
     expect(translate('ru', 'markComplete')).toBe('Отметить завершённым');
     expect(translate('en', 'dashboardOverallProgress', { completed: 3, total: 25 })).toBe('Overall progress — 3 of 25 lessons');
+    expect(translate('ru', 'lessonNotesAria')).toBe('Заметки к уроку');
+    expect(translate('ru', 'quizScore', { score: 4, total: 5, percent: 80 })).toBe('Правильных ответов: 4 из 5 · 80%');
     expect(formatResultCount('en', 2)).toBe('2 results');
     expect(formatResultCount('ru', 1)).toBe('1 результат');
     expect(formatResultCount('ru', 3)).toBe('3 результата');
