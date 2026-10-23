@@ -71,3 +71,31 @@ Use focused Conventional Commit-style messages such as:
 - `test(content): validate lesson links and translation parity`
 
 Do not mark planned features as implemented. After each phase, update this file with exact changes, validation evidence, unresolved questions and the next action.
+
+## Handoff update — 2026-10-23
+
+### Current branch and verification
+- Feature branch: `feat/learning-platform-foundation`.
+- Latest verified feature HEAD at handoff: `e2684ed0d4eba181f7305738f9aa87e412823424`.
+- PR #1 remains an open draft targeting `main`.
+- GitHub Actions run [#39922070075](https://github.com/Mardakhay/interactive-guides/actions/runs/39922070075) passed on `e2684ed0d4eba181f7305738f9aa87e412823424`: lint, typecheck, tests and build succeeded.
+- `main` currently points to `b13af92576e8a73753a6e3f3d26765d9f9c44397`. Do not rewrite or force-push it as part of this work.
+
+### GitHub Contents API incident
+- Four lesson-file commits were accidentally created against the default branch because the Contents API calls omitted `branch`: `485b04221d005452c17eb6aff04fc52d82c9b082`, `2e2e2914dc32eb150fdc23681b9d959bce4d82e3`, `f447147eda20ca415cde647dabb816296456f04d`, and `b13af92576e8a73753a6e3f3d26765d9f9c44397`. This moved `main` to the last SHA. The current PR diff includes all four lesson files, and they are retained on the feature branch.
+- Going forward, make grouped changes by creating blobs/tree/commit and then update only `feat/learning-platform-foundation` with `expected_sha`; verify branch HEAD, PR head and workflow runs after each change. Do not use create_file/update_file without an explicit branch.
+
+### Supplementary source-derived lessons present
+- JavaScript runtime/memory and object prototypes.
+- Frontend authentication/security.
+- Deployment/hosting in EN and RU.
+- SQL/PostgreSQL in EN and RU.
+- Sass/SCSS, Bootstrap/MUI comparison, frontend architecture boundaries, and advanced package workflows.
+- The curriculum/repository links these supplements in the bilingual content catalog. These lessons remain `review`, not `published`.
+
+### Audit completeness — not yet finished
+- Week 14/15 Notion + legacy HTML targeted comparison is documented in `docs/CONTENT_PARITY_REVIEW_WEEK14-15.md`.
+- The wider set of HTML sources has a mapping, but not every file has a verified section-by-section parity audit. In particular, network/hosting details, advanced JS internals, auth-security edge cases, database/RLS topics, and specific library-version steps require itemized source review against the actual HTML and current primary documentation.
+- Do not call an HTML source migrated until its headings, explanations, code samples, diagrams, exercises, answer/reveal controls, links, and key claims have been mapped to the structured destination and the EN/RU teaching coverage has been reviewed.
+- Next: continue exact source-section inventory, add a source-to-block mapping report, close or explicitly defer each uncovered concept, then run CI on the resulting feature HEAD.
+
