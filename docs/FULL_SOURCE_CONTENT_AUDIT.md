@@ -212,7 +212,7 @@ The curriculum destinations remain `git.fundamentals` and `git.workflow-ci`, not
 
 ## Latest validated source/content checkpoint — 2026-10-23
 
-**Repository ref and CI:** feature SHA `9dfa157ce36123144ad84c2f327abdb41984a3a7`; GitHub Actions [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388) passed install, lint, typecheck, 102 tests in 22 files, and production build. The passing run validates structural/runtime constraints, not complete instructional parity.
+**Repository ref and CI:** application/content SHA `9dfa157ce36123144ad84c2f327abdb41984a3a7` (subsequent branch commits in this continuation are documentation-only); GitHub Actions [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388) passed install, lint, typecheck, 102 tests in 22 files, and production build. The passing run validates structural/runtime constraints, not complete instructional parity.
 
 **Current structured-content inventory:** 26 core and 11 supplementary stable lesson IDs are registered in EN/RU (74 locale JSON files). All 25 legacy HTML files remain. All registered lesson translations continue to use the editorial status `review` unless individually approved by a future documented review.
 

@@ -242,7 +242,7 @@ This is the start of Phase 2, not complete app-wide localization. Course details
 ## Latest validated handoff — 2026-10-23
 
 - **Working branch:** `feat/learning-platform-foundation`.
-- **Exact feature HEAD:** `9dfa157ce36123144ad84c2f327abdb41984a3a7`.
+- **Latest validated application/content snapshot:** `9dfa157ce36123144ad84c2f327abdb41984a3a7`; the current branch also contains the documentation refresh.
 - **CI:** GitHub Actions [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388) passed `npm ci`, lint, typecheck, 102 tests in 22 test files, and production build on the exact SHA.
 - **Main protection:** `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`. PR #1 is still open/Draft. Do not merge or force-push without explicit instruction.
 - **Curriculum inventory:** 26 core and 11 supplementary stable lesson IDs in EN/RU (74 JSON files total). The app contains the structured curriculum route/reader. All 25 legacy HTML lesson files remain for source comparison and rollback.

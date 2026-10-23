@@ -192,7 +192,7 @@ Keep `main` at `b13af92576e8a73753a6e3f3d26765d9f9c44397`, keep PR #1 as a draft
 
 ## Authoritative checkpoint — 2026-10-23
 
-- **Feature HEAD:** `9dfa157ce36123144ad84c2f327abdb41984a3a7`.
+- **Latest validated application/content snapshot:** `9dfa157ce36123144ad84c2f327abdb41984a3a7` (later commits in this checkpoint update documentation only).
 - **CI:** [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388) passed dependency install, lint, typecheck, all 102 tests across 22 files, and production build on the exact feature HEAD.
 - **Branch/PR:** PR #1 remains open/Draft and mergeable. `main` remains unchanged at `b13af92576e8a73753a6e3f3d26765d9f9c44397`.
 - **Structured content:** 26 core + 11 supplementary lesson IDs, EN/RU, 74 locale JSON files. The full legacy source set of 25 HTML files remains. Source parity/editorial review is in progress.

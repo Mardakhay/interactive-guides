@@ -21,7 +21,6 @@ The lesson schema/tests cover required lesson structure, stable unique block IDs
 This file does not claim complete parity. The full source inventory and Notion/HTML evidence matrix are maintained in [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md). At the latest repository checkpoint, 21 Notion pages had been fetched (all marked unverified by the connector) and 25 HTML files were inventoried and structurally surveyed. Two React HTML sources were read in full in an earlier pass; the API material received targeted factual review; and the CSS reference plus Git reference/workflow pages received focused source-content, heading/control and structured-target comparisons. Most other HTML bodies, code samples, hidden answers and interactions still require full review against the structured blocks.
 
 Keep standalone HTML files as sources until each relevant subsection has block-level mapping, a depth assessment (explanation, walkthrough, reasoning, pitfalls, practice, feedback), technical verification, and EN/RU review. CI green alone is not a publication approval.
-undefined
 
 **CI evidence:** [run #317](https://github.com/Mardakhay/interactive-guides/actions/runs/39963932841) passed on `07bc9acfc89c0138cbd4d214e19215e4dff6f1c6` (92 tests plus lint/typecheck/build). Editorial/source-parity gaps listed above remain unresolved by CI.
 

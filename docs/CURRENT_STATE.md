@@ -8,7 +8,7 @@ This audit is based on the repository root, source directory listings, current p
 
 ## Authoritative implementation snapshot — 2026-10-23
 
-- **Exact feature HEAD:** `9dfa157ce36123144ad84c2f327abdb41984a3a7`.
+- **Latest validated application/content snapshot:** `9dfa157ce36123144ad84c2f327abdb41984a3a7` (subsequent branch commits in this continuation are documentation-only).
 - **Validation:** GitHub Actions [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388) passed `npm ci`, ESLint, TypeScript typecheck, all 102 tests across 22 test files, and production build on this exact SHA.
 - **Branch safety:** PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) remains open and Draft. `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; this implementation work targets `feat/learning-platform-foundation`.
 - **Structured curriculum:** 26 core and 11 supplementary lesson IDs are registered in English and Russian (74 JSON files). The React reader and curriculum routes are integrated. All 25 legacy HTML files remain as source material; registration/schema validation does not mean source parity or editorial review is complete.
