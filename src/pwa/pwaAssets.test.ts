@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 type ManifestIcon = {
@@ -15,9 +16,17 @@ type WebManifest = {
   icons: ManifestIcon[];
 };
 
-const publicUrl = (path: string) => new URL(`../../public/${path}`, import.meta.url);
-const readPublicText = (path: string) => readFileSync(publicUrl(path), 'utf8');
+const publicPath = (path: string) => resolve(process.cwd(), 'public', path);
+const readPublicText = (path: string) => readFileSync(publicPath(path), 'utf8');
+const readRootText = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 const manifest = JSON.parse(readPublicText('manifest.webmanifest')) as WebManifest;
+const pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+
+function expectPngSize(path: string, expected: number) {
+  const bytes = readFileSync(publicPath(path));
+  expect([...bytes.subarray(0, 8)]).toEqual(pngSignature);
+  expect([bytes.readUInt32BE(16), bytes.readUInt32BE(20)]).toEqual([expected, expected]);
+}
 
 describe('PWA asset contract', () => {
   it('declares installable metadata and real PNG assets at required sizes', () => {
@@ -29,18 +38,17 @@ describe('PWA asset contract', () => {
 
     for (const icon of manifest.icons) {
       expect(icon.type).toBe('image/png');
-      const bytes = readFileSync(publicUrl(icon.src.replace(/^\//, '')));
-      expect(bytes.subarray(0, 8)).toEqual(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
-      const width = bytes.readUInt32BE(16);
-      const height = bytes.readUInt32BE(20);
+      const iconPath = icon.src.replace(/^\//, '');
+      const bytes = readFileSync(publicPath(iconPath));
+      expect([...bytes.subarray(0, 8)]).toEqual(pngSignature);
       const [expectedWidth, expectedHeight] = icon.sizes.split('x').map(Number);
-      expect([width, height]).toEqual([expectedWidth, expectedHeight]);
+      expect([bytes.readUInt32BE(16), bytes.readUInt32BE(20)]).toEqual([expectedWidth, expectedHeight]);
     }
+    expectPngSize('pwa-180.png', 180);
   });
 
   it('wires the iOS touch icon and host-side SPA fallback', () => {
-    expect(readPublicText('pwa-180.png')).toBeDefined();
-    expect(readPublicText('../index.html')).toContain('rel="apple-touch-icon" href="/pwa-180.png"');
+    expect(readRootText('index.html')).toContain('rel="apple-touch-icon" href="/pwa-180.png"');
     expect(readPublicText('_redirects').trim()).toBe('/* /index.html 200');
   });
 
@@ -52,6 +60,6 @@ describe('PWA asset contract', () => {
     }
     expect(worker).toContain("request.method !== 'GET' || url.origin !== self.location.origin");
     expect(worker).toContain("request.headers.has('authorization') || url.pathname.startsWith('/api/')");
-    expect(worker).toContain("test(url.pathname)");
+    expect(worker).toContain('test(url.pathname)');
   });
 });
