@@ -18,7 +18,7 @@ The lesson schema/tests cover required lesson structure, stable unique block IDs
 
 ## Source parity status
 
-This file does not claim complete parity. The full source inventory and Notion/HTML evidence matrix are maintained in [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md). At the latest checkpoint, 21 Notion pages had been fetched (all marked unverified by the connector) and 25 HTML files were inventoried and structurally surveyed. Two React HTML sources had full reads in the focused pass and the API material received targeted factual review; most remaining HTML bodies, code samples, hidden answers and interactions still require full review against the structured blocks.
+This file does not claim complete parity. The full source inventory and Notion/HTML evidence matrix are maintained in [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md). At the latest repository checkpoint, 21 Notion pages had been fetched (all marked unverified by the connector) and 25 HTML files were inventoried and structurally surveyed. Two React HTML sources were read in full in an earlier pass; the API material received targeted factual review; and the CSS reference plus Git reference/workflow pages received focused source-content, heading/control and structured-target comparisons. Most other HTML bodies, code samples, hidden answers and interactions still require full review against the structured blocks.
 
 Keep standalone HTML files as sources until each relevant subsection has block-level mapping, a depth assessment (explanation, walkthrough, reasoning, pitfalls, practice, feedback), technical verification, and EN/RU review. CI green alone is not a publication approval.
 undefined
@@ -27,3 +27,10 @@ undefined
 
 
 **Latest CI:** [Run #320](https://github.com/Mardakhay/interactive-guides/actions/runs/39964458056) passed on feature SHA `b7fdeba6b9096d9f8336cf1071deb9d0f2d1dfc5`; source parity status remains partial.
+
+
+## Latest exact-head validation — 2026-10-23
+
+Feature HEAD `9dfa157ce36123144ad84c2f327abdb41984a3a7` passed GitHub Actions [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388), including all 102 tests across 22 files and production build. CI remains evidence of schema, test and build consistency only.
+
+The latest focused content additions include CSS fundamentals v3 (53 blocks/110 min per locale), Git fundamentals v3 (38 blocks/95 min), and Git workflow/CI v3 (37 blocks/110 min). They remain in editorial review; legacy HTML pages remain available and their full source-to-block and UI-interaction equivalence is not closed.

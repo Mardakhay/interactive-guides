@@ -1,10 +1,25 @@
 # Current-State Audit
 
-**Audit date:** 2026-10-22  
+**Audit date:** 2026-10-23  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Default branch observed:** `main`
 
 This audit is based on the repository root, source directory listings, current package/config files, the lesson catalog, the renderer and progress-store implementation, selected full HTML lesson files, and recent commit history available through GitHub. It is not a local test run; no claim is made that the current build or tests were executed during this remote audit.
+
+## Authoritative implementation snapshot — 2026-10-23
+
+- **Exact feature HEAD:** `9dfa157ce36123144ad84c2f327abdb41984a3a7`.
+- **Validation:** GitHub Actions [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388) passed `npm ci`, ESLint, TypeScript typecheck, all 102 tests across 22 test files, and production build on this exact SHA.
+- **Branch safety:** PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) remains open and Draft. `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; this implementation work targets `feat/learning-platform-foundation`.
+- **Structured curriculum:** 26 core and 11 supplementary lesson IDs are registered in English and Russian (74 JSON files). The React reader and curriculum routes are integrated. All 25 legacy HTML files remain as source material; registration/schema validation does not mean source parity or editorial review is complete.
+- **Recent source-focused content work:** `css.fundamentals` is version 3 (53 blocks, 110 minutes, 5 knowledge checks, 5 walkthroughs, 3 coding exercises per locale); `git.fundamentals` is version 3 (38 blocks, 95 minutes per locale); `git.workflow-ci` is version 3 (37 blocks, 110 minutes per locale). EN/RU structures are checked in CI, while all three remain in editorial review and their legacy interaction parity is incomplete.
+- **UI localization:** English/Russian preference and route-aware locale support are implemented. Localization covers the shared shell, dashboard, catalog/category views, learning paths, bookmarks, notes, lesson metadata/navigation, quiz controls, search and common feedback states. This is broad partial coverage—not a guarantee that every string, source lesson body, edge state or legacy HTML page has been translated.
+- **PWA:** manifest, PNG icons, Netlify-compatible SPA fallback, scoped asset caching and a learner-approved service-worker update flow are implemented. Real-browser/device install/offline/update acceptance is still outstanding.
+- **Persistence/cloud:** progress, notes, bookmarks and quiz results remain primarily local-first. A reviewed migration/export-import flow is not complete. Supabase auth/sync is not implemented or listed as a package dependency.
+- **Release warnings:** the latest `npm ci` reported 13 dependency audit findings (8 moderate, 3 high, 2 critical). The CI build also emits the existing large-chunk warning, and React Router prints v7 future-flag warnings. These did not fail the workflow but should be triaged.
+
+This snapshot is the authoritative status for this document; earlier checkpoint sections below are chronological history and should not override it.
+
 
 ## Existing application
 
@@ -154,7 +169,7 @@ The UI now has an English/Russian preference stored under `interactive-guides.ui
 This is the start of Phase 2, not complete app-wide localization. Course details, legacy HTML lessons, learning-path detail pages, bookmarks, notes, quizzes, search result UI and all empty/error states still need systematic translation and tests. The source lesson/catalog content remains English unless it uses the bilingual structured lesson route.
 
 
-## Latest continuation checkpoint — 2026-10-23
+## Previous code/content checkpoint — 2026-10-23 (superseded by the authoritative snapshot above)
 
 - Exact feature HEAD: `3762826f6952df4a72fce4149694728ea5f1e378`.
 - GitHub Actions [run #39985536493](https://github.com/Mardakhay/interactive-guides/actions/runs/39985536493) passed `npm ci`, ESLint, TypeScript typecheck, all 102 tests, and production build on that exact SHA.
@@ -164,3 +179,14 @@ This is the start of Phase 2, not complete app-wide localization. Course details
 - PWA implementation foundation exists on the feature branch; automatic checks do not replace Android Chrome/iOS Safari install/offline/update acceptance. Supabase authentication/sync remains unimplemented. Local-first migration and export/import remain open.
 
 The project is **not release-complete** while source-to-block parity, all-screen/content localization, data-portability review and real-device acceptance remain open.
+
+
+## Release blockers and next steps — exact state at `9dfa157ce36123144ad84c2f327abdb41984a3a7`
+
+1. Continue source-to-block review for the retained HTML and unverified Notion material; document explicit decisions where a legacy interaction is deferred rather than rebuilt.
+2. Finish localization coverage for remaining less-common strings/edge states and review source lesson-body equivalence, not only UI labels.
+3. Implement/test a safe local-data migration plus export/import and recovery path before a storage-format change.
+4. Record Android Chrome and iOS Safari install, deep-link, offline, update and external-font acceptance outcomes. Do not infer these outcomes from unit tests.
+5. Triage the dependency audit findings and production bundle-size warning without applying an unreviewed forced dependency upgrade.
+
+Do not mark overall release readiness complete until the source audit, learner-data portability and manual PWA acceptance gates have evidence.

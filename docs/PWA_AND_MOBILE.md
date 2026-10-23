@@ -78,3 +78,12 @@ The active feature branch now has a versioned `v3` shell/asset cache and a learn
 GitHub Actions [run #39982235822](https://github.com/Mardakhay/interactive-guides/actions/runs/39982235822) passed on exact code SHA `5628ca69a6981a6d81357ab1d20e466c3f1d783e`: `npm ci`, ESLint, TypeScript typecheck, Vitest and production build.
 
 **Release acceptance remains open.** Still test a clean install, waiting-worker update while a coding exercise/note is in progress, online reload on localized deep links, revisit offline, not-yet-visited lesson offline expectations, update activation, iOS Add to Home Screen, Android install prompt, font fallback and browser console errors on real supported browser/OS versions. Record results before calling the PWA complete.
+
+
+## Latest exact-head CI checkpoint — 2026-10-23
+
+GitHub Actions [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388) passed on feature SHA `9dfa157ce36123144ad84c2f327abdb41984a3a7`: dependency install, ESLint, TypeScript typecheck, 102 tests across 22 files, and production build.
+
+The app-shell/PWA implementation described above is present at that ref: PNG icons, web manifest, Netlify-style SPA fallback, same-origin static-asset runtime cache, and a learner-controlled service-worker update prompt. This is only automated validation. No evidence is recorded yet for real Android Chrome/iOS Safari install prompts, offline revisit, localized deep-link reload or update behavior on a device.
+
+The same install step reported **13 dependency audit findings** (8 moderate, 3 high, 2 critical). The build emitted a large-chunk warning and the tests emitted React Router v7 future-flag warnings. These warnings did not fail CI; record triage separately rather than running an unreviewed forced dependency upgrade.

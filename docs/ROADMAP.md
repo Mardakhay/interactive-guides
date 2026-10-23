@@ -3,8 +3,8 @@
 Follow this sequence. Each phase should land as a small reviewed change; avoid one giant rewrite.
 
 ## Phase 0 — Baseline and safeguards
-- [ ] Create working branch `feat/learning-platform-foundation`.
-- [ ] Run and record `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`.
+- [x] Create working branch `feat/learning-platform-foundation`.
+- [ ] Run the commands in a local checkout and record the local result. The remote exact-head CI run is green; do not describe it as a local test run.
 - [x] Confirm default branch/CI behavior and inspect the existing user-data contracts.
 - [x] Add documentation and maintain this handoff.
 - Acceptance: baseline is known, current `main` remains intact, clean rollback path exists.
@@ -23,20 +23,18 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
   - `test(content): validate lesson links and translation parity`
 
 ## Phase 2 — Application UI and locale routing
-- [ ] Establish design tokens, reusable layout primitives and typography/code components.
-- [ ] Add `en`/`ru` route-aware language selection and localized UI dictionaries.
-- [ ] Update dashboard/course/module/lesson flows to use curriculum order.
-- [ ] Refine mobile navigation, reading layout and error/empty/loading states.
-- Acceptance: every route is consistent and keyboard/touch usable at mobile widths.
-- Suggested commits:
-  - `feat(i18n): add English and Russian locale routing`
-  - `refactor(ui): unify application design tokens and lesson reader`
-  - `feat(curriculum): navigate modules and lessons in syllabus order`
+
+- [x] Add a persistent EN/RU preference, a switch in the shared top bar, and route-aware locale selection for structured lessons.
+- [x] Localize the common shell/navigation, dashboard widgets, catalog/category views, learning paths, bookmarks, notes, lesson controls/metadata/navigation, quiz controls, search and common empty/error states.
+- [ ] Audit remaining uncommon strings and edge states across every route; verify the browser document language and accessible announcements.
+- [ ] Review and translate legacy lesson bodies where equivalent Russian source content exists; preserve the route-specific language of structured lessons.
+- [ ] Complete the responsive, keyboard and touch-target review across the entire app.
+- **Status:** broad partial implementation; phase acceptance is not met until the remaining UI/content and accessibility checks are audited.
 
 ## Phase 3 — Structured lesson reader
-- [ ] Build typed React renderers for content blocks.
+- [x] Build typed React renderers for the supported structured content-block schema.
 - [ ] Add section table of contents, reading progress and accessible code blocks.
-- [ ] Implement knowledge-check feedback per answer.
+- [x] Implement knowledge-check feedback per answer for the supported question schema.
 - [ ] Implement practice task UX, attempt capture and hint/solution policies.
 - [ ] Gate “mastered” status on required practice evidence where specified.
 - Acceptance: lesson pages render without independent HTML documents; exercises remain testable and accessible.
@@ -46,7 +44,7 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
   - `feat(progress): separate completion from demonstrated mastery`
 
 ## Phase 4 — Content migration
-- [ ] Build a migration inventory from all 25 current HTML files.
+- [x] Build a first-pass inventory and structural survey of all 25 current HTML files; detailed parity review is still pending.
 - [ ] Extract and rewrite one pilot topic; validate the translation and content depth.
 - [ ] Run source/technical review and update the pilot in both locales.
 - [ ] Migrate the remaining lessons in small topic batches in syllabus order.
@@ -79,14 +77,13 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
   - `test(security): verify RLS and user data isolation`
 
 ## Phase 7 — PWA and deployment
-- [ ] Add icons and web app manifest.
-- [ ] Add service worker with documented cache/update lifecycle.
-- [ ] Configure production environment and hosting/deep-link routing.
-- [ ] Add deployment workflow and post-deploy smoke checks.
-- Acceptance: installable app and documented offline scenarios pass on supported devices.
-- Suggested commits:
-  - `feat(pwa): add installable app shell and offline lesson cache`
-  - `ci(deploy): automate production build and deployment checks`
+
+- [x] Add PNG app icons and the web app manifest.
+- [x] Add a service worker with scoped static-asset caching, an app-shell fallback and an explicit user-approved update lifecycle.
+- [x] Add a host-side SPA rewrite for client-side deep-link reloads (`public/_redirects`).
+- [ ] Configure/review the actual production deployment and add post-deploy smoke checks.
+- [ ] Test clean install, deep-link refresh, offline revisit, update activation and external-font fallback in supported desktop/mobile browsers; record browser/OS versions.
+- **Status:** technical foundation implemented; not release-accepted until real-browser/device checks are recorded.
 
 ## Phase 8 — Capstone and release readiness
 - [ ] Build capstone-like guided project path with requirements, user stories, architecture, implementation, tests and deployment.
@@ -184,10 +181,25 @@ Latest validated implementation checkpoint: feature code SHA `5628ca69a6981a6d81
 Keep `main` at `b13af92576e8a73753a6e3f3d26765d9f9c44397`, keep PR #1 as a draft until the above gates are addressed, and never report the whole product as finished while the audit and release phases remain open.
 
 
-## Latest continuation checkpoint — 2026-10-23
+## Previous code/content checkpoint — 2026-10-23 (superseded by the authoritative checkpoint below)
 
 - Feature SHA `3762826f6952df4a72fce4149694728ea5f1e378` passed [GitHub Actions run #39985536493](https://github.com/Mardakhay/interactive-guides/actions/runs/39985536493): install, lint, typecheck, all tests and production build.
 - UI localization has expanded to common dashboard widgets, lesson metadata/navigation, quiz controls and notes/bookmark tools; it remains incomplete for some legacy lesson bodies and less common states.
 - The CSS reference parity pass expanded both `css.fundamentals` locales from 31 to 53 structurally matched blocks and added colors, typography, custom properties/functions, transitions/reduced motion, visual accessibility, browser feature queries, a quick-reference block, a contrast check and an accessible-card coding exercise. The lesson remains `review`; interactive source playground parity is still open.
 - Phase 4 remains in progress; all 25 legacy HTML sources remain until their code, examples, exercises, answer/reveal behavior, references and meaningful interactions have been mapped or explicitly deferred.
 - Keep `main` at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; keep PR #1 as Draft. Supabase auth/sync is not started, and PWA device acceptance plus local-data export/import are outstanding.
+
+
+## Authoritative checkpoint — 2026-10-23
+
+- **Feature HEAD:** `9dfa157ce36123144ad84c2f327abdb41984a3a7`.
+- **CI:** [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388) passed dependency install, lint, typecheck, all 102 tests across 22 files, and production build on the exact feature HEAD.
+- **Branch/PR:** PR #1 remains open/Draft and mergeable. `main` remains unchanged at `b13af92576e8a73753a6e3f3d26765d9f9c44397`.
+- **Structured content:** 26 core + 11 supplementary lesson IDs, EN/RU, 74 locale JSON files. The full legacy source set of 25 HTML files remains. Source parity/editorial review is in progress.
+- **Recent lesson improvements:** `css.fundamentals` v3 / 53 blocks / 110 min; `git.fundamentals` v3 / 38 blocks / 95 min; `git.workflow-ci` v3 / 37 blocks / 110 min. All remain `review` status; matching structural IDs and passing CI do not prove complete source parity.
+- **App-wide localization:** broadly implemented across common navigation/content-management screens, lesson metadata/navigation and quiz/search states, but remaining strings, legacy lesson content and less-common states still need review.
+- **PWA:** icons, manifest, service worker, explicit update prompt and SPA fallback are implemented; device/browser acceptance is not.
+- **Local data and cloud:** migration/export-import remain incomplete; Supabase auth/sync is not started.
+- **Build/security follow-up:** `npm ci` reported 13 dependency audit findings (8 moderate, 3 high, 2 critical); build warns about a large chunk, and React Router emits future-flag warnings. Triage these separately; do not run a blind `npm audit fix --force`.
+
+The release acceptance gates remain open. Keep this roadmap as a work plan and do not mark the product complete.

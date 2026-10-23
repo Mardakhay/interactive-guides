@@ -1,6 +1,6 @@
 # Session Handoff
 
-**Last updated:** 2026-10-22  
+**Last updated:** 2026-10-23  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
@@ -226,7 +226,7 @@ This is the start of Phase 2, not complete app-wide localization. Course details
 - Next steps: check exact-head Actions after any subsequent change; continue itemized source parity in syllabus order; finish localization audit across remaining pages and content; triage the dependency audit reported by `npm ci`; then add verified PWA/manual deployment acceptance evidence. Keep editorial status at `review` until content review is complete.
 
 
-## Latest validated handoff — 2026-10-23
+## Previous validated handoff — 2026-10-23 (superseded by the latest checkpoint below)
 
 - Branch: `feat/learning-platform-foundation`.
 - Exact validated HEAD: `3762826f6952df4a72fce4149694728ea5f1e378`.
@@ -237,3 +237,18 @@ This is the start of Phase 2, not complete app-wide localization. Course details
 - Broad app UI localization now covers the shell/navigation, dashboard widgets, course catalog and category detail, learning paths, bookmarks, notes, lesson controls/metadata/navigation, quiz controls, search and common empty/error states. Continue auditing all remaining UI and source lesson-body content.
 - PWA foundations include PNG icons, manifest, static-asset-only runtime caching, SPA fallback, and learner-controlled service-worker activation. CI is green but no real-device install/offline acceptance was recorded. Local data migration/export/import remains incomplete; Supabase auth/sync remains not started.
 - Next: continue source-to-block parity in small batches; use exact-head CI after any change; record intentional interaction deferrals; preserve the `review` status until human editorial/source review is complete.
+
+
+## Latest validated handoff — 2026-10-23
+
+- **Working branch:** `feat/learning-platform-foundation`.
+- **Exact feature HEAD:** `9dfa157ce36123144ad84c2f327abdb41984a3a7`.
+- **CI:** GitHub Actions [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388) passed `npm ci`, lint, typecheck, 102 tests in 22 test files, and production build on the exact SHA.
+- **Main protection:** `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`. PR #1 is still open/Draft. Do not merge or force-push without explicit instruction.
+- **Curriculum inventory:** 26 core and 11 supplementary stable lesson IDs in EN/RU (74 JSON files total). The app contains the structured curriculum route/reader. All 25 legacy HTML lesson files remain for source comparison and rollback.
+- **Current source-parity work:** CSS reference, Git reference and Git workflow got focused source-to-target audits. `css.fundamentals` v3 has 53 blocks/110 min/5 checks/5 walkthroughs/3 exercises per locale; `git.fundamentals` v3 has 38 blocks/95 min; `git.workflow-ci` v3 has 37 blocks/110 min. Git/CSS content status remains `review`; legacy demos, copy controls, navigation and quick-reference parity still need explicit mapping/defer decisions. Most other HTML/Notion content still needs full prose/code/exercise/answer review.
+- **UI locale:** broad but partial EN/RU coverage across shell, dashboard, catalogue, category details, learning paths, bookmarks, notes, lesson metadata/navigation, quiz controls and search. Do not claim every legacy lesson body is translated.
+- **PWA:** icons, manifest, service-worker caching/update prompt and Netlify-style SPA fallback are present. No real-device install/offline/update acceptance has been recorded.
+- **Data/Supabase:** local stores are active; a versioned migration and explicit export/import recovery path remain open. Supabase authentication and synchronization are not implemented.
+- **Release diagnostics:** the latest install reported 13 audit findings (8 moderate, 3 high, 2 critical). The build has a large-chunk warning and test output includes React Router future-flag warnings. Triage without unreviewed forced upgrades.
+- **Next:** continue source-to-block audits in syllabus order; close or defer the remaining UI/interactions with evidence; add and test local data portability; record browser/device PWA acceptance; triage dependency and bundle warnings. Keep lesson status at `review` until actual editorial approval.

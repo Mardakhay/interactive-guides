@@ -208,3 +208,27 @@ The curriculum destinations remain `git.fundamentals` and `git.workflow-ci`, not
 - Map or explicitly defer detailed `position` modes and offset properties, containing blocks/stacking contexts and z-index pitfalls, `float`/`clear`, custom web-font loading/fallback behavior, and practical filter examples (`blur()`, `brightness()`, `drop-shadow()`). Existing lesson explanations overlap these topics but overlap must be checked against exact examples before claiming parity.
 - The source uses an older vendor-prefix showcase; the structured destination teaches feature queries and modern build-time prefixing instead of copying every historical prefix example verbatim. Record that as an explicit editorial/update decision.
 - Do not delete `css-reference.html` or mark the structured CSS lessons `published` based on the block-count match. Structural parity is validated, but source interaction parity and human editorial review remain open.
+
+
+## Latest validated source/content checkpoint — 2026-10-23
+
+**Repository ref and CI:** feature SHA `9dfa157ce36123144ad84c2f327abdb41984a3a7`; GitHub Actions [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388) passed install, lint, typecheck, 102 tests in 22 files, and production build. The passing run validates structural/runtime constraints, not complete instructional parity.
+
+**Current structured-content inventory:** 26 core and 11 supplementary stable lesson IDs are registered in EN/RU (74 locale JSON files). All 25 legacy HTML files remain. All registered lesson translations continue to use the editorial status `review` unless individually approved by a future documented review.
+
+### Recent focused targets
+
+- `css.fundamentals`: version 3, 53 blocks per locale, 110 estimated minutes, five knowledge checks, five code walkthroughs and three coding exercises. It covers colors, typography, custom properties/functions, transitions/reduced motion, visual accessibility and progressive enhancement. The legacy CSS color-copy UI, transition controls, Flexbox/Grid playgrounds, generated output/copy controls and full quick-reference tables still are not one-to-one equivalents.
+- `git.fundamentals`: version 3, 38 blocks and 95 estimated minutes per locale. It adds stash/apply, aliases, the local-versus-published history boundary for `--amend`, repository hygiene and source references.
+- `git.workflow-ci`: version 3, 37 blocks and 110 estimated minutes per locale. It adds explicit comparisons of trunk-based development, GitHub Flow and Git Flow, release/hotfix purpose, Semantic Versioning examples and a scored check.
+- The Git reference/workflow pages and the CSS reference page have source-heading/interaction inventories and focused structured-target comparisons. These passes do not replace a line-by-line fact, code-example, exercise, answer-control and EN/RU teaching review. Preserve every HTML source while gaps remain.
+
+### Current blockers
+
+1. The Notion connector marked the 21 fetched pages unverified; treat them as candidate sources, not verified authoritative content.
+2. Most remaining legacy HTML files still need full body/code/hidden-answer and interaction review. The CSS/Git demos that have no equivalent block-level behavior must be rebuilt or explicitly deferred in the parity matrix.
+3. Broad app UI localization is present, but not every source lesson body, less-common state or legacy HTML UI is bilingual.
+4. Local persistence works, but migration/export/import and recovery behavior are not complete; Supabase auth/sync is not implemented.
+5. PWA code is tested in CI, but real-browser/device installability, offline and update acceptance remain outstanding.
+
+Do not interpret matching block counts, Zod validation or green CI as proof of complete source parity or editorial approval.
