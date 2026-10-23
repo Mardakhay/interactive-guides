@@ -2283,7 +2283,7 @@ apiClient.interceptors.response.<span class="fn">use</span>(
       <div class="callout-icon">📈</div>
       <div class="callout-body">
         <h4>What is Exponential Backoff?</h4>
-        <p>Instead of retrying immediately (which could overwhelm a struggling server), you wait longer between each attempt: 1s → 2s → 4s → 8s. This gives the server time to recover.</p>
+        <p>Instead of retrying immediately (which could overwhelm a struggling server), wait longer between retries. A capped exponential backoff gives a server time to recover; with three retries, the first request can be followed by at most three more attempts.</p>
       </div>
     </div>
     <div class="code-wrapper">
@@ -2291,40 +2291,48 @@ apiClient.interceptors.response.<span class="fn">use</span>(
         <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>utils/retry.ts</div>
         <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       </div>
-      <pre><code><span class="kw">async function</span> <span class="fn">withRetry</span>&lt;<span class="typ">T</span>&gt;(
-  fn: () <span class="op">=></span> <span class="typ">Promise</span>&lt;<span class="typ">T</span>&gt;,
-  maxRetries: <span class="typ">number</span> <span class="op">=</span> <span class="num">3</span>,
-  delay: <span class="typ">number</span> <span class="op">=</span> <span class="num">1000</span>
-): <span class="typ">Promise</span>&lt;<span class="typ">T</span>&gt; {
-  <span class="kw">let</span> lastError: <span class="typ">Error</span>;
+      <pre><code>type RetryOptions = {
+  maxRetries?: number;
+  baseDelayMs?: number;
+  maxDelayMs?: number;
+  shouldRetry: (error: unknown) =&gt; boolean;
+};
 
-  <span class="kw">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="num">0</span>; i <span class="op"><</span> maxRetries; i++) {
-    <span class="kw">try</span> {
-      <span class="kw">return await</span> <span class="fn">fn</span>();                        <span class="cmt">// ✅ success → return immediately</span>
-    } <span class="kw">catch</span> (error) {
-      lastError <span class="op">=</span> error <span class="kw">as</span> <span class="typ">Error</span>;
-      console.<span class="fn">log</span>(<span class="str">`Attempt </span><span class="op">${</span>i <span class="op">+</span> <span class="num">1</span><span class="op">}</span><span class="str">/</span><span class="op">${</span>maxRetries<span class="op">}</span><span class="str"> failed`</span>);
+async function withRetry&lt;T&gt;(
+  operation: () =&gt; Promise&lt;T&gt;,
+  options: RetryOptions
+): Promise&lt;T&gt; {
+  const {
+    maxRetries = 3,
+    baseDelayMs = 1000,
+    maxDelayMs = 8000,
+    shouldRetry
+  } = options;
+  let retries = 0;
 
-      <span class="kw">if</span> (i <span class="op"><</span> maxRetries <span class="op">-</span> <span class="num">1</span>) {
-        <span class="cmt">// Exponential backoff: 1000ms → 2000ms → 4000ms</span>
-        <span class="kw">const</span> waitTime <span class="op">=</span> delay <span class="op">*</span> Math.<span class="fn">pow</span>(<span class="num">2</span>, i);
-        console.<span class="fn">log</span>(<span class="str">`Waiting </span><span class="op">${</span>waitTime<span class="op">}</span><span class="str">ms before retry...`</span>);
-        <span class="kw">await new</span> <span class="fn">Promise</span>(r <span class="op">=></span> <span class="fn">setTimeout</span>(r, waitTime));
-      }
+  while (true) {
+    try {
+      return await operation();
+    } catch (error) {
+      // Do not retry validation, auth, not-found, or unsafe mutations.
+      if (!shouldRetry(error) || retries &gt;= maxRetries) throw error;
+
+      const waitMs = Math.min(baseDelayMs * 2 ** retries, maxDelayMs);
+      console.log(`Retry ${retries + 1}/${maxRetries} in ${waitMs}ms`);
+      await new Promise(resolve =&gt; setTimeout(resolve, waitMs));
+      retries++;
     }
   }
-
-  <span class="kw">throw</span> lastError!;  <span class="cmt">// all retries exhausted</span>
 }
 
-<span class="cmt">// Usage in a service:</span>
-<span class="kw">const</span> <span class="fn">getAll</span> <span class="op">=</span> <span class="kw">async</span> (): <span class="typ">Promise</span>&lt;<span class="typ">User</span>[]&gt; <span class="op">=></span> {
-  <span class="kw">return</span> <span class="fn">withRetry</span>(
-    () <span class="op">=></span> apiClient.<span class="fn">get</span>&lt;<span class="typ">User</span>[]&gt;(<span class="str">'/users'</span>).<span class="fn">then</span>(r <span class="op">=></span> r.data),
-    <span class="num">3</span>,    <span class="cmt">// max 3 attempts</span>
-    <span class="num">1000</span>  <span class="cmt">// start with 1s delay</span>
-  );
-};</code></pre>
+// Example: retry only transient failures for an idempotent GET.
+const users = await withRetry(
+  () =&gt; apiClient.get&lt;User[]&gt;('/users').then(response =&gt; response.data),
+  {
+    maxRetries: 3, // up to 4 total attempts: initial request + 3 retries
+    shouldRetry: isRetryable
+  }
+);</code></pre>
     </div>
 
     <h3 style="margin-bottom: 16px; margin-top: 28px;">Error + Loading UI Components</h3>
@@ -2724,7 +2732,7 @@ apiClient.interceptors.response.<span class="fn">use</span>(
             <div><span class="kw">Response interceptor</span> → <span class="fn">apiClient.interceptors.response.use(ok, err)</span></div>
             <div><span class="kw">GET</span> → <span class="fn">apiClient.get&lt;T&gt;('/path')</span></div>
             <div><span class="kw">POST</span> → <span class="fn">apiClient.post&lt;T&gt;('/path', body)</span></div>
-            <div><span class="kw">PUT</span> → <span class="fn">apiClient.put&lt;T&gt;('/path/id', body)</span></div>
+            <div><span class="kw">PATCH</span> → <span class="fn">apiClient.patch&lt;T&gt;('/path/id', partialBody)</span></div>
             <div><span class="kw">DELETE</span> → <span class="fn">apiClient.delete('/path/id')</span></div>
             <div><span class="kw">Query params</span> → <span class="fn">apiClient.get('/path', { params: { q: 'x' } })</span></div>
           </div>
