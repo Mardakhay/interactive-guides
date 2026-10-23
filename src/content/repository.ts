@@ -185,18 +185,4 @@ export function getAdjacentStructuredLessons(lessonId: string, locale: Supported
     previous: index > 0 ? orderedLessons[index - 1] : undefined,
     next: index < orderedLessons.length - 1 ? orderedLessons[index + 1] : undefined,
   };
-} {
-  const orderedLessons: LessonTranslation[] = curricula[locale].months
-    .flatMap((month) => month.weeks)
-    .flatMap((week) =>
-      week.lessonIds
-        .map((id) => lessonTranslations.find((lesson) => lesson.id === id && lesson.locale === locale))
-        .filter((lesson): lesson is LessonTranslation => lesson !== undefined),
-    );
-  const index = orderedLessons.findIndex((lesson) => lesson.id === lessonId);
-  if (index < 0) return { previous: undefined, next: undefined };
-  return {
-    previous: index > 0 ? orderedLessons[index - 1] : undefined,
-    next: index < orderedLessons.length - 1 ? orderedLessons[index + 1] : undefined,
-  };
 }
