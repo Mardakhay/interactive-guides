@@ -148,6 +148,66 @@
       ]
     },
     {
+      "id": "reducer-context",
+      "type": "heading",
+      "level": 2,
+      "text": "Когда несколько изменений состояния образуют единый сценарий"
+    },
+    {
+      "id": "reducer-context-body",
+      "type": "paragraph",
+      "text": "Для небольшого значения обычно достаточно поднять состояние выше или использовать useState. Когда у функции есть несколько связанных переходов — например, изменение настроек отображения или прохождение многошаговой формы, — useReducer позволяет собрать правила этих переходов в одной функции reducer. В сочетании с Context он даёт потомкам доступ к общему состоянию и именованным действиям без передачи обоих значений через каждый промежуточный компонент. Правила переходов по-прежнему принадлежат reducer; Context только распространяет состояние и функцию dispatch."
+    },
+    {
+      "id": "reducer-context-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { createContext, useContext, useReducer, type Dispatch, type ReactNode } from \"react\";\n\ntype Preferences = {\n  theme: \"light\" | \"dark\";\n  compactMode: boolean;\n};\ntype PreferencesAction =\n  | { type: \"toggle-theme\" }\n  | { type: \"toggle-compact\" };\n\nfunction preferencesReducer(\n  state: Preferences,\n  action: PreferencesAction,\n): Preferences {\n  switch (action.type) {\n    case \"toggle-theme\":\n      return { ...state, theme: state.theme === \"light\" ? \"dark\" : \"light\" };\n    case \"toggle-compact\":\n      return { ...state, compactMode: !state.compactMode };\n    default: {\n      const exhaustiveCheck: never = action;\n      return exhaustiveCheck;\n    }\n  }\n}\n\ntype PreferencesContextValue = {\n  state: Preferences;\n  dispatch: Dispatch<PreferencesAction>;\n};\nconst PreferencesContext = createContext<PreferencesContextValue | null>(null);\n\nfunction PreferencesProvider({ children }: { children: ReactNode }) {\n  const [state, dispatch] = useReducer(preferencesReducer, {\n    theme: \"light\",\n    compactMode: false,\n  });\n  return (\n    <PreferencesContext.Provider value={{ state, dispatch }}>\n      {children}\n    </PreferencesContext.Provider>\n  );\n}\n\nfunction usePreferences() {\n  const context = useContext(PreferencesContext);\n  if (!context) throw new Error(\"usePreferences must be inside PreferencesProvider\");\n  return context;\n}",
+      "steps": [
+        {
+          "title": "Определи состояние и допустимые действия",
+          "lineStart": 3,
+          "lineEnd": 9,
+          "explanation": "Preferences описывает форму состояния. Discriminated union ограничивает обновления двумя именованными действиями, поэтому вызывающий код не может передать произвольную строку в качестве action."
+        },
+        {
+          "title": "Собери связанные правила переходов в одном месте",
+          "lineStart": 11,
+          "lineEnd": 25,
+          "explanation": "Reducer получает текущее состояние и действие, затем возвращает новый объект. Spread сохраняет поле, которое выбранное действие не меняет; проверка never помогает TypeScript обнаружить пропущенный вариант действия."
+        },
+        {
+          "title": "Опиши общий контракт с помощью типов",
+          "lineStart": 27,
+          "lineEnd": 31,
+          "explanation": "Потребители читают состояние и отправляют только допустимые значения PreferencesAction. Начальное значение null позволяет обнаружить отсутствие Provider."
+        },
+        {
+          "title": "Оставь reducer источником состояния внутри Provider",
+          "lineStart": 33,
+          "lineEnd": 43,
+          "explanation": "useReducer остаётся источником истины. Provider распространяет текущее состояние и dispatch среди потомков, но не сохраняет это состояние между перезагрузками."
+        },
+        {
+          "title": "Собери проверку Provider в одном hook",
+          "lineStart": 45,
+          "lineEnd": 49,
+          "explanation": "Пользовательский hook упрощает компоненты-потребители и выдаёт понятную ошибку, если они находятся за пределами Provider."
+        }
+      ]
+    },
+    {
+      "id": "provider-boundaries",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Размещай Provider вокруг минимального поддерева, которому действительно нужно общее значение; не передавай ненужные зависимости несвязанным страницам.",
+        "Разделяй Context по ответственности или частоте обновлений, если это помогает избежать лишних обновлений потребителей. Не дроби контексты механически до понимания реального поведения обновлений.",
+        "Для простых независимых значений используй useState. Рассматривай useReducer, когда допустимые действия и связанные переходы состояния стоит описать в одном явном месте.",
+        "Ни Context, ни useReducer автоматически не сохраняют данные, не синхронизируют серверное состояние, не кешируют API-ответы и не обеспечивают авторизацию. Для этого нужны отдельные слои."
+      ]
+    },
+    {
       "id": "context-auth-note",
       "type": "callout",
       "tone": "warning",
@@ -191,7 +251,7 @@
       "id": "knowledge-check-2",
       "type": "knowledgeCheck",
       "questionType": "true-false",
-      "prompt": "React Context automatically persists its value after a page reload.",
+      "prompt": "React Context сохраняет своё значение автоматически после перезагрузки страницы.",
       "options": [
         {
           "id": "true",
@@ -212,7 +272,7 @@
       "id": "knowledge-check-3",
       "type": "knowledgeCheck",
       "questionType": "multi-select",
-      "prompt": "Which statements about shared state and Context are accurate? Select all that apply.",
+      "prompt": "Какие утверждения об общем состоянии и Context верны? Выбери все подходящие варианты.",
       "options": [
         {
           "id": "a",

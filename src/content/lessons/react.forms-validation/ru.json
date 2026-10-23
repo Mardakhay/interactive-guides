@@ -238,7 +238,7 @@
       "id": "knowledge-check-3",
       "type": "knowledgeCheck",
       "questionType": "multi-select",
-      "prompt": "Which practices improve form accessibility and reliability? Select all that apply.",
+      "prompt": "Какие практики повышают доступность и надёжность формы? Выбери все подходящие варианты.",
       "options": [
         {
           "id": "a",
