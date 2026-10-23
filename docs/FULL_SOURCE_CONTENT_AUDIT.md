@@ -189,3 +189,22 @@ Status remains **partial mapping / source parity pending**. Do not delete the le
 - Both legacy files use their own page shell, sidebar/search/copy or other handlers and a single inline script. These source-specific UI behaviors have not all been recreated in the shared lesson renderer. Keep the HTML sources until the remaining content/interaction mapping is resolved and reviewed by a human.
 
 The curriculum destinations remain `git.fundamentals` and `git.workflow-ci`, not new duplicate lessons. This pass improves coverage but does not mark either source fully migrated/published.
+
+
+## Full CSS source review — css-reference.html — 2026-10-23
+
+**Source inspected:** `public/lessons/css-reference.html`, SHA `be8fb951799659672119c32def19167a9c659424`, 98,870 bytes. The heading inventory covers syntax/selectors, visual rules, box model, display/position, colors, typography, transitions, Flexbox, Grid, responsive design, variables/functions, accessibility, browser compatibility/progressive enhancement and quick-reference groups. It contains 43 heading elements, 32 button elements and one inline script. The source includes a color-swatch copy interaction, a transition demo with duration/timing/delay controls, a Flexbox playground, a Grid playground, CSS output/copy affordances, navigation, and quick-reference sections.
+
+### Updated structured coverage
+
+- `css.fundamentals` EN/RU is now version 3 with **53 blocks per locale**, an estimated 110 minutes, five knowledge checks, five code walkthroughs and three coding exercises. Added blocks cover color formats/alpha, readable typography, custom properties and `var()`/`calc()`/`min()`/`max()`/`clamp()`, transitions/transforms and `prefers-reduced-motion`, visual-accessibility practices, WCAG 2.2 AA text contrast, `@supports`/progressive enhancement, and a concise property-group quick reference. New practice builds a readable card with a visible focus state and reduced-motion support. Both locales retain the same ordered block IDs and types.
+- `css.flexbox-grid-responsive` remains a separate 32-block, 80-minute bilingual target for Flexbox, Grid and responsive layout.
+- `css.sass-scss` remains a separate supplementary destination for Sass/SCSS rather than being folded into core CSS syntax.
+- GitHub Actions [run #39985536493](https://github.com/Mardakhay/interactive-guides/actions/runs/39985536493) passed on exact SHA `3762826f6952df4a72fce4149694728ea5f1e378`: `npm ci`, lint, typecheck, 102 tests and production build.
+
+### Remaining CSS parity gaps
+
+- The structured course explains the source's major teaching topics, but the source's live color-swatch copy interaction, adjustable transition controls, Flexbox/Grid playgrounds, dynamic CSS-output areas, per-section copy controls and navigation/search behaviors have not been recreated one-for-one. The quick-reference source tables have been reduced to a grouped summary rather than reproduced as exhaustive property tables.
+- Map or explicitly defer detailed `position` modes and offset properties, containing blocks/stacking contexts and z-index pitfalls, `float`/`clear`, custom web-font loading/fallback behavior, and practical filter examples (`blur()`, `brightness()`, `drop-shadow()`). Existing lesson explanations overlap these topics but overlap must be checked against exact examples before claiming parity.
+- The source uses an older vendor-prefix showcase; the structured destination teaches feature queries and modern build-time prefixing instead of copying every historical prefix example verbatim. Record that as an explicit editorial/update decision.
+- Do not delete `css-reference.html` or mark the structured CSS lessons `published` based on the block-count match. Structural parity is validated, but source interaction parity and human editorial review remain open.

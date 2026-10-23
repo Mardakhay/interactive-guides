@@ -132,7 +132,7 @@ Remaining work is substantive: finish full review of all 25 HTML files and acces
 
 **Latest CI:** [Run #320](https://github.com/Mardakhay/interactive-guides/actions/runs/39964458056) passed on `b7fdeba6b9096d9f8336cf1071deb9d0f2d1dfc5`. The source-to-lesson audit and editorial review remain open.
 
-## Authoritative implementation status — 2026-10-23
+## Historical implementation status snapshot — 2026-10-23 (superseded by the latest checkpoint below)
 
 The checked tasks above reflect the technical foundation where verified. They do not mean editorial review or all product phases are complete.
 
@@ -140,12 +140,12 @@ The checked tasks above reflect the technical foundation where verified. They do
 |---|---|---|
 | 0. Baseline and safeguards | Complete for remote checkpoint | Feature branch exists and exact-head GitHub Actions run #39976179595 passes. Main remains unchanged. Local clone unavailable in the current environment. |
 | 1. Schemas and curriculum | Technical foundation implemented | Zod schemas, bilingual curriculum, supplementary tracks and repository checks exist. Source parity is tracked separately. |
-| 2. App UI and localization | Partial | Structured routes support EN/RU. The legacy shell and all application pages are not consistently localized/refined. |
+| 2. App UI and localization | Broad partial coverage; not complete | A saved EN/RU preference and switch now localize the shell, dashboard widgets, catalog/category screens, learning paths, bookmarks, notes, lesson controls, quizzes, search and common empty/error states. Legacy lesson bodies, some edge states and remaining labels still need a systematic audit. |
 | 3. Structured lesson reader | Implemented foundation; mastery policy partial | React renderer, curriculum index, knowledge checks, practice, store/persistence and tests exist. Do not equate completion flags with mastery. |
 | 4. Content migration and parity | In progress; not complete | 26 core and 11 supplementary IDs are registered in both locales. All 25 legacy HTML sources remain. Most source concepts, code, exercises, answers and interactions still need full mapping/review. |
 | 5. Local-first persistence | Partial | Legacy stores and structured learning persistence exist. Cross-feature migration, export/import and preservation of all old records need further verification/implementation. |
 | 6. Supabase authentication/sync | Not started | Keep gated behind stable local contracts, RLS design and explicit project/cost checks. |
-| 7. PWA and deployment | Not implemented/verified | Current feature tree lacks public/manifest.webmanifest and public/sw.js; no manifest link or service-worker registration was found. Implement and test this phase. |
+| 7. PWA and deployment | Implementation foundation exists; acceptance remains open | Manifest, PNG icons, versioned service worker, same-origin/static-asset cache guards, Netlify SPA fallback and an explicit learner-approved update prompt exist. CI contract tests pass; clean install, deep-link/offline/update UX and external-font fallback still need browser/device evidence. |
 | 8. Capstone and release readiness | Partial | Four bilingual capstone-stage lessons are registered; source audit, app-wide accessibility/localization, PWA tests and release acceptance remain. |
 
 ### Exact-head validation
@@ -182,3 +182,12 @@ Latest validated implementation checkpoint: feature code SHA `5628ca69a6981a6d81
 - **Security/release gates:** recent install logs reported dependency audit findings; triage with the lockfile context before attempting forced major upgrades. No browser/device or deployed-hosting smoke evidence is claimed yet.
 
 Keep `main` at `b13af92576e8a73753a6e3f3d26765d9f9c44397`, keep PR #1 as a draft until the above gates are addressed, and never report the whole product as finished while the audit and release phases remain open.
+
+
+## Latest continuation checkpoint — 2026-10-23
+
+- Feature SHA `3762826f6952df4a72fce4149694728ea5f1e378` passed [GitHub Actions run #39985536493](https://github.com/Mardakhay/interactive-guides/actions/runs/39985536493): install, lint, typecheck, all tests and production build.
+- UI localization has expanded to common dashboard widgets, lesson metadata/navigation, quiz controls and notes/bookmark tools; it remains incomplete for some legacy lesson bodies and less common states.
+- The CSS reference parity pass expanded both `css.fundamentals` locales from 31 to 53 structurally matched blocks and added colors, typography, custom properties/functions, transitions/reduced motion, visual accessibility, browser feature queries, a quick-reference block, a contrast check and an accessible-card coding exercise. The lesson remains `review`; interactive source playground parity is still open.
+- Phase 4 remains in progress; all 25 legacy HTML sources remain until their code, examples, exercises, answer/reveal behavior, references and meaningful interactions have been mapped or explicitly deferred.
+- Keep `main` at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; keep PR #1 as Draft. Supabase auth/sync is not started, and PWA device acceptance plus local-data export/import are outstanding.

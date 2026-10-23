@@ -224,3 +224,16 @@ This is the start of Phase 2, not complete app-wide localization. Course details
 - Source-to-block parity for the 25 legacy HTML files is incomplete. All 26 core and 11 supplementary bilingual structured lesson IDs remain registered, but registration or schema/CI checks do not prove full instructional parity or editorial approval.
 - Persistence remains local-first with open work for cross-store legacy data migration and export/import. Supabase auth/sync has not been implemented. Real browser/device PWA acceptance has not been run in this session.
 - Next steps: check exact-head Actions after any subsequent change; continue itemized source parity in syllabus order; finish localization audit across remaining pages and content; triage the dependency audit reported by `npm ci`; then add verified PWA/manual deployment acceptance evidence. Keep editorial status at `review` until content review is complete.
+
+
+## Latest validated handoff — 2026-10-23
+
+- Branch: `feat/learning-platform-foundation`.
+- Exact validated HEAD: `3762826f6952df4a72fce4149694728ea5f1e378`.
+- GitHub Actions [run #39985536493](https://github.com/Mardakhay/interactive-guides/actions/runs/39985536493) passed dependency install, lint, typecheck, all 102 tests and production build on the exact SHA.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 is still open/Draft. Do not merge or force-push.
+- The CSS source pass compared `public/lessons/css-reference.html` (98,870 bytes; SHA `be8fb951799659672119c32def19167a9c659424`) with `css.fundamentals`, `css.flexbox-grid-responsive` and the Sass/SCSS supplement. The EN/RU `css.fundamentals` pair is version 3, 53 blocks, 110 minutes, 5 knowledge checks, 5 walkthroughs and 3 coding exercises per locale. Schema/CI and matching IDs/types confirm structural consistency—not complete parity or editorial approval.
+- Remaining CSS parity: the legacy page's live color-swatch copy behavior, duration/timing/delay transition controls, Flexbox/Grid playgrounds with generated output, section-specific copy/navigation and full quick-reference tables are not reproduced one-to-one. Positioning/z-index/float/clear details, custom web-font loading details and some filter demos also require mapping or a documented defer decision. Keep the legacy HTML intact.
+- Broad app UI localization now covers the shell/navigation, dashboard widgets, course catalog and category detail, learning paths, bookmarks, notes, lesson controls/metadata/navigation, quiz controls, search and common empty/error states. Continue auditing all remaining UI and source lesson-body content.
+- PWA foundations include PNG icons, manifest, static-asset-only runtime caching, SPA fallback, and learner-controlled service-worker activation. CI is green but no real-device install/offline acceptance was recorded. Local data migration/export/import remains incomplete; Supabase auth/sync remains not started.
+- Next: continue source-to-block parity in small batches; use exact-head CI after any change; record intentional interaction deferrals; preserve the `review` status until human editorial/source review is complete.
