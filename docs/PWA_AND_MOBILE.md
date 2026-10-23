@@ -56,3 +56,16 @@ This is a first offline foundation, not a claim of verified installability or co
 The initial service-worker implementation failed ESLint due to undeclared worker globals; this was corrected. Runtime caching is now restricted to static asset extensions, avoiding interception of arbitrary same-origin documents/data. GitHub Actions run #39977258811 passed lint, typecheck, tests and production build on feature SHA 9e4e08c57725e595c3f279ce6f431fabb2d49281: https://github.com/Mardakhay/interactive-guides/actions/runs/39977258811
 
 Still required before calling this phase complete: browser/device installability checks, platform icon validation, offline deep-link reload and cache update tests, deployment rewrite configuration, and confirmation that no private learner state is cached.
+
+
+## Asset and routing hardening — 2026-10-23
+
+The feature branch now includes:
+
+- Platform PNG artwork at `/pwa-180.png` (Apple touch icon), `/pwa-192.png` and `/pwa-512.png` (manifest sizes).
+- A 512px icon declared for both ordinary and maskable use; its foreground artwork is inset from the edge for adaptive masks.
+- A versioned service-worker cache bump so the shell is refreshed when the icon precache list changes.
+- A Netlify-compatible non-forced `/* /index.html 200` rewrite for client-side deep links; existing physical files remain eligible to serve normally.
+- `src/pwa/pwaAssets.test.ts` checks manifest fields, PNG headers/dimensions, iOS icon wiring, deep-link rewrite presence and the service worker's same-origin/private-request guardrails.
+
+The automated checks do **not** certify browser installability or offline UX. Still required: test clean install, online deep-link refresh, revisit while offline, an unvisited structured lesson while offline, worker update activation, storage-quota failure and external-font fallback in Android Chrome and iOS Safari. Record browser/OS versions and outcomes before calling the PWA release-ready.

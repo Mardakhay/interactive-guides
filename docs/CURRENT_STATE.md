@@ -138,3 +138,10 @@ Commit c794088f15fb57ba3c1b8c51032e7e76e11f72bf adds manifest metadata, an SVG a
 ## PWA verification update — 2026-10-23
 
 The first service-worker implementation failed lint because browser worker globals were not declared; commit 8d7172bf0faa128aee370afc675c9b5cdd9739ac fixes that. Commit 9e4e08c57725e595c3f279ce6f431fabb2d49281 narrows runtime caching to static asset extensions so arbitrary same-origin learner data is not intercepted. GitHub Actions [run #39977258811](https://github.com/Mardakhay/interactive-guides/actions/runs/39977258811) passed all configured checks on that exact SHA. This is code-level CI evidence only, not real-browser PWA acceptance.
+
+
+## PWA asset hardening — 2026-10-23
+
+On `feat/learning-platform-foundation`, the manifest now references PNG icons at 192px and 512px; a separate 180px Apple touch icon is linked from the HTML shell. The worker's shell precache contains those icon paths and uses a bumped cache version to force a clean shell cache on update. `public/_redirects` supplies the host's SPA rewrite for online nested-route reloads. A Vitest contract test checks the manifest, PNG dimensions, iOS link, rewrite, and same-origin/private-request caching guards.
+
+This remains a code-level foundation rather than a fully accepted PWA. Browser/device installability, offline deep-link reload, update UX and external-font fallback still require manual checks; the content cache intentionally does not promise every never-visited lesson will be available offline.
