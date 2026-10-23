@@ -166,5 +166,16 @@
         }
       ]
     }
+  ],
+  "prerequisites": [
+    "react.router-spa",
+    "react.api-custom-hooks"
+  ],
+  "tags": [
+    "architecture",
+    "modules",
+    "state-ownership",
+    "refactoring",
+    "frontend"
   ]
 }
