@@ -90,3 +90,9 @@ All 25 files exist in the feature tree and are listed in `docs/LEGACY_CONTENT_IN
 - Build or restore the bilingual structured content contract, validation, repository/renderer and curriculum registration before claiming the supplemental JSON is available.
 - Add dedicated TypeScript, Sass, Bootstrap, runtime/memory and staged capstone curriculum outcomes where confirmed by source review.
 - Update `docs/LEGACY_CONTENT_INVENTORY.md`, `docs/CONTENT_AUDIT.md`, `docs/CONTENT_PARITY_REVIEW_WEEK14-15.md`, `docs/CURRICULUM_AND_CONTENT.md`, `docs/ROADMAP.md`, `docs/CURRENT_STATE.md` and `docs/SESSION_HANDOFF.md` with the branch facts above.
+
+## Follow-up verification — 2026-10-23
+
+Targeted corrections: react-ecosystem-course.html now matches the installed React Router DOM 6.26.2 browser API; react-forms-tutorial.html no longer frames blur as universally best validation timing or client validation as a security boundary. In react-api-hooks-lesson.html, Axios is identified as optional/not installed, partial updates use PATCH, JSONPlaceholder writes are identified as non-persistent, and retry guidance distinguishes retries from total attempts, caps exponential backoff, and requires caller-supplied retry classification.
+
+This is not a completed source parity audit. The defensible count remains 21 fetched Notion pages (all marked unverified by the connector) and 25 HTML files inventoried; only two HTML documents were fully read in the prior pass. No claim is made that all 25 bodies or every Notion example/exercise has been fully mapped and quality-checked. Structured SQL/hosting JSON is still not consumed by the current app reader.
