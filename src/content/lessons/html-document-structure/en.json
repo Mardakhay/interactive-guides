@@ -1,16 +1,16 @@
 {
   "id": "html.document-structure",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-1-week-1",
   "week": 1,
   "order": 1,
   "title": "HTML document structure and semantic page regions",
   "description": "Learn how a complete HTML document is organized, why metadata belongs in the head, how the browser treats the body, and how semantic elements communicate the purpose of page regions.",
-  "estimatedMinutes": 35,
+  "estimatedMinutes": 60,
   "difficulty": "beginner",
   "prerequisites": [],
   "learningOutcomes": [
@@ -275,6 +275,132 @@
         "Semantic elements communicate purpose; CSS controls appearance.",
         "Use main for primary page content, section for thematic groups, article for self-contained compositions, nav for major navigation, and header/footer for introductory or concluding information.",
         "A browser rendering a page successfully does not prove that its structure is intentional or accessible."
+      ]
+    },
+    {
+      "id": "deep-html-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: semantic structure, landmarks, and accessible names"
+    },
+    {
+      "id": "deep-html-model",
+      "type": "paragraph",
+      "text": "HTML semantics describe the role of content, not its visual appearance. A `nav` element communicates a navigation landmark; `main` identifies the page's primary content; `article` represents a self-contained composition. Semantic elements help assistive technology and make a page's structure easier to navigate. Use the element whose meaning fits the content instead of choosing a generic `div` only because it looks easier to style."
+    },
+    {
+      "id": "deep-html-trace",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>Frontend Notes</title>\n  </head>\n  <body>\n    <header><a href=\"/\">Frontend Notes</a></header>\n    <nav aria-label=\"Primary\"><a href=\"/lessons\">Lessons</a></nav>\n    <main>\n      <article>\n        <h1>Understanding HTML</h1>\n        <p>HTML gives content structure and meaning.</p>\n      </article>\n    </main>\n    <footer>Updated regularly</footer>\n  </body>\n</html>",
+      "steps": [
+        {
+          "title": "Declare the language and document metadata",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "The document declaration selects standards mode; the language helps assistive technology choose pronunciation; charset and viewport metadata are practical basics for a modern page."
+        },
+        {
+          "title": "Use a real link and a named navigation landmark",
+          "lineStart": 8,
+          "lineEnd": 10,
+          "explanation": "A link provides native keyboard behavior and a destination. The label distinguishes the primary navigation landmark when a page has multiple nav regions."
+        },
+        {
+          "title": "Represent the page hierarchy with semantics",
+          "lineStart": 11,
+          "lineEnd": 18,
+          "explanation": "main, article, heading, and footer each communicate a role. Do not add a landmark merely to obtain styling, and keep a clear primary heading for the page content."
+        }
+      ]
+    },
+    {
+      "id": "deep-html-guidance",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Keep heading levels meaningful and in a logical hierarchy; don't choose an h2 because its default font size looks right.",
+        "Write link text that makes sense out of context. Repeated links all named 'Click here' give screen-reader users little information.",
+        "Choose alternative text based on the image's purpose: informative images need a concise equivalent; decorative images should not create noisy redundant descriptions.",
+        "Use native HTML controls before building custom widgets. Buttons, links, headings, forms and tables already provide behavior and semantics that custom div-based controls would need to recreate.",
+        "HTML parsing can repair malformed markup in ways different from the source author's intent; use valid nesting and inspect the resulting DOM in DevTools when rendered structure surprises you."
+      ]
+    },
+    {
+      "id": "deep-html-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which is the best reason to use a semantic `nav` element instead of a styled `div` for primary site navigation?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It automatically makes every link secure",
+          "correct": false,
+          "feedback": "HTML semantics do not enforce network security or authorization."
+        },
+        {
+          "id": "b",
+          "text": "It communicates a navigation landmark and uses native link semantics for navigation",
+          "correct": true,
+          "feedback": "Assistive technology can identify navigation regions, while anchor elements preserve native navigation behavior."
+        },
+        {
+          "id": "c",
+          "text": "It guarantees the page has perfect SEO",
+          "correct": false,
+          "feedback": "Semantic markup helps communicate structure but cannot guarantee search ranking or overall page quality."
+        },
+        {
+          "id": "d",
+          "text": "It always renders faster than a div",
+          "correct": false,
+          "feedback": "The main reason here is meaning and accessibility, not a reliable performance difference."
+        }
+      ],
+      "explanation": "Prefer elements for their semantics and behavior, then style them with CSS."
+    },
+    {
+      "id": "deep-html-practice",
+      "type": "codingExercise",
+      "title": "Refactor a generic page into semantic HTML",
+      "language": "html",
+      "context": "Improve a static article page by making structure and accessible names explicit.",
+      "instructions": [
+        "Build a valid document shell with language, charset, viewport and title.",
+        "Replace generic wrapper divs with appropriate header/nav/main/article/footer landmarks.",
+        "Create one clear h1 and a sensible subordinate heading hierarchy.",
+        "Give links meaningful accessible names and choose alt text based on the purpose of each image.",
+        "Inspect the rendered DOM and verify keyboard operation of links and controls."
+      ],
+      "requirements": [
+        "The document uses valid nesting and a declared language.",
+        "Landmarks correspond to the content roles rather than being used as style hooks.",
+        "Heading hierarchy describes structure and does not skip levels just for visual size.",
+        "Informative and decorative image handling is intentional.",
+        "Links and buttons preserve native semantics and keyboard behavior."
+      ],
+      "starterCode": "<div class=\"top\"><div onclick=\"goHome()\">Home</div></div>\n<div class=\"menu\"><div>Click here</div></div>\n<div class=\"content\">\n  <div class=\"big-title\">Page title</div>\n  <img src=\"chart.png\">\n  <div>Article body</div>\n</div>",
+      "hints": [
+        "A clickable div is not a link or button; choose the native element that fits the action.",
+        "Use alt=\"\" when an image is decorative and its information is already redundant.",
+        "Semantic landmarks should describe the information structure independently of visual layout."
+      ],
+      "successCriteria": [
+        "Refactored page has semantic landmarks and valid nesting.",
+        "Navigation and actions are keyboard accessible with native elements.",
+        "Headings reflect a logical page outline.",
+        "Images have purposeful alternative-text treatment.",
+        "The learner can explain the semantics of each replaced element."
+      ]
+    },
+    {
+      "id": "deep-html-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Choose HTML elements for meaning and native behavior, not for their default visual styling.",
+        "Landmarks, headings, links and image alternatives help users understand and navigate content.",
+        "Validate markup and inspect the rendered DOM when browser parsing creates surprising structure."
       ]
     },
     {
