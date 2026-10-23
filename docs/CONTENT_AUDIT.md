@@ -82,3 +82,15 @@ Two optional bilingual lessons were added to improve coverage suggested by the h
 - `browser.rendering-pipeline`: DOM/CSSOM, critical rendering path, script-loading attributes, layout/paint/compositing and Performance-based investigation.
 
 These lessons are linked to explicit supplementary track IDs and remain in `review`. Schema/translation/navigation tests and a successful CI run are prerequisites, but not a substitute for editorial review. The legacy source is not yet fully migrated paragraph-by-paragraph.
+
+
+## Focused source-parity update — 2026-10-23
+
+The original static audit above checks structural invariants; it does **not** establish that every teaching step or interaction from Notion and the legacy HTML has been migrated. A targeted source-to-lesson review was subsequently completed for:
+
+- `react.forms-validation` against Notion Part 4 §§ 4.5–4.7 and `public/lessons/react-forms-tutorial.html`.
+- `react.context-shared-state` against Notion Part 4 §§ 4.8–4.14 and the state-management portions of `public/lessons/react-ecosystem-course.html`.
+
+The new review found and filled concrete gaps in both lesson pairs. Week 14 now includes the multi-field `name` handler, native constraints, validation timing, full React Hook Form flow, common mistakes, ten quiz checks and five scaffolded practice tasks. Week 15 now distinguishes custom Hook reuse from shared state and includes a BookClub reducer walkthrough, action/data flow, project exercise and expanded tool-choice guidance. Both EN/RU ordered block structures and code-walkthrough line ranges were checked; the lesson schema tests check knowledge-check answer shape and exercise scaffolding.
+
+See [`CONTENT_PARITY_REVIEW_WEEK14-15.md`](./CONTENT_PARITY_REVIEW_WEEK14-15.md) for the concept map and the limits of this pass. The new examples have not been executed in a real React project; the lesson editor does not compile TSX. The original HTML files are retained, and both lesson pairs remain `review`. This is a targeted review, not proof that all legacy sources are fully migrated.

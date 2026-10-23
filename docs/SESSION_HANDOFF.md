@@ -5,7 +5,7 @@
 **Base branch:** `main`  
 **Working branch:** `feat/learning-platform-foundation`  
 **Draft PR:** [#1 — structured bilingual lesson foundation](https://github.com/Mardakhay/interactive-guides/pull/1)  
-**Latest verified implementation checkpoint:** `5a0264c658ad9e67988e24bc3d85cc1491c3ddfd`
+**Latest verified implementation/content checkpoint:** `5a0264c658ad9e67988e24bc3d85cc1491c3ddfd`
 
 ## Project goal
 
@@ -62,7 +62,8 @@ See `docs/CONTENT_AUDIT.md` for the structural audit of the 26 core lesson IDs a
 
 ## CI verification
 
-- GitHub Actions [run #218](https://github.com/Mardakhay/interactive-guides/actions/runs/39911961311) passed on exact content/test checkpoint `5a0264c658ad9e67988e24bc3d85cc1491c3ddfd`: `npm ci`, ESLint, TypeScript typecheck, the full test suite and production build all succeeded.
+- GitHub Actions [run #217](https://github.com/Mardakhay/interactive-guides/actions/runs/39911961311) passed on exact code/content/test checkpoint `5a0264c658ad9e67988e24bc3d85cc1491c3ddfd`: `npm ci`, ESLint, TypeScript typecheck, the full test suite and production build all succeeded.
+- GitHub Actions [run #218](https://github.com/Mardakhay/interactive-guides/actions/runs/39912113116) passed on source-parity documentation checkpoint `ab076ca8b59c3e48843f4b6882931a75ab1eab13`: install, lint, typecheck, full tests and production build all succeeded.
 - The earlier content-only run failed because two lesson tests still expected exactly three quiz questions. The tests now correctly expect ten for Week 14 and six for Week 15. The current checkpoint's complete suite passes.
 - These are GitHub-hosted checks. No local checkout, physical-browser/device acceptance test, or real React/TSX example execution was performed in this session.
 
