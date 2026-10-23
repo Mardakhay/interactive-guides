@@ -106,3 +106,7 @@ A lesson may combine sections into a coherent narrative; the template is a quali
 - Create structured block content and quiz/exercise data.
 - Validate schemas, links, code-block languages, answer keys, translation completeness and curriculum links in CI.
 - Retain old HTML as a temporary migration reference until the structured replacement is reviewed in both locales.
+
+## Implementation status — 2026-10-23
+
+The curriculum and lesson template above remain the target, not the implemented application model. The current feature branch still has the 25-item legacy catalog and HTML loader; it does not yet expose a complete 24-week bilingual sequence or consume structured SQL/hosting supplements. Notion and legacy source mappings, confidence limits, and concrete coverage gaps are recorded in FULL_SOURCE_CONTENT_AUDIT.md. Counts and mappings distinguish discovered/inventoried sources from content fully read and migrated.
