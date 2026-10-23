@@ -1,16 +1,16 @@
 {
   "id": "js.functions-arrays-objects",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-2-week-6",
   "week": 6,
   "order": 0,
   "title": "Functions, Arrays and Objects",
   "description": "Learn to compose small functions and transform datasets predictably. Understand function declarations, expressions and arrows; choose map, filter, reduce, find, some or every by their result; and work with objects using destructuring and spread without accidental mutation.",
-  "estimatedMinutes": 85,
+  "estimatedMinutes": 105,
   "difficulty": "beginner",
   "prerequisites": [
     "js.basics-types-control-flow"
@@ -763,6 +763,124 @@
         "sumPaidTotals returns 200 for the supplied dataset and 0 when no orders are paid.",
         "hasLargePaidOrder returns true for the supplied dataset.",
         "allPricesValid returns true for the supplied dataset and false if a total is negative or not finite."
+      ]
+    },
+    {
+      "id": "deep-functions-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: closures, object identity, and immutable updates"
+    },
+    {
+      "id": "deep-functions-model",
+      "type": "paragraph",
+      "text": "A closure retains access to the lexical environment where a function was created, even after the outer call returns. Each factory call can create a different private binding. Separately, assigning an object to another variable copies its reference, not a recursively independent value. Spread creates a shallow copy; nested references can remain shared. These facts explain state leaks and mutation bugs in frontend code."
+    },
+    {
+      "id": "deep-functions-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function makeCounter() {\n  let count = 0;\n  return () => ++count;\n}\n\nconst first = makeCounter();\nconst second = makeCounter();\nconsole.log(first());  // 1\nconsole.log(first());  // 2\nconsole.log(second()); // 1\n\nconst source = { profile: { city: 'Baku' } };\nconst copy = { ...source };\ncopy.profile.city = 'Ganja';\nconsole.log(source.profile.city); // Ganja",
+      "steps": [
+        {
+          "title": "The returned function closes over a binding",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The inner function keeps access to the count binding from this call to makeCounter. That binding remains reachable while the returned function can use it."
+        },
+        {
+          "title": "Separate factory calls mean separate counters",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "explanation": "first and second close over bindings created by different calls. Reusing the same function factory does not mean its internal state is shared."
+        },
+        {
+          "title": "Spread only copies the outer object",
+          "lineStart": 12,
+          "lineEnd": 15,
+          "explanation": "copy and source are different outer objects, but both profile properties point to the same nested object. Mutating its city is visible through both references."
+        }
+      ]
+    },
+    {
+      "id": "deep-functions-warning",
+      "type": "callout",
+      "tone": "warning",
+      "title": "For nested state, copy every changed level",
+      "text": "If you update `{ profile: { city } }`, copying only the outer object is insufficient. Create a new profile object too. In React, mutating an existing state object and passing the same reference back makes change detection and debugging unreliable."
+    },
+    {
+      "id": "deep-functions-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why does changing `copy.profile.city` also change what `source.profile.city` reads?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Spread recursively clones nested objects",
+          "correct": false,
+          "feedback": "Object spread copies own enumerable properties one level deep; nested object references are preserved."
+        },
+        {
+          "id": "b",
+          "text": "Both outer objects still reference the same nested profile object",
+          "correct": true,
+          "feedback": "The top-level objects are different, but their profile properties point at the same object, so the mutation is visible through both."
+        },
+        {
+          "id": "c",
+          "text": "A closure merges all objects created in one file",
+          "correct": false,
+          "feedback": "Closures preserve access to lexical bindings; they do not merge objects."
+        },
+        {
+          "id": "d",
+          "text": "JavaScript objects cannot be mutated",
+          "correct": false,
+          "feedback": "Ordinary JavaScript objects are mutable unless you impose a separate restriction."
+        }
+      ],
+      "explanation": "Object identity and shallow copying matter when you update arrays and nested data."
+    },
+    {
+      "id": "deep-functions-practice",
+      "type": "codingExercise",
+      "title": "Implement independent counters and an immutable nested update",
+      "language": "javascript",
+      "context": "Practice closure reasoning and safe updates to nested objects, both common in interviews and React state code.",
+      "instructions": [
+        "Implement `makeCounter(initialValue)` to return a function that increments and returns private state.",
+        "Create two counters and demonstrate that they do not share their count.",
+        "Implement `updateCity(user, city)` without mutating the supplied user.",
+        "Copy every object along the path to `user.profile.city` and show that the original remains unchanged."
+      ],
+      "requirements": [
+        "Counter state is kept in a closure, not exposed as a writable external variable.",
+        "Two counter instances keep independent values.",
+        "updateCity returns new outer-user and profile references.",
+        "The original argument still has its original city."
+      ],
+      "starterCode": "function makeCounter(initialValue = 0) {\n  // TODO: return a function that increments private state.\n}\n\nfunction updateCity(user, city) {\n  // TODO: immutably update user.profile.city.\n}\n\nconst user = { name: 'Ada', profile: { city: 'Baku' } };",
+      "hints": [
+        "A closure is formed when the returned function uses a variable from its outer call.",
+        "Call makeCounter twice to test independence rather than only calling one counter repeatedly.",
+        "For a nested update, copy every object along the path to the changed value."
+      ],
+      "successCriteria": [
+        "Counter calls return an incrementing sequence.",
+        "Separate counters do not affect one another.",
+        "Updated user and profile have new references.",
+        "The original nested city stays unchanged."
+      ]
+    },
+    {
+      "id": "deep-functions-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "A closure keeps access to lexical bindings from the function's creation environment.",
+        "Each stateful factory call can create independent private state.",
+        "Spread is shallow; copy nested objects explicitly when changing nested data."
       ]
     },
     {
