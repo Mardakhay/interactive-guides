@@ -225,8 +225,28 @@ describe('React effects and lists lesson translation', () => {
     expect(englishReactEffects.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianReactEffects.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
-    expect(russianReactEffects.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(russianReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(englishReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(russianReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(englishReactEffects.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(russianReactEffects.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(englishReactEffects.blocks.map((block) => block.id)).toEqual(
+      expect.arrayContaining([
+        'effect-widget-walkthrough',
+        'effect-storage-walkthrough',
+        'effect-cleanup-check',
+        'effect-external-practice',
+      ]),
+    );
+    const externalPractice = englishReactEffects.blocks.find(
+      (block) => block.id === 'effect-external-practice',
+    );
+    expect(externalPractice).toMatchObject({
+      type: 'codingExercise',
+      requirements: expect.arrayContaining([expect.stringContaining('cleanup')]),
+      successCriteria: expect.arrayContaining([expect.stringContaining('destroyed')]),
+    });
   });
 });
 
