@@ -1,16 +1,16 @@
 {
   "id": "testing.react-testing-library",
   "locale": "ru",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-5-week-19",
   "week": 19,
   "order": 1,
   "title": "Тестирование React-компонентов с Testing Library",
   "description": "Пиши тесты поведения компонентов, выбирай элементы интерфейса через доступные роли и имена, проверяй асинхронные обновления и учитывай реально настроенный тестовый runner.",
-  "estimatedMinutes": 95,
+  "estimatedMinutes": 107,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -24,7 +24,8 @@
     "Выбирать запросы Testing Library по роли, доступному имени, label и требуемой семантике поиска.",
     "Использовать userEvent и асинхронные запросы для реалистичного взаимодействия и обновлений UI.",
     "Делать тестовые данные, сетевые границы и проверки детерминированными.",
-    "Писать осмысленные тесты в связке Vitest + React Testing Library и понимать, что изменится при использовании Jest."
+    "Писать осмысленные тесты в связке Vitest + React Testing Library и понимать, что изменится при использовании Jest.",
+    "Управлять успехом и ошибками API с изолированными Vitest mocks, проверяя видимые пользователю результаты."
   ],
   "tags": [
     "testing",
@@ -33,7 +34,8 @@
     "jest",
     "user-event",
     "accessibility",
-    "testing-library"
+    "testing-library",
+    "mocking"
   ],
   "blocks": [
     {
@@ -137,6 +139,110 @@
       "language": "tsx",
       "caption": "Дождись видимого результата асинхронного действия",
       "code": "render(<PostsPage />);\n\nexpect(screen.getByText(/loading posts/i)).toBeTruthy();\nexpect(await screen.findByRole(\"heading\", { name: \"A sample post\" })).toBeTruthy();\nexpect(screen.queryByText(/could not load/i)).toBeNull();"
+    },
+    {
+      "id": "mocking-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Управляй внешними зависимостями через Vitest mocks"
+    },
+    {
+      "id": "mocking-explanation",
+      "type": "paragraph",
+      "text": "Mock заменяет одну границу зависимости предсказуемой функцией: тест может проверить вызовы и выбрать успешный или неуспешный ответ без обращения к живому API. В этом проекте используй `vi.fn()` из Vitest, а не копируй Jest-only настройку из старого руководства. Предпочитай передавать сервис в компонент или подменять узкую API-границу; не подменяй внутренние механизмы React. Mock без реализации возвращает `undefined`, поэтому задай результат явно. `mockResolvedValue` и `mockRejectedValue` моделируют разные исходы Promise. Изолируй mocks: очистка истории вызовов не обязательно сбрасывает реализацию, а глобальные stubs надо восстановить, если конфигурация теста не делает этого автоматически."
+    },
+    {
+      "id": "mocking-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { expect, it, vi } from \"vitest\";\nimport { render, screen } from \"@testing-library/react\";\n\ntype Post = { id: string; title: string };\ntype LoadPosts = () => Promise<Post[]>;\n\nit(\"renders posts from a controlled service\", async () => {\n  const loadPosts = vi.fn<LoadPosts>().mockResolvedValue([\n    { id: \"1\", title: \"A sample post\" },\n  ]);\n\n  render(<PostsPage loadPosts={loadPosts} />);\n\n  expect(await screen.findByRole(\"heading\", { name: \"A sample post\" }))\n    .toBeInTheDocument();\n  expect(loadPosts).toHaveBeenCalledTimes(1);\n});",
+      "steps": [
+        {
+          "title": "Подмени узкую границу зависимостей подходящим runner",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "В проекте настроены Vitest и Testing Library. `vi.fn<LoadPosts>()` создаёт типизированную mock-функцию; внедряй сервис, не привязывая тест к внутренностям компонента."
+        },
+        {
+          "title": "Выбери предсказуемый асинхронный результат",
+          "lineStart": 8,
+          "lineEnd": 10,
+          "explanation": "`mockResolvedValue` возвращает Promise с контролируемыми данными. Для проверки ошибки создай отдельный mock с `mockRejectedValue(new Error(...))`; не дели изменяемое поведение между тестами."
+        },
+        {
+          "title": "Проверь UI-контракт и вызов границы",
+          "lineStart": 12,
+          "lineEnd": 17,
+          "explanation": "Отрендери настоящий компонент, дождись асинхронного содержимого через `findByRole`, затем проверь вызов внедрённого сервиса. Так тест проверяет видимое пользователю поведение и обращение к границе."
+        }
+      ]
+    },
+    {
+      "id": "mocking-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Нужно надёжно проверить показ сетевой ошибки в тесте React-страницы. Какой способ подходит настроенному стеку проекта?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Использовать Vitest `vi.fn()` на API/service-границе, настроить rejection и проверить видимую ошибку",
+          "correct": true,
+          "feedback": "Контролируемый rejection делает проверку предсказуемой, а assertion остаётся сосредоточенным на том, что видит пользователь."
+        },
+        {
+          "id": "b",
+          "text": "Вызвать production API и надеяться, что он будет недоступен",
+          "correct": false,
+          "feedback": "Тест не должен зависеть от доступности внешнего сервиса и тайминга, чтобы дойти до ошибки."
+        },
+        {
+          "id": "c",
+          "text": "Замокать приватный React state Hook и проверить его внутреннее значение",
+          "correct": false,
+          "feedback": "Это связывает тест с деталями реализации и не доказывает, что ошибка появилась в интерфейсе."
+        },
+        {
+          "id": "d",
+          "text": "Использовать Jest globals и разделять один изменяемый mock между тестами",
+          "correct": false,
+          "feedback": "В проекте используется Vitest, а общее изменяемое поведение может сделать результаты зависимыми от порядка тестов."
+        }
+      ],
+      "explanation": "Подмени одну внешнюю границу настроенным runner и проверь видимую пользователю ошибку."
+    },
+    {
+      "id": "mocking-practice",
+      "type": "codingExercise",
+      "title": "Проверь успех и ошибку без живого API",
+      "language": "tsx",
+      "context": "Доработай тест компонента, которому передаётся сервис `loadPosts`; он показывает загрузку, список статей, пустое состояние или ошибку.",
+      "instructions": [
+        "Создай типизированный Vitest mock сервиса и настрой успешный ответ со статьями.",
+        "Отрендери страницу, дождись заголовка статьи через `findByRole` и проверь вызов сервиса.",
+        "Добавь успешный ответ без статей и проверь отдельное сообщение пустого состояния.",
+        "Добавь тест с отклонённым Promise и проверь доступное сообщение или alert с ошибкой.",
+        "Создавай локальный mock для каждого теста и не обращайся к реальной сети."
+      ],
+      "requirements": [
+        "В mock используется Vitest `vi.fn()` и правильно задан результат Promise.",
+        "Успех, пустой успешный ответ и rejection проверяются отдельно.",
+        "Assertions проверяют видимый DOM, а не внутреннее состояние компонента.",
+        "Асинхронные результаты ожидаются через Testing Library, а не фиксированные задержки.",
+        "Тесты не обращаются к живому API и могут выполняться в любом порядке."
+      ],
+      "starterCode": "import { expect, it, vi } from \"vitest\";\nimport { render, screen } from \"@testing-library/react\";\nimport type { Post } from \"./types\";\n\nit(\"renders the success response\", async () => {\n  const loadPosts = vi.fn<() => Promise<Post[]>>();\n  // TODO: set a response, render <PostsPage loadPosts={loadPosts} />,\n  // await a visible result, and assert the service call.\n});\n\nit(\"renders empty and error states\", async () => {\n  // TODO: create isolated mocks for [] and a rejected Promise.\n});",
+      "hints": [
+        "Пустой `vi.fn()` возвращает undefined, пока ты не настроишь возвращаемое значение или Promise.",
+        "Для успешного пустого ответа используй `mockResolvedValue([])`, для отказа — `mockRejectedValue(new Error(...))`.",
+        "Используй `findByRole` для содержимого после async-операции и проверяй доступное сообщение об ошибке или пустом состоянии."
+      ],
+      "successCriteria": [
+        "Тест успеха отображает полученные данные.",
+        "Для пустого результата есть отдельное видимое состояние.",
+        "Отклонённый запрос приводит к доступному сообщению об ошибке.",
+        "Каждый сценарий использует отдельный mock и ожидает UI-результат.",
+        "Нет внешнего сетевого запроса и произвольных задержек."
+      ]
     },
     {
       "id": "test-runner",
@@ -455,6 +561,16 @@
           "title": "Jest: Getting Started",
           "url": "https://jestjs.io/docs/getting-started",
           "kind": "official-docs"
+        },
+        {
+          "title": "Vitest: Mock Functions",
+          "url": "https://vitest.dev/guide/learn/mock-functions",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Testing Library: React Testing Library",
+          "url": "https://testing-library.com/docs/react-testing-library/intro/",
+          "kind": "guide"
         }
       ]
     }
