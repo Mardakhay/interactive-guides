@@ -1,7 +1,7 @@
 {
   "id": "js.dom-events",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "The DOM and Browser Events",
   "description": "Understand the browser's live document tree, select and update elements, handle events, and build a data-driven DOM to-do list.",
-  "estimatedMinutes": 125,
+  "estimatedMinutes": 95,
   "difficulty": "beginner",
   "prerequisites": [
     "js.functions-arrays-objects",
@@ -623,6 +623,194 @@
         "Predicts the reset result and justifies it from defaultValue.",
         "Accounts for comments and formatting whitespace in node traversal.",
         "Reports capture → target → bubble for a normal bubbling click and names an event propagation caveat."
+      ]
+    },
+    {
+      "id": "dom-batch-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Batch DOM work and choose the right browser observer"
+    },
+    {
+      "id": "dom-fragment-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const list = document.querySelector('#results');\nif (!list) throw new Error('Results list is missing');\n\nconst fragment = document.createDocumentFragment();\nfor (const label of ['HTML', 'CSS', 'JavaScript']) {\n  const item = document.createElement('li');\n  item.textContent = label;\n  fragment.append(item);\n}\n\nlist.replaceChildren(fragment);",
+      "steps": [
+        {
+          "title": "Build nodes without interpreting strings as HTML",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "Check the target before using it, then create elements and assign textContent. This keeps the label as text rather than parsing markup."
+        },
+        {
+          "title": "Assemble a detached subtree",
+          "lineStart": 4,
+          "lineEnd": 9,
+          "explanation": "DocumentFragment is a lightweight container for assembling nodes before insertion. Appending it moves its children into the document; the fragment itself is emptied."
+        },
+        {
+          "title": "Commit the new list in one clear operation",
+          "lineStart": 11,
+          "lineEnd": 11,
+          "explanation": "replaceChildren expresses that this list is replaced with the assembled items. A fragment can reduce repeated live-tree mutations and clarify intent, but do not promise a specific layout/reflow count—profile if performance matters."
+        }
+      ]
+    },
+    {
+      "id": "dom-observer-choice",
+      "type": "paragraph",
+      "text": "Use an event listener when a known user or browser event occurs. Use MutationObserver when code needs to react to changes in a DOM subtree made by other code; its callback runs after mutations are queued, so avoid writing back in a way that creates an observation loop. Use IntersectionObserver to learn when a target approaches or enters a viewport/root, for tasks such as custom lazy loading or visibility analytics. Disconnect or unobserve when work is complete; native loading=\"lazy\" is simpler for ordinary images."
+    },
+    {
+      "id": "dom-intersection-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const images = document.querySelectorAll('img[data-src]');\nconst observer = new IntersectionObserver((entries, currentObserver) => {\n  for (const entry of entries) {\n    if (!entry.isIntersecting) continue;\n    const image = entry.target;\n    if (!(image instanceof HTMLImageElement)) continue;\n    const source = image.dataset.src;\n    if (!source) continue;\n    image.src = source;\n    delete image.dataset.src;\n    currentObserver.unobserve(image);\n  }\n}, { rootMargin: '200px' });\n\nimages.forEach((image) => observer.observe(image));\n// In component teardown: observer.disconnect();",
+      "steps": [
+        {
+          "title": "Select only targets with deferred sources",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "The selector narrows work to images that declare the data attribute. The code still validates the dataset value before assigning it."
+        },
+        {
+          "title": "Wait for proximity, then perform work once",
+          "lineStart": 2,
+          "lineEnd": 12,
+          "explanation": "The callback receives entries and the observer. rootMargin starts loading before the image reaches the viewport; unobserve prevents repeated handling for the same image."
+        },
+        {
+          "title": "Observe after setup and clean up on teardown",
+          "lineStart": 14,
+          "lineEnd": 15,
+          "explanation": "Start observation after the callback exists. If a component or page region is removed, disconnect its observer to release observation work. For standard image deferral, compare this custom code with the simpler loading=\"lazy\" attribute."
+        }
+      ]
+    },
+    {
+      "id": "dom-mutation-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const panel = document.querySelector('#status-panel');\nif (!panel) throw new Error('Status panel is missing');\n\nconst observer = new MutationObserver((records) => {\n  for (const record of records) {\n    console.log(record.type, record.target);\n  }\n});\nobserver.observe(panel, { childList: true, subtree: true, attributes: true });\n\n// After the feature no longer needs observation:\nobserver.disconnect();",
+      "steps": [
+        {
+          "title": "Observe a specific subtree",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Choose the smallest element whose changes matter. A missing target should be handled before calling observe."
+        },
+        {
+          "title": "Inspect records rather than polling",
+          "lineStart": 4,
+          "lineEnd": 9,
+          "explanation": "MutationObserver batches mutation records for a later callback. Options define which changes to report; broad subtree/attribute observation can be noisy, so narrow them to the feature's need."
+        },
+        {
+          "title": "Stop observation explicitly",
+          "lineStart": 11,
+          "lineEnd": 12,
+          "explanation": "Disconnect when the feature unmounts or is done. If the callback itself changes observed nodes, ensure it converges instead of triggering an endless sequence of mutations."
+        }
+      ]
+    },
+    {
+      "id": "dom-custom-event-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const cart = document.querySelector('#cart');\nconst addButton = document.querySelector('[data-add-item]');\n\ncart?.addEventListener('cart:item-added', (event) => {\n  console.log(event.detail.itemId);\n});\n\naddButton?.addEventListener('click', () => {\n  cart?.dispatchEvent(new CustomEvent('cart:item-added', {\n    detail: { itemId: 'book-7' },\n    bubbles: true\n  }));\n});",
+      "steps": [
+        {
+          "title": "Define the event contract",
+          "lineStart": 4,
+          "lineEnd": 5,
+          "explanation": "The event name and detail shape form a small contract between the producer and consumer. Keep it specific and document what the payload means."
+        },
+        {
+          "title": "Dispatch from the component that owns the action",
+          "lineStart": 8,
+          "lineEnd": 13,
+          "explanation": "CustomEvent carries application data in detail. Bubbling lets an ancestor listener handle it; custom events are not a replacement for React props/state inside a React-owned tree."
+        }
+      ]
+    },
+    {
+      "id": "dom-observer-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A component needs to load an image shortly before it scrolls into view. Which API is designed to observe that visibility transition?",
+      "options": [
+        {
+          "id": "a",
+          "text": "MutationObserver",
+          "correct": false,
+          "feedback": "MutationObserver reports DOM-tree or attribute changes, not viewport intersection."
+        },
+        {
+          "id": "b",
+          "text": "IntersectionObserver",
+          "correct": true,
+          "feedback": "IntersectionObserver asynchronously reports intersection changes with a viewport or configured root."
+        },
+        {
+          "id": "c",
+          "text": "A MutationEvent listener",
+          "correct": false,
+          "feedback": "Legacy mutation events are not the modern observer API and do not report viewport visibility."
+        },
+        {
+          "id": "d",
+          "text": "setInterval checking getBoundingClientRect forever",
+          "correct": false,
+          "feedback": "Polling adds recurring work and lifecycle complexity; use the observer or native image loading when suitable."
+        }
+      ],
+      "explanation": "Choose the API by the signal needed: DOM mutation, viewport intersection, or a known event."
+    },
+    {
+      "id": "dom-rate-control",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Debounce waits until a burst of calls pauses; it fits search suggestions where only the final query should trigger work.",
+        "Throttle limits calls to at most a chosen cadence; it fits continuous signals such as scroll-driven updates when periodic work is needed.",
+        "Both require lifecycle cleanup when they wrap timers or listeners; cancel pending work when the component is removed.",
+        "Do not debounce every input indiscriminately: validation or feedback may need immediate response, and server requests still need cancellation/stale-response handling."
+      ]
+    },
+    {
+      "id": "dom-advanced-practice",
+      "type": "codingExercise",
+      "title": "Choose, connect, and clean up DOM observers",
+      "language": "javascript",
+      "context": "A non-React page has a changing status panel and a long list of image cards. Add observation only where it solves a concrete problem.",
+      "instructions": [
+        "Build a set of list items with DocumentFragment and textContent; explain what the fragment does and does not guarantee about performance.",
+        "Use IntersectionObserver for deferred image loading, and compare the custom implementation with native loading=\"lazy\".",
+        "Use MutationObserver only for a subtree changed by another system; limit observed options and prevent callback feedback loops.",
+        "Dispatch and handle a typed-by-convention CustomEvent with a documented detail payload.",
+        "Implement either a debounced search or throttled scroll handler and clean up observers/listeners/timers when the view is removed."
+      ],
+      "requirements": [
+        "User-visible strings are inserted as text, not interpolated into innerHTML.",
+        "Each observer is selected for the signal it actually reports and is scoped narrowly.",
+        "Observation and event listeners have explicit cleanup.",
+        "Rate limiting choice matches the interaction and does not hide necessary feedback.",
+        "Tests or a manual verification plan cover target-missing, no-intersection, teardown, and repeated-change cases."
+      ],
+      "starterCode": "const root = document.querySelector('#cards');\n\n// TODO: create several cards safely with a DocumentFragment.\n// TODO: defer an expensive action until an item approaches the viewport.\n// TODO: observe external DOM changes only if the feature requires them.\n// TODO: clean up all observers, event listeners, and timers on teardown.",
+      "hints": [
+        "Use DocumentFragment to stage nodes, but measure before claiming a performance win.",
+        "IntersectionObserver entries include isIntersecting; unobserve a one-time target after it is handled.",
+        "MutationObserver can become noisy if you observe the whole document or mutate the observed subtree in its callback.",
+        "Keep cleanup functions next to setup so lifecycle symmetry is visible."
+      ],
+      "successCriteria": [
+        "Renders cards safely and preserves the intended order.",
+        "Explains the tradeoff between custom intersection logic and native lazy loading.",
+        "Observers are narrowly configured and disconnected/unobserved at teardown.",
+        "Debounce or throttle behavior matches the stated user need and has no orphaned timer/listener.",
+        "Failure cases and lifecycle cleanup are verified."
       ]
     },
     {
