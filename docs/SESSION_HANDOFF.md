@@ -435,3 +435,8 @@ CI run [40286184091](https://github.com/Mardakhay/interactive-guides/actions/run
 - Added class-focused EN/RU instruction and applied task to js.object-prototypes; detailed source/accuracy mapping is in FULL_SOURCE_CONTENT_AUDIT.md.
 - CI run 40286184091 caught an outdated TypeScript quiz count assertion after adding utility types. Follow-up updates count 4 to 5 and adds regression coverage. Verify CI on the next feature SHA.
 - Keep legacy HTML and routes. Full source parity/cutover and the later Supabase phase remain open.
+
+
+## Exact CI checkpoint — 2026-10-26
+
+Feature SHA 6b92bb9a0d70fdd299c0ae72bf864392f5b27d99 passed lint, typecheck, all tests and production build in GitHub Actions run [40286622209](https://github.com/Mardakhay/interactive-guides/actions/runs/40286622209). This includes the TypeScript quiz-count correction and new class-model lesson tests. Source audit remains incomplete: four of 25 HTML files have full reads documented; 21 Notion fetches remain marked unverified and complete source-to-block parity is open. Legacy HTML routes/files remain; JSON cutover and Supabase work have not started.

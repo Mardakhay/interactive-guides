@@ -377,3 +377,8 @@ CI run [40286184091](https://github.com/Mardakhay/interactive-guides/actions/run
 ## Full JS deep-dive source checkpoint — 2026-10-26
 
 The complete js-deep-dive.html read found and documented source inaccuracies and that its UI advertises six exercises but presents five numbered challenges. js.object-prototypes now grows from 31 to 37 bilingual blocks with class/prototype semantics, private state, super ordering, static factory behavior, feedback and a coding task. The failed CI on the prior TypeScript change was a stale quiz count (4 to 5); the follow-up fixes the expectation without removing content. Verify the new exact SHA in CI.
+
+
+## Exact CI checkpoint — 2026-10-26
+
+Feature SHA 6b92bb9a0d70fdd299c0ae72bf864392f5b27d99 passed lint, typecheck, all tests and production build in GitHub Actions run [40286622209](https://github.com/Mardakhay/interactive-guides/actions/runs/40286622209). This includes the TypeScript quiz-count correction and new class-model lesson tests. Source audit remains incomplete: four of 25 HTML files have full reads documented; 21 Notion fetches remain marked unverified and complete source-to-block parity is open. Legacy HTML routes/files remain; JSON cutover and Supabase work have not started.
