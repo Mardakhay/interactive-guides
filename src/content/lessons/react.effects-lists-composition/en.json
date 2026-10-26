@@ -1,10 +1,10 @@
 {
   "id": "react.effects-lists-composition",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-3-week-12",
   "week": 12,
   "order": 1,
@@ -463,6 +463,137 @@
         "Loading/success/error and abort are distinguishable.",
         "Reordered/deleted list items retain the correct component identity.",
         "Derived data is not duplicated into state without a reason."
+      ]
+    },
+    {
+      "id": "effect-external-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Effects synchronize React with external systems"
+    },
+    {
+      "id": "effect-external-body",
+      "type": "paragraph",
+      "text": "Use an Effect when a component must synchronize with something React does not own: a browser subscription, timer, imperative widget, or external connection. Setup belongs in the effect; cleanup reverses that setup when dependencies change or the component unmounts. Do not use an Effect just to derive one piece of React state from another—calculate derived values during render. Keep imperative libraries inside a ref-owned host node so they do not compete with React for the same children."
+    },
+    {
+      "id": "effect-widget-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useEffect, useRef } from 'react';\n\nfunction ChartPanel({ createChart }: { createChart: (host: HTMLDivElement) => { destroy: () => void } }) {\n  const hostRef = useRef<HTMLDivElement>(null);\n\n  useEffect(() => {\n    const host = hostRef.current;\n    if (!host) return;\n\n    const chart = createChart(host);\n    return () => chart.destroy();\n  }, [createChart]);\n\n  return <div ref={hostRef} role=\"region\" aria-label=\"Embedded chart\" />;\n}",
+      "steps": [
+        {
+          "title": "Give the external system a dedicated host",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "The ref points to one DOM node owned as the widget's host. The chart library may manage descendants inside that node; React should not also render competing children there."
+        },
+        {
+          "title": "Create the widget after commit and guard a missing node",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "Effects run after React commits the DOM. The ref may still be null in a type/runtime edge case, so return before constructing the external resource."
+        },
+        {
+          "title": "Mirror setup with cleanup and declare reactive dependencies",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "If createChart changes, React cleans up the prior chart before setting up the replacement. The factory should have stable identity when recreation is not desired; use a module-level function or memoize at the owner where appropriate."
+        }
+      ]
+    },
+    {
+      "id": "effect-storage-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useEffect } from 'react';\n\nconst THEME_KEY = 'guide-theme';\n\nfunction useThemeFromOtherTabs(setTheme: (value: 'light' | 'dark') => void) {\n  useEffect(() => {\n    function handleStorage(event: StorageEvent) {\n      if (event.key !== THEME_KEY) return;\n      if (event.newValue === 'light' || event.newValue === 'dark') {\n        setTheme(event.newValue);\n      }\n    }\n\n    window.addEventListener('storage', handleStorage);\n    return () => window.removeEventListener('storage', handleStorage);\n  }, [setTheme]);\n}",
+      "steps": [
+        {
+          "title": "Subscribe to a browser event",
+          "lineStart": 3,
+          "lineEnd": 7,
+          "explanation": "The storage event reports a key change made by another document sharing the storage area. Validate the string before treating it as the narrow theme union."
+        },
+        {
+          "title": "Install once per stable callback and remove the same function",
+          "lineStart": 9,
+          "lineEnd": 11,
+          "explanation": "The cleanup must receive the exact listener reference used by addEventListener. If setTheme identity changes, React removes the old listener and registers the new one."
+        },
+        {
+          "title": "Know the event's boundary",
+          "lineStart": 11,
+          "lineEnd": 13,
+          "explanation": "The storage event does not fire in the same document that performed the write. The writing tab should update its own React state directly; storage is a cross-document notification, not a replacement for state ownership."
+        }
+      ]
+    },
+    {
+      "id": "effect-cleanup-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A chart widget connects to an external library in useEffect. Why can a missing cleanup appear to work normally but fail under React Strict Mode development checks?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Strict Mode may run an extra setup/cleanup cycle to expose effects that do not correctly undo subscriptions or resources",
+          "correct": true,
+          "feedback": "Correct cleanup makes setup safe to repeat and prevents duplicate listeners/widgets when dependencies change or a component unmounts."
+        },
+        {
+          "id": "b",
+          "text": "Strict Mode removes every DOM ref before the app starts",
+          "correct": false,
+          "feedback": "The purpose is not to permanently remove refs; the development checks help surface lifecycle bugs."
+        },
+        {
+          "id": "c",
+          "text": "Cleanup is only required for network requests, never for widgets or listeners",
+          "correct": false,
+          "feedback": "Subscriptions, timers, widgets and connections all own resources that may need release."
+        },
+        {
+          "id": "d",
+          "text": "Effects run during server rendering and must remove server-side DOM",
+          "correct": false,
+          "feedback": "Effects do not run during server rendering; cleanup reverses client-side synchronization."
+        }
+      ],
+      "explanation": "Treat each effect as a setup/cleanup pair; this makes it resilient to dependency changes, unmounts and development lifecycle checks."
+    },
+    {
+      "id": "effect-external-practice",
+      "type": "codingExercise",
+      "title": "Integrate an external widget with a leak-free lifecycle",
+      "language": "tsx",
+      "context": "A React screen embeds an imperative chart/map library and needs to respond to a cross-tab preference update.",
+      "instructions": [
+        "Create a dedicated ref host and initialize the external widget only after the host is committed.",
+        "Return cleanup that destroys the exact widget instance and test that dependency changes replace it without duplicates.",
+        "Subscribe to the storage event with a stable handler, validate the key/value, and remove that exact handler on cleanup.",
+        "Update the current tab's React state directly when it writes storage; use the storage event only for other documents.",
+        "Test mount/unmount and Strict Mode development behavior with spies, including repeated setup and teardown."
+      ],
+      "requirements": [
+        "React and the imperative library do not both manage the same widget descendants.",
+        "Every subscription/resource is paired with cleanup.",
+        "Effect dependencies include reactive values; unstable factories are stabilized intentionally rather than suppressed with lint disables.",
+        "Storage values are validated before entering typed application state.",
+        "Tests prove cleanup and no duplicate resource after repeated lifecycle cycles."
+      ],
+      "starterCode": "function MapPanel({ createMap, theme }) {\n  const hostRef = useRef(null);\n\n  useEffect(() => {\n    // TODO: create the map in the committed host node.\n    // TODO: synchronize the external widget with theme if needed.\n    // TODO: destroy subscriptions/widget in cleanup.\n  }, [createMap, theme]);\n\n  return <div ref={hostRef} />;\n}",
+      "hints": [
+        "Effects synchronize with external systems; derived JSX values usually do not need an Effect.",
+        "Cleanup runs before a changed effect is set up again and when the component unmounts.",
+        "React Strict Mode development checks can reveal non-idempotent setup; do not disable cleanup to hide duplicates.",
+        "The storage event is delivered to other same-origin documents, not the document that wrote the key."
+      ],
+      "successCriteria": [
+        "Widget is created only after its host exists and destroyed exactly once per setup.",
+        "Changing dependencies does not leak or duplicate the widget.",
+        "Storage listener is removed using the same callback reference.",
+        "Cross-tab updates are distinguished from same-tab state updates.",
+        "Verification includes a repeated mount/cleanup scenario."
       ]
     },
     {

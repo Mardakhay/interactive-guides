@@ -1,10 +1,10 @@
 {
   "id": "react.effects-lists-composition",
   "locale": "ru",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-3-week-12",
   "week": 12,
   "order": 1,
@@ -463,6 +463,137 @@
         "Состояния loading/success/error различаются с отменой.",
         "После перестановки/удаления элементы сохраняют правильную идентичность компонента.",
         "Производные данные не дублируются в state без необходимости."
+      ]
+    },
+    {
+      "id": "effect-external-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Effects синхронизируют React с внешними системами"
+    },
+    {
+      "id": "effect-external-body",
+      "type": "paragraph",
+      "text": "Используйте Effect, когда компонент должен синхронизироваться с системой, которой не управляет React: browser subscription, timer, imperative widget или внешнее соединение. Настройка выполняется в effect; cleanup отменяет её при изменении зависимостей или размонтировании компонента. Не используйте Effect только для вычисления одного состояния из другого — вычисляйте derived values во время render. Держите imperative-библиотеки внутри выделенного ref-контейнера, чтобы React не конкурировал с ними за управление одними и теми же дочерними узлами."
+    },
+    {
+      "id": "effect-widget-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useEffect, useRef } from 'react';\n\nfunction ChartPanel({ createChart }: { createChart: (host: HTMLDivElement) => { destroy: () => void } }) {\n  const hostRef = useRef<HTMLDivElement>(null);\n\n  useEffect(() => {\n    const host = hostRef.current;\n    if (!host) return;\n\n    const chart = createChart(host);\n    return () => chart.destroy();\n  }, [createChart]);\n\n  return <div ref={hostRef} role=\"region\" aria-label=\"Встроенный график\" />;\n}",
+      "steps": [
+        {
+          "title": "Выделите внешней системе собственный контейнер",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Ref указывает на DOM-узел, который служит контейнером widget. Chart-библиотека может управлять его потомками; React не должен одновременно рендерить там конкурирующие элементы."
+        },
+        {
+          "title": "Создайте widget после commit и проверьте наличие узла",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "Effects запускаются после commit DOM от React. Ref может быть null в типовом/runtime edge case, поэтому до создания внешнего ресурса выйдите из функции."
+        },
+        {
+          "title": "Сопоставьте настройку с очисткой и укажите reactive dependencies",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "Если createChart меняется, React очистит прежний chart до создания нового. У factory должна быть стабильная identity, если пересоздание не нужно; в подходящем владельце используйте функцию уровня модуля или memoization."
+        }
+      ]
+    },
+    {
+      "id": "effect-storage-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useEffect } from 'react';\n\nconst THEME_KEY = 'guide-theme';\n\nfunction useThemeFromOtherTabs(setTheme: (value: 'light' | 'dark') => void) {\n  useEffect(() => {\n    function handleStorage(event: StorageEvent) {\n      if (event.key !== THEME_KEY) return;\n      if (event.newValue === 'light' || event.newValue === 'dark') {\n        setTheme(event.newValue);\n      }\n    }\n\n    window.addEventListener('storage', handleStorage);\n    return () => window.removeEventListener('storage', handleStorage);\n  }, [setTheme]);\n}",
+      "steps": [
+        {
+          "title": "Подпишитесь на событие браузера",
+          "lineStart": 3,
+          "lineEnd": 7,
+          "explanation": "storage сообщает об изменении ключа из другого документа, использующего то же хранилище. Проверьте строковое значение перед передачей в узкий union темы."
+        },
+        {
+          "title": "Добавьте listener для стабильного callback и удалите ту же функцию",
+          "lineStart": 9,
+          "lineEnd": 11,
+          "explanation": "Cleanup должен получить ту же ссылку listener, что использовалась в addEventListener. При изменении identity setTheme React удалит старую подписку и добавит новую."
+        },
+        {
+          "title": "Учитывайте границы события",
+          "lineStart": 11,
+          "lineEnd": 13,
+          "explanation": "storage не срабатывает в том же документе, который выполнил запись. Вкладка-источник обновляет собственный React state напрямую; событие нужно для уведомления других документов, а не вместо владения состоянием."
+        }
+      ]
+    },
+    {
+      "id": "effect-cleanup-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Chart подключается к внешней библиотеке в useEffect. Почему отсутствие cleanup может казаться нормальным, но проявить ошибку при development-проверках React Strict Mode?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Strict Mode может выполнить дополнительный цикл setup/cleanup, выявляя эффекты, которые не отменяют подписки или ресурсы",
+          "correct": true,
+          "feedback": "Корректный cleanup делает настройку безопасной при повторе и предотвращает двойные listener/widget при изменении зависимостей или размонтировании."
+        },
+        {
+          "id": "b",
+          "text": "Strict Mode навсегда удаляет все DOM refs до запуска приложения",
+          "correct": false,
+          "feedback": "Цель не в постоянном удалении refs; development-проверки помогают обнаружить ошибки жизненного цикла."
+        },
+        {
+          "id": "c",
+          "text": "Cleanup нужен только для сетевых запросов, но никогда для widget или listener",
+          "correct": false,
+          "feedback": "Подписки, таймеры, widget и соединения также владеют ресурсами, которые иногда нужно освобождать."
+        },
+        {
+          "id": "d",
+          "text": "Effects выполняются при серверном рендеринге и должны удалять серверный DOM",
+          "correct": false,
+          "feedback": "Effects не выполняются во время server rendering; cleanup отменяет клиентскую синхронизацию."
+        }
+      ],
+      "explanation": "Рассматривайте effect как пару setup/cleanup: это помогает переживать изменения зависимостей, unmount и development lifecycle checks."
+    },
+    {
+      "id": "effect-external-practice",
+      "type": "codingExercise",
+      "title": "Подключите внешний widget без утечки в lifecycle",
+      "language": "tsx",
+      "context": "React-экран встраивает imperative chart/map-библиотеку и реагирует на обновление пользовательской настройки в другой вкладке.",
+      "instructions": [
+        "Создайте выделенный ref-контейнер и запускайте внешний widget после commit этого узла.",
+        "Верните cleanup, который уничтожает именно созданный экземпляр; проверьте, что изменение зависимостей заменяет его без дублей.",
+        "Подпишитесь на storage стабильным обработчиком, проверьте ключ/значение и удалите именно эту функцию при cleanup.",
+        "При записи в storage обновляйте React state текущей вкладки напрямую; storage используйте для других документов.",
+        "Проверьте mount/unmount и Strict Mode development поведение с spies, включая повторные setup и teardown."
+      ],
+      "requirements": [
+        "React и imperative-библиотека не управляют одновременно одними потомками widget.",
+        "Каждый ресурс/подписка имеет соответствующий cleanup.",
+        "Effect содержит reactive dependencies; нестабильные factory стабилизируются намеренно, а не скрываются отключением lint.",
+        "Значения storage проверяются до попадания в типизированное состояние приложения.",
+        "Тесты подтверждают cleanup и отсутствие дублирующего ресурса после повторного lifecycle."
+      ],
+      "starterCode": "function MapPanel({ createMap, theme }) {\n  const hostRef = useRef(null);\n\n  useEffect(() => {\n    // TODO: создайте map в готовом host-узле.\n    // TODO: при необходимости синхронизируйте внешний widget с theme.\n    // TODO: в cleanup уничтожьте подписки/widget.\n  }, [createMap, theme]);\n\n  return <div ref={hostRef} />;\n}",
+      "hints": [
+        "Effects синхронизируют с внешними системами; derived JSX обычно не требует Effect.",
+        "Cleanup выполняется до повторной настройки при изменении зависимости и при размонтировании.",
+        "Development-проверки React Strict Mode помогают выявить неидемпотентную настройку; не отключайте cleanup, чтобы скрыть дубли.",
+        "storage доставляется другим same-origin документам, но не документу, который записал ключ."
+      ],
+      "successCriteria": [
+        "Widget создаётся только после появления host и очищается для каждого setup.",
+        "Изменение зависимостей не оставляет утечек и дублей.",
+        "Storage listener удаляется с той же ссылкой функции.",
+        "Обновление между вкладками отличено от обновления state текущей вкладки.",
+        "Проверка включает повторную последовательность mount/cleanup."
       ]
     },
     {
