@@ -595,30 +595,35 @@
     {
       "id": "api-debounce-check",
       "type": "knowledgeCheck",
-      "question": "A debounced search sends one request after the user pauses. What does the debounce timer cleanup guarantee by itself?",
       "options": [
         {
+          "id": "a",
           "text": "It aborts every network request that has already started.",
           "correct": false,
           "feedback": "A timeout is not a network request controller; an AbortSignal or stale-result guard handles in-flight requests."
         },
         {
+          "id": "b",
           "text": "It prevents an obsolete pending timer from publishing an intermediate query.",
           "correct": true,
           "feedback": "Clearing the pending timeout prevents the delayed state update from running after a newer value arrives."
         },
         {
+          "id": "c",
           "text": "It makes the server response arrive faster.",
           "correct": false,
           "feedback": "Debounce can reduce how many requests are made, but it adds waiting time before a request starts."
         },
         {
+          "id": "d",
           "text": "It guarantees that the final query succeeds.",
           "correct": false,
           "feedback": "The request can still fail or be superseded; debounce is scheduling, not reliability or error handling."
         }
       ],
-      "explanation": "Timer cleanup cancels a scheduled callback. It cannot cancel work that has already started, and debounce trades a short intentional wait for fewer requests."
+      "explanation": "Timer cleanup cancels a scheduled callback. It cannot cancel work that has already started, and debounce trades a short intentional wait for fewer requests.",
+      "questionType": "single-choice",
+      "prompt": "A debounced search sends one request after the user pauses. What does the debounce timer cleanup guarantee by itself?"
     },
     {
       "id": "api-debounce-practice",
