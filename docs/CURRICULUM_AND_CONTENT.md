@@ -204,3 +204,7 @@ Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint,
 ## New browser-storage track — 2026-10-26
 
 Both curricula now include `supplement-browser-storage` with bilingual `browser.storage-indexeddb`. The 19-block lesson covers browser storage decisions and transactional IndexedDB practice; source parity remains partial. Inventory: 26 core + 15 supplementary = 41 bilingual pairs. This lesson does not replace or preempt the later project decision to persist user progress in Supabase after learner-flow cutover.
+
+## Verification checkpoint — 2026-10-26
+
+Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passed lint, typecheck, test suite, and production build on [CI run 40282414157](https://github.com/Mardakhay/interactive-guides/actions/runs/40282414157). The documentation checkpoint `97008a25d5312fe207756e6a6061f3d75bd72a7b` also passed the same required checks on [CI run 40282496515](https://github.com/Mardakhay/interactive-guides/actions/runs/40282496515). The next content/docs checkpoint will receive a fresh exact-HEAD run.

@@ -120,3 +120,7 @@ Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint,
 ## Browser persistence content update — 2026-10-26
 
 The Advanced JS page's browser-storage material now has a bilingual structured target `browser.storage-indexeddb`. It distinguishes local/session string storage from IndexedDB transactions, corrects storage-event same-window assumptions, adds security/quota caveats, and teaches request success vs transaction completion. The lesson remains partial against all source CRUD/cursor/estimate examples. Total: 41 EN/RU pairs. This is educational content only: Supabase integration remains deferred until JSON cutover.
+
+## Verification checkpoint — 2026-10-26
+
+Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passed lint, typecheck, test suite, and production build on [CI run 40282414157](https://github.com/Mardakhay/interactive-guides/actions/runs/40282414157). The documentation checkpoint `97008a25d5312fe207756e6a6061f3d75bd72a7b` also passed the same required checks on [CI run 40282496515](https://github.com/Mardakhay/interactive-guides/actions/runs/40282496515). The next content/docs checkpoint will receive a fresh exact-HEAD run.

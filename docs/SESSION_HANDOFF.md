@@ -366,3 +366,7 @@ Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint,
 ## Current handoff — 2026-10-26
 
 Latest code SHA `7915276b6514a56a3a700c0ba488b784e348754b` adds the registered EN/RU `browser.storage-indexeddb` lesson and a new supplementary track. It separates local Web Storage/IndexedDB concepts from server-backed learner progress. Current inventory is 41 bilingual pairs. CI run 40282414157 is in progress; inspect its logs and fix failures before proceeding. Source-depth audit and JSON learner cutover remain open; Supabase follows only after cutover.
+
+## Verification checkpoint — 2026-10-26
+
+Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passed lint, typecheck, test suite, and production build on [CI run 40282414157](https://github.com/Mardakhay/interactive-guides/actions/runs/40282414157). The documentation checkpoint `97008a25d5312fe207756e6a6061f3d75bd72a7b` also passed the same required checks on [CI run 40282496515](https://github.com/Mardakhay/interactive-guides/actions/runs/40282496515). The next content/docs checkpoint will receive a fresh exact-HEAD run.

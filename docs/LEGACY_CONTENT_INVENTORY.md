@@ -149,3 +149,7 @@ Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint,
 ## 2026-10-26 browser-storage checkpoint
 
 Added `browser.storage-indexeddb` as a bilingual registered lesson in `supplement-browser-storage`. It covers local/session storage, defensive string/JSON handling, origin/XSS and sync limitations, storage-event scope, IndexedDB upgrades and transaction commit semantics, with four walkthroughs, two feedback quizzes and applied transaction practice. Source parity remains partial (not every IndexedDB CRUD/cursor/quota example is migrated). Inventory: 41 pairs (26 core + 15 supplements); legacy learner HTML remains active.
+
+## Verification checkpoint — 2026-10-26
+
+Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passed lint, typecheck, test suite, and production build on [CI run 40282414157](https://github.com/Mardakhay/interactive-guides/actions/runs/40282414157). The documentation checkpoint `97008a25d5312fe207756e6a6061f3d75bd72a7b` also passed the same required checks on [CI run 40282496515](https://github.com/Mardakhay/interactive-guides/actions/runs/40282496515). The next content/docs checkpoint will receive a fresh exact-HEAD run.

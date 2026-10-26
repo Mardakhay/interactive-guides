@@ -318,3 +318,7 @@ Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint,
 ## Latest checkpoint — 2026-10-26
 
 Catalog: 41 registered EN/RU pairs (26 core, 15 supplements), including new `browser.storage-indexeddb` in `supplement-browser-storage`. The lesson models browser persistence accurately as local/offline storage, not multi-device progress. Code SHA `7915276b6514a56a3a700c0ba488b784e348754b` is under CI at https://github.com/Mardakhay/interactive-guides/actions/runs/40282414157. Legacy HTML routes/files remain; JSON cutover is incomplete and Supabase is not started.
+
+## Verification checkpoint — 2026-10-26
+
+Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passed lint, typecheck, test suite, and production build on [CI run 40282414157](https://github.com/Mardakhay/interactive-guides/actions/runs/40282414157). The documentation checkpoint `97008a25d5312fe207756e6a6061f3d75bd72a7b` also passed the same required checks on [CI run 40282496515](https://github.com/Mardakhay/interactive-guides/actions/runs/40282496515). The next content/docs checkpoint will receive a fresh exact-HEAD run.

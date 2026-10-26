@@ -319,3 +319,7 @@ Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint,
 ## Persistence learning prerequisite — 2026-10-26
 
 Added `browser.storage-indexeddb` as a bilingual supplement before app-level progress persistence. Finish its source parity and the global content/depth gate, then switch learner routes to embedded JSON, verify, and only afterward design Supabase progress/auth/RLS. No Supabase schema or client integration has been started. Current catalog count is 41 bilingual pairs.
+
+## Verification checkpoint — 2026-10-26
+
+Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passed lint, typecheck, test suite, and production build on [CI run 40282414157](https://github.com/Mardakhay/interactive-guides/actions/runs/40282414157). The documentation checkpoint `97008a25d5312fe207756e6a6061f3d75bd72a7b` also passed the same required checks on [CI run 40282496515](https://github.com/Mardakhay/interactive-guides/actions/runs/40282496515). The next content/docs checkpoint will receive a fresh exact-HEAD run.
