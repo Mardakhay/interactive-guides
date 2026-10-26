@@ -11,6 +11,8 @@ import englishRegex from '../lessons/js.regex-text-processing/en.json';
 import russianRegex from '../lessons/js.regex-text-processing/ru.json';
 import englishStorage from '../lessons/browser.storage-indexeddb/en.json';
 import russianStorage from '../lessons/browser.storage-indexeddb/ru.json';
+import englishJsFunctions from '../lessons/js.functions-arrays-objects/en.json';
+import russianJsFunctions from '../lessons/js.functions-arrays-objects/ru.json';
 import englishLesson from '../lessons/html-document-structure/en.json';
 import russianLesson from '../lessons/html-document-structure/ru.json';
 import englishForms from '../lessons/html.forms-accessibility/en.json';
@@ -700,5 +702,56 @@ describe('browser storage supplementary lesson', () => {
     expect(exercise.requirements.length).toBeGreaterThanOrEqual(5);
     expect(exercise.hints.length).toBeGreaterThanOrEqual(4);
     expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
+  });
+});
+
+describe('deep modern JavaScript syntax in the core functions lesson', () => {
+  it('teaches iterable destructuring, rest/spread, optional access, and nullish defaults', () => {
+    expect(lessonTranslationSchema.safeParse(englishJsFunctions).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianJsFunctions).success).toBe(true);
+    expect(englishJsFunctions.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianJsFunctions.blocks.map(({ id, type }) => ({ id, type })),
+    );
+
+    const deepIds = [
+      'array-destructure-heading',
+      'array-destructure-explainer',
+      'array-destructure-trace',
+      'array-default-quiz',
+      'rest-parameters-heading',
+      'rest-parameters-trace',
+      'rest-spread-callout',
+      'nullish-heading',
+      'nullish-trace',
+      'nullish-limits',
+      'nullish-quiz',
+      'modern-syntax-practice',
+      'modern-syntax-summary',
+    ];
+    const deepBlocks = deepIds.map((id) => englishJsFunctions.blocks.find((block) => block.id === id));
+    expect(deepBlocks.every(Boolean)).toBe(true);
+
+    for (const quizId of ['array-default-quiz', 'nullish-quiz']) {
+      const quiz = englishJsFunctions.blocks.find((block) => block.id === quizId);
+      expect(quiz?.type).toBe('knowledgeCheck');
+      if (quiz?.type !== 'knowledgeCheck') continue;
+      expect(quiz.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(quiz.options.every((option) => option.feedback.trim().length > 0)).toBe(true);
+      expect(quiz.explanation.trim().length).toBeGreaterThan(0);
+    }
+
+    const exercise = englishJsFunctions.blocks.find((block) => block.id === 'modern-syntax-practice');
+    expect(exercise?.type).toBe('codingExercise');
+    if (exercise?.type !== 'codingExercise') return;
+    expect(exercise.requirements.length).toBeGreaterThanOrEqual(5);
+    expect(exercise.hints.length).toBeGreaterThanOrEqual(4);
+    expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
+    expect(exercise.starterCode).toContain('...otherTags');
+    expect(exercise.starterCode).toContain('??');
+
+    for (const walkthrough of englishJsFunctions.blocks.filter((block) => block.type === 'codeWalkthrough')) {
+      const lineCount = walkthrough.code.split('\n').length;
+      expect(walkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+    }
   });
 });

@@ -884,6 +884,228 @@
       ]
     },
     {
+      "id": "array-destructure-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "5.2. Array destructuring and rest"
+    },
+    {
+      "id": "array-destructure-explainer",
+      "type": "paragraph",
+      "text": "An array pattern reads values in order from an iterable; a comma skips a position, a default applies only when the value is undefined, and a rest binding creates a new array from the remaining values and must come last. This is not name-based lookup as in an object pattern."
+    },
+    {
+      "id": "array-destructure-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const values = [10, 20, undefined, 40, 50];\nconst [first, , third = 99, ...remaining] = values;\n\nconsole.log(first);\nconsole.log(third);\nconsole.log(remaining);",
+      "steps": [
+        {
+          "title": "Match positions",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "first receives position 0; the empty slot skips position 1. third reads position 2."
+        },
+        {
+          "title": "Apply the default and rest",
+          "lineStart": 2,
+          "lineEnd": 2,
+          "explanation": "Position 2 is undefined, so third becomes 99. rest collects the remaining [40, 50]. If the value were null, the default would not run."
+        },
+        {
+          "title": "Check the values",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "The output is 10, then 99, then [40, 50]. A missing position in a shorter iterable becomes undefined."
+        }
+      ]
+    },
+    {
+      "id": "array-default-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What is assigned to first by `const [first = \"fallback\"] = [null]`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "\"fallback\", because null means the value is missing.",
+          "correct": false,
+          "feedback": "null is an explicit value; a destructuring default runs only for undefined."
+        },
+        {
+          "id": "b",
+          "text": "null.",
+          "correct": true,
+          "feedback": "Correct. To replace null too, apply nullish coalescing after extraction."
+        },
+        {
+          "id": "c",
+          "text": "undefined.",
+          "correct": false,
+          "feedback": "The array contains null at this position, so null is assigned to first."
+        },
+        {
+          "id": "d",
+          "text": "A TypeError because arrays cannot be destructured.",
+          "correct": false,
+          "feedback": "An array is iterable and can be used with array destructuring."
+        }
+      ],
+      "explanation": "A destructuring default triggers only for undefined; null, 0, false, and an empty string are preserved."
+    },
+    {
+      "id": "rest-parameters-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Rest gathers arguments; spread passes elements"
+    },
+    {
+      "id": "rest-parameters-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function total(label, ...amounts) {\n  const sum = amounts.reduce((total, amount) => total + amount, 0);\n  return label + \": \" + sum;\n}\n\nconst values = [4, 6];\nconsole.log(total(\"points\", ...values));",
+      "steps": [
+        {
+          "title": "Gather the remaining arguments",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "The rest parameter gathers every argument after label into the amounts array; it must be the final parameter."
+        },
+        {
+          "title": "Expand an iterable at the call site",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "Spread passes 4 and 6 separately. The function receives them just like total(\"points\", 4, 6) and prints points: 10."
+        }
+      ]
+    },
+    {
+      "id": "rest-spread-callout",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Same `...`, opposite direction",
+      "text": "In parameters or destructuring, rest gathers values; in a function call or literal, spread expands an iterable/properties. Spread copies an array/object shallowly: nested references remain shared."
+    },
+    {
+      "id": "nullish-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Optional chaining and nullish coalescing"
+    },
+    {
+      "id": "nullish-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const user = { score: 0, profile: { nickname: \"\" } };\nconst nickname = user?.profile?.nickname ?? \"Anonymous\";\nconst score = user?.score ?? 10;\nconst legacyScore = user?.score || 10;\n\nconsole.log(nickname, score, legacyScore);",
+      "steps": [
+        {
+          "title": "Guard a chain against nullish values",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "?. stops access when the previous part is null/undefined. The chain returns the empty nickname because user and profile exist."
+        },
+        {
+          "title": "Choose a fallback rule intentionally",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "?? replaces only null/undefined, so score remains 0. || replaces any falsy value, so legacyScore becomes 10."
+        },
+        {
+          "title": "Compare the result",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "The output is an empty string, 0, and 10. Do not use || as a universal default when 0, false, or an empty string is valid."
+        }
+      ]
+    },
+    {
+      "id": "nullish-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Optional chaining does not fix every data error",
+      "text": "If a variable was never declared, `unknownUser?.name` still throws ReferenceError. And `response?.user.name` guards response but not a null user; add ?. at each potentially nullish link deliberately and validate external data."
+    },
+    {
+      "id": "nullish-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does `const count = 0; count ?? 5` return, and how does it differ from `count || 5`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Both expressions return 5.",
+          "correct": false,
+          "feedback": "|| treats 0 as falsy, but ?? replaces only null and undefined."
+        },
+        {
+          "id": "b",
+          "text": "?? returns 0, while || returns 5.",
+          "correct": true,
+          "feedback": "Correct. The right choice depends on whether 0 is a real value or means absent."
+        },
+        {
+          "id": "c",
+          "text": "?? returns undefined, while || returns 0.",
+          "correct": false,
+          "feedback": "The operators behave the other way around: ?? preserves 0."
+        },
+        {
+          "id": "d",
+          "text": "Both expressions are syntax errors.",
+          "correct": false,
+          "feedback": "Both operators are valid JavaScript; mixing ?? directly with &&/|| requires parentheses."
+        }
+      ],
+      "explanation": "Nullish coalescing is for null/undefined, while logical OR uses the full falsy set. They cannot be mixed directly with &&/|| without explicit parentheses."
+    },
+    {
+      "id": "modern-syntax-practice",
+      "type": "codingExercise",
+      "title": "Normalize an incomplete API response",
+      "language": "javascript",
+      "context": "A profile card receives a partial API response. Fields may be absent or null, but score=0 and an empty string must remain valid user values.",
+      "instructions": [
+        "Implement summarizeProfile(response), safely handling null/undefined response and missing/null profile.",
+        "Use object destructuring for fields and array destructuring with default/rest for tags.",
+        "Use ?? and optional chaining for theme/name/score so that score=0 is preserved.",
+        "Return { displayName, score, primaryTag, otherTags, theme } without mutating the source response.",
+        "Check an empty response, null profile, score 0, empty name and multiple tags; explain defaults vs ??."
+      ],
+      "requirements": [
+        "No error for null/undefined response or profile.",
+        "Missing name becomes Guest, but an empty string is preserved.",
+        "Score 0 is preserved; missing/null score becomes 0.",
+        "No tags produces primaryTag general and empty otherTags.",
+        "Array rest preserves later tags in source order.",
+        "Function does not mutate input and explains destructuring defaults vs ??."
+      ],
+      "starterCode": "function summarizeProfile(response) {\n  const { profile: rawProfile } = response ?? {};\n  const profile = rawProfile ?? {};\n  const { displayName, score, tags, preferences } = profile;\n  const [primaryTag = \"general\", ...otherTags] = tags ?? [];\n\n  return {\n    displayName: displayName ?? \"Guest\",\n    score: score ?? 0,\n    primaryTag,\n    otherTags,\n    theme: preferences?.theme ?? \"system\",\n  };\n}\n\nconsole.log(summarizeProfile({ profile: { displayName: \"\", score: 0, tags: [\"ui\", \"react\"] } }));",
+      "hints": [
+        "Fallback a nullable root object before destructuring; a binding-pattern default handles undefined, not null.",
+        "Use ?? when 0 or an empty string is valid; use || only if every falsy value means missing.",
+        "Array rest belongs last and returns a new array of the remaining values.",
+        "Optional-chain each nested field that may independently be nullish."
+      ],
+      "successCriteria": [
+        "Null/missing input returns Guest, score 0, general tag, no remaining tags, and system theme.",
+        "Explicit empty displayName and numeric score 0 are preserved.",
+        "Two or more tags yield a first primaryTag and ordered otherTags.",
+        "No nested access throws for the stated nullable shapes.",
+        "Input objects and arrays are unchanged."
+      ]
+    },
+    {
+      "id": "modern-syntax-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Array destructuring consumes an iterable by position; holes skip, defaults replace only undefined, and rest collects the remainder.",
+        "Rest gathers values at a binding/parameter site; spread expands them at a call or literal site.",
+        "Optional chaining short-circuits null/undefined access; nullish coalescing preserves valid falsy values such as 0 and ''.",
+        "Treat external data as untrusted and choose fallback semantics deliberately."
+      ]
+    },
+    {
       "id": "summary",
       "type": "heading",
       "level": 2,

@@ -884,6 +884,228 @@
       ]
     },
     {
+      "id": "array-destructure-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "5.2. Деструктуризация массивов и rest"
+    },
+    {
+      "id": "array-destructure-explainer",
+      "type": "paragraph",
+      "text": "Шаблон массива получает значения по порядку из iterable; запятая пропускает позицию, default применяется только когда значение равно undefined, а rest-сборщик создаёт новый массив из оставшихся значений и должен стоять последним. Поэтому это не «поиск по имени», как в объектном паттерне."
+    },
+    {
+      "id": "array-destructure-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const values = [10, 20, undefined, 40, 50];\nconst [first, , third = 99, ...remaining] = values;\n\nconsole.log(first);\nconsole.log(third);\nconsole.log(remaining);",
+      "steps": [
+        {
+          "title": "Сопоставьте позиции",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "first получает позицию 0; пустое место пропускает позицию 1. third смотрит на позицию 2."
+        },
+        {
+          "title": "Примените default и rest",
+          "lineStart": 2,
+          "lineEnd": 2,
+          "explanation": "Значение позиции 2 — undefined, поэтому third становится 99. rest собирает оставшиеся элементы [40, 50]. Если бы там был null, default не сработал бы."
+        },
+        {
+          "title": "Проверьте значения",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "Вывод: 10, затем 99, затем [40, 50]. Для слишком короткого iterable недостающие позиции становятся undefined."
+        }
+      ]
+    },
+    {
+      "id": "array-default-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что присвоится first в выражении `const [first = \"fallback\"] = [null]`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "\"fallback\", потому что null означает отсутствие значения.",
+          "correct": false,
+          "feedback": "Значение null явно присутствует; default для destructuring срабатывает только для undefined."
+        },
+        {
+          "id": "b",
+          "text": "null.",
+          "correct": true,
+          "feedback": "Верно. Чтобы заменить и null, используйте nullish coalescing после извлечения."
+        },
+        {
+          "id": "c",
+          "text": "undefined.",
+          "correct": false,
+          "feedback": "В массиве на этой позиции находится null, поэтому именно он присваивается first."
+        },
+        {
+          "id": "d",
+          "text": "TypeError: массив нельзя деструктурировать.",
+          "correct": false,
+          "feedback": "Массив — iterable и подходит для array destructuring."
+        }
+      ],
+      "explanation": "Значение по умолчанию в destructuring срабатывает только для undefined: null, 0, false и пустая строка сохраняются."
+    },
+    {
+      "id": "rest-parameters-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Rest собирает аргументы; spread передаёт элементы"
+    },
+    {
+      "id": "rest-parameters-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function total(label, ...amounts) {\n  const sum = amounts.reduce((total, amount) => total + amount, 0);\n  return label + \": \" + sum;\n}\n\nconst values = [4, 6];\nconsole.log(total(\"points\", ...values));",
+      "steps": [
+        {
+          "title": "Соберите остаток аргументов",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "Параметр rest собирает все аргументы после label в массив amounts; он должен быть последним параметром."
+        },
+        {
+          "title": "Раскройте iterable при вызове",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "Spread в позиции аргументов передаёт 4 и 6 отдельно. Функция получает их тем же способом, что и total(\"points\", 4, 6), и выводит points: 10."
+        }
+      ]
+    },
+    {
+      "id": "rest-spread-callout",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Одинаковое `...`, разные направления",
+      "text": "В параметрах функции или destructuring rest собирает значения; в вызове функции и литерале spread раскрывает iterable/свойства. Spread копирует массив/объект неглубоко: вложенные ссылки остаются общими."
+    },
+    {
+      "id": "nullish-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Optional chaining и nullish coalescing"
+    },
+    {
+      "id": "nullish-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const user = { score: 0, profile: { nickname: \"\" } };\nconst nickname = user?.profile?.nickname ?? \"Anonymous\";\nconst score = user?.score ?? 10;\nconst legacyScore = user?.score || 10;\n\nconsole.log(nickname, score, legacyScore);",
+      "steps": [
+        {
+          "title": "Защитите цепочку от nullish значений",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "?. прекращает доступ, если предыдущая часть равна null/undefined. Цепочка возвращает пустую строку nickname, потому что объект и profile существуют."
+        },
+        {
+          "title": "Выберите запасное значение по нужному правилу",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "?? заменяет только null/undefined, поэтому score остаётся 0. || заменяет любое falsy-значение, поэтому legacyScore станет 10."
+        },
+        {
+          "title": "Сравните результат",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "Получаем пустую строку, 0 и 10. Не используйте || как универсальное значение по умолчанию, если 0, false или пустая строка допустимы."
+        }
+      ]
+    },
+    {
+      "id": "nullish-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Optional chaining не исправляет все ошибки данных",
+      "text": "Если переменная вообще не объявлена, `unknownUser?.name` всё равно вызовет ReferenceError. А `response?.user.name` защищает response, но не null в user; для каждого потенциально nullish звена используйте ?. целенаправленно и валидируйте входные данные."
+    },
+    {
+      "id": "nullish-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Какой результат даст `const count = 0; count ?? 5` и чем он отличается от `count || 5`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Оба выражения вернут 5.",
+          "correct": false,
+          "feedback": "|| считает 0 falsy, а ?? заменяет только null и undefined."
+        },
+        {
+          "id": "b",
+          "text": "?? вернёт 0, а || вернёт 5.",
+          "correct": true,
+          "feedback": "Верно. Выбор зависит от того, означает ли 0 реальное значение или отсутствие."
+        },
+        {
+          "id": "c",
+          "text": "?? вернёт undefined, а || вернёт 0.",
+          "correct": false,
+          "feedback": "Операторы работают наоборот: ?? сохраняет 0."
+        },
+        {
+          "id": "d",
+          "text": "Оба выражения вызовут ошибку синтаксиса.",
+          "correct": false,
+          "feedback": "Оба оператора валидны в актуальном JavaScript; ограничения касаются смешивания ?? с &&/|| без скобок."
+        }
+      ],
+      "explanation": "Nullish coalescing предназначен для null/undefined, тогда как логическое OR использует всю таблицу falsy-значений. Их нельзя смешивать напрямую с &&/|| без явных скобок."
+    },
+    {
+      "id": "modern-syntax-practice",
+      "type": "codingExercise",
+      "title": "Нормализуйте неполный ответ API",
+      "language": "javascript",
+      "context": "Карточка профиля получает частичный ответ API. Неизвестные поля могут отсутствовать или быть null, но score=0 и пустая строка должны оставаться значениями пользователя.",
+      "instructions": [
+        "Реализуйте summarizeProfile(response), безопасно переживая null/undefined response и отсутствующий/null profile.",
+        "Используйте object destructuring для извлечения полей и array destructuring с default/rest для tags.",
+        "Примените ?? и optional chaining для theme/name/score так, чтобы score=0 сохранялся.",
+        "Верните { displayName, score, primaryTag, otherTags, theme } без мутации исходного ответа.",
+        "Проверьте пустой ответ, null profile, score 0, пустое имя и несколько тегов; объясните поведение default и ??."
+      ],
+      "requirements": [
+        "Нет ошибки при null/undefined response или profile.",
+        "Отсутствующее имя получает Guest, но пустая строка не подменяется.",
+        "Score 0 сохраняется; отсутствующий/null score получает 0.",
+        "Нет тегов даёт primaryTag general и пустой otherTags.",
+        "Array rest сохраняет теги после первого в порядке источника.",
+        "Функция не мутирует ответ и описывает разницу между default destructuring и ??."
+      ],
+      "starterCode": "function summarizeProfile(response) {\n  const { profile: rawProfile } = response ?? {};\n  const profile = rawProfile ?? {};\n  const { displayName, score, tags, preferences } = profile;\n  const [primaryTag = \"general\", ...otherTags] = tags ?? [];\n\n  return {\n    displayName: displayName ?? \"Guest\",\n    score: score ?? 0,\n    primaryTag,\n    otherTags,\n    theme: preferences?.theme ?? \"system\",\n  };\n}\n\nconsole.log(summarizeProfile({ profile: { displayName: \"\", score: 0, tags: [\"ui\", \"react\"] } }));",
+      "hints": [
+        "Fallback a nullable root object before destructuring it; a default in the binding pattern only handles undefined, not null.",
+        "Use ?? when 0 or an empty string is a valid value; use || only if every falsy value should mean missing.",
+        "Array rest belongs at the end and returns a new array of the remaining elements.",
+        "Optional-chain each nested field that may independently be nullish."
+      ],
+      "successCriteria": [
+        "Null and missing input return Guest, score 0, general tag, no remaining tags, and system theme.",
+        "Explicit empty displayName and numeric score 0 are preserved.",
+        "At least two tags become a first primaryTag and ordered otherTags.",
+        "No nested property access throws for the stated nullable shapes.",
+        "Input objects and arrays remain unchanged."
+      ]
+    },
+    {
+      "id": "modern-syntax-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Array destructuring consumes an iterable by position; holes skip, defaults replace only undefined, and rest collects the remainder.",
+        "Rest gathers values at a binding/parameter site; spread expands them at a call or literal site.",
+        "Optional chaining short-circuits null/undefined access; nullish coalescing preserves valid falsy values such as 0 and ''.",
+        "Treat external data as untrusted and choose fallback semantics deliberately."
+      ]
+    },
+    {
       "id": "summary",
       "type": "heading",
       "level": 2,
