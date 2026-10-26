@@ -1,7 +1,7 @@
 {
   "id": "react.effects-lists-composition",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "React Effects, Component Composition, and Lists",
   "description": "Understand when effects are needed, how dependencies control synchronization, why list keys matter, and how to compose a small API-driven posts list with loading and error states.",
-  "estimatedMinutes": 95,
+  "estimatedMinutes": 110,
   "difficulty": "beginner",
   "prerequisites": [
     "react.components-jsx-state",
@@ -22,7 +22,8 @@
     "Explain the dependency array and why missing dependencies can cause stale values.",
     "Compose parent and child components instead of putting all UI in one component.",
     "Render arrays with stable keys that identify items across insertions, removals, and reordering.",
-    "Build an API-driven posts list with loading, success, empty, and error states."
+    "Build an API-driven posts list with loading, success, empty, and error states.",
+    "Derive filtered and sorted list views without mutating source data."
   ],
   "tags": [
     "react",
@@ -594,6 +595,122 @@
         "Storage listener is removed using the same callback reference.",
         "Cross-tab updates are distinguished from same-tab state updates.",
         "Verification includes a repeated mount/cleanup scenario."
+      ]
+    },
+    {
+      "id": "list-pipeline-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Derive a list view: filter → sort → map"
+    },
+    {
+      "id": "list-pipeline-model",
+      "type": "paragraph",
+      "text": "Filtering, sorting and rendered list items are usually a derived view of source data, not separate state. Compute them from props/state during render to avoid synchronization bugs. `filter()` returns a new array, so sorting that result does not mutate the input; calling `products.sort()` directly would mutate props/state. An empty search string normally matches every name. If the calculation is measurably expensive, profile first and then consider `useMemo`; memoization does not replace correctness."
+    },
+    {
+      "id": "list-pipeline-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "interface Product {\n  id: string;\n  name: string;\n  category: string;\n  price: number;\n}\n\nfunction ProductList({\n  products,\n  query,\n  category,\n  sortBy,\n}: {\n  products: Product[];\n  query: string;\n  category: string;\n  sortBy: 'name' | 'price';\n}) {\n  const normalizedQuery = query.trim().toLocaleLowerCase();\n\n  const visibleProducts = products\n    .filter((product) => {\n      const matchesQuery = product.name.toLocaleLowerCase().includes(normalizedQuery);\n      const matchesCategory = category === 'all' || product.category === category;\n      return matchesQuery && matchesCategory;\n    })\n    .sort((a, b) =>\n      sortBy === 'price' ? a.price - b.price : a.name.localeCompare(b.name),\n    );\n\n  return (\n    <ul>\n      {visibleProducts.map((product) => (\n        <li key={product.id}>{product.name} — {product.price}</li>\n      ))}\n    </ul>\n  );\n}",
+      "steps": [
+        {
+          "title": "Identify the inputs",
+          "lineStart": 1,
+          "lineEnd": 18,
+          "explanation": "The list receives records and display criteria as props. Sorting has only the explicitly selected alternatives, so its behavior stays predictable."
+        },
+        {
+          "title": "Normalize the search query",
+          "lineStart": 19,
+          "lineEnd": 19,
+          "explanation": "Trim surrounding whitespace and use one casing rule. An empty query is an empty substring and therefore matches every name."
+        },
+        {
+          "title": "Filter without changing the source",
+          "lineStart": 21,
+          "lineEnd": 26,
+          "explanation": "filter creates a new array. The two checks stay independent, and `&&` keeps only records matching both the query and selected category."
+        },
+        {
+          "title": "Sort the copy and keep stable item identity",
+          "lineStart": 27,
+          "lineEnd": 29,
+          "explanation": "sort mutates the array it is called on, but here that array is the result of filter—not the original props. `product.id` preserves row identity while ordering changes."
+        },
+        {
+          "title": "Check edge cases",
+          "lineStart": 31,
+          "lineEnd": 38,
+          "explanation": "An empty query can show all categories, and no matches still produce a valid empty list. For large lists, measure render cost before introducing useMemo."
+        }
+      ]
+    },
+    {
+      "id": "list-pipeline-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why does `products.filter(...).sort(...)` leave the original products array unchanged?",
+      "options": [
+        {
+          "id": "a",
+          "text": "sort never mutates an array.",
+          "feedback": "Array.prototype.sort mutates the array it is called on and returns the same reference.",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "filter creates a new array, so the later sort mutates that result.",
+          "feedback": "filter returns a fresh array, so the mutating sort operates on the copy rather than the original props.",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "React automatically freezes all props arrays.",
+          "feedback": "Do not rely on React freezing values. Mutating props/state is still a bug even if it is hard to notice immediately.",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "sort becomes pure when used in a method chain.",
+          "feedback": "Chaining does not change a method's semantics: sort still mutates its receiver array.",
+          "correct": false
+        }
+      ],
+      "explanation": "Array.prototype.sort mutates its receiver. filter returns a new array, so the copy is sorted; calling products.sort() directly would mutate the input."
+    },
+    {
+      "id": "list-pipeline-practice",
+      "type": "codingExercise",
+      "title": "Build a derived catalog list without mutation",
+      "language": "tsx",
+      "context": "Build a product list filtered by query/category and sorted by a selected field. The source array is shared with the parent view.",
+      "instructions": [
+        "Derive the visible list from props; do not store a second filtered list in state.",
+        "Make name matching case-insensitive and trim surrounding query whitespace; an empty query should match all names.",
+        "Combine text/category filters, then sort a copy by name or price.",
+        "Render rows with a stable ID key rather than their current index.",
+        "Explain why direct products.sort() mutates props and when it is worth measuring for useMemo."
+      ],
+      "requirements": [
+        "The source array and its objects are not mutated.",
+        "Empty and whitespace-only queries behave as no name filter.",
+        "Name and category matches are combined with logical AND.",
+        "Sorting is deterministic and leaves source order unchanged.",
+        "Stable IDs are used and the empty-list case is intentional."
+      ],
+      "starterCode": "type Product = { id: string; name: string; category: string; price: number };\n\nfunction selectProducts(\n  products: Product[], query: string, category: string, sortBy: 'name' | 'price'\n): Product[] {\n  // TODO: normalize query\n  // TODO: filter into a new array\n  // TODO: sort the copy without mutating products\n}",
+      "hints": [
+        "Every string includes the empty string, so an empty normalized query matches all names.",
+        "filter returns a new array; do not replace it with the source array before calling sort.",
+        "Do not add separate display-list state when it is fully derived from current inputs."
+      ],
+      "successCriteria": [
+        "The result updates when any input changes.",
+        "The original array keeps its order and is not mutated.",
+        "Search, category filtering and sorting follow the required order.",
+        "Each rendered item uses a stable ID.",
+        "No matches produce an intentional empty state."
       ]
     },
     {

@@ -1,7 +1,7 @@
 {
   "id": "react.effects-lists-composition",
   "locale": "ru",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Эффекты React, композиция компонентов и списки",
   "description": "Разберись, когда нужен useEffect, как зависимости управляют синхронизацией, зачем спискам нужны key и как создать список постов с API, состояниями загрузки и ошибки.",
-  "estimatedMinutes": 95,
+  "estimatedMinutes": 110,
   "difficulty": "beginner",
   "prerequisites": [
     "react.components-jsx-state",
@@ -22,7 +22,8 @@
     "Объяснять массив зависимостей и почему пропущенные зависимости могут привести к устаревшим значениям.",
     "Компоновать родительские и дочерние компоненты вместо размещения всего UI в одном компоненте.",
     "Отображать массивы со стабильными key, идентифицирующими элементы при вставке, удалении и сортировке.",
-    "Создавать список постов на основе API с явными состояниями loading, success, empty и error."
+    "Создавать список постов на основе API с явными состояниями loading, success, empty и error.",
+    "Вычислять отфильтрованные и отсортированные списки без мутации исходных данных."
   ],
   "tags": [
     "react",
@@ -594,6 +595,122 @@
         "Storage listener удаляется с той же ссылкой функции.",
         "Обновление между вкладками отличено от обновления state текущей вкладки.",
         "Проверка включает повторную последовательность mount/cleanup."
+      ]
+    },
+    {
+      "id": "list-pipeline-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Вычисляй представление списка: filter → sort → map"
+    },
+    {
+      "id": "list-pipeline-model",
+      "type": "paragraph",
+      "text": "Фильтр, сортировка и JSX-элементы списка обычно являются производным представлением исходных данных, а не отдельным состоянием. Вычисляйте их из props/state во время render, чтобы избежать рассинхронизации. `filter()` создаёт новый массив, поэтому сортировка его результата не мутирует входные данные; вызов `products.sort()` напрямую мутировал бы массив props/state. Пустая строка поиска обычно совпадает со всеми названиями. Если вычисление заметно дорого, сначала измерьте его, а затем рассмотрите `useMemo`; мемоизация не заменяет корректность."
+    },
+    {
+      "id": "list-pipeline-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "interface Product {\n  id: string;\n  name: string;\n  category: string;\n  price: number;\n}\n\nfunction ProductList({\n  products,\n  query,\n  category,\n  sortBy,\n}: {\n  products: Product[];\n  query: string;\n  category: string;\n  sortBy: 'name' | 'price';\n}) {\n  const normalizedQuery = query.trim().toLocaleLowerCase();\n\n  const visibleProducts = products\n    .filter((product) => {\n      const matchesQuery = product.name.toLocaleLowerCase().includes(normalizedQuery);\n      const matchesCategory = category === 'all' || product.category === category;\n      return matchesQuery && matchesCategory;\n    })\n    .sort((a, b) =>\n      sortBy === 'price' ? a.price - b.price : a.name.localeCompare(b.name),\n    );\n\n  return (\n    <ul>\n      {visibleProducts.map((product) => (\n        <li key={product.id}>{product.name} — {product.price}</li>\n      ))}\n    </ul>\n  );\n}",
+      "steps": [
+        {
+          "title": "Определите входные данные",
+          "lineStart": 1,
+          "lineEnd": 18,
+          "explanation": "Список получает записи и критерии отображения через props. Для сортировки используются только явно выбранные варианты, поэтому поведение предсказуемо."
+        },
+        {
+          "title": "Нормализуйте запрос поиска",
+          "lineStart": 19,
+          "lineEnd": 19,
+          "explanation": "Обрезаем пробелы по краям и приводим строку к одному регистру. Пустой запрос — это пустая подстрока, которая совпадает с любым именем."
+        },
+        {
+          "title": "Отфильтруйте без изменения оригинала",
+          "lineStart": 21,
+          "lineEnd": 26,
+          "explanation": "filter создаёт новый массив. Обе проверки независимы, а `&&` оставляет только записи, соответствующие поиску и выбранной категории."
+        },
+        {
+          "title": "Сортируйте копию и используйте стабильный ключ",
+          "lineStart": 27,
+          "lineEnd": 29,
+          "explanation": "sort изменяет массив, на котором вызывается, но здесь это массив-результат filter, а не исходные props. `product.id` сохраняет идентичность строки при сортировке."
+        },
+        {
+          "title": "Проверьте граничные случаи",
+          "lineStart": 31,
+          "lineEnd": 38,
+          "explanation": "При пустом запросе видны все категории, а при пустом совпадении список остаётся валидным пустым списком. Для больших списков измерьте стоимость render прежде, чем вводить useMemo."
+        }
+      ]
+    },
+    {
+      "id": "list-pipeline-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Почему `products.filter(...).sort(...)` не изменяет исходный массив products?",
+      "options": [
+        {
+          "id": "a",
+          "text": "sort никогда не изменяет массив.",
+          "feedback": "Array.prototype.sort изменяет массив, на котором вызван, и возвращает ту же ссылку.",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "filter создаёт новый массив, поэтому последующий sort меняет этот результат.",
+          "feedback": "filter возвращает новый массив, так что изменяющая сортировка применяется к копии, а не к исходным props.",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "React автоматически замораживает все массивы props.",
+          "feedback": "Не полагайтесь на заморозку React. Мутация props/state остаётся ошибкой даже если иногда её сложно заметить.",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "sort в цепочке методов превращается в чистую функцию.",
+          "feedback": "Синтаксис цепочки не меняет семантику метода: sort всё равно мутирует массив-ресивер.",
+          "correct": false
+        }
+      ],
+      "explanation": "Array.prototype.sort изменяет получателя. filter возвращает новый массив, поэтому сортируется копия; прямой products.sort() изменил бы входные данные."
+    },
+    {
+      "id": "list-pipeline-practice",
+      "type": "codingExercise",
+      "title": "Создай вычисляемый список каталога без мутации",
+      "language": "tsx",
+      "context": "Нужно отобразить товары по поисковой строке, категории и сортировке. Исходный массив может повторно использовать родительский экран.",
+      "instructions": [
+        "Реализуй вычисляемое представление из props, не сохраняя отфильтрованный список в отдельном state.",
+        "Сделай поиск без учёта регистра и обрежь пробелы по краям; пустой запрос должен показывать все названия.",
+        "Совмести фильтрацию по строке и категории, затем отсортируй копию по имени или цене.",
+        "Рендери элементы с ключом из стабильного ID, а не с индексом позиции.",
+        "Объясни, почему прямой products.sort() мутирует props и когда имеет смысл измерить необходимость useMemo."
+      ],
+      "requirements": [
+        "Исходный массив и объекты не мутируются.",
+        "Пустой и пробельный запрос обрабатываются как отсутствие фильтра по имени.",
+        "Совпадения по имени и категории соединены логическим И.",
+        "Сортировка детерминирована и не меняет порядок исходного массива.",
+        "Используются стабильные ID и отдельный сценарий пустого списка."
+      ],
+      "starterCode": "type Product = { id: string; name: string; category: string; price: number };\n\nfunction selectProducts(\n  products: Product[], query: string, category: string, sortBy: 'name' | 'price'\n): Product[] {\n  // TODO: normalize query\n  // TODO: filter into a new array\n  // TODO: sort the copy without mutating products\n}",
+      "hints": [
+        "Пустая строка включена в любую строку через includes('').",
+        "filter возвращает новый массив; не заменяй его исходным products перед sort.",
+        "Не добавляй отдельное состояние для отображаемого списка, если оно полностью выводится из входных данных."
+      ],
+      "successCriteria": [
+        "Результат пересчитывается при изменении любого входа.",
+        "Исходный массив сохраняет порядок и не мутируется.",
+        "Поиск, категория и сортировка работают в указанном порядке.",
+        "Каждый элемент UI использует стабильный ID.",
+        "Пустое совпадение показывает осмысленное пустое состояние."
       ]
     },
     {

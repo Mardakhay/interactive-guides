@@ -318,11 +318,11 @@ describe('React effects and lists lesson translation', () => {
     expect(englishReactEffects.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianReactEffects.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
     expect(russianReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
-    expect(englishReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(englishReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
     expect(russianReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
-    expect(englishReactEffects.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(englishReactEffects.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
     expect(russianReactEffects.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
     expect(englishReactEffects.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
@@ -330,8 +330,31 @@ describe('React effects and lists lesson translation', () => {
         'effect-storage-walkthrough',
         'effect-cleanup-check',
         'effect-external-practice',
+        'list-pipeline-heading', 'list-pipeline-model', 'list-pipeline-walkthrough', 'list-pipeline-check', 'list-pipeline-practice',
       ]),
     );
+    const pipeline = englishReactEffects.blocks.find((block) => block.id === 'list-pipeline-walkthrough');
+    expect(pipeline?.type).toBe('codeWalkthrough');
+    if (pipeline?.type === 'codeWalkthrough') {
+      expect(pipeline.code).toContain('.filter(');
+      expect(pipeline.code).toContain('.sort(');
+      expect(pipeline.code).toContain('key={product.id}');
+      expect(pipeline.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= pipeline.code.split('\n').length)).toBe(true);
+    }
+    const pipelineQuiz = englishReactEffects.blocks.find((block) => block.id === 'list-pipeline-check');
+    expect(pipelineQuiz?.type).toBe('knowledgeCheck');
+    if (pipelineQuiz?.type === 'knowledgeCheck') {
+      expect(pipelineQuiz.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(pipelineQuiz.options.every((option) => option.feedback.trim().length > 0)).toBe(true);
+      expect(pipelineQuiz.explanation.trim().length).toBeGreaterThan(0);
+    }
+    const pipelinePractice = englishReactEffects.blocks.find((block) => block.id === 'list-pipeline-practice');
+    expect(pipelinePractice?.type).toBe('codingExercise');
+    if (pipelinePractice?.type === 'codingExercise') {
+      expect(pipelinePractice.requirements.length).toBeGreaterThanOrEqual(5);
+      expect(pipelinePractice.hints.length).toBeGreaterThanOrEqual(3);
+      expect(pipelinePractice.successCriteria.length).toBeGreaterThanOrEqual(5);
+    }
     const externalPractice = englishReactEffects.blocks.find(
       (block) => block.id === 'effect-external-practice',
     );
