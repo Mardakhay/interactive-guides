@@ -243,3 +243,11 @@ Completed a full-content and interaction review of `public/lessons/js-memory-mas
 - Covered in existing embedded EN/RU lessons: `react.components-jsx-state` (state snapshot, updater queue, immutable arrays/objects, controlled inputs, deeper state exercise), `react.forms-validation` (controlled/uncontrolled inputs, multi-field forms, validation, debugging exercises and 10 checks), and `typescript.fundamentals` (inference and generic state types).
 - Status is strong concept coverage but partial interaction parity: the legacy remote AI code reviewer is deliberately not reproduced. The source matrix records the lesson block evidence and inaccurate legacy simplifications.
 - Total HTML full reads: 8/25. Remaining 17 require full content/interaction review before the HTML cutover gate can close.
+
+
+## Full-content review checkpoint — 2026-10-26
+
+- Fully reviewed HTML source 9/25: `public/lessons/internet-fundamentals.html` (45,620 bytes), including the DNS accordion, expandable HTTP sequence, sidebar, all prose and browser/hosting/network diagrams.
+- HTTP/3 and TLS references were checked against IETF RFC 9114, RFC 9110, and the July 2026 TLS 1.3 revision RFC 9846 (which supersedes RFC 8446). Corrected the RU/EN reference metadata to current standards.
+- Added bilingual resource-capacity and hosting-model coverage plus a scenario-based exercise to `deployment.production-hosting`. HTTP/3, DNS, rendering and security coverage mapped to their existing lessons. The source's universal TCP+TLS and per-tab process claims are not transferred.
+- 9/25 HTML full reads; 16 remaining.

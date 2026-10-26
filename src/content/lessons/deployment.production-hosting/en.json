@@ -1,7 +1,7 @@
 {
   "id": "deployment.production-hosting",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Production Hosting: Build, Environment, Deep Links, and Rollback",
   "description": "Prepare a Vite SPA for production and verify routing, configuration, and recovery in a deployed preview.",
-  "estimatedMinutes": 105,
+  "estimatedMinutes": 75,
   "difficulty": "intermediate",
   "prerequisites": [
     "tooling.node-npm-vite",
@@ -22,7 +22,8 @@
     "Separate public browser configuration from server secrets.",
     "Resolve Vite mode-specific env values without committing local secrets.",
     "Verify direct-route refresh and provider-specific SPA fallback.",
-    "Plan preview, smoke tests, monitoring and rollback."
+    "Plan preview, smoke tests, monitoring and rollback.",
+    "Compare hosting models and relate CPU, memory, storage/I/O, and bandwidth to the component that consumes them."
   ],
   "tags": [
     "deployment",
@@ -240,6 +241,95 @@
       "id": "deploy-hosting-detail",
       "type": "paragraph",
       "text": "A Git-connected host typically installs dependencies, runs the configured build, publishes dist, and creates preview deploys for branches or pull requests. A manual upload can be useful for a quick experiment, but it does not rebuild on later commits. Vercel and Netlify can both host a Vite SPA; verify the actual build command, output directory, environment scope (preview versus production), and rewrite behavior in current project settings. A common Netlify SPA rule is `/* /index.html 200` in public/_redirects. Scope and test fallbacks so API endpoints and missing asset paths are not accidentally served as the app HTML. Follow current provider docs instead of copying old dashboard screenshots."
+    },
+    {
+      "id": "deploy-resource-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Hosting capacity: what the resource labels mean"
+    },
+    {
+      "id": "deploy-resource-model",
+      "type": "paragraph",
+      "text": "CPU capacity limits how much server-side work can run concurrently; RAM limits the active working set and processes; storage capacity and I/O affect retained files and databases; bandwidth describes data-transfer capacity and often has separate egress limits or costs. These resources interact: more CPU does not fix slow database I/O, and more bandwidth does not fix a CPU-bound request. A static SPA served from a CDN does not need an always-running application server just to deliver its built files, though its API, database, build system, and optional edge functions still have resource and availability limits."
+    },
+    {
+      "id": "deploy-hosting-models",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Shared hosting: several customers share a managed server; it is simple and can be economical, but control and isolation/resource guarantees are limited.",
+        "VPS: a virtual server offers more configuration control and an allocated environment, but the operator still owns more patching, monitoring, backups, and capacity planning.",
+        "Dedicated server: one customer controls the physical server; it can suit specialized or consistently heavy workloads, but costs and operational responsibility are higher and scaling is often less elastic.",
+        "Cloud/platform hosting: managed services can provision, distribute, or scale resources on demand, but the product name alone guarantees neither performance nor availability; quotas, regions, cold starts, pricing, vendor constraints, and architecture matter.",
+        "Choose from workload evidence and service requirements—traffic patterns, latency, persistence, recovery, security/compliance, team skills, budget, and expected operations—not a universal performance ranking."
+      ]
+    },
+    {
+      "id": "deploy-hosting-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You deploy a Vite single-page application as static files to a CDN. Which hosting assumption is most accurate?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The application needs a dedicated server process and RAM just to return each built HTML/CSS/JS file.",
+          "correct": false,
+          "feedback": "A static host or CDN can serve the built files without running an application process for every request."
+        },
+        {
+          "id": "b",
+          "text": "The static files can be served without an always-running app server, but APIs, databases, build jobs, and edge functions have their own limits.",
+          "correct": true,
+          "feedback": "Separate the static delivery path from dynamic services. Each service has different resources, quotas, availability, and operational concerns."
+        },
+        {
+          "id": "c",
+          "text": "A cloud host guarantees unlimited bandwidth and zero downtime.",
+          "correct": false,
+          "feedback": "Cloud is a broad hosting model, not an automatic service-level guarantee. Inspect the actual product limits and reliability commitments."
+        },
+        {
+          "id": "d",
+          "text": "More bandwidth fixes a slow database query.",
+          "correct": false,
+          "feedback": "Database latency or compute can be the bottleneck even when network transfer capacity is available."
+        }
+      ],
+      "explanation": "Map each request to the service that handles it, then investigate that service's actual capacity and limits."
+    },
+    {
+      "id": "deploy-hosting-practice",
+      "type": "codingExercise",
+      "title": "Choose a hosting model from workload evidence",
+      "language": "text",
+      "context": "A learning SPA serves versioned static assets from a CDN, calls an authenticated API, stores progress in a managed database, and has uneven traffic during course launches. Choose a plausible hosting arrangement and explain the boundaries rather than naming one provider as universally best.",
+      "instructions": [
+        "Draw the request path for static assets, API/authentication, database reads/writes, and the production build.",
+        "Choose which components should be static/CDN-hosted, managed platform services, or self-managed; compare one credible alternative such as a VPS.",
+        "For each component, identify the relevant CPU, RAM, storage/I/O, bandwidth/egress, concurrency, or quota constraints.",
+        "Describe one traffic-spike failure mode and the metric/log you would inspect before scaling.",
+        "State the trade-off your choice makes in control, operational work, cost predictability, and recovery."
+      ],
+      "requirements": [
+        "Static asset delivery is distinguished from server-side API execution.",
+        "The database is treated as a separate stateful service with backup/recovery needs.",
+        "At least two resource constraints are tied to the correct component and observable evidence.",
+        "The alternative model includes a concrete trade-off rather than a blanket ranking.",
+        "The answer names an operational failure mode and a metric to investigate."
+      ],
+      "starterCode": "Workload: static React/Vite SPA + authenticated progress API + managed database\\nTraffic: quiet most days; 8x launch-week peak\\nTeam: two developers; no dedicated operations engineer\\n\\nArchitecture choice:\\n- Static delivery:\\n- API/auth boundary:\\n- Database and backups:\\n- Build/release process:\\n\\nCapacity signals to monitor:\\n-\\n-\\n\\nAlternative considered and trade-off:\\n\\nFailure mode + first diagnostic evidence:\\n",
+      "hints": [
+        "Hosting is a responsibility boundary: which service runs code, stores durable data, and serves cached bytes?",
+        "A CDN can reduce origin work for cacheable assets but does not make dynamic API or database requests disappear.",
+        "Do not assume a cloud service scales every dimension automatically; check its plan limits, region, concurrency, and egress policy."
+      ],
+      "successCriteria": [
+        "The diagram separates static delivery, API logic, database and build infrastructure.",
+        "The proposed capacity signals match the bottleneck being discussed.",
+        "The alternative is evaluated on both control and operations.",
+        "The response explains recovery and scaling limits rather than claiming unlimited cloud capacity."
+      ]
     },
     {
       "id": "deploy-debug-callout",

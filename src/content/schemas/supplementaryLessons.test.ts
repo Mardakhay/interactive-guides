@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import englishNetwork from '../lessons/network.dns-tcp-tls/en.json';
+import russianNetwork from '../lessons/network.dns-tcp-tls/ru.json';
+
 import englishRuntime from '../lessons/js.runtime-memory/en.json';
 import russianRuntime from '../lessons/js.runtime-memory/ru.json';
 import englishPrototypes from '../lessons/js.object-prototypes/en.json';
@@ -212,4 +215,35 @@ describe('class semantics and shared prototype methods', () => {
     }
   });
 
+describe('hosting capacity and model trade-offs', () => {
+  it('validates bilingual hosting evidence and useful practice criteria', () => {
+    expect(lessonTranslationSchema.safeParse(englishDeployment).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianDeployment).success).toBe(true);
+    expect(englishDeployment.blocks.map(({ id, type }) => [id, type])).toEqual(
+      russianDeployment.blocks.map(({ id, type }) => [id, type]),
+    );
+    for (const lesson of [englishDeployment, russianDeployment]) {
+      const check = lesson.blocks.find((block) => block.id === 'deploy-hosting-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type === 'knowledgeCheck') {
+        expect(check.options.filter((option) => option.correct)).toHaveLength(1);
+        expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      }
+      const models = lesson.blocks.find((block) => block.id === 'deploy-hosting-models');
+      expect(models?.type).toBe('list');
+      if (models?.type === 'list') expect(models.items).toHaveLength(5);
+      const exercise = lesson.blocks.find((block) => block.id === 'deploy-hosting-practice');
+      expect(exercise?.type).toBe('codingExercise');
+      if (exercise?.type !== 'codingExercise') return;
+      expect(exercise.requirements).toHaveLength(5);
+      expect(exercise.hints).toHaveLength(3);
+      expect(exercise.successCriteria).toHaveLength(4);
+      expect(exercise.starterCode).toContain('database');
+    }
+    for (const lesson of [englishNetwork, russianNetwork]) {
+      const refs = lesson.blocks.find((block) => block.type === 'references');
+      expect(refs?.type === 'references' && refs.items.some((item) => item.url.includes('rfc9846'))).toBe(true);
+    }
+  });
 });
+
