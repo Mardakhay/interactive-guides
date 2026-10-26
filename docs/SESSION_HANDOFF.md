@@ -382,3 +382,11 @@ Code SHA `6a45a6a1b59d3fec621ca97f0648ef63cf714476` adds EN/RU invocation and st
 ## Latest handoff — 2026-10-26
 
 Code SHA `eeed651f275a5307f8d726d1a08d0b4590ea1916` adds bilingual `browser.realtime-workers` and registers a new track. CI run 40283883424 is underway; inspect this exact SHA's logs and repair any failure. Content inventory is 42 pairs. Full source/depth gate remains; preserve legacy learner routes until JSON cutover is validated, then begin Supabase.
+
+
+## Continuation checkpoint — 2026-10-26
+
+- Continue only on feat/learning-platform-foundation. Pre-change HEAD: fc12acd76737357d36d2955337840de9b8130b37; CI run 40283990073 passed on that SHA.
+- Added browser.capability-apis in both locales and registered it in the repository and supplementary-browser curriculum. Source row and evidence IDs are recorded in FULL_SOURCE_CONTENT_AUDIT.md.
+- New catalog total: 43 EN/RU lesson pairs (26 core + 17 supplementary). Content/source parity remains incomplete: 21 Notion fetches report unverified; 25 HTML lesson files have not all received full line-by-line parity review.
+- Keep HTML learner routes/files until JSON content is reviewed and cutover is verified. Supabase follows that gate; no Supabase changes in this checkpoint.

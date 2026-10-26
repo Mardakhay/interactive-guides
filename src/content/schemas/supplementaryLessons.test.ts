@@ -3,6 +3,8 @@ import englishRuntime from '../lessons/js.runtime-memory/en.json';
 import russianRuntime from '../lessons/js.runtime-memory/ru.json';
 import englishPrototypes from '../lessons/js.object-prototypes/en.json';
 import russianPrototypes from '../lessons/js.object-prototypes/ru.json';
+import englishCapabilities from '../lessons/browser.capability-apis/en.json';
+import russianCapabilities from '../lessons/browser.capability-apis/ru.json';
 import englishAuth from '../lessons/frontend.auth-security/en.json';
 import russianAuth from '../lessons/frontend.auth-security/ru.json';
 import englishDeployment from '../lessons/deployment.production-hosting/en.json';
@@ -33,6 +35,7 @@ const lessonPairs = [
   [englishUiLibraries, russianUiLibraries],
   [englishArchitecture, russianArchitecture],
   [englishAdvancedTooling, russianAdvancedTooling],
+  [englishCapabilities, russianCapabilities],
 ] as const;
 
 describe('supplementary source-derived lessons', () => {
@@ -57,6 +60,28 @@ describe('supplementary source-derived lessons', () => {
       expect(getSupplementaryTrackForLesson(english.id, 'en')?.id).toBe(english.supplementaryTrackId);
       expect(getSupplementaryTrackForLesson(russian.id, 'ru')?.id).toBe(russian.supplementaryTrackId);
     }
+  });
+
+  it('validates browser capability lesson depth and runtime safeguards', () => {
+    for (const lesson of [englishCapabilities, russianCapabilities]) expect(lessonTranslationSchema.safeParse(lesson).success, lesson.locale).toBe(true);
+    expect(englishCapabilities.blocks.map(({ id, type }) => [id, type])).toEqual(russianCapabilities.blocks.map(({ id, type }) => [id, type]));
+    const walks = englishCapabilities.blocks.filter((block) => block.type === 'codeWalkthrough');
+    expect(walks.length).toBeGreaterThanOrEqual(4);
+    for (const walk of walks) if (walk.type === 'codeWalkthrough') {
+      const lineCount = walk.code.split('\n').length;
+      expect(walk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+    }
+    const geo = englishCapabilities.blocks.find((block) => block.id === 'geolocation-walkthrough');
+    expect(geo?.type === 'codeWalkthrough' && geo.code).toContain('clearWatch');
+    const visibility = englishCapabilities.blocks.find((block) => block.id === 'visibility-example');
+    expect(visibility?.type === 'codeWalkthrough' && visibility.code).toContain('removeEventListener("visibilitychange", onVisibilityChange)');
+    const exercise = englishCapabilities.blocks.find((block) => block.id === 'capabilities-practice');
+    expect(exercise?.type).toBe('codingExercise');
+    if (exercise?.type !== 'codingExercise') return;
+    expect(exercise.requirements.length).toBeGreaterThanOrEqual(4);
+    expect(exercise.hints.length).toBeGreaterThanOrEqual(4);
+    expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
+    expect(exercise.starterCode).toContain('#use-location');
   });
 
   it('keeps EN/RU curriculum tracks consistent and points to registered lesson IDs', () => {

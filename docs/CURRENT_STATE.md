@@ -334,3 +334,8 @@ Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passe
 ## Latest content checkpoint — 2026-10-26
 
 Catalog now has 42 EN/RU pairs (26 core + 16 supplementary), including new `browser.realtime-workers` in `supplement-browser-platform`. Its four walkthroughs, two quizzes and worker exercise are source-mapped; parity remains partial. Code SHA `eeed651f275a5307f8d726d1a08d0b4590ea1916` is under CI at https://github.com/Mardakhay/interactive-guides/actions/runs/40283883424. Legacy HTML routes remain; Supabase has not started.
+
+
+## Capability APIs and current HEAD checkpoint — 2026-10-26
+
+Added browser.capability-apis as the 17th supplementary bilingual pair in supplement-browser-platform. It contains four walkthroughs, two explained checks and an applied task. A regression test checks pair alignment, valid ranges, geolocation/listener cleanup and exercise criteria. Full-source parity is still open, as are the JSON learner-route cutover and Supabase phase. The parent SHA fc12acd76737357d36d2955337840de9b8130b37 passed CI; this new content requires a fresh exact-HEAD run.

@@ -136,3 +136,8 @@ Expanded `js.object-prototypes` from 19 to 31 blocks in EN and RU, adding call/a
 ## Browser networking content — 2026-10-26
 
 The Advanced JS source now maps to registered `browser.realtime-workers`: transport/status errors, socket lifecycle and message validation, worker messaging/clone cost, service-worker install/fetch/scope, cleanup and applied work. Content and source-specific gaps are listed in the full audit. Inventory: 42 EN/RU pairs; JSON cutover and Supabase remain pending.
+
+
+## Browser capability API checkpoint — 2026-10-26
+
+Added the bilingual browser.capability-apis lesson to supplement-browser-platform. It covers geolocation, clipboard, notifications, battery API limits, ResizeObserver feedback and Page Visibility cleanup. The full source audit records block-level evidence. Catalog count is now 43 EN/RU pairs (26 core + 17 supplementary). This does not close Notion-wide parity or detailed review of every HTML source. Legacy learner routes and source files remain; no cutover/deletion or Supabase implementation has occurred.

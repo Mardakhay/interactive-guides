@@ -335,3 +335,8 @@ Extended the existing object/prototype supplement for function receiver invocati
 ## Content checkpoint — 2026-10-26
 
 Registered `browser.realtime-workers` for the Notion XHR/WebSocket/worker material. Complete its remaining source details and the rest of all source rows before the JSON learner-flow cutover; only afterward implement Supabase progress. No Supabase integration has started. Total inventory is 42 bilingual pairs.
+
+
+## Browser capability API checkpoint — 2026-10-26
+
+Added the bilingual browser.capability-apis lesson to supplement-browser-platform. It covers geolocation, clipboard, notifications, battery API limits, ResizeObserver feedback and Page Visibility cleanup. The full source audit records block-level evidence. Catalog count is now 43 EN/RU pairs (26 core + 17 supplementary). This does not close Notion-wide parity or detailed review of every HTML source. Legacy learner routes and source files remain; no cutover/deletion or Supabase implementation has occurred.

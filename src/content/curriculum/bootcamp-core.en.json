@@ -646,16 +646,17 @@
     },
     {
       "id": "supplement-browser-platform",
-      "title": "Browser Networking and Workers",
+      "title": "Browser Networking and Platform Capabilities",
       "topics": [
-        "XHR and modern HTTP request boundaries",
-        "WebSocket lifecycle and message protocol",
-        "Worker messaging and structured clone",
-        "Service Worker scope and event-driven caching"
+        "XHR, WebSocket, and worker lifecycles",
+        "Geolocation, clipboard, and notification permissions",
+        "ResizeObserver and Page Visibility",
+        "Progressive enhancement, capability fallbacks, and cleanup"
       ],
-      "note": "Supplementary networking and concurrency APIs beyond the bootcamp core.",
+      "note": "Supplementary browser APIs beyond the bootcamp core; sensitive capabilities require contextual consent and graceful fallbacks.",
       "lessonIds": [
-        "browser.realtime-workers"
+        "browser.realtime-workers",
+        "browser.capability-apis"
       ]
     }
   ]

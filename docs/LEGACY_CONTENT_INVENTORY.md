@@ -165,3 +165,8 @@ The existing `js.object-prototypes` supplement now has explicit examples for cal
 ## 2026-10-26 networking/worker checkpoint
 
 Added registered bilingual `browser.realtime-workers` in `supplement-browser-platform`. It differentiates XHR/Fetch, WebSocket, dedicated Worker and Service Worker with four code traces, two explained quizzes and a worker sorting exercise. Source depth is partial: upload progress, XHR states, explicit reconnect and full service-worker cache/version strategies remain. Catalog now has 42 pairs (26 core, 16 supplements); learner HTML remains active.
+
+
+## Browser capability API checkpoint — 2026-10-26
+
+Added the bilingual browser.capability-apis lesson to supplement-browser-platform. It covers geolocation, clipboard, notifications, battery API limits, ResizeObserver feedback and Page Visibility cleanup. The full source audit records block-level evidence. Catalog count is now 43 EN/RU pairs (26 core + 17 supplementary). This does not close Notion-wide parity or detailed review of every HTML source. Legacy learner routes and source files remain; no cutover/deletion or Supabase implementation has occurred.

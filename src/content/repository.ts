@@ -68,6 +68,8 @@ import englishStorage from './lessons/browser.storage-indexeddb/en.json';
 import russianStorage from './lessons/browser.storage-indexeddb/ru.json';
 import englishRealtime from './lessons/browser.realtime-workers/en.json';
 import russianRealtime from './lessons/browser.realtime-workers/ru.json';
+import englishCapabilities from './lessons/browser.capability-apis/en.json';
+import russianCapabilities from './lessons/browser.capability-apis/ru.json';
 import englishAuth from './lessons/frontend.auth-security/en.json';
 import russianAuth from './lessons/frontend.auth-security/ru.json';
 import englishDeployment from './lessons/deployment.production-hosting/en.json';
@@ -161,6 +163,8 @@ const lessonTranslations = [
   lessonTranslationSchema.parse(russianStorage),
   lessonTranslationSchema.parse(englishRealtime),
   lessonTranslationSchema.parse(russianRealtime),
+  lessonTranslationSchema.parse(englishCapabilities),
+  lessonTranslationSchema.parse(russianCapabilities),
   lessonTranslationSchema.parse(englishAuth),
   lessonTranslationSchema.parse(russianAuth),
   lessonTranslationSchema.parse(englishDeployment),

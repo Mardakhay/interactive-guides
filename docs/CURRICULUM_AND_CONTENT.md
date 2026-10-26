@@ -220,3 +220,8 @@ The core lesson `js.functions-arrays-objects` now includes bilingual examples of
 ## Browser platform supplement — 2026-10-26
 
 Both curricula register `supplement-browser-platform` with bilingual `browser.realtime-workers`. The lesson retains source/API distinctions and practical cleanup work. Inventory: 26 core + 16 supplementary = 42 bilingual pairs. It is an educational supplement; it is not the app's progress persistence implementation.
+
+
+## Browser capability API checkpoint — 2026-10-26
+
+Added the bilingual browser.capability-apis lesson to supplement-browser-platform. It covers geolocation, clipboard, notifications, battery API limits, ResizeObserver feedback and Page Visibility cleanup. The full source audit records block-level evidence. Catalog count is now 43 EN/RU pairs (26 core + 17 supplementary). This does not close Notion-wide parity or detailed review of every HTML source. Legacy learner routes and source files remain; no cutover/deletion or Supabase implementation has occurred.

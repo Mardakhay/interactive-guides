@@ -646,16 +646,17 @@
     },
     {
       "id": "supplement-browser-platform",
-      "title": "Сетевые API и workers браузера",
+      "title": "Сетевые API и возможности платформы браузера",
       "topics": [
-        "XHR and modern HTTP request boundaries",
-        "WebSocket lifecycle and message protocol",
-        "Worker messaging and structured clone",
-        "Service Worker scope and event-driven caching"
+        "Жизненный цикл XHR, WebSocket и workers",
+        "Разрешения Geolocation, Clipboard и Notifications",
+        "ResizeObserver и Page Visibility",
+        "Progressive enhancement, запасные сценарии и очистка"
       ],
-      "note": "Дополнительная программа по сетевым и параллельным API браузера.",
+      "note": "Дополнительные API браузера за пределами ядра программы; чувствительные возможности требуют осознанного согласия и запасных сценариев.",
       "lessonIds": [
-        "browser.realtime-workers"
+        "browser.realtime-workers",
+        "browser.capability-apis"
       ]
     }
   ]

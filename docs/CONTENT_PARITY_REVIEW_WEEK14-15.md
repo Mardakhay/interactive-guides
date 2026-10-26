@@ -112,3 +112,8 @@ The broader Advanced JS pass added explicit function receiver/call/apply/bind an
 ## Broader content progress — 2026-10-26
 
 The broader JavaScript/browser pass now includes a source-mapped bilingual networking/workers lesson. It remains partial against Advanced JS; see `FULL_SOURCE_CONTENT_AUDIT.md`. This does not change Week 14–15 scope or close the all-source gate.
+
+
+## Browser capability API checkpoint — 2026-10-26
+
+Added the bilingual browser.capability-apis lesson to supplement-browser-platform. It covers geolocation, clipboard, notifications, battery API limits, ResizeObserver feedback and Page Visibility cleanup. The full source audit records block-level evidence. Catalog count is now 43 EN/RU pairs (26 core + 17 supplementary). This does not close Notion-wide parity or detailed review of every HTML source. Legacy learner routes and source files remain; no cutover/deletion or Supabase implementation has occurred.
