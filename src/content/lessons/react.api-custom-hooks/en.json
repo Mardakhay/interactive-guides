@@ -1,16 +1,16 @@
 {
   "id": "react.api-custom-hooks",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-4-week-16",
   "week": 16,
   "order": 1,
   "title": "API Layers, Custom Hooks, and Reliable Data Loading",
   "description": "Separate HTTP concerns from UI, encapsulate reusable request state in custom hooks, handle concurrent API calls and failures, and reason about safe retry strategies.",
-  "estimatedMinutes": 100,
+  "estimatedMinutes": 95,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.effects-lists-composition",
@@ -442,6 +442,110 @@
         "An empty array renders an intentional empty state.",
         "Validation at the network boundary is explicit.",
         "Retry behavior has a safety and failure-classification rule."
+      ]
+    },
+    {
+      "id": "api-fetch-axios-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Fetch, Axios, and the service boundary"
+    },
+    {
+      "id": "api-fetch-axios-body",
+      "type": "paragraph",
+      "text": "Fetch is built into browsers and does not reject its Promise for an HTTP 404/500; inspect response.ok/status before parsing. Axios typically rejects non-2xx responses and offers request/response interceptors, but adds a dependency and its exact APIs follow the installed version. An interceptor can centralize cross-cutting behavior, yet hidden global mutation/retry logic makes requests harder to reason about. Keep the service contract explicit. This project does not depend on Axios, so examples should not require it."
+    },
+    {
+      "id": "api-fetch-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "async function requestJson(url, { signal } = {}) {\n  const response = await fetch(url, {\n    signal,\n    headers: { Accept: 'application/json' }\n  });\n\n  if (!response.ok) {\n    throw new Error(`HTTP ${response.status}`);\n  }\n\n  return response.json();\n}\n\n// Example for a JSON endpoint with a response body:\nconst users = await requestJson('/api/users', { signal });",
+      "steps": [
+        {
+          "title": "Keep cancellation explicit",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Passing AbortSignal lets the caller cancel obsolete work, such as a request for an unmounted view or superseded search."
+        },
+        {
+          "title": "Separate transport failure from HTTP failure",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "Fetch rejects for network/abort problems, not merely because the server returned 404/500. The service checks ok and turns an unsuccessful status into a rejected operation."
+        },
+        {
+          "title": "Parse only when the endpoint promises JSON",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "explanation": "This helper is for JSON responses that have a body. Handle 204 No Content or non-JSON endpoints with a different parser/return contract; JSON.parse failure is a distinct response-format error."
+        }
+      ]
+    },
+    {
+      "id": "api-fetch-status-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "`await fetch('/api/users')` resolves with status 404. What is normally true before you check response.ok?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The Fetch Promise rejects automatically for every non-2xx status",
+          "correct": false,
+          "feedback": "Fetch normally resolves with a Response for HTTP errors; network failures and aborts reject."
+        },
+        {
+          "id": "b",
+          "text": "The Promise resolved with a Response, so service code must inspect status/ok",
+          "correct": true,
+          "feedback": "A fulfilled fetch does not mean the HTTP operation succeeded. Check response.ok/status before treating the body as success."
+        },
+        {
+          "id": "c",
+          "text": "The browser silently changes the status to 200",
+          "correct": false,
+          "feedback": "The response retains the server's HTTP status."
+        },
+        {
+          "id": "d",
+          "text": "response.json() changes 404 into a network rejection",
+          "correct": false,
+          "feedback": "Body parsing is separate from status handling and may itself fail if the body is absent or invalid JSON."
+        }
+      ],
+      "explanation": "Keep transport errors, HTTP status errors, and response parsing errors distinguishable in the service/API policy."
+    },
+    {
+      "id": "api-client-choice-practice",
+      "type": "codingExercise",
+      "title": "Choose and test an API client policy",
+      "language": "javascript",
+      "context": "A project has a shared service module and is considering whether to keep native Fetch or add Axios for interceptors and request conveniences.",
+      "instructions": [
+        "Document the project’s current client and confirm whether Axios is actually installed before copying Axios snippets.",
+        "Implement or review a service that passes AbortSignal, checks HTTP status, parses the expected body, and distinguishes network, HTTP, and parse failures.",
+        "Explain how cross-cutting headers or logging would be composed in a Fetch wrapper and what an Axios interceptor would centralize.",
+        "Add cases for 200 JSON, 204 empty response, 404 response, invalid JSON, network failure and abort.",
+        "Make retries explicit, bounded and safe for the operation rather than placing blanket retries in a global interceptor."
+      ],
+      "requirements": [
+        "Client choice is based on installed dependencies and application needs.",
+        "HTTP non-success, transport/abort and parse failures are not conflated.",
+        "Endpoint response contracts include whether a body is expected.",
+        "Cross-cutting behavior has a clear owner and does not silently mutate unrelated requests.",
+        "Test cases cover success and each distinct failure class."
+      ],
+      "starterCode": "// Current project uses browser Fetch unless a dependency decision says otherwise.\nasync function getUser(id, { signal } = {}) {\n  // TODO: request /api/users/:id\n  // TODO: pass signal and Accept header\n  // TODO: check response.ok before parsing\n  // TODO: handle endpoints with no response body separately\n}\n\n// Policy questions:\n// - What belongs in a shared request wrapper?\n// - Which failures may be retried safely?",
+      "hints": [
+        "Fetch fulfills for HTTP 404/500; the Response still needs a status check.",
+        "AbortError should not be presented as an ordinary server failure if cancellation was intentional.",
+        "Axios interceptors are optional; a small explicit wrapper may be easier to follow for a small app.",
+        "Do not parse JSON for a 204 response with no body."
+      ],
+      "successCriteria": [
+        "Correctly handles success, HTTP error, network error, invalid body and abort.",
+        "Does not require an uninstalled client library.",
+        "Documents body/no-body endpoint contracts.",
+        "Uses bounded retry only where operation semantics make repetition safe."
       ]
     },
     {

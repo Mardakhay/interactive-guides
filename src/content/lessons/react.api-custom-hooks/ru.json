@@ -1,16 +1,16 @@
 {
   "id": "react.api-custom-hooks",
   "locale": "ru",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-4-week-16",
   "week": 16,
   "order": 1,
   "title": "API-слой, custom hooks и надёжная загрузка данных",
   "description": "Отдели HTTP-логику от UI, инкапсулируй повторно используемое состояние запроса в custom hooks, обрабатывай несколько API-вызовов и ошибки, а также выбирай безопасные retry-стратегии.",
-  "estimatedMinutes": 100,
+  "estimatedMinutes": 95,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.effects-lists-composition",
@@ -442,6 +442,110 @@
         "Пустой массив отображается как осмысленный empty state.",
         "Проверка внешних данных на границе запроса явная.",
         "Правила повторов учитывают тип ошибки и безопасность операции."
+      ]
+    },
+    {
+      "id": "api-fetch-axios-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Fetch, Axios и граница service-модуля"
+    },
+    {
+      "id": "api-fetch-axios-body",
+      "type": "paragraph",
+      "text": "Fetch встроен в браузеры и не отклоняет Promise только из-за HTTP 404/500: перед разбором тела нужно проверить response.ok/status. Axios обычно отклоняет Promise для не-2xx и предоставляет request/response interceptors, но добавляет зависимость, а его API зависит от установленной версии. Interceptor может централизовать сквозное поведение, однако скрытая глобальная мутация/повтор делает запросы сложнее для понимания. Контракт service-модуля должен оставаться явным. В этом проекте Axios не установлен, поэтому примеры не должны от него зависеть."
+    },
+    {
+      "id": "api-fetch-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "async function requestJson(url, { signal } = {}) {\n  const response = await fetch(url, {\n    signal,\n    headers: { Accept: 'application/json' }\n  });\n\n  if (!response.ok) {\n    throw new Error(`HTTP ${response.status}`);\n  }\n\n  return response.json();\n}\n\n// Пример для JSON endpoint с телом ответа:\nconst users = await requestJson('/api/users', { signal });",
+      "steps": [
+        {
+          "title": "Передавайте отмену явно",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "AbortSignal позволяет вызывающей стороне отменить устаревшую работу, например запрос для удалённого view или предыдущего search."
+        },
+        {
+          "title": "Разделяйте транспортную и HTTP-ошибки",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "Fetch отклоняет Promise при сетевой проблеме или abort, но не просто потому, что сервер ответил 404/500. Service проверяет ok и превращает неуспешный статус в отклонённую операцию."
+        },
+        {
+          "title": "Разбирайте JSON только когда endpoint его обещает",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "explanation": "Helper рассчитан на JSON-ответ с телом. Для 204 No Content и не-JSON endpoint задайте другой parser/return contract; ошибка JSON.parse — отдельная ошибка формата ответа."
+        }
+      ]
+    },
+    {
+      "id": "api-fetch-status-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "`await fetch('/api/users')` выполняется со статусом 404. Что обычно верно до проверки response.ok?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Fetch Promise автоматически отклоняется для любого не-2xx статуса",
+          "correct": false,
+          "feedback": "Обычно fetch возвращает Response и для HTTP-ошибок; сетевые ошибки и отмена отклоняют Promise."
+        },
+        {
+          "id": "b",
+          "text": "Promise вернул Response, поэтому service должен проверить status/ok",
+          "correct": true,
+          "feedback": "Успешно выполненный fetch не означает успешную HTTP-операцию. Проверьте response.ok/status до обработки тела как результата."
+        },
+        {
+          "id": "c",
+          "text": "Браузер незаметно меняет статус на 200",
+          "correct": false,
+          "feedback": "Response сохраняет HTTP-статус сервера."
+        },
+        {
+          "id": "d",
+          "text": "response.json() превращает 404 в сетевую ошибку",
+          "correct": false,
+          "feedback": "Разбор тела отделён от проверки статуса и сам может завершиться ошибкой при пустом теле или неверном JSON."
+        }
+      ],
+      "explanation": "Разделяйте сетевые ошибки, HTTP-статусы и ошибки разбора тела в политике API/service."
+    },
+    {
+      "id": "api-client-choice-practice",
+      "type": "codingExercise",
+      "title": "Выберите и проверьте политику API-клиента",
+      "language": "javascript",
+      "context": "В проекте есть общий service-модуль; команда решает, оставить Fetch или добавить Axios ради interceptors и удобства запросов.",
+      "instructions": [
+        "Запишите текущий клиент проекта и убедитесь, установлен ли Axios, прежде чем копировать его примеры.",
+        "Реализуйте или проверьте service с AbortSignal, проверкой HTTP-статуса, разбором ожидаемого тела и разделением сетевых, HTTP- и parse-ошибок.",
+        "Объясните, как реализовать сквозные заголовки/логирование через Fetch wrapper и что централизовал бы Axios interceptor.",
+        "Добавьте случаи 200 JSON, пустой 204, ответ 404, неверный JSON, сетевой сбой и abort.",
+        "Сделайте retry явным, ограниченным и безопасным для операции; не помещайте безусловный retry в глобальный interceptor."
+      ],
+      "requirements": [
+        "Выбор клиента учитывает реальные зависимости и нужды приложения.",
+        "HTTP-ошибка, транспортная/abort и ошибка разбора не смешиваются.",
+        "Контракт endpoint указывает, ожидается ли тело ответа.",
+        "Сквозное поведение имеет понятного владельца и не меняет незаметно посторонние запросы.",
+        "Тесты покрывают успех и каждый отдельный класс ошибки."
+      ],
+      "starterCode": "// Текущий проект использует браузерный Fetch, если не принято решение о зависимости.\nasync function getUser(id, { signal } = {}) {\n  // TODO: запросить /api/users/:id\n  // TODO: передать signal и Accept header\n  // TODO: проверить response.ok до разбора тела\n  // TODO: отдельно обработать endpoint без тела ответа\n}\n\n// Вопросы политики:\n// - Что помещается в общий request wrapper?\n// - Какие ошибки можно безопасно повторять?",
+      "hints": [
+        "Fetch выполняется для HTTP 404/500; статус Response всё равно нужно проверить.",
+        "Если отмена была намеренной, AbortError не следует показывать как обычную серверную ошибку.",
+        "Axios interceptors необязательны; небольшой явный wrapper может быть понятнее для небольшого приложения.",
+        "Не вызывайте JSON parser для ответа 204 без тела."
+      ],
+      "successCriteria": [
+        "Корректно обрабатываются успех, HTTP-ошибка, сеть, неверное тело и отмена.",
+        "Пример не требует неустановленную библиотеку.",
+        "Описаны контракты endpoint с телом и без него.",
+        "Retry ограничен и применяется только когда повтор безопасен."
       ]
     },
     {
