@@ -285,3 +285,8 @@ The core DOM/event lesson was deepened from 35 to 44 bilingual blocks based on t
 ## Content gate remains open — 2026-10-26
 
 Targeted parity additions now cover DOM observer APIs, Fetch/Axios service differences, React external-effect cleanup, and MUI forms. The source inventory remains only partially audited at the concept level: 21 Notion pages were fetched but connector-unverified, and all 25 HTML documents were fetched while full line/topic/practice parity for every file remains open. Keep the existing HTML-backed learner route/catalog until that gate is complete; the JSON-only cutover and Supabase phase are not done.
+
+
+## Latest content gate evidence — 2026-10-26
+
+The source-to-lesson work has begun closing specific HTML/Notion gaps with bilingual JSON blocks and tests, including CSS margin collapse, HTML table semantics, and media captions. Do not mark content complete from these targeted passes. Continue the remaining Notion and HTML rows and evaluate explanation, worked reasoning, edge cases, practice and feedback before switching learner navigation.

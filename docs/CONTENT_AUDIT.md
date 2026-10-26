@@ -86,3 +86,8 @@ Targeted source-to-lesson review of the DOM Masterclass identified five previous
 ## Targeted semantic parity — 2026-10-26
 
 Additional tests now verify source-specific block IDs, bilingual structure, interactive feedback, and exercise criteria for the DOM observer and API client lessons; UI ecosystem tests cover Bootstrap/MUI behavior. The current implementation has not completed semantic review of every HTML source. Exact latest CI status must be checked on feature HEAD `604b57e98fdadf6558ef83209145dab9b7253ebf`.
+
+
+## Latest source-specific content — 2026-10-26
+
+In this pass `css.fundamentals` gained the margin-collapsing model, code trace, feedback check and debugging exercise; `html.document-structure` gained semantic data-table and accessible image/video lessons. The pair structures and exercise scaffolds are asserted in `lessonContent.test.ts`. Previous source-specific DOM, React API/effects and UI-library additions are documented in the full source audit. Course-wide parity remains incomplete.

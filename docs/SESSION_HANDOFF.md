@@ -332,3 +332,8 @@ Latest code change: bilingual DOM lesson adds DocumentFragment, IntersectionObse
 ## Handoff — 2026-10-26
 
 The user-requested order is unchanged: finish source-depth verification → switch learner app to bilingual structured JSON and remove HTML from learner delivery (retain source evidence) → implement Supabase progress persistence. Seven source-derived lesson areas now have targeted bilingual depth work, but all source subtopics are not yet verified. CI #401 on code/test checkpoint `604b57e98fdadf6558ef83209145dab9b7253ebf` was still running at the time of this handoff note; recheck exact SHA before continuing.
+
+
+## Handoff — 2026-10-26
+
+Recent audited gaps now embedded in bilingual JSON: CSS margin collapsing, HTML data-table semantics, accessible media captions/alternatives, DOM observers, Fetch/Axios semantics, React effects and UI-library forms. Exact block mapping is in `FULL_SOURCE_CONTENT_AUDIT.md`; the global source-depth gate remains open. Check CI for the current feature HEAD, then continue remaining source rows. Do not remove the legacy learner flow before full validation; Supabase follows the JSON-only cutover.

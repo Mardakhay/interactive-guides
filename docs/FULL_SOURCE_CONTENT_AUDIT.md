@@ -326,3 +326,20 @@ The DOM Masterclass review now maps DocumentFragment, MutationObserver, Intersec
 The bilingual test suite now asserts the added IDs/types and checks count/scaffold expectations. CI failure history was investigated: stale fixed-count expectations (DOM 6→7, API 4→5, Effects 4→5) failed, then the specific expectations were updated; exact-head run [#400](https://github.com/Mardakhay/interactive-guides/actions/runs/40279070113) was the API stale-count failure and [#396](https://github.com/Mardakhay/interactive-guides/actions/runs/40278792766) the DOM stale-count failure. Run [#401](https://github.com/Mardakhay/interactive-guides/actions/runs/40279163826) passed after the DOM count fix. The latest combined lesson/test SHA `604b57e98fdadf6558ef83209145dab9b7253ebf` was under CI at documentation time; check its exact run before treating this checkpoint as green.
 
 This closes only the listed subtopic gaps, not the full 25-file HTML parity review. Legacy HTML remains in learner navigation until remaining source rows pass the depth gate; Supabase remains sequenced after structured-only cutover.
+
+
+## HTML/CSS source findings — 2026-10-26
+
+Focused review of the HTML Reference, CSS Reference, DOM Masterclass, React API Hooks lesson, React Hooks guide, Bootstrap/MUI material, and the CSS/HTML Notion notes identified the following concrete omissions and now-embedded evidence:
+
+| Source subtopic | Target | Evidence now in structured lesson |
+|---|---|---|
+| Adjacent vertical margin collapse; normal-flow vs flex/grid; parent-child containment | `css.fundamentals` EN/RU | `css-margin-collapse-body`, `css-margin-collapse-walkthrough`, `css-margin-collapse-check`, `css-margin-collapse-practice` (53→58 blocks) |
+| Tabular-data semantics and header relationships | `html.document-structure` EN/RU | `html-data-tables-body`, `html-data-table-walkthrough`, `html-data-table-check`, `html-data-table-practice` |
+| Informative/decorative image alternatives, figure captions, video captions and playback | `html.document-structure` EN/RU | `html-media-body`, `html-media-walkthrough`, `html-media-check`, `html-media-practice`; table + media additions take the lesson 27→37 blocks |
+| DOM fragment batching, observers, custom events, rate control | `js.dom-events` EN/RU | `dom-fragment-walkthrough`, `dom-intersection-walkthrough`, `dom-mutation-walkthrough`, `dom-custom-event-walkthrough`, `dom-rate-control`, `dom-advanced-practice` |
+| Fetch vs Axios, HTTP vs network/parse/abort errors, retry and client trade-offs | `react.api-custom-hooks` EN/RU | `api-fetch-axios-body`, `api-fetch-walkthrough`, `api-fetch-status-check`, `api-client-choice-practice` |
+| External widgets, cross-tab storage event and cleanup | `react.effects-lists-composition` EN/RU | `effect-widget-walkthrough`, `effect-storage-walkthrough`, `effect-cleanup-check`, `effect-external-practice` |
+| Bootstrap collapse/grid/cards/carousel and MUI forms | `ui.bootstrap-mui` EN/RU | `uilib-bootstrap-collapse`, `uilib-grid-cards`, `uilib-bootstrap-task`, `uilib-mui-form-walkthrough`, `uilib-mui-form-practice` |
+
+These mappings received bilingual structural checks and focused technical review. Latest content commit `ab9ae370a569ccfcaabd05a502ad0038694e17e8` was queued for CI when this note was written; preceding HTML-media checkpoint `a103c653d674d36a9e5614b91b95f013b9aea6e2` passed [run #40280077763](https://github.com/Mardakhay/interactive-guides/actions/runs/40280077763). Inventory retrieval remains 21 Notion pages (connector state unverified) and 25 HTML lesson files. This focused list is not an all-source completion claim; many other rows still require full depth/parity review.

@@ -170,3 +170,8 @@ Supplementary curriculum registration is unchanged. Four EN/RU lesson pairs have
 ## Source-derived lesson updates — 2026-10-26
 
 In addition to the four supplements deepened previously, `js.dom-events`, `react.api-custom-hooks`, and `react.effects-lists-composition` now contain bilingual worked examples, feedback checks and applied exercises for source gaps. The UI ecosystem lesson includes MUI form-component integration alongside Bootstrap behavior. These are targeted updates with explicit block IDs; no curriculum IDs changed and no content was removed.
+
+
+## HTML/CSS source-derived additions — 2026-10-26
+
+The HTML document lesson now covers semantic data tables and accessible media; CSS fundamentals now explains vertical margin collapsing in normal flow versus flex/grid. This preserves the core IDs and adds only source-derived sections. Detailed evidence and remaining parity work are tracked in `FULL_SOURCE_CONTENT_AUDIT.md`.

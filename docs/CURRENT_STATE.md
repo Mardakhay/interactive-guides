@@ -284,3 +284,8 @@ Feature code commit `68a3d192b6be30fc2b94d3aca9d825f0edbae5fd` adds the DOM-sour
 ## Latest continuation checkpoint — 2026-10-26
 
 Feature HEAD at note time: `604b57e98fdadf6558ef83209145dab9b7253ebf`; GitHub Actions [run #401](https://github.com/Mardakhay/interactive-guides/actions/runs/40279686292) was running. Recent depth work includes architecture, Sass/SCSS, JS prototypes, UI ecosystem, DOM events, React API/custom Hooks and React effects/lists; latest source evidence is in `FULL_SOURCE_CONTENT_AUDIT.md`. Branch `main` remains unchanged at `b13af92576e8a73753a6e3f3d26765d9f9c44397`. HTML-backed learner routes remain active; Supabase is not implemented.
+
+
+## HTML/CSS continuation — 2026-10-26
+
+Current code HEAD: `ab9ae370a569ccfcaabd05a502ad0038694e17e8`; CI run [#40279940661](https://github.com/Mardakhay/interactive-guides/actions/runs/40279940661) passed on preceding CSS commit `bc95f9877a024048b24e0f40bb2f7429415dd4ed`, and [run #40280077763](https://github.com/Mardakhay/interactive-guides/actions/runs/40280077763) passed on the HTML media/table content commit `a103c653d674d36a9e5614b91b95f013b9aea6e2`. Current CSS/table additions were still running at note time. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; legacy lesson delivery is unchanged; Supabase is not started.

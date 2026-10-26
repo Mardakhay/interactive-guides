@@ -115,3 +115,8 @@ The DOM Masterclass source contains interactive tree/selector exercises, content
 ## HTML-source pass — 2026-10-26
 
 Targeted source comparison has now translated several previously missing interactive concepts into structured lessons: DOM observers/batching, React effect integrations/storage events, Fetch-vs-Axios service behavior, and MUI form behavior. `FULL_SOURCE_CONTENT_AUDIT.md` lists block-level evidence. This does not yet mean every old HTML page is conceptually migrated; keep source files and learner routes until the complete audit gate passes.
+
+
+## HTML/CSS source findings — 2026-10-26
+
+Added structured bilingual evidence for native data tables and accessible media (captions, alternatives), plus a CSS lesson on margin collapsing. See `FULL_SOURCE_CONTENT_AUDIT.md` for exact block IDs. Legacy HTML remains as source evidence and in the learner flow until every remaining source row is reviewed; these additions alone do not authorize the cutover.
