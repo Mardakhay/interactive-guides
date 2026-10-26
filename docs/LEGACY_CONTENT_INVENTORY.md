@@ -153,3 +153,7 @@ Added `browser.storage-indexeddb` as a bilingual registered lesson in `supplemen
 ## Verification checkpoint — 2026-10-26
 
 Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passed lint, typecheck, test suite, and production build on [CI run 40282414157](https://github.com/Mardakhay/interactive-guides/actions/runs/40282414157). The documentation checkpoint `97008a25d5312fe207756e6a6061f3d75bd72a7b` also passed the same required checks on [CI run 40282496515](https://github.com/Mardakhay/interactive-guides/actions/runs/40282496515). The next content/docs checkpoint will receive a fresh exact-HEAD run.
+
+## 2026-10-26 core JavaScript depth update
+
+`js.functions-arrays-objects` now explains array destructuring, default values vs null, rest parameters vs spread calls, optional chaining, and `??` versus `||` with three traces, two explained quizzes and a profile-normalization task. Existing object destructuring and shallow spread remain intact. The topic is still partial against Advanced JS (nested/function-parameter destructuring and other examples remain); total lesson pair count stays 41.

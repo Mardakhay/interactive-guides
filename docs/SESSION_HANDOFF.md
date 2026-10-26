@@ -370,3 +370,7 @@ Latest code SHA `7915276b6514a56a3a700c0ba488b784e348754b` adds the registered E
 ## Verification checkpoint — 2026-10-26
 
 Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passed lint, typecheck, test suite, and production build on [CI run 40282414157](https://github.com/Mardakhay/interactive-guides/actions/runs/40282414157). The documentation checkpoint `97008a25d5312fe207756e6a6061f3d75bd72a7b` also passed the same required checks on [CI run 40282496515](https://github.com/Mardakhay/interactive-guides/actions/runs/40282496515). The next content/docs checkpoint will receive a fresh exact-HEAD run.
+
+## Latest handoff — 2026-10-26
+
+Core JS code SHA `a7f53e1695cd47b3cb1ede031f306b0a91de717a` deepens `js.functions-arrays-objects` in both locales from 58 to 71 blocks. Added iterable destructuring, array/function rest, optional chaining and ?? semantics, with 2 quizzes and one exercise; see `FULL_SOURCE_CONTENT_AUDIT.md`. CI run 40282885026 passed lint, typecheck, tests, and build. After exact-head verification, continue the unresolved source audit; HTML learner routes remain until full parity and JSON cutover.

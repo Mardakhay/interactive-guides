@@ -323,3 +323,7 @@ Added `browser.storage-indexeddb` as a bilingual supplement before app-level pro
 ## Verification checkpoint — 2026-10-26
 
 Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passed lint, typecheck, test suite, and production build on [CI run 40282414157](https://github.com/Mardakhay/interactive-guides/actions/runs/40282414157). The documentation checkpoint `97008a25d5312fe207756e6a6061f3d75bd72a7b` also passed the same required checks on [CI run 40282496515](https://github.com/Mardakhay/interactive-guides/actions/runs/40282496515). The next content/docs checkpoint will receive a fresh exact-HEAD run.
+
+## Core lesson depth checkpoint — 2026-10-26
+
+A verified Advanced JS syntax gap was addressed inside the existing core lesson, preserving IDs/navigation. Continue mapping the remaining source examples and all other Notion/HTML rows; then finish the content gate before JSON cutover and Supabase. The course has 41 bilingual pairs; `js.functions-arrays-objects` is 71 blocks per locale.

@@ -322,3 +322,7 @@ Catalog: 41 registered EN/RU pairs (26 core, 15 supplements), including new `bro
 ## Verification checkpoint — 2026-10-26
 
 Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passed lint, typecheck, test suite, and production build on [CI run 40282414157](https://github.com/Mardakhay/interactive-guides/actions/runs/40282414157). The documentation checkpoint `97008a25d5312fe207756e6a6061f3d75bd72a7b` also passed the same required checks on [CI run 40282496515](https://github.com/Mardakhay/interactive-guides/actions/runs/40282496515). The next content/docs checkpoint will receive a fresh exact-HEAD run.
+
+## Core JS update — 2026-10-26
+
+`js.functions-arrays-objects` is now 71 blocks in both locales (was 58), with iterable destructuring, rest/spread contrast, optional chaining, nullish defaults and applied profile normalization. Code SHA `a7f53e1695cd47b3cb1ede031f306b0a91de717a` is validating on [CI run 40282885026](https://github.com/Mardakhay/interactive-guides/actions/runs/40282885026); lint, typecheck, tests, and production build all passed. Overall source/cutover/Supabase gates remain open.

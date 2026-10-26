@@ -100,3 +100,7 @@ The broader source pass also added a dedicated bilingual browser-storage/Indexed
 ## Verification checkpoint — 2026-10-26
 
 Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passed lint, typecheck, test suite, and production build on [CI run 40282414157](https://github.com/Mardakhay/interactive-guides/actions/runs/40282414157). The documentation checkpoint `97008a25d5312fe207756e6a6061f3d75bd72a7b` also passed the same required checks on [CI run 40282496515](https://github.com/Mardakhay/interactive-guides/actions/runs/40282496515). The next content/docs checkpoint will receive a fresh exact-HEAD run.
+
+## Broader source progress — 2026-10-26
+
+Outside this document's React scope, the core JavaScript lesson gained array destructuring, rest/spread, optional chaining and nullish behavior from the Advanced JS source. Its parity remains partial; evidence is in `FULL_SOURCE_CONTENT_AUDIT.md`. This does not close the all-source gate.
