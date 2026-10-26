@@ -877,7 +877,7 @@ describe('utility types from the integrated intro.dev source', () => {
       const walkthrough = lesson.blocks.find((block) => block.id === 'html-iframe-security-walkthrough');
       expect(walkthrough?.type).toBe('codeWalkthrough');
       if (walkthrough?.type !== 'codeWalkthrough') return;
-      const lineCount = walkthrough.code.split('\\n').length;
+      const lineCount = walkthrough.code.split('\n').length;
       expect(walkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
       expect(walkthrough.code).toContain('sandbox');
       const check = lesson.blocks.find((block) => block.id === 'html-iframe-security-check');
