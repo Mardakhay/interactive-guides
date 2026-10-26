@@ -157,3 +157,7 @@ Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passe
 ## 2026-10-26 core JavaScript depth update
 
 `js.functions-arrays-objects` now explains array destructuring, default values vs null, rest parameters vs spread calls, optional chaining, and `??` versus `||` with three traces, two explained quizzes and a profile-normalization task. Existing object destructuring and shallow spread remain intact. The topic is still partial against Advanced JS (nested/function-parameter destructuring and other examples remain); total lesson pair count stays 41.
+
+## 2026-10-26 invocation/strict-mode checkpoint
+
+The existing `js.object-prototypes` supplement now has explicit examples for call-site `this`, `call` vs `apply` vs `bind`, arrow lexical receiver, bound event-listener identity, and strict-mode effects. A practical invoice task and feedback quizzes accompany the explanation. Both locales are 31 blocks; broader strict-mode edge cases remain partial. Pair inventory remains 41.

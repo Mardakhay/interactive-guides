@@ -326,3 +326,7 @@ Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passe
 ## Core JS update — 2026-10-26
 
 `js.functions-arrays-objects` is now 71 blocks in both locales (was 58), with iterable destructuring, rest/spread contrast, optional chaining, nullish defaults and applied profile normalization. Code SHA `a7f53e1695cd47b3cb1ede031f306b0a91de717a` is validating on [CI run 40282885026](https://github.com/Mardakhay/interactive-guides/actions/runs/40282885026); lint, typecheck, tests, and production build all passed. Overall source/cutover/Supabase gates remain open.
+
+## Latest lesson update — 2026-10-26
+
+`js.object-prototypes` is now 31 blocks in both locales (previously 19), with call/apply/bind, arrow lexical-this, strict mode and an applied invoice exercise. Code SHA `6a45a6a1b59d3fec621ca97f0648ef63cf714476` is on CI [run 40283382323](https://github.com/Mardakhay/interactive-guides/actions/runs/40283382323). Source coverage remains partial; full parity, JSON cutover and Supabase are still open.

@@ -128,3 +128,7 @@ Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passe
 ## Core JavaScript source gap checkpoint — 2026-10-26
 
 Deepened the existing functions/arrays/objects core lesson from 58 to 71 bilingual blocks rather than creating a duplicate supplement. Added array destructuring/rest, defaults, optional chaining and nullish-vs-falsy handling plus practice. The source mapping remains partial and is listed by exact block ID in `FULL_SOURCE_CONTENT_AUDIT.md`; the 41-pair inventory is unchanged.
+
+## JS invocation content update — 2026-10-26
+
+Expanded `js.object-prototypes` from 19 to 31 blocks in EN and RU, adding call/apply/bind execution traces, arrow lexical-this, listener identity, strict mode and an applied exercise. Tests assert source-specific structures and aligned translations. This improves but does not complete the Advanced JS page's invocation/strict-mode coverage; see the matrix.

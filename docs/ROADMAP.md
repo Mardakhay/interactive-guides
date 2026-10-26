@@ -327,3 +327,7 @@ Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passe
 ## Core lesson depth checkpoint — 2026-10-26
 
 A verified Advanced JS syntax gap was addressed inside the existing core lesson, preserving IDs/navigation. Continue mapping the remaining source examples and all other Notion/HTML rows; then finish the content gate before JSON cutover and Supabase. The course has 41 bilingual pairs; `js.functions-arrays-objects` is 71 blocks per locale.
+
+## Content/depth checkpoint — 2026-10-26
+
+Extended the existing object/prototype supplement for function receiver invocation and strict mode. Continue source-driven review; do not cut over legacy learner routes until all source rows have sufficient depth evidence, then integrate Supabase only after JSON cutover.

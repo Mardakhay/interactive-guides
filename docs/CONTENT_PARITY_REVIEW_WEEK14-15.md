@@ -104,3 +104,7 @@ Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passe
 ## Broader source progress — 2026-10-26
 
 Outside this document's React scope, the core JavaScript lesson gained array destructuring, rest/spread, optional chaining and nullish behavior from the Advanced JS source. Its parity remains partial; evidence is in `FULL_SOURCE_CONTENT_AUDIT.md`. This does not close the all-source gate.
+
+## Broader JavaScript source note — 2026-10-26
+
+The broader Advanced JS pass added explicit function receiver/call/apply/bind and strict-mode lessons in `js.object-prototypes`; the mapped coverage remains partial. It does not change the Week 14–15 audit scope or close the full-source gate.

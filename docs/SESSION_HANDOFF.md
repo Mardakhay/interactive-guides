@@ -374,3 +374,7 @@ Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passe
 ## Latest handoff — 2026-10-26
 
 Core JS code SHA `a7f53e1695cd47b3cb1ede031f306b0a91de717a` deepens `js.functions-arrays-objects` in both locales from 58 to 71 blocks. Added iterable destructuring, array/function rest, optional chaining and ?? semantics, with 2 quizzes and one exercise; see `FULL_SOURCE_CONTENT_AUDIT.md`. CI run 40282885026 passed lint, typecheck, tests, and build. After exact-head verification, continue the unresolved source audit; HTML learner routes remain until full parity and JSON cutover.
+
+## Latest handoff — 2026-10-26
+
+Code SHA `6a45a6a1b59d3fec621ca97f0648ef63cf714476` adds EN/RU invocation and strict-mode depth to `js.object-prototypes` without changing IDs. CI is run 40283382323; inspect final status and logs on this exact commit. Continue the source audit after validation; preserve learner HTML until all-source parity and JSON cutover.

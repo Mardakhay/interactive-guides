@@ -212,3 +212,7 @@ Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passe
 ## Core JavaScript learning update — 2026-10-26
 
 The core lesson `js.functions-arrays-objects` now includes bilingual examples of array destructuring, rest/spread, optional chaining and nullish defaults, plus a partial-response exercise. No curriculum ID was added; the existing core sequence is preserved. EN/RU are both 71 blocks. Source parity remains partial; catalog total remains 41 bilingual pairs.
+
+## Supplementary lesson depth — 2026-10-26
+
+`js.object-prototypes` retains its ID/track and now teaches call/apply/bind and strict-mode behavior through bilingual examples, two new checks and one applied invoice task. Lesson pair inventory remains 41; source parity for every strict-mode nuance remains partial.
