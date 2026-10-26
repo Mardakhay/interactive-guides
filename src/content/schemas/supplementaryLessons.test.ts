@@ -192,7 +192,7 @@ describe('class semantics and shared prototype methods', () => {
       const copyWalk = lesson.blocks.find((block) => block.id === 'runtime-copy-walkthrough');
       expect(copyWalk?.type).toBe('codeWalkthrough');
       if (copyWalk?.type !== 'codeWalkthrough') return;
-      const lineCount = copyWalk.code.split('\\n').length;
+      const lineCount = copyWalk.code.split('\n').length;
       expect(copyWalk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
       expect(copyWalk.code).toContain('structuredClone');
       const quiz = lesson.blocks.find((block) => block.id === 'runtime-copy-check');
