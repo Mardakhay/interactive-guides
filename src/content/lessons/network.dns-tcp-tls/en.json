@@ -4,13 +4,13 @@
   "version": 1,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-26",
   "moduleId": "supplement-network-browser",
   "supplementaryTrackId": "supplement-network-browser",
   "order": 1,
   "title": "DNS, IP, TCP/UDP, Ports, and TLS",
   "description": "Follow DNS resolution, compare transport protocols, and understand ports, TLS, and HTTP versions.",
-  "estimatedMinutes": 60,
+  "estimatedMinutes": 85,
   "difficulty": "intermediate",
   "prerequisites": [
     "web.internet-http"
@@ -21,7 +21,8 @@
     "Compare TCP, UDP and QUIC and explain HTTP/3 transport.",
     "Describe the roles of IP addresses, ports and sockets.",
     "Explain TLS certificate checks and protection in transit.",
-    "Diagnose likely network failures using DevTools evidence."
+    "Diagnose likely network failures using DevTools evidence.",
+    "Distinguish HTTP/2 stream multiplexing over TCP from HTTP/3 streams over QUIC under packet loss."
   ],
   "tags": [
     "network",
@@ -115,6 +116,109 @@
       "id": "tls-text",
       "type": "paragraph",
       "text": "A port helps deliver traffic to an application on a host; the number alone does not uniquely identify a global server. HTTPS is HTTP over TLS. The client verifies the certificate chain and hostname, then uses traffic keys. TLS protects confidentiality and integrity in transit and helps authenticate the server, but does not prove an application is safe or replace user authorization."
+    },
+    {
+      "id": "http-transport-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "HTTP/2 multiplexing still runs over an ordered TCP stream"
+    },
+    {
+      "id": "http-transport-explanation",
+      "type": "paragraph",
+      "text": "HTTP/1.1 commonly reuses TCP connections, with browser and server behavior determining how requests share them. HTTP/2 adds streams and interleaves frames from concurrent exchanges on one connection, reducing application-level queuing and connection overhead. But that connection is still one ordered TCP byte stream: if an earlier TCP segment is lost, TCP cannot deliver later bytes to HTTP/2 until the gap is recovered. Interleaved data for several HTTP/2 streams can therefore pause together. This is transport-level head-of-line blocking; HTTP/2 multiplexing does not eliminate it. HTTP/3 maps HTTP semantics onto QUIC over UDP. QUIC has independently ordered streams, so loss affecting one stream usually does not prevent unrelated streams from progressing, though streams whose data shares a lost packet can all wait. Congestion control and connection-level limits still apply."
+    },
+    {
+      "id": "http-transport-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "HTTP/1.1  -> requests share/reuse TCP connections\nHTTP/2    -> stream A + stream B -> interleaved frames -> one TCP byte stream\nTCP loss  -> bytes after the missing sequence gap wait for retransmission\nHTTP/2    -> the parser cannot consume later interleaved frames until that gap fills\nHTTP/3    -> stream A + stream B -> QUIC streams over UDP\nQUIC loss -> affected stream data waits for recovery\nOther independent streams may continue; congestion control still governs the connection",
+      "steps": [
+        {
+          "title": "Separate HTTP streams from transport delivery",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "HTTP/2 multiplexes application exchanges by interleaving frames, but TCP delivers the connection as one ordered byte stream."
+        },
+        {
+          "title": "Trace the loss across the TCP connection",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "TCP must restore missing bytes before later bytes are delivered in order. Since frames for several HTTP/2 streams share that byte sequence, the HTTP/2 layer may not receive later frames yet."
+        },
+        {
+          "title": "Compare QUIC stream recovery",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "HTTP/3 uses QUIC streams. Loss blocks data that depends on the missing bytes in affected stream(s), not every unrelated stream; a packet can carry data for multiple streams, and shared congestion control still affects throughput."
+        }
+      ]
+    },
+    {
+      "id": "http-transport-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which statement best describes packet loss with HTTP/2 over TCP?",
+      "options": [
+        {
+          "id": "a",
+          "text": "HTTP/2 removes all head-of-line blocking because each request has its own TCP connection",
+          "correct": false,
+          "feedback": "HTTP/2 usually multiplexes streams over one connection; it does not create a TCP connection for every request."
+        },
+        {
+          "id": "b",
+          "text": "Frames from multiple HTTP/2 streams share one ordered TCP byte stream, so a missing earlier segment can delay later bytes for several streams",
+          "correct": true,
+          "feedback": "Multiplexing reduces application-level queuing but TCP's in-order delivery can still stall later bytes on the shared connection."
+        },
+        {
+          "id": "c",
+          "text": "TCP delivers later bytes immediately and lets HTTP/2 reorder them by request",
+          "correct": false,
+          "feedback": "TCP presents an ordered byte stream to its application; HTTP/2 frame multiplexing does not bypass a missing byte gap."
+        },
+        {
+          "id": "d",
+          "text": "HTTP/3 changes HTTP status codes so packets can be retried",
+          "correct": false,
+          "feedback": "HTTP semantics and status codes are separate from transport recovery; HTTP/3 maps HTTP semantics over QUIC."
+        }
+      ],
+      "explanation": "Name the layer where a behavior occurs: HTTP streams, TCP ordered delivery, or QUIC stream recovery."
+    },
+    {
+      "id": "http-transport-practice",
+      "type": "codingExercise",
+      "title": "Explain an HTTP/2 stall and choose useful evidence",
+      "language": "text",
+      "context": "A page loads over one HTTP/2 connection. During a lossy network interval, several resources stop progressing together, while DNS still resolves and the server stays reachable.",
+      "instructions": [
+        "Draw the path from browser request multiplexing through HTTP/2 frames into the TCP connection.",
+        "Explain why one missing TCP sequence range can delay later bytes belonging to more than one HTTP/2 stream.",
+        "Contrast the relevant HTTP/3/QUIC stream behavior without claiming that all congestion or packet loss disappears.",
+        "List what you would inspect in DevTools Network (protocol, connection reuse, timing, stalled requests) and what you would correlate with server/network telemetry.",
+        "State why a slow request alone is not enough evidence to conclude that transport head-of-line blocking occurred."
+      ],
+      "requirements": [
+        "Distinguishes application-level multiplexing from TCP's ordered byte-stream delivery.",
+        "Explains the shared-connection stall mechanism precisely.",
+        "Describes HTTP/3 as HTTP semantics over QUIC and states the independent-stream loss behavior with its packet/congestion caveats.",
+        "Names observable browser and network evidence rather than guessing from the page alone.",
+        "Does not recommend changing HTTP version without measuring deployment support and user impact."
+      ],
+      "starterCode": "Browser request model:\\n\\nHTTP/2 streams → framing → TCP:\\n\\nObserved loss / stalled resources:\\n\\nWhat DevTools Network shows:\\n\\nWhat server/network telemetry should confirm:\\n\\nHow HTTP/3 changes the failure boundary:\\n\\nWhat remains shared or constrained:",
+      "hints": [
+        "TCP in-order delivery can hold later bytes even when those bytes encode a different HTTP/2 stream.",
+        "QUIC provides independent ordered streams, but one lost packet can contain data for multiple streams and connection congestion control is still shared.",
+        "Use timing and protocol/connection details from the browser plus transport/server telemetry; a single slow resource has many possible causes."
+      ],
+      "successCriteria": [
+        "Shows the layer-by-layer mechanism and failure boundary.",
+        "Explains the HTTP/2 limitation and HTTP/3 difference accurately.",
+        "Uses measurable evidence to distinguish transport loss from server, DNS, or application delay.",
+        "Includes QUIC's remaining packet and congestion caveats."
+      ]
     },
     {
       "id": "debug",
@@ -233,7 +337,8 @@
         "TCP provides a reliable stream, UDP datagrams, HTTP/3 QUIC/UDP.",
         "A port does not identify a global server by itself.",
         "TLS protects traffic in transit but does not replace app authorization.",
-        "DevTools helps distinguish DNS, connection, TLS, HTTP, and browser-policy failures."
+        "DevTools helps distinguish DNS, connection, TLS, HTTP, and browser-policy failures.",
+        "HTTP/2 multiplexes exchanges but still shares TCP's ordered byte stream; HTTP/3 uses QUIC's independent streams, with packet and congestion caveats."
       ]
     },
     {
@@ -263,6 +368,16 @@
         {
           "title": "Chrome DevTools: Network panel",
           "url": "https://developer.chrome.com/docs/devtools/network/overview",
+          "kind": "official-docs"
+        },
+        {
+          "title": "RFC 9113: HTTP/2",
+          "url": "https://www.rfc-editor.org/rfc/rfc9113.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "RFC 9000: QUIC Transport Protocol",
+          "url": "https://www.rfc-editor.org/rfc/rfc9000.html",
           "kind": "official-docs"
         }
       ]
