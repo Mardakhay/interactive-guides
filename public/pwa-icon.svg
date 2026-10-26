@@ -1,6 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#0284c7"/>
-  <path d="M96 144c0-13.3 10.7-24 24-24h136v272H120c-13.3 0-24-10.7-24-24V144Z" fill="#fff" fill-opacity=".96"/>
-  <path d="M256 120h136c13.3 0 24 10.7 24 24v224c0 13.3-10.7 24-24 24H256V120Z" fill="#fff" fill-opacity=".8"/>
-  <path d="m160 208 40 48-40 48m64-96h-24m24 96h-24" fill="none" stroke="#0284c7" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="52" y1="32" x2="454" y2="492" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#101e49"/><stop offset="1" stop-color="#073b68"/>
+    </linearGradient>
+    <linearGradient id="left" x1="112" y1="102" x2="250" y2="414" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#75f5d9"/><stop offset="1" stop-color="#08b9d3"/>
+    </linearGradient>
+    <linearGradient id="right" x1="330" y1="102" x2="410" y2="414" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#e6fff8"/><stop offset="1" stop-color="#45dce0"/>
+    </linearGradient>
+    <linearGradient id="route" x1="140" y1="300" x2="394" y2="186" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#c2fff1"/><stop offset=".58" stop-color="#f5fff4"/><stop offset="1" stop-color="#ffd6a5"/>
+    </linearGradient>
+    <radialGradient id="coral" cx="0" cy="0" r="1" gradientTransform="matrix(0 55 -55 0 376 180)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffb08a" stop-opacity=".8"/><stop offset="1" stop-color="#ff806b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M66 143c15-20 27-31 46-38l147 76v265L74 388l-8-245Z" fill="#0878a6" opacity=".8"/>
+  <path d="M446 143c-15-20-27-31-46-38l-147 76v265l185-58 8-245Z" fill="#0878a6" opacity=".75"/>
+  <path d="M88 112c64-8 117 8 163 47 8 7 13 18 13 29v258c-48-46-107-70-176-69V112Z" fill="url(#left)"/>
+  <path d="M424 112c-64-8-117 8-163 47-8 7-13 18-13 29v258c48-46 107-70 176-69V112Z" fill="url(#right)"/>
+  <path d="M254 190v256" stroke="#075374" stroke-opacity=".72" stroke-width="11"/>
+  <path d="M136 286c47 57 79-42 119-34 45 9 64-97 125-73" stroke="#35f5da" stroke-opacity=".42" stroke-width="34" stroke-linecap="round"/>
+  <path d="M136 286c47 57 79-42 119-34 45 9 64-97 125-73" stroke="url(#route)" stroke-width="19" stroke-linecap="round"/>
+  <circle cx="136" cy="286" r="47" fill="#8ffff0" opacity=".18"/>
+  <circle cx="255" cy="252" r="43" fill="#d9fff3" opacity=".18"/>
+  <circle cx="380" cy="179" r="61" fill="url(#coral)"/>
+  <circle cx="136" cy="286" r="25" fill="#8ffff0"/>
+  <circle cx="255" cy="252" r="25" fill="#e7fff4"/>
+  <circle cx="380" cy="179" r="27" fill="#ff9c77"/>
+  <circle cx="136" cy="286" r="15" fill="#dffff6" opacity=".7"/>
+  <circle cx="255" cy="252" r="15" fill="#fff" opacity=".72"/>
+  <circle cx="380" cy="179" r="16" fill="#ffe6ca" opacity=".72"/>
 </svg>

@@ -13,6 +13,7 @@ type WebManifest = {
   start_url: string;
   scope: string;
   display: string;
+  theme_color: string;
   icons: ManifestIcon[];
 };
 
@@ -33,6 +34,7 @@ describe('PWA asset contract', () => {
     expect(manifest.start_url).toBe('/');
     expect(manifest.scope).toBe('/');
     expect(manifest.display).toBe('standalone');
+    expect(manifest.theme_color).toBe('#101e49');
     expect(manifest.icons.some((icon) => icon.sizes === '192x192' && icon.purpose === 'any')).toBe(true);
     expect(manifest.icons.some((icon) => icon.sizes === '512x512' && icon.purpose?.includes('maskable'))).toBe(true);
 
@@ -47,14 +49,19 @@ describe('PWA asset contract', () => {
     expectPngSize('pwa-180.png', 180);
   });
 
-  it('wires the iOS touch icon and host-side SPA fallback', () => {
-    expect(readRootText('index.html')).toContain('rel="apple-touch-icon" href="/pwa-180.png"');
+  it('wires matching browser, Android and iOS brand assets', () => {
+    const html = readRootText('index.html');
+    expect(html).toContain('rel="icon" type="image/svg+xml" href="/favicon.svg"');
+    expect(html).toContain('rel="apple-touch-icon" href="/pwa-180.png"');
+    expect(html).toContain('name="theme-color" content="#101e49"');
+    expect(readPublicText('favicon.svg')).toContain('linearGradient');
+    expect(readPublicText('pwa-icon.svg')).toContain('linearGradient');
     expect(readPublicText('_redirects').trim()).toBe('/* /index.html 200');
   });
 
   it('keeps service-worker caches versioned and scoped away from private APIs', () => {
     const worker = readPublicText('sw.js');
-    expect(worker).toContain("const VERSION = 'v3';");
+    expect(worker).toContain("const VERSION = 'v4';");
     for (const path of ['/pwa-180.png', '/pwa-192.png', '/pwa-512.png']) {
       expect(worker).toContain(path);
     }

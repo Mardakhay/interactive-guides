@@ -9,11 +9,8 @@
   "display": "standalone",
   "orientation": "any",
   "background_color": "#f9fafb",
-  "theme_color": "#0284c7",
-  "categories": [
-    "education",
-    "productivity"
-  ],
+  "theme_color": "#101e49",
+  "categories": ["education", "productivity"],
   "icons": [
     {
       "src": "/pwa-192.png",
