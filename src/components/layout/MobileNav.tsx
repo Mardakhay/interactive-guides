@@ -2,18 +2,21 @@ import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, BookOpen, Bookmark, StickyNote, Search } from 'lucide-react';
 import { ROUTE_PATHS } from '@/app/router/routes';
 import { cn } from '@/lib/utils';
+import { translate, useUiLocale, type TranslationKey } from '@/features/localization';
 
-const navItems = [
-  { label: 'Home', path: ROUTE_PATHS.DASHBOARD, icon: LayoutDashboard },
-  { label: 'Courses', path: ROUTE_PATHS.COURSES, icon: BookOpen },
-  { label: 'Bookmarks', path: ROUTE_PATHS.BOOKMARKS, icon: Bookmark },
-  { label: 'Notes', path: ROUTE_PATHS.NOTES, icon: StickyNote },
-  { label: 'Search', path: ROUTE_PATHS.SEARCH, icon: Search },
+const navItems: { label: TranslationKey; path: string; icon: typeof LayoutDashboard }[] = [
+  { label: 'home', path: ROUTE_PATHS.DASHBOARD, icon: LayoutDashboard },
+  { label: 'courses', path: ROUTE_PATHS.COURSES, icon: BookOpen },
+  { label: 'bookmarks', path: ROUTE_PATHS.BOOKMARKS, icon: Bookmark },
+  { label: 'notes', path: ROUTE_PATHS.NOTES, icon: StickyNote },
+  { label: 'search', path: ROUTE_PATHS.SEARCH, icon: Search },
 ];
 
 export function MobileNav() {
+  const locale = useUiLocale();
+
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-20 flex border-t border-neutral-200 bg-white lg:hidden" aria-label="Mobile navigation">
+    <nav className="fixed inset-x-0 bottom-0 z-20 flex border-t border-neutral-200 bg-white lg:hidden" aria-label={translate(locale, 'mainNavigation')}>
       {navItems.map((item) => (
         <NavLink
           key={item.path}
@@ -26,7 +29,7 @@ export function MobileNav() {
           }
         >
           <item.icon className="h-5 w-5" />
-          {item.label}
+          {translate(locale, item.label)}
         </NavLink>
       ))}
     </nav>

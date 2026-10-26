@@ -1,7 +1,7 @@
 {
   "id": "git.fundamentals",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-23",
@@ -10,7 +10,7 @@
   "order": 2,
   "title": "Git Fundamentals: Track, Commit, and Publish Your Work",
   "description": "Understand Git's three local areas, record focused changes as commits, connect a local repository to a remote, publish a branch, and keep generated or secret files out of version control.",
-  "estimatedMinutes": 80,
+  "estimatedMinutes": 95,
   "difficulty": "beginner",
   "prerequisites": [
     "js.basics-types-control-flow",
@@ -22,7 +22,8 @@
     "Explain why staging allows one commit to contain selected changes rather than every changed file.",
     "Create a useful .gitignore and identify files that should not be committed.",
     "Read the outcome of Git commands and recover from common beginner mistakes without deleting work.",
-    "Publish a small project to a remote repository using a focused commit history."
+    "Publish a small project to a remote repository using a focused commit history.",
+    "Use stash, aliases and amend with an explicit understanding of what is local and what has been shared."
   ],
   "tags": [
     "git",
@@ -220,6 +221,56 @@
       ]
     },
     {
+      "id": "git-local-history-tools",
+      "type": "heading",
+      "level": 2,
+      "text": "Stash, amend, and aliases: three tools with different scope"
+    },
+    {
+      "id": "git-local-history-tools-body",
+      "type": "paragraph",
+      "text": "Use stash when you need to temporarily set aside uncommitted work without creating a commit. `git stash apply` reapplies a saved change and keeps the stash entry; `git stash pop` applies it and removes the entry if successful. By default, untracked files are not included unless you pass `-u`. `git commit --amend` recreates the latest commit, changing its hash and possibly its message; use it for a local, unpublished commit unless the team explicitly coordinates a rewrite. Git aliases are local configuration shortcuts: a `--global` alias applies to your user account on this machine and is not shared automatically with the repository."
+    },
+    {
+      "id": "git-stash-amend-aliases-example",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "git status\ngit stash push -u -m \"wip: navbar\"\ngit stash list\ngit stash apply stash@{0}\ngit config --global alias.st status\ngit config --global alias.lg \"log --oneline --graph --decorate\"\ngit st\ngit lg\n# Only amend a local commit that has not been shared\ngit commit --amend -m \"fix: describe the updated change\"",
+      "steps": [
+        {
+          "title": "Check the current state",
+          "explanation": "Read git status before moving work. Stash is for uncommitted changes, not a replacement for a meaningful checkpoint commit."
+        },
+        {
+          "title": "Save work without committing it",
+          "explanation": "The -u flag includes untracked files. The message helps identify the saved work later. Avoid stashing files that contain secrets you do not want to handle indirectly."
+        },
+        {
+          "title": "List and reapply a stash",
+          "explanation": "git stash list shows stored entries. apply replays the selected changes but keeps the stash entry, which can be useful until you confirm the work is restored correctly."
+        },
+        {
+          "title": "Define shortcuts for this user",
+          "explanation": "The --global aliases persist in your user configuration on this machine. They do not automatically become part of a teammate's Git configuration."
+        },
+        {
+          "title": "Amend only unpublished history",
+          "explanation": "--amend creates a replacement commit with a different hash. Do not amend a commit already pushed to a shared branch without explicit team coordination."
+        }
+      ]
+    },
+    {
+      "id": "git-repository-hygiene",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use a README to explain what a repository does, how to install dependencies, how to run checks, and how to contribute.",
+        "GitHub Pages can publish a static site from a configured branch or a GitHub Actions workflow; verify the source and base-path settings before publishing.",
+        "Review repository visibility, collaborator permissions, branch protection, and required checks deliberately; grant only the access each contributor needs.",
+        "A .gitignore rule does not remove a tracked secret or erase it from history. If a credential was exposed, rotate or revoke it; removing the file alone is not enough."
+      ]
+    },
+    {
       "id": "knowledge-check-1",
       "type": "knowledgeCheck",
       "questionType": "single-choice",
@@ -353,7 +404,9 @@
         "Use status to inspect, add to stage selected content, commit a coherent checkpoint, and push to exchange commits with a remote.",
         "A .gitignore rule only ignores untracked paths; it does not remove a file that is already tracked.",
         "Use focused messages and inspect the staged diff before committing.",
-        "Never commit secrets; if a credential has been pushed, rotate/revoke it rather than relying on deleting the file."
+        "Never commit secrets; if a credential has been pushed, rotate/revoke it rather than relying on deleting the file.",
+        "Stash shelves uncommitted work, amend replaces the latest commit ID, and global aliases stay in this user's local configuration.",
+        "README/Pages and repository access settings should be deliberate; .gitignore does not revoke or erase an exposed credential."
       ]
     },
     {
@@ -515,6 +568,21 @@
         {
           "title": "GitHub Docs: Adding locally hosted code",
           "url": "https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Documentation: git-stash",
+          "url": "https://git-scm.com/docs/git-stash",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Documentation: git-commit",
+          "url": "https://git-scm.com/docs/git-commit",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: GitHub Pages",
+          "url": "https://docs.github.com/en/pages",
           "kind": "official-docs"
         }
       ]

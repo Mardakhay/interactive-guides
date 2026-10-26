@@ -110,3 +110,47 @@ A lesson may combine sections into a coherent narrative; the template is a quali
 ## Implementation status — 2026-10-23
 
 The curriculum and lesson template above remain the target, not the implemented application model. The current feature branch still has the 25-item legacy catalog and HTML loader; it does not yet expose a complete 24-week bilingual sequence or consume structured SQL/hosting supplements. Notion and legacy source mappings, confidence limits, and concrete coverage gaps are recorded in FULL_SOURCE_CONTENT_AUDIT.md. Counts and mappings distinguish discovered/inventoried sources from content fully read and migrated.
+
+
+## Embedded content implementation checkpoint — 2026-10-23
+
+The bilingual React content reader now exposes the canonical 24-week curriculum at `/:locale/structured-lessons` and lesson text at `/:locale/structured-lessons/:lessonId`. The repository registers 26 core lesson IDs (52 EN/RU files) plus 11 separately labeled supplementary IDs (22 EN/RU files), including the capstone stages. Lessons are structured content blocks rendered in-app; standalone HTML remains migration/source material, not the embedded lesson format.
+
+This does not mean all 25 legacy HTML sources or all Notion details have been fully audited and migrated. The current source-depth limits and exact follow-up inventory are in `FULL_SOURCE_CONTENT_AUDIT.md`; keep lesson status at review until the topic examples, edge cases, exercises, feedback, and EN/RU quality are verified against sources.
+
+
+**Validation note (2026-10-23):** at code SHA `132636c4007141454a903e815d6f0418a3c511b0`, lint/typecheck, 92 tests, production build and `git diff --check` passed locally. The repository bundle triggers Vite's >500 kB chunk warning. Source parity is still open; see the audit matrix.
+
+
+## Current implementation and migration status — 2026-10-26
+
+The application now presents the 24-week core curriculum plus separately labeled supplementary tracks through the bilingual structured reader. There are 26 core and 11 supplementary lesson IDs (74 EN/RU JSON files); content is embedded through the React renderer rather than delivered as standalone lesson HTML.
+
+Recent deepening: CSS fundamentals v3 (53 blocks / 5 checks / 5 walkthroughs / 3 exercises per locale); Git fundamentals v3 (38 blocks), Git workflow/CI v3 (37 blocks); SQL/PostgreSQL (35 blocks); and production hosting (21 blocks / 3 walkthroughs / 2 checks / 2 exercises). Deployment now teaches build output and hash caching, Vite env resolution and build-time values, host-specific SPA fallback, failure isolation, and release recovery. Source behavior that is not represented one-to-one remains documented as partial/deferred.
+
+CI [run #40270734689](https://github.com/Mardakhay/interactive-guides/actions/runs/40270734689) passed at code/content SHA `17b79e07b8377e8aa92c5aa14305da0062389ac5`. This does not certify source parity: 21 Notion fetches remain unverified; all 25 legacy HTML sources are inventoried, but only selected sources have focused deeper parity notes. Keep review states until technical and bilingual editorial review is complete.
+
+## Latest curriculum/content checkpoint — 2026-10-26
+
+The DOM week-7 core lesson `js.dom-events` is version 3, 35 blocks per locale: 7 walkthroughs, 6 knowledge checks and 3 scaffolded coding exercises. New content traces node vs element collections, initial HTML attributes versus current DOM properties and native form reset, and capture/target/bubble order. The EN/RU structure test now asserts this inventory. Actions [run #40271279200](https://github.com/Mardakhay/interactive-guides/actions/runs/40271279200) passed on code/content SHA `deb30c88151ee6f0ea5f59afd14e96f0fb2d5902`.
+
+This expands lesson depth but does not complete `dom-masterclass.html` parity: source playgrounds and the final Card Manager are not represented one-to-one. The full audit matrix records evidence and remaining work. All 25 legacy files remain available; keep content in review.
+
+## Current network lesson update — 2026-10-26
+
+`network.dns-tcp-tls` now includes a 22-block bilingual explanation with an HTTP/2/HTTP/3 walkthrough, feedback-rich knowledge check and independent diagnostic exercise. It distinguishes HTTP semantics, HTTP/2 frame multiplexing over TCP, TCP in-order delivery, and QUIC stream loss isolation; citations point to IETF RFC 9113, 9114 and 9000. The old source claim that HTTP/2 removes head-of-line blocking is not carried forward.
+
+The lesson and overall source audit remain in review. CI [run #40271559588](https://github.com/Mardakhay/interactive-guides/actions/runs/40271559588) passed on code/content SHA `0b08ee4249d1e6ec19bfe16e94de864fe7271ed1`.
+
+
+## Performance/accessibility source pass — 2026-10-26
+
+The bilingual `performance.accessibility` lesson is now version 3, 36 blocks per locale (8 code walkthroughs, 6 knowledge checks and 3 scaffolded coding exercises). The source-derived addition teaches how to choose contextual image alternatives (informative vs decorative/redundant; explicit empty alt vs missing alt) and how to give an icon-only favorite toggle a stable accessible name and exposed `aria-pressed` state. It includes a worked TSX card, feedback-rich check, practical repair task and W3C WAI Images Tutorial reference. EN/RU block IDs/types and quiz structure match. CI [run #40271923920](https://github.com/Mardakhay/interactive-guides/actions/runs/40271923920) passed lint, typecheck, tests and production build on exact content SHA `89bb63293f5171f3e8f6b7d4fc1a0740f9e1dc05`.
+
+Source status remains **partial**: the legacy render-cascade and bundle simulators, keyboard/menu demonstrations and other interactive behaviors do not yet have equivalent learner interactions. This focused comparison does not constitute a line-by-line audit of the HTML or completion of the full source audit.
+
+## Testing source pass — 2026-10-26
+
+The bilingual `testing.react-testing-library` lesson is version 3 with 34 blocks per locale (3 walkthroughs, 5 knowledge checks, 3 scaffolded exercises). A focused comparison with `test.guide.html` added a typed `vi.fn()` service-boundary walkthrough, resolved-vs-rejected promise cases, and a success/empty/error exercise with observable assertions. The old HTML's Jest-only globals were not copied: repository configuration is Vitest 2.1.9, React Testing Library 16.3.2, user-event 14.6.4, and jsdom. WAI/Testing Library-style behavioral testing remains the goal. CI [run #40272357781](https://github.com/Mardakhay/interactive-guides/actions/runs/40272357781) passed lint, typecheck, tests and production build on exact content SHA `e611754d978da8a36627429f56c49ff73770711e`.
+
+The source remains **partial**: its visual mock tabs, live examples, FAQ accordions, and full legacy quiz feedback are not yet equivalent app interactions. This is a focused comparison, not a line-by-line HTML audit; the wider source audit remains open.

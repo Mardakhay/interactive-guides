@@ -50,3 +50,47 @@ The table is an initial subject mapping based on filenames and sampled content, 
 ## Follow-up source audit status — 2026-10-23
 
 The repository inventory reconciles to 25 HTML files. A structural pass inspected headings and interactive-control presence across all 25; full content/code review was completed only for react-forms-tutorial.html and react-ecosystem-course.html in the prior pass. react-api-hooks-lesson.html also received a targeted factual review for client choice, partial-update semantics, demo API persistence, and retry behavior. The remaining HTML documents still need body/code/example/feedback review before this inventory can be called fully audited. See FULL_SOURCE_CONTENT_AUDIT.md for source-to-target status and limitations.
+
+
+## Embedded migration checkpoint — 2026-10-23
+
+The inventory above is the source list and first-pass topic map; it is not a claim of completed migration. The feature branch now includes a bilingual structured curriculum of 26 core IDs / 52 locale files and 11 supplementary IDs / 22 locale files, accessible through the React text renderer and curriculum index. Legacy HTML remains source material and is not the learner-facing format for these structured lessons.
+
+Source review depth is still incomplete: all 25 files were checked for existence and structurally surveyed (titles/headings/control markers); the React forms and React ecosystem HTML received full reads, with targeted API-source review. The other files still need full prose, code, hidden/revealed content, exercise, answer, link, and behavior checks. Keep each source listed until a source-to-block mapping and depth assessment exists in `docs/FULL_SOURCE_CONTENT_AUDIT.md`. Registration of a similarly named lesson is not parity evidence.
+
+
+**Verification update (2026-10-23):** the current feature content code passed lint, typecheck, all 92 tests, production build and diff whitespace check at `132636c4007141454a903e815d6f0418a3c511b0`. This validates the platform structure, not full semantic migration for every file in the inventory. GitHub Actions has no reported run for that API-created commit.
+
+
+## Latest structured migration status — 2026-10-26
+
+The 25-file inventory remains the source inventory; source files are retained. The feature has 26 core and 11 supplementary bilingual lesson IDs in-app. This is not full migration.
+
+Recent source-to-content passes expanded CSS fundamentals (53 blocks/locale), Git fundamentals (38 blocks/locale), Git workflow/CI (37 blocks/locale), SQL/PostgreSQL (35 blocks/locale), and production hosting (21 blocks/locale: 3 walkthroughs, 2 checks, 2 exercises). Deployment’s new in-app evidence covers generated `dist`, content hashes, Vite mode/env precedence, build-time configuration, hosting fallback diagnosis and rollback planning.
+
+Legacy `deployment-learning.html` still contains interactions not equivalent to structured blocks (including a pipeline simulator, provider tabs and custom-domain walk-through); mark its status partial and keep it intact. The broader source audit still has 21 fetched Notion pages marked unverified and most HTML files still need complete body/code/hidden-answer/interaction parity review. Detailed evidence is in [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md).
+
+## DOM source checkpoint — 2026-10-26
+
+`dom-masterclass.html` has received a structural/control inventory and targeted comparison with `js.dom-events`. The lesson now includes nodeType/element collection distinctions, attributes vs live properties/default reset, event phase ordering, and corresponding walkthroughs, checks and a diagnostic practice in both locales. Automated checks passed at code/content SHA `deb30c88151ee6f0ea5f59afd14e96f0fb2d5902` (102 tests and build included in Actions run #40271279200).
+
+This is still **partial**, not a completed source audit or full interactive migration. The legacy tree navigator, collection/theme demos, several editable challenges and the final Card Manager do not yet have equivalent app interactions. Keep the HTML file and the lesson status at review until prose/code/answers and remaining behaviors are audited or explicitly deferred.
+
+## Network source checkpoint — 2026-10-26
+
+A targeted technical review of `internet-fundamentals.html` identified an overclaim that HTTP/2 multiplexing eliminates head-of-line blocking. The structured bilingual destination now separates HTTP/2 streams from TCP's ordered connection delivery and contrasts HTTP/3 over QUIC, including caveats for shared-packet loss and connection congestion. Evidence and current RFC references are in `network.dns-tcp-tls` and [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md).
+
+The legacy source is preserved and its broader DNS/HTTP/TLS/browser interactions are not fully migrated. This was a focused correction, not a line-by-line audit.
+
+
+## Performance/accessibility source pass — 2026-10-26
+
+The bilingual `performance.accessibility` lesson is now version 3, 36 blocks per locale (8 code walkthroughs, 6 knowledge checks and 3 scaffolded coding exercises). The source-derived addition teaches how to choose contextual image alternatives (informative vs decorative/redundant; explicit empty alt vs missing alt) and how to give an icon-only favorite toggle a stable accessible name and exposed `aria-pressed` state. It includes a worked TSX card, feedback-rich check, practical repair task and W3C WAI Images Tutorial reference. EN/RU block IDs/types and quiz structure match. CI [run #40271923920](https://github.com/Mardakhay/interactive-guides/actions/runs/40271923920) passed lint, typecheck, tests and production build on exact content SHA `89bb63293f5171f3e8f6b7d4fc1a0740f9e1dc05`.
+
+Source status remains **partial**: the legacy render-cascade and bundle simulators, keyboard/menu demonstrations and other interactive behaviors do not yet have equivalent learner interactions. This focused comparison does not constitute a line-by-line audit of the HTML or completion of the full source audit.
+
+## Testing source pass — 2026-10-26
+
+The bilingual `testing.react-testing-library` lesson is version 3 with 34 blocks per locale (3 walkthroughs, 5 knowledge checks, 3 scaffolded exercises). A focused comparison with `test.guide.html` added a typed `vi.fn()` service-boundary walkthrough, resolved-vs-rejected promise cases, and a success/empty/error exercise with observable assertions. The old HTML's Jest-only globals were not copied: repository configuration is Vitest 2.1.9, React Testing Library 16.3.2, user-event 14.6.4, and jsdom. WAI/Testing Library-style behavioral testing remains the goal. CI [run #40272357781](https://github.com/Mardakhay/interactive-guides/actions/runs/40272357781) passed lint, typecheck, tests and production build on exact content SHA `e611754d978da8a36627429f56c49ff73770711e`.
+
+The source remains **partial**: its visual mock tabs, live examples, FAQ accordions, and full legacy quiz feedback are not yet equivalent app interactions. This is a focused comparison, not a line-by-line HTML audit; the wider source audit remains open.

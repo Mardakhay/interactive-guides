@@ -7,6 +7,7 @@ export interface ActivityItem {
   readonly lessonId: string;
   readonly lessonTitle: string;
   readonly categoryName: string;
+  readonly categoryId: string;
   readonly timestamp: string;
   readonly notePreview?: string;
 }

@@ -124,8 +124,11 @@ describe('CSS fundamentals lesson translation', () => {
     expect(englishCss.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianCss.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishCss.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishCss.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
     expect(russianCss.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    expect(englishCss.blocks.map((block) => block.id)).toContain('css-color-values');
+    expect(englishCss.blocks.map((block) => block.id)).toContain('css-accessibility');
+    expect(englishCss.blocks.map((block) => block.id)).toContain('css-accessible-theme-card');
   });
 });
 
@@ -280,8 +283,12 @@ describe('DOM and events lesson translation', () => {
     expect(englishDom.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianDom.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
-    expect(russianDom.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(russianDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(englishDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(7);
+    expect(russianDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(7);
+    expect(englishDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(russianDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
   });
 });
 

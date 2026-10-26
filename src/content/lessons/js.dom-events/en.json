@@ -4,25 +4,25 @@
   "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-2-week-7",
   "week": 7,
   "order": 1,
   "title": "The DOM and Browser Events",
   "description": "Understand the browser's live document tree, select and update elements, handle events, and build a data-driven DOM to-do list.",
-  "estimatedMinutes": 90,
+  "estimatedMinutes": 125,
   "difficulty": "beginner",
   "prerequisites": [
     "js.functions-arrays-objects",
     "html.forms-accessibility"
   ],
   "learningOutcomes": [
-    "Explain how the browser turns HTML into a live DOM tree.",
-    "Select elements safely with querySelector and querySelectorAll.",
-    "Create, update and remove DOM nodes through browser APIs.",
-    "Choose textContent instead of unsafe HTML insertion for user-controlled text.",
-    "Explain event target/currentTarget, bubbling and preventDefault.",
-    "Build a small to-do list by updating an array and rendering the current data."
+    "Explain how parsing creates distinct DOM node and element types.",
+    "Select nodes safely, traverse element relationships, and distinguish static from live collections.",
+    "Create and update nodes using safe text and attribute/property APIs.",
+    "Explain event target/currentTarget, capture/target/bubble, delegation and default actions.",
+    "Debug initial HTML attributes versus mutable DOM properties.",
+    "Build a data-driven DOM list and validate behavior with browser DevTools."
   ],
   "tags": [
     "javascript",
@@ -43,6 +43,76 @@
       "id": "dom-model-body",
       "type": "paragraph",
       "text": "The HTML source describes a document; the Document Object Model (DOM) is the structured tree the browser creates from that source. JavaScript can inspect or change that tree while the page is open. The DOM is neither a screenshot nor a frozen copy of the original HTML string: nodes can be added, removed, and updated after the browser finishes parsing."
+    },
+    {
+      "id": "dom-node-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Nodes and elements are related, not interchangeable"
+    },
+    {
+      "id": "dom-node-explanation",
+      "type": "paragraph",
+      "text": "Every element is a node, but not every node is an element. An element such as a button has nodeType 1; text nodes have type 3; comments have type 8. For `<div id=\"panel\"><!-- note --><button>Save</button></div>`, the panel's `childNodes` contains a comment and a button, while `children` contains only the button. Whitespace between tags can itself create text nodes, so counts change when formatting changes. Use element-specific traversal (`children`, `parentElement`, `nextElementSibling`) when you want element relationships; use `childNodes` only when text and comment nodes matter."
+    },
+    {
+      "id": "dom-node-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const panel = document.querySelector(\"#panel\");\nif (panel) {\n  const nodes = [...panel.childNodes];\n  console.log(nodes.map((node) => node.nodeType));\n  console.log(panel.children.length);\n}",
+      "steps": [
+        {
+          "title": "Guard the query result",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "querySelector may return null. The guard prevents reading child collections from a missing panel."
+        },
+        {
+          "title": "Inspect all direct child nodes",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "With the compact markup shown above, nodeType values are [8, 1]: comment then button. If whitespace is inserted between tags, text nodes (type 3) also appear."
+        },
+        {
+          "title": "Inspect element children only",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "explanation": "children excludes comments and text nodes, so it reports one button for this markup even when formatting whitespace changes."
+        }
+      ]
+    },
+    {
+      "id": "dom-node-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "In `<div><!-- note --><button>Save</button></div>`, what is the nodeType of the comment?",
+      "options": [
+        {
+          "id": "a",
+          "text": "1 — ELEMENT_NODE",
+          "correct": false,
+          "feedback": "Type 1 is used for element nodes such as the button and div."
+        },
+        {
+          "id": "b",
+          "text": "3 — TEXT_NODE",
+          "correct": false,
+          "feedback": "Type 3 represents text nodes; an HTML comment is a separate node type."
+        },
+        {
+          "id": "c",
+          "text": "8 — COMMENT_NODE",
+          "correct": true,
+          "feedback": "An HTML comment is a node with nodeType 8. It appears in childNodes, not in the element-only children collection."
+        },
+        {
+          "id": "d",
+          "text": "9 — DOCUMENT_NODE",
+          "correct": false,
+          "feedback": "Type 9 identifies the document object, not a comment inside an element."
+        }
+      ],
+      "explanation": "The DOM contains more than elements: text and comments are nodes too."
     },
     {
       "id": "dom-select",
@@ -132,6 +202,76 @@
       ]
     },
     {
+      "id": "dom-attributes-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "HTML attributes and DOM properties can show different state"
+    },
+    {
+      "id": "dom-attributes-explanation",
+      "type": "paragraph",
+      "text": "An HTML attribute is part of the element's markup/configuration; a DOM property is the JavaScript-facing state on the live object. For an input initially written with `value=\"hello\"`, typing changes `input.value` but normally leaves `getAttribute(\"value\")` and `defaultValue` at the initial value. A form reset restores the current value from its default. Some properties reflect attributes (for example `disabled`), but boolean attributes are true by their presence: `disabled=\"false\"` still means disabled. Inspect the property that represents the state you actually need, and use DevTools Elements for markup attributes and Console for live properties."
+    },
+    {
+      "id": "dom-attributes-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "// HTML: <form><input id=\"name\" value=\"hello\"></form>\nconst input = document.querySelector(\"#name\");\nconst form = document.querySelector(\"form\");\nif (input instanceof HTMLInputElement && form instanceof HTMLFormElement) {\n  console.log(input.getAttribute(\"value\")); // \"hello\"\n  input.value = \"world\";\n  console.log(input.getAttribute(\"value\")); // \"hello\"\n  console.log(input.value); // \"world\"\n  form.reset();\n  console.log(input.value); // \"hello\"\n}",
+      "steps": [
+        {
+          "title": "Start from the initial markup",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "The input has a value content attribute, and the form provides the browser's native reset behavior."
+        },
+        {
+          "title": "Read the original attribute and change live state",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Setting the value property updates the current editable value. The value content attribute remains the initial markup value; it is not a reliable way to read what the user currently typed."
+        },
+        {
+          "title": "Observe the reset boundary",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "form.reset() restores the current control value from its default value, which reflects the initial value attribute unless that default was changed."
+        }
+      ]
+    },
+    {
+      "id": "dom-attributes-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "After a user types `world` into `<input value=\"hello\">`, which expression reads the current editable value?",
+      "options": [
+        {
+          "id": "a",
+          "text": "input.getAttribute(\"value\")",
+          "correct": false,
+          "feedback": "This reads the content attribute, which normally remains the initial markup value."
+        },
+        {
+          "id": "b",
+          "text": "input.value",
+          "correct": true,
+          "feedback": "The value property represents the current editable value; a form reset can restore it from the default."
+        },
+        {
+          "id": "c",
+          "text": "input.children[0]",
+          "correct": false,
+          "feedback": "An input is a void element and its current text value is not a child node."
+        },
+        {
+          "id": "d",
+          "text": "document.documentElement.value",
+          "correct": false,
+          "feedback": "The document element is the root HTML element, not this form control."
+        }
+      ],
+      "explanation": "Distinguish initial markup/default state from mutable runtime state."
+    },
+    {
       "id": "events",
       "type": "heading",
       "level": 2,
@@ -171,6 +311,26 @@
           "lineStart": 8,
           "lineEnd": 8,
           "explanation": "This snippet only illustrates the event. A real app would update its data model and render the updated state."
+        }
+      ]
+    },
+    {
+      "id": "dom-event-phases-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const card = document.querySelector(\"#card\");\nconst button = document.querySelector(\"#save\");\nif (card && button) {\n  const log = [];\n  card.addEventListener(\"click\", () => log.push(\"capture\"), { capture: true });\n  button.addEventListener(\"click\", () => log.push(\"target\"));\n  card.addEventListener(\"click\", () => log.push(\"bubble\"));\n  button.click();\n  console.log(log); // [\"capture\", \"target\", \"bubble\"]\n}",
+      "steps": [
+        {
+          "title": "Register listeners on the ancestor and target",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "The first card listener opts into capture. The button's listener runs at the target; the card's default-phase listener observes the bubbling event."
+        },
+        {
+          "title": "Dispatch a click and follow its path",
+          "lineStart": 8,
+          "lineEnd": 9,
+          "explanation": "For this nested button, the observed order is capture down to the target, target listeners, then bubble back up. Real events can be stopped or may not bubble depending on event type."
         }
       ]
     },
@@ -430,6 +590,39 @@
         "User text is inserted safely.",
         "Controls outside the list are ignored.",
         "Static/live collection behavior is explained accurately."
+      ]
+    },
+    {
+      "id": "dom-property-debug-exercise",
+      "type": "codingExercise",
+      "title": "Debug a DOM test that reads the wrong value",
+      "language": "javascript",
+      "context": "A form test types a new name, but an assertion still sees the old value. At the same time, a traversal loop counts more nodes than visible controls.",
+      "instructions": [
+        "Write minimal markup with an input whose initial value is `hello`, then type `world` and compare its value property, defaultValue and value attribute.",
+        "Show what form.reset() does and explain which value it restores.",
+        "Use compact markup with a comment and button to compare childNodes, children and nodeType; explain how whitespace changes childNodes.",
+        "Log the event order for one capture, target and bubble listener and state what could alter the expected order.",
+        "State which DevTools panels or Console expressions would isolate each mismatch."
+      ],
+      "requirements": [
+        "Distinguishes initial content attributes from current input property state.",
+        "Explains native form reset using the control's default value.",
+        "Correctly identifies a comment node and element-only children.",
+        "Mentions whitespace text nodes as a childNodes edge case.",
+        "Explains capture-target-bubble ordering without claiming every event bubbles."
+      ],
+      "starterCode": "// HTML: <form><input id=\"name\" value=\"hello\"></form>\\nconst input = document.querySelector(\"#name\");\\n\\n// TODO: compare the initial value attribute, defaultValue and current value.\\n// TODO: set a new value, inspect again, and reset the form.\\n\\n// TODO: inspect childNodes and children for markup containing a comment.\\n// TODO: log capture, target and bubble listeners in order.",
+      "hints": [
+        "After setting input.value, compare input.getAttribute(\"value\") with input.value.",
+        "Use form.reset() to see the browser restore the control's default value.",
+        "childNodes includes text and comment nodes; children contains only elements."
+      ],
+      "successCriteria": [
+        "Explains why a current-value assertion should read the value property.",
+        "Predicts the reset result and justifies it from defaultValue.",
+        "Accounts for comments and formatting whitespace in node traversal.",
+        "Reports capture → target → bubble for a normal bubbling click and names an event propagation caveat."
       ]
     },
     {

@@ -7,11 +7,13 @@ import { BookmarkButton } from '@/features/bookmarks';
 import { Card, Badge, ProgressBar } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { EmptyState } from '@/components/feedback';
-import { DIFFICULTY_COLORS, DIFFICULTY_LABELS } from '@/lib/constants';
+import { DIFFICULTY_COLORS } from '@/lib/constants';
 import { ROUTE_PATHS, lessonPath } from '@/app/router/routes';
 import { cn } from '@/lib/utils';
+import { formatLessonCount, getLocalizedCategoryCopy, getLocalizedDifficulty, translate, useUiLocale } from '@/features/localization';
 
 export default function CourseDetailPage() {
+  const locale = useUiLocale();
   const { categoryId } = useParams<{ categoryId: string }>();
 
   const category = useMemo(() => (categoryId ? getCategoryById(categoryId) : undefined), [categoryId]);
@@ -26,13 +28,13 @@ export default function CourseDetailPage() {
   if (!category) {
     return (
       <div className="space-y-6">
-        <Breadcrumbs items={[{ label: 'Catalog', path: ROUTE_PATHS.COURSES }, { label: 'Category not found' }]} />
+        <Breadcrumbs items={[{ label: translate(locale, 'catalog'), path: ROUTE_PATHS.COURSES }, { label: translate(locale, 'categoryNotFound') }]} />
         <EmptyState
-          title="Category not found"
-          message="The category you're looking for doesn't exist."
+          title={translate(locale, 'categoryNotFound')}
+          message={translate(locale, 'categoryNotFoundMessage')}
           action={
             <Link to={ROUTE_PATHS.COURSES} className="text-sm font-medium text-primary-600 hover:text-primary-700">
-              Back to catalog
+              {translate(locale, 'backToCatalog')}
             </Link>
           }
         />
@@ -41,13 +43,14 @@ export default function CourseDetailPage() {
   }
 
   const Icon = getCategoryIcon(category.icon);
+  const categoryCopy = getLocalizedCategoryCopy(locale, category.id, category.name, category.description);
 
   return (
     <div className="space-y-6">
       <Breadcrumbs
         items={[
-          { label: 'Catalog', path: ROUTE_PATHS.COURSES },
-          { label: category.name },
+          { label: translate(locale, 'catalog'), path: ROUTE_PATHS.COURSES },
+          { label: categoryCopy.name },
         ]}
       />
 
@@ -56,19 +59,19 @@ export default function CourseDetailPage() {
           <Icon className="h-6 w-6" />
         </div>
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold text-neutral-900">{category.name}</h1>
-          <p className="text-neutral-600">{category.description}</p>
+          <h1 className="text-2xl font-semibold text-neutral-900">{categoryCopy.name}</h1>
+          <p className="text-neutral-600">{categoryCopy.description}</p>
         </div>
       </div>
 
       <div className="flex items-center gap-2 text-sm text-neutral-500">
-        <Badge variant="primary">{lessons.length} {lessons.length === 1 ? 'lesson' : 'lessons'}</Badge>
+        <Badge variant="primary">{formatLessonCount(locale, lessons.length)}</Badge>
       </div>
 
       {stats.total > 0 && (
         <ProgressBar
           value={stats.percent}
-          label={`${stats.completed} of ${stats.total} lessons completed`}
+          label={translate(locale, 'categoryProgress', { completed: stats.completed, total: stats.total })}
         />
       )}
 
@@ -95,7 +98,7 @@ export default function CourseDetailPage() {
                 <div className="flex shrink-0 items-center gap-3">
                   {status !== 'not-started' && (
                     <Badge variant={STATUS_BADGE_VARIANTS[status]}>
-                      {status === 'completed' ? 'Completed' : 'In progress'}
+                      {translate(locale, status === 'completed' ? 'completed' : 'inProgress')}
                     </Badge>
                   )}
                   <span
@@ -104,11 +107,11 @@ export default function CourseDetailPage() {
                       DIFFICULTY_COLORS[lesson.difficulty] ?? DIFFICULTY_COLORS.beginner,
                     )}
                   >
-                    {DIFFICULTY_LABELS[lesson.difficulty] ?? lesson.difficulty}
+                    {getLocalizedDifficulty(locale, lesson.difficulty)}
                   </span>
                   <span className="hidden items-center gap-1 text-xs text-neutral-500 sm:flex">
                     <Clock className="h-3.5 w-3.5" />
-                    {lesson.durationMinutes}m
+                    {lesson.durationMinutes}{translate(locale, 'minuteUnit')}
                   </span>
                   <BookmarkButton lessonId={lesson.id} variant="icon" />
                   <ArrowRight className="h-4 w-4 text-neutral-300 transition-transform group-hover:translate-x-0.5 group-hover:text-primary-600" />

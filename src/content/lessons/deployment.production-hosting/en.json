@@ -4,13 +4,13 @@
   "version": 1,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "supplement-deployment",
   "supplementaryTrackId": "supplement-deployment",
   "order": 1,
   "title": "Production Hosting: Build, Environment, Deep Links, and Rollback",
   "description": "Prepare a Vite SPA for production and verify routing, configuration, and recovery in a deployed preview.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 105,
   "difficulty": "intermediate",
   "prerequisites": [
     "tooling.node-npm-vite",
@@ -18,8 +18,10 @@
   ],
   "learningOutcomes": [
     "Distinguish dev server, production build and deployment.",
+    "Explain generated dist assets, content hashes and build-time client configuration.",
     "Separate public browser configuration from server secrets.",
-    "Verify direct-route refresh and SPA fallback.",
+    "Resolve Vite mode-specific env values without committing local secrets.",
+    "Verify direct-route refresh and provider-specific SPA fallback.",
     "Plan preview, smoke tests, monitoring and rollback."
   ],
   "tags": [
@@ -161,6 +163,158 @@
       ]
     },
     {
+      "id": "deploy-dist-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "What a production build ships"
+    },
+    {
+      "id": "deploy-dist-concepts",
+      "type": "paragraph",
+      "text": "Vite compiles your source into static output under dist/; the host serves those generated files, not your source tree or the development server. Asset filenames commonly include a content hash. When file bytes change, the filename changes, allowing caches to keep an unchanged asset while new HTML refers to the updated one. Treat dist as generated output: inspect it to diagnose a build, but do not hand-edit it or commit it as source. Values used by browser code are substituted at build time, so changing a hosting dashboard value does not rewrite an existing bundle; run a new build and deploy."
+    },
+    {
+      "id": "deploy-dist-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "src/main.tsx + src/styles.css\n  -> npm run build\n  -> dist/index.html\n     dist/assets/index-A1B2.js\n     dist/assets/index-C3D4.css\n  -> CDN caches assets by content hash\n  -> changed source produces new asset names",
+      "steps": [
+        {
+          "title": "Build from source",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "The production build compiles and bundles your app. A working dev server does not prove this production transformation succeeds."
+        },
+        {
+          "title": "Inspect the publish output",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "dist contains the deployable HTML entry and generated assets. Confirm the host publishes the directory your build actually produces."
+        },
+        {
+          "title": "Reason about caching",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "Hashed filenames distinguish changed content. If a page references missing old assets, check deploy consistency and cache behavior instead of renaming generated files manually."
+        }
+      ]
+    },
+    {
+      "id": "deploy-env-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Vite env files: mode and precedence"
+    },
+    {
+      "id": "deploy-env-detail",
+      "type": "paragraph",
+      "text": "Vite loads .env and .env.local, plus mode-specific .env.[mode] and .env.[mode].local files. For a key in files, precedence is .env.[mode].local, then .env.[mode], then .env.local, then .env; a value already present in the process environment takes precedence over all loaded files. npm run dev uses development mode by default; npm run build uses production mode. Keep personal .local files out of Git and commit a placeholder-only .env.example. Any VITE_ value included in client code is public. Hosting variables are supplied to the build process; changing them requires a new build of the static bundle."
+    },
+    {
+      "id": "deploy-env-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "# .env\nVITE_API_ORIGIN=https://api.example.test\n\n# .env.production\nVITE_API_ORIGIN=https://api.example.com\n\n# .env.production.local (ignored by Git)\nVITE_API_ORIGIN=https://staging-api.example.net\n\nnpm run build  # production mode",
+      "steps": [
+        {
+          "title": "Resolve the mode-specific value",
+          "lineStart": 1,
+          "lineEnd": 9,
+          "explanation": "For a production build, .env.production.local is the most specific file shown and wins over .env.production and .env. A value exported in the build process environment wins over file values."
+        },
+        {
+          "title": "Check the effective client config",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "explanation": "Verify the intended public API origin in a preview. Do not print secrets in logs; client-exposed VITE_ values are not secret storage."
+        }
+      ]
+    },
+    {
+      "id": "deploy-hosting-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Provider settings and SPA fallback are not interchangeable"
+    },
+    {
+      "id": "deploy-hosting-detail",
+      "type": "paragraph",
+      "text": "A Git-connected host typically installs dependencies, runs the configured build, publishes dist, and creates preview deploys for branches or pull requests. A manual upload can be useful for a quick experiment, but it does not rebuild on later commits. Vercel and Netlify can both host a Vite SPA; verify the actual build command, output directory, environment scope (preview versus production), and rewrite behavior in current project settings. A common Netlify SPA rule is `/* /index.html 200` in public/_redirects. Scope and test fallbacks so API endpoints and missing asset paths are not accidentally served as the app HTML. Follow current provider docs instead of copying old dashboard screenshots."
+    },
+    {
+      "id": "deploy-debug-callout",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Isolate the failing layer before changing settings",
+      "text": "A build error belongs in deploy logs; a nested-route 404 points to hosting rewrites; a blank page may come from a JavaScript exception or a missing hashed asset; a failed API request may be a wrong build-time URL, CORS, or backend authorization. Reproduce the deployed URL, inspect DevTools Console and Network, then compare the deployed commit and environment scope. The same symptom can have different causes, so use the response status and request URL as evidence."
+    },
+    {
+      "id": "deploy-env-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A preview still calls the production API after you changed a host variable. What should you check first?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The static client value was embedded in the existing build; rebuild the preview with the intended environment scope",
+          "correct": true,
+          "feedback": "Vite substitutes client environment values during build. Updating a dashboard value does not rewrite already-generated JavaScript."
+        },
+        {
+          "id": "b",
+          "text": "The browser needs a server secret before it can read the new value",
+          "correct": false,
+          "feedback": "VITE_ values are public client configuration; privileged secrets must remain server-side."
+        },
+        {
+          "id": "c",
+          "text": "Edit the generated dist JavaScript manually",
+          "correct": false,
+          "feedback": "dist is generated output. Correct the build environment and create a new deployment."
+        },
+        {
+          "id": "d",
+          "text": "A successful local dev server guarantees the preview used the same mode",
+          "correct": false,
+          "feedback": "Development and production builds use different modes and may receive different environment values."
+        }
+      ],
+      "explanation": "Trace the value from the hosting environment scope into the build job and then into the emitted client bundle."
+    },
+    {
+      "id": "deploy-diagnostic-exercise",
+      "type": "codingExercise",
+      "title": "Diagnose a preview that works locally but fails after deployment",
+      "language": "text",
+      "context": "A Vite SPA builds successfully in CI, but its preview calls the wrong API and refreshing /account/settings returns 404.",
+      "instructions": [
+        "Identify which build mode and environment scope the preview build used; explain why changing a host setting requires a rebuild.",
+        "Write the Vite env-file precedence and include the higher priority of pre-existing process variables.",
+        "Choose a provider-specific fallback check without hiding API or missing-asset errors.",
+        "Give an investigation order using DevTools Network/Console and deploy logs; record the deployed commit and build.",
+        "Define an observable rollback trigger and a recovery step that restores a known-good deployment."
+      ],
+      "requirements": [
+        "Separates build-time public config from runtime server secrets.",
+        "Tests a nested route by direct load and refresh.",
+        "Does not recommend committing local env files or editing dist by hand.",
+        "Uses status codes and request URLs to distinguish a route rewrite from an API/config failure.",
+        "Connects rollback to an identified release."
+      ],
+      "starterCode": "Preview build mode and environment scope:\n\nExpected public API origin:\n\nEnv-file precedence / process override:\n\nDirect-route fallback check:\n\nDevTools Console + Network investigation:\n\nCommit/build comparison:\n\nRollback trigger and recovery step:",
+      "hints": [
+        "Check whether the changed value was present in the build job that emitted the current preview assets.",
+        "Load /account/settings directly and refresh; also verify that real JS/CSS assets still return their expected content types.",
+        "A fallback should serve the app entry for application routes without converting missing files or backend endpoints into HTML."
+      ],
+      "successCriteria": [
+        "Explains build-time substitution and preview/production variable scope.",
+        "Provides a reproducible direct-route and asset test.",
+        "Uses browser/deploy evidence to isolate the failure layer.",
+        "Defines a concrete, low-risk rollback path."
+      ]
+    },
+    {
       "id": "deploy-references",
       "type": "references",
       "items": [
@@ -177,6 +331,16 @@
         {
           "title": "Vercel: Vite deployment",
           "url": "https://vercel.com/docs/frameworks/frontend/vite",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vite: Env Variables and Modes",
+          "url": "https://vite.dev/guide/env-and-mode",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Netlify: Page not found and SPA fallback",
+          "url": "https://docs.netlify.com/resources/troubleshooting/page-not-found-error-guide/",
           "kind": "official-docs"
         }
       ]

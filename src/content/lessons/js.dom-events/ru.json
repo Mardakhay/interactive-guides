@@ -4,25 +4,25 @@
   "version": 2,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-2-week-7",
   "week": 7,
   "order": 1,
   "title": "DOM и события браузера",
   "description": "Разберись в живом дереве документа браузера, безопасно выбирай и обновляй элементы, обрабатывай события и создай DOM-список задач на основе данных.",
-  "estimatedMinutes": 90,
+  "estimatedMinutes": 125,
   "difficulty": "beginner",
   "prerequisites": [
     "js.functions-arrays-objects",
     "html.forms-accessibility"
   ],
   "learningOutcomes": [
-    "Объяснять, как браузер преобразует HTML в живое DOM-дерево.",
-    "Безопасно выбирать элементы через querySelector и querySelectorAll.",
-    "Создавать, обновлять и удалять DOM-узлы с помощью API браузера.",
-    "Выбирать textContent вместо небезопасной вставки HTML для пользовательского текста.",
-    "Объяснять event.target/currentTarget, всплытие и preventDefault.",
-    "Создавать список задач, обновляя массив и отображая из него текущие данные."
+    "Объяснять, как разбор HTML создаёт разные типы DOM nodes и elements.",
+    "Безопасно выбирать узлы, обходить связи между элементами и различать static/live collections.",
+    "Создавать и обновлять узлы безопасными API для текста, атрибутов и свойств.",
+    "Объяснять event target/currentTarget, фазы capture/target/bubble, delegation и действия браузера по умолчанию.",
+    "Отлаживать различия между HTML-атрибутами и изменяемыми DOM-свойствами.",
+    "Создавать список с источником данных в JS и проверять поведение через DevTools."
   ],
   "tags": [
     "javascript",
@@ -43,6 +43,76 @@
       "id": "dom-model-body",
       "type": "paragraph",
       "text": "HTML-исходник описывает документ, а Document Object Model (DOM) — структурированное дерево, которое браузер создаёт из исходника. JavaScript может читать и изменять это дерево, пока страница открыта. DOM — не скриншот и не замороженная копия первоначальной HTML-строки: после разбора браузера узлы можно добавлять, удалять и обновлять."
+    },
+    {
+      "id": "dom-node-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Node и element связаны, но это не одно и то же"
+    },
+    {
+      "id": "dom-node-explanation",
+      "type": "paragraph",
+      "text": "Каждый element — это node, но не каждый node является element. У элемента вроде button nodeType равен 1; у text node — 3; у комментария — 8. В разметке `<div id=\"panel\"><!-- note --><button>Save</button></div>` коллекция `childNodes` панели содержит комментарий и кнопку, а `children` — только кнопку. Пробелы и переносы между тегами тоже могут создавать text nodes, поэтому количество зависит от форматирования. Используй обход элементов (`children`, `parentElement`, `nextElementSibling`), когда нужны связи между элементами; `childNodes` нужен, если важны текст и комментарии."
+    },
+    {
+      "id": "dom-node-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const panel = document.querySelector(\"#panel\");\nif (panel) {\n  const nodes = [...panel.childNodes];\n  console.log(nodes.map((node) => node.nodeType));\n  console.log(panel.children.length);\n}",
+      "steps": [
+        {
+          "title": "Проверь результат поиска",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "querySelector может вернуть null. Проверка не даёт читать коллекции отсутствующей панели."
+        },
+        {
+          "title": "Посмотри все дочерние nodes",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "Для компактной разметки выше значения nodeType будут [8, 1]: сначала comment, затем button. Если добавить пробелы между тегами, появятся и text nodes с типом 3."
+        },
+        {
+          "title": "Посмотри только дочерние элементы",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "explanation": "children исключает комментарии и текст, поэтому в этом примере вернёт одну кнопку независимо от пробелов форматирования."
+        }
+      ]
+    },
+    {
+      "id": "dom-node-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В `<div><!-- note --><button>Save</button></div>` какой nodeType у комментария?",
+      "options": [
+        {
+          "id": "a",
+          "text": "1 — ELEMENT_NODE",
+          "correct": false,
+          "feedback": "Тип 1 используется у элементов, например button и div."
+        },
+        {
+          "id": "b",
+          "text": "3 — TEXT_NODE",
+          "correct": false,
+          "feedback": "Тип 3 обозначает текстовый узел; у HTML-комментария отдельный тип."
+        },
+        {
+          "id": "c",
+          "text": "8 — COMMENT_NODE",
+          "correct": true,
+          "feedback": "HTML-комментарий — node с nodeType 8. Он есть в childNodes, но отсутствует в коллекции children."
+        },
+        {
+          "id": "d",
+          "text": "9 — DOCUMENT_NODE",
+          "correct": false,
+          "feedback": "Тип 9 обозначает объект документа, а не комментарий внутри элемента."
+        }
+      ],
+      "explanation": "DOM содержит не только элементы: текст и комментарии тоже являются nodes."
     },
     {
       "id": "dom-select",
@@ -132,6 +202,76 @@
       ]
     },
     {
+      "id": "dom-attributes-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "HTML-атрибуты и DOM-свойства могут показывать разное состояние"
+    },
+    {
+      "id": "dom-attributes-explanation",
+      "type": "paragraph",
+      "text": "HTML-атрибут входит в разметку и задаёт исходную конфигурацию; DOM property — JavaScript-свойство живого объекта. Если input изначально задан как `value=\"hello\"`, ввод пользователя меняет `input.value`, но обычно оставляет `getAttribute(\"value\")` и `defaultValue` равными исходному значению. Сброс формы возвращает текущее значение к default. Некоторые свойства отражают атрибуты (например `disabled`), но boolean-атрибут истинен уже самим фактом наличия: `disabled=\"false\"` всё равно означает disabled. Читай именно то свойство, которое соответствует нужному состоянию: в DevTools Elements проверяй разметку, а в Console — живые свойства."
+    },
+    {
+      "id": "dom-attributes-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "// HTML: <form><input id=\"name\" value=\"hello\"></form>\nconst input = document.querySelector(\"#name\");\nconst form = document.querySelector(\"form\");\nif (input instanceof HTMLInputElement && form instanceof HTMLFormElement) {\n  console.log(input.getAttribute(\"value\")); // \"hello\"\n  input.value = \"world\";\n  console.log(input.getAttribute(\"value\")); // \"hello\"\n  console.log(input.value); // \"world\"\n  form.reset();\n  console.log(input.value); // \"hello\"\n}",
+      "steps": [
+        {
+          "title": "Начни с исходной разметки",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "У input есть value content attribute, а форма даёт встроенное браузером поведение reset."
+        },
+        {
+          "title": "Прочитай атрибут и измени текущее значение",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Присваивание value меняет текущее значение поля. Content attribute остаётся исходным значением разметки; он не подходит для чтения того, что пользователь ввёл сейчас."
+        },
+        {
+          "title": "Проверь границу сброса",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "form.reset() восстанавливает текущее значение контрола из default value, связанного с исходным value-атрибутом, если default не меняли."
+        }
+      ]
+    },
+    {
+      "id": "dom-attributes-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Пользователь ввёл `world` в `<input value=\"hello\">`. Какое выражение читает текущее редактируемое значение?",
+      "options": [
+        {
+          "id": "a",
+          "text": "input.getAttribute(\"value\")",
+          "correct": false,
+          "feedback": "Это чтение content attribute, который обычно остаётся исходным значением из разметки."
+        },
+        {
+          "id": "b",
+          "text": "input.value",
+          "correct": true,
+          "feedback": "Свойство value хранит текущее редактируемое значение; сброс формы может восстановить default."
+        },
+        {
+          "id": "c",
+          "text": "input.children[0]",
+          "correct": false,
+          "feedback": "input — void element; текущее текстовое значение не является дочерним узлом."
+        },
+        {
+          "id": "d",
+          "text": "document.documentElement.value",
+          "correct": false,
+          "feedback": "documentElement — корневой HTML-элемент, а не это поле формы."
+        }
+      ],
+      "explanation": "Различай исходное значение разметки/default state и изменяемое runtime state."
+    },
+    {
       "id": "events",
       "type": "heading",
       "level": 2,
@@ -171,6 +311,26 @@
           "lineStart": 8,
           "lineEnd": 8,
           "explanation": "Здесь показано только событие. Настоящее приложение обновит модель данных и отобразит новое состояние."
+        }
+      ]
+    },
+    {
+      "id": "dom-event-phases-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const card = document.querySelector(\"#card\");\nconst button = document.querySelector(\"#save\");\nif (card && button) {\n  const log = [];\n  card.addEventListener(\"click\", () => log.push(\"capture\"), { capture: true });\n  button.addEventListener(\"click\", () => log.push(\"target\"));\n  card.addEventListener(\"click\", () => log.push(\"bubble\"));\n  button.click();\n  console.log(log); // [\"capture\", \"target\", \"bubble\"]\n}",
+      "steps": [
+        {
+          "title": "Зарегистрируй слушатели на предке и цели",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "Первый слушатель card явно использует capture. Слушатель button выполняется на target, а слушатель card без capture наблюдает всплывающее событие."
+        },
+        {
+          "title": "Запусти click и проследи его путь",
+          "lineStart": 8,
+          "lineEnd": 9,
+          "explanation": "Для вложенной кнопки порядок такой: capture идёт к target, выполняются слушатели цели, затем bubble возвращается к предку. Реальные события могут быть остановлены или не всплывать — это зависит от типа события."
         }
       ]
     },
@@ -430,6 +590,39 @@
         "Пользовательский текст вставляется безопасно.",
         "Контролы за пределами списка игнорируются.",
         "Разница статической и живой коллекции объяснена точно."
+      ]
+    },
+    {
+      "id": "dom-property-debug-exercise",
+      "type": "codingExercise",
+      "title": "Отладь DOM-тест, который читает не то значение",
+      "language": "javascript",
+      "context": "Тест формы вводит новое имя, но assertion по-прежнему видит старое. При этом обход дерева находит больше узлов, чем видно контролов.",
+      "instructions": [
+        "Создай минимальную форму с input, исходное value которой равно `hello`; введи `world` и сравни value property, defaultValue и value-атрибут.",
+        "Покажи результат form.reset() и объясни, какое значение он восстанавливает.",
+        "Используй компактную разметку с комментарием и кнопкой, сравни childNodes, children и nodeType; объясни влияние пробелов между тегами.",
+        "Запиши порядок событий capture, target и bubble и укажи, что может изменить ожидаемый порядок.",
+        "Назови панели или выражения DevTools, которые помогут изолировать каждый источник расхождения."
+      ],
+      "requirements": [
+        "Различает исходный content attribute и текущее значение input property.",
+        "Объясняет нативный form reset через default value контрола.",
+        "Верно определяет comment node и element-only коллекцию children.",
+        "Указывает, что whitespace создаёт text nodes и меняет childNodes.",
+        "Объясняет capture-target-bubble без утверждения, что всплывает любое событие."
+      ],
+      "starterCode": "// HTML: <form><input id=\"name\" value=\"hello\"></form>\nconst input = document.querySelector(\"#name\");\n\n// TODO: сравни начальный value attribute, defaultValue и текущее value.\n// TODO: задай новое значение, проверь результат и сбрось форму.\n\n// TODO: сравни childNodes и children у разметки с комментарием.\n// TODO: запиши порядок capture, target и bubble.",
+      "hints": [
+        "После присваивания input.value сравни input.getAttribute(\"value\") с input.value.",
+        "Используй form.reset(), чтобы увидеть восстановление default value.",
+        "childNodes включает текст и комментарии; children содержит только элементы."
+      ],
+      "successCriteria": [
+        "Объяснено, почему для текущего значения читают value property.",
+        "Предсказан и объяснён результат reset через defaultValue.",
+        "Учтены комментарии и пробельные text nodes при обходе DOM.",
+        "Указан порядок capture → target → bubble для обычного всплывающего click и названо ограничение распространения событий."
       ]
     },
     {

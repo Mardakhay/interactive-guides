@@ -4,13 +4,13 @@
   "version": 1,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-26",
   "moduleId": "supplement-network-browser",
   "supplementaryTrackId": "supplement-network-browser",
   "order": 1,
   "title": "DNS, IP, TCP/UDP, порты и TLS",
   "description": "Проследи DNS-запрос, сравни транспортные протоколы и разберись в портах, TLS и версиях HTTP.",
-  "estimatedMinutes": 60,
+  "estimatedMinutes": 85,
   "difficulty": "intermediate",
   "prerequisites": [
     "web.internet-http"
@@ -21,7 +21,8 @@
     "Сравнивать TCP, UDP и QUIC и объяснять транспорт HTTP/3.",
     "Описывать роли IP-адресов, портов и сокетов.",
     "Объяснять проверку TLS-сертификата и защиту данных при передаче.",
-    "Диагностировать сетевые сбои по данным DevTools."
+    "Диагностировать сетевые сбои по данным DevTools.",
+    "Различать multiplexing HTTP/2 поверх TCP и streams HTTP/3 поверх QUIC при потерях пакетов."
   ],
   "tags": [
     "network",
@@ -115,6 +116,109 @@
       "id": "tls-text",
       "type": "paragraph",
       "text": "Порт помогает доставить трафик приложению на хосте; сам номер порта не идентифицирует сервер во всём мире. HTTPS — HTTP поверх TLS. Клиент проверяет цепочку сертификатов и соответствие hostname, затем использует ключи трафика. TLS защищает конфиденциальность и целостность при передаче и помогает аутентифицировать сервер, но не гарантирует безопасность приложения и не заменяет авторизацию пользователя."
+    },
+    {
+      "id": "http-transport-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "HTTP/2 multiplexing всё ещё работает поверх упорядоченного TCP-потока"
+    },
+    {
+      "id": "http-transport-explanation",
+      "type": "paragraph",
+      "text": "HTTP/1.1 часто повторно использует TCP-соединения; то, как именно запросы разделяют соединения, зависит от браузера и сервера. HTTP/2 добавляет streams и чередует frames параллельных обменов в одном соединении, уменьшая прикладные очереди и накладные расходы на соединения. Но это соединение остаётся одним упорядоченным TCP byte stream: если потерян более ранний TCP segment, TCP не передаст последующие байты приложению до восстановления пропуска. Поэтому чередующиеся данные нескольких HTTP/2 streams могут одновременно остановиться. Это transport-level head-of-line blocking; multiplexing в HTTP/2 не устраняет его. HTTP/3 переносит семантику HTTP на QUIC поверх UDP. У QUIC есть независимо упорядочиваемые streams, поэтому потеря, затрагивающая один stream, обычно не мешает продвигаться несвязанным streams. Однако все streams, чьи данные оказались в одном потерянном пакете, могут ждать; также остаются congestion control и ограничения соединения."
+    },
+    {
+      "id": "http-transport-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "HTTP/1.1  -> запросы используют и повторно используют TCP-соединения\nHTTP/2    -> stream A + stream B -> перемешанные frames -> один TCP byte stream\nTCP loss  -> байты после пропущенной sequence gap ждут retransmission\nHTTP/2    -> parser не прочитает следующие frames, пока gap не восстановится\nHTTP/3    -> stream A + stream B -> QUIC streams поверх UDP\nQUIC loss -> данные затронутого stream ждут восстановления\nДругие независимые streams могут продолжаться; congestion control всё ещё влияет на соединение",
+      "steps": [
+        {
+          "title": "Отдели HTTP streams от транспортной доставки",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "HTTP/2 multiplexes прикладные обмены через чередование frames, но TCP доставляет всё соединение как один упорядоченный поток байтов."
+        },
+        {
+          "title": "Проследи влияние потери на TCP-соединение",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "TCP должен восстановить пропущенные байты, прежде чем передать более поздние. Поскольку frames разных HTTP/2 streams делят этот порядок байтов, HTTP/2 может пока не получить последующие frames."
+        },
+        {
+          "title": "Сравни восстановление QUIC streams",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "HTTP/3 использует QUIC streams. Потеря блокирует данные, которым нужны отсутствующие байты затронутого stream, а не обязательно все несвязанные streams; один пакет может содержать данные нескольких streams, а congestion control общий."
+        }
+      ]
+    },
+    {
+      "id": "http-transport-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Как точнее всего описать потерю пакета при HTTP/2 поверх TCP?",
+      "options": [
+        {
+          "id": "a",
+          "text": "HTTP/2 устраняет любое head-of-line blocking, потому что для каждого запроса создаётся отдельное TCP-соединение",
+          "correct": false,
+          "feedback": "HTTP/2 обычно multiplexes несколько streams через одно соединение, а не создаёт TCP для каждого запроса."
+        },
+        {
+          "id": "b",
+          "text": "Frames нескольких HTTP/2 streams находятся в одном упорядоченном TCP byte stream, поэтому потеря раннего сегмента может задержать последующие байты разных streams",
+          "correct": true,
+          "feedback": "Multiplexing уменьшает прикладные очереди, но in-order delivery TCP может остановить более поздние байты общего соединения."
+        },
+        {
+          "id": "c",
+          "text": "TCP сразу передаёт более поздние байты, а HTTP/2 сортирует их по запросам",
+          "correct": false,
+          "feedback": "TCP отдаёт приложению упорядоченный поток байтов; multiplexing HTTP/2 не обходит пропуск."
+        },
+        {
+          "id": "d",
+          "text": "HTTP/3 меняет HTTP status codes, чтобы повторно отправлять пакеты",
+          "correct": false,
+          "feedback": "Семантика HTTP и status codes не отвечают за транспортное восстановление; HTTP/3 отображает HTTP semantics на QUIC."
+        }
+      ],
+      "explanation": "Определи уровень каждой функции: HTTP streams, упорядоченная доставка TCP или восстановление QUIC streams."
+    },
+    {
+      "id": "http-transport-practice",
+      "type": "codingExercise",
+      "title": "Объясни остановку HTTP/2 и подбери полезные данные",
+      "language": "text",
+      "context": "Страница загружается через одно HTTP/2-соединение. Во время потерь в сети несколько ресурсов перестают продвигаться одновременно, хотя DNS разрешается, а сервер остаётся доступен.",
+      "instructions": [
+        "Нарисуй путь от multiplexing browser requests через HTTP/2 frames к TCP-соединению.",
+        "Объясни, почему пропуск в TCP sequence может задержать более поздние байты, относящиеся к нескольким HTTP/2 streams.",
+        "Сравни поведение HTTP/3/QUIC, не утверждая, что QUIC отменяет потери и congestion.",
+        "Перечисли данные DevTools Network (protocol, reuse соединения, timing, stalled requests) и метрики сервера/сети, с которыми их нужно сопоставить.",
+        "Объясни, почему один медленный запрос не доказывает transport head-of-line blocking."
+      ],
+      "requirements": [
+        "Различает прикладной multiplexing и ordered byte-stream delivery TCP.",
+        "Точно объясняет механизм общей остановки соединения.",
+        "Описывает HTTP/3 как HTTP semantics поверх QUIC и указывает независимость streams с оговорками о пакетах/congestion.",
+        "Опирается на измеримые данные браузера и сети, а не только на предположение по UI.",
+        "Не рекомендует менять HTTP-версию без измерения поддержки и влияния на пользователей."
+      ],
+      "starterCode": "Модель browser requests:\\n\\nHTTP/2 streams → framing → TCP:\\n\\nНаблюдаемая потеря / остановленные ресурсы:\\n\\nЧто видно в DevTools Network:\\n\\nЧто подтвердит telemetry сервера/сети:\\n\\nКак HTTP/3 меняет границу сбоя:\\n\\nЧто остаётся общим или ограниченным:",
+      "hints": [
+        "TCP in-order delivery может задержать все последующие байты, даже если они кодируют другой HTTP/2 stream.",
+        "QUIC поддерживает независимые упорядоченные streams, но в одном потерянном пакете могут быть данные нескольких streams; congestion control соединения остаётся общим.",
+        "Сопоставь timing и protocol/connection в браузере с серверной и транспортной telemetry; у медленного ресурса может быть много причин."
+      ],
+      "successCriteria": [
+        "Показан механизм и граница сбоя по уровням.",
+        "Точно объяснены ограничение HTTP/2 и отличие HTTP/3.",
+        "Используются наблюдения для отличия транспортной потери от DNS, сервера или приложения.",
+        "Указаны ограничения QUIC на уровне пакета и congestion."
+      ]
     },
     {
       "id": "debug",
@@ -233,7 +337,8 @@
         "TCP даёт надёжный поток, UDP — датаграммы, HTTP/3 — QUIC/UDP.",
         "Порт не идентифицирует глобальный сервер сам по себе.",
         "TLS защищает трафик при передаче, но не заменяет авторизацию приложения.",
-        "DevTools помогает отличать DNS, соединение, TLS, HTTP и браузерные политики."
+        "DevTools помогает отличать DNS, соединение, TLS, HTTP и браузерные политики.",
+        "HTTP/2 multiplexes обмены, но использует общий упорядоченный TCP-поток; HTTP/3 использует независимые QUIC streams с оговорками о пакетах и congestion."
       ]
     },
     {
@@ -263,6 +368,16 @@
         {
           "title": "Chrome DevTools: Network panel",
           "url": "https://developer.chrome.com/docs/devtools/network/overview",
+          "kind": "official-docs"
+        },
+        {
+          "title": "RFC 9113: HTTP/2",
+          "url": "https://www.rfc-editor.org/rfc/rfc9113.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "RFC 9000: QUIC Transport Protocol",
+          "url": "https://www.rfc-editor.org/rfc/rfc9000.html",
           "kind": "official-docs"
         }
       ]

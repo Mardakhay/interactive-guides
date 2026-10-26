@@ -6,28 +6,30 @@ import { getLearningPathLessonIds } from '@/features/learning-paths';
 import { useProgressStore, computeProgressStats } from '@/features/progress';
 import { Card, Badge, ProgressBar } from '@/components/ui';
 import { learningPathDetailPath } from '@/app/router/routes';
-import { DIFFICULTY_COLORS, DIFFICULTY_LABELS } from '@/lib/constants';
+import { DIFFICULTY_COLORS } from '@/lib/constants';
+import { formatLessonCount, getLocalizedDifficulty, getLocalizedLearningPathCopy, translate, useUiLocale } from '@/features/localization';
 
 const ICON_MAP: Record<string, LucideIcon> = { Globe, Code2, Atom, Wrench, ShieldCheck };
 const LEVEL_COLORS = DIFFICULTY_COLORS;
-const LEVEL_LABELS = DIFFICULTY_LABELS;
 
 export default function LearningPathsPage() {
+  const locale = useUiLocale();
   const paths = useMemo(() => getLearningPaths(), []);
   const progressLessons = useProgressStore((s) => s.lessons);
 
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold text-neutral-900">Learning Paths</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900">{translate(locale, 'learningPaths')}</h1>
         <p className="text-neutral-600">
-          Follow a curated sequence of lessons from start to finish. Each path guides you through a skill step by step, with progress tracked along the way.
+          {translate(locale, 'pathListDescription')}
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {paths.map((path) => {
           const Icon = ICON_MAP[path.icon] ?? RouteIcon;
+          const pathCopy = getLocalizedLearningPathCopy(locale, path.id, path.title, path.description);
           const lessonIds = getLearningPathLessonIds(path.id);
           const stats = computeProgressStats(progressLessons, lessonIds);
           return (
@@ -40,24 +42,24 @@ export default function LearningPathsPage() {
                   <span
                     className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${LEVEL_COLORS[path.level] ?? LEVEL_COLORS.beginner}`}
                   >
-                    {LEVEL_LABELS[path.level] ?? path.level}
+                    {getLocalizedDifficulty(locale, path.level)}
                   </span>
                 </div>
-                <h2 className="mt-4 text-lg font-semibold text-neutral-900">{path.title}</h2>
-                <p className="mt-1.5 line-clamp-3 text-sm text-neutral-600">{path.description}</p>
+                <h2 className="mt-4 text-lg font-semibold text-neutral-900">{pathCopy.title}</h2>
+                <p className="mt-1.5 line-clamp-3 text-sm text-neutral-600">{pathCopy.description}</p>
                 <div className="mt-auto space-y-3 pt-4">
                   {stats.completed > 0 && (
-                    <ProgressBar value={stats.percent} label={`${stats.completed}/${stats.total} completed`} />
+                    <ProgressBar value={stats.percent} label={translate(locale, 'completedProgress', { completed: stats.completed, total: stats.total })} />
                   )}
                   <div className="flex items-center gap-4 text-xs text-neutral-500">
-                    <Badge variant="primary">{path.lessonCount} lessons</Badge>
+                    <Badge variant="primary">{formatLessonCount(locale, path.lessonCount)}</Badge>
                     <span className="flex items-center gap-1">
                       <Clock className="h-3.5 w-3.5" />
-                      {path.estimatedHours}h
+                      {path.estimatedHours}{translate(locale, 'hourUnit')}
                     </span>
                   </div>
                   <div className="flex items-center gap-1 text-sm font-medium text-primary-600 transition-colors group-hover:text-primary-700">
-                    View path
+                    {translate(locale, 'viewPath')}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </div>
                 </div>
