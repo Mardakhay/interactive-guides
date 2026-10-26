@@ -244,7 +244,7 @@
     {
       "id": "deploy-debug-callout",
       "type": "callout",
-      "tone": "info",
+      "tone": "tip",
       "title": "Isolate the failing layer before changing settings",
       "text": "A build error belongs in deploy logs; a nested-route 404 points to hosting rewrites; a blank page may come from a JavaScript exception or a missing hashed asset; a failed API request may be a wrong build-time URL, CORS, or backend authorization. Reproduce the deployed URL, inspect DevTools Console and Network, then compare the deployed commit and environment scope. The same symptom can have different causes, so use the response status and request URL as evidence."
     },
@@ -331,6 +331,16 @@
         {
           "title": "Vercel: Vite deployment",
           "url": "https://vercel.com/docs/frameworks/frontend/vite",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vite: Env Variables and Modes",
+          "url": "https://vite.dev/guide/env-and-mode",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Netlify: Page not found and SPA fallback",
+          "url": "https://docs.netlify.com/resources/troubleshooting/page-not-found-error-guide/",
           "kind": "official-docs"
         }
       ]

@@ -244,7 +244,7 @@
     {
       "id": "deploy-debug-callout",
       "type": "callout",
-      "tone": "info",
+      "tone": "tip",
       "title": "Сначала изолируй слой сбоя",
       "text": "Ошибка сборки видна в deploy logs; 404 на вложенном маршруте указывает на hosting rewrite; пустая страница может быть следствием JavaScript exception или отсутствующего hashed asset; сбой API-запроса может быть вызван неверным URL на этапе сборки, CORS или серверной авторизацией. Повтори проблему на deployed URL, проверь DevTools Console и Network, затем сравни commit и scope переменных. Похожие симптомы имеют разные причины — используй status code и request URL как доказательства."
     },
@@ -331,6 +331,16 @@
         {
           "title": "Vercel: Vite deployment",
           "url": "https://vercel.com/docs/frameworks/frontend/vite",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vite: переменные окружения и режимы",
+          "url": "https://vite.dev/guide/env-and-mode",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Netlify: 404 и SPA fallback",
+          "url": "https://docs.netlify.com/resources/troubleshooting/page-not-found-error-guide/",
           "kind": "official-docs"
         }
       ]
