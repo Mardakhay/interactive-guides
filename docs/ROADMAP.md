@@ -331,3 +331,7 @@ A verified Advanced JS syntax gap was addressed inside the existing core lesson,
 ## Content/depth checkpoint — 2026-10-26
 
 Extended the existing object/prototype supplement for function receiver invocation and strict mode. Continue source-driven review; do not cut over legacy learner routes until all source rows have sufficient depth evidence, then integrate Supabase only after JSON cutover.
+
+## Content checkpoint — 2026-10-26
+
+Registered `browser.realtime-workers` for the Notion XHR/WebSocket/worker material. Complete its remaining source details and the rest of all source rows before the JSON learner-flow cutover; only afterward implement Supabase progress. No Supabase integration has started. Total inventory is 42 bilingual pairs.

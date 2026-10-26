@@ -108,3 +108,7 @@ Outside this document's React scope, the core JavaScript lesson gained array des
 ## Broader JavaScript source note — 2026-10-26
 
 The broader Advanced JS pass added explicit function receiver/call/apply/bind and strict-mode lessons in `js.object-prototypes`; the mapped coverage remains partial. It does not change the Week 14–15 audit scope or close the full-source gate.
+
+## Broader content progress — 2026-10-26
+
+The broader JavaScript/browser pass now includes a source-mapped bilingual networking/workers lesson. It remains partial against Advanced JS; see `FULL_SOURCE_CONTENT_AUDIT.md`. This does not change Week 14–15 scope or close the all-source gate.

@@ -216,3 +216,7 @@ The core lesson `js.functions-arrays-objects` now includes bilingual examples of
 ## Supplementary lesson depth — 2026-10-26
 
 `js.object-prototypes` retains its ID/track and now teaches call/apply/bind and strict-mode behavior through bilingual examples, two new checks and one applied invoice task. Lesson pair inventory remains 41; source parity for every strict-mode nuance remains partial.
+
+## Browser platform supplement — 2026-10-26
+
+Both curricula register `supplement-browser-platform` with bilingual `browser.realtime-workers`. The lesson retains source/API distinctions and practical cleanup work. Inventory: 26 core + 16 supplementary = 42 bilingual pairs. It is an educational supplement; it is not the app's progress persistence implementation.

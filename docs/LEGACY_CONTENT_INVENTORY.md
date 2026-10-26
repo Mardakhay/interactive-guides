@@ -161,3 +161,7 @@ Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passe
 ## 2026-10-26 invocation/strict-mode checkpoint
 
 The existing `js.object-prototypes` supplement now has explicit examples for call-site `this`, `call` vs `apply` vs `bind`, arrow lexical receiver, bound event-listener identity, and strict-mode effects. A practical invoice task and feedback quizzes accompany the explanation. Both locales are 31 blocks; broader strict-mode edge cases remain partial. Pair inventory remains 41.
+
+## 2026-10-26 networking/worker checkpoint
+
+Added registered bilingual `browser.realtime-workers` in `supplement-browser-platform`. It differentiates XHR/Fetch, WebSocket, dedicated Worker and Service Worker with four code traces, two explained quizzes and a worker sorting exercise. Source depth is partial: upload progress, XHR states, explicit reconnect and full service-worker cache/version strategies remain. Catalog now has 42 pairs (26 core, 16 supplements); learner HTML remains active.

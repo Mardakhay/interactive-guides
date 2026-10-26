@@ -132,3 +132,7 @@ Deepened the existing functions/arrays/objects core lesson from 58 to 71 bilingu
 ## JS invocation content update — 2026-10-26
 
 Expanded `js.object-prototypes` from 19 to 31 blocks in EN and RU, adding call/apply/bind execution traces, arrow lexical-this, listener identity, strict mode and an applied exercise. Tests assert source-specific structures and aligned translations. This improves but does not complete the Advanced JS page's invocation/strict-mode coverage; see the matrix.
+
+## Browser networking content — 2026-10-26
+
+The Advanced JS source now maps to registered `browser.realtime-workers`: transport/status errors, socket lifecycle and message validation, worker messaging/clone cost, service-worker install/fetch/scope, cleanup and applied work. Content and source-specific gaps are listed in the full audit. Inventory: 42 EN/RU pairs; JSON cutover and Supabase remain pending.

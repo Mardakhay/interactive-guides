@@ -330,3 +330,7 @@ Browser-storage lesson code SHA `7915276b6514a56a3a700c0ba488b784e348754b` passe
 ## Latest lesson update — 2026-10-26
 
 `js.object-prototypes` is now 31 blocks in both locales (previously 19), with call/apply/bind, arrow lexical-this, strict mode and an applied invoice exercise. Code SHA `6a45a6a1b59d3fec621ca97f0648ef63cf714476` is on CI [run 40283382323](https://github.com/Mardakhay/interactive-guides/actions/runs/40283382323). Source coverage remains partial; full parity, JSON cutover and Supabase are still open.
+
+## Latest content checkpoint — 2026-10-26
+
+Catalog now has 42 EN/RU pairs (26 core + 16 supplementary), including new `browser.realtime-workers` in `supplement-browser-platform`. Its four walkthroughs, two quizzes and worker exercise are source-mapped; parity remains partial. Code SHA `eeed651f275a5307f8d726d1a08d0b4590ea1916` is under CI at https://github.com/Mardakhay/interactive-guides/actions/runs/40283883424. Legacy HTML routes remain; Supabase has not started.

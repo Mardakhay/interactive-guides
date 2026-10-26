@@ -378,3 +378,7 @@ Core JS code SHA `a7f53e1695cd47b3cb1ede031f306b0a91de717a` deepens `js.function
 ## Latest handoff — 2026-10-26
 
 Code SHA `6a45a6a1b59d3fec621ca97f0648ef63cf714476` adds EN/RU invocation and strict-mode depth to `js.object-prototypes` without changing IDs. CI is run 40283382323; inspect final status and logs on this exact commit. Continue the source audit after validation; preserve learner HTML until all-source parity and JSON cutover.
+
+## Latest handoff — 2026-10-26
+
+Code SHA `eeed651f275a5307f8d726d1a08d0b4590ea1916` adds bilingual `browser.realtime-workers` and registers a new track. CI run 40283883424 is underway; inspect this exact SHA's logs and repair any failure. Content inventory is 42 pairs. Full source/depth gate remains; preserve legacy learner routes until JSON cutover is validated, then begin Supabase.
