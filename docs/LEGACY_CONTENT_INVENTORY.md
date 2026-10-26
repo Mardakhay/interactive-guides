@@ -133,3 +133,7 @@ The JSON curriculum now registers `js.iterators-generators` in English and Russi
 ## 2026-10-26 incremental source checkpoint
 
 A deeper fetch of the Advanced JS Notion page confirmed distinct Map/Set/WeakMap/WeakSet sections. The structured course now has a bilingual registered supplement `js.collections-weakmaps` (15 aligned blocks: three worked traces, two explained checks, one coding exercise), but this only partially covers the source's complete API examples. Evidence and remaining subtopics are in `FULL_SOURCE_CONTENT_AUDIT.md`. Repository inventory: 39 EN/RU pairs (26 core + 13 supplements). Legacy HTML is still preserved and learner routes remain active until the all-source gate passes; Supabase is not started.
+
+## Verification correction — 2026-10-26
+
+The initial collection-lesson commit failed runtime schema tests because each knowledge check lacked the required overall `explanation` field (per-option feedback alone is not sufficient). The bilingual quiz content now includes both kinds of feedback, and its test asserts one correct option, non-empty feedback for every option, and a non-empty overall explanation. Follow-up code SHA `55eda66397b28157624ab9e758cb089267e42031` passed lint, typecheck, tests, and production build: [CI run 40281556236](https://github.com/Mardakhay/interactive-guides/actions/runs/40281556236). This successful run validates the 39-pair code state; the subsequent documentation-only checkpoint will receive its own CI run.

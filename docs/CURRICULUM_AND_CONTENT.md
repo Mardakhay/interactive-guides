@@ -188,3 +188,7 @@ The `supplement-js-internals` track now includes the EN/RU lesson `js.iterators-
 ## Supplementary curriculum checkpoint — 2026-10-26
 
 `supplement-js-internals` now registers `js.collections-weakmaps` (order 4) in English and Russian, following the new iterators/generators lesson. It teaches Map/Set identity and ordering plus WeakMap trade-offs through three walkthroughs and a cart aggregation exercise. The source's full method-by-method treatment remains only partially covered. Inventory: 26 core + 13 supplementary IDs (39 bilingual pairs). Full parity is still a gate before HTML-backed route removal; Supabase follows only after cutover.
+
+## Verification correction — 2026-10-26
+
+The initial collection-lesson commit failed runtime schema tests because each knowledge check lacked the required overall `explanation` field (per-option feedback alone is not sufficient). The bilingual quiz content now includes both kinds of feedback, and its test asserts one correct option, non-empty feedback for every option, and a non-empty overall explanation. Follow-up code SHA `55eda66397b28157624ab9e758cb089267e42031` passed lint, typecheck, tests, and production build: [CI run 40281556236](https://github.com/Mardakhay/interactive-guides/actions/runs/40281556236). This successful run validates the 39-pair code state; the subsequent documentation-only checkpoint will receive its own CI run.

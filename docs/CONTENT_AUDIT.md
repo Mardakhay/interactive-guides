@@ -104,3 +104,7 @@ Added `js.iterators-generators` as a registered bilingual supplement after ident
 ## Content depth update — 2026-10-26
 
 Added bilingual `js.collections-weakmaps` from Advanced JS Notion material. The lesson differentiates Map's object-key identity from structural equality, Set's value uniqueness from domain-key deduplication, and weak collections from enumerable/timed caches. Applied practice groups records by stable ID, preserving order without mutation. This is a partial source slice, not full API parity. Total: 39 EN/RU pairs (26 core, 13 supplementary). See the detailed evidence and gaps in `FULL_SOURCE_CONTENT_AUDIT.md`; JSON cutover and Supabase remain pending.
+
+## Verification correction — 2026-10-26
+
+The initial collection-lesson commit failed runtime schema tests because each knowledge check lacked the required overall `explanation` field (per-option feedback alone is not sufficient). The bilingual quiz content now includes both kinds of feedback, and its test asserts one correct option, non-empty feedback for every option, and a non-empty overall explanation. Follow-up code SHA `55eda66397b28157624ab9e758cb089267e42031` passed lint, typecheck, tests, and production build: [CI run 40281556236](https://github.com/Mardakhay/interactive-guides/actions/runs/40281556236). This successful run validates the 39-pair code state; the subsequent documentation-only checkpoint will receive its own CI run.

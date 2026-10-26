@@ -350,3 +350,7 @@ Latest content change: `28b95945fc6218d2cf8d3608f5fa0e6f3aadb354` adds registere
 ## Latest handoff checkpoint — 2026-10-26
 
 Latest code commit `693d91796a45f8e20668138c5d0fb7983ad97f1c` adds registered EN/RU `js.collections-weakmaps`, a 15-block supplement in `supplement-js-internals`, with 3 walkthroughs, 2 explained checks and an applied coding task. Total inventory is 39 pairs (26 core + 13 supplements). CI for this code SHA is running at https://github.com/Mardakhay/interactive-guides/actions/runs/40281388758. Map/Set/weak-collection source coverage is still partial; full Advanced JS and all-source audit remain open. Keep legacy learner routes/files until coverage and JSON cutover are verified; begin Supabase only after that gate.
+
+## Verification correction — 2026-10-26
+
+The initial collection-lesson commit failed runtime schema tests because each knowledge check lacked the required overall `explanation` field (per-option feedback alone is not sufficient). The bilingual quiz content now includes both kinds of feedback, and its test asserts one correct option, non-empty feedback for every option, and a non-empty overall explanation. Follow-up code SHA `55eda66397b28157624ab9e758cb089267e42031` passed lint, typecheck, tests, and production build: [CI run 40281556236](https://github.com/Mardakhay/interactive-guides/actions/runs/40281556236). This successful run validates the 39-pair code state; the subsequent documentation-only checkpoint will receive its own CI run.
