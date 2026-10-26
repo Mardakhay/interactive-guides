@@ -1,10 +1,10 @@
 {
   "id": "git.workflow-ci",
   "locale": "ru",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-5-week-20",
   "week": 20,
   "order": 1,
@@ -487,6 +487,111 @@
         }
       ],
       "explanation": "Для стабильного публичного API SemVer использует MAJOR для несовместимых изменений, MINOR для обратно совместимых функций и PATCH для обратно совместимых исправлений."
+    },
+    {
+      "id": "git-cd-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Continuous delivery и continuous deployment различаются моментом релиза"
+    },
+    {
+      "id": "git-cd-body",
+      "type": "paragraph",
+      "text": "Continuous integration (CI) регулярно объединяет изменения и запускает проверки. При continuous delivery pipeline поддерживает проверенный кандидат готовым к развёртыванию, но человек или release policy всё ещё может разрешать выпуск в production. При continuous deployment каждое изменение, прошедшее обязательные проверки, автоматически выпускается в production. Команды используют эти термины по-разному, поэтому документируйте реальный trigger. Branch protection — правило платформы репозитория, которое может требовать CI status и review перед merge; CI сообщает результат, а branch protection применяет gate."
+    },
+    {
+      "id": "git-cd-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Отправлен commit feature-ветки\n        ↓\nCI: install → lint → typecheck → tests → build\n        ↓\nПроверки зелёные? ── нет → изучить ошибку, исправить, отправить новый commit\n        │ да\n        ↓\nBranch protection: обязательное review + checks\n        ↓\nMerge в protected main\n        ↓\nСборка неизменяемого release artifact\n        ↓\nContinuous delivery: approval/release trigger → production\nContinuous deployment: автоматический gate → production",
+      "steps": [
+        {
+          "title": "Запустите проверки для предложенного commit",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "CI создаёт evidence для конкретного SHA. Красная проверка блокирует движение, пока её причина не изучена, не исправлена и не проверена на новом commit."
+        },
+        {
+          "title": "Примените политику на границе merge",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Branch protection может требовать человеческое review и статусы проверок перед merge. Сам по себе CI не запрещает merge, если правила репозитория не применяют его результат."
+        },
+        {
+          "title": "Точно назовите trigger production-релиза",
+          "lineStart": 9,
+          "lineEnd": 12,
+          "explanation": "Continuous delivery сохраняет релиз готовым, но может требовать approval. Continuous deployment автоматически выпускает прошедшие проверки изменения. Явно задайте artifact и процесс выпуска, чтобы продвигалась та же проверенная сборка."
+        }
+      ]
+    },
+    {
+      "id": "git-cd-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Pipeline выполняет все проверки и создаёт production-ready artifact, но выпуск должен одобрить уполномоченный человек. Какой термин ближе к такой модели?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Continuous delivery",
+          "correct": true,
+          "feedback": "Изменение готово к развёртыванию, но выпуск запускает человек или release policy."
+        },
+        {
+          "id": "b",
+          "text": "Continuous deployment",
+          "correct": false,
+          "feedback": "При continuous deployment каждое изменение, прошедшее gate, автоматически выпускается."
+        },
+        {
+          "id": "c",
+          "text": "Только continuous integration",
+          "correct": false,
+          "feedback": "Pipeline также подготавливает release candidate; CI описывает частую интеграцию и автоматические проверки."
+        },
+        {
+          "id": "d",
+          "text": "Branch protection",
+          "correct": false,
+          "feedback": "Branch protection задаёт условия merge, а не ручной или автоматический выпуск в production."
+        }
+      ],
+      "explanation": "Смотрите, что запускает production: approval/release action указывает на delivery, автоматический выпуск после gates — на deployment."
+    },
+    {
+      "id": "git-pipeline-simulation",
+      "type": "codingExercise",
+      "title": "Смоделируйте защищённый CI и release pipeline",
+      "language": "text",
+      "context": "В feature-ветке один тест падает. Команда требует CI и review до merge, после чего нужно выбрать delivery или deployment policy.",
+      "instructions": [
+        "Проследите commit через install, lint, typecheck, tests и build; отметьте первый упавший gate.",
+        "Запишите диагноз и исправление новым commit; объясните, почему прежний статус не распространяется на новый SHA.",
+        "Определите, какие review и status checks требует branch protection и что именно она блокирует.",
+        "Выберите ручное approval для production (delivery) или автоматический выпуск после gates (deployment) и обоснуйте компромисс риска.",
+        "Запишите, как продвигается точный протестированный artifact и как запускается rollback."
+      ],
+      "requirements": [
+        "Результат CI связан с точным commit SHA и проверки запускаются после изменений.",
+        "Причина изучается по логам, а не обходится или скрывается.",
+        "Применение branch protection различено с публикацией CI-статусов.",
+        "Production triggers для delivery и deployment определены правильно.",
+        "План релиза включает продвижение artifact и rollback."
+      ],
+      "starterCode": "SHA предложенного commit:\nУпавший gate и evidence:\nКорневая причина:\nSHA исправляющего commit:\nОбязательные CI/review branch rules:\nProduction trigger: ручной approval / автоматический после gates\nПродвижение artifact:\nУсловие rollback и ответственный:",
+      "hints": [
+        "Статус required check — evidence; protected branch rule отклоняет merge без него.",
+        "После исправления требуйте проверки на новом commit, а не используйте прежний run.",
+        "Continuous delivery может ждать approval; continuous deployment не требует отдельного release-click для каждого успешного изменения.",
+        "Сохраняйте provenance artifact, чтобы видеть, что запущено в каждой среде."
+      ],
+      "successCriteria": [
+        "Ошибка найдена по имени check/log и описано конкретное исправление.",
+        "Подтвержден повторный запуск checks для fix commit до merge.",
+        "Описано поведение review/status branch protection.",
+        "Выбран и обоснован production trigger без смешения delivery и deployment.",
+        "Определены отслеживание artifact и ответственность за rollback."
+      ]
     },
     {
       "id": "deep-workflow-summary",

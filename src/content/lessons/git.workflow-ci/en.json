@@ -1,10 +1,10 @@
 {
   "id": "git.workflow-ci",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-5-week-20",
   "week": 20,
   "order": 1,
@@ -487,6 +487,111 @@
         }
       ],
       "explanation": "For a public stable API, SemVer uses MAJOR for incompatible changes, MINOR for backwards-compatible features, and PATCH for backwards-compatible fixes."
+    },
+    {
+      "id": "git-cd-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Continuous delivery and continuous deployment differ at release"
+    },
+    {
+      "id": "git-cd-body",
+      "type": "paragraph",
+      "text": "Continuous integration (CI) repeatedly integrates changes and runs checks. In continuous delivery, the pipeline keeps a tested candidate deployable, but a person or release policy may still approve production. In continuous deployment, every change that passes the required gates is automatically released to production. Teams use these terms differently, so document the actual trigger. Branch protection is a repository-hosting rule that can require CI status and review before merge; CI reports evidence, while branch protection enforces the gate."
+    },
+    {
+      "id": "git-cd-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Feature commit pushed\n        ↓\nCI: install → lint → typecheck → tests → build\n        ↓\nChecks green? ── no → inspect failure, fix, push new commit\n        │ yes\n        ↓\nBranch protection: required review + required checks\n        ↓\nMerge to protected main\n        ↓\nBuild immutable release artifact\n        ↓\nContinuous delivery: approval/release trigger → production\nContinuous deployment: automatic gate → production",
+      "steps": [
+        {
+          "title": "Run checks against the proposed commit",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "CI produces evidence for one tested SHA. A red check blocks progress until its cause is understood, corrected, and rerun on a new commit."
+        },
+        {
+          "title": "Enforce policy at the merge boundary",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Branch protection can require human review and check statuses before accepting a merge. CI itself does not prevent a merge unless repository rules enforce the result."
+        },
+        {
+          "title": "Name the production trigger accurately",
+          "lineStart": 9,
+          "lineEnd": 12,
+          "explanation": "Continuous delivery keeps a release ready but can require approval. Continuous deployment automatically releases qualifying changes after gates. Keep the artifact and release process explicit so the same tested build is promoted."
+        }
+      ]
+    },
+    {
+      "id": "git-cd-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A pipeline runs all checks and creates a production-ready artifact, but an authorized person must approve the release. Which term most closely describes this release model?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Continuous delivery",
+          "correct": true,
+          "feedback": "The change remains deployable, but a human or release-policy trigger still starts production release."
+        },
+        {
+          "id": "b",
+          "text": "Continuous deployment",
+          "correct": false,
+          "feedback": "Continuous deployment automatically releases every change that satisfies its gates."
+        },
+        {
+          "id": "c",
+          "text": "Continuous integration only",
+          "correct": false,
+          "feedback": "The pipeline also prepares a release candidate; CI describes frequent integration and automated checks."
+        },
+        {
+          "id": "d",
+          "text": "Branch protection",
+          "correct": false,
+          "feedback": "Branch protection governs merge conditions, not whether production release is manual or automatic."
+        }
+      ],
+      "explanation": "Ask what triggers production: an approval/release action indicates delivery; automatic production release after gates indicates deployment."
+    },
+    {
+      "id": "git-pipeline-simulation",
+      "type": "codingExercise",
+      "title": "Simulate a protected CI and release pipeline",
+      "language": "text",
+      "context": "A feature branch has one failing test. The team requires CI and review before merging, then must choose a delivery or deployment policy.",
+      "instructions": [
+        "Trace the proposed commit through install, lint, typecheck, tests and build, and mark the first failing gate.",
+        "Write the diagnosis and fix as a new commit; explain why the old green/red status does not apply to the new SHA.",
+        "Define which review and status checks branch protection requires and what it blocks.",
+        "Choose whether production requires a manual approval (delivery) or is automatic after gates (deployment), and justify the risk tradeoff.",
+        "Record how the exact tested release artifact is promoted and how rollback is initiated."
+      ],
+      "requirements": [
+        "CI result is tied to an exact commit SHA and is rerun after changes.",
+        "Failure is diagnosed from logs instead of bypassed or hidden.",
+        "Branch protection enforcement is distinguished from CI reporting.",
+        "Delivery and deployment production triggers are defined accurately.",
+        "Artifact promotion and rollback are included in the release plan."
+      ],
+      "starterCode": "Proposed commit SHA:\nFailing gate and evidence:\nRoot cause:\nFix commit SHA:\nRequired CI/review branch rules:\nProduction trigger: manual approval / automatic after gates\nArtifact promotion:\nRollback trigger and owner:",
+      "hints": [
+        "A required-check status is evidence; a protected branch rule is what rejects merges without it.",
+        "After fixing code, require checks on the new commit rather than reusing the old run.",
+        "Continuous delivery may pause for approval; continuous deployment does not require a release click for every successful change.",
+        "Keep artifact provenance visible so you know what is running in each environment."
+      ],
+      "successCriteria": [
+        "Identifies the failure from a named check/log and describes a concrete fix.",
+        "Confirms checks rerun on the fix commit before merge.",
+        "States review/status branch protection behavior.",
+        "Selects and explains a production trigger without conflating delivery and deployment.",
+        "Defines artifact tracking and rollback responsibility."
+      ]
     },
     {
       "id": "deep-workflow-summary",

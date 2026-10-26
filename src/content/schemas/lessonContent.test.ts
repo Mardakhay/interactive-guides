@@ -491,6 +491,28 @@ describe('Git workflow lesson translation', () => {
     expect(englishGitWorkflow.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGitWorkflow.blocks.map(({ id, type }) => ({ id, type })),
     );
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(englishGitWorkflow.blocks.map((block) => block.id)).toEqual(
+      expect.arrayContaining([
+        'git-cd-body',
+        'git-cd-walkthrough',
+        'git-cd-check',
+        'git-pipeline-simulation',
+      ]),
+    );
+    const pipelineSimulation = englishGitWorkflow.blocks.find(
+      (block) => block.id === 'git-pipeline-simulation',
+    );
+    expect(pipelineSimulation).toMatchObject({
+      type: 'codingExercise',
+      requirements: expect.arrayContaining([expect.stringContaining('exact commit SHA')]),
+      successCriteria: expect.arrayContaining([expect.stringContaining('rollback')]),
+    });
   });
 });
 
