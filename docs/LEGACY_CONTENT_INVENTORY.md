@@ -235,3 +235,11 @@ Notion discovery returned 21 relevant pages (all are retrievable; all currently 
 ## Source-audit continuation — 2026-10-26
 
 Completed a full-content and interaction review of `public/lessons/js-memory-mastery.html` (source 7 of 25 fully studied). Its useful lessons on object identity, nested copy behavior, closure retention and memory diagnosis are now embedded in both `js.runtime-memory` JSON locales. The new lesson explicitly separates ECMAScript guarantees from engine-specific physical memory/optimization claims, and adds a repeatable DevTools investigation plus an immutable-update exercise. Source-specific coverage and deliberate corrections are recorded in `FULL_SOURCE_CONTENT_AUDIT.md`; full-source completion remains open (7/25 HTML files, and Notion connector verification remains unverified).
+
+
+## Full-content review checkpoint — 2026-10-26
+
+- Fully inspected HTML source 8/25: `public/lessons/react-usestate-guide.html` (blob `73b6d53f95f6b06dad75d58cd63f50a7c6e77e71`, 82568 bytes). This includes the whole document, all code samples, the inline demo/editor/quiz scripts, five coding-task rubrics and all 10 quiz answers/feedback.
+- Covered in existing embedded EN/RU lessons: `react.components-jsx-state` (state snapshot, updater queue, immutable arrays/objects, controlled inputs, deeper state exercise), `react.forms-validation` (controlled/uncontrolled inputs, multi-field forms, validation, debugging exercises and 10 checks), and `typescript.fundamentals` (inference and generic state types).
+- Status is strong concept coverage but partial interaction parity: the legacy remote AI code reviewer is deliberately not reproduced. The source matrix records the lesson block evidence and inaccurate legacy simplifications.
+- Total HTML full reads: 8/25. Remaining 17 require full content/interaction review before the HTML cutover gate can close.
