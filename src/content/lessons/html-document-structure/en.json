@@ -1,7 +1,7 @@
 {
   "id": "html.document-structure",
   "locale": "en",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,14 +10,15 @@
   "order": 1,
   "title": "HTML document structure and semantic page regions",
   "description": "Learn how a complete HTML document is organized, why metadata belongs in the head, how the browser treats the body, and how semantic elements communicate the purpose of page regions.",
-  "estimatedMinutes": 105,
+  "estimatedMinutes": 75,
   "difficulty": "beginner",
   "prerequisites": [],
   "learningOutcomes": [
     "Explain the purpose of the doctype, html, head, and body parts of an HTML document.",
     "Distinguish document metadata from content intended to appear in the page.",
     "Choose between header, nav, main, section, article, and footer based on meaning rather than appearance.",
-    "Build a small, correctly structured About Me page and inspect it with browser DevTools."
+    "Build a small, correctly structured About Me page and inspect it with browser DevTools.",
+    "Embed third-party or user-authored content with an accessible name and a least-privilege sandbox boundary."
   ],
   "tags": [
     "html",
@@ -474,6 +475,108 @@
       ]
     },
     {
+      "id": "html-iframe-security-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Embed content with an explicit trust boundary"
+    },
+    {
+      "id": "html-iframe-security-body",
+      "type": "paragraph",
+      "text": "An iframe embeds a separate browsing context. Give it a descriptive `title` so assistive-technology users can identify the frame, and treat the URL as a trust decision: third-party content can still display misleading UI even when cross-origin rules limit script access to the parent. The `sandbox` attribute starts with restrictions; add only the tokens the embedded feature needs. `allow-scripts` permits the frame's scripts. `allow-same-origin` preserves its origin instead of assigning an opaque origin. If same-origin untrusted content receives both tokens, it can access the embedding document and remove the sandbox, defeating the boundary. For user-provided or untrusted content, prefer a separate origin and the smallest permissions. Offer a normal link as a fallback when embedding fails."
+    },
+    {
+      "id": "html-iframe-security-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<iframe\n  src=\"https://reports.example.net/summary\"\n  title=\"Partner report summary\"\n  loading=\"lazy\"\n  sandbox\n></iframe>\n\n<a href=\"https://reports.example.net/summary\">Open the report</a>",
+      "steps": [
+        {
+          "title": "Name the embedded browsing context",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "A descriptive title distinguishes the frame from the parent page in assistive-technology navigation. The external origin is a deliberate trust boundary, not proof that the content is harmless."
+        },
+        {
+          "title": "Begin with sandbox restrictions",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "An empty sandbox value applies the restrictions by default. Add a specific token only after confirming the provider needs that capability; do not copy a permission list as a magic preset."
+        },
+        {
+          "title": "Keep a usable fallback",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "The ordinary link gives users a path if the embed is blocked, unavailable, or unsuitable on their device. Lazy loading is useful for offscreen content, not a security control."
+        }
+      ]
+    },
+    {
+      "id": "html-iframe-security-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "An untrusted same-origin iframe must run scripts. Why is adding both `allow-scripts` and `allow-same-origin` to its sandbox dangerous?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The iframe will always be blocked by the browser.",
+          "correct": false,
+          "feedback": "The tokens grant capabilities; they do not automatically block the frame. The risk comes from combining them for same-origin content."
+        },
+        {
+          "id": "b",
+          "text": "The frame can access its same-origin parent and remove the sandbox, defeating the restrictions.",
+          "correct": true,
+          "feedback": "With both capabilities and the same origin, the embedded document can reach the parent DOM and remove its own iframe's sandbox attribute."
+        },
+        {
+          "id": "c",
+          "text": "The frame becomes unable to load images.",
+          "correct": false,
+          "feedback": "Image loading is not the central consequence of this permission combination."
+        },
+        {
+          "id": "d",
+          "text": "The frame's title becomes hidden from screen readers.",
+          "correct": false,
+          "feedback": "The title provides an accessible name. It is independent of these sandbox capabilities."
+        }
+      ],
+      "explanation": "Sandbox tokens are individual privilege grants. Keep untrusted content on a separate origin and allow only what its job requires."
+    },
+    {
+      "id": "html-iframe-security-practice",
+      "type": "codingExercise",
+      "title": "Review an embedded-content boundary",
+      "language": "html",
+      "context": "A page embeds a partner report and a user-authored preview. The first needs JavaScript for its viewer; the second renders markup supplied by learners.",
+      "instructions": [
+        "For each frame, identify the content owner, origin, required capabilities, and impact if it is malicious.",
+        "Choose a separate origin and the minimum sandbox tokens for the partner viewer; explain whether scripts are actually necessary.",
+        "For the user-authored preview, explain why same-origin script execution is unsafe and select a stronger isolation boundary.",
+        "Add a descriptive title and a link fallback for each embedded document.",
+        "Review the final permissions against the feature requirements instead of copying a broad token list."
+      ],
+      "requirements": [
+        "The partner viewer and user-authored preview are treated as different trust levels.",
+        "The same-origin `allow-scripts` plus `allow-same-origin` risk is correctly explained.",
+        "Only required sandbox capabilities are granted, with a separate origin for untrusted content.",
+        "Both frames have descriptive accessible titles and fallback links."
+      ],
+      "starterCode": "<!-- TODO: embed a partner report with the smallest necessary permissions -->\n\n<!-- TODO: isolate user-authored preview content from the application origin -->\n\n<!-- TODO: add a meaningful title and a normal-link fallback for each -->",
+      "hints": [
+        "An iframe is a browsing context, so ask whether its content can execute scripts, submit forms, open windows, or navigate the top page.",
+        "A sandbox token removes one restriction; grant permissions one at a time from a documented requirement.",
+        "Same-origin access is powerful: do not mix it with script execution for untrusted content."
+      ],
+      "successCriteria": [
+        "The partner frame's requested capabilities have an explicit reason.",
+        "The learner preview cannot script the application origin.",
+        "The permission list does not include unnecessary broad capabilities.",
+        "Titles and fallback links communicate what each frame contains and where it opens."
+      ]
+    },
+    {
       "id": "summary",
       "type": "list",
       "ordered": false,
@@ -639,6 +742,11 @@
           "title": "WHATWG HTML Standard: Sections",
           "url": "https://html.spec.whatwg.org/multipage/sections.html",
           "kind": "standard"
+        },
+        {
+          "title": "MDN: <iframe> element and sandbox security",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe",
+          "kind": "official-docs"
         }
       ]
     }

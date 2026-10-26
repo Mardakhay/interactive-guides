@@ -866,4 +866,33 @@ describe('utility types from the integrated intro.dev source', () => {
     expect(exercise.hints.length).toBeGreaterThanOrEqual(4);
     expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
   });
+
+  it('covers iframe trust boundaries and permissions in both lesson locales', () => {
+    expect(lessonTranslationSchema.safeParse(englishLesson).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianLesson).success).toBe(true);
+    expect(englishLesson.blocks.map(({ id, type }) => [id, type])).toEqual(
+      russianLesson.blocks.map(({ id, type }) => [id, type]),
+    );
+    for (const lesson of [englishLesson, russianLesson]) {
+      const walkthrough = lesson.blocks.find((block) => block.id === 'html-iframe-security-walkthrough');
+      expect(walkthrough?.type).toBe('codeWalkthrough');
+      if (walkthrough?.type !== 'codeWalkthrough') return;
+      const lineCount = walkthrough.code.split('\\n').length;
+      expect(walkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      expect(walkthrough.code).toContain('sandbox');
+      const check = lesson.blocks.find((block) => block.id === 'html-iframe-security-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') return;
+      expect(check.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      const exercise = lesson.blocks.find((block) => block.id === 'html-iframe-security-practice');
+      expect(exercise?.type).toBe('codingExercise');
+      if (exercise?.type !== 'codingExercise') return;
+      expect(exercise.requirements).toHaveLength(4);
+      expect(exercise.hints).toHaveLength(3);
+      expect(exercise.successCriteria).toHaveLength(4);
+      expect(exercise.starterCode).toContain('sandbox');
+    }
+  });
+
 });
