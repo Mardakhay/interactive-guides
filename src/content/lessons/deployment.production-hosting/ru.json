@@ -4,13 +4,13 @@
   "version": 1,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "supplement-deployment",
   "supplementaryTrackId": "supplement-deployment",
   "order": 1,
   "title": "Production hosting: сборка, окружение, deep links и rollback",
   "description": "Подготовь Vite SPA к production и проверь маршруты, конфигурацию и восстановление в deployed preview.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 105,
   "difficulty": "intermediate",
   "prerequisites": [
     "tooling.node-npm-vite",
@@ -18,8 +18,10 @@
   ],
   "learningOutcomes": [
     "Различать dev server, production build и deployment.",
-    "Отделять публичную конфигурацию браузера от серверных секретов.",
-    "Проверять прямое открытие маршрута и SPA fallback.",
+    "Объяснять содержимое dist, content hashes и build-time конфигурацию клиента.",
+    "Отделять публичные browser values от серверных секретов.",
+    "Разбирать режимы и приоритет Vite env-файлов без коммита локальных секретов.",
+    "Проверять прямой переход и SPA fallback конкретного хостинга.",
     "Планировать preview, smoke tests, мониторинг и rollback."
   ],
   "tags": [
@@ -158,6 +160,158 @@
         "Build, preview и promotion — разные этапы; успех в development не доказывает готовность production.",
         "Клиентские переменные публичны; credentials хранятся на сервере.",
         "Проверяй прямые URL, assets, ключевые сценарии и recovery в deployment-среде."
+      ]
+    },
+    {
+      "id": "deploy-dist-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Что именно отправляет production-сборка"
+    },
+    {
+      "id": "deploy-dist-concepts",
+      "type": "paragraph",
+      "text": "Vite компилирует исходники в статические файлы внутри dist/; хостинг раздаёт эти сгенерированные файлы, а не исходное дерево или dev server. Имена assets часто содержат content hash. Когда меняются байты файла, меняется и его имя: кеш может хранить неизменившийся asset, а новая HTML-страница ссылается на новую версию. Считай dist результатом генерации: его полезно осматривать при диагностике сборки, но не редактировать вручную и не считать исходным кодом. Значения, используемые browser-кодом, подставляются во время сборки. Поэтому изменение переменной в панели хостинга не переписывает уже собранный bundle — нужна новая сборка и deployment."
+    },
+    {
+      "id": "deploy-dist-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "src/main.tsx + src/styles.css\n  -> npm run build\n  -> dist/index.html\n     dist/assets/index-A1B2.js\n     dist/assets/index-C3D4.css\n  -> CDN кеширует assets по content hash\n  -> изменённый исходник создаёт новые имена файлов",
+      "steps": [
+        {
+          "title": "Собери приложение из исходников",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Production build компилирует и объединяет приложение. Работающий dev server не доказывает, что production-преобразование проходит успешно."
+        },
+        {
+          "title": "Проверь каталог публикации",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "В dist лежат deployable HTML entry и сгенерированные assets. Убедись, что хостинг публикует каталог, который действительно создаёт сборка."
+        },
+        {
+          "title": "Разберись с кешированием",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "Хешированные имена различают версии содержимого. Если страница запрашивает отсутствующий старый asset, проверь целостность deployment и поведение кеша, а не переименовывай файлы вручную."
+        }
+      ]
+    },
+    {
+      "id": "deploy-env-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Vite env-файлы: режим и приоритет"
+    },
+    {
+      "id": "deploy-env-detail",
+      "type": "paragraph",
+      "text": "Vite загружает .env и .env.local, а также файлы режима .env.[mode] и .env.[mode].local. Для одинакового ключа приоритет файлов такой: .env.[mode].local, затем .env.[mode], потом .env.local и .env. Переменная, уже заданная в окружении процесса, важнее значений из файлов. По умолчанию npm run dev использует development mode, а npm run build — production mode. Не коммить личные .local-файлы; добавь только шаблонный .env.example без секретов. Любое значение VITE_, включённое в browser-код, публично. Переменные в настройках хостинга передаются процессу сборки; после их изменения нужно заново собрать статический bundle."
+    },
+    {
+      "id": "deploy-env-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "# .env\nVITE_API_ORIGIN=https://api.example.test\n\n# .env.production\nVITE_API_ORIGIN=https://api.example.com\n\n# .env.production.local (исключён из Git)\nVITE_API_ORIGIN=https://staging-api.example.net\n\nnpm run build  # production mode",
+      "steps": [
+        {
+          "title": "Определи значение для выбранного режима",
+          "lineStart": 1,
+          "lineEnd": 9,
+          "explanation": "При production-сборке показанный .env.production.local — самый специфичный файл; его значение перекрывает .env.production и .env. Переменная, экспортированная в окружение процесса сборки, приоритетнее всех файлов."
+        },
+        {
+          "title": "Безопасно проверь итоговую конфигурацию",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "explanation": "Проверь ожидаемый публичный API origin в preview. Не выводи секреты в логи: клиентские VITE_ значения не являются хранилищем секретов."
+        }
+      ]
+    },
+    {
+      "id": "deploy-hosting-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Настройки провайдеров и SPA fallback различаются"
+    },
+    {
+      "id": "deploy-hosting-detail",
+      "type": "paragraph",
+      "text": "Git-connected hosting обычно устанавливает зависимости, запускает настроенную сборку, публикует dist и создаёт preview для веток или pull request. Ручная загрузка dist подходит для быстрой проверки, но не пересобирается автоматически после следующих коммитов. Vercel и Netlify оба могут размещать Vite SPA; проверяй конкретную build-команду, каталог публикации, область действия переменных (preview или production) и rewrite в актуальных настройках проекта. Типичное правило SPA для Netlify — `/* /index.html 200` в public/_redirects. Настрой и проверь fallback так, чтобы API и отсутствующие assets случайно не отдавались как HTML приложения. Ориентируйся на текущую документацию провайдера, а не на старые скриншоты панели."
+    },
+    {
+      "id": "deploy-debug-callout",
+      "type": "callout",
+      "tone": "info",
+      "title": "Сначала изолируй слой сбоя",
+      "text": "Ошибка сборки видна в deploy logs; 404 на вложенном маршруте указывает на hosting rewrite; пустая страница может быть следствием JavaScript exception или отсутствующего hashed asset; сбой API-запроса может быть вызван неверным URL на этапе сборки, CORS или серверной авторизацией. Повтори проблему на deployed URL, проверь DevTools Console и Network, затем сравни commit и scope переменных. Похожие симптомы имеют разные причины — используй status code и request URL как доказательства."
+    },
+    {
+      "id": "deploy-env-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "После изменения host variable preview всё ещё вызывает production API. Что следует проверить в первую очередь?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Публичное значение встроено в уже созданную сборку; пересобери preview с нужным scope переменных",
+          "correct": true,
+          "feedback": "Vite подставляет client env во время сборки. Изменение в панели не переписывает уже созданный JavaScript."
+        },
+        {
+          "id": "b",
+          "text": "Браузеру нужен серверный секрет, чтобы прочитать новое значение",
+          "correct": false,
+          "feedback": "VITE_ — публичная клиентская конфигурация; привилегированные секреты должны оставаться на сервере."
+        },
+        {
+          "id": "c",
+          "text": "Нужно вручную изменить сгенерированный JavaScript в dist",
+          "correct": false,
+          "feedback": "dist — результат сборки. Исправь окружение сборки и создай новый deployment."
+        },
+        {
+          "id": "d",
+          "text": "Успешный локальный dev server гарантирует тот же режим у preview",
+          "correct": false,
+          "feedback": "Development и production используют разные режимы и могут получать разные значения окружения."
+        }
+      ],
+      "explanation": "Проследи путь значения от scope переменных хостинга через build job до созданного browser bundle."
+    },
+    {
+      "id": "deploy-diagnostic-exercise",
+      "type": "codingExercise",
+      "title": "Найди причину сбоя preview, который работает локально",
+      "language": "text",
+      "context": "Vite SPA успешно собирается в CI, но preview обращается не к тому API, а refresh страницы /account/settings возвращает 404.",
+      "instructions": [
+        "Определи mode и scope окружения сборки preview; объясни, почему после изменения настройки хостинга нужна новая сборка.",
+        "Запиши приоритет Vite env-файлов и отметь более высокий приоритет уже заданных process variables.",
+        "Выбери проверку SPA fallback для конкретного провайдера, не скрывая ошибки API и отсутствующих assets.",
+        "Составь порядок диагностики через DevTools Network/Console и deploy logs; зафиксируй commit и build deployment.",
+        "Определи наблюдаемый trigger для rollback и шаг восстановления заведомо рабочей версии."
+      ],
+      "requirements": [
+        "Отделяет build-time public config от runtime серверных секретов.",
+        "Проверяет вложенный URL прямым открытием и refresh.",
+        "Не предлагает коммитить локальные env-файлы или редактировать dist вручную.",
+        "Использует status code и request URL, чтобы различить rewrite и сбой API/config.",
+        "Связывает rollback с конкретным release."
+      ],
+      "starterCode": "Mode и scope окружения preview-сборки:\n\nОжидаемый публичный API origin:\n\nПриоритет env-файлов / process override:\n\nПроверка direct route и fallback:\n\nДиагностика DevTools Console + Network:\n\nСравнение commit/build:\n\nTrigger rollback и шаг восстановления:",
+      "hints": [
+        "Проверь, присутствовало ли изменённое значение в build job, который создал текущие preview assets.",
+        "Открой /account/settings напрямую и обнови страницу; также проверь, что реальные JS/CSS assets возвращаются с ожидаемым типом содержимого.",
+        "Fallback должен отдавать entry приложения для его маршрутов, но не превращать отсутствующие файлы или backend endpoints в HTML."
+      ],
+      "successCriteria": [
+        "Объясняет подстановку на этапе сборки и scope preview/production.",
+        "Даёт повторяемую проверку direct route и assets.",
+        "Использует данные браузера и deployment для изоляции сбоя.",
+        "Содержит конкретный и безопасный план rollback."
       ]
     },
     {
