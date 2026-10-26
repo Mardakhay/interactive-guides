@@ -1,10 +1,10 @@
 {
   "id": "ui.bootstrap-mui",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "supplement-ui-ecosystem",
   "supplementaryTrackId": "supplement-ui-ecosystem",
   "order": 1,
@@ -164,6 +164,138 @@
         "Identifies version/documentation checks.",
         "Provides a token/theme consistency plan.",
         "Includes remaining accessibility/responsive validation."
+      ]
+    },
+    {
+      "id": "uilib-bootstrap-components-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Bootstrap components: markup and behavior belong together"
+    },
+    {
+      "id": "uilib-bootstrap-collapse",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<nav class=\"navbar navbar-expand-lg\" aria-label=\"Primary\">\n  <div class=\"container\">\n    <a class=\"navbar-brand\" href=\"/\">Field Notes</a>\n    <button class=\"navbar-toggler\" type=\"button\"\n      data-bs-toggle=\"collapse\" data-bs-target=\"#primaryNav\"\n      aria-controls=\"primaryNav\" aria-expanded=\"false\"\n      aria-label=\"Toggle primary navigation\">\n      <span class=\"navbar-toggler-icon\"></span>\n    </button>\n    <div class=\"collapse navbar-collapse\" id=\"primaryNav\">\n      <ul class=\"navbar-nav ms-auto\">\n        <li class=\"nav-item\"><a class=\"nav-link\" href=\"/guides\">Guides</a></li>\n      </ul>\n    </div>\n  </div>\n</nav>",
+      "steps": [
+        {
+          "title": "Give the navigation a landmark name",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "A page may have multiple nav landmarks; a concise accessible name lets assistive-technology users distinguish the primary navigation."
+        },
+        {
+          "title": "Connect the toggle to one collapse target",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "explanation": "data-bs-target points to the element ID and aria-controls describes the same relationship. Keep aria-expanded synchronized with the visible state; Bootstrap's collapse plugin updates it."
+        },
+        {
+          "title": "Load the behavior, not only the CSS",
+          "lineStart": 9,
+          "lineEnd": 14,
+          "explanation": "The collapse classes define initial/transition states, but the Bootstrap JavaScript plugin handles the toggle. In a bundler, import the required plugin or bundle according to the pinned Bootstrap version; CSS alone leaves the button inert."
+        }
+      ]
+    },
+    {
+      "id": "uilib-collapse-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A navbar toggle looks correct but clicking it does nothing. The Bootstrap CSS is loaded. What is the first behavior-level check?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Confirm Bootstrap's JavaScript collapse plugin is imported and the target ID matches",
+          "correct": true,
+          "feedback": "CSS supplies appearance; the collapse plugin handles state changes. A mismatched selector also prevents the toggle from finding its panel."
+        },
+        {
+          "id": "b",
+          "text": "Add more `aria-label` attributes",
+          "correct": false,
+          "feedback": "Accessible names do not implement the interaction behavior."
+        },
+        {
+          "id": "c",
+          "text": "Replace the button with an anchor that has href=\"#\"",
+          "correct": false,
+          "feedback": "A fake link does not fix the missing behavior and can cause page jumps."
+        },
+        {
+          "id": "d",
+          "text": "Add `display: none` to the nav",
+          "correct": false,
+          "feedback": "That hides the panel but does not create a controllable disclosure."
+        }
+      ],
+      "explanation": "Debug behavior dependencies and selector wiring before changing presentation or semantics."
+    },
+    {
+      "id": "uilib-grid-cards",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<div class=\"container\">\n  <div class=\"row g-3\">\n    <article class=\"col-12 col-sm-6 col-xl-4\">\n      <div class=\"card h-100\">\n        <img src=\"/images/guide.jpg\" class=\"card-img-top\" alt=\"A person sketching a page layout\">\n        <div class=\"card-body\">\n          <h2 class=\"card-title h5\">Plan the page</h2>\n          <p class=\"card-text\">Turn a user need into a clear content structure.</p>\n          <a class=\"btn btn-primary\" href=\"/guides/planning\">Read guide</a>\n        </div>\n      </div>\n    </article>\n  </div>\n</div>",
+      "steps": [
+        {
+          "title": "Let the grid describe the layout",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The columns stack by default, become two across at the small breakpoint, then three at extra-large. The breakpoint names and widths are framework-version facts—verify them against the project's pinned Bootstrap docs."
+        },
+        {
+          "title": "Use card utilities without losing document semantics",
+          "lineStart": 5,
+          "lineEnd": 9,
+          "explanation": "The article is a meaningful content unit; the heading and link remain understandable outside their visual card styling. h-100 helps equalize card height when row items have different text lengths."
+        },
+        {
+          "title": "Give images useful alternative text",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "This image communicates the guide topic, so the alt describes its meaningful content. For decoration only, use an empty alt instead of repeating nearby text."
+        }
+      ]
+    },
+    {
+      "id": "uilib-carousel-tradeoff",
+      "type": "callout",
+      "tone": "important",
+      "title": "Use a carousel only when rotation solves a real user problem",
+      "text": "Carousels hide content behind state and can make comparison harder. If one is necessary, provide clear previous/next controls, meaningful slide labels, keyboard operation and a way to pause automatic movement. Respect reduced-motion preferences and test focus, announcements and touch behavior. A static card list is often clearer."
+    },
+    {
+      "id": "uilib-bootstrap-task",
+      "type": "codingExercise",
+      "title": "Build an accessible responsive resource area",
+      "language": "html",
+      "context": "A documentation landing page needs primary navigation and resource cards. Implement it with the project's pinned Bootstrap version, then verify the behavior instead of trusting the classes.",
+      "instructions": [
+        "Build a named navigation landmark with a small-screen disclosure button connected to a unique collapse target.",
+        "Create a responsive grid with one column at the smallest width and additional columns at selected breakpoints.",
+        "Make each resource a semantic article with a heading, useful image alternative text (or empty alt for decoration), and a descriptive link.",
+        "Wire the exact Bootstrap JavaScript behavior needed by the collapse and document the project's dependency/import point.",
+        "Test keyboard use, visible focus, zoom/reflow, accessible names, narrow/wide layouts, and no-JavaScript fallback behavior."
+      ],
+      "requirements": [
+        "Bootstrap version is stated and examples match that version.",
+        "Collapse control is a button with a matching target, aria-controls, and meaningful accessible name.",
+        "Grid uses container/row/column conventions and content order remains meaningful when stacked.",
+        "Cards use semantic headings and links; image alternative text reflects the image's purpose.",
+        "Checks cover interaction and responsive states, not just screenshots."
+      ],
+      "starterCode": "<!-- TODO: build a named, responsive navigation disclosure. -->\n<!-- TODO: add resource cards using container > row > columns. -->\n<!-- Note the installed Bootstrap version and JS import below. -->\n<!-- Version/import: -->",
+      "hints": [
+        "Start with semantic HTML, then add Bootstrap classes.",
+        "data-bs-target and the collapse element ID must match exactly.",
+        "Check that the collapse JavaScript plugin is loaded; CSS alone is not interactive.",
+        "Use the accessibility tree and keyboard, not only visual appearance, to verify."
+      ],
+      "successCriteria": [
+        "Navigation toggles with keyboard and announces a useful state/name.",
+        "Resource layout reflows without horizontal scrolling at narrow widths and remains readable when zoomed.",
+        "Every card has a useful heading and descriptive link; images have appropriate alt text.",
+        "Implementation notes match the exact pinned Bootstrap version and imported JS behavior."
       ]
     },
     {
