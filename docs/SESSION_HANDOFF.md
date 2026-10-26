@@ -337,3 +337,8 @@ The user-requested order is unchanged: finish source-depth verification → swit
 ## Handoff — 2026-10-26
 
 Recent audited gaps now embedded in bilingual JSON: CSS margin collapsing, HTML data-table semantics, accessible media captions/alternatives, DOM observers, Fetch/Axios semantics, React effects and UI-library forms. Exact block mapping is in `FULL_SOURCE_CONTENT_AUDIT.md`; the global source-depth gate remains open. Check CI for the current feature HEAD, then continue remaining source rows. Do not remove the legacy learner flow before full validation; Supabase follows the JSON-only cutover.
+
+
+## Handoff — 2026-10-26
+
+Latest source-derived addition is the bilingual Git pipeline/release exercise: diagnose a failed check, fix and rerun on the new SHA, enforce review/status gates, choose delivery vs deployment, and track artifact/rollback. Feature SHA `08521895937d5b30e7bb58662b2d4f632d1f3616` was in CI when noted. Full Notion/HTML coverage remains unfinished; retain learner HTML until the gate is met, then cut over to JSON, then build Supabase persistence.

@@ -120,3 +120,8 @@ Targeted source comparison has now translated several previously missing interac
 ## HTML/CSS source findings — 2026-10-26
 
 Added structured bilingual evidence for native data tables and accessible media (captions, alternatives), plus a CSS lesson on margin collapsing. See `FULL_SOURCE_CONTENT_AUDIT.md` for exact block IDs. Legacy HTML remains as source evidence and in the learner flow until every remaining source row is reviewed; these additions alone do not authorize the cutover.
+
+
+## Git workflow update — 2026-10-26
+
+The structured Git/CI lesson now teaches the release trigger distinction between continuous delivery and continuous deployment and how branch protection enforces a CI/review gate. It adds a complete pipeline simulation task. See the full audit for exact evidence. Legacy HTML is still retained and still serves the learner route pending the global content gate.

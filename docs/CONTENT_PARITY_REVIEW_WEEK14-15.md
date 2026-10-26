@@ -67,3 +67,8 @@ Beyond the Week 14/15 forms/shared-state review, targeted source-derived depth n
 ## Additional parity finding — 2026-10-26
 
 HTML document structure now includes semantically correct data tables and media alternatives/captions, while CSS fundamentals adds the margin-collapse cases discussed in the source notes. These concepts were not part of the Week 14/15 React audit. Their bilingual block evidence and tests are in `FULL_SOURCE_CONTENT_AUDIT.md`; global source parity remains pending.
+
+
+## Git/CI continuation — 2026-10-26
+
+The Git workflow lesson now explicitly differentiates continuous delivery from continuous deployment and explains branch protection as enforcement separate from CI reporting. The legacy pipeline simulator is represented as a structured, feedback-bearing coding scenario. The all-source gate remains open.

@@ -290,3 +290,8 @@ Targeted parity additions now cover DOM observer APIs, Fetch/Axios service diffe
 ## Latest content gate evidence — 2026-10-26
 
 The source-to-lesson work has begun closing specific HTML/Notion gaps with bilingual JSON blocks and tests, including CSS margin collapse, HTML table semantics, and media captions. Do not mark content complete from these targeted passes. Continue the remaining Notion and HTML rows and evaluate explanation, worked reasoning, edge cases, practice and feedback before switching learner navigation.
+
+
+## Source gate update — 2026-10-26
+
+Content evidence now includes the CI-to-release simulator concepts from legacy Git workflow material. Even with focused HTML/Notion gaps closed, full source review remains incomplete. Keep HTML learner routes until every source row has depth evidence; then switch to JSON and only afterward implement Supabase progress.

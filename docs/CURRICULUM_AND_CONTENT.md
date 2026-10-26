@@ -175,3 +175,8 @@ In addition to the four supplements deepened previously, `js.dom-events`, `react
 ## HTML/CSS source-derived additions — 2026-10-26
 
 The HTML document lesson now covers semantic data tables and accessible media; CSS fundamentals now explains vertical margin collapsing in normal flow versus flex/grid. This preserves the core IDs and adds only source-derived sections. Detailed evidence and remaining parity work are tracked in `FULL_SOURCE_CONTENT_AUDIT.md`.
+
+
+## Git/CI content update — 2026-10-26
+
+`git.workflow-ci` now includes a pipeline walkthrough and feedback quiz for CI versus continuous delivery/deployment plus a practical fail/fix/approval/release scenario. Tests preserve EN/RU structure and assert the new task's exact SHA and rollback criteria. Remaining legacy source parity is tracked in `FULL_SOURCE_CONTENT_AUDIT.md`.

@@ -91,3 +91,8 @@ Additional tests now verify source-specific block IDs, bilingual structure, inte
 ## Latest source-specific content — 2026-10-26
 
 In this pass `css.fundamentals` gained the margin-collapsing model, code trace, feedback check and debugging exercise; `html.document-structure` gained semantic data-table and accessible image/video lessons. The pair structures and exercise scaffolds are asserted in `lessonContent.test.ts`. Previous source-specific DOM, React API/effects and UI-library additions are documented in the full source audit. Course-wide parity remains incomplete.
+
+
+## Git/CI parity — 2026-10-26
+
+Source-specific blocks now cover CI status tied to a SHA, branch-rule enforcement, immutable artifact promotion, manual-release versus automatic-deploy triggers, and rollback planning. The exercise requires evidence and a new check run after repair. This focused addition does not mark all Git HTML interactions or all course sources complete.

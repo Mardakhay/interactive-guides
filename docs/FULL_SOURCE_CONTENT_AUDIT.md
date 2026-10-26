@@ -343,3 +343,10 @@ Focused review of the HTML Reference, CSS Reference, DOM Masterclass, React API 
 | Bootstrap collapse/grid/cards/carousel and MUI forms | `ui.bootstrap-mui` EN/RU | `uilib-bootstrap-collapse`, `uilib-grid-cards`, `uilib-bootstrap-task`, `uilib-mui-form-walkthrough`, `uilib-mui-form-practice` |
 
 These mappings received bilingual structural checks and focused technical review. Latest content commit `ab9ae370a569ccfcaabd05a502ad0038694e17e8` was queued for CI when this note was written; preceding HTML-media checkpoint `a103c653d674d36a9e5614b91b95f013b9aea6e2` passed [run #40280077763](https://github.com/Mardakhay/interactive-guides/actions/runs/40280077763). Inventory retrieval remains 21 Notion pages (connector state unverified) and 25 HTML lesson files. This focused list is not an all-source completion claim; many other rows still require full depth/parity review.
+
+
+## Git workflow source evidence — 2026-10-26
+
+The `git-workflow-cicd-guide.html` source contains an interactive pipeline simulator and explicitly distinguishes CI, continuous delivery, and continuous deployment. `git.workflow-ci` now contains bilingual explanations and a pipeline walkthrough (`git-cd-heading`, `git-cd-body`, `git-cd-walkthrough`), a delivery-trigger check, and `git-pipeline-simulation`, which requires a failing-gate diagnosis, rerun on a new SHA, branch-protection policy, artifact promotion, production trigger, and rollback owner. This complements existing coverage of PR review, branch strategies, merge/rebase and conflict resolution.
+
+The source-interaction equivalent is a structured scenario exercise rather than a recreated HTML simulator. The schema test verifies added blocks and task criteria. Content commit `08521895937d5b30e7bb58662b2d4f632d1f3616` was still running CI when recorded; prior source/document commits passed runs #40280191797 and #40280265699. Full source parity for the remaining HTML/Notion material is still incomplete.
