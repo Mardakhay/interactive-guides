@@ -405,3 +405,15 @@ Code SHA `eeed651f275a5307f8d726d1a08d0b4590ea1916` adds bilingual `browser.real
 ## Binary-data lesson CI follow-up — 2026-10-26
 
 The first binary-data lesson CI run [40285183316](https://github.com/Mardakhay/interactive-guides/actions/runs/40285183316) failed only because its line-range test used a literal backslash-n delimiter. The test was corrected without weakening its range assertion. Follow-up SHA `bef3e581f966e41262e2da00d60da621b3a2d6ce` passed lint, typecheck, tests, and production build on [CI run 40285395490](https://github.com/Mardakhay/interactive-guides/actions/runs/40285395490). Lesson content remains in review; the broad source parity and legacy HTML cutover gates remain open.
+
+
+## intro.dev.html full-read checkpoint — 2026-10-26
+
+Completed the full 3,472-line source read, including five chapters, 20 interactive quiz items and 10 starter/solution exercises. It maps across existing npm/tooling, TypeScript, React, API Hooks, testing and browser-storage lessons. The pass identified the missing TypeScript utility-types topic; the bilingual core TS lesson now explains Pick/Omit/Partial, compile-time/runtime limits, a walkthrough, explained check and applied exercise. Detailed per-chapter evidence and outdated sample caveats are in FULL_SOURCE_CONTENT_AUDIT.md. Source parity is still partial; legacy HTML remains intact.
+
+
+## Source audit continuation — 2026-10-26
+
+- Completed a full read of public/lessons/intro.dev.html (3,472 lines; five chapters, 20 quiz items with feedback, and 10 starter/solution coding exercises).
+- Added bilingual utility-type instruction to typescript.fundamentals. FULL_SOURCE_CONTENT_AUDIT.md maps the five chapters and notes outdated examples not copied into the app.
+- This is one file, not completion of the 25-HTML audit. Keep HTML and learner routes intact. Current exact pre-change feature HEAD: 69321148494698eee4565fb465936d1abefe2283; the next code SHA needs CI.

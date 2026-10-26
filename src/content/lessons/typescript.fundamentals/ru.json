@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Основы TypeScript: типы, union и обобщённые коллекции",
   "description": "Изучи, как TypeScript добавляет статическую проверку к JavaScript, моделируй структуру объектов, сужай типы неопределённых значений и используй типы, делающие преобразования данных безопаснее.",
-  "estimatedMinutes": 90,
+  "estimatedMinutes": 100,
   "difficulty": "beginner",
   "prerequisites": [
     "tooling.node-npm-vite",
@@ -22,7 +22,8 @@
     "Объяснять, почему unknown безопаснее any, и сужать тип перед использованием.",
     "Моделировать объекты через interface и type alias, включая optional и union свойства.",
     "Использовать generic-типы вроде Array<T>, сохраняя связь между входным и выходным типами.",
-    "Создавать типизированный список пользователей и безопасно искать, обновлять и фильтровать его."
+    "Создавать типизированный список пользователей и безопасно искать, обновлять и фильтровать его.",
+    "Выводить типы create, preview и patch с помощью utility types, отличая статическую проверку от runtime-валидации."
   ],
   "tags": [
     "typescript",
@@ -516,13 +517,127 @@
       ]
     },
     {
+      "id": "utility-types-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Utility types преобразуют структуру только на этапе проверки типов"
+    },
+    {
+      "id": "utility-types-body",
+      "type": "paragraph",
+      "text": "Partial<T>, Required<T>, Pick<T, K>, Omit<T, K> и Readonly<T> выводят новую статическую форму из существующего типа. Они уменьшают повторение, когда доменная модель и payload API имеют общие поля, но не создают runtime-валидатор и не клонируют/замораживают объекты. Используйте производный тип на границе только тогда, когда его смысл соответствует реальной операции."
+    },
+    {
+      "id": "utility-types-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "interface Article {\n  id: string;\n  title: string;\n  body: string;\n  author: string;\n  publishedAt: Date;\n}\n\ntype CreateArticle = Omit<Article, \"id\" | \"publishedAt\">;\ntype ArticlePreview = Pick<Article, \"id\" | \"title\" | \"author\">;\ntype ArticlePatch = { id: string } & Partial<Omit<Article, \"id\">>;\n\nconst patch: ArticlePatch = { id: \"a-7\", title: \"Revised\" };",
+      "steps": [
+        {
+          "title": "Начните с доменной модели",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "Article описывает полную форму объекта. В create-запросе отсутствуют поля, создаваемые сервером; preview содержит только выбранные поля."
+        },
+        {
+          "title": "Выведите типы для отдельных операций",
+          "lineStart": 9,
+          "lineEnd": 11,
+          "explanation": "Omit удаляет указанные ключи, Pick оставляет только выбранные, Partial делает каждое оставшееся поле необязательным. Пересечение сохраняет обязательный id в patch."
+        },
+        {
+          "title": "Проверьте, что разрешает компилятор",
+          "lineStart": 13,
+          "lineEnd": 13,
+          "explanation": "Patch может содержать id и только изменённые поля. Эти типы исчезают из JavaScript и не проверяют JSON, полученный от сервера."
+        }
+      ]
+    },
+    {
+      "id": "utility-types-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Optional не равен nullable, а Partial действует неглубоко",
+      "text": "При strictNullChecks необязательное свойство может отсутствовать, а при чтении иметь значение undefined; это не означает, что разрешён null. Partial меняет только поля верхнего уровня, а Readonly ограничивает присваивания в типах, но не вызывает Object.freeze. Недоверенные значения нужно проверять во время выполнения, а семантику вложенного patch определять отдельно."
+    },
+    {
+      "id": "utility-types-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что гарантирует `Partial<Omit<Article, \"id\">>` во время выполнения?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Он удаляет id из каждого объекта JavaScript и делает остальные свойства необязательными во время выполнения.",
+          "correct": false,
+          "feedback": "Utility types не переписывают объекты: после компиляции они стираются."
+        },
+        {
+          "id": "b",
+          "text": "Он проверяет входящий JSON patch перед отправкой запроса.",
+          "correct": false,
+          "feedback": "Статические типы не проверяют внешние данные; нужна runtime-схема или явные проверки."
+        },
+        {
+          "id": "c",
+          "text": "На этапе компиляции он описывает объект без id с необязательными полями верхнего уровня Article, кроме id.",
+          "correct": true,
+          "feedback": "Верно. Меняется только форма типа; проверка во время выполнения и семантика вложенных полей решаются отдельно."
+        },
+        {
+          "id": "d",
+          "text": "Он рекурсивно делает все вложенные свойства необязательными и неизменяемыми.",
+          "correct": false,
+          "feedback": "Partial неглубокий и не подразумевает Readonly."
+        }
+      ],
+      "explanation": "Utility types задают преобразования только на этапе проверки типов. Они не меняют значения и не валидируют сетевые payload."
+    },
+    {
+      "id": "utility-types-practice",
+      "type": "codingExercise",
+      "title": "Опишите типы create, preview и patch",
+      "language": "typescript",
+      "context": "UI редактирует статьи, а сервер задаёт ID и время публикации. Повторно используйте Article вместо копирования списка полей, но не считайте TypeScript runtime-валидатором.",
+      "instructions": [
+        "Опишите `CreateArticleInput` без `id` и `publishedAt`.",
+        "Опишите `ArticlePreview`, содержащий только `id`, `title` и `author`.",
+        "Опишите `UpdateArticleInput` с обязательным `id` и необязательными остальными полями верхнего уровня.",
+        "Добавьте допустимые компилятором примеры и закомментированные формы, которые должны вызвать ошибку типов.",
+        "Объясните, какие runtime-проверки всё ещё нужны для patch, полученного из JSON."
+      ],
+      "requirements": [
+        "Используйте Omit и Pick для типов create и preview.",
+        "Для update используйте Partial<Omit<Article, 'id'>> в пересечении с `{ id: string }`.",
+        "Оставьте id обязательным и исключите его перезапись через patch-поля.",
+        "Не утверждайте, что производные типы валидируют или глубоко преобразуют runtime-данные.",
+        "Опишите, что вложенные поля и явные null требуют контракта API."
+      ],
+      "starterCode": "interface Article {\n  id: string;\n  title: string;\n  body: string;\n  author: string;\n  publishedAt: Date;\n}\n\n// TODO: derive create, preview, and update types.\n",
+      "hints": [
+        "Create input исключает поля, создаваемые сервером.",
+        "Pick выбирает нужные поля, сохраняя их типы без копирования.",
+        "Partial неглубокий; вложенные объекты сохраняют исходные требования к полям.",
+        "Сочетайте статические типы с runtime-валидацией JSON и авторизацией на сервере."
+      ],
+      "successCriteria": [
+        "Create input исключает оба серверных поля.",
+        "Preview содержит ровно три запрошенных свойства.",
+        "В Update id обязателен, остальные поля верхнего уровня необязательны.",
+        "Примеры показывают допустимую и недопустимую форму.",
+        "Объяснение разделяет проверку компилятором и runtime-валидацию.",
+        "Поведение вложенных и nullable patch-полей описано как решение API-контракта."
+      ]
+    },
+    {
       "id": "deep-ts-summary",
       "type": "list",
       "ordered": false,
       "items": [
         "Используй unknown на внешних границах и проверяй данные до того, как доверять типу предметной области.",
         "Discriminated unions связывают тег состояния с полями, допустимыми в этом состоянии.",
-        "Проверяй исчерпывающий набор вариантов, чтобы новые состояния требовали явного обновления кода."
+        "Проверяй исчерпывающий набор вариантов, чтобы новые состояния требовали явного обновления кода.",
+        "Выводите типы операций API через utility types, а внешние значения всё равно проверяйте во время выполнения."
       ]
     },
     {
@@ -552,6 +667,11 @@
         {
           "title": "TypeScript Handbook: Generics",
           "url": "https://www.typescriptlang.org/docs/handbook/2/generics.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "TypeScript Handbook: Utility Types",
+          "url": "https://www.typescriptlang.org/docs/handbook/utility-types.html",
           "kind": "official-docs"
         }
       ]

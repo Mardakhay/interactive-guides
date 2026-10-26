@@ -352,3 +352,13 @@ The capability API commit 2c64927ddcdef1e79ae7fa52dcacbcdae79a4abe passed lint, 
 ## Binary-data lesson CI follow-up — 2026-10-26
 
 The first binary-data lesson CI run [40285183316](https://github.com/Mardakhay/interactive-guides/actions/runs/40285183316) failed only because its line-range test used a literal backslash-n delimiter. The test was corrected without weakening its range assertion. Follow-up SHA `bef3e581f966e41262e2da00d60da621b3a2d6ce` passed lint, typecheck, tests, and production build on [CI run 40285395490](https://github.com/Mardakhay/interactive-guides/actions/runs/40285395490). Lesson content remains in review; the broad source parity and legacy HTML cutover gates remain open.
+
+
+## intro.dev.html full-read checkpoint — 2026-10-26
+
+Completed the full 3,472-line source read, including five chapters, 20 interactive quiz items and 10 starter/solution exercises. It maps across existing npm/tooling, TypeScript, React, API Hooks, testing and browser-storage lessons. The pass identified the missing TypeScript utility-types topic; the bilingual core TS lesson now explains Pick/Omit/Partial, compile-time/runtime limits, a walkthrough, explained check and applied exercise. Detailed per-chapter evidence and outdated sample caveats are in FULL_SOURCE_CONTENT_AUDIT.md. Source parity is still partial; legacy HTML remains intact.
+
+
+## Legacy source pass — intro.dev.html — 2026-10-26
+
+Completed full read of intro.dev.html (3,472 lines), including five chapters, 20 quiz items and 10 revealed exercises. Added missing utility-type coverage to typescript.fundamentals in both locales: a walkthrough, compile-time/runtime caveats, feedback quiz and applied task. The audit maps evidence and deliberately unported weak snippets. Pair count remains 44. This change needs exact-HEAD CI; complete source parity and JSON route cutover remain open.
