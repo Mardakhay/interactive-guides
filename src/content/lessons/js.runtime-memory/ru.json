@@ -1,16 +1,16 @@
 {
   "id": "js.runtime-memory",
   "locale": "ru",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "supplement-js-internals",
   "supplementaryTrackId": "supplement-js-internals",
   "order": 1,
   "title": "Runtime JavaScript: контексты выполнения, стек, куча и сборка мусора",
   "description": "Отслеживай execution contexts и замыкания, рассуждай о достижимости объектов и диагностируй переполнение стека и удержание памяти.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 100,
   "difficulty": "advanced",
   "prerequisites": [
     "js.basics-types-control-flow",
@@ -21,7 +21,9 @@
     "Прослеживать вложенные вызовы через call stack и находить неконтролируемую рекурсию.",
     "Различать идентичность значения, ссылки на объекты и достижимость.",
     "Объяснять сборку мусора через reachability/mark-and-sweep как модель.",
-    "Диагностировать удержание памяти замыканиями и неожиданный рост потребления по данным измерений."
+    "Диагностировать удержание памяти замыканиями и неожиданный рост потребления по данным измерений.",
+    "Predict how assignment, shallow copies, and structured cloning affect nested object identity.",
+    "Investigate memory growth with repeatable heap snapshots, retaining paths, and allocation profiling."
   ],
   "tags": [
     "javascript",
@@ -103,6 +105,125 @@
       "id": "runtime-memory-text",
       "type": "paragraph",
       "text": "Объекты и замыкания могут оставаться выделенными, пока достижимы из корней: активных стеков, глобальных привязок или ссылок, удерживаемых окружением. Распространённая модель GC — mark-and-sweep: определить достижимые объекты, затем освободить недостижимые. Реальные движки используют generational, incremental и concurrent стратегии, поэтому время сборки непредсказуемо и память не обязательно сразу возвращается операционной системе."
+    },
+    {
+      "id": "runtime-copy-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Идентичность значений, ссылки и глубина копирования"
+    },
+    {
+      "id": "runtime-copy-model",
+      "type": "paragraph",
+      "text": "Связывание переменной содержит значение. Если это значение — объект, присваивание другому имени копирует значение-ссылку, поэтому оба имени могут вести к одному объекту. Поверхностная копия создаёт новый внешний объект, но сохраняет ссылки на вложенные объекты и массивы. Это поведение языка; расположение в stack/heap — деталь реализации, не определённая JavaScript."
+    },
+    {
+      "id": "runtime-copy-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const original = { profile: { name: 'Ada' }, tags: ['js'] };\nconst alias = original;\nconst shallow = { ...original };\n\nalias.profile.name = 'Grace';\nshallow.tags.push('runtime');\n\nconst independent = structuredClone(original);\n\noriginal.profile.name = 'Lin';\n\nconsole.log(alias.profile.name); // Lin\nconsole.log(shallow.profile.name); // Lin\nconsole.log(shallow.tags); // ['js', 'runtime']\nconsole.log(independent.profile.name); // Grace",
+      "steps": [
+        {
+          "title": "Присваивание копирует ссылку на объект",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "alias и original ссылаются на один объект. Spread создаёт другой внешний объект, но значения profile и tags внутри него по-прежнему являются общими ссылками."
+        },
+        {
+          "title": "Изменение вложенных значений показывает общие ссылки",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "Изменение profile через alias видно через original и shallow. Добавление в shallow.tags меняет и original.tags, потому что массив не копировался."
+        },
+        {
+          "title": "Структурное клонирование отделяет поддерживаемые данные",
+          "lineStart": 8,
+          "lineEnd": 15,
+          "explanation": "Клон сохраняет вложенные значения на момент создания. Последующие изменения original не меняют independent. structuredClone поддерживает многие значения structured clone, но не любое значение или пользовательское поведение; при необходимости выбирайте явное доменное копирование."
+        }
+      ]
+    },
+    {
+      "id": "runtime-copy-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "После `const shallow = { ...original }` какое утверждение верно, если `original.profile` — объект?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Spread рекурсивно клонирует все вложенные значения.",
+          "correct": false,
+          "feedback": "Копирование объекта через spread поверхностное: вложенные ссылки копируются как значения, но объекты по ним не клонируются."
+        },
+        {
+          "id": "b",
+          "text": "`shallow` — новый внешний объект, а `shallow.profile` изначально ссылается на тот же вложенный объект.",
+          "correct": true,
+          "feedback": "Внешние идентичности различаются, но вложенная ссылка общая, пока вы отдельно не скопируете эту структуру."
+        },
+        {
+          "id": "c",
+          "text": "JavaScript гарантирует, что `original` физически хранится в стеке.",
+          "correct": false,
+          "feedback": "Язык определяет наблюдаемое поведение, но не универсальное физическое размещение каждого связывания или объекта в stack/heap."
+        },
+        {
+          "id": "d",
+          "text": "Изменение `shallow.profile` никогда не повлияет на то, что доступно через `original`.",
+          "correct": false,
+          "feedback": "Вложенный объект общий, поэтому изменение его свойства видно через оба пути."
+        }
+      ],
+      "explanation": "Проследите идентичность на каждом уровне вложенности. Поверхностная копия отделяет только внешний контейнер."
+    },
+    {
+      "id": "runtime-engine-callout",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Схемы — модели, а не карта памяти",
+      "text": "JavaScript не обещает, что примитивы находятся в физическом стеке, у объектов есть видимые числовые адреса, строки используют определённый пул интернирования или V8 всегда следует одной названной цепочке оптимизаций. Версии движка и оптимизации меняются. Используйте схемы stack/heap для рассуждений о вызовах и достижимости, а для вопросов о конкретном движке — его документацию и измерения."
+    },
+    {
+      "id": "runtime-memory-tools-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Исследуйте рост памяти по фактам"
+    },
+    {
+      "id": "runtime-memory-tools",
+      "type": "paragraph",
+      "text": "Высокое значение после одного действия не доказывает утечку: кэширование, отложенная сборка мусора, прогрев и временные выделения тоже увеличивают память. Повторите одно и то же действие несколько раз, сделайте сопоставимые снимки heap, сравните удерживаемые объекты и проверьте цепочки ссылок от корней. Убедитесь, что очистка действительно сработала для обработчиков, таймеров, подписок, отсоединённых DOM-узлов и долгоживущих коллекций. Выборка или временная шкала распределений может показать, когда создаются объекты; сопоставляйте это с жизненным циклом и документацией движка.\n\nВ Chrome DevTools откройте Memory → Heap snapshot, чтобы изучить удерживаемые объекты и цепочки удержания, и сравните снимки после одинаковых действий и очистки. Для выяснения времени роста используйте Allocation instrumentation on timeline или sampling. Снимок — материал для анализа, а не автоматическое доказательство утечки."
+    },
+    {
+      "id": "runtime-copy-practice",
+      "type": "codingExercise",
+      "title": "Обновите вложенное состояние, не изменяя прежнюю версию",
+      "language": "javascript",
+      "context": "Интерфейс хранит предыдущий объект состояния для рендеринга, отмены действия или обнаружения изменений. Изменение вложенного объекта на месте приводит к тому, что старая и новая версии ссылаются на одни изменённые данные.",
+      "instructions": [
+        "Реализуйте `updateCity(state, city)`: функция должна вернуть новое состояние и новый объект `profile`, не изменяя входные данные.",
+        "Оставьте неизменённые поля, например `preferences`, общими; объясните, почему это безопасно при неизменяемом обновлении.",
+        "Добавьте проверки, подтверждающие, что исходный город не изменился, новый обновлён, идентичности внешнего объекта и profile различаются, а preferences сохраняет идентичность.",
+        "Объясните, почему `{ ...state }` недостаточно, если затем изменить `next.profile.city`."
+      ],
+      "requirements": [
+        "Функция не изменяет входное состояние или его profile.",
+        "Возвращённый внешний объект и изменённый profile имеют новые идентичности.",
+        "Неизменённые вложенные данные остаются равными и не копируются без причины.",
+        "Проверки охватывают и значения, и идентичность объектов."
+      ],
+      "starterCode": "function updateCity(state, city) {\n  // TODO: скопируйте каждый объект на пути к изменяемому значению.\n}\n\nconst before = {\n  profile: { city: 'Baku' },\n  preferences: { theme: 'dark' },\n};\nconst after = updateCity(before, 'Ganja');\n\n// TODO: проверьте значения и идентичность, не изменяя `before`.",
+      "hints": [
+        "Скопируйте внешнее состояние и вложенный profile; остальные вложенные поля не требуют копии для этого изменения.",
+        "Помимо проверки города используйте строгие проверки идентичности (`===` / `!==`).",
+        "Поверхностной копии достаточно, если вы явно копируете каждый контейнер на пути к обновляемому значению."
+      ],
+      "successCriteria": [
+        "before.profile.city по-прежнему равен 'Baku', а after.profile.city равен 'Ganja'.",
+        "before !== after и before.profile !== after.profile.",
+        "before.preferences === after.preferences.",
+        "Объяснение выявляет ошибку общей вложенной ссылки при копировании только внешнего объекта."
+      ]
     },
     {
       "id": "runtime-closure-example",
@@ -267,6 +388,16 @@
         {
           "title": "MDN: Closures",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Chrome DevTools: Fix memory problems",
+          "url": "https://developer.chrome.com/docs/devtools/memory-problems/heap-snapshots",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Chrome DevTools: Memory overview",
+          "url": "https://developer.chrome.com/docs/devtools/memory",
           "kind": "official-docs"
         }
       ]

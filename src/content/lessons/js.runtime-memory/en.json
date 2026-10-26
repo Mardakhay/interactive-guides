@@ -1,16 +1,16 @@
 {
   "id": "js.runtime-memory",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "supplement-js-internals",
   "supplementaryTrackId": "supplement-js-internals",
   "order": 1,
   "title": "JavaScript Runtime: Execution Contexts, Stack, Heap, and Garbage Collection",
   "description": "Trace execution contexts and closures, reason about reachability, and diagnose stack overflow and memory-retention bugs.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 100,
   "difficulty": "advanced",
   "prerequisites": [
     "js.basics-types-control-flow",
@@ -21,7 +21,9 @@
     "Trace nested calls with the call stack and identify uncontrolled recursion.",
     "Distinguish value identity, object references, and reachability.",
     "Explain garbage collection using reachability/mark-and-sweep as a mental model.",
-    "Diagnose closure retention and unintended memory growth with evidence."
+    "Diagnose closure retention and unintended memory growth with evidence.",
+    "Predict how assignment, shallow copies, and structured cloning affect nested object identity.",
+    "Investigate memory growth with repeatable heap snapshots, retaining paths, and allocation profiling."
   ],
   "tags": [
     "javascript",
@@ -103,6 +105,125 @@
       "id": "runtime-memory-text",
       "type": "paragraph",
       "text": "Objects and closures may remain allocated while they are reachable from roots such as active stacks, global bindings or host-held references. A common garbage-collection model is mark-and-sweep: identify reachable objects, then reclaim unreachable ones. Real engines use generational, incremental and concurrent strategies, so collection timing is not predictable and memory is not necessarily returned to the operating system immediately."
+    },
+    {
+      "id": "runtime-copy-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Value identity, references, and copy depth"
+    },
+    {
+      "id": "runtime-copy-model",
+      "type": "paragraph",
+      "text": "A variable binding holds a value. When that value is an object, assigning it to another binding copies the reference value, so both bindings can reach the same object. A shallow copy creates a new outer object but reuses nested object and array references. This is language-level behavior; stack/heap placement is an implementation detail and is not specified by JavaScript."
+    },
+    {
+      "id": "runtime-copy-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const original = { profile: { name: 'Ada' }, tags: ['js'] };\nconst alias = original;\nconst shallow = { ...original };\n\nalias.profile.name = 'Grace';\nshallow.tags.push('runtime');\n\nconst independent = structuredClone(original);\n\noriginal.profile.name = 'Lin';\n\nconsole.log(alias.profile.name); // Lin\nconsole.log(shallow.profile.name); // Lin\nconsole.log(shallow.tags); // ['js', 'runtime']\nconsole.log(independent.profile.name); // Grace",
+      "steps": [
+        {
+          "title": "Assignment copies an object reference",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "alias and original refer to one object. The spread makes a different outer object, but the nested profile and tags values are still shared."
+        },
+        {
+          "title": "Nested writes reveal the shared references",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "The profile mutation through alias is visible through original and shallow. Pushing through shallow.tags also changes original.tags because that array was not copied."
+        },
+        {
+          "title": "A structured clone separates supported data",
+          "lineStart": 8,
+          "lineEnd": 15,
+          "explanation": "The clone captures the nested values as they were at that moment. Later edits to original do not alter independent. structuredClone supports many structured-cloneable values, not every value or every custom behavior; choose an explicit domain-specific copy when needed."
+        }
+      ]
+    },
+    {
+      "id": "runtime-copy-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "After `const shallow = { ...original }`, which statement is true if `original.profile` is an object?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The spread recursively clones every nested value.",
+          "correct": false,
+          "feedback": "Object spread is shallow: nested object references are copied as values, not recursively cloned."
+        },
+        {
+          "id": "b",
+          "text": "`shallow` is a new outer object, while `shallow.profile` initially refers to the same nested object.",
+          "correct": true,
+          "feedback": "The outer identity differs, but the nested reference is shared until you explicitly copy that nested structure."
+        },
+        {
+          "id": "c",
+          "text": "JavaScript guarantees that `original` is physically stored on the stack.",
+          "correct": false,
+          "feedback": "The language specifies observable behavior, not a universal physical stack/heap layout for each binding or object."
+        },
+        {
+          "id": "d",
+          "text": "Changing `shallow.profile` can never affect anything reachable from `original`.",
+          "correct": false,
+          "feedback": "Because the nested object is shared, mutating one of its properties is visible through either path."
+        }
+      ],
+      "explanation": "Predict identity at each nesting level. A shallow copy separates only the outer container."
+    },
+    {
+      "id": "runtime-engine-callout",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Diagrams are models, not memory maps",
+      "text": "JavaScript does not promise that primitives live on a physical stack, objects have visible numeric addresses, strings use a particular intern pool, or V8 always uses a named optimization pipeline. Engine versions and optimizations change. Use stack/heap pictures to reason about calls and reachability, and use runtime documentation plus measurements for engine-specific questions."
+    },
+    {
+      "id": "runtime-memory-tools-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Investigate memory growth with evidence"
+    },
+    {
+      "id": "runtime-memory-tools",
+      "type": "paragraph",
+      "text": "A high reading after one action is not enough to prove a leak: caches, delayed collection, warm-up, and temporary allocations can all raise memory. Reproduce the same action several times, take comparable heap snapshots, compare retained objects, and inspect retaining paths back to roots. Check that cleanup actually ran for listeners, timers, subscriptions, detached DOM, and long-lived collections. Allocation sampling or a timeline can show when objects are created; interpret it alongside the user-visible lifecycle and engine documentation.\n\nIn Chrome DevTools, use Memory → Heap snapshot to inspect retained objects and retaining paths, and compare snapshots after equivalent actions and cleanup. Use Allocation instrumentation on timeline or sampling to investigate when growth occurs. A snapshot is evidence to interpret, not an automatic leak verdict."
+    },
+    {
+      "id": "runtime-copy-practice",
+      "type": "codingExercise",
+      "title": "Make a nested update without mutating the previous state",
+      "language": "javascript",
+      "context": "A UI keeps the previous state object for rendering, undo, or change detection. Mutating a nested object in place makes the old and new state share the same changed data.",
+      "instructions": [
+        "Implement `updateCity(state, city)` so it returns a new state and a new `profile` object while leaving the input untouched.",
+        "Keep unrelated fields such as `preferences` shared unless your update changes them; explain why this is safe for an immutable update.",
+        "Add assertions showing that the original city remains unchanged, the returned city is updated, the outer and profile identities differ, and `preferences` retains identity.",
+        "Explain why `{ ...state }` alone would not be enough if you then mutate `next.profile.city`."
+      ],
+      "requirements": [
+        "The function does not mutate the input state or its profile.",
+        "The returned outer object and changed profile have new identities.",
+        "Unchanged nested data remains equal and is not copied without reason.",
+        "Assertions cover both values and object identity."
+      ],
+      "starterCode": "function updateCity(state, city) {\n  // TODO: copy each object along the path to the changed value.\n}\n\nconst before = {\n  profile: { city: 'Baku' },\n  preferences: { theme: 'dark' },\n};\nconst after = updateCity(before, 'Ganja');\n\n// TODO: assert values and identity without changing `before`.",
+      "hints": [
+        "Copy the outer state and the nested profile; the other nested fields do not need copying for this change.",
+        "Use strict identity checks (`===` / `!==`) in addition to checking the displayed city.",
+        "A shallow copy is sufficient when you explicitly copy every container on the path you update."
+      ],
+      "successCriteria": [
+        "before.profile.city is still 'Baku' and after.profile.city is 'Ganja'.",
+        "before !== after and before.profile !== after.profile.",
+        "before.preferences === after.preferences.",
+        "The explanation identifies the shared nested-reference bug in an outer-only spread."
+      ]
     },
     {
       "id": "runtime-closure-example",
@@ -267,6 +388,16 @@
         {
           "title": "MDN: Closures",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Chrome DevTools: Fix memory problems",
+          "url": "https://developer.chrome.com/docs/devtools/memory-problems/heap-snapshots",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Chrome DevTools: Memory overview",
+          "url": "https://developer.chrome.com/docs/devtools/memory",
           "kind": "official-docs"
         }
       ]

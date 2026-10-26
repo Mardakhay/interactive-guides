@@ -185,4 +185,33 @@ describe('class semantics and shared prototype methods', () => {
     expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
     expect(exercise.starterCode).toContain('class ElectricCar extends Vehicle');
   });
+  it('covers memory identity, source caveats, and evidence-based diagnostics in both locales', () => {
+    for (const lesson of [englishRuntime, russianRuntime]) {
+      expect(lessonTranslationSchema.safeParse(lesson).success, lesson.locale).toBe(true);
+      expect(lesson.blocks.map(({ id, type }) => [id, type])).toEqual(lesson.locale === 'en'
+        ? englishRuntime.blocks.map(({ id, type }) => [id, type])
+        : russianRuntime.blocks.map(({ id, type }) => [id, type]));
+      const copyWalk = lesson.blocks.find((block) => block.id === 'runtime-copy-walkthrough');
+      expect(copyWalk?.type).toBe('codeWalkthrough');
+      if (copyWalk?.type !== 'codeWalkthrough') return;
+      const lineCount = copyWalk.code.split('\\n').length;
+      expect(copyWalk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      expect(copyWalk.code).toContain('structuredClone');
+      const quiz = lesson.blocks.find((block) => block.id === 'runtime-copy-check');
+      expect(quiz?.type).toBe('knowledgeCheck');
+      if (quiz?.type !== 'knowledgeCheck') return;
+      expect(quiz.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(quiz.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      const exercise = lesson.blocks.find((block) => block.id === 'runtime-copy-practice');
+      expect(exercise?.type).toBe('codingExercise');
+      if (exercise?.type !== 'codingExercise') return;
+      expect(exercise.requirements).toHaveLength(4);
+      expect(exercise.hints).toHaveLength(3);
+      expect(exercise.successCriteria).toHaveLength(4);
+      expect(exercise.starterCode).toContain('updateCity');
+      expect(lesson.blocks.find((block) => block.id === 'runtime-engine-callout')?.type).toBe('callout');
+      expect(lesson.blocks.find((block) => block.id === 'runtime-memory-tools')?.type).toBe('paragraph');
+    }
+  });
+
 });
