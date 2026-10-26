@@ -188,9 +188,7 @@ describe('class semantics and shared prototype methods', () => {
   it('covers memory identity, source caveats, and evidence-based diagnostics in both locales', () => {
     for (const lesson of [englishRuntime, russianRuntime]) {
       expect(lessonTranslationSchema.safeParse(lesson).success, lesson.locale).toBe(true);
-      expect(lesson.blocks.map(({ id, type }) => [id, type])).toEqual(lesson.locale === 'en'
-        ? englishRuntime.blocks.map(({ id, type }) => [id, type])
-        : russianRuntime.blocks.map(({ id, type }) => [id, type]));
+      expect(englishRuntime.blocks.map(({ id, type }) => [id, type])).toEqual(russianRuntime.blocks.map(({ id, type }) => [id, type]));
       const copyWalk = lesson.blocks.find((block) => block.id === 'runtime-copy-walkthrough');
       expect(copyWalk?.type).toBe('codeWalkthrough');
       if (copyWalk?.type !== 'codeWalkthrough') return;
