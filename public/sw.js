@@ -1,7 +1,7 @@
 /* global self, caches, URL, fetch, Response */
 /* App-shell offline fallback; never cache cross-origin or private API responses. */
 const CACHE_PREFIX = 'interactive-guides';
-const VERSION = 'v4';
+const VERSION = 'v5';
 const SHELL_CACHE = `${CACHE_PREFIX}-shell-${VERSION}`;
 const ASSET_CACHE = `${CACHE_PREFIX}-assets-${VERSION}`;
 const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/pwa-icon.svg', '/pwa-180.png', '/pwa-192.png', '/pwa-512.png'];

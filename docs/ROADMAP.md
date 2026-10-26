@@ -264,4 +264,4 @@ Keep these gates in order; later architecture work must not be treated as a subs
 
 ### PWA identity milestone (2026-10-26)
 
-The app/favicon/PWA icons now share a dark-indigo mark: an open book whose pages carry a guided learning path with three connected nodes, accented in aqua/teal and coral. New raster sizes are 180 (Apple touch), 192 and 512 (PWA); favicon and scalable PWA artwork use SVG. PWA contract tests check format, exact dimensions, manifest/theme wiring and service-worker cache version v4. Exact icon commit 912742dc3549f6bd659c7baf2beb4cd1d67034e1 passed Actions run 384. Real iOS/Android install/offline acceptance remains open.
+The dark-indigo generated artwork was rejected by the user and is superseded. Use only the user-supplied blue-and-white SVG, byte-for-byte, for both favicon and scalable PWA icon. PNG sizes 180 (Apple touch), 192 and 512 are compatibility renders of that same mark, not alternate designs. Manifest/theme color is #0284c7; contract tests verify exact SVG equality, PNG dimensions, wiring and service-worker cache v5. Device install/offline acceptance remains open.
