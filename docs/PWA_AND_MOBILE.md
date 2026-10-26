@@ -105,3 +105,9 @@ The latest verified code/content SHA is `deb30c88151ee6f0ea5f59afd14e96f0fb2d590
 ## Latest verified app checkpoint — 2026-10-26
 
 The latest feature code/content SHA is `0b08ee4249d1e6ec19bfe16e94de864fe7271ed1`; [Actions run #40271559588](https://github.com/Mardakhay/interactive-guides/actions/runs/40271559588) passed including PWA contract tests. This source/content pass did not run real-device PWA acceptance. Android Chrome/iOS Safari install, offline, deep-link and update checks remain open.
+
+## Icon refresh checkpoint (2026-10-26)
+
+The tab favicon, installed-app artwork and iOS touch icon now use a coordinated open-book/learning-path mark: layered aqua/teal pages, a curved route with three nodes and a coral destination on a deep indigo field. The favicon is a compact SVG; the app uses 192px and 512px PNG manifest assets and a 180px Apple touch PNG. Manifest and browser theme colors are synchronized to #101e49. Service-worker shell cache version is v4 so existing installs can receive refreshed assets through the normal user-approved update flow.
+
+The contract suite checks manifest links, real PNG signatures/dimensions, SVG brand wiring and the v4 cache guard. Actions run 384 passed on icon commit 912742dc3549f6bd659c7baf2beb4cd1d67034e1. This is code/CI verification only; Android Chrome and iOS Safari install, offline revisit and update acceptance still need recorded device/browser runs.
