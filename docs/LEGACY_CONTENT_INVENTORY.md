@@ -251,3 +251,11 @@ Completed a full-content and interaction review of `public/lessons/js-memory-mas
 - HTTP/3 and TLS references were checked against IETF RFC 9114, RFC 9110, and the July 2026 TLS 1.3 revision RFC 9846 (which supersedes RFC 8446). Corrected the RU/EN reference metadata to current standards.
 - Added bilingual resource-capacity and hosting-model coverage plus a scenario-based exercise to `deployment.production-hosting`. HTTP/3, DNS, rendering and security coverage mapped to their existing lessons. The source's universal TCP+TLS and per-tab process claims are not transferred.
 - 9/25 HTML full reads; 16 remaining.
+
+
+## Full-content review checkpoint — 2026-10-26
+
+- Fully reviewed HTML source 10/25: `public/lessons/git-workflow-cicd-guide.html` (1,977 lines; 99226 bytes), including all tabs, branch canvas transitions, CI simulator/failure injection, annotated workflow, MR/review examples and 10 quiz questions/feedback.
+- Existing bilingual `git.fundamentals` and `git.workflow-ci` lessons cover its content in depth; no duplicate lesson was warranted. Matrix evidence records exact blocks and remaining visual-interaction parity.
+- Corrected/documented legacy issues rather than copying them: Git Flow is not universal, PR line thresholds are heuristics, simulator deployment-before-merge conflicts with its YAML, and its floating `@master` action lacks explicit least-privilege permissions.
+- 10/25 HTML sources fully reviewed; 15 remain. Current code/test SHA `3156a29de9b951bfd5b25322c2a40bbefa525ac2` passed CI run [40290215609](https://github.com/Mardakhay/interactive-guides/actions/runs/40290215609). Earlier lint failure from a missing test-suite brace was fixed and this run validates the corrected head.
