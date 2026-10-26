@@ -1,16 +1,16 @@
 {
   "id": "html.document-structure",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-1-week-1",
   "week": 1,
   "order": 1,
   "title": "HTML document structure and semantic page regions",
   "description": "Learn how a complete HTML document is organized, why metadata belongs in the head, how the browser treats the body, and how semantic elements communicate the purpose of page regions.",
-  "estimatedMinutes": 60,
+  "estimatedMinutes": 80,
   "difficulty": "beginner",
   "prerequisites": [],
   "learningOutcomes": [
@@ -263,6 +263,110 @@
         "The HTML structure is valid and consistently indented.",
         "The semantic choice for each major region can be explained in one sentence.",
         "The learner can find header, nav, main, sections, article and footer in the Elements panel."
+      ]
+    },
+    {
+      "id": "html-media-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Media needs a semantic and accessible alternative"
+    },
+    {
+      "id": "html-media-body",
+      "type": "paragraph",
+      "text": "An informative image needs concise alternative text that conveys its purpose in context; a decorative image should use an empty alt so assistive technology can skip it. Use figure/figcaption when a caption belongs to the media. Audio/video controls provide browser playback controls, but they do not create captions or transcripts for you. Video with meaningful speech or sound needs synchronized captions; provide a transcript when useful, and avoid autoplaying media that can surprise or distract users."
+    },
+    {
+      "id": "html-media-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<figure>\n  <img src=\"/images/layout-sketch.png\" alt=\"A wireframe showing a header, article, and sidebar\">\n  <figcaption>Initial layout sketch for the guide page.</figcaption>\n</figure>\n\n<video controls preload=\"metadata\" poster=\"/images/demo-poster.jpg\">\n  <source src=\"/media/layout-demo.mp4\" type=\"video/mp4\">\n  <track kind=\"captions\" src=\"/media/layout-demo.en.vtt\" srclang=\"en\" label=\"English captions\">\n  <p><a href=\"/media/layout-demo.mp4\">Download the video</a></p>\n</video>",
+      "steps": [
+        {
+          "title": "Describe the meaningful image, not its filename",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The alt communicates what the sketch shows. The caption adds context that is visible to everyone; if an image is purely decorative, use alt=\"\" instead."
+        },
+        {
+          "title": "Give the user playback control and a lightweight initial load",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "controls exposes native playback controls. preload=\"metadata\" hints that the browser can fetch basic media information without eagerly downloading the full video; it is a hint, not a guarantee."
+        },
+        {
+          "title": "Provide captions as a separate text resource",
+          "lineStart": 8,
+          "lineEnd": 9,
+          "explanation": "The track references a WebVTT captions file with a language label. Controls alone are not captions; verify timing, speaker identification and meaningful non-speech audio in the actual track."
+        }
+      ]
+    },
+    {
+      "id": "html-media-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A diagram conveys information that is not already explained in nearby text. What should its img alternative text do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Describe the diagram's relevant information concisely in context",
+          "correct": true,
+          "feedback": "Alternative text should communicate the image's purpose or essential content, not repeat its filename."
+        },
+        {
+          "id": "b",
+          "text": "Repeat the filename, including the .png extension",
+          "correct": false,
+          "feedback": "A filename rarely communicates the image's meaning to a reader."
+        },
+        {
+          "id": "c",
+          "text": "Always begin with the words 'image of'",
+          "correct": false,
+          "feedback": "Assistive technology already identifies an image; use the available text for its useful purpose."
+        },
+        {
+          "id": "d",
+          "text": "Be empty for every image",
+          "correct": false,
+          "feedback": "Empty alt is appropriate for decorative images, not informative content."
+        }
+      ],
+      "explanation": "Choose alt based on the image's role on the page; nearby text can change what information needs to be conveyed."
+    },
+    {
+      "id": "html-media-practice",
+      "type": "codingExercise",
+      "title": "Add accessible media to a semantic article",
+      "language": "html",
+      "context": "An article includes a meaningful diagram and a short video walkthrough. Improve the markup and document the media alternatives.",
+      "instructions": [
+        "Add the diagram with contextual alternative text and a figure caption that adds rather than duplicates information.",
+        "Add a video with browser controls, a poster, a source with media type, and an English captions track.",
+        "Provide a meaningful fallback link and write where a transcript can be found.",
+        "Check that the page does not autoplay media and that captions are synchronized and understandable.",
+        "Use an empty alt for a second image only if it is purely decorative."
+      ],
+      "requirements": [
+        "Informative and decorative image alternatives are distinguished correctly.",
+        "Figure/figcaption is used only when the caption belongs to the media.",
+        "Video controls and a correctly identified captions track are present.",
+        "Caption/transcript responsibility is not assumed to be automated by the browser.",
+        "Keyboard and screen-reader verification steps are recorded."
+      ],
+      "starterCode": "<article>\n  <h2>How the layout works</h2>\n  <!-- TODO: add an informative or decorative image correctly -->\n  <!-- TODO: add controlled video with captions and fallback -->\n</article>",
+      "hints": [
+        "Ask what information the image adds that nearby text does not.",
+        "Captions synchronize spoken dialogue and relevant sound with playback; a transcript is a separate alternative.",
+        "Native controls help with playback but do not supply caption content.",
+        "Do not autoplay a video with sound; make playback a user choice."
+      ],
+      "successCriteria": [
+        "Image alternative text matches its informative or decorative role.",
+        "Video can be controlled and has a language-labeled captions track.",
+        "A fallback/download and transcript path are documented.",
+        "Markup remains semantic and all media can be reached and used from the keyboard."
       ]
     },
     {

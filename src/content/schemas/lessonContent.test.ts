@@ -119,6 +119,31 @@ describe('HTML forms and accessibility lesson translation', () => {
   });
 });
 
+describe('HTML media content', () => {
+  it('teaches image alternatives, captions, and bilingual media practice', () => {
+    expect(englishLesson.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianLesson.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishLesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishLesson.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
+    expect(englishLesson.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(englishLesson.blocks.map((block) => block.id)).toEqual(
+      expect.arrayContaining([
+        'html-media-body',
+        'html-media-walkthrough',
+        'html-media-check',
+        'html-media-practice',
+      ]),
+    );
+    const mediaPractice = englishLesson.blocks.find((block) => block.id === 'html-media-practice');
+    expect(mediaPractice).toMatchObject({
+      type: 'codingExercise',
+      requirements: expect.arrayContaining([expect.stringContaining('captions')]),
+      successCriteria: expect.arrayContaining([expect.stringContaining('keyboard')]),
+    });
+  });
+});
+
 describe('CSS fundamentals lesson translation', () => {
   it('keeps the same learning structure in both locales', () => {
     expect(englishCss.id).toBe(russianCss.id);
