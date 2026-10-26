@@ -1,7 +1,7 @@
 {
   "id": "ui.bootstrap-mui",
   "locale": "ru",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "UI-библиотеки: Bootstrap Grid, Material UI и выбор build-versus-buy",
   "description": "Сравни CSS-фреймворк с React-библиотекой компонентов и выбирай по ограничениям продукта, а не популярности.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 85,
   "difficulty": "intermediate",
   "prerequisites": [
     "html.document-structure",
@@ -296,6 +296,112 @@
         "Раскладка ресурсов перестраивается без горизонтальной прокрутки на узком экране и остаётся читаемой при увеличении.",
         "У каждой карточки есть полезный заголовок и описательная ссылка; alt у изображений подобран уместно.",
         "Заметки о реализации соответствуют закреплённой версии Bootstrap и подключённому JS-поведению."
+      ]
+    },
+    {
+      "id": "uilib-mui-form-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Контролы MUI не заменяют поведение формы приложения"
+    },
+    {
+      "id": "uilib-mui-form-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState, type FormEvent } from 'react';\nimport { Button, Card, CardActions, CardContent, TextField, Typography } from '@mui/material';\n\nfunction EmailPreferences() {\n  const [email, setEmail] = useState('');\n  const [saved, setSaved] = useState(false);\n\n  function handleSubmit(event: FormEvent<HTMLFormElement>) {\n    event.preventDefault();\n    setSaved(true);\n  }\n\n  return (\n    <Card component=\"section\" aria-labelledby=\"preferences-title\">\n      <CardContent>\n        <Typography id=\"preferences-title\" component=\"h2\" variant=\"h6\">\n          Настройки email\n        </Typography>\n        <form onSubmit={handleSubmit}>\n          <TextField\n            label=\"Адрес email\"\n            type=\"email\"\n            autoComplete=\"email\"\n            required\n            fullWidth\n            value={email}\n            onChange={(event) => setEmail(event.target.value)}\n            helperText=\"Мы будем отправлять сюда новости курса.\"\n          />\n          <CardActions>\n            <Button type=\"submit\" variant=\"contained\">Сохранить настройки</Button>\n          </CardActions>\n        </form>\n        {saved && <p role=\"status\">В этом примере настройки сохранены локально.</p>}\n      </CardContent>\n    </Card>\n  );\n}",
+      "steps": [
+        {
+          "title": "Соберите семантическую структуру из компонентов",
+          "lineStart": 13,
+          "lineEnd": 18,
+          "explanation": "Card — это оформление, если не указать подходящий семантический корневой элемент. component=\"section\" и aria-labelledby создают именованный раздел; если содержимое не является разделом, выберите другой элемент."
+        },
+        {
+          "title": "Явно задайте состояние input и браузерную семантику",
+          "lineStart": 19,
+          "lineEnd": 29,
+          "explanation": "TextField объединяет input, label и вспомогательный текст. type=email и required включают нативные ограничения, но не выполняют серверную проверку и не задают всю политику ошибок приложения. Значение controlled-поля обновляется из события input."
+        },
+        {
+          "title": "Используйте настоящую отправку формы",
+          "lineStart": 30,
+          "lineEnd": 34,
+          "explanation": "Кнопка submit сохраняет клавиатурное поведение формы. Флаг saved здесь лишь демонстрирует локальное состояние — код не аутентифицирует пользователя, не отправляет и не сохраняет адрес."
+        }
+      ]
+    },
+    {
+      "id": "uilib-mui-form-boundary",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Компонентная библиотека не является слоем валидации или безопасности",
+      "text": "MUI предоставляет темы и UI-контролы; приложение по-прежнему отвечает за правила полей, серверную проверку, состояния отправки/загрузки/ошибки, связь доступной ошибки с полем и авторизацию. Не сохраняйте и не отправляйте credentials только потому, что TextField их отображает. Используйте API компонентов и тем именно установленной major-версии."
+    },
+    {
+      "id": "uilib-mui-form-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что само по себе даёт `required` и `type=\"email\"` для MUI TextField?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Нативные ограничения браузера для отображаемого input, но не серверную проверку или сохранение",
+          "correct": true,
+          "feedback": "MUI отображает input с браузерной семантикой; доверенная проверка и поток данных остаются ответственностью приложения/сервера."
+        },
+        {
+          "id": "b",
+          "text": "Доказательство, что адрес принадлежит пользователю",
+          "correct": false,
+          "feedback": "Проверка формата не подтверждает контроль над почтовым ящиком."
+        },
+        {
+          "id": "c",
+          "text": "Автоматически защищённое хранение адреса",
+          "correct": false,
+          "feedback": "UI-компонент не задаёт политику хранения или безопасности."
+        },
+        {
+          "id": "d",
+          "text": "Проверку доступа к аккаунту",
+          "correct": false,
+          "feedback": "Авторизация выполняется на доверенной границе ресурса, а не компонентом ввода."
+        }
+      ],
+      "explanation": "Считайте компоненты UI-строительными блоками, а затем реализуйте и проверяйте в правильных слоях валидацию, сохранение и доступ."
+    },
+    {
+      "id": "uilib-mui-form-practice",
+      "type": "codingExercise",
+      "title": "Создайте форму MUI, сохранив ответственность приложения",
+      "language": "tsx",
+      "context": "Создайте локальную форму настроек email с компонентами MUI и фактически установленной major-версией библиотеки.",
+      "instructions": [
+        "Соберите семантический section/card, заголовок, TextField с label и кнопку отправки.",
+        "Используйте browser constraints для email и required, затем реализуйте понятные состояния отправки, успеха и ошибки приложения.",
+        "Оставьте пример локальным; опишите границу API/service, которая проверяла бы и сохраняла настройки в настоящем продукте.",
+        "Проверьте порядок клавиатуры, видимый focus, связь label/helper/error и раскладку на узком viewport.",
+        "Сверьте импорты и theme overrides с точной версией MUI; не добавляйте зависимость UI-библиотеки без утверждённого решения проекта."
+      ],
+      "requirements": [
+        "У полей есть понятные подписи, подходящий autocomplete и тип ввода.",
+        "Форму можно отправить клавиатурой; статусы и ошибки доступны вспомогательным технологиям.",
+        "Нативные ограничения не называются подтверждением владения адресом или серверной валидацией.",
+        "Для задания не сохраняются секреты или credentials в браузерном состоянии.",
+        "Зависимости и API компонентов соответствуют закреплённым версиям проекта."
+      ],
+      "starterCode": "import { Button, Card, CardContent, TextField } from '@mui/material';\n\nfunction PreferencesForm() {\n  // TODO: задайте controlled field и статус отправки.\n  return (\n    <Card>\n      <CardContent>\n        {/* TODO: семантический заголовок и подписанное поле */}\n        {/* TODO: нативные ограничения и ясные helper/error сообщения */}\n        {/* TODO: кнопка отправки и доступный статус результата */}\n      </CardContent>\n    </Card>\n  );\n}",
+      "hints": [
+        "TextField — составной контрол; проверьте его доступное имя и связь со вспомогательным/ошибочным текстом.",
+        "Используйте настоящую форму и submit-кнопку, а не div только с обработчиком click.",
+        "required и type=email проверяют ограничения ввода; настоящий сервер всё равно проверяет операцию.",
+        "Сверяйтесь с установленной версией и соглашениями темы приложения; в текущем репозитории MUI не установлен."
+      ],
+      "successCriteria": [
+        "Пользователь клавиатуры может заполнить и отправить форму с видимым focus.",
+        "У каждого поля понятное доступное имя и инструкции/ошибки.",
+        "Статус успеха/ошибки объявляется и не зависит только от цвета.",
+        "Объяснена граница UI-проверок и доверенного сохранения/авторизации."
       ]
     },
     {

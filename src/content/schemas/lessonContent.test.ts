@@ -37,6 +37,8 @@ import englishReactBasics from '../lessons/react.components-jsx-state/en.json';
 import russianReactBasics from '../lessons/react.components-jsx-state/ru.json';
 import englishDesignSystem from '../lessons/ui.design-systems/en.json';
 import russianDesignSystem from '../lessons/ui.design-systems/ru.json';
+import englishUiEcosystem from '../lessons/ui.bootstrap-mui/en.json';
+import russianUiEcosystem from '../lessons/ui.bootstrap-mui/ru.json';
 import englishPerformance from '../lessons/performance.accessibility/en.json';
 import russianPerformance from '../lessons/performance.accessibility/ru.json';
 import englishTesting from '../lessons/testing.react-testing-library/en.json';
@@ -293,6 +295,38 @@ describe('React API and custom hooks lesson translation', () => {
       requirements: expect.arrayContaining([expect.stringContaining('HTTP non-success')]),
       successCriteria: expect.arrayContaining([expect.stringContaining('network error')]),
     });
+  });
+});
+
+describe('supplementary UI ecosystem lesson', () => {
+  it('preserves bilingual Bootstrap and MUI explanations, checks, and practice', () => {
+    expect(lessonTranslationSchema.safeParse(englishUiEcosystem).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianUiEcosystem).success).toBe(true);
+    expect(englishUiEcosystem.id).toBe('ui.bootstrap-mui');
+    expect(englishUiEcosystem.supplementaryTrackId).toBe('supplement-ui-ecosystem');
+    expect(englishUiEcosystem.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianUiEcosystem.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishUiEcosystem.blocks.map((block) => block.id)).toEqual(
+      expect.arrayContaining([
+        'uilib-bootstrap-collapse',
+        'uilib-collapse-check',
+        'uilib-grid-cards',
+        'uilib-carousel-tradeoff',
+        'uilib-bootstrap-task',
+        'uilib-mui-form-walkthrough',
+        'uilib-mui-form-check',
+      ]),
+    );
+    expect(englishUiEcosystem.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishUiEcosystem.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(englishUiEcosystem.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(englishUiEcosystem.blocks.some((block) => block.id === 'uilib-mui-form-practice')).toBe(true);
+    expect(russianUiEcosystem.blocks.some((block) => block.id === 'uilib-mui-form-practice')).toBe(true);
+    const muiPractice = englishUiEcosystem.blocks.find((block) => block.id === 'uilib-mui-form-check');
+    expect(muiPractice).toMatchObject({ type: 'knowledgeCheck', options: expect.arrayContaining([
+      expect.objectContaining({ correct: true, feedback: expect.stringContaining('server') }),
+    ]) });
   });
 });
 

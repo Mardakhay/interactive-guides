@@ -1,7 +1,7 @@
 {
   "id": "ui.bootstrap-mui",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "UI Libraries: Bootstrap Grid, Material UI, and Build-versus-Buy",
   "description": "Compare a CSS framework with a React component library, understand their APIs, and choose based on product constraints rather than popularity.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 85,
   "difficulty": "intermediate",
   "prerequisites": [
     "html.document-structure",
@@ -296,6 +296,112 @@
         "Resource layout reflows without horizontal scrolling at narrow widths and remains readable when zoomed.",
         "Every card has a useful heading and descriptive link; images have appropriate alt text.",
         "Implementation notes match the exact pinned Bootstrap version and imported JS behavior."
+      ]
+    },
+    {
+      "id": "uilib-mui-form-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "MUI controls still need application-owned form behavior"
+    },
+    {
+      "id": "uilib-mui-form-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState, type FormEvent } from 'react';\nimport { Button, Card, CardActions, CardContent, TextField, Typography } from '@mui/material';\n\nfunction EmailPreferences() {\n  const [email, setEmail] = useState('');\n  const [saved, setSaved] = useState(false);\n\n  function handleSubmit(event: FormEvent<HTMLFormElement>) {\n    event.preventDefault();\n    setSaved(true);\n  }\n\n  return (\n    <Card component=\"section\" aria-labelledby=\"preferences-title\">\n      <CardContent>\n        <Typography id=\"preferences-title\" component=\"h2\" variant=\"h6\">\n          Email preferences\n        </Typography>\n        <form onSubmit={handleSubmit}>\n          <TextField\n            label=\"Email address\"\n            type=\"email\"\n            autoComplete=\"email\"\n            required\n            fullWidth\n            value={email}\n            onChange={(event) => setEmail(event.target.value)}\n            helperText=\"We will use this address for course updates.\"\n          />\n          <CardActions>\n            <Button type=\"submit\" variant=\"contained\">Save preferences</Button>\n          </CardActions>\n        </form>\n        {saved && <p role=\"status\">Preferences saved locally for this example.</p>}\n      </CardContent>\n    </Card>\n  );\n}",
+      "steps": [
+        {
+          "title": "Compose semantic structure from components",
+          "lineStart": 13,
+          "lineEnd": 18,
+          "explanation": "Card is presentation unless given an appropriate semantic root. component=\"section\" and aria-labelledby make this region a named section; use a different element if the content is not a section."
+        },
+        {
+          "title": "Keep input state and browser semantics explicit",
+          "lineStart": 19,
+          "lineEnd": 29,
+          "explanation": "TextField composes an input with a label and helper text. type=email and required invoke native constraints, but they do not validate server-side or define the product's full error policy. Controlled value is updated from the input event."
+        },
+        {
+          "title": "Use a real form submit action",
+          "lineStart": 30,
+          "lineEnd": 34,
+          "explanation": "A submit button preserves keyboard form behavior. The example's saved flag is only local demonstration state—it does not authenticate, send, or persist an email preference."
+        }
+      ]
+    },
+    {
+      "id": "uilib-mui-form-boundary",
+      "type": "callout",
+      "tone": "warning",
+      "title": "A component library is not a validation or security layer",
+      "text": "MUI supplies themed controls and interaction primitives; the app still owns field rules, server validation, submission/loading/error states, accessible error association, and authorization. Never store or send credentials merely because a TextField renders them. Use the exact component and theming APIs for the installed major version."
+    },
+    {
+      "id": "uilib-mui-form-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does adding `required` and `type=\"email\"` to a MUI TextField provide by itself?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Native browser constraints for the rendered input, but not server validation or persistence",
+          "correct": true,
+          "feedback": "MUI renders an input with browser semantics; the application/server still defines the trusted validation and data flow."
+        },
+        {
+          "id": "b",
+          "text": "Proof that the address belongs to the user",
+          "correct": false,
+          "feedback": "Format validation cannot verify control of an email address."
+        },
+        {
+          "id": "c",
+          "text": "Automatic secure storage of the email value",
+          "correct": false,
+          "feedback": "A UI component does not choose storage or provide a persistence/security policy."
+        },
+        {
+          "id": "d",
+          "text": "An authorization check for the account",
+          "correct": false,
+          "feedback": "Authorization is enforced at the trusted resource boundary, not by an input component."
+        }
+      ],
+      "explanation": "Treat component primitives as UI building blocks, then implement and test product validation, persistence and access rules in the correct layers."
+    },
+    {
+      "id": "uilib-mui-form-practice",
+      "type": "codingExercise",
+      "title": "Build a themed MUI form without outsourcing responsibility",
+      "language": "tsx",
+      "context": "Create a local-only email preferences form using MUI components and the project's actual installed MUI major version.",
+      "instructions": [
+        "Compose a semantic section/card, a heading, a labeled TextField and a submit button.",
+        "Use the browser's email and required constraints, then implement clear app-level submitting, success and error feedback.",
+        "Keep the example local-only; describe the API/service boundary that would validate and save preferences in a real product.",
+        "Check keyboard order, visible focus, label/helper/error association and narrow viewport layout.",
+        "Verify every import and theme override against the exact MUI version; do not add a UI-library dependency unless the project decision explicitly approves it."
+      ],
+      "requirements": [
+        "Inputs have meaningful labels and suitable autocomplete/input type.",
+        "Form submits by keyboard and exposes status/error feedback to assistive technologies.",
+        "Native constraints are not described as ownership verification or server validation.",
+        "No secrets or credentials are stored in browser state for this task.",
+        "Dependencies and component APIs match the pinned project versions."
+      ],
+      "starterCode": "import { Button, Card, CardContent, TextField } from '@mui/material';\n\nfunction PreferencesForm() {\n  // TODO: own the controlled field and submit status.\n  return (\n    <Card>\n      <CardContent>\n        {/* TODO: semantic heading and labeled field */}\n        {/* TODO: native constraints and clear helper/error feedback */}\n        {/* TODO: submit button and accessible result status */}\n      </CardContent>\n    </Card>\n  );\n}",
+      "hints": [
+        "TextField is a composite control; inspect its rendered accessible name and helper/error description.",
+        "Use a native form and submit button rather than a click-only div.",
+        "Native `required` and `type=\"email\"` check input constraints; a real server still validates the submitted operation.",
+        "Use the app's installed package version and theme conventions; the current repository does not include MUI."
+      ],
+      "successCriteria": [
+        "Keyboard users can complete and submit the form with visible focus.",
+        "Each field has an accessible name and understandable instructions/errors.",
+        "Success/error status is announced without relying on color alone.",
+        "Explains the boundary between UI checks and trusted persistence/authorization."
       ]
     },
     {
