@@ -146,5 +146,9 @@ describe('structured content repository', () => {
     expect(getSupplementaryTrackForLesson('js.iterators-generators', 'ru')?.lessonIds).toContain('js.iterators-generators');
     expect(getAdjacentStructuredLessons('js.iterators-generators', 'en').previous?.id).toBe('js.object-prototypes');
     expect(getWeekForLesson('js.iterators-generators', 'ru')).toBeUndefined();
+    expect(getSupplementaryTrackForLesson('js.collections-weakmaps', 'en')?.id).toBe('supplement-js-internals');
+    expect(getSupplementaryTrackForLesson('js.collections-weakmaps', 'ru')?.lessonIds).toContain('js.collections-weakmaps');
+    expect(getAdjacentStructuredLessons('js.collections-weakmaps', 'en').previous?.id).toBe('js.iterators-generators');
+    expect(getWeekForLesson('js.collections-weakmaps', 'ru')).toBeUndefined();
   });
 });

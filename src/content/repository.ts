@@ -60,6 +60,8 @@ import englishPrototypes from './lessons/js.object-prototypes/en.json';
 import russianPrototypes from './lessons/js.object-prototypes/ru.json';
 import englishIterators from './lessons/js.iterators-generators/en.json';
 import russianIterators from './lessons/js.iterators-generators/ru.json';
+import englishCollections from './lessons/js.collections-weakmaps/en.json';
+import russianCollections from './lessons/js.collections-weakmaps/ru.json';
 import englishAuth from './lessons/frontend.auth-security/en.json';
 import russianAuth from './lessons/frontend.auth-security/ru.json';
 import englishDeployment from './lessons/deployment.production-hosting/en.json';
@@ -145,6 +147,8 @@ const lessonTranslations = [
   lessonTranslationSchema.parse(russianPrototypes),
   lessonTranslationSchema.parse(englishIterators),
   lessonTranslationSchema.parse(russianIterators),
+  lessonTranslationSchema.parse(englishCollections),
+  lessonTranslationSchema.parse(russianCollections),
   lessonTranslationSchema.parse(englishAuth),
   lessonTranslationSchema.parse(russianAuth),
   lessonTranslationSchema.parse(englishDeployment),

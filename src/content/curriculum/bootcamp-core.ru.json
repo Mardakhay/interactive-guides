@@ -491,13 +491,16 @@
         "Stack/heap и garbage collection",
         "Iterables and iterators",
         "Generator functions and lazy iteration",
-        "Iterator completion and cleanup"
+        "Iterator completion and cleanup",
+        "Map and Set identity, ordering, and uniqueness",
+        "Weak collections and object-associated metadata"
       ],
       "note": "Дополнительная углублённая программа; согласовать с конспектами пользователя в Notion.",
       "lessonIds": [
         "js.runtime-memory",
         "js.object-prototypes",
-        "js.iterators-generators"
+        "js.iterators-generators",
+        "js.collections-weakmaps"
       ]
     },
     {

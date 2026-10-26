@@ -5,6 +5,8 @@ import englishBrowserRendering from '../lessons/browser.rendering-pipeline/en.js
 import russianBrowserRendering from '../lessons/browser.rendering-pipeline/ru.json';
 import englishIterators from '../lessons/js.iterators-generators/en.json';
 import russianIterators from '../lessons/js.iterators-generators/ru.json';
+import englishCollections from '../lessons/js.collections-weakmaps/en.json';
+import russianCollections from '../lessons/js.collections-weakmaps/ru.json';
 import englishLesson from '../lessons/html-document-structure/en.json';
 import russianLesson from '../lessons/html-document-structure/ru.json';
 import englishForms from '../lessons/html.forms-accessibility/en.json';
@@ -614,5 +616,24 @@ describe('supplementary lesson placement and locale parity', () => {
   it('requires exactly one core-week or supplementary-track placement', () => {
     expect(lessonTranslationSchema.safeParse({ ...englishNetwork, supplementaryTrackId: undefined }).success).toBe(false);
     expect(lessonTranslationSchema.safeParse({ ...englishLesson, supplementaryTrackId: 'supplement-network-browser' }).success).toBe(false);
+  });
+});
+describe('Map, Set, and weak collections supplementary lesson', () => {
+  it('teaches collection semantics with aligned traces and domain practice', () => {
+    expect(lessonTranslationSchema.safeParse(englishCollections).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianCollections).success).toBe(true);
+    expect(englishCollections.id).toBe('js.collections-weakmaps');
+    expect(englishCollections.supplementaryTrackId).toBe('supplement-js-internals');
+    expect(englishCollections.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianCollections.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishCollections.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(2);
+    expect(englishCollections.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
+    const exercise = englishCollections.blocks.find((block) => block.type === 'codingExercise');
+    expect(exercise?.type).toBe('codingExercise');
+    if (exercise?.type !== 'codingExercise') return;
+    expect(exercise.requirements.length).toBeGreaterThanOrEqual(4);
+    expect(exercise.hints.length).toBeGreaterThanOrEqual(3);
+    expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(4);
   });
 });
