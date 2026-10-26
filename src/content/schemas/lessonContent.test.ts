@@ -319,11 +319,11 @@ describe('React effects and lists lesson translation', () => {
       russianReactEffects.blocks.map(({ id, type }) => ({ id, type })),
     );
     expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
-    expect(russianReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(russianReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
     expect(englishReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
     expect(russianReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(englishReactEffects.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
-    expect(russianReactEffects.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(russianReactEffects.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
     expect(englishReactEffects.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
         'effect-widget-walkthrough',
@@ -410,11 +410,11 @@ describe('React API and custom hooks lesson translation', () => {
       russianApiHooks.blocks.map(({ id, type }) => ({ id, type })),
     );
     expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
-    expect(russianApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(russianApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
     expect(englishApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
-    expect(russianApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(4);
+    expect(russianApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(englishApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
-    expect(russianApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(russianApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
     expect(englishApiHooks.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
         'api-fetch-axios-body',
