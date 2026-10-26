@@ -141,3 +141,10 @@ This expands lesson depth but does not complete `dom-masterclass.html` parity: s
 `network.dns-tcp-tls` now includes a 22-block bilingual explanation with an HTTP/2/HTTP/3 walkthrough, feedback-rich knowledge check and independent diagnostic exercise. It distinguishes HTTP semantics, HTTP/2 frame multiplexing over TCP, TCP in-order delivery, and QUIC stream loss isolation; citations point to IETF RFC 9113, 9114 and 9000. The old source claim that HTTP/2 removes head-of-line blocking is not carried forward.
 
 The lesson and overall source audit remain in review. CI [run #40271559588](https://github.com/Mardakhay/interactive-guides/actions/runs/40271559588) passed on code/content SHA `0b08ee4249d1e6ec19bfe16e94de864fe7271ed1`.
+
+
+## Performance/accessibility source pass — 2026-10-26
+
+The bilingual `performance.accessibility` lesson is now version 3, 36 blocks per locale (8 code walkthroughs, 6 knowledge checks and 3 scaffolded coding exercises). The source-derived addition teaches how to choose contextual image alternatives (informative vs decorative/redundant; explicit empty alt vs missing alt) and how to give an icon-only favorite toggle a stable accessible name and exposed `aria-pressed` state. It includes a worked TSX card, feedback-rich check, practical repair task and W3C WAI Images Tutorial reference. EN/RU block IDs/types and quiz structure match. CI [run #40271923920](https://github.com/Mardakhay/interactive-guides/actions/runs/40271923920) passed lint, typecheck, tests and production build on exact content SHA `89bb63293f5171f3e8f6b7d4fc1a0740f9e1dc05`.
+
+Source status remains **partial**: the legacy render-cascade and bundle simulators, keyboard/menu demonstrations and other interactive behaviors do not yet have equivalent learner interactions. This focused comparison does not constitute a line-by-line audit of the HTML or completion of the full source audit.
