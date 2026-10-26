@@ -1,10 +1,10 @@
 {
   "id": "js.object-prototypes",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "supplement-js-internals",
   "supplementaryTrackId": "supplement-js-internals",
   "order": 2,
@@ -160,6 +160,151 @@
         "Constructor-created instances share a prototype method.",
         "The detached method uses an intentional this value.",
         "Privacy patterns are explained accurately."
+      ]
+    },
+    {
+      "id": "prototype-shadowing-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Shadowing, mutation, and where a write lands"
+    },
+    {
+      "id": "prototype-shadowing-text",
+      "type": "paragraph",
+      "text": "Reading and writing are asymmetric: a read may find a value higher in the chain, but `child.status = ...` normally creates or updates an own property on `child`. It does not update the prototype’s property. This is useful for per-instance overrides, but surprising when a shared prototype value is an object: mutating `child.settings.theme` can mutate the same nested object shared by every instance. Put per-instance mutable data on each instance instead."
+    },
+    {
+      "id": "prototype-shadowing-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const defaults = { status: 'idle', settings: { theme: 'light' } };\nconst first = Object.create(defaults);\nconst second = Object.create(defaults);\n\nfirst.status = 'ready';\nfirst.settings.theme = 'dark';\n\nconsole.log(Object.hasOwn(first, 'status')); // true\nconsole.log(second.status);                  // 'idle'\nconsole.log(second.settings.theme);          // 'dark'",
+      "steps": [
+        {
+          "title": "Reads can be inherited",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "Neither instance owns status or settings; both read the same values through defaults."
+        },
+        {
+          "title": "A direct assignment shadows",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "explanation": "The assignment creates first.status. second still reads defaults.status because its own property was not changed."
+        },
+        {
+          "title": "Nested mutation follows the shared reference",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "explanation": "first.settings resolves to the object stored on defaults, then mutates that object. second sees the changed theme. Clone or initialize mutable per-instance data to avoid this coupling."
+        }
+      ]
+    },
+    {
+      "id": "prototype-shadowing-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "After `const child = Object.create(base)`, what does `child.count++` do when `base.count` is an ordinary writable data property and child has no own count?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It increments base.count because the original value was inherited",
+          "correct": false,
+          "feedback": "Property access finds the inherited number, but the subsequent ordinary assignment targets child."
+        },
+        {
+          "id": "b",
+          "text": "It creates child.count with the incremented value and leaves base.count unchanged",
+          "correct": true,
+          "feedback": "The read is inherited; the write creates an own property (assuming ordinary writable data-property semantics)."
+        },
+        {
+          "id": "c",
+          "text": "It changes the prototype link",
+          "correct": false,
+          "feedback": "Updating a property value does not replace [[Prototype]]."
+        },
+        {
+          "id": "d",
+          "text": "It throws for every inherited property",
+          "correct": false,
+          "feedback": "Writable inherited data properties can be shadowed. Accessors and non-writable descriptors have different behavior."
+        }
+      ],
+      "explanation": "Always reason about the read and write phases separately; accessors and property descriptors can change assignment behavior."
+    },
+    {
+      "id": "prototype-descriptors-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Descriptors and safe dictionary objects"
+    },
+    {
+      "id": "prototype-descriptors-text",
+      "type": "paragraph",
+      "text": "A property descriptor determines whether a property is writable, enumerable, or configurable, or instead is an accessor with a getter/setter. Prototype lookup can invoke inherited getters, and assignment can invoke setters. For user-controlled keys such as `__proto__`, `constructor`, or `prototype`, avoid merging arbitrary input into ordinary configuration objects without validation. Prefer allowlisted keys or a `Map`; a null-prototype dictionary created with `Object.create(null)` also has no inherited names, but lacks ordinary object methods."
+    },
+    {
+      "id": "prototype-descriptors-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You need a dictionary keyed by untrusted user-provided strings. Which design is the safest default among these options?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Merge every key into `{}` with Object.assign",
+          "correct": false,
+          "feedback": "Ordinary objects inherit from Object.prototype and unsafe merge logic can interact with special keys."
+        },
+        {
+          "id": "b",
+          "text": "Use an allowlist or Map, and validate any values before storing them",
+          "correct": true,
+          "feedback": "Explicit keys avoid prototype-chain surprises; Map is designed for key/value collections, while an allowlist limits accepted input."
+        },
+        {
+          "id": "c",
+          "text": "Use `for...in` and assume every enumerated key is own",
+          "correct": false,
+          "feedback": "for...in can include enumerable inherited properties; use ownership checks when appropriate."
+        },
+        {
+          "id": "d",
+          "text": "Disable strict mode",
+          "correct": false,
+          "feedback": "Strict mode does not make arbitrary object-key handling safe."
+        }
+      ],
+      "explanation": "The prototype chain is part of normal property semantics, so input-key handling must account for inherited names and special merge behavior."
+    },
+    {
+      "id": "prototype-debug-practice",
+      "type": "codingExercise",
+      "title": "Diagnose an inherited-state bug",
+      "language": "javascript",
+      "context": "A settings panel unexpectedly changes every profile after one profile is edited. Trace property ownership and repair the data model.",
+      "instructions": [
+        "Run the shadowing walkthrough and record own-property checks before and after each assignment.",
+        "Create a Profile constructor or class where each instance receives independent nested settings.",
+        "Add a test that edits one instance and proves a second instance remains unchanged.",
+        "Use Object.getPrototypeOf and Object.getOwnPropertyDescriptor to inspect where a property comes from."
+      ],
+      "requirements": [
+        "Explain the inherited read versus own-property write behavior.",
+        "Show the shared nested-reference failure before the repair.",
+        "Give each instance independent mutable settings in the repaired version.",
+        "Tests check values and ownership, not only printed output."
+      ],
+      "starterCode": "const defaults = { settings: { theme: 'light' } };\nconst first = Object.create(defaults);\nconst second = Object.create(defaults);\n\n// TODO: reproduce the shared nested mutation.\n// TODO: design an instance factory with independent settings.\n// TODO: assert that changing first does not affect second.",
+      "hints": [
+        "Object.create shares the prototype object; it does not deep-clone nested data.",
+        "A shallow spread can copy a nested reference without cloning that nested object.",
+        "Check both Object.hasOwn(instance, 'settings') and object identity."
+      ],
+      "successCriteria": [
+        "Reproduces and explains the shared nested-object bug.",
+        "Provides each profile its own nested settings object.",
+        "Includes an assertion proving instances are isolated.",
+        "Uses descriptor/prototype inspection to support the diagnosis."
       ]
     },
     {
