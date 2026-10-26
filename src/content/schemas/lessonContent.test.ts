@@ -124,17 +124,27 @@ describe('HTML media content', () => {
     expect(englishLesson.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianLesson.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishLesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
-    expect(englishLesson.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
-    expect(englishLesson.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(englishLesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(englishLesson.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(4);
+    expect(englishLesson.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
     expect(englishLesson.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
         'html-media-body',
         'html-media-walkthrough',
         'html-media-check',
         'html-media-practice',
+        'html-data-tables-body',
+        'html-data-table-walkthrough',
+        'html-data-table-check',
+        'html-data-table-practice',
       ]),
     );
+    const tablePractice = englishLesson.blocks.find((block) => block.id === 'html-data-table-practice');
+    expect(tablePractice).toMatchObject({
+      type: 'codingExercise',
+      requirements: expect.arrayContaining([expect.stringContaining('scope')]),
+      successCriteria: expect.arrayContaining([expect.stringContaining('row and column header')]),
+    });
     const mediaPractice = englishLesson.blocks.find((block) => block.id === 'html-media-practice');
     expect(mediaPractice).toMatchObject({
       type: 'codingExercise',

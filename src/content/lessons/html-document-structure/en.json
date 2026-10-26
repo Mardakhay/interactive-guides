@@ -1,7 +1,7 @@
 {
   "id": "html.document-structure",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "HTML document structure and semantic page regions",
   "description": "Learn how a complete HTML document is organized, why metadata belongs in the head, how the browser treats the body, and how semantic elements communicate the purpose of page regions.",
-  "estimatedMinutes": 80,
+  "estimatedMinutes": 105,
   "difficulty": "beginner",
   "prerequisites": [],
   "learningOutcomes": [
@@ -263,6 +263,110 @@
         "The HTML structure is valid and consistently indented.",
         "The semantic choice for each major region can be explained in one sentence.",
         "The learner can find header, nav, main, sections, article and footer in the Elements panel."
+      ]
+    },
+    {
+      "id": "html-data-tables-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Use tables for relationships between data"
+    },
+    {
+      "id": "html-data-tables-body",
+      "type": "paragraph",
+      "text": "A data table expresses row/column relationships; it is not a layout grid. Give the table a concise caption, mark column headers with `th scope=\"col\"`, and row headers with `th scope=\"row\"`. Keep each cell's relationship understandable when navigating by keyboard or screen reader. A table with complex multi-level headers may need explicit `id`/`headers` associations; do not add them to a simple table without a reason. For narrow screens, allow a deliberate scroll/reflow strategy instead of hiding columns or forcing tiny text."
+    },
+    {
+      "id": "html-data-table-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<table>\n  <caption>Study hours completed by module</caption>\n  <thead>\n    <tr>\n      <th scope=\"col\">Module</th>\n      <th scope=\"col\">Hours</th>\n      <th scope=\"col\">Status</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th scope=\"row\">HTML</th>\n      <td>4</td>\n      <td>Complete</td>\n    </tr>\n    <tr>\n      <th scope=\"row\">CSS</th>\n      <td>2</td>\n      <td>In progress</td>\n    </tr>\n  </tbody>\n</table>",
+      "steps": [
+        {
+          "title": "Name the dataset",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "The caption identifies what the table summarizes. It is visible to everyone and provides context when a user navigates directly into the table."
+        },
+        {
+          "title": "Mark the column headers",
+          "lineStart": 3,
+          "lineEnd": 9,
+          "explanation": "thead groups the header rows; th with scope=\"col\" tells assistive technology which column a cell describes."
+        },
+        {
+          "title": "Mark row headers and keep data cells simple",
+          "lineStart": 10,
+          "lineEnd": 21,
+          "explanation": "The first cell in each row is a row header, while td cells provide values associated with it. This simple table does not need explicit id/headers relationships."
+        }
+      ]
+    },
+    {
+      "id": "html-data-table-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "In a simple table where each row describes one module, which markup makes the module name a row header?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`<td><strong>HTML</strong></td>`",
+          "correct": false,
+          "feedback": "Bold styling does not define a header relationship."
+        },
+        {
+          "id": "b",
+          "text": "`<th scope=\"row\">HTML</th>`",
+          "correct": true,
+          "feedback": "A row-scoped header associates the label with data cells in that row."
+        },
+        {
+          "id": "c",
+          "text": "`<caption>HTML</caption>` inside every row",
+          "correct": false,
+          "feedback": "The caption names the whole table, not each row."
+        },
+        {
+          "id": "d",
+          "text": "A styled `<div>` with role omitted",
+          "correct": false,
+          "feedback": "A visual grid of divs does not provide the native tabular relationships."
+        }
+      ],
+      "explanation": "Use native table headers and scope for simple row/column associations; reserve complex explicit associations for genuinely complex tables."
+    },
+    {
+      "id": "html-data-table-practice",
+      "type": "codingExercise",
+      "title": "Turn a visual data grid into an accessible table",
+      "language": "html",
+      "context": "A course dashboard shows study progress in rows and columns. The current version uses divs and bold text, so assistive technology cannot identify the header relationships.",
+      "instructions": [
+        "Replace the visual grid with a native table because the content is tabular data.",
+        "Add a concise caption, column headings with scope=\"col\", and meaningful row headings with scope=\"row\".",
+        "Keep values in td cells and ensure the reading order remains logical.",
+        "Add a responsive strategy for narrow screens without hiding data or shrinking text to an unreadable size.",
+        "Use explicit headers/id associations only if the table actually contains multi-level or irregular headers."
+      ],
+      "requirements": [
+        "The table is used for data relationships, not page layout.",
+        "Caption names the dataset.",
+        "Column and row headers use appropriate th/scope semantics.",
+        "Values are associated with understandable headers.",
+        "Responsive behavior preserves access to all data and does not rely on color alone."
+      ],
+      "starterCode": "<div class=\"progress-grid\">\n  <!-- TODO: replace visual-only rows/cells with a native data table -->\n  <div class=\"row\"><strong>Module</strong><strong>Hours</strong></div>\n  <div class=\"row\"><span>HTML</span><span>4</span></div>\n</div>",
+      "hints": [
+        "Use caption for the whole dataset, not a heading repeated inside each cell.",
+        "Use scope=\"col\" for column labels and scope=\"row\" for row labels in a simple table.",
+        "Do not use table elements for visual page layout.",
+        "Test keyboard navigation and inspect the accessibility tree at a narrow viewport."
+      ],
+      "successCriteria": [
+        "Screen-reader users can identify the table and its caption.",
+        "Each value has a clear row and column header relationship.",
+        "The data remains available at narrow widths and at increased text size.",
+        "Native semantics replace visual-only bold styling."
       ]
     },
     {
