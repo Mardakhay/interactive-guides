@@ -322,3 +322,8 @@ The Week 14/15 parity work remains useful but does not imply the whole course is
 ## Content continuation — 2026-10-26
 
 The Week 14/15 lessons remain a focused parity milestone, not the end of course content work. Recent additional source-derived structured depth now includes Bootstrap's collapse behavior, grid/card semantics, and carousel accessibility tradeoffs in the separate UI ecosystem supplement. All-source parity remains open, so the legacy learner catalog/routes are intentionally still present and Supabase remains the next-after-cutover phase.
+
+
+## Handoff checkpoint — 2026-10-26
+
+Latest code change: bilingual DOM lesson adds DocumentFragment, IntersectionObserver/MutationObserver cleanup, custom-event contract, debounce/throttle, and a debugging exercise. Branch HEAD at note time: `68a3d192b6be30fc2b94d3aca9d825f0edbae5fd`; CI run #396 was queued. Continue auditing remaining legacy/Notion subtopics, keep the HTML learner flow until the content gate passes, then switch to JSON and implement Supabase only afterward.

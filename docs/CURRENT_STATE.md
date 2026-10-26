@@ -274,3 +274,8 @@ Do not cut over or delete HTML from learner flow yet: the legacy catalog still s
 Current code HEAD observed: `da70ccafe952ae712b655c1f1cfa33bf5d7a919b`; its GitHub Actions [run #394](https://github.com/Mardakhay/interactive-guides/actions/runs/40278337273) was in progress at this note. `feat/learning-platform-foundation` remains the only write target; `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`. Four supplementary lesson pairs received EN/RU depth work (architecture, Sass, object prototypes, Bootstrap/MUI). Source retrieval counts remain 21 Notion pages and 25 lesson HTML files; Notion connector results are marked unverified, and full HTML section parity is not complete.
 
 The legacy HTML-backed learner flow is still active. No source files were deleted, no structured-only cutover was made, and Supabase persistence has not started. Continue the content gate first, then cut over learner navigation, then use the Supabase skill/changelog and implement owner-secure progress persistence.
+
+
+## Current checkpoint — 2026-10-26
+
+Feature code commit `68a3d192b6be30fc2b94d3aca9d825f0edbae5fd` adds the DOM-source gap pass to `js.dom-events` (35→44 blocks per locale). The exact SHA's GitHub Actions run [#396](https://github.com/Mardakhay/interactive-guides/actions/runs/40278792766) was queued when this note was written. Main remains unchanged; the JSON-only app cutover and Supabase remain later gated phases.

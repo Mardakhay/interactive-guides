@@ -275,3 +275,8 @@ Status update against the required sequence: source inventory and accessible ret
 ## Content continuation — 2026-10-26
 
 The next implementation phase remains gated. Four supplementary lesson pairs have deepened, but all source-section checks are not complete. Keep the learner-facing legacy HTML catalog until every HTML/Notion concept, example, pitfall, practice and feedback path is mapped to validated JSON. Then switch catalog/routes to structured IDs; Supabase follows that cutover. Do not mark either gate done based on structural tests or the number of blocks.
+
+
+## DOM source pass — 2026-10-26
+
+The core DOM/event lesson was deepened from 35 to 44 bilingual blocks based on the DOM Masterclass: DocumentFragment, MutationObserver, IntersectionObserver, custom events, and debounce/throttle now have explanation, code traces, a choice check, lifecycle cleanup and applied practice. CI for the content SHA was pending when noted. Continue the full source matrix before moving learner routes.

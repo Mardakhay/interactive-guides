@@ -76,3 +76,8 @@ The current app still serves legacy lesson HTML in its old catalog/routes. Cutov
 ## Content continuation — 2026-10-26
 
 Recent depth work now covers four supplementary pairs (architecture boundaries, Sass/SCSS, JS object prototypes, Bootstrap/MUI), preserving the same EN/RU block ID/type order. Bootstrap source-specific behavior and semantics are now represented by `uilib-bootstrap-collapse`, `uilib-collapse-check`, `uilib-grid-cards`, `uilib-carousel-tradeoff`, and `uilib-bootstrap-task`. Structural tests and CI do not establish full semantic parity; the full HTML source audit and app cutover gate remain open.
+
+
+## DOM content audit — 2026-10-26
+
+Targeted source-to-lesson review of the DOM Masterclass identified five previously missing topic groups; `js.dom-events` now maps them to source-derived walkthroughs and practice. This was a focused semantic pass, not proof of complete parity for all 25 HTML pages. EN/RU ID/type order and code ranges were checked; exact-head CI must be confirmed separately.

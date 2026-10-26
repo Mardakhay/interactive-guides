@@ -105,3 +105,8 @@ Latest code content additions on the feature branch are bilingual structured les
 ## Content continuation — 2026-10-26
 
 Four bilingual supplementary lessons now have additional learner-facing explanations, walkthroughs, feedback and practice: architecture boundaries, Sass/SCSS, object prototypes, and Bootstrap/MUI. The Bootstrap/MUI supplement now explicitly covers a responsive navbar collapse dependency and ARIA wiring, responsive cards with meaningful alt text, and the tradeoffs of carousels. See `FULL_SOURCE_CONTENT_AUDIT.md` for concrete block evidence and current limitations. Source HTML remains in the app while parity review is unfinished.
+
+
+## DOM inventory note — 2026-10-26
+
+The DOM Masterclass source contains interactive tree/selector exercises, content and attribute/property comparisons, DocumentFragment, event phases/delegation, observer APIs, custom events, and rate-control patterns. The structured `js.dom-events` pair now explicitly covers those advanced observer and batching topics in addition to its existing safe rendering and delegation practice. The file remains a source artifact; learner-flow migration is still gated by the remaining sources.
