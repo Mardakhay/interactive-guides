@@ -195,3 +195,18 @@ Do not mark overall release readiness complete until the source audit, learner-d
 ## Documentation snapshot — 2026-10-23 (exact current HEAD)
 
 The implementation/content snapshot reviewed for this documentation sync was `64dea28924aed5701452ae60b121cb57fc747598`, with GitHub Actions [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) passing on that exact SHA. The previous documentation sync `a4d5eadb045f03a5c7cc995b6f150b42e2ca3eb4` also passed exact-head CI [run #40008684548](https://github.com/Mardakhay/interactive-guides/actions/runs/40008684548). This commit records the handoff and does not change release blockers. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`, and PR #1 remains open as a draft.
+
+
+## Latest project state — 2026-10-26
+
+This checkpoint supersedes the older “authoritative” snapshots above.
+
+- Feature branch `feat/learning-platform-foundation`, current code/content commit `17b79e07b8377e8aa92c5aa14305da0062389ac5`; PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) is open, Draft and mergeable. Its base is `main` at `b13af92576e8a73753a6e3f3d26765d9f9c44397`. This continuation did not write to `main`.
+- Exact-head GitHub Actions [run #40270734689](https://github.com/Mardakhay/interactive-guides/actions/runs/40270734689) passed: `npm ci`, `npm run lint`, `npm run typecheck`, `npm test` (22 files / 102 tests), `npm run build`. The install reported 14 audit findings (8 moderate, 4 high, 2 critical); production build retains the large-chunk warning.
+- The app exposes 26 bilingual core lessons and 11 bilingual supplementary lessons (74 JSON files), including the SQL and production-hosting tracks. Lessons render as in-app structured text; old HTML remains source material.
+- Content depth recently expanded in CSS (53 blocks, 5 checks, 5 walkthroughs and 3 exercises per locale), Git fundamentals (38 blocks) and workflow/CI (37 blocks). SQL has 35 blocks per locale. Deployment now has 21 blocks per locale, 3 walkthroughs, 2 knowledge checks and 2 scaffolded exercises; it teaches dist/hash caching, Vite environment precedence/build-time configuration, provider-specific SPA fallback, diagnosis and rollback planning.
+- The feature also contains broad but partial EN/RU UI localization and PWA foundations: manifest and icons, Netlify SPA rewrite, constrained static-asset service-worker caching, and learner-controlled updates. Real-device/browser install/offline/update acceptance is not recorded.
+- Source audit is still incomplete: 21 Notion fetches (all connector-unverified), 25 HTML files structurally inventoried, with focused deeper review recorded for selected React/CSS/Git sources. Do not infer complete coverage from passing CI.
+- Persistence remains local-first; reviewed export/import/migration and Supabase auth/sync are unfinished.
+
+The next milestone is to continue source-to-block review for the remaining HTML/Notion sections and close or explicitly defer each gap. Separately, finish localization edge states, test data portability, record PWA device acceptance, and triage dependency/bundle warnings without blind forced upgrades.

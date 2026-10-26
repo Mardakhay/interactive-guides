@@ -92,3 +92,8 @@ The same install step reported **13 dependency audit findings** (8 moderate, 3 h
 ## Documentation snapshot — 2026-10-23 (exact current HEAD)
 
 The implementation/content snapshot reviewed for this documentation sync was `64dea28924aed5701452ae60b121cb57fc747598`, with GitHub Actions [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) passing on that exact SHA. The previous documentation sync `a4d5eadb045f03a5c7cc995b6f150b42e2ca3eb4` also passed exact-head CI [run #40008684548](https://github.com/Mardakhay/interactive-guides/actions/runs/40008684548). This commit records the handoff and does not change release blockers. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`, and PR #1 remains open as a draft.
+
+
+## Latest PWA/project checkpoint — 2026-10-26
+
+At the current feature code/content SHA `17b79e07b8377e8aa92c5aa14305da0062389ac5`, Actions [run #40270734689](https://github.com/Mardakhay/interactive-guides/actions/runs/40270734689) passed, including the PWA asset/update contract tests. The implementation includes the manifest, 180/192/512px PNG icons, Netlify SPA rewrite, versioned static-asset-only cache, and learner-approved service-worker update flow. This remains code-level evidence only; no Android Chrome/iOS Safari install, offline, localized deep-link, in-progress exercise update, or update acceptance has been recorded. The exact manual acceptance checklist above remains open.

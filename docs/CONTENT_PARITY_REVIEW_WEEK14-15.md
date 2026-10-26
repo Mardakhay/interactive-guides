@@ -32,3 +32,8 @@ Lesson content: `src/content/lessons/react.forms-validation/{en,ru}.json` and `s
 Audit matrix and remaining source scope: [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md).  
 Application entry point: `/:locale/structured-lessons/:lessonId`.
 undefined
+
+
+## Latest overall validation — 2026-10-26
+
+The React forms/shared-state focus of this report is unchanged; both topics remain focused reviews rather than complete parity. The full feature CI currently passes at code/content SHA `17b79e07b8377e8aa92c5aa14305da0062389ac5` in [run #40270734689](https://github.com/Mardakhay/interactive-guides/actions/runs/40270734689) (22 files, 102 tests, lint, typecheck and production build). This validates the content contract/rendering but does not close the source interaction or bilingual editorial gaps listed above. See the full audit for the broader CSS/Git/SQL/deployment continuation status.

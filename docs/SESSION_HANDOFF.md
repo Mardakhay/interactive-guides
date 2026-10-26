@@ -257,3 +257,18 @@ This is the start of Phase 2, not complete app-wide localization. Course details
 ## Documentation snapshot — 2026-10-23 (exact current HEAD)
 
 The implementation/content snapshot reviewed for this documentation sync was `64dea28924aed5701452ae60b121cb57fc747598`, with GitHub Actions [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) passing on that exact SHA. The previous documentation sync `a4d5eadb045f03a5c7cc995b6f150b42e2ca3eb4` also passed exact-head CI [run #40008684548](https://github.com/Mardakhay/interactive-guides/actions/runs/40008684548). This commit records the handoff and does not change release blockers. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`, and PR #1 remains open as a draft.
+
+
+## Current handoff — 2026-10-26
+
+- Work only on `feat/learning-platform-foundation`. Code/content HEAD: `17b79e07b8377e8aa92c5aa14305da0062389ac5`. PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) is open, Draft, and mergeable against `main` SHA `b13af92576e8a73753a6e3f3d26765d9f9c44397`. No new commit in this continuation targeted `main`.
+- Exact-head CI [run #40270734689](https://github.com/Mardakhay/interactive-guides/actions/runs/40270734689) passed install, lint, typecheck, 102 tests across 22 test files, and build. Install reported 14 audit findings (8 moderate, 4 high, 2 critical); build still reports a >500 kB chunk warning.
+- New deployment deep dive is in `src/content/lessons/deployment.production-hosting/{en,ru}.json`: 21 ordered blocks per locale, 3 walkthroughs, 2 knowledge checks, 2 scaffolded exercises. The new learning covers `dist` and content hashes, build-time public env values, Vite env precedence (process variables win), host-specific fallback, DevTools/log diagnosis, and rollback. Official Vite/Netlify references are included. A first CI run caught an unsupported `info` callout; it was corrected to supported `tip` in both locales and the rerun passed.
+- Current inventory: 21 Notion pages fetched, all connector-unverified; 25 legacy HTML sources inventoried/structurally surveyed. Focused deeper passes are documented for selected React, CSS and Git sources; full audit/parity is not complete. Keep the audit matrix statuses partial/review; do not claim all sources migrated.
+- Existing recent content depth: CSS fundamentals v3 / 53 blocks, Git fundamentals v3 / 38 blocks, Git workflow/CI v3 / 37 blocks, SQL/PostgreSQL / 35 blocks per locale. Curriculum has 26 core plus 11 supplementary IDs across EN/RU.
+- Other open work: complete source review and matrix evidence; remaining UI/content localization; learner-data migration/export-import; Supabase auth/sync; real Android/iOS PWA acceptance; review dependency audit and large bundle warning.
+- A local clone used for the initial inspection was stale and Git network fetch was unavailable in the sandbox. Remote GitHub API mutations were guarded by exact `expected_sha` and explicit feature branch; re-check live PR/branch state before further writes.
+
+## Next action
+
+Continue source-by-source parity and content deepening from `docs/FULL_SOURCE_CONTENT_AUDIT.md`, starting with the next largest unaudited source. For every lesson pair, verify structure, technical correctness, depth, feedback and source evidence. Re-run exact-head CI after implementation and update this handoff again.

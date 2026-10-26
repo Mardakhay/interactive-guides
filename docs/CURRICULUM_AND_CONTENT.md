@@ -120,3 +120,12 @@ This does not mean all 25 legacy HTML sources or all Notion details have been fu
 
 
 **Validation note (2026-10-23):** at code SHA `132636c4007141454a903e815d6f0418a3c511b0`, lint/typecheck, 92 tests, production build and `git diff --check` passed locally. The repository bundle triggers Vite's >500 kB chunk warning. Source parity is still open; see the audit matrix.
+
+
+## Current implementation and migration status — 2026-10-26
+
+The application now presents the 24-week core curriculum plus separately labeled supplementary tracks through the bilingual structured reader. There are 26 core and 11 supplementary lesson IDs (74 EN/RU JSON files); content is embedded through the React renderer rather than delivered as standalone lesson HTML.
+
+Recent deepening: CSS fundamentals v3 (53 blocks / 5 checks / 5 walkthroughs / 3 exercises per locale); Git fundamentals v3 (38 blocks), Git workflow/CI v3 (37 blocks); SQL/PostgreSQL (35 blocks); and production hosting (21 blocks / 3 walkthroughs / 2 checks / 2 exercises). Deployment now teaches build output and hash caching, Vite env resolution and build-time values, host-specific SPA fallback, failure isolation, and release recovery. Source behavior that is not represented one-to-one remains documented as partial/deferred.
+
+CI [run #40270734689](https://github.com/Mardakhay/interactive-guides/actions/runs/40270734689) passed at code/content SHA `17b79e07b8377e8aa92c5aa14305da0062389ac5`. This does not certify source parity: 21 Notion fetches remain unverified; all 25 legacy HTML sources are inventoried, but only selected sources have focused deeper parity notes. Keep review states until technical and bilingual editorial review is complete.

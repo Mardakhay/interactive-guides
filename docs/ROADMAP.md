@@ -208,3 +208,19 @@ The release acceptance gates remain open. Keep this roadmap as a work plan and d
 ## Documentation snapshot — 2026-10-23 (exact current HEAD)
 
 The implementation/content snapshot reviewed for this documentation sync was `64dea28924aed5701452ae60b121cb57fc747598`, with GitHub Actions [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) passing on that exact SHA. The previous documentation sync `a4d5eadb045f03a5c7cc995b6f150b42e2ca3eb4` also passed exact-head CI [run #40008684548](https://github.com/Mardakhay/interactive-guides/actions/runs/40008684548). This commit records the handoff and does not change release blockers. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`, and PR #1 remains open as a draft.
+
+
+## Latest delivery checkpoint — 2026-10-26
+
+This section supersedes the older implementation snapshots above; the roadmap is still active, not complete.
+
+- **Branch/CI:** `feat/learning-platform-foundation`, code/content SHA `17b79e07b8377e8aa92c5aa14305da0062389ac5`; [Actions run #40270734689](https://github.com/Mardakhay/interactive-guides/actions/runs/40270734689) passed install, lint, typecheck, 102 tests/22 files and production build. PR #1 remains open/Draft; `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`.
+- **Phase 2 (UI/locale):** broad EN/RU shell and page localization is implemented; remaining string/edge-state and content parity review remains.
+- **Phase 3 (structured reader):** bilingual curriculum and reader work; 26 core + 11 supplementary lesson IDs are registered and served as embedded lesson content.
+- **Phase 4 (content):** active. CSS, Git/CI, SQL and deployment lessons have recent depth additions. Source inventory is 21 Notion pages fetched (unverified) and 25 HTML pages inventoried; full prose/code/exercise/answer/interaction parity is still incomplete. Keep all legacy source files and lessons at `review`.
+- **Phase 5 (local-first portability):** local stores operate; migration/export/import and recovery remain open.
+- **Phase 6 (Supabase):** auth/sync not implemented.
+- **Phase 7 (PWA):** code foundation and contract tests exist; real Android/iOS browser install/offline/update acceptance is outstanding.
+- **Phase 8 (release):** not ready; complete source review, data portability, PWA acceptance, dependency audit triage and bundle-warning review before considering release completion.
+
+For source-level evidence and explicit remaining gaps see [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md). Do not equate CI green with lesson parity or product completion.

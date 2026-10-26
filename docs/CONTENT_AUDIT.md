@@ -33,3 +33,10 @@ Keep standalone HTML files as sources until each relevant subsection has block-l
 Feature HEAD `9dfa157ce36123144ad84c2f327abdb41984a3a7` passed GitHub Actions [run #39986177388](https://github.com/Mardakhay/interactive-guides/actions/runs/39986177388), including all 102 tests across 22 files and production build. CI remains evidence of schema, test and build consistency only.
 
 The latest focused content additions include CSS fundamentals v3 (53 blocks/110 min per locale), Git fundamentals v3 (38 blocks/95 min), and Git workflow/CI v3 (37 blocks/110 min). They remain in editorial review; legacy HTML pages remain available and their full source-to-block and UI-interaction equivalence is not closed.
+
+
+## Latest implementation/content validation — 2026-10-26
+
+At feature HEAD `17b79e07b8377e8aa92c5aa14305da0062389ac5`, GitHub Actions [run #40270734689](https://github.com/Mardakhay/interactive-guides/actions/runs/40270734689) passed install, lint, typecheck, 102 tests across 22 files, and production build. The app has 26 core and 11 supplementary stable lesson IDs in both locales (74 JSON files). Recent depth work includes CSS v3, expanded Git/CI, SQL/PostgreSQL and deployment/hosting content; deployment is 21 blocks per locale with 3 walkthroughs, 2 checks and 2 coding exercises.
+
+This validates runtime/schema and build invariants only. The 21 fetched Notion pages remain unverified by the connector; the 25 HTML sources are inventoried, with full source-to-block review still incomplete. Lesson editorial state remains `review`. See [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md) for the deployment evidence and remaining source gaps.

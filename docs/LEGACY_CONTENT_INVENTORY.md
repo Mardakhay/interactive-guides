@@ -60,3 +60,12 @@ Source review depth is still incomplete: all 25 files were checked for existence
 
 
 **Verification update (2026-10-23):** the current feature content code passed lint, typecheck, all 92 tests, production build and diff whitespace check at `132636c4007141454a903e815d6f0418a3c511b0`. This validates the platform structure, not full semantic migration for every file in the inventory. GitHub Actions has no reported run for that API-created commit.
+
+
+## Latest structured migration status — 2026-10-26
+
+The 25-file inventory remains the source inventory; source files are retained. The feature has 26 core and 11 supplementary bilingual lesson IDs in-app. This is not full migration.
+
+Recent source-to-content passes expanded CSS fundamentals (53 blocks/locale), Git fundamentals (38 blocks/locale), Git workflow/CI (37 blocks/locale), SQL/PostgreSQL (35 blocks/locale), and production hosting (21 blocks/locale: 3 walkthroughs, 2 checks, 2 exercises). Deployment’s new in-app evidence covers generated `dist`, content hashes, Vite mode/env precedence, build-time configuration, hosting fallback diagnosis and rollback planning.
+
+Legacy `deployment-learning.html` still contains interactions not equivalent to structured blocks (including a pipeline simulator, provider tabs and custom-domain walk-through); mark its status partial and keep it intact. The broader source audit still has 21 fetched Notion pages marked unverified and most HTML files still need complete body/code/hidden-answer/interaction parity review. Detailed evidence is in [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md).
