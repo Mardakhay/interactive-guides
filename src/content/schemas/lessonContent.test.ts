@@ -408,7 +408,7 @@ describe('React API and custom hooks lesson translation', () => {
     if (debounceWalkthrough?.type === 'codeWalkthrough') {
       expect(debounceWalkthrough.code).toContain('clearTimeout');
       expect(debounceWalkthrough.code).toContain('AbortController');
-      const lineCount = debounceWalkthrough.code.split('\\n').length;
+      const lineCount = debounceWalkthrough.code.split('\n').length;
       expect(debounceWalkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
     }
     const debounceCheck = englishApiHooks.blocks.find((block) => block.id === 'api-debounce-check');
