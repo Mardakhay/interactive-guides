@@ -52,3 +52,10 @@ Schema/CI establishes structural integrity, not complete source parity. All 25 l
 Feature SHA `0b08ee4249d1e6ec19bfe16e94de864fe7271ed1` passed [Actions run #40271559588](https://github.com/Mardakhay/interactive-guides/actions/runs/40271559588): lint, typecheck, 102 tests/22 files and build. The bilingual network supplement now includes the HTTP/2-over-TCP vs HTTP/3-over-QUIC failure model and primary RFC references; the DOM and deployment content also have recent deepening.
 
 These changes improve content depth but do not close parity for the full 25-file HTML inventory or the 21 unverified Notion fetches. See the full source audit for exact evidence and known gaps. Keep all lessons in `review`.
+
+
+## Performance/accessibility source pass — 2026-10-26
+
+The bilingual `performance.accessibility` lesson is now version 3, 36 blocks per locale (8 code walkthroughs, 6 knowledge checks and 3 scaffolded coding exercises). The source-derived addition teaches how to choose contextual image alternatives (informative vs decorative/redundant; explicit empty alt vs missing alt) and how to give an icon-only favorite toggle a stable accessible name and exposed `aria-pressed` state. It includes a worked TSX card, feedback-rich check, practical repair task and W3C WAI Images Tutorial reference. EN/RU block IDs/types and quiz structure match. CI [run #40271923920](https://github.com/Mardakhay/interactive-guides/actions/runs/40271923920) passed lint, typecheck, tests and production build on exact content SHA `89bb63293f5171f3e8f6b7d4fc1a0740f9e1dc05`.
+
+Source status remains **partial**: the legacy render-cascade and bundle simulators, keyboard/menu demonstrations and other interactive behaviors do not yet have equivalent learner interactions. This focused comparison does not constitute a line-by-line audit of the HTML or completion of the full source audit.
