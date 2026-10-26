@@ -308,6 +308,213 @@
       ]
     },
     {
+      "id": "invocation-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Function calls, thisArg, and bound functions"
+    },
+    {
+      "id": "invocation-model",
+      "type": "paragraph",
+      "text": "For an ordinary function, this is determined by how the function is called, not where it was declared. The expression obj.method() supplies obj as the receiver; an extracted function no longer receives that object automatically. call and apply invoke immediately with a chosen thisArg, while bind creates a new function for a later call."
+    },
+    {
+      "id": "invocation-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function formatGreeting(prefix, punctuation) {\n  return prefix + this.name + punctuation;\n}\nconst user = { name: \"Ayla\" };\n\nconsole.log(formatGreeting.call(user, \"Hi, \", \"!\"));\nconsole.log(formatGreeting.apply(user, [\"Hello, \", \".\"]));\nconst sayHey = formatGreeting.bind(user, \"Hey, \");\nconsole.log(sayHey(\"?\"));",
+      "steps": [
+        {
+          "title": "Look at the call site",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "formatGreeting does not store user. Its receiver is supplied when called; here we create a simple record with a name."
+        },
+        {
+          "title": "Invoke immediately with arguments",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "call receives arguments individually; apply receives an array or array-like list. Both invoke the function immediately with user as this."
+        },
+        {
+          "title": "Prepare a later invocation",
+          "lineStart": 8,
+          "lineEnd": 9,
+          "explanation": "bind does not format anything now: it returns a new function with the receiver and first argument partially fixed. sayHey can be called later."
+        }
+      ]
+    },
+    {
+      "id": "invocation-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What happens in `const later = formatGreeting.bind(user, \"Hello \")`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "formatGreeting runs immediately and its result is stored in later.",
+          "correct": false,
+          "feedback": "call/apply invoke now; bind returns a function for a later invocation."
+        },
+        {
+          "id": "b",
+          "text": "A new function is created with this and the first argument fixed.",
+          "correct": true,
+          "feedback": "Correct. Arguments supplied later are added after the prefilled arguments."
+        },
+        {
+          "id": "c",
+          "text": "The original function permanently receives a new this for all calls.",
+          "correct": false,
+          "feedback": "bind leaves the original alone and returns a separate bound function."
+        },
+        {
+          "id": "d",
+          "text": "JavaScript automatically clones user.",
+          "correct": false,
+          "feedback": "The receiver reference is fixed, not a copy of the object."
+        }
+      ],
+      "explanation": "bind creates a new callable and does not invoke the original. call and apply invoke immediately; their difference is how arguments are supplied."
+    },
+    {
+      "id": "arrow-this-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const panel = {\n  label: \"settings\",\n  makeReader() {\n    return () => this.label;\n  },\n};\nconst read = panel.makeReader();\nconsole.log(read.call({ label: \"other\" }));",
+      "steps": [
+        {
+          "title": "Create an arrow from a method",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "makeReader is called as panel.makeReader(), so the method's this is panel. The arrow captures this lexically."
+        },
+        {
+          "title": "Try to replace its receiver",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "call cannot change an arrow's lexical this. The result remains settings rather than other."
+        }
+      ]
+    },
+    {
+      "id": "bind-lifecycle",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Keep a bound callback if you need to remove a listener",
+      "text": "Each bind call creates a new function. addEventListener('click', handler.bind(this)) and removeEventListener('click', handler.bind(this)) receive different references; save the bound callback. For a bound constructor called with new, the bound this is ignored, but preset arguments still apply."
+    },
+    {
+      "id": "strict-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Strict mode makes mistakes visible"
+    },
+    {
+      "id": "strict-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "\"use strict\";\nfunction readReceiver() {\n  return this;\n}\nconsole.log(readReceiver() === undefined);\n\nconst user = Object.freeze({ count: 0 });\ntry {\n  user.count = 1;\n} catch (error) {\n  console.log(error instanceof TypeError);\n}",
+      "steps": [
+        {
+          "title": "An unbound call in strict mode",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Without a receiver, this inside an ordinary function stays undefined. In a sloppy classic browser script, globalThis may be substituted, hiding a mistake."
+        },
+        {
+          "title": "Expose a forbidden mutation",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "explanation": "Object.freeze makes the property non-writable. In strict mode an attempted assignment throws TypeError instead of being silently ignored."
+        }
+      ]
+    },
+    {
+      "id": "strict-context",
+      "type": "paragraph",
+      "text": "An ES module and a class body automatically use strict mode; a classic script can opt in with a directive at the beginning of a function or script. Strict mode also rejects some legacy constructs and helps expose mistakes. It is not a replacement for tests or input validation."
+    },
+    {
+      "id": "strict-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "When does a plain `read()` call give `this === undefined` for a function without its own receiver?",
+      "options": [
+        {
+          "id": "a",
+          "text": "In strict mode or a function/module with strict semantics.",
+          "correct": true,
+          "feedback": "Correct. ES modules and class bodies enable strict mode automatically."
+        },
+        {
+          "id": "b",
+          "text": "Only when the function is an arrow.",
+          "correct": false,
+          "feedback": "An arrow does not create its own this; that is a different mechanism."
+        },
+        {
+          "id": "c",
+          "text": "Always in all browser scripts.",
+          "correct": false,
+          "feedback": "Classic scripts without strict mode may substitute globalThis."
+        },
+        {
+          "id": "d",
+          "text": "Whenever the function uses bind.",
+          "correct": false,
+          "feedback": "bind fixes a receiver for a bound function; strict mode is not the reason."
+        }
+      ],
+      "explanation": "A plain ordinary function call yields undefined in strict mode; sloppy classic scripts historically substitute globalThis."
+    },
+    {
+      "id": "invocation-practice",
+      "type": "codingExercise",
+      "title": "Compare call, apply, and bind for an invoice",
+      "language": "javascript",
+      "context": "A renderer receives an invoice formatter separately from an order. Three ways of supplying the receiver should produce the same text; the bound version is invoked later.",
+      "instructions": [
+        "Implement formatInvoice(currency, taxRate) using this.customer and this.subtotal.",
+        "Calculate totals with call and apply using the same order object.",
+        "Create a bound function with bind, prefill currency, and invoke it later with taxRate.",
+        "Verify all three results match and are rounded to two decimal places.",
+        "Explain why bind creates a new function and how to preserve its reference for an event listener."
+      ],
+      "requirements": [
+        "call/apply invoke the original function immediately with order as receiver.",
+        "call takes separate arguments; apply takes an array-like argument list.",
+        "bind returns a function and does not format until a later call.",
+        "All three approaches return the same correct total.",
+        "Solution changes neither the original function nor a copy of order."
+      ],
+      "starterCode": "function formatInvoice(currency, taxRate) {\n  // TODO: use this.customer and this.subtotal.\n}\n\nconst order = { customer: \"Ayla\", subtotal: 20 };\nconst byCall = formatInvoice.call(order, \"$\", 0.1);\nconst byApply = formatInvoice.apply(order, [\"$\", 0.1]);\nconst later = formatInvoice.bind(order, \"$\");\nconst byBind = later(0.1);\n\nconsole.log(byCall, byApply, byBind);\n// Expected: \"Ayla: $22.00\" three times",
+      "hints": [
+        "Inside an ordinary function, this comes from the call expression. Pass order explicitly to call/apply/bind.",
+        "Apply receives one array-like argument list; call receives each argument separately.",
+        "Bind fixes order and currency now, but you supply taxRate when invoking later(0.1).",
+        "Format the numeric result with toFixed(2); do not mutate order.subtotal."
+      ],
+      "successCriteria": [
+        "All three outputs equal Ayla: $22.00.",
+        "call and apply invoke immediately with the intended receiver.",
+        "The bound function delays execution until later(0.1).",
+        "Order stays unchanged and the original function can use another receiver.",
+        "Explanation distinguishes this binding from copying or mutating an object."
+      ]
+    },
+    {
+      "id": "invocation-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "An ordinary function's this follows its call site; arrow this is lexical.",
+        "call/apply invoke immediately; call takes separate arguments and apply takes an array-like list.",
+        "bind returns a new function and can prefill receiver/arguments; preserve its identity for add/remove listener pairs.",
+        "Strict mode makes an unbound ordinary this undefined and exposes some silent failures; modules/classes are strict automatically."
+      ]
+    },
+    {
       "id": "object-model-summary",
       "type": "list",
       "ordered": false,
@@ -315,7 +522,8 @@
         "Property lookup delegates through [[Prototype]]; Constructor.prototype is a separate concept.",
         "new creates an instance linked to Constructor.prototype and initializes this for the constructor.",
         "For regular methods this depends on the call site; arrows capture this lexically, call/apply invoke, and bind returns a bound function.",
-        "Use private fields and inheritance intentionally, based on encapsulation and substitutability needs."
+        "Use private fields and inheritance intentionally, based on encapsulation and substitutability needs.",
+        "call/apply invoke immediately; bind creates a new function. Strict mode changes plain-call this."
       ]
     },
     {
@@ -335,6 +543,26 @@
         {
           "title": "MDN: Function.prototype.bind()",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function.prototype.call()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function.prototype.apply()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function.prototype.bind()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Strict mode",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode",
           "kind": "official-docs"
         }
       ]

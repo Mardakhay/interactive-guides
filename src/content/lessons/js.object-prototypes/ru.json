@@ -308,6 +308,213 @@
       ]
     },
     {
+      "id": "invocation-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Вызов функции, thisArg и bound functions"
+    },
+    {
+      "id": "invocation-model",
+      "type": "paragraph",
+      "text": "У обычной функции this определяется способом вызова, а не местом объявления. Выражение obj.method() передаёт obj как получателя; извлечённая функция больше не получает этот объект автоматически. call и apply вызывают функцию сразу с указанным thisArg, а bind создаёт новую функцию для будущего вызова."
+    },
+    {
+      "id": "invocation-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function formatGreeting(prefix, punctuation) {\n  return prefix + this.name + punctuation;\n}\nconst user = { name: \"Ayla\" };\n\nconsole.log(formatGreeting.call(user, \"Hi, \", \"!\"));\nconsole.log(formatGreeting.apply(user, [\"Hello, \", \".\"]));\nconst sayHey = formatGreeting.bind(user, \"Hey, \");\nconsole.log(sayHey(\"?\"));",
+      "steps": [
+        {
+          "title": "Посмотрите на call-site",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "formatGreeting не хранит объект user. Контекст receiver передаётся при вызове; здесь создана простая запись с именем."
+        },
+        {
+          "title": "Вызовите сразу с аргументами",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "call получает аргументы по одному, apply получает массив или array-like набор. Оба немедленно вызывают функцию с user как this."
+        },
+        {
+          "title": "Подготовьте отложенный вызов",
+          "lineStart": 8,
+          "lineEnd": 9,
+          "explanation": "bind не выполняет форматирование: он возвращает новую функцию, частично фиксируя receiver и первый аргумент. sayHey можно вызвать позднее."
+        }
+      ]
+    },
+    {
+      "id": "invocation-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что происходит в `const later = formatGreeting.bind(user, \"Hello \")`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "formatGreeting немедленно вызывается и результат сохраняется в later.",
+          "correct": false,
+          "feedback": "Вызов сейчас происходит с call/apply; bind возвращает функцию для будущего выполнения."
+        },
+        {
+          "id": "b",
+          "text": "Создаётся новая функция с закреплёнными this и первым аргументом.",
+          "correct": true,
+          "feedback": "Верно. Позже переданные параметры дополняют заранее закреплённые аргументы."
+        },
+        {
+          "id": "c",
+          "text": "Исходная функция навсегда получает новый this при всех вызовах.",
+          "correct": false,
+          "feedback": "bind не меняет исходную функцию; он возвращает отдельную bound function."
+        },
+        {
+          "id": "d",
+          "text": "JavaScript автоматически клонирует объект user.",
+          "correct": false,
+          "feedback": "Закрепляется ссылка receiver, а не копия объекта."
+        }
+      ],
+      "explanation": "bind создаёт новый вызываемый объект и не вызывает исходную функцию. call и apply вызывают её сразу; разница между ними — форма передачи аргументов."
+    },
+    {
+      "id": "arrow-this-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const panel = {\n  label: \"settings\",\n  makeReader() {\n    return () => this.label;\n  },\n};\nconst read = panel.makeReader();\nconsole.log(read.call({ label: \"other\" }));",
+      "steps": [
+        {
+          "title": "Создайте arrow внутри метода",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "makeReader вызывается как panel.makeReader(), поэтому this метода — panel. Стрелочная функция захватывает этот this лексически."
+        },
+        {
+          "title": "Попробуйте переопределить контекст",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "call на стрелке не меняет её лексический this. Результат остаётся settings, а не other."
+        }
+      ]
+    },
+    {
+      "id": "bind-lifecycle",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Сохраняйте bound callback, если нужно снять listener",
+      "text": "Каждый вызов bind создаёт новую функцию. addEventListener('click', handler.bind(this)) и removeEventListener('click', handler.bind(this)) получают разные ссылки; сохраните bound callback в переменной. У bound constructor при вызове через new закреплённый this игнорируется, но заранее переданные аргументы сохраняются."
+    },
+    {
+      "id": "strict-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Strict mode делает ошибки явными"
+    },
+    {
+      "id": "strict-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "\"use strict\";\nfunction readReceiver() {\n  return this;\n}\nconsole.log(readReceiver() === undefined);\n\nconst user = Object.freeze({ count: 0 });\ntry {\n  user.count = 1;\n} catch (error) {\n  console.log(error instanceof TypeError);\n}",
+      "steps": [
+        {
+          "title": "Обычный вызов в strict mode",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Без receiver this обычной функции остаётся undefined. В sloppy classic script браузер может подставлять globalThis; это способно скрыть ошибку."
+        },
+        {
+          "title": "Обнаружьте запрещённую мутацию",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "explanation": "Object.freeze делает свойство неизменяемым. В strict mode попытка присваивания бросает TypeError вместо тихого игнорирования."
+        }
+      ]
+    },
+    {
+      "id": "strict-context",
+      "type": "paragraph",
+      "text": "Файл ES module и тело class автоматически используют strict mode; в обычном classic script можно включить его директивой в начале функции или скрипта. Он также запрещает некоторые устаревшие конструкции и помогает не маскировать ошибки. Не включайте strict mode как замену тестам или проверке входных данных."
+    },
+    {
+      "id": "strict-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В каком случае обычный вызов `read()` даёт `this === undefined` для функции без собственного receiver?",
+      "options": [
+        {
+          "id": "a",
+          "text": "В strict mode или в функции/модуле со strict semantics.",
+          "correct": true,
+          "feedback": "Верно. В ES modules и class bodies strict mode включён автоматически."
+        },
+        {
+          "id": "b",
+          "text": "Только если функция объявлена как стрелка.",
+          "correct": false,
+          "feedback": "Стрелка вообще не создаёт собственный this; это другой механизм."
+        },
+        {
+          "id": "c",
+          "text": "Всегда во всех browser scripts.",
+          "correct": false,
+          "feedback": "Classic scripts без strict mode могут подставить globalThis."
+        },
+        {
+          "id": "d",
+          "text": "Когда функция использует bind.",
+          "correct": false,
+          "feedback": "bind фиксирует receiver для bound function; strict mode здесь не является причиной."
+        }
+      ],
+      "explanation": "Обычный function call без receiver даёт undefined в strict mode; sloppy classic scripts исторически подставляют globalThis."
+    },
+    {
+      "id": "invocation-practice",
+      "type": "codingExercise",
+      "title": "Сравните call, apply и bind для счета",
+      "language": "javascript",
+      "context": "Рендерер получает функцию форматирования счета отдельно от заказа. Три способа передачи receiver должны дать одинаковый текст; bound вариант вызывается позже.",
+      "instructions": [
+        "Реализуйте formatInvoice(currency, taxRate), используя this.customer и this.subtotal.",
+        "Вычислите итоги через call и apply с одним объектом заказа.",
+        "Создайте bound функцию с bind, зафиксируйте currency и вызовите её позже с taxRate.",
+        "Проверьте, что три результата совпадают и округлены до двух знаков.",
+        "Объясните, почему bind создаёт новую функцию, и как сохранить ссылку для event listener."
+      ],
+      "requirements": [
+        "call/apply сразу вызывают исходную функцию с order как receiver.",
+        "call передаёт аргументы по одному; apply получает array-like список.",
+        "bind возвращает функцию, не выполняя форматирование до последующего вызова.",
+        "Все способы возвращают один и тот же корректный итог.",
+        "Решение не меняет исходную функцию и не клонирует order."
+      ],
+      "starterCode": "function formatInvoice(currency, taxRate) {\n  // TODO: use this.customer and this.subtotal.\n}\n\nconst order = { customer: \"Ayla\", subtotal: 20 };\nconst byCall = formatInvoice.call(order, \"$\", 0.1);\nconst byApply = formatInvoice.apply(order, [\"$\", 0.1]);\nconst later = formatInvoice.bind(order, \"$\");\nconst byBind = later(0.1);\n\nconsole.log(byCall, byApply, byBind);\n// Expected: \"Ayla: $22.00\" three times",
+      "hints": [
+        "Inside a normal function, this comes from the call expression. Pass order explicitly to call/apply/bind.",
+        "Apply receives one array-like argument list; call receives each argument separately.",
+        "Bind fixes order and currency now, but you still supply taxRate when you call later.",
+        "Format the numeric result with toFixed(2); do not mutate order.subtotal."
+      ],
+      "successCriteria": [
+        "All three outputs equal Ayla: $22.00.",
+        "call and apply invoke immediately with the intended receiver.",
+        "The bound function delays execution until later(0.1).",
+        "Order remains unchanged and the original function is reusable with another receiver.",
+        "Explanation distinguishes this binding from copying or mutating an object."
+      ]
+    },
+    {
+      "id": "invocation-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Ordinary function this follows its call-site; arrow this is lexical.",
+        "call/apply invoke immediately; call takes separate arguments and apply takes an array-like list.",
+        "bind returns a new function and may pre-fill receiver/arguments; keep its identity when adding/removing listeners.",
+        "Strict mode makes an unbound ordinary this undefined and surfaces some silent failures; modules/classes are strict automatically."
+      ]
+    },
+    {
       "id": "object-model-summary",
       "type": "list",
       "ordered": false,
@@ -315,7 +522,8 @@
         "Поиск свойств делегирует через [[Prototype]]; Constructor.prototype — отдельное понятие.",
         "new создаёт экземпляр, связанный с Constructor.prototype, и инициализирует this конструктора.",
         "У обычного метода this зависит от места вызова; стрелки лексически захватывают this, call/apply вызывают, bind возвращает привязанную функцию.",
-        "Используй private fields и наследование осознанно — исходя из требований инкапсуляции и взаимозаменяемости."
+        "Используй private fields и наследование осознанно — исходя из требований инкапсуляции и взаимозаменяемости.",
+        "call/apply вызывают сразу; bind создаёт новую функцию. Strict mode различает this при простом вызове."
       ]
     },
     {
@@ -335,6 +543,26 @@
         {
           "title": "MDN: Function.prototype.bind()",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function.prototype.call()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function.prototype.apply()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function.prototype.bind()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Strict mode",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode",
           "kind": "official-docs"
         }
       ]

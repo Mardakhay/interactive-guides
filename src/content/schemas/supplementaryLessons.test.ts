@@ -74,3 +74,33 @@ describe('supplementary source-derived lessons', () => {
     }
   });
 });
+describe('object model invocation and strict-mode depth', () => {
+  it('distinguishes call/apply/bind, lexical arrow this, and strict calls', () => {
+    expect(lessonTranslationSchema.safeParse(englishPrototypes).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianPrototypes).success).toBe(true);
+    expect(englishPrototypes.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianPrototypes.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    for (const id of ['invocation-walkthrough', 'arrow-this-walkthrough', 'strict-walkthrough']) {
+      const walkthrough = englishPrototypes.blocks.find((block) => block.id === id);
+      expect(walkthrough?.type).toBe('codeWalkthrough');
+      if (walkthrough?.type !== 'codeWalkthrough') continue;
+      const lines = walkthrough.code.split('\n').length;
+      expect(walkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lines)).toBe(true);
+    }
+    const quiz = englishPrototypes.blocks.find((block) => block.id === 'invocation-check');
+    expect(quiz?.type).toBe('knowledgeCheck');
+    if (quiz?.type === 'knowledgeCheck') {
+      expect(quiz.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(quiz.options.every((option) => option.feedback.trim().length > 0)).toBe(true);
+      expect(quiz.explanation.trim().length).toBeGreaterThan(0);
+    }
+    const exercise = englishPrototypes.blocks.find((block) => block.id === 'invocation-practice');
+    expect(exercise?.type).toBe('codingExercise');
+    if (exercise?.type !== 'codingExercise') return;
+    expect(exercise.requirements.length).toBeGreaterThanOrEqual(5);
+    expect(exercise.hints.length).toBeGreaterThanOrEqual(4);
+    expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
+    expect(exercise.starterCode).toContain('formatInvoice.apply');
+  });
+});
