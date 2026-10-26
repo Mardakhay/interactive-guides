@@ -214,6 +214,7 @@ describe('class semantics and shared prototype methods', () => {
       expect(lesson.blocks.find((block) => block.id === 'runtime-memory-tools')?.type).toBe('paragraph');
     }
   });
+});
 
 describe('hosting capacity and model trade-offs', () => {
   it('validates bilingual hosting evidence and useful practice criteria', () => {
