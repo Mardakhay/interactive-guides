@@ -210,3 +210,16 @@ This checkpoint supersedes the older “authoritative” snapshots above.
 - Persistence remains local-first; reviewed export/import/migration and Supabase auth/sync are unfinished.
 
 The next milestone is to continue source-to-block review for the remaining HTML/Notion sections and close or explicitly defer each gap. Separately, finish localization edge states, test data portability, record PWA device acceptance, and triage dependency/bundle warnings without blind forced upgrades.
+
+## Latest project state — 2026-10-26 (DOM content checkpoint)
+
+This entry supersedes earlier branch/content snapshot statements.
+
+- Active branch: `feat/learning-platform-foundation`; code/content SHA `deb30c88151ee6f0ea5f59afd14e96f0fb2d5902`. Actions [run #40271279200](https://github.com/Mardakhay/interactive-guides/actions/runs/40271279200) passed lint, typecheck, 102 tests / 22 files and production build.
+- `js.dom-events` is now 35 blocks per locale with 7 walkthroughs, 6 checks and 3 coding exercises. Added explanations cover node types vs elements, whitespace nodes and element collections, input attributes vs live properties/reset, event phases, and diagnosis via DevTools. EN/RU block IDs and order match and content tests enforce the expanded structure.
+- Deployment remains 21 blocks per locale (3 walkthroughs, 2 checks, 2 exercises); SQL is 35 blocks per locale; CSS fundamentals v3 is 53 blocks per locale; Git fundamentals v3 is 38 blocks and workflow/CI v3 is 37 blocks per locale.
+- The app has 26 core and 11 supplementary IDs in two locales (74 JSON files), rendered as in-app text. The feature also contains broad but partial UI localization and the PWA foundation.
+- Source audit is still incomplete: 21 Notion pages fetched (connector marked every result unverified), 25 HTML files structurally inventoried, and only selected sources have deeper review. The DOM lesson maps important concepts but not all its interactive playgrounds/editors or the final Card Manager. Keep the source and lesson statuses at review.
+- PR #1 is open/Draft, based on `main` SHA `b13af92576e8a73753a6e3f3d26765d9f9c44397`. No changes from this work were committed to main.
+
+Open work: continue full source review and mapping, complete remaining localization and local data-portability design, record PWA browser/device acceptance, and triage the 14 npm audit findings and large build chunk warning without blind upgrades.

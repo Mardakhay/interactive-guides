@@ -40,3 +40,9 @@ The latest focused content additions include CSS fundamentals v3 (53 blocks/110 
 At feature HEAD `17b79e07b8377e8aa92c5aa14305da0062389ac5`, GitHub Actions [run #40270734689](https://github.com/Mardakhay/interactive-guides/actions/runs/40270734689) passed install, lint, typecheck, 102 tests across 22 files, and production build. The app has 26 core and 11 supplementary stable lesson IDs in both locales (74 JSON files). Recent depth work includes CSS v3, expanded Git/CI, SQL/PostgreSQL and deployment/hosting content; deployment is 21 blocks per locale with 3 walkthroughs, 2 checks and 2 coding exercises.
 
 This validates runtime/schema and build invariants only. The 21 fetched Notion pages remain unverified by the connector; the 25 HTML sources are inventoried, with full source-to-block review still incomplete. Lesson editorial state remains `review`. See [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md) for the deployment evidence and remaining source gaps.
+
+## Latest content validation — 2026-10-26
+
+At feature code/content SHA `deb30c88151ee6f0ea5f59afd14e96f0fb2d5902`, GitHub Actions [run #40271279200](https://github.com/Mardakhay/interactive-guides/actions/runs/40271279200) passed all configured checks (lint, typecheck, 22 test files / 102 tests, production build). The DOM lesson is now 35 blocks per locale (7 walkthroughs, 6 checks, 3 exercises); CSS, Git/CI, SQL and deployment deepening are also present.
+
+Schema/CI establishes structural integrity, not complete source parity. All 25 legacy HTML files remain. The DOM source is only structurally and selectively reviewed, with live demos and the final Card Manager still unmapped; 21 Notion fetches remain marked unverified. Lesson editorial state remains `review`.

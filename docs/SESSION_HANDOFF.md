@@ -272,3 +272,12 @@ The implementation/content snapshot reviewed for this documentation sync was `64
 ## Next action
 
 Continue source-by-source parity and content deepening from `docs/FULL_SOURCE_CONTENT_AUDIT.md`, starting with the next largest unaudited source. For every lesson pair, verify structure, technical correctness, depth, feedback and source evidence. Re-run exact-head CI after implementation and update this handoff again.
+
+## Current handoff — 2026-10-26 (DOM milestone)
+
+- Feature code/content commit: `deb30c88151ee6f0ea5f59afd14e96f0fb2d5902`. GitHub Actions [run #40271279200](https://github.com/Mardakhay/interactive-guides/actions/runs/40271279200) passed `npm ci`, lint, typecheck, 102 tests across 22 files and production build.
+- `js.dom-events` EN/RU now share 35 ordered blocks, 7 walkthroughs, 6 checks and 3 coding exercises. The content test checks the expanded counts and locale block structure. One earlier run exposed the stale expectation of four checks; it was updated to six and the exact latest run passed.
+- The legacy DOM HTML was structurally mapped and compared against the embedded lesson. Remaining gaps: interactive traversal/live-collection/theme demos, parts of the five code-editor challenges and final six-part Card Manager. Do not call it fully migrated; preserve the HTML source.
+- Deployment/hosting is also deepened at 21 blocks/locale (3 walkthroughs, 2 checks, 2 practices) with official Vite/Netlify references. CSS and Git/CI have prior deepening. All lessons remain in editorial review.
+- Current source scope: 21 Notion pages fetched (unverified by the connector) and 25 HTML files inventoried; complete line-level review remains open. PR #1 is open/Draft on `feat/learning-platform-foundation`; `main` was not modified.
+- Next: continue full source review beyond DOM, record block-level evidence and explicit deferrals, deepen the next largest uncovered curriculum topic, then rerun exact-head CI and update this handoff.

@@ -129,3 +129,9 @@ The application now presents the 24-week core curriculum plus separately labeled
 Recent deepening: CSS fundamentals v3 (53 blocks / 5 checks / 5 walkthroughs / 3 exercises per locale); Git fundamentals v3 (38 blocks), Git workflow/CI v3 (37 blocks); SQL/PostgreSQL (35 blocks); and production hosting (21 blocks / 3 walkthroughs / 2 checks / 2 exercises). Deployment now teaches build output and hash caching, Vite env resolution and build-time values, host-specific SPA fallback, failure isolation, and release recovery. Source behavior that is not represented one-to-one remains documented as partial/deferred.
 
 CI [run #40270734689](https://github.com/Mardakhay/interactive-guides/actions/runs/40270734689) passed at code/content SHA `17b79e07b8377e8aa92c5aa14305da0062389ac5`. This does not certify source parity: 21 Notion fetches remain unverified; all 25 legacy HTML sources are inventoried, but only selected sources have focused deeper parity notes. Keep review states until technical and bilingual editorial review is complete.
+
+## Latest curriculum/content checkpoint — 2026-10-26
+
+The DOM week-7 core lesson `js.dom-events` is version 3, 35 blocks per locale: 7 walkthroughs, 6 knowledge checks and 3 scaffolded coding exercises. New content traces node vs element collections, initial HTML attributes versus current DOM properties and native form reset, and capture/target/bubble order. The EN/RU structure test now asserts this inventory. Actions [run #40271279200](https://github.com/Mardakhay/interactive-guides/actions/runs/40271279200) passed on code/content SHA `deb30c88151ee6f0ea5f59afd14e96f0fb2d5902`.
+
+This expands lesson depth but does not complete `dom-masterclass.html` parity: source playgrounds and the final Card Manager are not represented one-to-one. The full audit matrix records evidence and remaining work. All 25 legacy files remain available; keep content in review.

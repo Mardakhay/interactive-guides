@@ -224,3 +224,11 @@ This section supersedes the older implementation snapshots above; the roadmap is
 - **Phase 8 (release):** not ready; complete source review, data portability, PWA acceptance, dependency audit triage and bundle-warning review before considering release completion.
 
 For source-level evidence and explicit remaining gaps see [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md). Do not equate CI green with lesson parity or product completion.
+
+## Latest delivery checkpoint — 2026-10-26 (DOM pass)
+
+- Code/content SHA `deb30c88151ee6f0ea5f59afd14e96f0fb2d5902` passed [Actions run #40271279200](https://github.com/Mardakhay/interactive-guides/actions/runs/40271279200): install, lint, typecheck, all 102 tests across 22 files, and build.
+- Phase 4 (content migration) remains active: DOM lesson v3 now includes 35 blocks/locale, 7 walkthroughs, 6 checks and 3 coding exercises, adding source-derived node/property/event reasoning. Its legacy DOM masterclass still has unmapped interactive tree/theme/collection demos, several editor challenges and the Card Manager.
+- Earlier in-app content work remains: CSS v3, expanded Git/CI, SQL/PostgreSQL and deployment/hosting. Recent deployment lesson is a structured text lesson, not a standalone HTML replacement.
+- Audit count and limits remain 21 Notion pages fetched (unverified) and 25 HTML files inventoried; source-to-block review is incomplete.
+- Phases 5–8 are not complete: local data export/import/migration, Supabase auth/sync, device-level PWA acceptance, and release diagnostics remain open. PR #1 remains Draft; keep main untouched.
