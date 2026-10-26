@@ -1,16 +1,16 @@
 {
   "id": "frontend.architecture-boundaries",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "supplement-architecture",
   "supplementaryTrackId": "supplement-architecture",
   "order": 1,
   "title": "Frontend Architecture: Module Boundaries and Refactoring",
   "description": "Design dependency direction, assign state ownership, refactor duplicated behavior and make errors recoverable.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 90,
   "difficulty": "intermediate",
   "learningOutcomes": [
     "Define module boundaries around responsibilities and reasons to change.",
@@ -133,6 +133,188 @@
         "State owners and layer interfaces are explicit.",
         "Circular imports are removed or justified with a better boundary.",
         "Behavior-preserving and failure-state tests are listed."
+      ]
+    },
+    {
+      "id": "arch-choose-shape",
+      "type": "heading",
+      "level": 2,
+      "text": "Choose a structure from the change pattern"
+    },
+    {
+      "id": "arch-choose-shape-explanation",
+      "type": "paragraph",
+      "text": "Folder structure is a coordination tool, not a score of architectural maturity. A small app with a few screens may stay understandable with a flat or layer-oriented layout. As features grow, feature-based folders help keep UI, model and API work that changes together nearby. Larger teams may add explicit domain boundaries or a documented feature-layer convention. Move to a more restrictive structure when recurring navigation, dependency or ownership problems justify its cost—not because a diagram is fashionable."
+    },
+    {
+      "id": "arch-structure-tradeoffs",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Flat by technical type (components/, hooks/, services/) is easy to start and search; it can become hard to tell which files form one feature.",
+        "Feature-oriented folders improve change locality and ownership; shared UI should be promoted only when more than one feature truly needs the same stable behavior.",
+        "Layered or domain-oriented boundaries make dependency rules visible, but extra interfaces and folders can slow a small app if they do not isolate a real reason to change.",
+        "Barrel exports simplify imports but may hide cycles or pull in more code than expected; prefer explicit public entry points and verify the actual bundle when size matters."
+      ]
+    },
+    {
+      "id": "arch-feature-map",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "src/\n  app/\n    routes/\n  features/\n    billing/\n      api/\n      model/\n      ui/\n      index.ts\n    profile/\n      api/\n      model/\n      ui/\n  shared/\n    ui/\n    lib/\n    styles/",
+      "steps": [
+        {
+          "title": "Keep feature-owned behavior together",
+          "lineStart": 4,
+          "lineEnd": 10,
+          "explanation": "The feature folder groups files that change for one user capability. The internal folders are optional; do not add every subfolder before the feature needs separate responsibilities."
+        },
+        {
+          "title": "Keep shared code below the features that use it",
+          "lineStart": 11,
+          "lineEnd": 14,
+          "explanation": "Shared UI and utilities should not import billing or profile. If a common helper starts importing feature policy, it is not truly shared; move the policy to a feature or define a deliberate contract."
+        }
+      ]
+    },
+    {
+      "id": "arch-dependency-boundaries",
+      "type": "heading",
+      "level": 2,
+      "text": "Make dependency direction observable"
+    },
+    {
+      "id": "arch-dependency-boundaries-explanation",
+      "type": "paragraph",
+      "text": "A boundary is useful when callers can use a small contract without knowing implementation details. For example, a page can ask a feature to load a billing summary; the feature can call a service that returns typed data. Keep HTTP parsing outside presentational components and map transport failures into results the feature can explain. Do not create interfaces for every function: introduce a seam when it supports reuse, independent testing, or a change that otherwise crosses unrelated modules."
+    },
+    {
+      "id": "arch-dependency-map",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Problem:\nRoute -> Feature -> shared/UI\nshared/UI -> Route       // reverse dependency\nFeature A <-> Feature B  // import cycle\n\nSafer direction:\nRoute -> Feature\nFeature -> shared/UI\nFeature -> BillingService contract\nBillingService -> HTTP adapter",
+      "steps": [
+        {
+          "title": "Locate the cycle instead of blaming folders",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "A shared button reaching back into a route couples low-level rendering to one screen. Two features importing each other make change and test order unpredictable."
+        },
+        {
+          "title": "Keep the caller facing a small contract",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "explanation": "The route composes a feature; the feature may use stable shared primitives and a service contract. The HTTP adapter owns request and response parsing. This is a useful direction, not a mandate to build a generic dependency-injection framework."
+        }
+      ]
+    },
+    {
+      "id": "arch-boundary-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Two product features each import the other's state helpers, and changing either feature frequently breaks the other. What is the best first architectural move?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Move every file into a new framework before tracing the dependency",
+          "correct": false,
+          "feedback": "A large reorganization does not explain which behavior is coupled and can create more migration risk."
+        },
+        {
+          "id": "b",
+          "text": "Draw the import graph, identify the shared rule or contract, and remove one cycle in a tested step",
+          "correct": true,
+          "feedback": "First make the dependency and reason for change visible; then choose the smallest boundary that breaks the cycle without changing behavior."
+        },
+        {
+          "id": "c",
+          "text": "Add a barrel file to each feature so the circular imports are shorter",
+          "correct": false,
+          "feedback": "Barrels may shorten syntax but do not remove a cycle; they can make import relationships less obvious."
+        },
+        {
+          "id": "d",
+          "text": "Copy both helpers into every caller so no one imports either feature",
+          "correct": false,
+          "feedback": "Copying may hide the cycle temporarily but creates drift and duplicate behavior that must be reconciled later."
+        }
+      ],
+      "explanation": "Architecture work starts with evidence about change and dependency direction. Characterization tests and a small seam make the refactor reversible."
+    },
+    {
+      "id": "arch-state-ownership",
+      "type": "heading",
+      "level": 2,
+      "text": "Place state where its lifetime and consumers require"
+    },
+    {
+      "id": "arch-state-ownership-explanation",
+      "type": "paragraph",
+      "text": "Choose a state owner by asking who must read it, how long it must survive, and whether it belongs in a URL, server response or local interaction. Search filters that should survive refresh and be shareable often belong in URL parameters. Remote records belong to a request/cache boundary with loading, empty, error and refresh behavior. A temporary open dialog can stay local. Do not move all state into Context or global storage merely because several components exist; lift it only to the nearest owner that actually coordinates those consumers."
+    },
+    {
+      "id": "arch-state-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A filtered catalog should be shareable as a link and restored after refresh. Which owner is usually the strongest starting point?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A local boolean in the filter button",
+          "correct": false,
+          "feedback": "Local component state disappears on refresh and cannot be encoded in a link."
+        },
+        {
+          "id": "b",
+          "text": "URL query parameters, parsed and validated by the route or feature",
+          "correct": true,
+          "feedback": "The URL is addressable, shareable and participates in browser navigation; the feature should still validate values and define defaults."
+        },
+        {
+          "id": "c",
+          "text": "A global Context that stores every page's filter",
+          "correct": false,
+          "feedback": "Global state can outlive or couple unrelated pages and does not automatically provide a shareable URL."
+        },
+        {
+          "id": "d",
+          "text": "A module-level variable",
+          "correct": false,
+          "feedback": "A module variable is not a durable or navigable source of state and can be shared unexpectedly."
+        }
+      ],
+      "explanation": "State placement follows lifetime, sharing and recovery needs—not component count alone."
+    },
+    {
+      "id": "arch-scenario-exercise",
+      "type": "codingExercise",
+      "title": "Choose boundaries for a growing catalog feature",
+      "language": "text",
+      "context": "A small course catalog has URL filters, server-fetched courses, a temporary enrollment dialog and two screens that share a search field. The current feature imports route code in both directions and keeps request parsing in a button component.",
+      "instructions": [
+        "Draw the current dependency graph and mark the reverse edge or cycle.",
+        "Choose a URL owner for shareable filters, a request/cache owner for course data, and a local owner for the temporary dialog.",
+        "Propose a target folder or module map that fits a small team today; note one signal that would justify splitting a new module later.",
+        "Define a narrow service/result contract and state how network, empty and validation failures reach the UI.",
+        "Plan characterization and focused tests for navigation, request outcomes and enrollment dialog behavior."
+      ],
+      "requirements": [
+        "The target graph has one deliberate direction and no feature-to-feature cycle.",
+        "Shareable filters, remote data and transient interaction state have different owners.",
+        "The proposed abstraction solves a stated change/testing problem and avoids speculative layering.",
+        "Tests protect observable behavior and include a failure/recovery path."
+      ],
+      "starterCode": "Current graph:\nRoute <-> CatalogFeature\nCatalogFeature -> Button -> fetch + JSON parsing\n\nTarget graph (fill in):\nRoute -> ______\nCatalogFeature -> ______\nCatalogFeature -> ______ contract\nDialog state owner: ______\n\nFailure states to test: ______",
+      "hints": [
+        "First list the consumers and required lifetime of each value; do not start by choosing Context.",
+        "An HTTP 404/500 response is a response to parse, while a DNS failure is a rejected request; define how the service communicates both.",
+        "Keep the first refactor small: break one reverse edge, run behavior tests, then move the next responsibility."
+      ],
+      "successCriteria": [
+        "A readable before/after dependency graph is supplied.",
+        "State owner and persistence/share behavior are explained for all three kinds of state.",
+        "The service contract describes success and recoverable failure without importing presentation components.",
+        "The architecture choice includes a scale-based trade-off and at least three observable test cases."
       ]
     },
     {
