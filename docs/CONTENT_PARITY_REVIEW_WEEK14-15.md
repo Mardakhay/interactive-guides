@@ -84,3 +84,7 @@ The cross-course pass now also includes a bilingual `js.collections-weakmaps` su
 ## Verification correction — 2026-10-26
 
 The initial collection-lesson commit failed runtime schema tests because each knowledge check lacked the required overall `explanation` field (per-option feedback alone is not sufficient). The bilingual quiz content now includes both kinds of feedback, and its test asserts one correct option, non-empty feedback for every option, and a non-empty overall explanation. Follow-up code SHA `55eda66397b28157624ab9e758cb089267e42031` passed lint, typecheck, tests, and production build: [CI run 40281556236](https://github.com/Mardakhay/interactive-guides/actions/runs/40281556236). This successful run validates the 39-pair code state; the subsequent documentation-only checkpoint will receive its own CI run.
+
+## Broader content progress — 2026-10-26
+
+The broader source pass now also includes a registered bilingual regex supplement with walkthroughs, quizzes and applied practice. It is only partial parity with Advanced JS; see `FULL_SOURCE_CONTENT_AUDIT.md`. This update does not change the Week 14–15 scope and does not close the all-source or JSON-cutover gates.

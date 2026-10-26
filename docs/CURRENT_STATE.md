@@ -306,3 +306,7 @@ Feature now contains 39 EN/RU lesson pairs (26 core + 13 supplements), including
 ## Verification correction — 2026-10-26
 
 The initial collection-lesson commit failed runtime schema tests because each knowledge check lacked the required overall `explanation` field (per-option feedback alone is not sufficient). The bilingual quiz content now includes both kinds of feedback, and its test asserts one correct option, non-empty feedback for every option, and a non-empty overall explanation. Follow-up code SHA `55eda66397b28157624ab9e758cb089267e42031` passed lint, typecheck, tests, and production build: [CI run 40281556236](https://github.com/Mardakhay/interactive-guides/actions/runs/40281556236). This successful run validates the 39-pair code state; the subsequent documentation-only checkpoint will receive its own CI run.
+
+## Current content state — 2026-10-26
+
+Inventory: 40 EN/RU pairs (26 core + 14 supplementary), including registered regex supplement `js.regex-text-processing`. The new lesson has three worked traces, two explained checks and an applied task; its Advanced JS source mapping remains partial. Code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` is on the feature branch; CI is pending. Legacy routes remain; JSON cutover and Supabase are not done.

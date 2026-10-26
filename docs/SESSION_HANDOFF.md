@@ -354,3 +354,7 @@ Latest code commit `693d91796a45f8e20668138c5d0fb7983ad97f1c` adds registered EN
 ## Verification correction — 2026-10-26
 
 The initial collection-lesson commit failed runtime schema tests because each knowledge check lacked the required overall `explanation` field (per-option feedback alone is not sufficient). The bilingual quiz content now includes both kinds of feedback, and its test asserts one correct option, non-empty feedback for every option, and a non-empty overall explanation. Follow-up code SHA `55eda66397b28157624ab9e758cb089267e42031` passed lint, typecheck, tests, and production build: [CI run 40281556236](https://github.com/Mardakhay/interactive-guides/actions/runs/40281556236). This successful run validates the 39-pair code state; the subsequent documentation-only checkpoint will receive its own CI run.
+
+## Latest work checkpoint — 2026-10-26
+
+Code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` adds bilingual registered `js.regex-text-processing` at supplementary order 5. Its source-to-block map is in `FULL_SOURCE_CONTENT_AUDIT.md`; regex coverage remains partial. Inventory is 40 pairs (26 core, 14 supplementary). Wait for CI on this exact SHA, fix any failure, and keep legacy routes until all-source parity and JSON cutover are validated; Supabase follows afterward.

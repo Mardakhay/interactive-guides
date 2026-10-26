@@ -108,3 +108,7 @@ Added bilingual `js.collections-weakmaps` from Advanced JS Notion material. The 
 ## Verification correction — 2026-10-26
 
 The initial collection-lesson commit failed runtime schema tests because each knowledge check lacked the required overall `explanation` field (per-option feedback alone is not sufficient). The bilingual quiz content now includes both kinds of feedback, and its test asserts one correct option, non-empty feedback for every option, and a non-empty overall explanation. Follow-up code SHA `55eda66397b28157624ab9e758cb089267e42031` passed lint, typecheck, tests, and production build: [CI run 40281556236](https://github.com/Mardakhay/interactive-guides/actions/runs/40281556236). This successful run validates the 39-pair code state; the subsequent documentation-only checkpoint will receive its own CI run.
+
+## Additional source-derived content — 2026-10-26
+
+Added `js.regex-text-processing` as a bilingual registered supplement. The lesson teaches regex as a specific pattern matcher, distinguishes whole-string checks from substring search, traces stateful `/g` behavior, and practices safe extraction. It corrects the source's simplified email-validation implication and documents ReDoS risk. Coverage is partial against the Notion page's complete practical-example set. Total: 40 bilingual pairs (26 core + 14 supplements); see the source matrix for evidence and remaining subtopics.
