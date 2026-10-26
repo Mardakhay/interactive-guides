@@ -321,7 +321,7 @@ describe('React effects and lists lesson translation', () => {
     expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
     expect(russianReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
     expect(englishReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
-    expect(russianReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(russianReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
     expect(englishReactEffects.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
     expect(russianReactEffects.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
     expect(englishReactEffects.blocks.map((block) => block.id)).toEqual(
@@ -430,7 +430,7 @@ describe('React API and custom hooks lesson translation', () => {
     expect(debounceWalkthrough?.type).toBe('codeWalkthrough');
     if (debounceWalkthrough?.type === 'codeWalkthrough') {
       expect(debounceWalkthrough.code).toContain('clearTimeout');
-      expect(debounceWalkthrough.code).toContain('AbortController');
+      expect(debounceWalkthrough.steps.some((step) => step.explanation.includes('AbortController'))).toBe(true);
       const lineCount = debounceWalkthrough.code.split('\n').length;
       expect(debounceWalkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
     }
