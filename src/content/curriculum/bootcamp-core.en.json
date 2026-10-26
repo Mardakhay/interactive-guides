@@ -488,12 +488,16 @@
         "Hoisting and TDZ",
         "Scope and lexical environments",
         "Scope chain and closures",
-        "Stack/heap and garbage collection"
+        "Stack/heap and garbage collection",
+        "Iterables and iterators",
+        "Generator functions and lazy iteration",
+        "Iterator completion and cleanup"
       ],
       "note": "Supplementary depth beyond the weekly bootcamp outline; align with the user's Notion notes.",
       "lessonIds": [
         "js.runtime-memory",
-        "js.object-prototypes"
+        "js.object-prototypes",
+        "js.iterators-generators"
       ]
     },
     {

@@ -3,6 +3,8 @@ import englishNetwork from '../lessons/network.dns-tcp-tls/en.json';
 import russianNetwork from '../lessons/network.dns-tcp-tls/ru.json';
 import englishBrowserRendering from '../lessons/browser.rendering-pipeline/en.json';
 import russianBrowserRendering from '../lessons/browser.rendering-pipeline/ru.json';
+import englishIterators from '../lessons/js.iterators-generators/en.json';
+import russianIterators from '../lessons/js.iterators-generators/ru.json';
 import englishLesson from '../lessons/html-document-structure/en.json';
 import russianLesson from '../lessons/html-document-structure/ru.json';
 import englishForms from '../lessons/html.forms-accessibility/en.json';
@@ -116,6 +118,36 @@ describe('HTML forms and accessibility lesson translation', () => {
     );
     expect(englishForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(russianForms.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('iterators and generators supplementary lesson', () => {
+  it('teaches the protocol with aligned examples and applied practice', () => {
+    expect(lessonTranslationSchema.safeParse(englishIterators).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianIterators).success).toBe(true);
+    expect(englishIterators.id).toBe('js.iterators-generators');
+    expect(englishIterators.supplementaryTrackId).toBe('supplement-js-internals');
+    expect(englishIterators.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianIterators.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishIterators.blocks.filter((item) => item.type === 'knowledgeCheck')).toHaveLength(2);
+    expect(englishIterators.blocks.filter((item) => item.type === 'codeWalkthrough')).toHaveLength(3);
+    expect(englishIterators.blocks.filter((item) => item.type === 'codingExercise')).toHaveLength(1);
+    expect(englishIterators.blocks.map((item) => item.id)).toEqual(
+      expect.arrayContaining([
+        'iter-generator-walkthrough',
+        'iter-protocol-walkthrough',
+        'iter-return-check',
+        'iter-cleanup-walkthrough',
+        'iter-practice',
+      ]),
+    );
+    const practice = englishIterators.blocks.find((item) => item.id === 'iter-practice');
+    expect(practice).toMatchObject({
+      type: 'codingExercise',
+      requirements: expect.arrayContaining([expect.stringContaining('empty range')]),
+      successCriteria: expect.arrayContaining([expect.stringContaining('early')]),
+    });
   });
 });
 

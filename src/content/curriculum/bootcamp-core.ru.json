@@ -488,12 +488,16 @@
         "Hoisting и TDZ",
         "Scope и lexical environment",
         "Scope chain и closures",
-        "Stack/heap и garbage collection"
+        "Stack/heap и garbage collection",
+        "Iterables and iterators",
+        "Generator functions and lazy iteration",
+        "Iterator completion and cleanup"
       ],
       "note": "Дополнительная углублённая программа; согласовать с конспектами пользователя в Notion.",
       "lessonIds": [
         "js.runtime-memory",
-        "js.object-prototypes"
+        "js.object-prototypes",
+        "js.iterators-generators"
       ]
     },
     {

@@ -142,5 +142,9 @@ describe('structured content repository', () => {
     expect(getWeekForLesson('network.dns-tcp-tls', 'en')).toBeUndefined();
     expect(getAdjacentStructuredLessons('network.dns-tcp-tls', 'en')).toEqual({ previous: undefined, next: undefined });
     expect(getAdjacentStructuredLessons('browser.rendering-pipeline', 'ru')).toEqual({ previous: undefined, next: undefined });
+    expect(getSupplementaryTrackForLesson('js.iterators-generators', 'en')?.id).toBe('supplement-js-internals');
+    expect(getSupplementaryTrackForLesson('js.iterators-generators', 'ru')?.lessonIds).toContain('js.iterators-generators');
+    expect(getAdjacentStructuredLessons('js.iterators-generators', 'en').previous?.id).toBe('js.object-prototypes');
+    expect(getWeekForLesson('js.iterators-generators', 'ru')).toBeUndefined();
   });
 });
