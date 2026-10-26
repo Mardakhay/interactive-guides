@@ -238,7 +238,7 @@ describe('hosting capacity and model trade-offs', () => {
       expect(exercise.requirements).toHaveLength(5);
       expect(exercise.hints).toHaveLength(3);
       expect(exercise.successCriteria).toHaveLength(4);
-      expect(exercise.starterCode).toContain('database');
+      expect(exercise.starterCode.toLowerCase()).toContain(lesson.locale === 'en' ? 'database' : 'база данных');
     }
     for (const lesson of [englishNetwork, russianNetwork]) {
       const refs = lesson.blocks.find((block) => block.type === 'references');
