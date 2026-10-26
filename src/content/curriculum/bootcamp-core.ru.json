@@ -493,14 +493,17 @@
         "Generator functions and lazy iteration",
         "Iterator completion and cleanup",
         "Map and Set identity, ordering, and uniqueness",
-        "Weak collections and object-associated metadata"
+        "Weak collections and object-associated metadata",
+        "Regular expression patterns, captures, and flags",
+        "Safe text extraction and regex validation limits"
       ],
       "note": "Дополнительная углублённая программа; согласовать с конспектами пользователя в Notion.",
       "lessonIds": [
         "js.runtime-memory",
         "js.object-prototypes",
         "js.iterators-generators",
-        "js.collections-weakmaps"
+        "js.collections-weakmaps",
+        "js.regex-text-processing"
       ]
     },
     {

@@ -1,0 +1,291 @@
+{
+  "id": "js.regex-text-processing",
+  "locale": "ru",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-26",
+  "moduleId": "supplement-js-internals",
+  "supplementaryTrackId": "supplement-js-internals",
+  "order": 5,
+  "title": "Регулярные выражения: поиск и разбор текста",
+  "description": "Паттерны, захваты, флаги и безопасное извлечение данных из строк.",
+  "estimatedMinutes": 60,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "js.basics-types-control-flow",
+    "js.functions-arrays-objects"
+  ],
+  "learningOutcomes": [
+    "Создавать шаблоны с группами, классами символов, квантификаторами и якорями.",
+    "Различать поиск подстроки и проверку всей строки.",
+    "Безопасно извлекать несколько результатов и понимать влияние g/y на lastIndex.",
+    "Оценивать ограничения regex в валидации и избегать чрезмерно дорогих шаблонов."
+  ],
+  "tags": [
+    "javascript",
+    "regex",
+    "regular expressions",
+    "text processing",
+    "validation"
+  ],
+  "blocks": [
+    {
+      "id": "regex-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Регулярные выражения для поиска и обработки текста"
+    },
+    {
+      "id": "regex-purpose",
+      "type": "paragraph",
+      "text": "Регулярное выражение описывает шаблон в строке, а не полноценную грамматику и не готовый валидатор. Оно полезно для извлечения, поиска, разбиения и локальных правил формата. Сначала сформулируйте правило словами, затем выберите поиск подстроки или проверку всей строки и проверьте граничные случаи."
+    },
+    {
+      "id": "regex-pattern-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Шаблон: символы, классы, квантификаторы и группы"
+    },
+    {
+      "id": "regex-pattern-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const logLine = \"WARN user=42 action=cache-miss\";\nconst pattern = /^(INFO|WARN|ERROR)\\s+user=(\\d+)\\s+action=([a-z-]+)$/;\nconst match = pattern.exec(logLine);\n\nconsole.log(match[0]);\nconsole.log(match[1], match[2], match[3]);\nconsole.log(pattern.test(\"prefix \" + logLine));",
+      "steps": [
+        {
+          "title": "Превратите требование в формат",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Якоря ^ и $ требуют совпадения всей строки. \\s+ разделяет части; \\d+ требует один или больше цифр; группы сохраняют уровень, ID и действие."
+        },
+        {
+          "title": "Читайте результат и захваты",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "exec возвращает null при несовпадении или массив: [0] — всё совпадение, [1..] — захваченные группы. Для регулярного разбора этого формата можно предпочесть явный парсер, если грамматика станет сложной."
+        },
+        {
+          "title": "Проверьте, что правило не принимает лишний текст",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "Добавленный префикс не подходит из-за якоря начала строки. Без якорей поиск мог бы найти подходящий фрагмент внутри некорректной строки."
+        }
+      ]
+    },
+    {
+      "id": "regex-flags",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "g ищет все совпадения, но делает test/exec stateful через lastIndex.",
+        "i игнорирует регистр; m меняет поведение ^ и $ для строк с переводами строки.",
+        "s включает перевод строки для ., u включает Unicode-режим; флаги меняют смысл шаблона и их стоит указывать намеренно.",
+        "Литерал /pattern/ удобен для постоянного шаблона; new RegExp(text) нужен, когда шаблон собирается динамически, но ввод нужно корректно экранировать."
+      ]
+    },
+    {
+      "id": "regex-global-pitfall",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Глобальный RegExp — не чистый предикат",
+      "text": "У /pattern/g вызовы test() и exec() продвигают lastIndex. Повторная проверка одной и той же строки может чередовать true/false. Для булевой проверки уберите g; для извлечения всех совпадений используйте matchAll с global-шаблоном или явно сбрасывайте lastIndex."
+    },
+    {
+      "id": "regex-state-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Подстрока или вся строка? Ищите, извлекайте, заменяйте"
+    },
+    {
+      "id": "regex-state-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const globalDigits = /\\d+/g;\nconst text = \"room 7\";\nconsole.log(globalDigits.test(text), globalDigits.lastIndex);\nconsole.log(globalDigits.test(text), globalDigits.lastIndex);\n\nconst issuePattern = /#(\\d+)/g;\nconst refs = [...\"Fix #12; compare #34\".matchAll(issuePattern)];\nconsole.log(refs.map((item) => item[1]));",
+      "steps": [
+        {
+          "title": "Заметьте сохраняемое состояние",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Первый test находит 7 и оставляет lastIndex после совпадения; второй поиск стартует оттуда и сбрасывается после неудачи. Поэтому global-шаблон опасен в повторно вызываемой функции-предикате."
+        },
+        {
+          "title": "Извлеките все совпадения с группой",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "matchAll возвращает совпадения и захваченные значения, сохраняя индексы. Он требует global-регулярное выражение и не заставляет вручную менять lastIndex исходного шаблона."
+        }
+      ]
+    },
+    {
+      "id": "regex-replace-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Заменяйте по захваченным данным, а не только строкой"
+    },
+    {
+      "id": "regex-replace-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const prices = \"Items: $10.00, $2.50\";\nconst adjusted = prices.replace(\n  /\\$(\\d+(?:\\.\\d{1,2})?)/g,\n  (fullMatch, amount) => \"$\" + (Number(amount) * 1.1).toFixed(2),\n);\n\nconsole.log(adjusted);",
+      "steps": [
+        {
+          "title": "Захватите только числовую часть",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "Внешняя группа фиксирует сумму, а ?: в дробной части создаёт незахватывающую группу, чтобы callback получил только нужные аргументы."
+        },
+        {
+          "title": "Обработайте каждое совпадение",
+          "lineStart": 4,
+          "lineEnd": 5,
+          "explanation": "Глобальный флаг позволяет вызвать замену для обеих цен; функция получает полное совпадение и захваченную сумму. Здесь число преобразуется и форматируется заново."
+        },
+        {
+          "title": "Проверьте итог",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "Ожидаем `Items: $11.00, $2.75`; replace возвращает новую строку и не меняет исходную."
+        }
+      ]
+    },
+    {
+      "id": "regex-validation-limits",
+      "type": "paragraph",
+      "text": "Проверка /^...$/ отвечает только на вопрос о вашем конкретном формате. Примитивный email-паттерн не проверит существование адреса и может отклонить допустимые адреса; для обычных форм используйте input type=email и серверную проверку по продуктовым требованиям. Сложные или враждебные шаблоны с вложенными неоднозначными квантификаторами способны вызвать катастрофический backtracking и зависание (ReDoS)."
+    },
+    {
+      "id": "regex-practice",
+      "type": "codingExercise",
+      "title": "Извлеките ссылки на задачи из заметки",
+      "language": "javascript",
+      "context": "В поддержке заметки содержат ссылки вида #123. Нужно вернуть числовые ID по порядку, не принимать символы из слов вроде ticket#123abc и не менять поведение при повторных вызовах.",
+      "instructions": [
+        "Реализуйте extractTicketIds(text), возвращающую массив ID как строки.",
+        "Совпадение должно начинаться на границе строки или после пробела/пунктуации и заканчиваться перед границей, а не внутри буквенно-цифрового токена.",
+        "Обрабатывайте несколько ссылок и отсутствие ссылок; объясните выбор global-поиска и способ избежать утечки lastIndex между вызовами.",
+        "Добавьте проверки для '#7', 'Fix (#12), then #34', 'ticket#123abc', пустой строки и двух последовательных вызовов с разным результатом.",
+        "Не используйте regex как замену проверке прав доступа или серверной валидации."
+      ],
+      "requirements": [
+        "Возвращает все ID в исходном порядке и не включает символ #.",
+        "Не извлекает #123 из ticket#123abc.",
+        "Возвращает пустой массив, когда совпадений нет.",
+        "Повторный вызов с тем же функцией не зависит от lastIndex предыдущего вызова.",
+        "Входной текст не изменяется; объяснение различает извлечение подстроки и полную валидацию."
+      ],
+      "starterCode": "function extractTicketIds(text) {\n  const pattern = /(?<![\\p{L}\\p{N}_])#(\\d+)(?![\\p{L}\\p{N}_])/gu;\n  const matches = text.matchAll(pattern);\n  const ids = [];\n\n  for (const match of matches) {\n    // TODO: добавьте захваченное числовое значение, а не полное совпадение.\n  }\n\n  return ids;\n}\n\nconsole.log(extractTicketIds(\"Fix (#12), then #34\"));\n// Expected: [\"12\", \"34\"]\nconsole.log(extractTicketIds(\"ticket#123abc\"));\n// Expected: []",
+      "hints": [
+        "Подумайте о lookbehind или захвате допустимого разделителя; не включайте разделитель в возвращаемый ID.",
+        "Используйте границу токена так, чтобы перед # не стояла буква или цифра и после цифр не продолжался буквенно-цифровой токен.",
+        "matchAll удобен для глобального извлечения групп; создавайте шаблон локально при вызове или учитывайте lastIndex.",
+        "Проверьте поведение на пустом результате и на вызовах одной функции несколько раз подряд."
+      ],
+      "successCriteria": [
+        "Для 'Fix (#12), then #34' возвращает [\"12\", \"34\"] по порядку.",
+        "Для 'ticket#123abc' возвращает [].",
+        "Два вызова подряд с разными строками возвращают независимые корректные результаты.",
+        "Реализация не включает #/разделители и не изменяет аргумент.",
+        "Объяснено, почему простая проверка test с /g может зависеть от lastIndex."
+      ]
+    },
+    {
+      "id": "regex-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Функция вызывает pattern.test(value) повторно, а pattern равен /\\d+/g. Почему результаты могут меняться для одного и того же value?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Флаг g хранит lastIndex между вызовами, а test продвигает его.",
+          "correct": true,
+          "feedback": "Верно. Состояние regex меняется; уберите g для предиката или управляйте lastIndex явно."
+        },
+        {
+          "id": "b",
+          "text": "Флаг g делает цифры нечувствительными к регистру.",
+          "correct": false,
+          "feedback": "Регистром управляет флаг i; g означает поиск всех совпадений и влияет на lastIndex."
+        },
+        {
+          "id": "c",
+          "text": "test возвращает разные результаты случайным образом.",
+          "correct": false,
+          "feedback": "Поведение детерминированно и связано с текущим lastIndex."
+        },
+        {
+          "id": "d",
+          "text": "JavaScript копирует строку value между вызовами.",
+          "correct": false,
+          "feedback": "Строка здесь не мутирует; состояние хранит объект регулярного выражения."
+        }
+      ],
+      "explanation": "Регулярное выражение с g или y хранит позицию продолжения в lastIndex. test() использует и обновляет её, поэтому один и тот же инстанс не всегда начинает с начала строки."
+    },
+    {
+      "id": "regex-check-validation",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Почему совпадение с простым /^...$/ email-паттерном не доказывает, что адрес пригоден для доставки?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Regex может проверить только цифры.",
+          "correct": false,
+          "feedback": "Regex способен проверять много форматов символов, но не доказывает доставляемость."
+        },
+        {
+          "id": "b",
+          "text": "Совпадение проверяет выбранную форму строки, но не существование адреса и не все допустимые адресные правила.",
+          "correct": true,
+          "feedback": "Верно. Используйте подходящую клиентскую проверку формата и серверный процесс подтверждения/валидации."
+        },
+        {
+          "id": "c",
+          "text": "Якоря всегда запрещены в email проверках.",
+          "correct": false,
+          "feedback": "Якоря полезны для полной проверки формата; проблема — в завышенных ожиданиях от упрощённого regex."
+        },
+        {
+          "id": "d",
+          "text": "Флаг i гарантирует, что почтовый сервер примет адрес.",
+          "correct": false,
+          "feedback": "i влияет на регистр сопоставления, не на существование или доставку."
+        }
+      ],
+      "explanation": "Регулярное выражение — лишь локальный pattern matcher. Оно не может подтвердить существование почтового ящика и не должно выдавать грубую аппроксимацию за полную грамматику."
+    },
+    {
+      "id": "regex-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Якоря проверяют целую строку; без них поиск может найти совпавший фрагмент внутри некорректного значения.",
+        "Группы захватывают нужные значения; matchAll удобно для нескольких совпадений, replace callback — для вычисляемых замен.",
+        "g/y изменяют lastIndex; не переиспользуйте такой экземпляр как простой test-предикат без контроля состояния.",
+        "Регулярные выражения не заменяют HTML-native/server validation; ограничивайте сложность шаблона для защиты от ReDoS."
+      ]
+    },
+    {
+      "id": "regex-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Regular expressions",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: RegExp.prototype.test()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: String.prototype.matchAll()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

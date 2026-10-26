@@ -7,6 +7,8 @@ import englishIterators from '../lessons/js.iterators-generators/en.json';
 import russianIterators from '../lessons/js.iterators-generators/ru.json';
 import englishCollections from '../lessons/js.collections-weakmaps/en.json';
 import russianCollections from '../lessons/js.collections-weakmaps/ru.json';
+import englishRegex from '../lessons/js.regex-text-processing/en.json';
+import russianRegex from '../lessons/js.regex-text-processing/ru.json';
 import englishLesson from '../lessons/html-document-structure/en.json';
 import russianLesson from '../lessons/html-document-structure/ru.json';
 import englishForms from '../lessons/html.forms-accessibility/en.json';
@@ -638,6 +640,33 @@ describe('Map, Set, and weak collections supplementary lesson', () => {
     const exercise = englishCollections.blocks.find((block) => block.type === 'codingExercise');
     expect(exercise?.type).toBe('codingExercise');
     if (exercise?.type !== 'codingExercise') return;
+    expect(exercise.requirements.length).toBeGreaterThanOrEqual(4);
+    expect(exercise.hints.length).toBeGreaterThanOrEqual(3);
+    expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(4);
+  });
+});
+
+describe('regular expressions supplementary lesson', () => {
+  it('teaches matching state, captures, and safe applied extraction', () => {
+    expect(lessonTranslationSchema.safeParse(englishRegex).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianRegex).success).toBe(true);
+    expect(englishRegex.id).toBe('js.regex-text-processing');
+    expect(englishRegex.supplementaryTrackId).toBe('supplement-js-internals');
+    expect(englishRegex.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianRegex.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    const quizzes = englishRegex.blocks.filter((block) => block.type === 'knowledgeCheck');
+    expect(quizzes).toHaveLength(2);
+    for (const quiz of quizzes) {
+      expect(quiz.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(quiz.options.every((option) => option.feedback.trim().length > 0)).toBe(true);
+      expect(quiz.explanation.trim().length).toBeGreaterThan(0);
+    }
+    expect(englishRegex.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
+    const exercise = englishRegex.blocks.find((block) => block.type === 'codingExercise');
+    expect(exercise?.type).toBe('codingExercise');
+    if (exercise?.type !== 'codingExercise') return;
+    expect(exercise.starterCode).toContain('matchAll');
     expect(exercise.requirements.length).toBeGreaterThanOrEqual(4);
     expect(exercise.hints.length).toBeGreaterThanOrEqual(3);
     expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(4);

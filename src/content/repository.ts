@@ -62,6 +62,8 @@ import englishIterators from './lessons/js.iterators-generators/en.json';
 import russianIterators from './lessons/js.iterators-generators/ru.json';
 import englishCollections from './lessons/js.collections-weakmaps/en.json';
 import russianCollections from './lessons/js.collections-weakmaps/ru.json';
+import englishRegex from './lessons/js.regex-text-processing/en.json';
+import russianRegex from './lessons/js.regex-text-processing/ru.json';
 import englishAuth from './lessons/frontend.auth-security/en.json';
 import russianAuth from './lessons/frontend.auth-security/ru.json';
 import englishDeployment from './lessons/deployment.production-hosting/en.json';
@@ -149,6 +151,8 @@ const lessonTranslations = [
   lessonTranslationSchema.parse(russianIterators),
   lessonTranslationSchema.parse(englishCollections),
   lessonTranslationSchema.parse(russianCollections),
+  lessonTranslationSchema.parse(englishRegex),
+  lessonTranslationSchema.parse(russianRegex),
   lessonTranslationSchema.parse(englishAuth),
   lessonTranslationSchema.parse(russianAuth),
   lessonTranslationSchema.parse(englishDeployment),
