@@ -1,0 +1,341 @@
+{
+  "id": "browser.storage-indexeddb",
+  "locale": "en",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-26",
+  "moduleId": "supplement-browser-storage",
+  "supplementaryTrackId": "supplement-browser-storage",
+  "order": 1,
+  "title": "Web Storage and IndexedDB",
+  "description": "Local browser storage, IndexedDB transactions, security, and storage boundaries.",
+  "estimatedMinutes": 75,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "js.async-fetch",
+    "js.functions-arrays-objects"
+  ],
+  "learningOutcomes": [
+    "Choose among localStorage, sessionStorage, and IndexedDB by requirements.",
+    "Serialize and validate stored values defensively.",
+    "Handle storage events, quota failures, and malformed JSON.",
+    "Explain IndexedDB schema versions and transaction boundaries.",
+    "Distinguish local persistence from server-backed learner progress."
+  ],
+  "tags": [
+    "browser APIs",
+    "Web Storage",
+    "IndexedDB",
+    "persistence",
+    "security"
+  ],
+  "blocks": [
+    {
+      "id": "storage-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Browser data storage: Web Storage and IndexedDB"
+    },
+    {
+      "id": "storage-model",
+      "type": "paragraph",
+      "text": "Choose storage by size, structure, access pattern, and reliability. localStorage and sessionStorage are synchronous key/value stores of small strings scoped to an origin; IndexedDB is an asynchronous transactional database for structured data. None of these options syncs data to a server by itself."
+    },
+    {
+      "id": "web-storage-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Web Storage: strings, keys, and lifetime"
+    },
+    {
+      "id": "storage-lifecycle",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "localStorage usually survives browser close/reopen until the user or browser clears it.",
+        "sessionStorage is scoped to a top-level page session and survives reloads; it is not a cross-tab shared store.",
+        "The API stores strings. Plain objects/arrays usually need JSON.stringify and cautious JSON.parse.",
+        "Use getItem/setItem/removeItem rather than storage properties: Storage has built-in methods and keys can collide with them."
+      ]
+    },
+    {
+      "id": "storage-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const defaults = { theme: \"light\" };\n\nfunction readTheme(storage) {\n  try {\n    const raw = storage.getItem(\"app:theme\");\n    return raw === \"dark\" || raw === \"light\" ? raw : defaults.theme;\n  } catch (error) {\n    return defaults.theme;\n  }\n}\n\nfunction saveTheme(storage, theme) {\n  try {\n    storage.setItem(\"app:theme\", theme);\n    return true;\n  } catch (error) {\n    return false;\n  }\n}",
+      "steps": [
+        {
+          "title": "Handle absence and validate the value",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "getItem returns null when the key is absent. Treat a stored value as untrusted and check it against the allowed set."
+        },
+        {
+          "title": "Fall back when reading fails",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "Storage access may be disabled by settings or context. This function keeps working with the default preference."
+        },
+        {
+          "title": "Handle a failed write",
+          "lineStart": 12,
+          "lineEnd": 19,
+          "explanation": "Quota or browser policy may prevent setItem. The UI can still work in memory and treat this optional persistence as best effort."
+        }
+      ]
+    },
+    {
+      "id": "storage-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does `localStorage.getItem(key)` return when the key is absent?",
+      "options": [
+        {
+          "id": "a",
+          "text": "An empty string.",
+          "correct": false,
+          "feedback": "A missing key is represented by null; an empty string is a separate stored value."
+        },
+        {
+          "id": "b",
+          "text": "null.",
+          "correct": true,
+          "feedback": "Correct. Compare explicitly with null if an empty string can be valid."
+        },
+        {
+          "id": "c",
+          "text": "undefined.",
+          "correct": false,
+          "feedback": "The Storage API returns null for a missing key."
+        },
+        {
+          "id": "d",
+          "text": "Automatically parsed JSON.",
+          "correct": false,
+          "feedback": "Web Storage returns strings; JSON.parse is separate and can throw."
+        }
+      ],
+      "explanation": "Storage values are strings, and a missing key is represented by null. Avoid truthiness when an empty string could be valid."
+    },
+    {
+      "id": "storage-security",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Do not store secrets in Web Storage",
+      "text": "Any JavaScript running on the same origin can read localStorage/sessionStorage. An XSS bug can steal tokens and personal data stored there. Keep only small, non-sensitive preferences; design authentication data around a threat model and appropriate server cookie/session practices."
+    },
+    {
+      "id": "storage-events-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "JSON, exceptions, and cross-tab changes"
+    },
+    {
+      "id": "storage-event-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const key = \"app:preferences\";\n\ntry {\n  localStorage.setItem(key, JSON.stringify({ theme: \"dark\" }));\n} catch (error) {\n  console.warn(\"Preference was not persisted\", error);\n}\n\nwindow.addEventListener(\"storage\", (event) => {\n  if (event.key === key && event.newValue !== null) {\n    console.log(JSON.parse(event.newValue).theme);\n  }\n});",
+      "steps": [
+        {
+          "title": "Serialize and catch failures",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "Storage accepts strings; JSON.stringify is suitable for simple data. setItem can fail, for example due to unavailable storage or quota."
+        },
+        {
+          "title": "Handle the event in another document",
+          "lineStart": 9,
+          "lineEnd": 13,
+          "explanation": "storage does not fire in the same window that made the change. For localStorage it notifies other same-origin browsing contexts; it is not a replacement for local UI updates or server sync."
+        }
+      ]
+    },
+    {
+      "id": "storage-event-detail",
+      "type": "paragraph",
+      "text": "JSON.parse throws on malformed or outdated data; validate the parsed shape too. Quotas depend on browser and storage policy, so do not rely on a fixed number of megabytes. Web Storage is synchronous: large read/write loops can block the main thread."
+    },
+    {
+      "id": "indexeddb-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "IndexedDB: schema, versions, and asynchronous open"
+    },
+    {
+      "id": "indexeddb-open-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const request = indexedDB.open(\"notes\", 1);\n\nrequest.onupgradeneeded = () => {\n  const db = request.result;\n  if (!db.objectStoreNames.contains(\"drafts\")) {\n    const store = db.createObjectStore(\"drafts\", { keyPath: \"id\" });\n    store.createIndex(\"by-updated\", \"updatedAt\");\n  }\n};\n\nrequest.onsuccess = () => {\n  const db = request.result;\n  db.onversionchange = () => db.close();\n  console.log(\"database is ready\");\n};\n\nrequest.onerror = () => console.error(request.error);",
+      "steps": [
+        {
+          "title": "Version schema changes",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "open returns an asynchronous request. On first open or a version increase, onupgradeneeded runs; create object stores and indexes there."
+        },
+        {
+          "title": "Close old connections for migration",
+          "lineStart": 10,
+          "lineEnd": 15,
+          "explanation": "A successful open gives you IDBDatabase. versionchange closes a connection so another tab can run a migration instead of remaining blocked."
+        },
+        {
+          "title": "Handle an open error",
+          "lineStart": 17,
+          "lineEnd": 17,
+          "explanation": "If opening fails, request.error gives the cause; the app should expose a fallback/error rather than assuming the database is ready."
+        }
+      ]
+    },
+    {
+      "id": "indexeddb-transaction-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function saveDraft(db, draft) {\n  const transaction = db.transaction(\"drafts\", \"readwrite\");\n  const store = transaction.objectStore(\"drafts\");\n  store.put(draft);\n\n  transaction.oncomplete = () => console.log(\"committed\");\n  transaction.onabort = () => console.error(transaction.error);\n  transaction.onerror = () => console.error(\"request or transaction failed\");\n}",
+      "steps": [
+        {
+          "title": "Choose a scope and mode",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "The transaction is scoped to drafts and uses readwrite mode. Choose readonly for simple reads."
+        },
+        {
+          "title": "Write through the object store",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "put inserts or replaces a record with the same keyPath; add instead rejects a duplicate key."
+        },
+        {
+          "title": "Wait for the transaction to finish",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "explanation": "An individual request succeeding does not mean the whole transaction committed. Tie app success to complete; handle abort/error and roll back UI on failure."
+        }
+      ]
+    },
+    {
+      "id": "indexeddb-tradeoffs",
+      "type": "paragraph",
+      "text": "IndexedDB is asynchronous, same-origin, and uses structured clone, object stores, indexes, requests, cursors, and transactions. The browser controls quota and eviction; this is not a backup or account shared across devices. Do not keep a transaction open while awaiting unrelated network work or timers; create a short transaction near the operation."
+    },
+    {
+      "id": "storage-choice",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "A non-sensitive theme or compact preference: Web Storage, if synchronous writes are acceptable.",
+        "Offline drafts/structured data and indexed queries: IndexedDB.",
+        "Secrets, confirmed multi-device progress, and authoritative data: a server system with access checks; browser storage can only be an optional local layer.",
+        "Use DevTools Application/Storage to inspect keys, IndexedDB stores, transaction errors, and origin data."
+      ]
+    },
+    {
+      "id": "storage-practice",
+      "type": "codingExercise",
+      "title": "Save a draft transactionally",
+      "language": "javascript",
+      "context": "An editor stores drafts in IndexedDB. Implement a Promise wrapper to save one draft so the UI reports success only after transaction commit and can handle an abort.",
+      "instructions": [
+        "Implement saveDraft(db, draft) with a readwrite transaction on drafts and put for upsert by keyPath.",
+        "Resolve the Promise with draft.id only on transaction complete; reject on abort/error.",
+        "Validate draft.id before opening the transaction and do not mutate the object.",
+        "Describe a migration: on version increase create a store with keyPath id and a by-updated index for updatedAt, without recreating the store on repeated upgrade.",
+        "Add scenarios for complete, error/abort and invalid id; distinguish request success from transaction commit."
+      ],
+      "requirements": [
+        "Validates draft and uses a short readwrite transaction.",
+        "Calls put to support both insert and update by id.",
+        "Resolves only after transaction.oncomplete.",
+        "Abort/error rejects and never reports a false save.",
+        "Migration creates store/index idempotently only when missing.",
+        "Does not claim IndexedDB syncs a user to the server."
+      ],
+      "starterCode": "function saveDraft(db, draft) {\n  if (!draft || typeof draft.id !== \"string\" || draft.id.length === 0) {\n    return Promise.reject(new TypeError(\"draft.id is required\"));\n  }\n\n  return new Promise((resolve, reject) => {\n    const transaction = db.transaction(\"drafts\", \"readwrite\");\n    transaction.objectStore(\"drafts\").put(draft);\n\n    transaction.oncomplete = () => {\n      // TODO: resolve with the saved draft id.\n    };\n    transaction.onabort = () => {\n      // TODO: reject with the transaction error.\n    };\n    transaction.onerror = () => {\n      // TODO: reject, but do not report a commit here.\n    };\n  });\n}",
+      "hints": [
+        "Request success means that request succeeded within the transaction; only transaction complete means the transaction committed.",
+        "Prevent double settlement if both error and abort notifications occur; Promise ignores later settlements, but keep the intended error source clear.",
+        "Use put for insert-or-update by id; add has different duplicate-key behavior.",
+        "Create object stores and indexes inside onupgradeneeded, checking objectStoreNames/indexNames first."
+      ],
+      "successCriteria": [
+        "Invalid or missing id is rejected before a transaction is opened.",
+        "A valid draft uses drafts/readwrite and put.",
+        "The Promise resolves with draft.id only after transaction complete.",
+        "Abort/error rejects and never resolves as saved.",
+        "Migration can run again without throwing because the store/index already exists.",
+        "Explanation distinguishes local persistence from server-authoritative user progress."
+      ]
+    },
+    {
+      "id": "indexeddb-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "An IndexedDB put request fires success, but its transaction later aborts. What should the UI report?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Saved: request success is the commit boundary.",
+          "correct": false,
+          "feedback": "A request can succeed before the surrounding transaction aborts."
+        },
+        {
+          "id": "b",
+          "text": "Saved only after transaction complete; handle abort/error as failure.",
+          "correct": true,
+          "feedback": "Correct. The transaction is atomic; request success alone does not guarantee the overall commit."
+        },
+        {
+          "id": "c",
+          "text": "Retry forever until complete fires.",
+          "correct": false,
+          "feedback": "The transaction has aborted and cannot later complete; retry must be deliberate and bounded."
+        },
+        {
+          "id": "d",
+          "text": "The data is now synced to the user's other devices.",
+          "correct": false,
+          "feedback": "IndexedDB is local to the origin/device context, not a remote account sync service."
+        }
+      ],
+      "explanation": "IndexedDB request and transaction events represent different levels. A transaction may abort after a request succeeds, so app-level persistence success should follow transaction complete."
+    },
+    {
+      "id": "storage-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Web Storage is synchronous and string-only; JSON parsing, availability, and quota failures need defensive handling.",
+        "The storage event informs other documents; it does not fire in the writing window.",
+        "IndexedDB is asynchronous, same-origin, and transaction-based; use version upgrades for schema changes and await transaction completion.",
+        "Local persistence is not an authenticated server-backed progress database or a backup."
+      ]
+    },
+    {
+      "id": "storage-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Using the Web Storage API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Window storage event",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Window/storage_event",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: IndexedDB API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using IndexedDB",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

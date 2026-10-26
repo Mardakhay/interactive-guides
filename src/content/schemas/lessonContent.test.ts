@@ -9,6 +9,8 @@ import englishCollections from '../lessons/js.collections-weakmaps/en.json';
 import russianCollections from '../lessons/js.collections-weakmaps/ru.json';
 import englishRegex from '../lessons/js.regex-text-processing/en.json';
 import russianRegex from '../lessons/js.regex-text-processing/ru.json';
+import englishStorage from '../lessons/browser.storage-indexeddb/en.json';
+import russianStorage from '../lessons/browser.storage-indexeddb/ru.json';
 import englishLesson from '../lessons/html-document-structure/en.json';
 import russianLesson from '../lessons/html-document-structure/ru.json';
 import englishForms from '../lessons/html.forms-accessibility/en.json';
@@ -670,5 +672,33 @@ describe('regular expressions supplementary lesson', () => {
     expect(exercise.requirements.length).toBeGreaterThanOrEqual(4);
     expect(exercise.hints.length).toBeGreaterThanOrEqual(3);
     expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(4);
+  });
+});
+
+describe('browser storage supplementary lesson', () => {
+  it('teaches Web Storage and IndexedDB boundaries with applied transaction practice', () => {
+    expect(lessonTranslationSchema.safeParse(englishStorage).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianStorage).success).toBe(true);
+    expect(englishStorage.id).toBe('browser.storage-indexeddb');
+    expect(englishStorage.moduleId).toBe('supplement-browser-storage');
+    expect(englishStorage.supplementaryTrackId).toBe('supplement-browser-storage');
+    expect(englishStorage.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianStorage.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    const quizzes = englishStorage.blocks.filter((block) => block.type === 'knowledgeCheck');
+    expect(quizzes).toHaveLength(2);
+    for (const quiz of quizzes) {
+      expect(quiz.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(quiz.options.every((option) => option.feedback.trim().length > 0)).toBe(true);
+      expect(quiz.explanation.trim().length).toBeGreaterThan(0);
+    }
+    expect(englishStorage.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(4);
+    const exercise = englishStorage.blocks.find((block) => block.type === 'codingExercise');
+    expect(exercise?.type).toBe('codingExercise');
+    if (exercise?.type !== 'codingExercise') return;
+    expect(exercise.starterCode).toContain('transaction.oncomplete');
+    expect(exercise.requirements.length).toBeGreaterThanOrEqual(5);
+    expect(exercise.hints.length).toBeGreaterThanOrEqual(4);
+    expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
   });
 });

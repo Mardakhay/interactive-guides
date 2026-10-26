@@ -628,6 +628,21 @@
         "css.sass-scss",
         "ui.bootstrap-mui"
       ]
+    },
+    {
+      "id": "supplement-browser-storage",
+      "title": "Browser Storage and Offline Data",
+      "topics": [
+        "Web Storage and origin-scoped values",
+        "JSON parsing, availability and quota failures",
+        "Storage events and cross-document state",
+        "IndexedDB schema upgrades and transactions",
+        "Client persistence versus server synchronization"
+      ],
+      "note": "Supplementary browser data persistence beyond the weekly bootcamp outline.",
+      "lessonIds": [
+        "browser.storage-indexeddb"
+      ]
     }
   ]
 }

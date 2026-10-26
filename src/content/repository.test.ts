@@ -154,5 +154,8 @@ describe('structured content repository', () => {
     expect(getSupplementaryTrackForLesson('js.regex-text-processing', 'ru')?.lessonIds).toContain('js.regex-text-processing');
     expect(getAdjacentStructuredLessons('js.regex-text-processing', 'en').previous?.id).toBe('js.collections-weakmaps');
     expect(getWeekForLesson('js.regex-text-processing', 'ru')).toBeUndefined();
+    expect(getSupplementaryTrackForLesson('browser.storage-indexeddb', 'en')?.id).toBe('supplement-browser-storage');
+    expect(getSupplementaryTrackForLesson('browser.storage-indexeddb', 'ru')?.lessonIds).toContain('browser.storage-indexeddb');
+    expect(getWeekForLesson('browser.storage-indexeddb', 'ru')).toBeUndefined();
   });
 });

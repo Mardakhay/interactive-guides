@@ -628,6 +628,21 @@
         "css.sass-scss",
         "ui.bootstrap-mui"
       ]
+    },
+    {
+      "id": "supplement-browser-storage",
+      "title": "Хранение данных браузера и офлайн-данные",
+      "topics": [
+        "Web Storage and origin-scoped values",
+        "JSON parsing, availability and quota failures",
+        "Storage events and cross-document state",
+        "IndexedDB schema upgrades and transactions",
+        "Client persistence versus server synchronization"
+      ],
+      "note": "Дополнительная программа о хранении данных в браузере.",
+      "lessonIds": [
+        "browser.storage-indexeddb"
+      ]
     }
   ]
 }
