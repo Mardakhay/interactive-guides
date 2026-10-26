@@ -344,3 +344,6 @@ Added browser.capability-apis as the 17th supplementary bilingual pair in supple
 ## Binary-data source slice — 2026-10-26
 
 The capability API commit 2c64927ddcdef1e79ae7fa52dcacbcdae79a4abe passed lint, typecheck, tests, and build in CI run 40284807922. Next, bilingual js.typed-arrays-binary is being added as the 18th supplementary pair. It covers views/bytes, conversion, endianness, transfer ownership and defensive parsing; the source evidence is in FULL_SOURCE_CONTENT_AUDIT.md. This new change still needs CI on its final SHA. Full source parity, JSON learner-route cutover and Supabase remain open.
+
+
+**CI correction — 2026-10-26:** run [40285183316](https://github.com/Mardakhay/interactive-guides/actions/runs/40285183316) on `d187359b32cd95dbc859952032b465853daa554a` caught a test-fixture typo: the line-range test used a literal backslash+n delimiter instead of a newline delimiter, so it counted each walkthrough as one line. The content ranges were valid. The assertion remains intact; only the delimiter is corrected, and the full CI suite must pass on the follow-up SHA.

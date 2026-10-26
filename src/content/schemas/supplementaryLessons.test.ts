@@ -93,7 +93,7 @@ describe('supplementary source-derived lessons', () => {
     const walks = englishTypedArrays.blocks.filter((block) => block.type === 'codeWalkthrough');
     expect(walks).toHaveLength(3);
     for (const walk of walks) if (walk.type === 'codeWalkthrough') {
-      const lineCount = walk.code.split('\\n').length;
+      const lineCount = walk.code.split('\n').length;
       expect(walk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
     }
     const dataView = englishTypedArrays.blocks.find((block) => block.id === 'dataview-walkthrough');

@@ -397,3 +397,6 @@ Code SHA `eeed651f275a5307f8d726d1a08d0b4590ea1916` adds bilingual `browser.real
 - Capability-API content/docs commit 2c64927ddcdef1e79ae7fa52dcacbcdae79a4abe passed CI run [40284807922](https://github.com/Mardakhay/interactive-guides/actions/runs/40284807922).
 - Next source slice is bilingual js.typed-arrays-binary, registered in supplement-js-internals. It covers buffer/view distinction, byte offsets, conversions, explicit endianness, transfer detachment and packet parsing; FULL_SOURCE_CONTENT_AUDIT.md carries the matrix/evidence row.
 - After it lands, inventory will be 44 EN/RU pairs (26 core + 18 supplementary). Complete source parity remains open; keep legacy routes and files until the JSON content gate is actually reviewed. Supabase follows JSON route cutover.
+
+
+**CI correction — 2026-10-26:** run [40285183316](https://github.com/Mardakhay/interactive-guides/actions/runs/40285183316) on `d187359b32cd95dbc859952032b465853daa554a` caught a test-fixture typo: the line-range test used a literal backslash+n delimiter instead of a newline delimiter, so it counted each walkthrough as one line. The content ranges were valid. The assertion remains intact; only the delimiter is corrected, and the full CI suite must pass on the follow-up SHA.
