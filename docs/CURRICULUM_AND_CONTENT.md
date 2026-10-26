@@ -160,3 +160,8 @@ The source remains **partial**: its visual mock tabs, live examples, FAQ accordi
 Supplementary content quality review identified three short/underdeveloped candidates and added bilingual depth blocks to architecture boundaries, Sass/SCSS and object prototypes. Their updated lessons now include explanations, concrete walkthroughs, edge cases, feedback-bearing checks and applied exercises. The remaining supplements and the complete 26-lesson core still require semantic review against the source matrix; structural parity alone is not a completion criterion.
 
 Source IDs and registrations remain unchanged. Do not remove existing JSON lessons or legacy HTML files during this content pass. The app cutover and Supabase work are deliberately sequenced after the content gate.
+
+
+## Content continuation — 2026-10-26
+
+Supplementary curriculum registration is unchanged. Four EN/RU lesson pairs have source-derived depth additions in this continuation; their concrete content IDs and concept coverage are listed in `FULL_SOURCE_CONTENT_AUDIT.md`. The UI ecosystem supplement now distinguishes Bootstrap CSS grid/utilities and JavaScript-driven collapse from MUI's React component/theme approach and includes version-aware, accessible component practice. No legacy files were removed and learner routes have not yet been switched.

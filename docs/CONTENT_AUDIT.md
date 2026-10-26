@@ -71,3 +71,8 @@ The source remains **partial**: its visual mock tabs, live examples, FAQ accordi
 Current structural audit remains clean for 37 EN/RU lesson pairs, 26 core IDs and 11 supplementary IDs, but semantic/full-source parity is still incomplete. All 21 retrieved Notion pages remain connector-unverified; 25 HTML lesson files are fully retrieved but not all have completed section-by-section concept and interaction parity review. Recent depth additions: `frontend.architecture-boundaries` (20 blocks), `css.sass-scss` (19), `js.object-prototypes` (19), with matching EN/RU block schemas. Do not treat block count as a depth score.
 
 The current app still serves legacy lesson HTML in its old catalog/routes. Cutover is gated on finishing source-level coverage and reviewing all core/supplement content. Supabase has not been implemented. Latest commit CI status should be checked against the exact feature SHA before treating any checkpoint as verified.
+
+
+## Content continuation — 2026-10-26
+
+Recent depth work now covers four supplementary pairs (architecture boundaries, Sass/SCSS, JS object prototypes, Bootstrap/MUI), preserving the same EN/RU block ID/type order. Bootstrap source-specific behavior and semantics are now represented by `uilib-bootstrap-collapse`, `uilib-collapse-check`, `uilib-grid-cards`, `uilib-carousel-tradeoff`, and `uilib-bootstrap-task`. Structural tests and CI do not establish full semantic parity; the full HTML source audit and app cutover gate remain open.

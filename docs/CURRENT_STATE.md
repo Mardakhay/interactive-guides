@@ -267,3 +267,10 @@ This checkpoint supersedes older snapshots above where they conflict.
 Latest feature HEAD observed: `3d44cf2259948085f2b76ce2370a79de33a0fc6c` (CI was still running when this note was drafted). The source audit retrieved 21 Notion pages and all 25 lesson HTML documents; Notion connector verification remains `unverified`, and full concept-by-concept parity for every source is still open. Structured lessons currently include 37 EN/RU pairs (26 core plus 11 supplementary). Three supplements were deepened in this continuation: architecture boundaries, Sass/SCSS, and JS prototypes.
 
 Do not cut over or delete HTML from learner flow yet: the legacy catalog still serves the old content and the source-depth gate is incomplete. Supabase progress persistence remains a later milestone. Preserve the feature-only Git workflow and verify every commit/CI against `feat/learning-platform-foundation`; `main` was unchanged at `b13af92576e8a73753a6e3f3d26765d9f9c44397` at this checkpoint.
+
+
+## Exact checkpoint — 2026-10-26
+
+Current code HEAD observed: `da70ccafe952ae712b655c1f1cfa33bf5d7a919b`; its GitHub Actions [run #394](https://github.com/Mardakhay/interactive-guides/actions/runs/40278337273) was in progress at this note. `feat/learning-platform-foundation` remains the only write target; `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`. Four supplementary lesson pairs received EN/RU depth work (architecture, Sass, object prototypes, Bootstrap/MUI). Source retrieval counts remain 21 Notion pages and 25 lesson HTML files; Notion connector results are marked unverified, and full HTML section parity is not complete.
+
+The legacy HTML-backed learner flow is still active. No source files were deleted, no structured-only cutover was made, and Supabase persistence has not started. Continue the content gate first, then cut over learner navigation, then use the Supabase skill/changelog and implement owner-secure progress persistence.

@@ -317,3 +317,8 @@ The source remains **partial**: its visual mock tabs, live examples, FAQ accordi
 ## Continuation checkpoint — 2026-10-26
 
 The Week 14/15 parity work remains useful but does not imply the whole course is complete. Source discovery has expanded to 21 Notion pages and 25 legacy lesson HTML files. Three new structured bilingual depth passes in the current continuation target architecture boundaries, Sass/SCSS and object prototypes; their evidence is recorded in `FULL_SOURCE_CONTENT_AUDIT.md`. Full source-section coverage outside those focused areas remains pending, so the app still has its legacy HTML-backed learner flow and Supabase remains sequenced afterward.
+
+
+## Content continuation — 2026-10-26
+
+The Week 14/15 lessons remain a focused parity milestone, not the end of course content work. Recent additional source-derived structured depth now includes Bootstrap's collapse behavior, grid/card semantics, and carousel accessibility tradeoffs in the separate UI ecosystem supplement. All-source parity remains open, so the legacy learner catalog/routes are intentionally still present and Supabase remains the next-after-cutover phase.

@@ -270,3 +270,8 @@ The dark-indigo generated artwork was rejected by the user and is superseded. Us
 ## Continuation checkpoint — 2026-10-26
 
 Status update against the required sequence: source inventory and accessible retrieval are established (21 Notion pages, 25 lesson HTML files), but full lesson-by-lesson parity is not yet verified. Three bilingual supplements were deepened on the current feature branch (architecture boundaries, Sass/SCSS, object prototypes). The HTML-backed learner catalog remains active; structured JSON is registered but has not replaced all legacy navigation. Supabase is not started. Continue content validation before route cutover, then implement persistence.
+
+
+## Content continuation — 2026-10-26
+
+The next implementation phase remains gated. Four supplementary lesson pairs have deepened, but all source-section checks are not complete. Keep the learner-facing legacy HTML catalog until every HTML/Notion concept, example, pitfall, practice and feedback path is mapped to validated JSON. Then switch catalog/routes to structured IDs; Supabase follows that cutover. Do not mark either gate done based on structural tests or the number of blocks.

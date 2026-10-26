@@ -100,3 +100,8 @@ The source remains **partial**: its visual mock tabs, live examples, FAQ accordi
 The source inventory covers 25 legacy lesson HTML files plus the app-shell `public/index.html`; the app shell is not a lesson. All 25 lesson files were fetched fully, and their headings/interactive-control structure was inventoried. The interactive controls are useful source evidence, not learner-facing parity. Full per-file concept/example/pitfall/practice-to-JSON review remains open. Do not delete source HTML or claim a completed migration yet.
 
 Latest code content additions on the feature branch are bilingual structured lesson content in architecture boundaries, Sass/SCSS, and object prototypes. HTML is still used by legacy learner routes. The safe next removal is the learner-facing route/catalog dependency only after all source material is represented and validated in structured JSON; preserve the historical files as audit evidence unless separately approved for repository deletion.
+
+
+## Content continuation — 2026-10-26
+
+Four bilingual supplementary lessons now have additional learner-facing explanations, walkthroughs, feedback and practice: architecture boundaries, Sass/SCSS, object prototypes, and Bootstrap/MUI. The Bootstrap/MUI supplement now explicitly covers a responsive navbar collapse dependency and ARIA wiring, responsive cards with meaningful alt text, and the tradeoffs of carousels. See `FULL_SOURCE_CONTENT_AUDIT.md` for concrete block evidence and current limitations. Source HTML remains in the app while parity review is unfinished.
