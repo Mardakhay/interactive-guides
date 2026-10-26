@@ -1,0 +1,367 @@
+{
+  "id": "browser.realtime-workers",
+  "locale": "ru",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-26",
+  "moduleId": "supplement-browser-platform",
+  "supplementaryTrackId": "supplement-browser-platform",
+  "order": 1,
+  "title": "Связь браузера и workers",
+  "description": "XHR, WebSocket, Web Worker и Service Worker: модели связи и жизненный цикл.",
+  "estimatedMinutes": 85,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "js.async-fetch",
+    "js.dom-events",
+    "browser.storage-indexeddb"
+  ],
+  "learningOutcomes": [
+    "Различать HTTP request/response, WebSocket и worker-сценарии.",
+    "Обрабатывать XHR HTTP status отдельно от сетевых ошибок.",
+    "Управлять WebSocket open/message/close, проверкой данных, cleanup и reconnect-policy.",
+    "Переносить вычисления в Web Worker и оценивать стоимость structured clone.",
+    "Объяснять scope/lifecycle Service Worker и ограничивать кэширование."
+  ],
+  "tags": [
+    "browser APIs",
+    "WebSocket",
+    "Web Workers",
+    "Service Workers",
+    "XHR",
+    "concurrency"
+  ],
+  "blocks": [
+    {
+      "id": "messaging-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Потоковые соединения и фоновые workers"
+    },
+    {
+      "id": "messaging-model",
+      "type": "paragraph",
+      "text": "Выбирайте API по модели обмена. Fetch/XHR выполняют HTTP-запрос и получают ответ; WebSocket держит двусторонний канал для сообщений; Web Worker выносит вычисления с главного потока, но не получает DOM; Service Worker перехватывает подходящие запросы origin и управляет кэшем/офлайн-стратегией. Это разные задачи и разные жизненные циклы."
+    },
+    {
+      "id": "messaging-choice",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Для нового запроса/ответа обычно используйте Fetch + AbortController; XHR нужен для поддержки legacy-кода и специфических upload/download progress events.",
+        "Для многократных серверных событий с низкой задержкой подходит WebSocket, если сервер это поддерживает; канал не заменяет обычные HTTP API.",
+        "Для тяжёлого синхронного CPU-вычисления используйте Web Worker; он не ускоряет сеть автоматически и не может изменять DOM.",
+        "Service Worker работает отдельно от вкладки и управляет event-driven стратегией запросов/кэша, а не UI-компонентами."
+      ]
+    },
+    {
+      "id": "xhr-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "XHR: legacy API с HTTP status и явными ошибками"
+    },
+    {
+      "id": "xhr-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const request = new XMLHttpRequest();\nrequest.open(\"GET\", \"/api/updates\");\nrequest.responseType = \"json\";\nrequest.timeout = 5000;\n\nrequest.addEventListener(\"load\", () => {\n  if (request.status >= 200 && request.status < 300) {\n    console.log(request.response);\n  } else {\n    console.error(\"HTTP status\", request.status);\n  }\n});\nrequest.addEventListener(\"error\", () => console.error(\"network failure\"));\nrequest.addEventListener(\"timeout\", () => console.error(\"timed out\"));\nrequest.send();",
+      "steps": [
+        {
+          "title": "Настройте запрос до отправки",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Создайте XHR, вызовите open и задайте responseType/timeout до send. GET не имеет тела; для POST задают метод и заголовки."
+        },
+        {
+          "title": "Отделите HTTP-ошибку от сетевой",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "explanation": "load срабатывает и для HTTP 404/500; проверяйте status. error сообщает о сетевой ошибке, timeout — об истечении ограничения."
+        },
+        {
+          "title": "Обработайте завершение",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "Обработчики задаются до send, чтобы не пропустить быстрое событие. Храните request, если UI должен вызвать abort() при отмене/уходе со страницы."
+        },
+        {
+          "title": "Отправьте запрос",
+          "lineStart": 15,
+          "lineEnd": 15,
+          "explanation": "send вызывается после регистрации обработчиков. Чтобы отменить запрос, храните request и вызывайте abort при явной отмене/cleanup."
+        }
+      ]
+    },
+    {
+      "id": "xhr-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "XHR вызывает load, а status равен 404. Что это означает?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Сеть обязательно оборвалась до получения ответа.",
+          "correct": false,
+          "feedback": "Сетевой сбой обычно отражается событием error; 404 — это полученный HTTP-ответ."
+        },
+        {
+          "id": "b",
+          "text": "Запрос завершился, но сервер вернул HTTP 404; приложение должно обработать status.",
+          "correct": true,
+          "feedback": "Верно. load сам по себе не означает успешный статус HTTP."
+        },
+        {
+          "id": "c",
+          "text": "XHR не дошёл до send().",
+          "correct": false,
+          "feedback": "Если пришёл load и статус, запрос был отправлен и завершён ответом."
+        },
+        {
+          "id": "d",
+          "text": "Таймер автоматически повторит запрос.",
+          "correct": false,
+          "feedback": "XHR не повторяет запрос автоматически; политика retry — ответственность приложения."
+        }
+      ],
+      "explanation": "Состояние транспорта и HTTP status — разные уровни. Проверьте status в load, а error/timeout/abort обрабатывайте отдельно."
+    },
+    {
+      "id": "ws-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "WebSocket: управление соединением и сообщениями"
+    },
+    {
+      "id": "ws-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const socket = new WebSocket(\"wss://example.test/events\");\n\nsocket.addEventListener(\"open\", () => {\n  if (socket.readyState === WebSocket.OPEN) {\n    socket.send(JSON.stringify({ type: \"subscribe\", topic: \"news\" }));\n  }\n});\nsocket.addEventListener(\"message\", (event) => {\n  if (typeof event.data !== \"string\") return;\n  try {\n    const message = JSON.parse(event.data);\n    console.log(message.type, message.payload);\n  } catch {\n    console.warn(\"unexpected non-JSON message\");\n  }\n});\nsocket.addEventListener(\"close\", (event) => console.log(\"closed\", event.code));\nsocket.addEventListener(\"error\", () => console.error(\"socket error\"));",
+      "steps": [
+        {
+          "title": "Откройте защищённый канал",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "На HTTPS-приложении обычно используйте wss:. Соединение проходит несколько состояний; send допустим после open."
+        },
+        {
+          "title": "Отправляйте и проверяйте сообщения",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "explanation": "Проверьте OPEN перед send и задайте формат протокола. Сервер может прислать неожиданные данные; не принимайте каждое сообщение за JSON."
+        },
+        {
+          "title": "Изолируйте ошибки разбора и transport",
+          "lineStart": 7,
+          "lineEnd": 14,
+          "explanation": "message получает данные, которые могут быть строкой, Blob или ArrayBuffer. try/catch обрабатывает malformed JSON; close/error — отдельные события."
+        },
+        {
+          "title": "Закройте цикл жизненного цикла",
+          "lineStart": 15,
+          "lineEnd": 18,
+          "explanation": "close несёт код/причину закрытия, error сигнализирует проблему канала. Сверяйте эти события с политикой retry и не создавайте reconnect после dispose."
+        }
+      ]
+    },
+    {
+      "id": "ws-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "WebSocket не даёт готовую очередь с backpressure",
+      "text": "Высокая скорость сообщений может накопить работу и занять память; наблюдайте bufferedAmount и задайте политику ограничения, coalescing или drop. При reconnect используйте ограниченный exponential backoff с jitter, остановку по dispose и повторную подписку; не повторяйте неидемпотентные команды вслепую."
+    },
+    {
+      "id": "ws-cleanup",
+      "type": "paragraph",
+      "text": "WebSocket сам не переподключается. Держите ссылку на соединение, закрывайте его при уходе владельца (например, React effect cleanup), различайте ожидаемое закрытие и transient failure, и определите протокол восстановления. Закрытие/повторная отправка должны учитывать idempotency и повтор подписок."
+    },
+    {
+      "id": "worker-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Web Worker: тяжёлые вычисления вне UI-потока"
+    },
+    {
+      "id": "worker-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "// main.js\nconst worker = new Worker(new URL(\"./sum.worker.js\", import.meta.url), { type: \"module\" });\n\nworker.addEventListener(\"message\", ({ data }) => {\n  console.log(\"sum:\", data.total);\n  worker.terminate();\n});\nworker.addEventListener(\"error\", (event) => console.error(event.message));\nworker.postMessage({ numbers: [1, 2, 3, 4] });\n\n// sum.worker.js\nself.addEventListener(\"message\", ({ data }) => {\n  const total = data.numbers.reduce((sum, value) => sum + value, 0);\n  self.postMessage({ total });\n});",
+      "steps": [
+        {
+          "title": "Создайте worker и отправьте сериализуемое сообщение",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "В главном модуле создайте отдельный worker через URL и передайте ему только данные."
+        },
+        {
+          "title": "Выполните работу в worker scope",
+          "lineStart": 4,
+          "lineEnd": 9,
+          "explanation": "Главный поток получает результат/ошибку и отправляет сообщение. Одноразовый worker завершается после ответа; повторная работа требует явного dispose-протокола."
+        },
+        {
+          "title": "Покажите результат и освободите worker",
+          "lineStart": 11,
+          "lineEnd": 15,
+          "explanation": "В worker scope используется self, а не window/document; результат возвращается сообщением."
+        }
+      ]
+    },
+    {
+      "id": "worker-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что ограничивает обычный dedicated Web Worker?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Он не может получить доступ к DOM/window документа.",
+          "correct": true,
+          "feedback": "Верно. Worker имеет отдельный global scope и передаёт данные через сообщения."
+        },
+        {
+          "id": "b",
+          "text": "Он не может выполнять JavaScript.",
+          "correct": false,
+          "feedback": "Worker запускает JavaScript отдельно от главного UI-потока."
+        },
+        {
+          "id": "c",
+          "text": "Он может только стилизовать элементы DOM.",
+          "correct": false,
+          "feedback": "У него нет DOM; вычисления и сообщения — типичный сценарий."
+        },
+        {
+          "id": "d",
+          "text": "Он всегда синхронно блокирует главный поток.",
+          "correct": false,
+          "feedback": "Назначение worker — вынести работу из главного потока; передача больших данных всё равно имеет стоимость."
+        }
+      ],
+      "explanation": "Dedicated Web Worker не имеет доступа к window/document DOM. Связь с документом строится через postMessage и структурируемые данные."
+    },
+    {
+      "id": "worker-transfer",
+      "type": "paragraph",
+      "text": "Worker полезен для CPU-bound задачи, если время на сериализацию/копирование окупается. structured clone копирует поддерживаемые значения; Transferable, например ArrayBuffer, можно передать с передачей владения, после чего исходный буфер отсоединён. Слишком мелкие задачи или огромный payload могут сделать worker медленнее."
+    },
+    {
+      "id": "service-worker-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Service Worker: install, activate и fetch"
+    },
+    {
+      "id": "service-worker-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "// Register from the page (secure context, or localhost in development).\nnavigator.serviceWorker.register(\"/sw.js\").catch(console.error);\n\n// In sw.js: pre-cache selected static assets during install.\nself.addEventListener(\"install\", (event) => {\n  event.waitUntil(\n    caches.open(\"static-v1\").then((cache) => cache.addAll([\"/\", \"/index.html\"])),\n  );\n});\n\n// Intercept only same-origin GET requests; serve cache first, then network.\nself.addEventListener(\"fetch\", (event) => {\n  const url = new URL(event.request.url);\n  if (event.request.method !== \"GET\" || url.origin !== self.location.origin) return;\n  event.respondWith(caches.match(event.request).then((cached) => cached ?? fetch(event.request)));\n});",
+      "steps": [
+        {
+          "title": "Зарегистрируйте service worker",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Регистрация привязывает worker к scope. Для production обычно нужен secure context; localhost допускается для разработки."
+        },
+        {
+          "title": "Подготовьте кэш во время install",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "explanation": "event.waitUntil удерживает событие до завершения операции. Кэшируйте явно выбранные статические ресурсы и обновляйте cache version осознанно."
+        },
+        {
+          "title": "Перехватывайте только подходящие запросы",
+          "lineStart": 11,
+          "lineEnd": 16,
+          "explanation": "fetch handler обязан вызвать respondWith для перехватываемого запроса. Этот cache-first пример ограничен same-origin GET; не применяйте его бездумно к персональным/API-ответам. Ответ cache-first ограничен same-origin GET; не применяйте его к персональным/API-ответам без политики приватности."
+        }
+      ]
+    },
+    {
+      "id": "worker-boundaries",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Dedicated Web Worker принадлежит документу/приложению, выполняет вычисления, общается сообщениями и может быть остановлен приложением; DOM недоступен.",
+        "Service Worker не принадлежит одной открытой вкладке, запускается по событиям, имеет scope и может посредничать сетевым запросам/кэшем; его lifecycle и обновления версионируются.",
+        "Оба API используют отдельный global scope; не путайте self с window и не передавайте DOM-объекты сообщениями.",
+        "XHR остаётся в основном для legacy/progress-сценариев; для нового HTTP запроса предпочитайте Fetch с ясной отменой и обработкой HTTP status."
+      ]
+    },
+    {
+      "id": "messaging-practice",
+      "type": "codingExercise",
+      "title": "Вынесите сортировку из главного потока",
+      "language": "javascript",
+      "context": "Страница сортирует крупный набор чисел и начинает пропускать кадры. Спроектируйте модульный worker, который сортирует копию данных, отдаёт типизированный результат и корректно завершается при уходе со страницы.",
+      "instructions": [
+        "Реализуйте createSorter(onResult, onError), создающий Worker через new URL(..., import.meta.url) и type: module.",
+        "Определите сообщение запроса/ответа с type и payload; игнорируйте некорректный тип/данные.",
+        "В worker отсортируйте копию массива чисел, не мутируя полученный input, и отправьте результат.",
+        "Покажите результат через callback в главном потоке, обработайте message/error и верните dispose(), вызывающий terminate().",
+        "Объясните стоимость structured clone и когда transfer list нужен для ArrayBuffer; не обещайте ускорение для маленьких массивов."
+      ],
+      "requirements": [
+        "Worker code не обращается к document/window DOM.",
+        "Вход и выход проверяются по типу/форме сообщения.",
+        "Сортировка копирует данные перед изменением и возвращает детерминированный порядок.",
+        "UI callback вызывается только для валидного ответа; worker errors передаются обработчику.",
+        "dispose освобождает worker и не оставляет приложение слушать события.",
+        "Пояснён компромисс создания worker и передачи/копирования данных."
+      ],
+      "starterCode": "// main.js\nfunction createSorter(onResult, onError) {\n  const worker = new Worker(new URL(\"./sort.worker.js\", import.meta.url), { type: \"module\" });\n\n  worker.addEventListener(\"message\", ({ data }) => {\n    // TODO: validate the result message, then call onResult.\n  });\n  worker.addEventListener(\"error\", (event) => onError(event.message));\n\n  return {\n    sort(values) {\n      // TODO: send a typed request message.\n    },\n    dispose() {\n      // TODO: call worker.terminate().\n    },\n  };\n}\n\n// sort.worker.js\nself.addEventListener(\"message\", ({ data }) => {\n  // TODO: validate message, sort a copy of numeric values, and post a result.\n});",
+      "hints": [
+        "Define a small protocol such as { type: 'sort', values } and { type: 'sorted', values }; validate both boundaries.",
+        "Use [...values].sort((a, b) => a - b) to avoid mutating the received logical input.",
+        "Only the main thread should update DOM or component state.",
+        "Call terminate from dispose; if the worker is reusable, decide whether to keep it alive or terminate after one result."
+      ],
+      "successCriteria": [
+        "Sorting work occurs in the worker and output is deterministic numeric order.",
+        "Original input is unchanged.",
+        "Invalid message shapes do not crash the page or invoke onResult.",
+        "Error events reach onError and dispose stops the worker.",
+        "Explanation weighs CPU benefit against startup and structured-clone cost."
+      ]
+    },
+    {
+      "id": "messaging-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "XHR is an event-driven legacy HTTP API; inspect HTTP status separately from network/timeout/abort events.",
+        "WebSocket is a persistent full-duplex channel with explicit lifecycle, message validation, cleanup, and app-owned retry/backpressure policy.",
+        "Dedicated workers move CPU work off the UI thread but have no DOM; structured clone/transfer has cost.",
+        "Service workers are event-driven origin-scoped proxies for network/cache and offline strategies, not background UI threads.",
+        "Use secure contexts, same-origin/scope rules, conservative caching, and lifecycle cleanup intentionally."
+      ]
+    },
+    {
+      "id": "messaging-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: XMLHttpRequest",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: WebSocket",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/WebSocket",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using Web Workers",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using Service Workers",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

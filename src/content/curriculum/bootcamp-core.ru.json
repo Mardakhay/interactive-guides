@@ -643,6 +643,20 @@
       "lessonIds": [
         "browser.storage-indexeddb"
       ]
+    },
+    {
+      "id": "supplement-browser-platform",
+      "title": "Сетевые API и workers браузера",
+      "topics": [
+        "XHR and modern HTTP request boundaries",
+        "WebSocket lifecycle and message protocol",
+        "Worker messaging and structured clone",
+        "Service Worker scope and event-driven caching"
+      ],
+      "note": "Дополнительная программа по сетевым и параллельным API браузера.",
+      "lessonIds": [
+        "browser.realtime-workers"
+      ]
     }
   ]
 }

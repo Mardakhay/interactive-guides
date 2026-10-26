@@ -66,6 +66,8 @@ import englishRegex from './lessons/js.regex-text-processing/en.json';
 import russianRegex from './lessons/js.regex-text-processing/ru.json';
 import englishStorage from './lessons/browser.storage-indexeddb/en.json';
 import russianStorage from './lessons/browser.storage-indexeddb/ru.json';
+import englishRealtime from './lessons/browser.realtime-workers/en.json';
+import russianRealtime from './lessons/browser.realtime-workers/ru.json';
 import englishAuth from './lessons/frontend.auth-security/en.json';
 import russianAuth from './lessons/frontend.auth-security/ru.json';
 import englishDeployment from './lessons/deployment.production-hosting/en.json';
@@ -157,6 +159,8 @@ const lessonTranslations = [
   lessonTranslationSchema.parse(russianRegex),
   lessonTranslationSchema.parse(englishStorage),
   lessonTranslationSchema.parse(russianStorage),
+  lessonTranslationSchema.parse(englishRealtime),
+  lessonTranslationSchema.parse(russianRealtime),
   lessonTranslationSchema.parse(englishAuth),
   lessonTranslationSchema.parse(russianAuth),
   lessonTranslationSchema.parse(englishDeployment),

@@ -157,5 +157,8 @@ describe('structured content repository', () => {
     expect(getSupplementaryTrackForLesson('browser.storage-indexeddb', 'en')?.id).toBe('supplement-browser-storage');
     expect(getSupplementaryTrackForLesson('browser.storage-indexeddb', 'ru')?.lessonIds).toContain('browser.storage-indexeddb');
     expect(getWeekForLesson('browser.storage-indexeddb', 'ru')).toBeUndefined();
+    expect(getSupplementaryTrackForLesson('browser.realtime-workers', 'en')?.id).toBe('supplement-browser-platform');
+    expect(getSupplementaryTrackForLesson('browser.realtime-workers', 'ru')?.lessonIds).toContain('browser.realtime-workers');
+    expect(getWeekForLesson('browser.realtime-workers', 'ru')).toBeUndefined();
   });
 });
