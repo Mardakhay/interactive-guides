@@ -283,12 +283,29 @@ describe('DOM and events lesson translation', () => {
     expect(englishDom.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianDom.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
-    expect(russianDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
-    expect(englishDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(7);
-    expect(russianDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(7);
-    expect(englishDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
-    expect(russianDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    expect(russianDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    expect(englishDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(11);
+    expect(russianDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(11);
+    expect(englishDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
+    expect(russianDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
+    expect(englishDom.blocks.map((block) => block.id)).toEqual(
+      expect.arrayContaining([
+        'dom-fragment-walkthrough',
+        'dom-intersection-walkthrough',
+        'dom-mutation-walkthrough',
+        'dom-custom-event-walkthrough',
+        'dom-observer-check',
+        'dom-rate-control',
+        'dom-advanced-practice',
+      ]),
+    );
+    const advancedPractice = englishDom.blocks.find((block) => block.id === 'dom-advanced-practice');
+    expect(advancedPractice).toMatchObject({
+      type: 'codingExercise',
+      requirements: expect.arrayContaining([expect.stringContaining('observer')]),
+      successCriteria: expect.arrayContaining([expect.stringContaining('Observers')]),
+    });
   });
 });
 
