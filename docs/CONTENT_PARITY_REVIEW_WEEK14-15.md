@@ -92,3 +92,7 @@ The broader source pass now also includes a registered bilingual regex supplemen
 ## CI status correction — 2026-10-26
 
 Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint, typecheck, all tests, and production build on [CI run 40281922055](https://github.com/Mardakhay/interactive-guides/actions/runs/40281922055). The latest feature content is therefore green on that code SHA; a docs-only commit follows and still needs exact-HEAD CI verification.
+
+## Broader source progress — 2026-10-26
+
+The broader source pass also added a dedicated bilingual browser-storage/IndexedDB lesson; its source map and partial-coverage evidence are in `FULL_SOURCE_CONTENT_AUDIT.md`. It does not change the React Week 14–15 scope and does not mean the global content gate is complete. App progress persistence still waits on the JSON learner-flow cutover.

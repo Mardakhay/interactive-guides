@@ -145,3 +145,7 @@ The initial collection-lesson commit failed runtime schema tests because each kn
 ## CI status correction — 2026-10-26
 
 Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint, typecheck, all tests, and production build on [CI run 40281922055](https://github.com/Mardakhay/interactive-guides/actions/runs/40281922055). The latest feature content is therefore green on that code SHA; a docs-only commit follows and still needs exact-HEAD CI verification.
+
+## 2026-10-26 browser-storage checkpoint
+
+Added `browser.storage-indexeddb` as a bilingual registered lesson in `supplement-browser-storage`. It covers local/session storage, defensive string/JSON handling, origin/XSS and sync limitations, storage-event scope, IndexedDB upgrades and transaction commit semantics, with four walkthroughs, two feedback quizzes and applied transaction practice. Source parity remains partial (not every IndexedDB CRUD/cursor/quota example is migrated). Inventory: 41 pairs (26 core + 15 supplements); legacy learner HTML remains active.

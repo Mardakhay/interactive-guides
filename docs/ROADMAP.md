@@ -315,3 +315,7 @@ A further Advanced JS gap led to the registered bilingual `js.regex-text-process
 ## CI status correction — 2026-10-26
 
 Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint, typecheck, all tests, and production build on [CI run 40281922055](https://github.com/Mardakhay/interactive-guides/actions/runs/40281922055). The latest feature content is therefore green on that code SHA; a docs-only commit follows and still needs exact-HEAD CI verification.
+
+## Persistence learning prerequisite — 2026-10-26
+
+Added `browser.storage-indexeddb` as a bilingual supplement before app-level progress persistence. Finish its source parity and the global content/depth gate, then switch learner routes to embedded JSON, verify, and only afterward design Supabase progress/auth/RLS. No Supabase schema or client integration has been started. Current catalog count is 41 bilingual pairs.

@@ -116,3 +116,7 @@ Added `js.regex-text-processing` as a bilingual registered supplement. The lesso
 ## CI status correction — 2026-10-26
 
 Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint, typecheck, all tests, and production build on [CI run 40281922055](https://github.com/Mardakhay/interactive-guides/actions/runs/40281922055). The latest feature content is therefore green on that code SHA; a docs-only commit follows and still needs exact-HEAD CI verification.
+
+## Browser persistence content update — 2026-10-26
+
+The Advanced JS page's browser-storage material now has a bilingual structured target `browser.storage-indexeddb`. It distinguishes local/session string storage from IndexedDB transactions, corrects storage-event same-window assumptions, adds security/quota caveats, and teaches request success vs transaction completion. The lesson remains partial against all source CRUD/cursor/estimate examples. Total: 41 EN/RU pairs. This is educational content only: Supabase integration remains deferred until JSON cutover.

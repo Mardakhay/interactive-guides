@@ -362,3 +362,7 @@ Code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` adds bilingual registered
 ## CI status correction — 2026-10-26
 
 Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint, typecheck, all tests, and production build on [CI run 40281922055](https://github.com/Mardakhay/interactive-guides/actions/runs/40281922055). The latest feature content is therefore green on that code SHA; a docs-only commit follows and still needs exact-HEAD CI verification.
+
+## Current handoff — 2026-10-26
+
+Latest code SHA `7915276b6514a56a3a700c0ba488b784e348754b` adds the registered EN/RU `browser.storage-indexeddb` lesson and a new supplementary track. It separates local Web Storage/IndexedDB concepts from server-backed learner progress. Current inventory is 41 bilingual pairs. CI run 40282414157 is in progress; inspect its logs and fix failures before proceeding. Source-depth audit and JSON learner cutover remain open; Supabase follows only after cutover.

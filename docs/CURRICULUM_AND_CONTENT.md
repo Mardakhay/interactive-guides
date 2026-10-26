@@ -200,3 +200,7 @@ The `supplement-js-internals` track now includes bilingual `js.regex-text-proces
 ## CI status correction — 2026-10-26
 
 Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint, typecheck, all tests, and production build on [CI run 40281922055](https://github.com/Mardakhay/interactive-guides/actions/runs/40281922055). The latest feature content is therefore green on that code SHA; a docs-only commit follows and still needs exact-HEAD CI verification.
+
+## New browser-storage track — 2026-10-26
+
+Both curricula now include `supplement-browser-storage` with bilingual `browser.storage-indexeddb`. The 19-block lesson covers browser storage decisions and transactional IndexedDB practice; source parity remains partial. Inventory: 26 core + 15 supplementary = 41 bilingual pairs. This lesson does not replace or preempt the later project decision to persist user progress in Supabase after learner-flow cutover.
