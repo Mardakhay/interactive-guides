@@ -3,6 +3,8 @@ import englishRuntime from '../lessons/js.runtime-memory/en.json';
 import russianRuntime from '../lessons/js.runtime-memory/ru.json';
 import englishPrototypes from '../lessons/js.object-prototypes/en.json';
 import russianPrototypes from '../lessons/js.object-prototypes/ru.json';
+import englishTypedArrays from '../lessons/js.typed-arrays-binary/en.json';
+import russianTypedArrays from '../lessons/js.typed-arrays-binary/ru.json';
 import englishCapabilities from '../lessons/browser.capability-apis/en.json';
 import russianCapabilities from '../lessons/browser.capability-apis/ru.json';
 import englishAuth from '../lessons/frontend.auth-security/en.json';
@@ -36,6 +38,7 @@ const lessonPairs = [
   [englishArchitecture, russianArchitecture],
   [englishAdvancedTooling, russianAdvancedTooling],
   [englishCapabilities, russianCapabilities],
+  [englishTypedArrays, russianTypedArrays],
 ] as const;
 
 describe('supplementary source-derived lessons', () => {
@@ -82,6 +85,26 @@ describe('supplementary source-derived lessons', () => {
     expect(exercise.hints.length).toBeGreaterThanOrEqual(4);
     expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
     expect(exercise.starterCode).toContain('#use-location');
+  });
+
+  it('validates binary-data examples, ranges, and defensive exercise scaffolding', () => {
+    for (const lesson of [englishTypedArrays, russianTypedArrays]) expect(lessonTranslationSchema.safeParse(lesson).success, lesson.locale).toBe(true);
+    expect(englishTypedArrays.blocks.map(({ id, type }) => [id, type])).toEqual(russianTypedArrays.blocks.map(({ id, type }) => [id, type]));
+    const walks = englishTypedArrays.blocks.filter((block) => block.type === 'codeWalkthrough');
+    expect(walks).toHaveLength(3);
+    for (const walk of walks) if (walk.type === 'codeWalkthrough') {
+      const lineCount = walk.code.split('\\n').length;
+      expect(walk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+    }
+    const dataView = englishTypedArrays.blocks.find((block) => block.id === 'dataview-walkthrough');
+    expect(dataView?.type === 'codeWalkthrough' && dataView.code).toContain('true); // little-endian explicitly');
+    const exercise = englishTypedArrays.blocks.find((block) => block.id === 'binary-practice');
+    expect(exercise?.type).toBe('codingExercise');
+    if (exercise?.type !== 'codingExercise') return;
+    expect(exercise.requirements.length).toBeGreaterThanOrEqual(5);
+    expect(exercise.hints.length).toBeGreaterThanOrEqual(4);
+    expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
+    expect(exercise.starterCode).toContain('new DataView(buffer)');
   });
 
   it('keeps EN/RU curriculum tracks consistent and points to registered lesson IDs', () => {

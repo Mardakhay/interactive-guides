@@ -390,3 +390,10 @@ Code SHA `eeed651f275a5307f8d726d1a08d0b4590ea1916` adds bilingual `browser.real
 - Added browser.capability-apis in both locales and registered it in the repository and supplementary-browser curriculum. Source row and evidence IDs are recorded in FULL_SOURCE_CONTENT_AUDIT.md.
 - New catalog total: 43 EN/RU lesson pairs (26 core + 17 supplementary). Content/source parity remains incomplete: 21 Notion fetches report unverified; 25 HTML lesson files have not all received full line-by-line parity review.
 - Keep HTML learner routes/files until JSON content is reviewed and cutover is verified. Supabase follows that gate; no Supabase changes in this checkpoint.
+
+
+## Handoff update — 2026-10-26
+
+- Capability-API content/docs commit 2c64927ddcdef1e79ae7fa52dcacbcdae79a4abe passed CI run [40284807922](https://github.com/Mardakhay/interactive-guides/actions/runs/40284807922).
+- Next source slice is bilingual js.typed-arrays-binary, registered in supplement-js-internals. It covers buffer/view distinction, byte offsets, conversions, explicit endianness, transfer detachment and packet parsing; FULL_SOURCE_CONTENT_AUDIT.md carries the matrix/evidence row.
+- After it lands, inventory will be 44 EN/RU pairs (26 core + 18 supplementary). Complete source parity remains open; keep legacy routes and files until the JSON content gate is actually reviewed. Supabase follows JSON route cutover.

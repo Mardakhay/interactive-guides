@@ -64,6 +64,8 @@ import englishCollections from './lessons/js.collections-weakmaps/en.json';
 import russianCollections from './lessons/js.collections-weakmaps/ru.json';
 import englishRegex from './lessons/js.regex-text-processing/en.json';
 import russianRegex from './lessons/js.regex-text-processing/ru.json';
+import englishTypedArrays from './lessons/js.typed-arrays-binary/en.json';
+import russianTypedArrays from './lessons/js.typed-arrays-binary/ru.json';
 import englishStorage from './lessons/browser.storage-indexeddb/en.json';
 import russianStorage from './lessons/browser.storage-indexeddb/ru.json';
 import englishRealtime from './lessons/browser.realtime-workers/en.json';
@@ -159,6 +161,8 @@ const lessonTranslations = [
   lessonTranslationSchema.parse(russianCollections),
   lessonTranslationSchema.parse(englishRegex),
   lessonTranslationSchema.parse(russianRegex),
+  lessonTranslationSchema.parse(englishTypedArrays),
+  lessonTranslationSchema.parse(russianTypedArrays),
   lessonTranslationSchema.parse(englishStorage),
   lessonTranslationSchema.parse(russianStorage),
   lessonTranslationSchema.parse(englishRealtime),

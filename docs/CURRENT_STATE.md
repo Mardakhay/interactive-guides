@@ -339,3 +339,8 @@ Catalog now has 42 EN/RU pairs (26 core + 16 supplementary), including new `brow
 ## Capability APIs and current HEAD checkpoint — 2026-10-26
 
 Added browser.capability-apis as the 17th supplementary bilingual pair in supplement-browser-platform. It contains four walkthroughs, two explained checks and an applied task. A regression test checks pair alignment, valid ranges, geolocation/listener cleanup and exercise criteria. Full-source parity is still open, as are the JSON learner-route cutover and Supabase phase. The parent SHA fc12acd76737357d36d2955337840de9b8130b37 passed CI; this new content requires a fresh exact-HEAD run.
+
+
+## Binary-data source slice — 2026-10-26
+
+The capability API commit 2c64927ddcdef1e79ae7fa52dcacbcdae79a4abe passed lint, typecheck, tests, and build in CI run 40284807922. Next, bilingual js.typed-arrays-binary is being added as the 18th supplementary pair. It covers views/bytes, conversion, endianness, transfer ownership and defensive parsing; the source evidence is in FULL_SOURCE_CONTENT_AUDIT.md. This new change still needs CI on its final SHA. Full source parity, JSON learner-route cutover and Supabase remain open.

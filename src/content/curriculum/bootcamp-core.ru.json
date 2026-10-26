@@ -495,7 +495,11 @@
         "Map and Set identity, ordering, and uniqueness",
         "Weak collections and object-associated metadata",
         "Regular expression patterns, captures, and flags",
-        "Safe text extraction and regex validation limits"
+        "Safe text extraction and regex validation limits",
+        "Сырые байты ArrayBuffer и представления TypedArray",
+        "Преобразования typed array, выравнивание и байтовые смещения",
+        "Поля разной ширины и endian-порядок в DataView",
+        "Передача владения ArrayBuffer и ограничения общей памяти"
       ],
       "note": "Дополнительная углублённая программа; согласовать с конспектами пользователя в Notion.",
       "lessonIds": [
@@ -503,7 +507,8 @@
         "js.object-prototypes",
         "js.iterators-generators",
         "js.collections-weakmaps",
-        "js.regex-text-processing"
+        "js.regex-text-processing",
+        "js.typed-arrays-binary"
       ]
     },
     {

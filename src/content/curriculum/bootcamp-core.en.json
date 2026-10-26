@@ -495,7 +495,11 @@
         "Map and Set identity, ordering, and uniqueness",
         "Weak collections and object-associated metadata",
         "Regular expression patterns, captures, and flags",
-        "Safe text extraction and regex validation limits"
+        "Safe text extraction and regex validation limits",
+        "ArrayBuffer raw bytes and TypedArray views",
+        "Typed-array conversion, alignment, and byte offsets",
+        "DataView mixed-width fields and endianness",
+        "Transferable ArrayBuffer ownership and shared-memory caveats"
       ],
       "note": "Supplementary depth beyond the weekly bootcamp outline; align with the user's Notion notes.",
       "lessonIds": [
@@ -503,7 +507,8 @@
         "js.object-prototypes",
         "js.iterators-generators",
         "js.collections-weakmaps",
-        "js.regex-text-processing"
+        "js.regex-text-processing",
+        "js.typed-arrays-binary"
       ]
     },
     {
