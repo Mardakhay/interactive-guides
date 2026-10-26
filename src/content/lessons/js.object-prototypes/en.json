@@ -10,7 +10,7 @@
   "order": 2,
   "title": "JavaScript Object Model: Prototypes, new, Classes, and this",
   "description": "Trace property lookup through the prototype chain, explain constructor/new behavior, and choose the right this binding.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 95,
   "difficulty": "advanced",
   "prerequisites": [
     "js.functions-arrays-objects"
@@ -20,7 +20,8 @@
     "Trace property lookup and identify own vs inherited properties.",
     "Explain the conceptual steps of new and class methods on prototypes.",
     "Predict this and compare call/apply/bind.",
-    "Use private fields and inheritance deliberately."
+    "Use private fields and inheritance deliberately.",
+    "Explain class constructors, prototype methods, inheritance, static members, private fields, and class-specific rules."
   ],
   "tags": [
     "javascript",
@@ -308,6 +309,131 @@
       ]
     },
     {
+      "id": "classes-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Classes add syntax and rules to the prototype model"
+    },
+    {
+      "id": "classes-model",
+      "type": "paragraph",
+      "text": "A class declaration creates a constructor function with class-specific semantics; it does not replace prototype delegation. Instance methods are shared on Constructor.prototype, while static members belong to the constructor itself. Class bodies are strict, class declarations are not usable before initialization, and class constructors must be called with new. extends creates both an instance-method chain and a constructor chain for inherited static members. Private fields beginning with # are enforced by the language and can be accessed only by code with that class's private brand."
+    },
+    {
+      "id": "classes-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "class Account {\n  #balance = 0;\n\n  constructor(owner, opening = 0) {\n    if (!Number.isFinite(opening) || opening < 0) throw new RangeError(\"opening must be non-negative\");\n    this.owner = owner;\n    this.#balance = opening;\n  }\n\n  get balance() { return this.#balance; }\n  deposit(amount) {\n    if (!Number.isFinite(amount) || amount <= 0) throw new RangeError(\"invalid amount\");\n    this.#balance += amount;\n    return this;\n  }\n\n  static createStarter(owner) { return new this(owner, 0); }\n}\n\nclass SavingsAccount extends Account {\n  constructor(owner, opening, rate) {\n    super(owner, opening); // must run before using this\n    this.rate = rate;\n  }\n  addMonthlyInterest() { this.deposit(this.balance * this.rate); }\n}\n\nconst account = new SavingsAccount(\"Mina\", 100, 0.02);\naccount.addMonthlyInterest();\nconsole.log(account.balance); // 102\nconsole.log(Object.hasOwn(account, \"deposit\")); // false\nconsole.log(Object.hasOwn(Account.prototype, \"deposit\")); // true\nconsole.log(SavingsAccount.createStarter(\"Ada\") instanceof SavingsAccount); // true",
+      "steps": [
+        {
+          "title": "Keep invariant state private and validate at the boundary",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "The #balance field is not an ordinary property; callers cannot read or write it by guessing a string key. The constructor checks its initial value before setting it."
+        },
+        {
+          "title": "Use accessors and methods to preserve invariants",
+          "lineStart": 10,
+          "lineEnd": 15,
+          "explanation": "balance exposes a read-only view. deposit rejects non-finite or non-positive values, mutates only the private field, and returns this for chaining."
+        },
+        {
+          "title": "Distinguish static members from instance methods",
+          "lineStart": 17,
+          "lineEnd": 17,
+          "explanation": "createStarter is called on the class, not an account instance. Here new this preserves the subclass constructor when the inherited static method is called through SavingsAccount."
+        },
+        {
+          "title": "Establish the parent before using subclass state",
+          "lineStart": 19,
+          "lineEnd": 25,
+          "explanation": "A derived constructor must call super() before it reads or writes this. The instance method then extends Account behavior without duplicating balance logic."
+        },
+        {
+          "title": "Verify lookup and behavior",
+          "lineStart": 27,
+          "lineEnd": 32,
+          "explanation": "Interest is 2% of 100, so the balance becomes 102. deposit is inherited from Account.prototype rather than copied as an own property. The static factory returns a SavingsAccount instance."
+        }
+      ]
+    },
+    {
+      "id": "classes-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Classes are not merely interchangeable syntax",
+      "text": "Class methods are non-enumerable prototype properties, class calls require new, and class code is always strict. Constructor functions have different hoisting/call behavior. Private # fields are not the same as a naming convention such as _balance, and subclasses cannot access a parent's private field directly. Prefer composition over inheritance when a type relationship does not model substitutability."
+    },
+    {
+      "id": "classes-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "After `const account = new SavingsAccount(...)`, where is the inherited `deposit` method normally found?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Copied as an own property onto every account instance.",
+          "correct": false,
+          "feedback": "Class instance methods are shared rather than recreated as own methods per instance."
+        },
+        {
+          "id": "b",
+          "text": "On Account.prototype, reached through SavingsAccount.prototype.",
+          "correct": true,
+          "feedback": "Correct. The instance chain is account → SavingsAccount.prototype → Account.prototype."
+        },
+        {
+          "id": "c",
+          "text": "Only on the SavingsAccount constructor object.",
+          "correct": false,
+          "feedback": "The constructor object holds static members; instance methods live on prototype objects."
+        },
+        {
+          "id": "d",
+          "text": "In a private field table on the global object.",
+          "correct": false,
+          "feedback": "Private fields are per-instance branded state, but methods are not stored in a global table."
+        }
+      ],
+      "explanation": "extends links the subclass prototype to the base prototype, so inherited instance methods are found through ordinary property lookup."
+    },
+    {
+      "id": "classes-practice",
+      "type": "codingExercise",
+      "title": "Build and test an inherited class safely",
+      "language": "javascript",
+      "context": "Create a Vehicle base class and an ElectricCar subclass. Use encapsulated state, validate inputs, and prove which methods are inherited rather than duplicated.",
+      "instructions": [
+        "Implement Vehicle with a make field and a validated accelerate(amount) method that updates speed.",
+        "Implement ElectricCar extends Vehicle with a private battery charge and a charge(amount) method.",
+        "Call super before accessing this in the subclass constructor; reject invalid or out-of-range values.",
+        "Add an inherited static factory or explain why static members live on the constructor chain.",
+        "Test instanceof, own-property checks for methods, and that invalid state transitions do not mutate the instance."
+      ],
+      "requirements": [
+        "Put shared instance methods on class prototypes rather than assigning a new function in each constructor.",
+        "Use a # private field and do not expose a writable public alias for it.",
+        "Call super before using this in the subclass constructor.",
+        "Validate finite numeric inputs and stated boundaries before mutation.",
+        "Use tests or observable outputs to distinguish own and inherited methods."
+      ],
+      "starterCode": "class Vehicle {\n  constructor(make) {\n    // TODO: initialize valid state\n  }\n  accelerate(amount) {\n    // TODO: validate and update speed\n  }\n}\n\nclass ElectricCar extends Vehicle {\n  #charge = 0;\n  constructor(make, capacity) {\n    // TODO: call super before using this\n  }\n  charge(amount) {\n    // TODO: keep charge within the documented range\n  }\n}\n",
+      "hints": [
+        "A derived constructor cannot use this before super().",
+        "An inherited instance method is found on the prototype chain; Object.hasOwn(instance, 'method') should be false.",
+        "Use Number.isFinite and validate bounds before changing state.",
+        "Private names such as #charge are checked by syntax and cannot be reached as ordinary string keys."
+      ],
+      "successCriteria": [
+        "Invalid constructor or method inputs are rejected without partial mutation.",
+        "The derived instance passes instanceof checks for both classes.",
+        "Shared instance methods are found on prototypes, not stored as own function values.",
+        "The private charge cannot be read or assigned from outside the class.",
+        "super is called before subclass state access.",
+        "Tests cover normal transitions, boundary values, inheritance and rejected operations."
+      ]
+    },
+    {
       "id": "invocation-heading",
       "type": "heading",
       "level": 2,
@@ -563,6 +689,26 @@
         {
           "title": "MDN: Strict mode",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Classes",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Private elements",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_elements",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: super",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/super",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Object.freeze",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze",
           "kind": "official-docs"
         }
       ]

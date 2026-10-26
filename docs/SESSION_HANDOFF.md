@@ -417,3 +417,21 @@ Completed the full 3,472-line source read, including five chapters, 20 interacti
 - Completed a full read of public/lessons/intro.dev.html (3,472 lines; five chapters, 20 quiz items with feedback, and 10 starter/solution coding exercises).
 - Added bilingual utility-type instruction to typescript.fundamentals. FULL_SOURCE_CONTENT_AUDIT.md maps the five chapters and notes outdated examples not copied into the app.
 - This is one file, not completion of the 25-HTML audit. Keep HTML and learner routes intact. Current exact pre-change feature HEAD: 69321148494698eee4565fb465936d1abefe2283; the next code SHA needs CI.
+
+
+## js-deep-dive.html full-read checkpoint — 2026-10-26
+
+Completed the full 2,334-line read, including three playgrounds, the interactive lookup tracer, nine quiz questions and five numbered exercises (the page advertises six). The audit records source inaccuracies and block-level mapping. Added bilingual class semantics/private state/super/static/prototype walkthroughs and applied practice to js.object-prototypes. Source interaction parity is partial and the HTML remains intact.
+
+
+## CI correction in progress — 2026-10-26
+
+CI run [40286184091](https://github.com/Mardakhay/interactive-guides/actions/runs/40286184091) on TypeScript utility-type content failed because an existing translation test still expected four quiz blocks after the lesson gained its fifth knowledge check. The lesson and quiz are retained; this follow-up updates the invariant to five and adds targeted coverage. The associated class-lesson/source-audit work also remains pending CI verification.
+
+
+## Handoff — 2026-10-26
+
+- Full read completed for public/lessons/js-deep-dive.html (2,334 lines; 3 playgrounds, interactive prototype lookup, 9 questions, 5 numbered exercises despite a UI metric of 6).
+- Added class-focused EN/RU instruction and applied task to js.object-prototypes; detailed source/accuracy mapping is in FULL_SOURCE_CONTENT_AUDIT.md.
+- CI run 40286184091 caught an outdated TypeScript quiz count assertion after adding utility types. Follow-up updates count 4 to 5 and adds regression coverage. Verify CI on the next feature SHA.
+- Keep legacy HTML and routes. Full source parity/cutover and the later Supabase phase remain open.

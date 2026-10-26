@@ -306,7 +306,7 @@ describe('TypeScript fundamentals lesson translation', () => {
     expect(englishTypeScript.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianTypeScript.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishTypeScript.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishTypeScript.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
     expect(russianTypeScript.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });

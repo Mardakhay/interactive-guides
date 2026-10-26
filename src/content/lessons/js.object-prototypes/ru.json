@@ -10,7 +10,7 @@
   "order": 2,
   "title": "Модель объектов JavaScript: прототипы, new, классы и this",
   "description": "Прослеживай поиск свойств по цепочке прототипов, объясняй поведение конструктора/new и выбирай правильную привязку this.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 95,
   "difficulty": "advanced",
   "prerequisites": [
     "js.functions-arrays-objects"
@@ -20,7 +20,8 @@
     "Прослеживать поиск свойства и определять собственные/унаследованные свойства.",
     "Объяснять new и размещение методов классов в прототипах.",
     "Предсказывать this и сравнивать call/apply/bind.",
-    "Осознанно использовать private fields и наследование."
+    "Осознанно использовать private fields и наследование.",
+    "Объяснять конструкторы классов, методы прототипа, наследование, static members, private fields и правила классов."
   ],
   "tags": [
     "javascript",
@@ -308,6 +309,131 @@
       ]
     },
     {
+      "id": "classes-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Классы добавляют синтаксис и правила к модели прототипов"
+    },
+    {
+      "id": "classes-model",
+      "type": "paragraph",
+      "text": "Объявление класса создаёт constructor-функцию с особыми правилами; делегирование через прототипы сохраняется. Методы экземпляра находятся на Constructor.prototype и разделяются между объектами, а static members принадлежат самой constructor-функции. Тело класса работает в strict mode, объявление класса нельзя использовать до инициализации, а constructor класса требует вызова через new. extends создаёт цепочку методов экземпляра и цепочку constructor-функций для унаследованных static members. Private fields с префиксом # защищаются языком и доступны только коду с соответствующим private brand."
+    },
+    {
+      "id": "classes-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "class Account {\n  #balance = 0;\n\n  constructor(owner, opening = 0) {\n    if (!Number.isFinite(opening) || opening < 0) throw new RangeError(\"opening must be non-negative\");\n    this.owner = owner;\n    this.#balance = opening;\n  }\n\n  get balance() { return this.#balance; }\n  deposit(amount) {\n    if (!Number.isFinite(amount) || amount <= 0) throw new RangeError(\"invalid amount\");\n    this.#balance += amount;\n    return this;\n  }\n\n  static createStarter(owner) { return new this(owner, 0); }\n}\n\nclass SavingsAccount extends Account {\n  constructor(owner, opening, rate) {\n    super(owner, opening); // must run before using this\n    this.rate = rate;\n  }\n  addMonthlyInterest() { this.deposit(this.balance * this.rate); }\n}\n\nconst account = new SavingsAccount(\"Mina\", 100, 0.02);\naccount.addMonthlyInterest();\nconsole.log(account.balance); // 102\nconsole.log(Object.hasOwn(account, \"deposit\")); // false\nconsole.log(Object.hasOwn(Account.prototype, \"deposit\")); // true\nconsole.log(SavingsAccount.createStarter(\"Ada\") instanceof SavingsAccount); // true",
+      "steps": [
+        {
+          "title": "Скройте состояние и проверьте данные на границе",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "Поле #balance — не обычное свойство: его нельзя прочитать или изменить, угадав строковый ключ. Constructor проверяет начальное значение до присваивания."
+        },
+        {
+          "title": "Сохраняйте инварианты методами и accessor-ом",
+          "lineStart": 10,
+          "lineEnd": 15,
+          "explanation": "balance даёт доступ только для чтения. deposit отвергает нечисловые, бесконечные и неположительные значения, меняет только private-поле и возвращает this для цепочки вызовов."
+        },
+        {
+          "title": "Отличайте static member от метода экземпляра",
+          "lineStart": 17,
+          "lineEnd": 17,
+          "explanation": "createStarter вызывается у класса, а не у экземпляра. new this сохраняет constructor подкласса, если унаследованный static-метод вызван через SavingsAccount."
+        },
+        {
+          "title": "Сначала настройте родителя, затем состояние подкласса",
+          "lineStart": 19,
+          "lineEnd": 25,
+          "explanation": "В constructor производного класса вызовите super() до чтения или записи this. Метод экземпляра расширяет поведение Account без дублирования логики баланса."
+        },
+        {
+          "title": "Проверьте lookup и результат",
+          "lineStart": 27,
+          "lineEnd": 32,
+          "explanation": "Процент равен 2% от 100, поэтому баланс становится 102. deposit находится в Account.prototype, а не копируется как собственное свойство. Static factory возвращает экземпляр SavingsAccount."
+        }
+      ]
+    },
+    {
+      "id": "classes-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Классы — не просто взаимозаменяемый синтаксис",
+      "text": "Методы класса — non-enumerable свойства прототипа, класс нужно вызывать через new, а код класса всегда работает в strict mode. У constructor-функций иные правила hoisting и вызова. Private-поле # — не то же самое, что соглашение об имени _balance; подкласс не может напрямую обращаться к private-полю родителя. Если отношение типов не означает взаимозаменяемость, предпочитайте композицию наследованию."
+    },
+    {
+      "id": "classes-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Где обычно находится унаследованный метод `deposit` после `const account = new SavingsAccount(...)`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Он скопирован как собственное свойство каждого экземпляра account.",
+          "correct": false,
+          "feedback": "Методы экземпляра класса обычно разделяются, а не создаются заново как собственные методы."
+        },
+        {
+          "id": "b",
+          "text": "В Account.prototype, куда lookup приходит через SavingsAccount.prototype.",
+          "correct": true,
+          "feedback": "Верно. Цепочка экземпляра: account → SavingsAccount.prototype → Account.prototype."
+        },
+        {
+          "id": "c",
+          "text": "Только у constructor-функции SavingsAccount.",
+          "correct": false,
+          "feedback": "На constructor-функции находятся static members; методы экземпляра расположены в объектах прототипов."
+        },
+        {
+          "id": "d",
+          "text": "В таблице private fields глобального объекта.",
+          "correct": false,
+          "feedback": "Private-поля — скрытое состояние экземпляра, но методы не хранятся в глобальной таблице."
+        }
+      ],
+      "explanation": "extends связывает прототип подкласса с прототипом родителя, поэтому унаследованные методы находятся обычным поиском свойств."
+    },
+    {
+      "id": "classes-practice",
+      "type": "codingExercise",
+      "title": "Реализуйте и протестируйте наследуемый класс",
+      "language": "javascript",
+      "context": "Создайте базовый класс Vehicle и подкласс ElectricCar. Инкапсулируйте состояние, проверяйте входные значения и докажите, какие методы унаследованы, а не дублируются.",
+      "instructions": [
+        "Реализуйте Vehicle с полем make и проверяемым методом accelerate(amount), который меняет speed.",
+        "Реализуйте ElectricCar extends Vehicle с приватным зарядом батареи и методом charge(amount).",
+        "Вызовите super до обращения к this в constructor подкласса; отклоняйте некорректные и выходящие за границы значения.",
+        "Добавьте унаследованный static factory или объясните, почему static members расположены в цепочке constructor-функций.",
+        "Проверьте instanceof, собственность методов и отсутствие изменения состояния после отклонённого перехода."
+      ],
+      "requirements": [
+        "Размещайте общие методы экземпляра в прототипах классов, а не создавайте функцию заново в constructor.",
+        "Используйте private field # и не открывайте его как публичное изменяемое свойство.",
+        "Вызовите super до использования this в constructor подкласса.",
+        "Проверяйте конечность и заданные границы чисел до изменения состояния.",
+        "Тестами или результатами отличайте собственные методы от унаследованных."
+      ],
+      "starterCode": "class Vehicle {\n  constructor(make) {\n    // TODO: initialize valid state\n  }\n  accelerate(amount) {\n    // TODO: validate and update speed\n  }\n}\n\nclass ElectricCar extends Vehicle {\n  #charge = 0;\n  constructor(make, capacity) {\n    // TODO: call super before using this\n  }\n  charge(amount) {\n    // TODO: keep charge within the documented range\n  }\n}\n",
+      "hints": [
+        "В производном constructor нельзя использовать this до вызова super().",
+        "Унаследованный метод ищется в цепочке прототипов; Object.hasOwn(instance, 'method') должен вернуть false.",
+        "Используйте Number.isFinite и проверьте границы до изменения состояния.",
+        "Private-имена вроде #charge проверяются синтаксисом и не доступны как обычные строковые ключи."
+      ],
+      "successCriteria": [
+        "Некорректные аргументы конструктора и метода отклоняются без частичного изменения состояния.",
+        "Экземпляр проходит instanceof для обоих классов.",
+        "Общие методы находятся в прототипах и не сохранены как собственные функции экземпляра.",
+        "Private-заряд нельзя прочитать или изменить извне.",
+        "super вызывается до обращения к состоянию подкласса.",
+        "Тесты проверяют обычные переходы, границы, наследование и ошибки."
+      ]
+    },
+    {
       "id": "invocation-heading",
       "type": "heading",
       "level": 2,
@@ -563,6 +689,26 @@
         {
           "title": "MDN: Strict mode",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Classes",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Private elements",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_elements",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: super",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/super",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Object.freeze",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze",
           "kind": "official-docs"
         }
       ]

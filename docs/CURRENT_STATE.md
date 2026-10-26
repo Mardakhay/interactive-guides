@@ -362,3 +362,18 @@ Completed the full 3,472-line source read, including five chapters, 20 interacti
 ## Legacy source pass — intro.dev.html — 2026-10-26
 
 Completed full read of intro.dev.html (3,472 lines), including five chapters, 20 quiz items and 10 revealed exercises. Added missing utility-type coverage to typescript.fundamentals in both locales: a walkthrough, compile-time/runtime caveats, feedback quiz and applied task. The audit maps evidence and deliberately unported weak snippets. Pair count remains 44. This change needs exact-HEAD CI; complete source parity and JSON route cutover remain open.
+
+
+## js-deep-dive.html full-read checkpoint — 2026-10-26
+
+Completed the full 2,334-line read, including three playgrounds, the interactive lookup tracer, nine quiz questions and five numbered exercises (the page advertises six). The audit records source inaccuracies and block-level mapping. Added bilingual class semantics/private state/super/static/prototype walkthroughs and applied practice to js.object-prototypes. Source interaction parity is partial and the HTML remains intact.
+
+
+## CI correction in progress — 2026-10-26
+
+CI run [40286184091](https://github.com/Mardakhay/interactive-guides/actions/runs/40286184091) on TypeScript utility-type content failed because an existing translation test still expected four quiz blocks after the lesson gained its fifth knowledge check. The lesson and quiz are retained; this follow-up updates the invariant to five and adds targeted coverage. The associated class-lesson/source-audit work also remains pending CI verification.
+
+
+## Full JS deep-dive source checkpoint — 2026-10-26
+
+The complete js-deep-dive.html read found and documented source inaccuracies and that its UI advertises six exercises but presents five numbered challenges. js.object-prototypes now grows from 31 to 37 bilingual blocks with class/prototype semantics, private state, super ordering, static factory behavior, feedback and a coding task. The failed CI on the prior TypeScript change was a stale quiz count (4 to 5); the follow-up fixes the expectation without removing content. Verify the new exact SHA in CI.
