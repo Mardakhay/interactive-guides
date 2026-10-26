@@ -281,3 +281,12 @@ Continue source-by-source parity and content deepening from `docs/FULL_SOURCE_CO
 - Deployment/hosting is also deepened at 21 blocks/locale (3 walkthroughs, 2 checks, 2 practices) with official Vite/Netlify references. CSS and Git/CI have prior deepening. All lessons remain in editorial review.
 - Current source scope: 21 Notion pages fetched (unverified by the connector) and 25 HTML files inventoried; complete line-level review remains open. PR #1 is open/Draft on `feat/learning-platform-foundation`; `main` was not modified.
 - Next: continue full source review beyond DOM, record block-level evidence and explicit deferrals, deepen the next largest uncovered curriculum topic, then rerun exact-head CI and update this handoff.
+
+## Current handoff — 2026-10-26 (network/DOM checkpoint)
+
+- Feature code/content SHA: `0b08ee4249d1e6ec19bfe16e94de864fe7271ed1`. Exact Actions [run #40271559588](https://github.com/Mardakhay/interactive-guides/actions/runs/40271559588) passed install, lint, typecheck, 102 tests / 22 files and production build.
+- New `network.dns-tcp-tls` content: 22 blocks per locale, 2 walkthroughs, 3 checks, 2 exercises. It corrects a misleading legacy HTTP/2 claim and explains TCP transport HOL versus HTTP/3 QUIC stream behavior with packet/congestion caveats and IETF RFC references.
+- `js.dom-events` remains 35 blocks per locale (7 walkthroughs, 6 checks, 3 exercises); deployment hosting 21 blocks per locale (3 walkthroughs, 2 checks, 2 exercises). Related tests and EN/RU structural parity passed.
+- Source audit remains open: 21 Notion fetches marked unverified; 25 HTML sources inventoried; only selected sources have focused/full content reviews. Exact source evidence and residuals are in FULL_SOURCE_CONTENT_AUDIT.md.
+- PR #1 is open/Draft; base main SHA `b13af92576e8a73753a6e3f3d26765d9f9c44397`. This continuation did not write to main.
+- Next: continue full source review and add only evidence-backed bilingual content; then update the matrix and rerun CI. Keep app lesson status at `review`.

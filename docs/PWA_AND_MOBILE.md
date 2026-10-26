@@ -101,3 +101,7 @@ At the current feature code/content SHA `17b79e07b8377e8aa92c5aa14305da0062389ac
 ## Latest project CI checkpoint — 2026-10-26
 
 The latest verified code/content SHA is `deb30c88151ee6f0ea5f59afd14e96f0fb2d5902`; Actions [run #40271279200](https://github.com/Mardakhay/interactive-guides/actions/runs/40271279200) passed including PWA contract tests. No browser/device PWA acceptance was recorded by this content pass; the Android Chrome/iOS Safari install, offline and update checklist above remains open.
+
+## Latest verified app checkpoint — 2026-10-26
+
+The latest feature code/content SHA is `0b08ee4249d1e6ec19bfe16e94de864fe7271ed1`; [Actions run #40271559588](https://github.com/Mardakhay/interactive-guides/actions/runs/40271559588) passed including PWA contract tests. This source/content pass did not run real-device PWA acceptance. Android Chrome/iOS Safari install, offline, deep-link and update checks remain open.

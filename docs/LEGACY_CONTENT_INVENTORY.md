@@ -75,3 +75,9 @@ Legacy `deployment-learning.html` still contains interactions not equivalent to 
 `dom-masterclass.html` has received a structural/control inventory and targeted comparison with `js.dom-events`. The lesson now includes nodeType/element collection distinctions, attributes vs live properties/default reset, event phase ordering, and corresponding walkthroughs, checks and a diagnostic practice in both locales. Automated checks passed at code/content SHA `deb30c88151ee6f0ea5f59afd14e96f0fb2d5902` (102 tests and build included in Actions run #40271279200).
 
 This is still **partial**, not a completed source audit or full interactive migration. The legacy tree navigator, collection/theme demos, several editable challenges and the final Card Manager do not yet have equivalent app interactions. Keep the HTML file and the lesson status at review until prose/code/answers and remaining behaviors are audited or explicitly deferred.
+
+## Network source checkpoint — 2026-10-26
+
+A targeted technical review of `internet-fundamentals.html` identified an overclaim that HTTP/2 multiplexing eliminates head-of-line blocking. The structured bilingual destination now separates HTTP/2 streams from TCP's ordered connection delivery and contrasts HTTP/3 over QUIC, including caveats for shared-packet loss and connection congestion. Evidence and current RFC references are in `network.dns-tcp-tls` and [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md).
+
+The legacy source is preserved and its broader DNS/HTTP/TLS/browser interactions are not fully migrated. This was a focused correction, not a line-by-line audit.

@@ -223,3 +223,14 @@ This entry supersedes earlier branch/content snapshot statements.
 - PR #1 is open/Draft, based on `main` SHA `b13af92576e8a73753a6e3f3d26765d9f9c44397`. No changes from this work were committed to main.
 
 Open work: continue full source review and mapping, complete remaining localization and local data-portability design, record PWA browser/device acceptance, and triage the 14 npm audit findings and large build chunk warning without blind upgrades.
+
+## Latest project state — 2026-10-26 (network source pass)
+
+- Feature branch `feat/learning-platform-foundation`, code/content SHA `0b08ee4249d1e6ec19bfe16e94de864fe7271ed1`. Actions [run #40271559588](https://github.com/Mardakhay/interactive-guides/actions/runs/40271559588) passed all configured checks: lint, typecheck, 102 tests/22 files, production build.
+- Network supplement: 22 blocks per locale, 2 walkthroughs, 3 knowledge checks and 2 practices; new sourced coverage explains HTTP/2 multiplexing over TCP, TCP's in-order loss boundary, HTTP/3/QUIC streams and remaining packet/congestion caveats.
+- DOM lesson: 35 blocks/locale, 7 walkthroughs, 6 checks, 3 exercises. Deployment lesson: 21 blocks/locale, 3 walkthroughs, 2 checks, 2 exercises. CSS/Git/SQL content deepening remains as recorded in the preceding checkpoint.
+- Structural app inventory: 26 core plus 11 supplementary IDs (74 locale JSON files), embedded in the bilingual React reader. UI localization and PWA code remain broad but partial.
+- Source audit: 21 Notion pages fetched, each marked unverified; 25 HTML sources inventoried with selected deeper reviews. Full source parity remains unfinished; DOM interactions and deployment demos are documented gaps. Keep lesson states at review.
+- PR #1 is open/Draft and mergeable; base `main` is `b13af92576e8a73753a6e3f3d26765d9f9c44397`. No new changes were written to main.
+
+Remaining: complete body/code/answer/interaction audits for unreviewed sources; finish learner-data migration/export/import; record real-device PWA acceptance; triage dependency findings and the large build chunk warning.

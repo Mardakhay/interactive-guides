@@ -46,3 +46,9 @@ This validates runtime/schema and build invariants only. The 21 fetched Notion p
 At feature code/content SHA `deb30c88151ee6f0ea5f59afd14e96f0fb2d5902`, GitHub Actions [run #40271279200](https://github.com/Mardakhay/interactive-guides/actions/runs/40271279200) passed all configured checks (lint, typecheck, 22 test files / 102 tests, production build). The DOM lesson is now 35 blocks per locale (7 walkthroughs, 6 checks, 3 exercises); CSS, Git/CI, SQL and deployment deepening are also present.
 
 Schema/CI establishes structural integrity, not complete source parity. All 25 legacy HTML files remain. The DOM source is only structurally and selectively reviewed, with live demos and the final Card Manager still unmapped; 21 Notion fetches remain marked unverified. Lesson editorial state remains `review`.
+
+## Current code/content checkpoint — 2026-10-26
+
+Feature SHA `0b08ee4249d1e6ec19bfe16e94de864fe7271ed1` passed [Actions run #40271559588](https://github.com/Mardakhay/interactive-guides/actions/runs/40271559588): lint, typecheck, 102 tests/22 files and build. The bilingual network supplement now includes the HTTP/2-over-TCP vs HTTP/3-over-QUIC failure model and primary RFC references; the DOM and deployment content also have recent deepening.
+
+These changes improve content depth but do not close parity for the full 25-file HTML inventory or the 21 unverified Notion fetches. See the full source audit for exact evidence and known gaps. Keep all lessons in `review`.

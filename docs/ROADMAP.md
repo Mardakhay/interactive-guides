@@ -232,3 +232,11 @@ For source-level evidence and explicit remaining gaps see [FULL_SOURCE_CONTENT_A
 - Earlier in-app content work remains: CSS v3, expanded Git/CI, SQL/PostgreSQL and deployment/hosting. Recent deployment lesson is a structured text lesson, not a standalone HTML replacement.
 - Audit count and limits remain 21 Notion pages fetched (unverified) and 25 HTML files inventoried; source-to-block review is incomplete.
 - Phases 5–8 are not complete: local data export/import/migration, Supabase auth/sync, device-level PWA acceptance, and release diagnostics remain open. PR #1 remains Draft; keep main untouched.
+
+## Latest delivery checkpoint — 2026-10-26 (network source pass)
+
+- Feature content SHA `0b08ee4249d1e6ec19bfe16e94de864fe7271ed1` passed [Actions run #40271559588](https://github.com/Mardakhay/interactive-guides/actions/runs/40271559588): install, lint, typecheck, 102 tests across 22 files, build.
+- Phase 4 is active: the DNS/TCP/TLS supplement now explains protocol multiplexing and loss boundaries for HTTP/2 and HTTP/3 with IETF RFC evidence. The source's inaccurate HTTP/2 head-of-line claim is not taught; its complete interaction parity is still not done.
+- Recent source-driven content also covers DOM node/property/event edge cases and Vite deployment configuration. All legacy HTML remains; full source audit is open.
+- Phases 5–8 remain incomplete: data portability, Supabase, real-browser PWA acceptance and final release diagnostics.
+- PR #1 remains Draft on `feat/learning-platform-foundation`; `main` was not modified.
