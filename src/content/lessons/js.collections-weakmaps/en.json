@@ -104,7 +104,8 @@
           "correct": false,
           "feedback": "Calling set again with the same key updated its value to ready."
         }
-      ]
+      ],
+      "explanation": "A new object literal is not the same key by reference; if the domain key is a product identifier, use its string ID. Setting an existing key updates the entry while preserving its original insertion position."
     },
     {
       "id": "set-heading",
@@ -241,7 +242,8 @@
           "correct": false,
           "feedback": "Weak references do not define a cleanup deadline; garbage collection is nondeterministic."
         }
-      ]
+      ],
+      "explanation": "WeakMap associates values with object keys without making an object reachable solely through the entry. The trade-off is no enumeration or size, and the application cannot control when memory is reclaimed."
     },
     {
       "id": "collections-summary",

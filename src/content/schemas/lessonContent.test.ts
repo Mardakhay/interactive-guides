@@ -627,7 +627,13 @@ describe('Map, Set, and weak collections supplementary lesson', () => {
     expect(englishCollections.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianCollections.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishCollections.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(2);
+    const checks = englishCollections.blocks.filter((block) => block.type === 'knowledgeCheck');
+    expect(checks).toHaveLength(2);
+    for (const check of checks) {
+      expect(check.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(check.options.every((option) => option.feedback.trim().length > 0)).toBe(true);
+      expect(check.explanation.trim().length).toBeGreaterThan(0);
+    }
     expect(englishCollections.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
     const exercise = englishCollections.blocks.find((block) => block.type === 'codingExercise');
     expect(exercise?.type).toBe('codingExercise');
