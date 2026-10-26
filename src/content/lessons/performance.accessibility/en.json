@@ -1,16 +1,16 @@
 {
   "id": "performance.accessibility",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-5-week-18",
   "week": 18,
   "order": 1,
   "title": "React Performance and Web Accessibility",
   "description": "Measure before optimizing, understand memoization and code splitting, and apply semantic and keyboard-friendly accessibility patterns to real interfaces.",
-  "estimatedMinutes": 95,
+  "estimatedMinutes": 105,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -23,7 +23,8 @@
     "Use lazy loading and Suspense to defer large code that is not needed immediately.",
     "Build interfaces with semantic elements, accessible names, keyboard operation, and visible focus.",
     "Explain contrast, reduced-motion preferences, and status announcements.",
-    "Audit a React screen for performance and accessibility and record before/after evidence."
+    "Audit a React screen for performance and accessibility and record before/after evidence.",
+    "Choose contextual image alternatives and expose accessible names and toggle state for icon-only controls."
   ],
   "tags": [
     "react",
@@ -33,7 +34,8 @@
     "lazy-loading",
     "accessibility",
     "keyboard",
-    "aria"
+    "aria",
+    "image-alt"
   ],
   "blocks": [
     {
@@ -166,6 +168,102 @@
         "Inspect contrast for normal text, controls, focus, disabled states, and dark mode.",
         "Test narrow viewports, zoom, and reduced-motion preferences.",
         "Use automated checks as a signal, then manually test real workflows and assistive-technology output."
+      ]
+    },
+    {
+      "id": "image-alt-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Choose image alternatives by purpose"
+    },
+    {
+      "id": "image-alt-explanation",
+      "type": "paragraph",
+      "text": "An image needs an alternative that preserves the information a learner would otherwise miss. If the image adds meaningful information—such as a chart trend, product color, or diagram relationship—write a concise description of that information. If it is purely decorative or repeats the adjacent text, use alt=\"\" so assistive technology can skip it. Do not omit the alt attribute: an empty alternative is an intentional decision, while a missing one may expose a filename or an unhelpful fallback. For an icon-only control, give the control an accessible name and expose toggle state; the glyph itself is not a reliable label."
+    },
+    {
+      "id": "image-alt-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type Product = {\n  id: string;\n  name: string;\n  imageUrl: string;\n  imageAlt: string; // Empty only when the image adds no information\n  isFavorite: boolean;\n};\n\nexport function ProductCard({ product, onToggleFavorite }: {\n  product: Product;\n  onToggleFavorite: () => void;\n}) {\n  return (\n    <article>\n      <h2>{product.name}</h2>\n      <img src={product.imageUrl} alt={product.imageAlt} />\n      <button\n        type=\"button\"\n        aria-label={`Favorite ${product.name}`}\n        aria-pressed={product.isFavorite}\n        onClick={onToggleFavorite}\n      >\n        ♥\n      </button>\n    </article>\n  );\n}",
+      "steps": [
+        {
+          "title": "Decide whether the image adds information",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "imageAlt is content data: use a useful concise description when the image communicates something not available in nearby text. Use an empty string only when the image is decorative or entirely redundant; do not describe every visual detail."
+        },
+        {
+          "title": "Give the icon button a stable accessible name",
+          "lineStart": 14,
+          "lineEnd": 20,
+          "explanation": "The heart glyph is visual, so aria-label names the control in context. aria-pressed exposes its on/off state to assistive technology. Keep the toggle's name stable while its pressed state changes."
+        }
+      ]
+    },
+    {
+      "id": "image-alt-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A product card shows a photo that only repeats the product name already written in its heading. Which image alternative is usually appropriate?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use alt=\"\" because this instance is decorative/redundant",
+          "correct": true,
+          "feedback": "An explicit empty alternative lets assistive technology skip an image that adds no new information."
+        },
+        {
+          "id": "b",
+          "text": "Omit alt so the browser can infer the best description",
+          "correct": false,
+          "feedback": "Missing alt is not the same as a deliberate empty alternative and can produce an unhelpful fallback."
+        },
+        {
+          "id": "c",
+          "text": "Use alt=\"image\"",
+          "correct": false,
+          "feedback": "This adds no useful information and forces the user to hear an irrelevant description."
+        },
+        {
+          "id": "d",
+          "text": "Copy the entire product-card text into alt",
+          "correct": false,
+          "feedback": "Repeating adjacent content creates redundant announcements; describe only information the image uniquely contributes."
+        }
+      ],
+      "explanation": "Choose alternative text based on the image's purpose in context. Empty alt is intentional for decorative/redundant images; informative images need a concise equivalent."
+    },
+    {
+      "id": "image-alt-practice",
+      "type": "codingExercise",
+      "title": "Repair image alternatives and a favorite control",
+      "language": "tsx",
+      "context": "Improve an existing product card so a screen-reader user receives useful image information and can understand and operate the favorite toggle.",
+      "instructions": [
+        "Inspect whether the product image adds information beyond the visible product name; choose a concise description or an intentional empty alternative.",
+        "Replace the clickable div with a native button and make its purpose clear without relying on the heart glyph.",
+        "Expose the favorite toggle state programmatically and keep the control's accessible name stable across state changes.",
+        "Test the control with Tab, Space/Enter, and the browser accessibility tree or a screen reader."
+      ],
+      "requirements": [
+        "Every informative image has a concise contextual alternative; decorative/redundant images use alt=\"\".",
+        "No image relies on a missing alt attribute or a filename fallback.",
+        "The favorite action is a native keyboard-operable button with an accessible name.",
+        "The toggle state is exposed with aria-pressed and changes with application state.",
+        "The test notes describe the observed name, pressed state, and keyboard behavior."
+      ],
+      "starterCode": "function ProductCard({ product, onToggleFavorite }) {\n  return <article>\n    <h2>{product.name}</h2>\n    <img src={product.imageUrl} />\n    <div onClick={onToggleFavorite}>♥</div>\n  </article>;\n}",
+      "hints": [
+        "An empty alt string is correct for a decorative image; do not omit the attribute.",
+        "For a toggle button, a stable name such as “Favorite {product.name}” plus aria-pressed communicates purpose and state.",
+        "Use the accessibility tree to inspect the computed role, name, and pressed state; then operate it without a mouse."
+      ],
+      "successCriteria": [
+        "The image alternative matches the image's purpose in context.",
+        "The action is announced as a button with a contextual name.",
+        "Pressed/unpressed state is perceivable and updates after activation.",
+        "Keyboard activation works and focus remains visible."
       ]
     },
     {
@@ -480,6 +578,11 @@
           "title": "MDN: prefers-reduced-motion",
           "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion",
           "kind": "official-docs"
+        },
+        {
+          "title": "W3C WAI: Images Tutorial",
+          "url": "https://www.w3.org/WAI/tutorials/images/",
+          "kind": "guide"
         }
       ]
     }
