@@ -295,3 +295,7 @@ The source-to-lesson work has begun closing specific HTML/Notion gaps with bilin
 ## Source gate update — 2026-10-26
 
 Content evidence now includes the CI-to-release simulator concepts from legacy Git workflow material. Even with focused HTML/Notion gaps closed, full source review remains incomplete. Keep HTML learner routes until every source row has depth evidence; then switch to JSON and only afterward implement Supabase progress.
+
+## Current sequencing checkpoint — 2026-10-26
+
+Content work added a bilingual, registered `js.iterators-generators` supplement from the Advanced JS Notion topic (38 pairs total: 26 core, 12 supplements). Continue source-by-source depth review; do not mark the content milestone complete until every accessible Notion/HTML source row has evidence and remaining gaps are closed. Next dependency order remains: finish content/depth and tests → move learner catalog/routes fully onto structured JSON while preserving legacy files as source evidence → verify cutover → implement Supabase-authenticated, RLS-protected learner progress. Supabase has not begun.

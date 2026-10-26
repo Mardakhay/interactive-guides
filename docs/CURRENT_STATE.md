@@ -294,3 +294,7 @@ Current code HEAD: `ab9ae370a569ccfcaabd05a502ad0038694e17e8`; CI run [#40279940
 ## Current continuation — 2026-10-26
 
 Latest code HEAD: `08521895937d5b30e7bb58662b2d4f632d1f3616`; its GitHub Actions run [#403](https://github.com/Mardakhay/interactive-guides/actions/runs/40280399709) was running at this checkpoint. Recent focused work covers CSS margin collapsing, HTML tables/media, React API and effects, UI components, DOM observers, and Git release gates. `main` remains unchanged at `b13af92576e8a73753a6e3f3d26765d9f9c44397`. The app remains on the legacy learner flow; Supabase has not started.
+
+## Current checkpoint — 2026-10-26
+
+Feature content now includes `js.iterators-generators` in both locales and in the supplementary curriculum/repository, bringing the inventory to 38 pairs (26 core + 12 supplementary). Its walkthrough, quizzes, practice and source mapping are documented in `FULL_SOURCE_CONTENT_AUDIT.md`. This is incremental depth progress, not full-source completion. HTML-backed learner routes are still active; legacy HTML is retained; JSON cutover and Supabase persistence are not yet implemented. The last checked feature parent before this lesson was `cd25047fd55900130f38cc0866de68f8fe2cde1f`; the new content commit is `28b95945fc6218d2cf8d3608f5fa0e6f3aadb354`, whose CI must be checked at the exact SHA.

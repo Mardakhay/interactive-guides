@@ -125,3 +125,7 @@ Added structured bilingual evidence for native data tables and accessible media 
 ## Git workflow update — 2026-10-26
 
 The structured Git/CI lesson now teaches the release trigger distinction between continuous delivery and continuous deployment and how branch protection enforces a CI/review gate. It adds a complete pipeline simulation task. See the full audit for exact evidence. Legacy HTML is still retained and still serves the learner route pending the global content gate.
+
+## 2026-10-26 content checkpoint
+
+The JSON curriculum now registers `js.iterators-generators` in English and Russian under `supplement-js-internals`. Its source-linked depth evidence is recorded in `FULL_SOURCE_CONTENT_AUDIT.md`: the Advanced JS Notion page's generator/lazy-iteration topic is covered with three walkthroughs, two feedback quizzes, a practical exercise, edge cases and cleanup behavior. The repository is at 38 bilingual lesson pairs (26 core + 12 supplementary). Legacy HTML files remain preserved as source material and learner-facing HTML routes have **not** been removed; the all-source parity gate is still open. Supabase remains deferred until JSON cutover.

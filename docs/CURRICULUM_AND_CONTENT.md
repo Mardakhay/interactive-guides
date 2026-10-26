@@ -180,3 +180,7 @@ The HTML document lesson now covers semantic data tables and accessible media; C
 ## Git/CI content update — 2026-10-26
 
 `git.workflow-ci` now includes a pipeline walkthrough and feedback quiz for CI versus continuous delivery/deployment plus a practical fail/fix/approval/release scenario. Tests preserve EN/RU structure and assert the new task's exact SHA and rollback criteria. Remaining legacy source parity is tracked in `FULL_SOURCE_CONTENT_AUDIT.md`.
+
+## Curriculum checkpoint — 2026-10-26
+
+The `supplement-js-internals` track now includes the EN/RU lesson `js.iterators-generators` (order 3), registered in the repository and both curriculum locale files. It adds generator execution, iterator protocol, return/completion, lazy-vs-eager consumption, cleanup, async generators and applied practice. Current inventory: 26 core + 12 supplementary = 38 bilingual pairs. Source parity remains an active gate; HTML learner routes remain in place until the complete audit supports a safe JSON cutover. Supabase follows that cutover, not this checkpoint.

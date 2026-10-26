@@ -96,3 +96,7 @@ In this pass `css.fundamentals` gained the margin-collapsing model, code trace, 
 ## Git/CI parity — 2026-10-26
 
 Source-specific blocks now cover CI status tied to a SHA, branch-rule enforcement, immutable artifact promotion, manual-release versus automatic-deploy triggers, and rollback planning. The exercise requires evidence and a new check run after repair. This focused addition does not mark all Git HTML interactions or all course sources complete.
+
+## Incremental audit update — 2026-10-26
+
+Added `js.iterators-generators` as a registered bilingual supplement after identifying generators in the Advanced JS Notion source. Depth now includes worked execution traces, protocol distinction, completion/return semantics, eager-vs-lazy trade-off, cleanup via `finally`, async-generator context, feedback checks and coding criteria. Audit evidence and explicit remaining scope are in `FULL_SOURCE_CONTENT_AUDIT.md`. Inventory: 38 EN/RU pairs (26 core, 12 supplementary). Other Notion/HTML source rows still require full depth review; no learner-flow cutover or Supabase integration has occurred.

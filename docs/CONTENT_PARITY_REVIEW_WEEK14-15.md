@@ -72,3 +72,7 @@ HTML document structure now includes semantically correct data tables and media 
 ## Git/CI continuation — 2026-10-26
 
 The Git workflow lesson now explicitly differentiates continuous delivery from continuous deployment and explains branch protection as enforcement separate from CI reporting. The legacy pipeline simulator is represented as a structured, feedback-bearing coding scenario. The all-source gate remains open.
+
+## Cross-course content checkpoint — 2026-10-26
+
+Although this document focuses on React forms/shared state, the broader parity pass also added `js.iterators-generators` from the Advanced JS Notion source. Its EN/RU JSON is registered in the JS internals track and contains focused walkthroughs, quizzes, cleanup edge cases and applied practice. This does not change the Week 14–15 audit scope or imply that remaining Notion/HTML sources have passed; see `FULL_SOURCE_CONTENT_AUDIT.md`. Legacy learner routes remain until the full audit supports JSON cutover, after which Supabase progress can be implemented.

@@ -342,3 +342,7 @@ Recent audited gaps now embedded in bilingual JSON: CSS margin collapsing, HTML 
 ## Handoff — 2026-10-26
 
 Latest source-derived addition is the bilingual Git pipeline/release exercise: diagnose a failed check, fix and rerun on the new SHA, enforce review/status gates, choose delivery vs deployment, and track artifact/rollback. Feature SHA `08521895937d5b30e7bb58662b2d4f632d1f3616` was in CI when noted. Full Notion/HTML coverage remains unfinished; retain learner HTML until the gate is met, then cut over to JSON, then build Supabase persistence.
+
+## Handoff checkpoint — 2026-10-26
+
+Latest content change: `28b95945fc6218d2cf8d3608f5fa0e6f3aadb354` adds registered EN/RU `js.iterators-generators` (track order 3) from the Advanced JS Notion generators topic. It includes 15 aligned blocks, three walkthroughs, two explanatory checks, and one applied exercise. Inventory is now 38 pairs (26 core, 12 supplementary). Continue full source/depth audit; Notion connector-unverified status must remain explicit. Do not remove preserved HTML source files or learner routes until parity/cutover validation is done. Supabase work is gated behind that cutover. Verify CI on this SHA and keep docs synchronized.
