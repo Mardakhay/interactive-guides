@@ -280,3 +280,8 @@ The next implementation phase remains gated. Four supplementary lesson pairs hav
 ## DOM source pass — 2026-10-26
 
 The core DOM/event lesson was deepened from 35 to 44 bilingual blocks based on the DOM Masterclass: DocumentFragment, MutationObserver, IntersectionObserver, custom events, and debounce/throttle now have explanation, code traces, a choice check, lifecycle cleanup and applied practice. CI for the content SHA was pending when noted. Continue the full source matrix before moving learner routes.
+
+
+## Content gate remains open — 2026-10-26
+
+Targeted parity additions now cover DOM observer APIs, Fetch/Axios service differences, React external-effect cleanup, and MUI forms. The source inventory remains only partially audited at the concept level: 21 Notion pages were fetched but connector-unverified, and all 25 HTML documents were fetched while full line/topic/practice parity for every file remains open. Keep the existing HTML-backed learner route/catalog until that gate is complete; the JSON-only cutover and Supabase phase are not done.

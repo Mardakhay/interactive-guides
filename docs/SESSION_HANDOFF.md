@@ -327,3 +327,8 @@ The Week 14/15 lessons remain a focused parity milestone, not the end of course 
 ## Handoff checkpoint — 2026-10-26
 
 Latest code change: bilingual DOM lesson adds DocumentFragment, IntersectionObserver/MutationObserver cleanup, custom-event contract, debounce/throttle, and a debugging exercise. Branch HEAD at note time: `68a3d192b6be30fc2b94d3aca9d825f0edbae5fd`; CI run #396 was queued. Continue auditing remaining legacy/Notion subtopics, keep the HTML learner flow until the content gate passes, then switch to JSON and implement Supabase only afterward.
+
+
+## Handoff — 2026-10-26
+
+The user-requested order is unchanged: finish source-depth verification → switch learner app to bilingual structured JSON and remove HTML from learner delivery (retain source evidence) → implement Supabase progress persistence. Seven source-derived lesson areas now have targeted bilingual depth work, but all source subtopics are not yet verified. CI #401 on code/test checkpoint `604b57e98fdadf6558ef83209145dab9b7253ebf` was still running at the time of this handoff note; recheck exact SHA before continuing.

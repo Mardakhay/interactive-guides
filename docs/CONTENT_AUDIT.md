@@ -81,3 +81,8 @@ Recent depth work now covers four supplementary pairs (architecture boundaries, 
 ## DOM content audit — 2026-10-26
 
 Targeted source-to-lesson review of the DOM Masterclass identified five previously missing topic groups; `js.dom-events` now maps them to source-derived walkthroughs and practice. This was a focused semantic pass, not proof of complete parity for all 25 HTML pages. EN/RU ID/type order and code ranges were checked; exact-head CI must be confirmed separately.
+
+
+## Targeted semantic parity — 2026-10-26
+
+Additional tests now verify source-specific block IDs, bilingual structure, interactive feedback, and exercise criteria for the DOM observer and API client lessons; UI ecosystem tests cover Bootstrap/MUI behavior. The current implementation has not completed semantic review of every HTML source. Exact latest CI status must be checked on feature HEAD `604b57e98fdadf6558ef83209145dab9b7253ebf`.

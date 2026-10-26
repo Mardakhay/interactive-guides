@@ -279,3 +279,8 @@ The legacy HTML-backed learner flow is still active. No source files were delete
 ## Current checkpoint — 2026-10-26
 
 Feature code commit `68a3d192b6be30fc2b94d3aca9d825f0edbae5fd` adds the DOM-source gap pass to `js.dom-events` (35→44 blocks per locale). The exact SHA's GitHub Actions run [#396](https://github.com/Mardakhay/interactive-guides/actions/runs/40278792766) was queued when this note was written. Main remains unchanged; the JSON-only app cutover and Supabase remain later gated phases.
+
+
+## Latest continuation checkpoint — 2026-10-26
+
+Feature HEAD at note time: `604b57e98fdadf6558ef83209145dab9b7253ebf`; GitHub Actions [run #401](https://github.com/Mardakhay/interactive-guides/actions/runs/40279686292) was running. Recent depth work includes architecture, Sass/SCSS, JS prototypes, UI ecosystem, DOM events, React API/custom Hooks and React effects/lists; latest source evidence is in `FULL_SOURCE_CONTENT_AUDIT.md`. Branch `main` remains unchanged at `b13af92576e8a73753a6e3f3d26765d9f9c44397`. HTML-backed learner routes remain active; Supabase is not implemented.

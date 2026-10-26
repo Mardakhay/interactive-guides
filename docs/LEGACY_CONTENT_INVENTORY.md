@@ -110,3 +110,8 @@ Four bilingual supplementary lessons now have additional learner-facing explanat
 ## DOM inventory note — 2026-10-26
 
 The DOM Masterclass source contains interactive tree/selector exercises, content and attribute/property comparisons, DocumentFragment, event phases/delegation, observer APIs, custom events, and rate-control patterns. The structured `js.dom-events` pair now explicitly covers those advanced observer and batching topics in addition to its existing safe rendering and delegation practice. The file remains a source artifact; learner-flow migration is still gated by the remaining sources.
+
+
+## HTML-source pass — 2026-10-26
+
+Targeted source comparison has now translated several previously missing interactive concepts into structured lessons: DOM observers/batching, React effect integrations/storage events, Fetch-vs-Axios service behavior, and MUI form behavior. `FULL_SOURCE_CONTENT_AUDIT.md` lists block-level evidence. This does not yet mean every old HTML page is conceptually migrated; keep source files and learner routes until the complete audit gate passes.

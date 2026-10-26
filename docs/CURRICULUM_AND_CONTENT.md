@@ -165,3 +165,8 @@ Source IDs and registrations remain unchanged. Do not remove existing JSON lesso
 ## Content continuation — 2026-10-26
 
 Supplementary curriculum registration is unchanged. Four EN/RU lesson pairs have source-derived depth additions in this continuation; their concrete content IDs and concept coverage are listed in `FULL_SOURCE_CONTENT_AUDIT.md`. The UI ecosystem supplement now distinguishes Bootstrap CSS grid/utilities and JavaScript-driven collapse from MUI's React component/theme approach and includes version-aware, accessible component practice. No legacy files were removed and learner routes have not yet been switched.
+
+
+## Source-derived lesson updates — 2026-10-26
+
+In addition to the four supplements deepened previously, `js.dom-events`, `react.api-custom-hooks`, and `react.effects-lists-composition` now contain bilingual worked examples, feedback checks and applied exercises for source gaps. The UI ecosystem lesson includes MUI form-component integration alongside Bootstrap behavior. These are targeted updates with explicit block IDs; no curriculum IDs changed and no content was removed.
