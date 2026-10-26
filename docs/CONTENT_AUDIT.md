@@ -100,3 +100,7 @@ Source-specific blocks now cover CI status tied to a SHA, branch-rule enforcemen
 ## Incremental audit update — 2026-10-26
 
 Added `js.iterators-generators` as a registered bilingual supplement after identifying generators in the Advanced JS Notion source. Depth now includes worked execution traces, protocol distinction, completion/return semantics, eager-vs-lazy trade-off, cleanup via `finally`, async-generator context, feedback checks and coding criteria. Audit evidence and explicit remaining scope are in `FULL_SOURCE_CONTENT_AUDIT.md`. Inventory: 38 EN/RU pairs (26 core, 12 supplementary). Other Notion/HTML source rows still require full depth review; no learner-flow cutover or Supabase integration has occurred.
+
+## Content depth update — 2026-10-26
+
+Added bilingual `js.collections-weakmaps` from Advanced JS Notion material. The lesson differentiates Map's object-key identity from structural equality, Set's value uniqueness from domain-key deduplication, and weak collections from enumerable/timed caches. Applied practice groups records by stable ID, preserving order without mutation. This is a partial source slice, not full API parity. Total: 39 EN/RU pairs (26 core, 13 supplementary). See the detailed evidence and gaps in `FULL_SOURCE_CONTENT_AUDIT.md`; JSON cutover and Supabase remain pending.

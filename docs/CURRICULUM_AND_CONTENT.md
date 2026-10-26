@@ -184,3 +184,7 @@ The HTML document lesson now covers semantic data tables and accessible media; C
 ## Curriculum checkpoint — 2026-10-26
 
 The `supplement-js-internals` track now includes the EN/RU lesson `js.iterators-generators` (order 3), registered in the repository and both curriculum locale files. It adds generator execution, iterator protocol, return/completion, lazy-vs-eager consumption, cleanup, async generators and applied practice. Current inventory: 26 core + 12 supplementary = 38 bilingual pairs. Source parity remains an active gate; HTML learner routes remain in place until the complete audit supports a safe JSON cutover. Supabase follows that cutover, not this checkpoint.
+
+## Supplementary curriculum checkpoint — 2026-10-26
+
+`supplement-js-internals` now registers `js.collections-weakmaps` (order 4) in English and Russian, following the new iterators/generators lesson. It teaches Map/Set identity and ordering plus WeakMap trade-offs through three walkthroughs and a cart aggregation exercise. The source's full method-by-method treatment remains only partially covered. Inventory: 26 core + 13 supplementary IDs (39 bilingual pairs). Full parity is still a gate before HTML-backed route removal; Supabase follows only after cutover.

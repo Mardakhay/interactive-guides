@@ -76,3 +76,7 @@ The Git workflow lesson now explicitly differentiates continuous delivery from c
 ## Cross-course content checkpoint — 2026-10-26
 
 Although this document focuses on React forms/shared state, the broader parity pass also added `js.iterators-generators` from the Advanced JS Notion source. Its EN/RU JSON is registered in the JS internals track and contains focused walkthroughs, quizzes, cleanup edge cases and applied practice. This does not change the Week 14–15 audit scope or imply that remaining Notion/HTML sources have passed; see `FULL_SOURCE_CONTENT_AUDIT.md`. Legacy learner routes remain until the full audit supports JSON cutover, after which Supabase progress can be implemented.
+
+## Broader source-depth note — 2026-10-26
+
+The cross-course pass now also includes a bilingual `js.collections-weakmaps` supplement based on the separate Map/Set/WeakMap/WeakSet sections of Advanced JS. It teaches key identity, ordering, weak-collection limits and an applied aggregation task, while the source's broader APIs remain only partially covered. Detailed evidence is in `FULL_SOURCE_CONTENT_AUDIT.md`; this remains separate from the Week 14–15 React audit and does not mean the all-source gate has passed.

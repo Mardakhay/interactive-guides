@@ -129,3 +129,7 @@ The structured Git/CI lesson now teaches the release trigger distinction between
 ## 2026-10-26 content checkpoint
 
 The JSON curriculum now registers `js.iterators-generators` in English and Russian under `supplement-js-internals`. Its source-linked depth evidence is recorded in `FULL_SOURCE_CONTENT_AUDIT.md`: the Advanced JS Notion page's generator/lazy-iteration topic is covered with three walkthroughs, two feedback quizzes, a practical exercise, edge cases and cleanup behavior. The repository is at 38 bilingual lesson pairs (26 core + 12 supplementary). Legacy HTML files remain preserved as source material and learner-facing HTML routes have **not** been removed; the all-source parity gate is still open. Supabase remains deferred until JSON cutover.
+
+## 2026-10-26 incremental source checkpoint
+
+A deeper fetch of the Advanced JS Notion page confirmed distinct Map/Set/WeakMap/WeakSet sections. The structured course now has a bilingual registered supplement `js.collections-weakmaps` (15 aligned blocks: three worked traces, two explained checks, one coding exercise), but this only partially covers the source's complete API examples. Evidence and remaining subtopics are in `FULL_SOURCE_CONTENT_AUDIT.md`. Repository inventory: 39 EN/RU pairs (26 core + 13 supplements). Legacy HTML is still preserved and learner routes remain active until the all-source gate passes; Supabase is not started.

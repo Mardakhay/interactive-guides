@@ -299,3 +299,7 @@ Content evidence now includes the CI-to-release simulator concepts from legacy G
 ## Current sequencing checkpoint — 2026-10-26
 
 Content work added a bilingual, registered `js.iterators-generators` supplement from the Advanced JS Notion topic (38 pairs total: 26 core, 12 supplements). Continue source-by-source depth review; do not mark the content milestone complete until every accessible Notion/HTML source row has evidence and remaining gaps are closed. Next dependency order remains: finish content/depth and tests → move learner catalog/routes fully onto structured JSON while preserving legacy files as source evidence → verify cutover → implement Supabase-authenticated, RLS-protected learner progress. Supabase has not begun.
+
+## Sequencing checkpoint — 2026-10-26
+
+The Advanced JS audit found another specific gap, so `js.collections-weakmaps` was added as a bilingual registered supplement. Its map/set/weak-map source row remains explicitly partial; continue closing the rest of the 94 KB page's topic gaps and other HTML/Notion rows. Inventory is 39 bilingual pairs (26 core, 13 supplementary). Do not cut over learner routes or start Supabase until source depth and JSON-first cutover gates are verified.

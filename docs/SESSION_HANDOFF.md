@@ -346,3 +346,7 @@ Latest source-derived addition is the bilingual Git pipeline/release exercise: d
 ## Handoff checkpoint — 2026-10-26
 
 Latest content change: `28b95945fc6218d2cf8d3608f5fa0e6f3aadb354` adds registered EN/RU `js.iterators-generators` (track order 3) from the Advanced JS Notion generators topic. It includes 15 aligned blocks, three walkthroughs, two explanatory checks, and one applied exercise. Inventory is now 38 pairs (26 core, 12 supplementary). Continue full source/depth audit; Notion connector-unverified status must remain explicit. Do not remove preserved HTML source files or learner routes until parity/cutover validation is done. Supabase work is gated behind that cutover. Verify CI on this SHA and keep docs synchronized.
+
+## Latest handoff checkpoint — 2026-10-26
+
+Latest code commit `693d91796a45f8e20668138c5d0fb7983ad97f1c` adds registered EN/RU `js.collections-weakmaps`, a 15-block supplement in `supplement-js-internals`, with 3 walkthroughs, 2 explained checks and an applied coding task. Total inventory is 39 pairs (26 core + 13 supplements). CI for this code SHA is running at https://github.com/Mardakhay/interactive-guides/actions/runs/40281388758. Map/Set/weak-collection source coverage is still partial; full Advanced JS and all-source audit remain open. Keep legacy learner routes/files until coverage and JSON cutover are verified; begin Supabase only after that gate.

@@ -298,3 +298,7 @@ Latest code HEAD: `08521895937d5b30e7bb58662b2d4f632d1f3616`; its GitHub Actions
 ## Current checkpoint — 2026-10-26
 
 Feature content now includes `js.iterators-generators` in both locales and in the supplementary curriculum/repository, bringing the inventory to 38 pairs (26 core + 12 supplementary). Its walkthrough, quizzes, practice and source mapping are documented in `FULL_SOURCE_CONTENT_AUDIT.md`. This is incremental depth progress, not full-source completion. HTML-backed learner routes are still active; legacy HTML is retained; JSON cutover and Supabase persistence are not yet implemented. The last checked feature parent before this lesson was `cd25047fd55900130f38cc0866de68f8fe2cde1f`; the new content commit is `28b95945fc6218d2cf8d3608f5fa0e6f3aadb354`, whose CI must be checked at the exact SHA.
+
+## Latest content state — 2026-10-26
+
+Feature now contains 39 EN/RU lesson pairs (26 core + 13 supplements), including registered `js.iterators-generators` and `js.collections-weakmaps`. The latest lesson has Map/Set/WeakMap worked traces, feedback and applied practice; source parity is partial and recorded by block ID in `FULL_SOURCE_CONTENT_AUDIT.md`. Legacy HTML routes are active, legacy sources retained, JSON cutover incomplete, Supabase not started. CI passed on the prior documentation checkpoint `0ba64a5605016dd551b002c7ebf4084bbc6a8862` (run https://github.com/Mardakhay/interactive-guides/actions/runs/40281014911); current code commit `693d91796a45f8e20668138c5d0fb7983ad97f1c` is awaiting CI.
