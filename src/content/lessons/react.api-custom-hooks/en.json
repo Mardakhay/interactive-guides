@@ -1,7 +1,7 @@
 {
   "id": "react.api-custom-hooks",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "API Layers, Custom Hooks, and Reliable Data Loading",
   "description": "Separate HTTP concerns from UI, encapsulate reusable request state in custom hooks, handle concurrent API calls and failures, and reason about safe retry strategies.",
-  "estimatedMinutes": 95,
+  "estimatedMinutes": 105,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.effects-lists-composition",
@@ -24,7 +24,8 @@
     "Explain why Hooks must be called unconditionally at the top level.",
     "Handle multiple requests without making the UI state ambiguous.",
     "Use cancellation and stale-request protection to avoid outdated results overwriting current state.",
-    "Choose retry behavior based on the failure and operation rather than retrying every error automatically."
+    "Choose retry behavior based on the failure and operation rather than retrying every error automatically.",
+    "Debounce search input while separately cancelling requests or ignoring stale responses."
   ],
   "tags": [
     "react",
@@ -546,6 +547,111 @@
         "Does not require an uninstalled client library.",
         "Documents body/no-body endpoint contracts.",
         "Uses bounded retry only where operation semantics make repetition safe."
+      ]
+    },
+    {
+      "id": "api-debounce-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Debouncing search without confusing it with cancellation"
+    },
+    {
+      "id": "api-debounce-model",
+      "type": "paragraph",
+      "text": "Debouncing waits until input has been quiet for a short interval before publishing a value to the request effect. It can reduce requests while someone types, but does not make any individual response faster and does not cancel a request that has already started. Pair it with AbortController or stale-result protection when newer searches supersede older ones. Avoid debounce for actions where every change must be processed immediately."
+    },
+    {
+      "id": "api-debounce-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "import { useEffect, useState } from 'react';\n\nfunction useDebouncedValue<T>(value: T, delayMs: number): T {\n  const [debouncedValue, setDebouncedValue] = useState(value);\n\n  useEffect(() => {\n    const timeoutId = window.setTimeout(() => setDebouncedValue(value), delayMs);\n    return () => window.clearTimeout(timeoutId);\n  }, [value, delayMs]);\n\n  return debouncedValue;\n}\n\nconst debouncedQuery = useDebouncedValue(query, 300);\n// Use debouncedQuery as the search effect dependency.\n// Clear/abort an already-started request separately.",
+      "steps": [
+        {
+          "title": "Keep the last published value",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "The Hook returns the previous debounced value while the user is still typing; it does not mutate the caller's input."
+        },
+        {
+          "title": "Start a timer for each value or delay",
+          "lineStart": 7,
+          "lineEnd": 8,
+          "explanation": "When the value changes, the effect schedules a later state update. Changing the delay also restarts the timer because it is a real dependency."
+        },
+        {
+          "title": "Clean up pending work",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "Before the next effect or unmount, cleanup clears the pending timeout. This prevents an obsolete timer from publishing an intermediate query."
+        },
+        {
+          "title": "Separate timer cleanup from request cleanup",
+          "lineStart": 14,
+          "lineEnd": 16,
+          "explanation": "Debouncing only delays when a request effect begins. Once a fetch has started, use AbortController or ignore stale results to prevent older responses replacing newer ones."
+        }
+      ]
+    },
+    {
+      "id": "api-debounce-check",
+      "type": "knowledgeCheck",
+      "question": "A debounced search sends one request after the user pauses. What does the debounce timer cleanup guarantee by itself?",
+      "options": [
+        {
+          "text": "It aborts every network request that has already started.",
+          "correct": false,
+          "feedback": "A timeout is not a network request controller; an AbortSignal or stale-result guard handles in-flight requests."
+        },
+        {
+          "text": "It prevents an obsolete pending timer from publishing an intermediate query.",
+          "correct": true,
+          "feedback": "Clearing the pending timeout prevents the delayed state update from running after a newer value arrives."
+        },
+        {
+          "text": "It makes the server response arrive faster.",
+          "correct": false,
+          "feedback": "Debounce can reduce how many requests are made, but it adds waiting time before a request starts."
+        },
+        {
+          "text": "It guarantees that the final query succeeds.",
+          "correct": false,
+          "feedback": "The request can still fail or be superseded; debounce is scheduling, not reliability or error handling."
+        }
+      ],
+      "explanation": "Timer cleanup cancels a scheduled callback. It cannot cancel work that has already started, and debounce trades a short intentional wait for fewer requests."
+    },
+    {
+      "id": "api-debounce-practice",
+      "type": "codingExercise",
+      "title": "Add debounce and race-safe search to a results panel",
+      "language": "typescript",
+      "context": "A search page currently calls the API for every keystroke and sometimes displays an older response after a newer one.",
+      "instructions": [
+        "Implement a typed useDebouncedValue(value, delayMs) Hook and clear each pending timeout in effect cleanup.",
+        "Use the debounced value as the dependency for the search effect; keep the visible input value immediate.",
+        "Pass an AbortSignal to Fetch or ignore stale responses when a newer query starts.",
+        "Render loading, empty-success, error and results states separately.",
+        "Explain why reducing request count does not guarantee the newest response wins."
+      ],
+      "requirements": [
+        "The timer is restarted when either value or delay changes.",
+        "Effect cleanup prevents a pending obsolete timer from firing.",
+        "In-flight requests are cancelled or stale results are ignored independently of debounce.",
+        "The request effect handles HTTP failures and query changes.",
+        "UI distinguishes successful empty results from a failed request."
+      ],
+      "starterCode": "function useDebouncedValue<T>(value: T, delayMs: number): T {\n  // TODO: store the published value\n  // TODO: schedule an update in an effect\n  // TODO: clear the previous timeout in cleanup\n}\n\n// TODO: search when the debounced query changes.\n// TODO: abort or ignore an obsolete in-flight request.",
+      "hints": [
+        "A timer ID is enough to cancel a callback that has not run yet.",
+        "AbortController belongs to the request, not the debounce timer.",
+        "Also guard against stale results if the request implementation cannot be aborted."
+      ],
+      "successCriteria": [
+        "Rapid typing triggers one search after the quiet interval.",
+        "Changing the query resets the pending timer.",
+        "Unmounting clears the pending timeout.",
+        "A late response for an older query cannot replace newer results.",
+        "Loading, empty, error and non-empty states are distinguishable."
       ]
     },
     {

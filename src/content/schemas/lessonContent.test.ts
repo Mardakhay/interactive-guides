@@ -386,11 +386,11 @@ describe('React API and custom hooks lesson translation', () => {
     expect(englishApiHooks.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianApiHooks.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
     expect(russianApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
-    expect(englishApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(4);
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(russianApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(4);
-    expect(englishApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
     expect(russianApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
     expect(englishApiHooks.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
@@ -400,6 +400,31 @@ describe('React API and custom hooks lesson translation', () => {
         'api-client-choice-practice',
       ]),
     );
+    expect(englishApiHooks.blocks.map((block) => block.id)).toEqual(
+      expect.arrayContaining(['api-debounce-heading', 'api-debounce-model', 'api-debounce-walkthrough', 'api-debounce-check', 'api-debounce-practice']),
+    );
+    const debounceWalkthrough = englishApiHooks.blocks.find((block) => block.id === 'api-debounce-walkthrough');
+    expect(debounceWalkthrough?.type).toBe('codeWalkthrough');
+    if (debounceWalkthrough?.type === 'codeWalkthrough') {
+      expect(debounceWalkthrough.code).toContain('clearTimeout');
+      expect(debounceWalkthrough.code).toContain('AbortController');
+      const lineCount = debounceWalkthrough.code.split('\\n').length;
+      expect(debounceWalkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+    }
+    const debounceCheck = englishApiHooks.blocks.find((block) => block.id === 'api-debounce-check');
+    expect(debounceCheck?.type).toBe('knowledgeCheck');
+    if (debounceCheck?.type === 'knowledgeCheck') {
+      expect(debounceCheck.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(debounceCheck.options.every((option) => option.feedback.trim().length > 0)).toBe(true);
+      expect(debounceCheck.explanation.trim().length).toBeGreaterThan(0);
+    }
+    const debouncePractice = englishApiHooks.blocks.find((block) => block.id === 'api-debounce-practice');
+    expect(debouncePractice?.type).toBe('codingExercise');
+    if (debouncePractice?.type === 'codingExercise') {
+      expect(debouncePractice.requirements.length).toBeGreaterThanOrEqual(5);
+      expect(debouncePractice.hints.length).toBeGreaterThanOrEqual(3);
+      expect(debouncePractice.successCriteria.length).toBeGreaterThanOrEqual(5);
+    }
     const clientChoicePractice = englishApiHooks.blocks.find(
       (block) => block.id === 'api-client-choice-practice',
     );

@@ -382,3 +382,8 @@ The complete js-deep-dive.html read found and documented source inaccuracies and
 ## Exact CI checkpoint — 2026-10-26
 
 Feature SHA 6b92bb9a0d70fdd299c0ae72bf864392f5b27d99 passed lint, typecheck, all tests and production build in GitHub Actions run [40286622209](https://github.com/Mardakhay/interactive-guides/actions/runs/40286622209). This includes the TypeScript quiz-count correction and new class-model lesson tests. Source audit remains incomplete: four of 25 HTML files have full reads documented; 21 Notion fetches remain marked unverified and complete source-to-block parity is open. Legacy HTML routes/files remain; JSON cutover and Supabase work have not started.
+
+
+## Continuation update — 2026-10-26 (API hooks source pass)
+
+The complete 3,031-line `react-api-hooks-lesson.html` was read, including its quiz and five practice tasks. `react.api-custom-hooks` v4 adds a bilingual debounce model, a line-checked timer-cleanup walkthrough, feedback-rich check and race-safe search exercise. This closes that identified topic gap, but not full legacy interaction parity, the remaining HTML sources, or Notion verification. Exact-head CI for the resulting feature commit is pending.
