@@ -71,25 +71,26 @@ All 25 files exist in the feature tree and are listed in `docs/LEGACY_CONTENT_IN
 | `sql-learning-page.html` | SQL practice | Query/filter, joins, aggregates/subqueries, schema changes and DML | Interactive SQL query/result renderer | NULL, join cardinality, destructive writes and dialect differences | Run Query, hints, reveal/collapse and quizzes | data.sql-postgresql | Registered EN/RU where applicable; full source parity pending | Target IDs refer to structured text lessons imported by src/content/repository.ts; exact legacy subtopic/example/interaction mapping remains outstanding unless explicitly noted. |
 | `frontend-bootcamp-notes.html` | Cross-course handbook | Six-month survey from web foundations through capstone | Month tabs and reveal-answer prompts | Broad survey can create the appearance of coverage without concept-level explanation | Month navigation and answer reveals | Cross-links to the 26 core curriculum IDs; no single canonical lesson ID | Registered EN/RU where applicable; full source parity pending | Target IDs refer to structured text lessons imported by src/content/repository.ts; exact legacy subtopic/example/interaction mapping remains outstanding unless explicitly noted. |
 
-## Coverage decisions and concrete gaps
+## Current coverage decisions and concrete gaps — 2026-10-26
 
-1. **No structured bilingual curriculum exists at the audited feature head.** The actual app still consumes English legacy HTML. The four structured JSON files do not reach the UI and therefore count as unavailable course coverage.
-2. **React Router examples are version-misaligned.** The app has `react-router-dom@6.26.2`; the ecosystem HTML calls itself v7 and imports from `react-router`. Correct the lesson to the project version or isolate the v7 comparison and show both APIs.
-3. **TypeScript has no dedicated catalog lesson ID.** The broad `intro.dev.html` overview is not a substitute for staged type/narrowing/generics practice.
-4. **The Notion runtime/memory source is deeper than one memory survey.** Execution contexts, lexical environments, TDZ, closure lifetime and GC need distinct worked tasks and feedback.
-5. **No dedicated Bootstrap or Sass lesson exists.** MUI content does not satisfy Bootstrap coverage; CSS reference does not teach Sass modules/mixins.
-6. **Internet/DNS/TCP/TLS and browser rendering have no independent assessed tasks.** Add separate supplementary lessons if these outcomes remain in scope.
-7. **Week 21–24 capstone outcomes are represented only as handbook/architecture prose and one BookClub mini-project.** Add staged deliverables, acceptance criteria, tests, review rubric and deployment evidence.
-8. **Several legacy pages contain practice but not measurable criteria.** A rendered quiz or button is not proof of correctness, an independent attempt or learner mastery.
-9. **English/Russian parity is absent for the 25 core HTML lessons.** Do not mark parity complete based on the four supplemental JSON pairs.
+This section supersedes the earlier snapshot that described the initial HTML-only app.
+
+1. **The bilingual structured curriculum is live in the app.** The feature branch registers 26 core and 11 supplementary IDs in EN/RU (74 JSON translations) through the Zod-validated repository and React text renderer. This proves learner access and schema registration, not source parity or editorial approval.
+2. **React Router version drift was identified and corrected in the legacy ecosystem source.** Continue checking any copied examples against the installed React Router DOM 6.26.2 API; registration alone does not prove every old example is current.
+3. **TypeScript has a dedicated structured core lesson.** Remaining work is to compare all Notion/legacy type, narrowing, generics and compiler-option material against lesson depth, examples and practice.
+4. **Runtime/memory and object-prototype supplements exist.** Their mapping to the deeper JavaScript Notion chapters (execution contexts, lexical environments, TDZ, closure lifetime and GC) is still incomplete and needs block-level evidence.
+5. **Sass/SCSS and Bootstrap/MUI supplementary lessons exist.** Keep Sass language coverage separate from CSS fundamentals and Bootstrap coverage distinct from MUI examples; exact source-to-block parity is pending.
+6. **Network and browser-rendering supplements are registered.** The network lesson now has assessed HTTP/2-over-TCP versus HTTP/3-over-QUIC coverage; DNS, TLS, browser pipeline details and legacy interactive behavior still need source-specific mapping and review.
+7. **The capstone has staged structured lessons.** Requirements, architecture, implementation, review/demo stages are present, but every source outcome still needs mapped deliverables, acceptance evidence and a rubric check.
+8. **Assessment quality is improving but not globally proven.** Recent source-driven lessons include feedback-rich checks and scaffolded exercises; every legacy control, answer, edge case and success criterion still needs review before declaring parity.
+9. **Structured EN/RU lessons are paired; the retained 25 legacy HTML pages are English-only.** Bilingual structured content is not proof that every legacy subtopic, example and interaction has been translated or migrated.
 
 ## Required next work
 
-- Complete the body/code/interaction review for the 23 HTML files that have not received the same full-text review as the React forms and ecosystem pages; verify every quiz answer and runnable example.
-- Correct version-specific examples and unsupported claims in their actual learner-facing lesson.
-- Build or restore the bilingual structured content contract, validation, repository/renderer and curriculum registration before claiming the supplemental JSON is available.
-- Add dedicated TypeScript, Sass, Bootstrap, runtime/memory and staged capstone curriculum outcomes where confirmed by source review.
-- Update `docs/LEGACY_CONTENT_INVENTORY.md`, `docs/CONTENT_AUDIT.md`, `docs/CONTENT_PARITY_REVIEW_WEEK14-15.md`, `docs/CURRICULUM_AND_CONTENT.md`, `docs/ROADMAP.md`, `docs/CURRENT_STATE.md` and `docs/SESSION_HANDOFF.md` with the branch facts above.
+- Continue source-by-source review of all 25 HTML files and all 21 fetched Notion pages; keep connector-unverified Notion fetches clearly marked and do not claim inaccessible content was read.
+- For every source, map concrete subtopics, examples, edge cases, exercises/answers and interactive behaviors to embedded lesson block IDs; record coverage depth and explicit deferrals in the matrix.
+- Deepen only verified gaps in the existing curriculum or supplementary tracks, preserve all EN/RU structure and authored Russian localization, and verify code, quiz logic, metadata and walkthrough ranges.
+- Keep the source inventory and current-state docs synchronized after each validated content milestone. Maintain partial/review status until source-specific evidence and interaction decisions justify promotion.
 
 ## Follow-up verification — 2026-10-23
 
