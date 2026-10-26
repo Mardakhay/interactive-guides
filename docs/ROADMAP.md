@@ -311,3 +311,7 @@ The initial collection-lesson commit failed runtime schema tests because each kn
 ## Content checkpoint — 2026-10-26
 
 A further Advanced JS gap led to the registered bilingual `js.regex-text-processing` supplement. It is evidence-backed but partial; finish mapping individual source examples and remaining HTML/Notion coverage before removing legacy learner routes. Inventory: 40 bilingual pairs. Continue the sequence: content/depth gate → JSON learner-flow cutover → Supabase progress.
+
+## CI status correction — 2026-10-26
+
+Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint, typecheck, all tests, and production build on [CI run 40281922055](https://github.com/Mardakhay/interactive-guides/actions/runs/40281922055). The latest feature content is therefore green on that code SHA; a docs-only commit follows and still needs exact-HEAD CI verification.

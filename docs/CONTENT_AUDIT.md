@@ -112,3 +112,7 @@ The initial collection-lesson commit failed runtime schema tests because each kn
 ## Additional source-derived content — 2026-10-26
 
 Added `js.regex-text-processing` as a bilingual registered supplement. The lesson teaches regex as a specific pattern matcher, distinguishes whole-string checks from substring search, traces stateful `/g` behavior, and practices safe extraction. It corrects the source's simplified email-validation implication and documents ReDoS risk. Coverage is partial against the Notion page's complete practical-example set. Total: 40 bilingual pairs (26 core + 14 supplements); see the source matrix for evidence and remaining subtopics.
+
+## CI status correction — 2026-10-26
+
+Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint, typecheck, all tests, and production build on [CI run 40281922055](https://github.com/Mardakhay/interactive-guides/actions/runs/40281922055). The latest feature content is therefore green on that code SHA; a docs-only commit follows and still needs exact-HEAD CI verification.

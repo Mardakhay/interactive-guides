@@ -141,3 +141,7 @@ The initial collection-lesson commit failed runtime schema tests because each kn
 ## 2026-10-26 regex content checkpoint
 
 `js.regex-text-processing` is now a bilingual registered supplement (order 5) covering regex construction, captures, global state, matchAll, computed replacement, limits of format validation, and ReDoS-aware caution. It includes three walkthroughs, two explained quizzes and an applied task. Source parity is partial because the Advanced JS page also has distinct URL, phone, password, hashtag and whitespace examples. The broader inventory is 40 EN/RU pairs (26 core, 14 supplementary); keep legacy HTML routes while source gaps remain.
+
+## CI status correction — 2026-10-26
+
+Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint, typecheck, all tests, and production build on [CI run 40281922055](https://github.com/Mardakhay/interactive-guides/actions/runs/40281922055). The latest feature content is therefore green on that code SHA; a docs-only commit follows and still needs exact-HEAD CI verification.

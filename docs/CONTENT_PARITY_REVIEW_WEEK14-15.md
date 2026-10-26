@@ -88,3 +88,7 @@ The initial collection-lesson commit failed runtime schema tests because each kn
 ## Broader content progress — 2026-10-26
 
 The broader source pass now also includes a registered bilingual regex supplement with walkthroughs, quizzes and applied practice. It is only partial parity with Advanced JS; see `FULL_SOURCE_CONTENT_AUDIT.md`. This update does not change the Week 14–15 scope and does not close the all-source or JSON-cutover gates.
+
+## CI status correction — 2026-10-26
+
+Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint, typecheck, all tests, and production build on [CI run 40281922055](https://github.com/Mardakhay/interactive-guides/actions/runs/40281922055). The latest feature content is therefore green on that code SHA; a docs-only commit follows and still needs exact-HEAD CI verification.

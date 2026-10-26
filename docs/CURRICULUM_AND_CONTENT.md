@@ -196,3 +196,7 @@ The initial collection-lesson commit failed runtime schema tests because each kn
 ## Curriculum inventory update — 2026-10-26
 
 The `supplement-js-internals` track now includes bilingual `js.regex-text-processing` at order 5. It adds regex matching/capture walkthroughs and applied text extraction without treating regex as universal validation. Notion source parity for the many individual regex examples is still partial. Total registered content is 26 core + 14 supplementary = 40 EN/RU pairs.
+
+## CI status correction — 2026-10-26
+
+Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint, typecheck, all tests, and production build on [CI run 40281922055](https://github.com/Mardakhay/interactive-guides/actions/runs/40281922055). The latest feature content is therefore green on that code SHA; a docs-only commit follows and still needs exact-HEAD CI verification.

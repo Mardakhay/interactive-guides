@@ -358,3 +358,7 @@ The initial collection-lesson commit failed runtime schema tests because each kn
 ## Latest work checkpoint — 2026-10-26
 
 Code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` adds bilingual registered `js.regex-text-processing` at supplementary order 5. Its source-to-block map is in `FULL_SOURCE_CONTENT_AUDIT.md`; regex coverage remains partial. Inventory is 40 pairs (26 core, 14 supplementary). Wait for CI on this exact SHA, fix any failure, and keep legacy routes until all-source parity and JSON cutover are validated; Supabase follows afterward.
+
+## CI status correction — 2026-10-26
+
+Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint, typecheck, all tests, and production build on [CI run 40281922055](https://github.com/Mardakhay/interactive-guides/actions/runs/40281922055). The latest feature content is therefore green on that code SHA; a docs-only commit follows and still needs exact-HEAD CI verification.

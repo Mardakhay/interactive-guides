@@ -310,3 +310,7 @@ The initial collection-lesson commit failed runtime schema tests because each kn
 ## Current content state — 2026-10-26
 
 Inventory: 40 EN/RU pairs (26 core + 14 supplementary), including registered regex supplement `js.regex-text-processing`. The new lesson has three worked traces, two explained checks and an applied task; its Advanced JS source mapping remains partial. Code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` is on the feature branch; CI is pending. Legacy routes remain; JSON cutover and Supabase are not done.
+
+## CI status correction — 2026-10-26
+
+Regex lesson code commit `97b36d74fe2df76b4c7f84c3ef5c428129adcb0f` passed lint, typecheck, all tests, and production build on [CI run 40281922055](https://github.com/Mardakhay/interactive-guides/actions/runs/40281922055). The latest feature content is therefore green on that code SHA; a docs-only commit follows and still needs exact-HEAD CI verification.
