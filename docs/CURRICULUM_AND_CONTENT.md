@@ -154,3 +154,9 @@ Source status remains **partial**: the legacy render-cascade and bundle simulato
 The bilingual `testing.react-testing-library` lesson is version 3 with 34 blocks per locale (3 walkthroughs, 5 knowledge checks, 3 scaffolded exercises). A focused comparison with `test.guide.html` added a typed `vi.fn()` service-boundary walkthrough, resolved-vs-rejected promise cases, and a success/empty/error exercise with observable assertions. The old HTML's Jest-only globals were not copied: repository configuration is Vitest 2.1.9, React Testing Library 16.3.2, user-event 14.6.4, and jsdom. WAI/Testing Library-style behavioral testing remains the goal. CI [run #40272357781](https://github.com/Mardakhay/interactive-guides/actions/runs/40272357781) passed lint, typecheck, tests and production build on exact content SHA `e611754d978da8a36627429f56c49ff73770711e`.
 
 The source remains **partial**: its visual mock tabs, live examples, FAQ accordions, and full legacy quiz feedback are not yet equivalent app interactions. This is a focused comparison, not a line-by-line HTML audit; the wider source audit remains open.
+
+## Continuation checkpoint — 2026-10-26
+
+Supplementary content quality review identified three short/underdeveloped candidates and added bilingual depth blocks to architecture boundaries, Sass/SCSS and object prototypes. Their updated lessons now include explanations, concrete walkthroughs, edge cases, feedback-bearing checks and applied exercises. The remaining supplements and the complete 26-lesson core still require semantic review against the source matrix; structural parity alone is not a completion criterion.
+
+Source IDs and registrations remain unchanged. Do not remove existing JSON lessons or legacy HTML files during this content pass. The app cutover and Supabase work are deliberately sequenced after the content gate.

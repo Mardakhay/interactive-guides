@@ -312,3 +312,8 @@ The source remains **partial**: its visual mock tabs, live examples, FAQ accordi
 - Content is still in migration/review. The 21 fetched Notion pages are marked unverified; 25 HTML sources are inventoried, but full prose/code/exercise/reveal parity is incomplete. Keep legacy delivery until the full source-to-block and bilingual depth gate passes; then disable legacy HTML for learners while retaining sources for audit evidence.
 - Next work order: complete source-by-source review and deepen missing EN/RU structured material in-app; validate every learner route uses that content and then cut over from legacy HTML; stabilize local data migration/export/recovery; implement Supabase auth/sync, schema and RLS for progress and related saved data.
 - Do not claim the course, source audit, Supabase or device-level PWA release acceptance is complete.
+
+
+## Continuation checkpoint — 2026-10-26
+
+The Week 14/15 parity work remains useful but does not imply the whole course is complete. Source discovery has expanded to 21 Notion pages and 25 legacy lesson HTML files. Three new structured bilingual depth passes in the current continuation target architecture boundaries, Sass/SCSS and object prototypes; their evidence is recorded in `FULL_SOURCE_CONTENT_AUDIT.md`. Full source-section coverage outside those focused areas remains pending, so the app still has its legacy HTML-backed learner flow and Supabase remains sequenced afterward.

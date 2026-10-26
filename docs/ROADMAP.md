@@ -265,3 +265,8 @@ Keep these gates in order; later architecture work must not be treated as a subs
 ### PWA identity milestone (2026-10-26)
 
 The dark-indigo generated artwork was rejected by the user and is superseded. Use only the user-supplied blue-and-white SVG, byte-for-byte, for both favicon and scalable PWA icon. PNG sizes 180 (Apple touch), 192 and 512 are generated directly from that same SVG with 4× supersampling and RGBA antialiasing; they are not alternate designs. Manifest/theme color is #0284c7; contract tests verify exact SVG equality, PNG dimensions, wiring and service-worker cache v5. Correction commit 2cedeeae948b0a35e6a983c428cb72b17140895c passed GitHub Actions [run #387](https://github.com/Mardakhay/interactive-guides/actions/runs/40276045811). Direct SVG-to-PNG rasterization commit de3706c32abefbdd24550133f8db91d241724387 passed Actions [run #389](https://github.com/Mardakhay/interactive-guides/actions/runs/40276645065); the generated RGBA PNGs use 4× supersampling. Device install/offline acceptance remains open.
+
+
+## Continuation checkpoint — 2026-10-26
+
+Status update against the required sequence: source inventory and accessible retrieval are established (21 Notion pages, 25 lesson HTML files), but full lesson-by-lesson parity is not yet verified. Three bilingual supplements were deepened on the current feature branch (architecture boundaries, Sass/SCSS, object prototypes). The HTML-backed learner catalog remains active; structured JSON is registered but has not replaced all legacy navigation. Supabase is not started. Continue content validation before route cutover, then implement persistence.
