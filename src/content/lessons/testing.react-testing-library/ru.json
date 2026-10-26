@@ -230,7 +230,7 @@
         "Асинхронные результаты ожидаются через Testing Library, а не фиксированные задержки.",
         "Тесты не обращаются к живому API и могут выполняться в любом порядке."
       ],
-      "starterCode": "import { expect, it, vi } from \"vitest\";\nimport { render, screen } from \"@testing-library/react\";\nimport type { Post } from \"./types\";\n\nit(\"renders the success response\", async () => {\n  const loadPosts = vi.fn<() => Promise<Post[]>>();\n  // TODO: set a response, render <PostsPage loadPosts={loadPosts} />,\n  // await a visible result, and assert the service call.\n});\n\nit(\"renders empty and error states\", async () => {\n  // TODO: create isolated mocks for [] and a rejected Promise.\n});",
+      "starterCode": "import { expect, it, vi } from \"vitest\";\nimport { render, screen } from \"@testing-library/react\";\nimport type { Post } from \"./types\";\n\nit(\"renders the success response\", async () => {\n  const loadPosts = vi.fn<() => Promise<Post[]>>();\n  // TODO: настрой ответ, отрендери <PostsPage loadPosts={loadPosts} />,\n  // дождись видимого результата и проверь вызов сервиса.\n});\n\nit(\"renders empty and error states\", async () => {\n  // TODO: создай отдельные mocks для [] и отклонённого Promise.\n});",
       "hints": [
         "Пустой `vi.fn()` возвращает undefined, пока ты не настроишь возвращаемое значение или Promise.",
         "Для успешного пустого ответа используй `mockResolvedValue([])`, для отказа — `mockRejectedValue(new Error(...))`.",
