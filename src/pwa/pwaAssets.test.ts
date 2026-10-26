@@ -33,6 +33,8 @@ const canonicalIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 3
 function expectPngSize(path: string, expected: number) {
   const bytes = readFileSync(publicPath(path));
   expect([...bytes.subarray(0, 8)]).toEqual(pngSignature);
+  expect(bytes[24]).toBe(8);
+  expect(bytes[25]).toBe(6); // RGBA preserves clean, antialiased SVG edges.
   expect([bytes.readUInt32BE(16), bytes.readUInt32BE(20)]).toEqual([expected, expected]);
 }
 
