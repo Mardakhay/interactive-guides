@@ -271,8 +271,28 @@ describe('React API and custom hooks lesson translation', () => {
     expect(englishApiHooks.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianApiHooks.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
-    expect(russianApiHooks.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(russianApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(4);
+    expect(russianApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(4);
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(russianApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(englishApiHooks.blocks.map((block) => block.id)).toEqual(
+      expect.arrayContaining([
+        'api-fetch-axios-body',
+        'api-fetch-walkthrough',
+        'api-fetch-status-check',
+        'api-client-choice-practice',
+      ]),
+    );
+    const clientChoicePractice = englishApiHooks.blocks.find(
+      (block) => block.id === 'api-client-choice-practice',
+    );
+    expect(clientChoicePractice).toMatchObject({
+      type: 'codingExercise',
+      requirements: expect.arrayContaining([expect.stringContaining('HTTP non-success')]),
+      successCriteria: expect.arrayContaining([expect.stringContaining('network error')]),
+    });
   });
 });
 
