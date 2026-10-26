@@ -126,11 +126,27 @@ describe('CSS fundamentals lesson translation', () => {
     expect(englishCss.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianCss.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishCss.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(englishCss.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
     expect(russianCss.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     expect(englishCss.blocks.map((block) => block.id)).toContain('css-color-values');
     expect(englishCss.blocks.map((block) => block.id)).toContain('css-accessibility');
     expect(englishCss.blocks.map((block) => block.id)).toContain('css-accessible-theme-card');
+    expect(englishCss.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
+    expect(englishCss.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
+    expect(englishCss.blocks.map((block) => block.id)).toEqual(
+      expect.arrayContaining([
+        'css-margin-collapse-body',
+        'css-margin-collapse-walkthrough',
+        'css-margin-collapse-check',
+        'css-margin-collapse-practice',
+      ]),
+    );
+    const marginPractice = englishCss.blocks.find((block) => block.id === 'css-margin-collapse-practice');
+    expect(marginPractice).toMatchObject({
+      type: 'codingExercise',
+      requirements: expect.arrayContaining([expect.stringContaining('DevTools')]),
+      successCriteria: expect.arrayContaining([expect.stringContaining('normal-flow')]),
+    });
   });
 });
 

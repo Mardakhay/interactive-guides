@@ -1,16 +1,16 @@
 {
   "id": "css.fundamentals",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-1-week-3",
   "week": 3,
   "order": 3,
   "title": "CSS Fundamentals: Selectors, Cascade, Visual Rules, and Accessibility",
   "description": "Learn how selectors and the cascade choose styles, how the box model affects layout, and how to create readable visual rules with colors, typography, custom properties, transitions and accessible browser fallbacks.",
-  "estimatedMinutes": 110,
+  "estimatedMinutes": 145,
   "difficulty": "beginner",
   "prerequisites": [
     "html.document-structure",
@@ -184,6 +184,104 @@
           "lineEnd": 19,
           "explanation": "The class sets a reusable default title color. The ID-plus-class selector overrides it for the featured card under the cascade conditions explained above."
         }
+      ]
+    },
+    {
+      "id": "css-margin-collapse-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Vertical margins can collapse instead of adding"
+    },
+    {
+      "id": "css-margin-collapse-body",
+      "type": "paragraph",
+      "text": "In normal block flow, adjoining vertical margins can combine into one collapsed margin rather than sum. For two positive adjacent margins, the larger one wins; a positive and negative margin combine by addition, while two negative margins collapse to the more negative value. Horizontal margins do not collapse. Margins between flex/grid items do not collapse either, which is one reason `gap` is often easier for layout spacing. Parent/first-or-last-child collapsing has additional conditions: padding, border, inline content or a new block formatting context can change the result. Diagnose the formatting context before adjusting numbers."
+    },
+    {
+      "id": "css-margin-collapse-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": ".article {\n  margin-block-end: 1rem;\n}\n\n.article + .article {\n  margin-block-start: 1.5rem;\n}\n\n.card-stack {\n  display: grid;\n  gap: 1.5rem;\n}",
+      "steps": [
+        {
+          "title": "Read the two sibling margins",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "In normal block flow, the bottom margin of the first article and the top margin of the adjacent article meet. Both are positive, so they collapse to the larger 1.5rem value instead of adding to 2.5rem."
+        },
+        {
+          "title": "Change the layout model and observe the difference",
+          "lineStart": 9,
+          "lineEnd": 12,
+          "explanation": "When these elements are grid items, their margins do not collapse through the grid layout. The explicit gap controls the inter-item spacing; do not add both gap and margins unless the combined spacing is intentional."
+        }
+      ]
+    },
+    {
+      "id": "css-margin-collapse-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Two adjacent block siblings in normal flow have vertical margins of 16px and 24px, both positive. What is the resulting collapsed gap?",
+      "options": [
+        {
+          "id": "a",
+          "text": "40px because the margins always add",
+          "correct": false,
+          "feedback": "Adjoining positive vertical margins in normal block flow collapse instead of being summed."
+        },
+        {
+          "id": "b",
+          "text": "24px, the larger positive margin",
+          "correct": true,
+          "feedback": "For two positive adjoining vertical margins, the collapsed value is the larger margin."
+        },
+        {
+          "id": "c",
+          "text": "8px, their difference",
+          "correct": false,
+          "feedback": "Collapsing positive margins does not subtract the smaller value."
+        },
+        {
+          "id": "d",
+          "text": "0px because margins are ignored in block flow",
+          "correct": false,
+          "feedback": "Margins still affect layout; only the way adjoining vertical margins combine is special."
+        }
+      ],
+      "explanation": "Confirm whether the elements are adjoining block boxes in normal flow; flex/grid items and other formatting contexts behave differently."
+    },
+    {
+      "id": "css-margin-collapse-practice",
+      "type": "codingExercise",
+      "title": "Debug a spacing mismatch caused by margin collapsing",
+      "language": "css",
+      "context": "A content page has inconsistent vertical spacing between sections and a first child that appears to escape its parent. Diagnose the layout before changing values.",
+      "instructions": [
+        "Create two normal-flow sibling blocks with different positive vertical margins and calculate the collapsed gap.",
+        "Switch the parent to a grid or flex layout with gap and compare the result without child margins.",
+        "Create a parent/first-child case and test how adding padding, border, or display: flow-root changes the relationship.",
+        "Use browser DevTools computed styles and box-model overlays to identify which element owns each margin.",
+        "Choose one consistent spacing strategy and explain its tradeoff rather than stacking compensating margins."
+      ],
+      "requirements": [
+        "Explains why adjacent positive vertical margins use the larger value instead of their sum.",
+        "Distinguishes normal block flow from flex/grid item behavior.",
+        "Demonstrates one parent/child containment change and explains why it changes collapsing.",
+        "Uses DevTools evidence to locate the margin and formatting context.",
+        "Final spacing is intentional and does not combine gap and margins accidentally."
+      ],
+      "starterCode": "/* TODO: reproduce two adjoining vertical margins. */\n.first {\n  margin-block-end: 1rem;\n}\n.second {\n  margin-block-start: 1.5rem;\n}\n\n/* TODO: compare with a parent layout using display: grid and gap. */\n/* TODO: diagnose parent/first-child margin behavior. */",
+      "hints": [
+        "Inspect whether the boxes are adjacent block siblings in normal flow.",
+        "Two positive adjoining vertical margins collapse to the larger one.",
+        "Grid/flex item margins do not collapse; gap is often a clearer container-level rule.",
+        "DevTools shows computed margins, but also inspect the parent formatting context and box-model overlay."
+      ],
+      "successCriteria": [
+        "Predicts the normal-flow collapsed gap correctly.",
+        "Shows a grid/flex gap solution and explains what changed.",
+        "Demonstrates a parent/child containment fix such as padding, border, or flow-root.",
+        "Records DevTools observations and avoids arbitrary compensating values."
       ]
     },
     {
