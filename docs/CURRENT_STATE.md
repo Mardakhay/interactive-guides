@@ -114,9 +114,9 @@ Three catalog lessons now have authored content embedded directly in src/data/le
 
 ## Current feature-branch correction — 2026-10-23
 
-The historical “current state” paragraphs above describe an earlier app snapshot and are superseded for `feat/learning-platform-foundation`. The feature branch now contains a structured, bilingual, Zod-validated content repository and learner-facing React renderer. The curriculum index is `/:locale/structured-lessons`; lesson routes are `/:locale/structured-lessons/:lessonId`. The app registers 26 core lesson IDs in both locales (52 files) and 11 supplementary IDs in both locales (22 files); supplements are displayed separately from the 24-week core. These lessons are embedded content, not separate HTML pages.
+The historical “current state” paragraphs above describe an earlier app snapshot and are superseded for `feat/learning-platform-foundation`. The feature branch now contains a structured, bilingual, Zod-validated content repository and learner-facing React renderer. The curriculum index is `/:locale/structured-lessons`; lesson routes are `/:locale/structured-lessons/:lessonId`. The app registers 26 core lesson IDs and 18 supplementary lesson IDs in both locales (44 EN/RU pairs, 88 lesson JSON files); supplements are displayed separately from the 24-week core. These lessons are embedded content, not separate HTML pages.
 
-The 25 legacy HTML files remain migration sources. The full audit has not yet established paragraph/code/exercise parity for all sources; only two HTML pages received full reads in the focused pass, with one additional API-focused review. The Notion connector returned 21 pages and marked each fetch unverified. See `FULL_SOURCE_CONTENT_AUDIT.md` for explicit scope and limitations. CI run on the current routing/test changes must be checked before recording a pass; do not use earlier SHAs as final evidence.
+The 25 legacy HTML files remain migration sources. Their content/code/interaction review checklist is documented as complete for 25/25, but exact source-to-block/claim parity and identical learner-facing UI interaction parity remain incomplete; keep legacy routes/files until the cutover gate is validated. The Notion ledger records 21 fetched pages, each with `verification.state=unverified`. See `FULL_SOURCE_CONTENT_AUDIT.md` for source evidence and limitations. CI status is recorded against the exact latest HEAD, not an earlier SHA.
 
 
 **Latest local verification (2026-10-23):** exact code SHA `132636c4007141454a903e815d6f0418a3c511b0` in a fresh feature-branch clone passed ESLint, TypeScript, all 92 Vitest tests (19 files), production build and `git diff --check`. Vite warns that the content repository bundle is ~1.4 MB minified. No Actions run was returned for the latest API-created commit, so CI status is unconfirmed rather than green.
@@ -136,7 +136,7 @@ This section supersedes earlier status paragraphs that describe only the initial
 - PR #1: open Draft; GitHub reported mergeable/clean after reconciliation.
 - CI: Actions run #39976179595 passed npm ci, ESLint, TypeScript typecheck, Vitest and production build on the exact HEAD. https://github.com/Mardakhay/interactive-guides/actions/runs/39976179595
 - Merge recovery: commit d47d96c integrates the four content-only main commits without moving main. The feature SQL content retains the prior main block IDs and adds substantial bilingual coverage. Commit 9c51012 corrected the unsupported info callout tone in both SQL translations.
-- Content inventory: 26 core and 11 supplementary lesson IDs across 74 EN/RU JSON files; all 25 legacy HTML sources remain. Structured curriculum routes are integrated into the React app.
+- Content inventory: 26 core and 18 supplementary lesson IDs across 88 EN/RU JSON files; all 25 legacy HTML sources remain. Structured curriculum routes are integrated into the React app.
 - Structured JSON validation sweep: all 74 locale JSON files were checked for unsupported callout tones, missing reference blocks and walkthrough ranges past snippet length. The only detected problem was the SQL info tone in both translations; it is now corrected and exact-head CI passes. This is not editorial approval or source parity.
 - PWA status at this historical checkpoint is superseded: the feature branch now has manifest metadata, PNG icons, a versioned service worker, SPA fallback and a learner-controlled update prompt. See the latest continuation checkpoint below for the exact validated SHA and remaining acceptance work.
 - Runner reality check: the current learning runner uses a disposable Web Worker, a hard timeout and capped output. It is not a production security boundary for hostile code.
@@ -549,3 +549,11 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Detailed source-fetch ledger now includes 21 Notion pages: 20 course-related sources plus one separate English interview assessment. Last-edited dates, returned text sizes, target lessons and open parity work are included.
 - All fetched pages remain `verification.state=unverified`; no Notion pages or verification flags were changed. Read/mapped is not formally verified.
 - CI on `e4b2de1d9bd71bb5547d070f5d007503ab0db5c3` failed because `arch-solid-check.prompt` was missing in both locales; commit `4473d094a60c0b85c569390778605b58769eb6d2` fixes the prompt in EN/RU. Check CI against that exact SHA.
+
+
+## Current audit status reconciled — 2026-10-27
+
+- Catalog: 44 EN/RU lesson pairs (26 core + 18 supplementary; 88 locale JSON files).
+- Legacy HTML content/code/interaction review checklist: 25/25 documented. Exact source-to-block/claim parity and identical learner-facing interaction parity remain open; legacy sources/routes are retained.
+- Notion fetch ledger: 21 pages (20 course-related plus one separate English assessment); every fetched page remains `verification.state=unverified`.
+- `frontend.architecture-boundaries` v4 includes SOLID. The prompt-schema failure in `e4b2de1` was corrected in `4473d09`, whose exact-head CI passed [run 40467814647](https://github.com/Mardakhay/interactive-guides/actions/runs/40467814647). Confirm CI on the latest docs HEAD.

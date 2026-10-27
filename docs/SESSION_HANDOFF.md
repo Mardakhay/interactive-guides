@@ -660,3 +660,11 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - The detailed ledger now covers all 21 fetched Notion pages: 20 course-related pages plus one separate English assessment. Added Parts 4–6 and nine supplementary/reference pages (Advanced JS, the full JavaScript guide, How JavaScript Works, Master Prompt, English Assessment, Internet Fundamentals, Sass/SCSS, Bootstrap and SQL), with last-edited dates, returned text sizes, mappings and open parity work.
 - Every fetched page reports `verification.state=unverified`. Master Prompt is tracked as teaching/process guidance, English Assessment is outside the technical frontend curriculum, and the Bootstrap reference explicitly targets v4. Source reads do not constitute formal Notion verification.
 - SOLID content commit `e4b2de1d9bd71bb5547d070f5d007503ab0db5c3` exposed a Zod failure because `arch-solid-check.prompt` was missing; follow-up `4473d094a60c0b85c569390778605b58769eb6d2` fills both locale prompts. CI for the follow-up must be checked on its exact head.
+
+
+## Current inventory/status reconciled — 2026-10-27
+
+- Current tree count: 44 EN/RU lesson pairs (26 core + 18 supplementary, 88 locale lesson JSON files). Older 37/40/42/43-pair counts elsewhere in this handoff are dated history, not current inventory.
+- HTML source content/code/interaction review checklist: 25/25 documented. Exact source-to-block claims and one-for-one app-side UI interaction parity remain partial; legacy sources/routes stay in place.
+- Notion source ledger is one 21-page table: 20 frontend-course pages plus one separate English assessment. All are marked `verification.state=unverified` in Notion metadata; read/mapped is not formal verification.
+- `frontend.architecture-boundaries` v4 explicitly covers SOLID (34 aligned blocks). The prompt-fix code SHA `4473d094a60c0b85c569390778605b58769eb6d2` passed CI run [40467814647](https://github.com/Mardakhay/interactive-guides/actions/runs/40467814647); latest docs HEAD needs separate CI.
