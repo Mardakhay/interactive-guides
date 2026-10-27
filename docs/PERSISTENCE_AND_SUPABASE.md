@@ -1,6 +1,6 @@
 # Persistence and Supabase Plan
 
-**Status:** versioned local learner stores and JSON backup/restore v1 are implemented on `feat/learning-platform-foundation`. Supabase auth/sync remains proposed and is not a package dependency.
+**Status:** versioned local learner stores and JSON backup/restore v1 are implemented on `feat/learning-platform-foundation`. A draft local/cloud reconciliation policy is in [`LOCAL_CLOUD_RECONCILIATION.md`](./LOCAL_CLOUD_RECONCILIATION.md); Supabase auth/sync remains proposed and is not a package dependency.
 
 ## Product decisions
 
@@ -137,3 +137,10 @@ These tests catch app/UI logic regressions but do not assert native browser down
 ## Backup selection race protection — 2026-10-27
 
 File-import UI now identifies the active read request and ignores stale completions from earlier file selections. A read that resolves or rejects after the user selects a newer file cannot overwrite the new preview or announce a stale error; pending reads are invalidated on unmount. `BackupPage.test.tsx` includes a delayed-first-file regression test.
+
+
+## Local/cloud reconciliation proposal — 2026-10-27
+
+`docs/LOCAL_CLOUD_RECONCILIATION.md` is the draft for future local-to-Supabase reconciliation. It records current data-shape gaps, especially missing per-record progress revisions, deletion tombstones, stable attempt IDs and concurrent-edit semantics. It proposes optimistic concurrency, idempotent mutations, tombstones, conflict preservation for notes/code drafts and required RLS tests.
+
+This proposal is not approved as product behavior and does not enable cloud sync. Settle note opt-in, classic quiz-history semantics, concurrent bookmark behavior, tombstone retention and conflict UX before schema migrations or auth/sync code.

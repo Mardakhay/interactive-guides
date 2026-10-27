@@ -816,3 +816,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - `BackupPage` now uses a monotonically increasing read token so results from a slower earlier `File.text()` cannot overwrite the preview/status for a newer file selection. The active request is invalidated on unmount as well.
 - Added an interaction regression test where an invalid first file resolves after a valid second file; the valid preview/status must remain and no stale error may appear. Exact-head CI for the prior UI interaction tests passed run [40492610625](https://github.com/Mardakhay/interactive-guides/actions/runs/40492610625); this race-fix commit needs its own CI.
+
+
+## Reconciliation proposal and backup hardening — 2026-10-27
+
+- Added `docs/LOCAL_CLOUD_RECONCILIATION.md` (proposal only) with per-entity conflict rules, schema gaps, idempotency/revision/tombstone requirements and acceptance tests. Supabase remains unimplemented; review note-sync privacy, classic quiz history, bookmark conflict behavior and conflict UX before migration.
+- `/backup` UI tests cover import preview, confirmation gating, successful restore to active stores and versioned storage, malformed JSON, 10 MiB guard, dated download filename/status and object-URL cleanup. `BackupPage` ignores stale async file reads after a newer selection and invalidates pending reads on unmount.
+- Exact-head CI for backup UI and file-read race hardening: [40492871900](https://github.com/Mardakhay/interactive-guides/actions/runs/40492871900) succeeded on `36f9ee744b20ee14c9d3ac0b2b63e05eba1d0b76` (lint, typecheck, tests, build).

@@ -700,3 +700,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Added a request-generation guard around asynchronous backup file reads. A previous slow or rejected file read cannot overwrite the state of a newer selection, and a pending read is invalidated on page unmount. Regression coverage resolves an invalid first file after a valid second file.
 - This improves application-level behavior only. Native file picker/download and mobile/browser storage acceptance still require real-browser/device smoke checks.
+
+
+## Local/cloud reconciliation proposal — 2026-10-27
+
+- Added `docs/LOCAL_CLOUD_RECONCILIATION.md` as a proposal only. It inventories current data shapes and per-record revision, tombstone, attempt-ID and concurrency gaps before cloud sync.
+- It proposes optimistic concurrency, idempotent mutations, explicit deletions, preserving concurrent note/code changes, and direct RLS testing. Phase 6 remains not started; product decisions and implementation/acceptance tests remain open.
+- Exact-head CI for backup UI and file-read race hardening: [40492871900](https://github.com/Mardakhay/interactive-guides/actions/runs/40492871900) succeeded on `36f9ee744b20ee14c9d3ac0b2b63e05eba1d0b76` (lint, typecheck, tests, build).

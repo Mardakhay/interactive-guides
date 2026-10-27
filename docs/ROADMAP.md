@@ -70,7 +70,7 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - [ ] Create SQL migrations and RLS policies.
 - [ ] Add environment validation and a no-cloud mode.
 - [ ] Implement auth screens, session handling, repository adapters and sync states.
-- [ ] Design and test local/cloud conflict reconciliation.
+- [ ] Review and implement the draft policy in [`LOCAL_CLOUD_RECONCILIATION.md`](./LOCAL_CLOUD_RECONCILIATION.md), then test local/cloud conflict reconciliation.
 - [ ] Verify cross-user isolation and account cleanup.
 - Acceptance: two users cannot read or modify each other's data; local learning works without Supabase settings.
 - Suggested commits:
@@ -453,3 +453,7 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Added `src/features/persistence/storePersistence.test.ts`: store actions persist versioned envelopes for progress, bookmarks, notes and classic quiz results; tests exercise progress status transitions, duplicate bookmark avoidance/toggle removal, blank-note deletion, and quiz save/clear.
 - The shared versioned-storage tests separately cover legacy migration, failed migration writes and retry, malformed/future version records, and storage read/write errors. Backup tests cover current/legacy input and restore envelopes.
 - Exact-head CI passed on code commit `0fd1b488a2a6ea1b1c7c54eda5194b3bb3f4393c` in run [40490205475](https://github.com/Mardakhay/interactive-guides/actions/runs/40490205475). Browser/device file picker and download smoke checks remain open.
+
+## Local/cloud reconciliation design checkpoint — 2026-10-27
+
+A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`. It inventories current local record shapes and missing metadata (per-record revisions, mutation IDs and deletion tombstones), proposes conservative entity-by-entity conflict rules, and lists unit/RLS/integration acceptance scenarios. This is design work only: Phase 6 remains unchecked, Supabase/auth/sync remain unimplemented, and product decisions such as note opt-in and classic quiz history still require review.
