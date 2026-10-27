@@ -891,3 +891,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Added `src/content/lessonManifest.ts` with lightweight EN/RU metadata and changed complete lesson bodies to `import.meta.glob` dynamic imports. Curriculum cards and adjacent links use manifest metadata; opening a lesson loads and validates that body asynchronously. The page has localized loading/failure states and existing same-origin static-asset caching stores loaded chunks after first successful fetch.
 - Exact-head CI passed on `55644ccf50f14bcaab796bd6058b25297b621d16` ([run 40504186937](https://github.com/Mardakhay/interactive-guides/actions/runs/40504186937)); tests 181/181. New repository chunk is 54.26 kB / 17.15 kB gzip; entry is 280.15 kB / 92.89 kB gzip. Build budget enforcement is being added separately.
 - Offline acceptance still requires W-03: visit a lesson online, revisit that same lesson offline, and test a never-visited lesson offline. The latter is not precached and should fail through a visible loading error, not be described as available offline.
+
+
+## Dependency audit diagnostics — 2026-10-27
+
+- `npm ci` has consistently reported 12 audit findings (6 moderate, 4 high, 2 critical), but CI previously surfaced only the aggregate count. Added a non-blocking CI diagnostic that calls `npm audit --json` and prints each affected package, severity, advisory links, affected range and the npm-reported fix target.
+- This is visibility, not remediation: no dependency upgrades or lockfile changes were made in this step, no audit finding is considered resolved, and no `--force` update is planned without a compatibility review. Check the exact-head CI output, then patch the smallest compatible dependency set and rerun all tests/build.

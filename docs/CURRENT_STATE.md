@@ -18,7 +18,7 @@ This audit combines remote source inspection with exact-head GitHub Actions evid
 - **Local-first persistence:** progress/bookmarks/notes/classic quiz results use schema-v1 local-store envelopes; structured learning uses a v2 envelope with legacy migration. Backup/restore validates and previews replacement, includes learner data, excludes UI preferences and has automated coverage for failure/rollback paths. Browser/device acceptance of native storage restrictions/file picker/download remains unrun.
 - **PWA/deployment:** manifest/icons, scoped static-asset cache, SPA fallback and user-approved service-worker update flow are implemented. Actual install/offline/deep-link/update tests on supported desktop/mobile browsers are not recorded.
 - **Cloud/release:** Supabase auth/sync is not implemented and remains gated behind local/cloud conflict decisions and RLS/account-isolation work. Notion factual verification, browser/device acceptance and dependency audit triage remain open.
-- **CI/dependency warning:** a recent `npm ci` reported 12 dependency audit findings (6 moderate, 4 high, 2 critical). These did not fail CI; dependency upgrades need a separate compatibility review.
+- **CI/dependency warning:** a recent `npm ci` reported 12 dependency audit findings (6 moderate, 4 high, 2 critical). A non-blocking CI report now prints vulnerable package names, severity, advisory titles/URLs, affected ranges and reported fix targets; findings remain unresolved until each upgrade is reviewed and verified. Do not use `npm audit fix --force` blindly.
 
 This snapshot is authoritative; earlier checkpoint sections below are chronological history and should not override it.
 

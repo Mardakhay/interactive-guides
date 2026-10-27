@@ -16,6 +16,12 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Report npm audit advisories (non-blocking while triaging)
+        if: success()
+        continue-on-error: true
+        run: |
+          npm audit --json > "$RUNNER_TEMP/npm-audit.json" || true
+          node scripts/summarize-npm-audit.mjs "$RUNNER_TEMP/npm-audit.json"
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test

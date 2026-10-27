@@ -495,3 +495,11 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Measure production output: repository chunk fell from 2,363.77 kB / 784.88 kB gzip to 54.26 kB / 17.15 kB gzip (about 97.8% lower gzip size). Entry chunk is 280.15 kB / 92.89 kB gzip.
 - [ ] Add a CI-enforced bundle budget so future builds fail if entry/repository chunks regress, then verify the new guard in exact-head CI.
 - [ ] Execute W-03 on real supported browsers/devices: verify revisiting an online-loaded lesson offline and the visible failure for a never-visited lesson. Lazy chunks are runtime-cached after first fetch, not precached.
+
+
+## Dependency audit triage — 2026-10-27
+
+- [x] Expose detailed `npm audit` findings in CI without making the existing known vulnerabilities silently disappear or breaking the current delivery pipeline before triage.
+- [ ] Read each finding and dependency path from the latest CI audit output; distinguish direct packages, transitive packages, patched semver ranges and major-version changes.
+- [ ] Apply the smallest compatible updates without `npm audit fix --force`, update `package-lock.json`, and rerun lint/typecheck/tests/build.
+- [ ] Reassess whether any residual critical/high finding needs a documented exception or separate migration.
