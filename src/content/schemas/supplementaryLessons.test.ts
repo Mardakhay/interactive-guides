@@ -75,7 +75,9 @@ describe('supplementary source-derived lessons', () => {
     for (const lesson of [englishCapabilities, russianCapabilities]) expect(lessonTranslationSchema.safeParse(lesson).success, lesson.locale).toBe(true);
     expect(englishCapabilities.blocks.map(({ id, type }) => [id, type])).toEqual(russianCapabilities.blocks.map(({ id, type }) => [id, type]));
     const walks = englishCapabilities.blocks.filter((block) => block.type === 'codeWalkthrough');
-    expect(walks.length).toBeGreaterThanOrEqual(4);
+    expect(englishCapabilities.version).toBe(2);
+    expect(englishCapabilities.blocks).toHaveLength(20);
+    expect(walks).toHaveLength(5);
     for (const walk of walks) if (walk.type === 'codeWalkthrough') {
       const lineCount = walk.code.split('\n').length;
       expect(walk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
@@ -84,6 +86,25 @@ describe('supplementary source-derived lessons', () => {
     expect(geo?.type === 'codeWalkthrough' && geo.code).toContain('clearWatch');
     const visibility = englishCapabilities.blocks.find((block) => block.id === 'visibility-example');
     expect(visibility?.type === 'codeWalkthrough' && visibility.code).toContain('removeEventListener("visibilitychange", onVisibilityChange)');
+    expect(visibility?.type === 'codeWalkthrough' && visibility.code).toContain('addEventListener("visibilitychange", onVisibilityChange)');
+    expect(visibility?.type === 'codeWalkthrough' && visibility.code).not.toContain('addEventListener("visibilitychange", () =>');
+    for (const lesson of [englishCapabilities, russianCapabilities]) {
+      const notification = lesson.blocks.find((block) => block.id === 'notification-permission-walkthrough');
+      expect(notification?.type).toBe('codeWalkthrough');
+      if (notification?.type !== 'codeWalkthrough') return;
+      const count = notification.code.split('\n').length;
+      expect(notification.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= count)).toBe(true);
+      expect(notification.code).toContain('Notification.requestPermission()');
+      expect(notification.code).toContain('window.isSecureContext');
+      expect(notification.code).toContain('registration.showNotification');
+      expect(notification.code).toContain('removeEventListener');
+      const refs = lesson.blocks.find((block) => block.id === 'capabilities-references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') {
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/API/Notification/requestPermission_static')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API')).toBe(true);
+      }
+    }
     const exercise = englishCapabilities.blocks.find((block) => block.id === 'capabilities-practice');
     expect(exercise?.type).toBe('codingExercise');
     if (exercise?.type !== 'codingExercise') return;

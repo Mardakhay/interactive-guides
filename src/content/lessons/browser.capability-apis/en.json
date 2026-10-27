@@ -1,7 +1,7 @@
 {
   "id": "browser.capability-apis",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 2,
   "title": "Browser Capability APIs",
   "description": "Permissions, device capabilities, clipboard, notifications, observation, and page visibility with progressive enhancement and cleanup.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 90,
   "difficulty": "intermediate",
   "prerequisites": [
     "js.dom-events",
@@ -21,7 +21,8 @@
     "Request sensitive capabilities only in response to a clear user action and explain denial/failure states.",
     "Use geolocation and clipboard APIs with feature checks, asynchronous error handling, and cleanup.",
     "Treat notifications and battery data as optional capabilities with user consent and compatibility limits.",
-    "Use ResizeObserver and Page Visibility without creating feedback loops or unnecessary background work."
+    "Use ResizeObserver and Page Visibility without creating feedback loops or unnecessary background work.",
+    "Request notification permission after user intent and handle desktop/mobile display paths with an in-page fallback."
   ],
   "tags": [
     "browser APIs",
@@ -30,7 +31,9 @@
     "clipboard",
     "notifications",
     "observers",
-    "progressive enhancement"
+    "progressive enhancement",
+    "notification-permissions",
+    "capability-fallbacks"
   ],
   "blocks": [
     {
@@ -173,6 +176,49 @@
       "text": "Reading clipboard contents is more privacy-sensitive than writing a value the user asked to copy. Browser requirements differ; request reads only for an explicit paste-related action and handle denial. Avoid legacy execCommand-based examples except when deliberately documenting compatibility fallback."
     },
     {
+      "id": "notification-flow-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Request and show notifications with a safe fallback"
+    },
+    {
+      "id": "notification-flow-model",
+      "type": "paragraph",
+      "text": "Ask for permission only after an explicit user action and only in a secure context. Permission may be `granted`, `denied`, or `default`; denial or unsupported APIs must leave an in-page status path usable. On most mobile browsers, `new Notification()` throws; use an available `ServiceWorkerRegistration.showNotification()` for persistent notifications, and catch display failures rather than claiming success. This is a capability example, not a push subscription or background delivery implementation."
+    },
+    {
+      "id": "notification-permission-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const notificationButton = document.querySelector(\"#enable-notifications\");\nconst notificationStatus = document.querySelector(\"#notification-status\");\n\nasync function requestSystemNotification() {\n  if (!(\"Notification\" in window) || !window.isSecureContext) {\n    notificationStatus.textContent = \"System notifications are unavailable; use in-page updates.\";\n    return;\n  }\n\n  let permission = Notification.permission;\n  if (permission === \"default\") {\n    try {\n      permission = await Notification.requestPermission();\n    } catch {\n      notificationStatus.textContent = \"Permission request failed; updates remain available in this page.\";\n      return;\n    }\n  }\n\n  if (permission !== \"granted\") {\n    notificationStatus.textContent = permission === \"denied\"\n      ? \"Notifications are blocked; check browser settings if you want them.\"\n      : \"No notification permission; updates remain available in this page.\";\n    return;\n  }\n\n  try {\n    const registration = await navigator.serviceWorker?.getRegistration();\n    if (registration) {\n      await registration.showNotification(\"Build completed\", {\n        body: \"Your lesson build is ready.\",\n        tag: \"build-status\",\n      });\n      notificationStatus.textContent = \"System notification shown.\";\n      return;\n    }\n\n    // Page notifications work on desktop; most mobile browsers require a Service Worker.\n    const notification = new Notification(\"Build completed\", { body: \"Your lesson build is ready.\" });\n    notification.addEventListener(\"click\", () => {\n      window.focus();\n      notification.close();\n    });\n    notificationStatus.textContent = \"System notification shown.\";\n  } catch {\n    notificationStatus.textContent = \"System notification unavailable here; check updates in this page.\";\n  }\n}\n\nif (notificationButton && notificationStatus) {\n  // Call permission only from this explicit user action.\n  notificationButton.addEventListener(\"click\", requestSystemNotification);\n}\n\nfunction disposeNotificationFeature() {\n  notificationButton?.removeEventListener(\"click\", requestSystemNotification);\n}",
+      "steps": [
+        {
+          "title": "Detect availability before using the API",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "Both the button and status area are optional page elements. Check API support and secure context before touching `Notification`; if unavailable, explain the in-page alternative."
+        },
+        {
+          "title": "Request permission only after a click",
+          "lineStart": 10,
+          "lineEnd": 23,
+          "explanation": "Request permission only when the user activates the button. Preserve granted/denied/default distinctions and handle a rejected permission promise; do not report that a notification was shown yet."
+        },
+        {
+          "title": "Prefer the service-worker path when registered",
+          "lineStart": 25,
+          "lineEnd": 46,
+          "explanation": "A registration can show persistent notifications and is the required route for most mobile browsers. The constructor is only a fallback when no registration is available; display can still fail, so handle the error and keep the in-page status."
+        },
+        {
+          "title": "Attach and remove a stable click handler",
+          "lineStart": 48,
+          "lineEnd": 55,
+          "explanation": "The explicit button click is the permission user gesture. `disposeNotificationFeature()` removes the exact function reference so a disposed feature does not retain the handler."
+        }
+      ]
+    },
+    {
       "id": "notification-check",
       "type": "knowledgeCheck",
       "questionType": "single-choice",
@@ -247,25 +293,25 @@
       "id": "visibility-example",
       "type": "codeWalkthrough",
       "language": "javascript",
-      "code": "function syncAnimation(video) {\n  if (document.hidden) video.pause();\n  else video.play().catch(() => controls.classList.add(\"needs-play\")); // show a manual play control\n}\n\ndocument.addEventListener(\"visibilitychange\", () => syncAnimation(video));\nsyncAnimation(video); // also handle the initial state\n\nfunction dispose() {\n  document.removeEventListener(\"visibilitychange\", onVisibilityChange);\n}\nfunction onVisibilityChange() { syncAnimation(video); }",
+      "code": "const video = document.querySelector(\"#preview-video\");\nconst controls = document.querySelector(\"#media-controls\");\n\nif (video) {\n  function syncAnimation() {\n    if (document.hidden) video.pause();\n    else video.play().catch(() => controls?.classList.add(\"needs-play\"));\n  }\n\n  function onVisibilityChange() { syncAnimation(); }\n  document.addEventListener(\"visibilitychange\", onVisibilityChange);\n  syncAnimation(); // also handle the initial state\n\n  function dispose() {\n    document.removeEventListener(\"visibilitychange\", onVisibilityChange);\n  }\n}",
       "steps": [
         {
-          "title": "Visibility is a resource hint",
-          "lineStart": 1,
-          "lineEnd": 4,
-          "explanation": "Pause expensive or user-invisible activity when the document is hidden. A hidden tab is not necessarily closed, and timers may also be throttled."
+          "title": "Pause work while the page is hidden",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "explanation": "Pause expensive or user-invisible activity when the document is hidden. The play() promise can reject due to autoplay policy, so show a manual-play fallback instead of hiding the failure."
         },
         {
-          "title": "Handle initial state and asynchronous outcomes",
-          "lineStart": 5,
-          "lineEnd": 7,
-          "explanation": "The event only reports changes, so inspect the state on setup too. play() can reject due to autoplay policy; real code should expose an understandable fallback."
+          "title": "Register the same named callback",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "explanation": "The named onVisibilityChange function is registered and later removed by the same reference; the initial call handles current page state before an event fires."
         },
         {
-          "title": "Pair setup and teardown",
-          "lineStart": 8,
-          "lineEnd": 11,
-          "explanation": "Remove the same listener function reference when the feature ends. The example defines the named handler for cleanup; production code should register that same function, not an anonymous function it cannot later remove."
+          "title": "Remove the listener on teardown",
+          "lineStart": 14,
+          "lineEnd": 16,
+          "explanation": "Cleanup removes the exact registered callback. A new anonymous arrow would be a different function and would leave the original listener attached."
         }
       ]
     },
@@ -287,20 +333,23 @@
         "Add a separate location button that explains why location is useful before requesting a one-time position.",
         "Render distinct messages for unsupported, permission denied, timeout/unavailable, success, and clipboard rejection.",
         "Do not request location or notifications on page load; do not send or persist coordinates.",
-        "Add cleanup if you choose watchPosition instead of the required one-time getCurrentPosition."
+        "Add cleanup if you choose watchPosition instead of the required one-time getCurrentPosition.",
+        "Implement optional notifications only from a dedicated user gesture; preserve an in-page update fallback for denied/unsupported APIs and prefer service-worker showNotification on mobile."
       ],
       "requirements": [
         "Check `navigator.clipboard?.writeText` and call it only after the user's copy action.",
         "Use `getCurrentPosition` for a one-time shortcut; request only on the location button click.",
         "Keep all failure states actionable and avoid exposing precise coordinates beyond the UI requirement.",
-        "Keep optional APIs from blocking the rest of the share panel."
+        "Keep optional APIs from blocking the rest of the share panel.",
+        "Notification permission is not requested during setup; denied/unsupported/display-failed paths keep the in-page status usable."
       ],
       "starterCode": "const copyButton = document.querySelector(\"#copy-link\");\nconst locationButton = document.querySelector(\"#use-location\");\nconst status = document.querySelector(\"#status\");\n\n// TODO: copy current URL after the user clicks.\n// TODO: request one location only after explaining the purpose.\n",
       "hints": [
         "The browser may expose the object but permission can still reject the call.",
         "Check GeolocationPositionError codes, but do not assume every device returns a useful fix.",
         "A manual-copy instruction is a real fallback, not a swallowed exception.",
-        "If you switch to watchPosition, store its ID and clear it when the user stops."
+        "If you switch to watchPosition, store its ID and clear it when the user stops.",
+        "The Notification constructor fails on most mobile browsers; use an active ServiceWorkerRegistration when available, but still catch the display promise."
       ],
       "successCriteria": [
         "No prompt is requested during initial page setup.",
@@ -308,7 +357,8 @@
         "Unsupported and rejected clipboard cases have a manual alternative.",
         "Location is requested only from the location button and failures are explained.",
         "No location is uploaded or persisted by the implementation.",
-        "Each action leaves the other capability usable when unavailable."
+        "Each action leaves the other capability usable when unavailable.",
+        "Notification permission is requested only from a user action; desktop/mobile display paths and in-page fallback are handled without false success feedback."
       ]
     },
     {
@@ -343,6 +393,21 @@
         {
           "title": "MDN: Battery Status API",
           "url": "https://developer.mozilla.org/en-US/docs/Web/API/Battery_Status_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Notification requestPermission",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Notification/requestPermission_static",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Notification constructor and mobile limitations",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Notification/Notification",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using the Notifications API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API",
           "kind": "official-docs"
         }
       ]
