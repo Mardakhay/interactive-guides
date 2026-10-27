@@ -31,6 +31,8 @@ describe('structured content repository', () => {
       expect((await getStructuredLesson(id, 'ru'))?.locale).toBe('ru');
       expect(getStructuredLessonMetadata(id, 'en')?.id).toBe(id);
       expect(getStructuredLessonMetadata(id, 'ru')?.id).toBe(id);
+      expect(getStructuredLessonMetadata(id, 'en')?.title).toBe((await getStructuredLesson(id, 'en'))?.title);
+      expect(getStructuredLessonMetadata(id, 'ru')?.title).toBe((await getStructuredLesson(id, 'ru'))?.title);
     }
   });
 

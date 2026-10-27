@@ -2,6 +2,7 @@ import englishCurriculum from './curriculum/bootcamp-core.en.json';
 import russianCurriculum from './curriculum/bootcamp-core.ru.json';
 import { bootcampCurriculumSchema } from './schemas/curriculum';
 import { lessonTranslationSchema, type LessonTranslation } from './schemas/lessonContent';
+import { STRUCTURED_LESSON_MANIFEST } from './lessonManifest';
 
 export const SUPPORTED_LOCALES = ['en', 'ru'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
@@ -14,32 +15,16 @@ export interface StructuredLessonMetadata {
 
 type LessonFileMetadata = StructuredLessonMetadata & { readonly filePath: string };
 
-// Eagerly import only the two small named JSON fields needed for catalogs/navigation.
-// The full lesson bodies stay behind lazy dynamic imports until a learner opens a lesson.
-const englishLessonIds = import.meta.glob<string>('./lessons/**/en.json', { eager: true, import: 'id' });
-const russianLessonIds = import.meta.glob<string>('./lessons/**/ru.json', { eager: true, import: 'id' });
-const englishLessonTitles = import.meta.glob<string>('./lessons/**/en.json', { eager: true, import: 'title' });
-const russianLessonTitles = import.meta.glob<string>('./lessons/**/ru.json', { eager: true, import: 'title' });
-const englishLessonBodies = import.meta.glob<unknown>('./lessons/**/en.json', { import: 'default' });
-const russianLessonBodies = import.meta.glob<unknown>('./lessons/**/ru.json', { import: 'default' });
-
-function buildLessonFileMetadata(
-  ids: Record<string, string>,
-  titles: Record<string, string>,
-  locale: SupportedLocale,
-): LessonFileMetadata[] {
-  return Object.entries(ids).map(([filePath, id]) => ({
-    id,
+// Only the compact translated manifest is eager. Each complete lesson is a separate lazy chunk.
+const lessonBodies = import.meta.glob<unknown>('./lessons/**/*.json', { import: 'default' });
+const lessonFiles: LessonFileMetadata[] = STRUCTURED_LESSON_MANIFEST.flatMap((entry) =>
+  (['en', 'ru'] as const).map((locale) => ({
+    id: entry.id,
     locale,
-    title: titles[filePath] ?? id,
-    filePath,
-  }));
-}
-
-const lessonFiles: LessonFileMetadata[] = [
-  ...buildLessonFileMetadata(englishLessonIds, englishLessonTitles, 'en'),
-  ...buildLessonFileMetadata(russianLessonIds, russianLessonTitles, 'ru'),
-];
+    title: entry.titles[locale],
+    filePath: `./lessons/${entry.folder}/${locale}.json`,
+  })),
+);
 const lessonFilesByKey = new Map(lessonFiles.map((entry) => [`${entry.locale}:${entry.id}`, entry]));
 
 const curricula = {
@@ -58,8 +43,7 @@ export function getStructuredLessonMetadata(id: string, locale: SupportedLocale)
 export async function getStructuredLesson(id: string, locale: SupportedLocale): Promise<LessonTranslation | undefined> {
   const entry = lessonFilesByKey.get(`${locale}:${id}`);
   if (!entry) return undefined;
-  const loaders = locale === 'en' ? englishLessonBodies : russianLessonBodies;
-  const load = loaders[entry.filePath];
+  const load = lessonBodies[entry.filePath];
   if (!load) return undefined;
   const lesson = lessonTranslationSchema.parse(await load());
   if (lesson.id !== id || lesson.locale !== locale) {
