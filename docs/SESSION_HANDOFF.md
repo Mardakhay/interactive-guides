@@ -711,3 +711,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Latest CI identified the `dom-references` bibliography as the sole failed assertion in the v5 throttle coverage. Added the official MDN `EventTarget.addEventListener` reference to both locales; the test continues to assert exact listener cleanup and the associated documentation link.
 - Verify CI against the new commit SHA before moving on; keep `main` unchanged.
+
+
+## DOM throttle localized-test follow-up — 2026-10-27
+
+- CI after the MDN bibliography fix found one remaining locale-blind assertion: it expected the English phrase `callback reference` in both translations. Changed it to assert the matching EN/RU phrase based on `lesson.locale`; the behavior, cleanup and reference assertions remain.

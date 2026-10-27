@@ -830,3 +830,8 @@ The source's throttling example is interpreted as a leading-edge cadence limit; 
 ## DOM throttle reference regression follow-up — 2026-10-27
 
 CI for `js.dom-events` v5 initially failed only on its new assertion requiring the official `EventTarget.addEventListener` reference. The throttle walkthrough already demonstrates passive listener registration and exact-reference teardown; the EN/RU `dom-references` blocks now link to MDN's `EventTarget.addEventListener` page. The regression test stays in place to protect the implementation/reference connection.
+
+
+## DOM throttle CI follow-up — localized assertion — 2026-10-27
+
+After adding the missing MDN listener reference, exact-head CI advanced to the throttle-check assertion and showed that it compared the English words `callback reference` against the Russian explanation. The content is already localized correctly; the test now selects the expected phrase using the lesson locale. No assertion coverage is removed.

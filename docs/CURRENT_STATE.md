@@ -599,3 +599,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## DOM throttle reference follow-up — 2026-10-27
 
 - Added the MDN `EventTarget.addEventListener` reference to `js.dom-events` v5 EN/RU after exact-head CI exposed that missing reference. Existing throttle walkthrough/test remains the behavioral guard; re-check exact-head CI.
+
+
+## DOM throttle test localization — 2026-10-27
+
+- The CI after adding MDN `addEventListener` documentation exposed a locale-sensitive test expectation, not a content/schema defect. The test now checks `callback reference` in EN and `ссылку на callback` in RU while retaining the same cleanup assertions.

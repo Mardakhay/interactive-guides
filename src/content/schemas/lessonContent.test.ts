@@ -647,7 +647,7 @@ describe('DOM and events lesson translation', () => {
       if (quiz?.type !== 'knowledgeCheck') return;
       expect(quiz.options.filter((option) => option.correct)).toHaveLength(1);
       expect(quiz.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
-      expect(quiz.explanation).toContain('callback reference');
+      expect(quiz.explanation).toContain(lesson.locale === 'en' ? 'callback reference' : 'ссылку на callback');
       const exercise = lesson.blocks.find((block) => block.id === 'dom-advanced-practice');
       expect(exercise?.type).toBe('codingExercise');
       if (exercise?.type === 'codingExercise') {
