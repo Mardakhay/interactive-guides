@@ -739,3 +739,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - `BackupPage.test.tsx` covers restore write failure with successful rollback (old raw keys intact; active Zustand state unchanged) and rollback failure (recovery alert shown, imported data not published into active stores).
 - Exact-head CI passed on `c3208ddac964003dd6c119e9fb41a8b78c601435`: [40497324096](https://github.com/Mardakhay/interactive-guides/actions/runs/40497324096).
 - Manual acceptance remains: actual browser/device tests of localStorage privacy/quota, native file picker/download, and restore failure recovery. `main` remains unchanged.
+
+## Backup export and rollback test checkpoint — 2026-10-27
+
+- Export coverage now inspects the generated JSON payload with `FileReader`, verifies included learner note content, expected data groups, and omission of UI preferences. A corrupt stored-note record prevents Blob creation and yields a visible error.
+- Restore coverage now simulates legacy-key removal failing after writes and verifies raw-key rollback; prior tests also cover successful rollback and failed rollback UI.
+- Exact-head CI passed on `814c4d6f51deefb8f8904a4a3a15321aa537d233`: [40497807964](https://github.com/Mardakhay/interactive-guides/actions/runs/40497807964). `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`.
+- Remaining acceptance is explicitly manual: real browser/device quota/privacy modes, native download/file picker, and recovery behavior with native storage restrictions.

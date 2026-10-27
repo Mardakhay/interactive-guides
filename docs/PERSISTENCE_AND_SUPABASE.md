@@ -173,3 +173,13 @@ Real browser/device permission, privacy-mode and quota validation remain require
 These are deterministic `QuotaExceededError` simulations in jsdom, not native browser quota/privacy validation. Exact-head CI passed on `c3208ddac964003dd6c119e9fb41a8b78c601435` in [run 40497324096](https://github.com/Mardakhay/interactive-guides/actions/runs/40497324096).
 
 Remaining Phase 5 acceptance: record a real-browser/device smoke pass for localStorage denial/quota behavior, native file selection, the downloaded JSON filename and content, re-import, successful replacement, and storage-write/rollback error recovery. Include browser, OS/device, date and results; do not infer this evidence from Vitest/jsdom.
+
+## Backup export payload and legacy-removal rollback coverage — 2026-10-27
+
+`BackupPage.test.tsx` now reads the generated export Blob with `FileReader` and verifies the serialized backup format/version, inclusion of a learner note, the expected five data groups, and exclusion of UI locale/preferences. A separate UI case verifies that malformed stored notes prevent creating a partial export and produce the localized error alert.
+
+`backup.test.ts` also simulates a failure when removing the old structured-learning key after the replacement records have been written. It asserts that all previous raw values are restored and the operation reports a storage-write failure. Combined with page-level write-failure and rollback-failure tests, the restore path now covers failure before replacement, failure during writes, failure during legacy cleanup, rollback success, and rollback failure.
+
+Exact-head CI passed on `814c4d6f51deefb8f8904a4a3a15321aa537d233` in [run 40497807964](https://github.com/Mardakhay/interactive-guides/actions/runs/40497807964). The earlier export-content test run failed because jsdom's Blob implementation did not provide `.text()`; the test now uses `FileReader` without weakening payload assertions.
+
+Still required: real-browser/device validation of storage privacy/quota, the actual download/file picker, and restore behavior under native browser restrictions. Vitest/jsdom coverage does not close those manual acceptance items.

@@ -464,3 +464,11 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Test the `/backup` page when both a restore write and rollback of a previously written key fail, including the urgent recovery message and unchanged in-memory stores.
 - [ ] Perform native-browser/device smoke tests for storage privacy/quota, file picker, downloaded file, and restore recovery.
 - Exact-head CI passed on `c3208ddac964003dd6c119e9fb41a8b78c601435` (run [40497324096](https://github.com/Mardakhay/interactive-guides/actions/runs/40497324096)). Phase 5 remains not release-accepted until manual browser/device results are recorded.
+
+## Backup export and rollback test checkpoint — 2026-10-27
+
+- [x] Verify exported Blob contents: backup format/version, included note data and exact dataset surface, with UI preferences excluded.
+- [x] Verify corrupt stored state refuses to export a partial backup and presents the error alert.
+- [x] Verify failure while removing the legacy structured-learning key rolls back all previous raw keys.
+- Exact-head CI passed on `814c4d6f51deefb8f8904a4a3a15321aa537d233` (run [40497807964](https://github.com/Mardakhay/interactive-guides/actions/runs/40497807964)). The export test reads Blob contents through `FileReader` because the configured jsdom Blob does not implement `.text()`.
+- [ ] Native desktop/mobile browser acceptance is still open for real quota/privacy restrictions, system file picker and the resulting downloaded JSON file. Phase 5 is not release-accepted until those results are recorded.
