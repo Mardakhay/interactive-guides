@@ -711,3 +711,21 @@ Full HTML content/code/interaction review count: 25 of 25. Notion source verific
 Fetched the Notion `HTML` page (last edited 2026-07-29) and `Часть 1. Основы веба и вёрстка (HTML, CSS)` page (last edited 2026-08-12), along with the parent handbook and the JavaScript/Git, tooling/TypeScript/React, DOM, CSS and JavaScript reference pages. Topic headings and text were cross-read against the repository curriculum to identify canonical mapping and overlapping subjects.
 
 Important status distinction: the Notion API returned `verification.state=unverified` for the fetched pages. Fetching content establishes that it was accessible/readable and helps map topics, but does not flip or imply formal Notion verification. No pages were edited and no verification status was changed. Formal source verification and claim-by-claim fact checking remain open; the HTML-content/code review queue itself is 25/25 complete.
+
+## Notion source-fetch ledger — 2026-10-27
+
+The pages below were fetched through the connected Notion source and their topic headings/content were reviewed for curriculum mapping. `Returned text characters` includes the connector's page wrapper. Every fetched page returned `verification.state=unverified`; this ledger records read/mapping progress, not formal Notion verification. The connector response did not expose a populated `truncated` field, so do not infer that Notion's verification marker or a full factual audit has been completed.
+
+| Notion page | Last edited (source metadata) | Returned text chars | Canonical mapping / current review status |
+|---|---:|---:|---|
+| [Course handbook](https://app.notion.com/p/3ba855c6fbb08124942bf8feb97cab39) | 2026-08-29 | 3,213 | Six-part topic map and 26 core IDs; orientation/specification only, not technical evidence. Topic inventory read; lesson-level parity is tracked in the rows below. |
+| [Part 1 — Web / HTML / CSS](https://app.notion.com/p/3ba855c6fbb081449279d5d844bebebb) | 2026-08-12 | 38,144 | HTTP, HTML semantics/forms, CSS fundamentals and responsive layout mapped to the web/HTML/CSS lessons. Factual claim audit and precise section/example parity remain open. |
+| [Part 2 — JavaScript / Git](https://app.notion.com/p/3ba855c6fbb081689521c816fd0fc1cf) | 2026-08-12 | 27,054 | Language mechanics, DOM/events, async/fetch and Git topics mapped to core JS/Git lessons. Claim-level audit and detailed example parity remain open. |
+| [Part 3 — Tooling / TypeScript / React](https://app.notion.com/p/3ba855c6fbb0809f8129c462c3abab56) | 2026-08-12 | 50,007 | npm/Node, Vite, linting, TypeScript and introductory React mapped to existing lesson pairs. Detailed source-to-block audit remains open. |
+| [HTML reference](https://app.notion.com/p/339855c6fbb0816099feeb7ffa3c2938) | 2026-07-29 | 7,562 | Maps to `html.document-structure` v6 and `html.forms-accessibility`; semantic/table/media/iframe topics are covered, with legacy preview/copy UI parity still partial. |
+| [DOM](https://app.notion.com/p/339855c6fbb081f09262fdee7ddb51b5) | 2026-04-05 | 8,213 | Maps to `js.dom-events`; DOM selection/traversal/events/storage are represented, while full interaction/example parity and claim review remain open. |
+| [CSS](https://app.notion.com/p/339855c6fbb081d28720cea322987271) | 2026-09-16 | 32,470 | Maps across CSS fundamentals, Flexbox/Grid/responsive and Sass/SCSS supplement. Exact selector/property example parity remains open. |
+| [Git](https://app.notion.com/p/339855c6fbb08107932add7691c6cf8f) | 2026-09-21 | 18,994 | Maps to `git.fundamentals` and `git.workflow-ci`; collaboration, Markdown, pull requests and rebase workflow are represented but not every source example is parity-reviewed. |
+| [JavaScript](https://app.notion.com/p/339855c6fbb081398da1f00ab2e359cb) | 2026-06-29 | 71,689 | Large language reference distributed across JS core and supplements for runtime/memory, prototypes, async and related topics. Chapter-by-chapter parity is still pending. |
+
+Follow-up status: source-read and high-level mapping are complete for these nine fetched pages. Formal Notion verification remains open because the source metadata is `unverified`; technical fact checking, version-sensitive claim review, and exact example/exercise parity should be tracked separately rather than collapsed into a single “verified” badge.

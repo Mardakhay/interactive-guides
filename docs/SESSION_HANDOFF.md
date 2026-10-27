@@ -625,3 +625,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - CI for HTML source commit `ead62fd60a7b4189a2550c9e7ee27ea91776c23d` failed only because the existing HTML content test still expected six knowledge checks and five code walkthroughs. The v6 lesson now has seven knowledge checks and seven walkthroughs; the next commit updates these stale expectations and renames the suite to reflect its wider coverage.
 - Fetched Notion `HTML`, `Часть 1`, `Часть 2`, `Часть 3`, `DOM`, `CSS`, `GIT`, `JavaScript`, and the parent handbook. The fetched pages show `verification.state=unverified`; source read/mapping is not formal Notion verification. No Notion content or status was modified.
+
+
+## Notion mapping ledger checkpoint — 2026-10-27
+
+- Added a source-fetch ledger for nine Notion pages with their last-edited metadata, returned-content length, canonical destination mapping and remaining review work.
+- All nine fetched pages report `verification.state=unverified`. Page text was read for mapping; this does not mark Notion formal verification complete. Detailed factual checks and example parity stay open.
+- The exact-head CI for `e1b26f6beed58ce444258e0c215f83e873991ed7` passed [run 40466672880](https://github.com/Mardakhay/interactive-guides/actions/runs/40466672880). The current source-review changes remain on `feat/learning-platform-foundation`; `main` is unchanged.

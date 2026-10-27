@@ -330,3 +330,8 @@ The review corrects overgeneralized SEO/snippet/heading claims and documents rem
 ## Notion source cross-read checkpoint — 2026-10-27
 
 Fetched the parent handbook, its first three course parts, and the HTML, DOM, CSS, JavaScript and Git reference pages. The content supports a broad topic mapping to the current curriculum, but the Notion metadata for the fetched pages is `verification.state=unverified`. Treat this as source-read/mapping progress only: no formal verification status was asserted or changed, and claim-by-claim fact checking remains open.
+
+
+## Notion source inventory — 2026-10-27
+
+A structured fetch ledger now records nine Notion pages (course handbook, Parts 1–3, HTML, DOM, CSS, Git and JavaScript), last-edited dates, returned-text sizes and their canonical lesson mappings. This improves source traceability but is not formal verification: every fetched page's Notion metadata still reports `verification.state=unverified`. Claim-level technical audit and exact example/UI parity remain distinct follow-ups.

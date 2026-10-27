@@ -516,3 +516,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - The HTML v6 commit `ead62fd60a7b4189a2550c9e7ee27ea91776c23d` exposed two stale test expectations after adding a knowledge check and two walkthroughs. This follow-up updates the counts to 7/7 and extends the existing suite name/assertions; verify the new exact-head CI before considering it resolved.
 - Notion pages for the parent handbook, three course parts, HTML, DOM, CSS, JavaScript and Git were fetched and mapped. Their metadata reports `verification.state=unverified`; the pages were not edited and no formal verification is claimed.
+
+
+## Notion source inventory checkpoint — 2026-10-27
+
+- Source-fetch ledger added for nine Notion pages, with last-edited metadata, returned-text sizes, mappings and open parity work.
+- All nine Notion pages remain `verification.state=unverified` in connector metadata; read/mapped is not the same as formally verified. Claim-level audit remains open.
+- Exact-head CI passed for `e1b26f6beed58ce444258e0c215f83e873991ed7` (run [40466672880](https://github.com/Mardakhay/interactive-guides/actions/runs/40466672880)). `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`.
