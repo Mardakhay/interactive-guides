@@ -630,3 +630,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - `js.dom-events` v6 adds ResizeObserver and Page Visibility walkthroughs, an API-selection knowledge check, lifecycle rubric updates and official MDN references. EN/RU block parity and walkthrough ranges are tested.
 - Advanced JS Notion source remains `verification.state=unverified`; this is mapped subsection coverage, not a formal verification claim. Continue with focused WebSocket/XHR/worker slices after exact-head CI.
 - `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; changes are confined to `feat/learning-platform-foundation`.
+
+
+## DOM v6 regression-test correction — 2026-10-27
+
+- Updated the remaining version expectation from 5 to 6 in the existing DOM translation test after adding ResizeObserver/Page Visibility blocks. This was the single failure in run [40479202670](https://github.com/Mardakhay/interactive-guides/actions/runs/40479202670); re-run exact-head CI. Main remains unchanged.

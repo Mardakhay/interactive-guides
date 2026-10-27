@@ -699,7 +699,7 @@ describe('DOM and events lesson translation', () => {
   it('teaches traversal, content properties and state-driven rendering in both locales', () => {
     for (const lesson of [englishDom, russianDom]) {
       expect(lessonTranslationSchema.safeParse(lesson).success).toBe(true);
-      expect(lesson.version).toBe(5);
+      expect(lesson.version).toBe(6);
       for (const id of ['dom-traversal-walkthrough', 'dom-content-walkthrough', 'dom-state-render-walkthrough']) {
         const walkthrough = lesson.blocks.find((block) => block.id === id);
         expect(walkthrough?.type).toBe('codeWalkthrough');

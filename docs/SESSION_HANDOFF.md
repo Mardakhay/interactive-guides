@@ -743,3 +743,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - `js.dom-events` expanded from v5 / 62 blocks to v6 / 67 aligned EN/RU blocks. New ResizeObserver walkthrough measures an element and disconnects it at teardown; the Page Visibility walkthrough pauses updates in hidden documents, resumes while visible, prevents duplicate intervals, and cleans up listener and timer.
 - Added `dom-observer-signal-check`, expanded the applied observer exercise with resize feedback-loop and hidden-tab lifecycle criteria, and linked MDN Resize Observer/Page Visibility/visibilitychange documentation.
 - Advanced JS source status remains partial and Notion metadata `verification.state=unverified`. Covered observer slices include IntersectionObserver/MutationObserver plus ResizeObserver/Page Visibility; XHR, WebSockets, Web Workers and Service Workers still require a focused pass.
+
+
+## DOM v6 CI follow-up — 2026-10-27
+
+- Exact-head CI for `5446e03` found one stale version assertion in the pre-existing traversal/content/state-render test (`expected 5`, actual v6); all other 136 tests passed and lint/typecheck were green. The test now expects version 6. Verify CI on this follow-up commit.

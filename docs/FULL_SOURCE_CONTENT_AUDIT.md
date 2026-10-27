@@ -866,3 +866,8 @@ Cross-read the Advanced JS Notion examples for `IntersectionObserver`, `ResizeOb
 The ResizeObserver example reports `contentRect` dimensions into a separate output element and teaches `disconnect()` during teardown. The feedback-loop warning explains that writing the observed target's own size from its callback can cause repeated resize notifications. Page Visibility coverage checks `document.hidden`, starts work only while visible, prevents duplicate intervals, and returns cleanup that removes the exact `visibilitychange` callback and timer.
 
 Official references added: MDN Resize Observer API, Page Visibility API, and `visibilitychange`. The Advanced JS Notion page remains connector-marked `verification.state=unverified`. This focused source slice is mapped, not formally verified; WebSocket, XMLHttpRequest, Web Worker, Service Worker, notification/geolocation/clipboard and other API subsections remain open.
+
+
+## DOM observer exact-head CI correction — 2026-10-27
+
+CI for `js.dom-events` v6 commit `5446e03820f20c43acfa1470361f55e0b498c198` passed lint/typecheck and 136 of 137 tests; the only failure was a stale `version === 5` assertion in the existing traversal/content/state-render test after the lesson was bumped to v6. Updated that expected version to 6. The new observer blocks, EN/RU count assertions and range checks passed; this follow-up needs exact-head CI.
