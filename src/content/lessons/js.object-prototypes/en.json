@@ -1,7 +1,7 @@
 {
   "id": "js.object-prototypes",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 2,
   "title": "JavaScript Object Model: Prototypes, new, Classes, and this",
   "description": "Trace property lookup through the prototype chain, explain constructor/new behavior, and choose the right this binding.",
-  "estimatedMinutes": 95,
+  "estimatedMinutes": 105,
   "difficulty": "advanced",
   "prerequisites": [
     "js.functions-arrays-objects"
@@ -21,7 +21,8 @@
     "Explain the conceptual steps of new and class methods on prototypes.",
     "Predict this and compare call/apply/bind.",
     "Use private fields and inheritance deliberately.",
-    "Explain class constructors, prototype methods, inheritance, static members, private fields, and class-specific rules."
+    "Explain class constructors, prototype methods, inheritance, static members, private fields, and class-specific rules.",
+    "Explain fluent APIs, their return-value contract, and the difference between mutable, array/string, and Promise chaining."
   ],
   "tags": [
     "javascript",
@@ -29,7 +30,9 @@
     "prototypes",
     "classes",
     "this",
-    "inheritance"
+    "inheritance",
+    "method-chaining",
+    "fluent-api"
   ],
   "blocks": [
     {
@@ -306,6 +309,116 @@
         "Provides each profile its own nested settings object.",
         "Includes an assertion proving instances are isolated.",
         "Uses descriptor/prototype inspection to support the diagnosis."
+      ]
+    },
+    {
+      "id": "method-chaining-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Method chaining: define the return contract"
+    },
+    {
+      "id": "method-chaining-contract",
+      "type": "paragraph",
+      "text": "Method chaining is a syntax pattern, not a special JavaScript engine feature: each call's return value becomes the receiver of the next call. A mutable fluent API often returns `this` from each step, then uses a terminal method such as `value()` to return a result. Array methods such as `filter()` and `map()` return new arrays; `reduce()` returns the accumulated value. String methods return new strings because strings are immutable. Promise chaining is a separate async contract: `.then()` returns a Promise, not the same object."
+    },
+    {
+      "id": "method-chaining-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "class PriceBuilder {\n  #price = 0;\n\n  add(amount) {\n    if (!Number.isFinite(amount)) throw new TypeError('amount must be finite');\n    this.#price += amount;\n    return this;\n  }\n\n  multiply(factor) {\n    if (!Number.isFinite(factor) || factor < 0) throw new RangeError('factor must be finite and non-negative');\n    this.#price *= factor;\n    return this;\n  }\n\n  discount(percent) {\n    if (!Number.isFinite(percent) || percent < 0 || percent > 100) throw new RangeError('discount must be 0..100');\n    this.#price *= (100 - percent) / 100;\n    return this;\n  }\n\n  value() {\n    return this.#price;\n  }\n}\n\nconst price = new PriceBuilder().add(100).discount(10).multiply(2).value(); // 180\n\nconst total = [1, 2, 3, 4].filter((n) => n % 2 === 0).map((n) => n * 2).reduce((sum, n) => sum + n, 0); // 12\nconst label = '  Hello WORLD  '.trim().toLowerCase().replace('world', 'JS'); // 'hello js'",
+      "steps": [
+        {
+          "title": "Return the current instance from fluent steps",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "`add`, `multiply`, and `discount` return `this`, so the next call receives the same builder instance. If a step accidentally returns `undefined`, the next property lookup fails."
+        },
+        {
+          "title": "Keep validation at the public boundary",
+          "lineStart": 10,
+          "lineEnd": 19,
+          "explanation": "Validate arguments before mutating state. Fluent syntax does not make a sequence atomic: an error after an earlier step can leave that same instance partially updated, so decide whether a builder needs rollback or immutable operations."
+        },
+        {
+          "title": "Use a terminal method to return a value",
+          "lineStart": 22,
+          "lineEnd": 27,
+          "explanation": "`value()` intentionally returns a number rather than the builder; it is a terminal operation. Do not expect to chain builder methods after a terminal method with a different return type."
+        },
+        {
+          "title": "Distinguish different chaining contracts",
+          "lineStart": 29,
+          "lineEnd": 30,
+          "explanation": "Array and string chaining relies on each built-in method's documented result type. `reduce()` here yields the number 12, while the string chain creates a new string. Promise `.then()` chains eventual values and errors; it belongs to the async lesson."
+        }
+      ]
+    },
+    {
+      "id": "method-chaining-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "In a custom mutable builder, `add()` changes internal state but forgets `return this`. What happens in `builder.add(2).multiply(3)`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The JavaScript engine automatically returns the builder from methods",
+          "correct": false,
+          "feedback": "Ordinary methods return `undefined` when they do not explicitly return a value; chaining is not added by the engine."
+        },
+        {
+          "id": "b",
+          "text": "The first call returns `undefined`, so `.multiply` cannot be read from that result",
+          "correct": true,
+          "feedback": "The next call is made on the previous method's return value. A missing `return this` breaks the fluent API at that point."
+        },
+        {
+          "id": "c",
+          "text": "The `multiply` call is skipped but `add` still returns the instance",
+          "correct": false,
+          "feedback": "An implicit return does not return the receiver; JavaScript does not skip the following member access."
+        },
+        {
+          "id": "d",
+          "text": "This is only a TypeScript compile-time issue",
+          "correct": false,
+          "feedback": "In JavaScript the failure happens at runtime when the next method is accessed on the prior return value."
+        }
+      ],
+      "explanation": "A fluent method must deliberately return the receiver if that is the public API contract. Use a terminal method when the intended result is no longer the builder."
+    },
+    {
+      "id": "method-chaining-practice",
+      "type": "codingExercise",
+      "title": "Implement a validated fluent price builder",
+      "language": "javascript",
+      "context": "A checkout estimate needs to apply additions, multipliers and a discount in a chosen order. The existing sketch mutates a number but one method returns nothing, and invalid inputs can quietly corrupt the estimate.",
+      "instructions": [
+        "Implement `add(amount)`, `multiply(factor)` and `discount(percent)` so each validates its inputs, updates the builder and returns the same instance.",
+        "Add `value()` as a terminal method that returns the numeric price, not the builder.",
+        "Write tests for a valid chain and its expected result, including a zero discount and a 100% discount.",
+        "Reject non-finite amounts, negative multipliers, and percentages outside 0–100 with clear errors.",
+        "Explain why a mutable fluent API is order-dependent and when an immutable transformation might be easier to reason about."
+      ],
+      "requirements": [
+        "All intermediate builder methods return `this` after successful validation and mutation.",
+        "`value()` returns a number and terminates the fluent chain.",
+        "Valid calls produce the expected value in the exact documented order.",
+        "Invalid input is rejected before the failing method mutates the state.",
+        "The write-up describes shared-instance mutation and an immutable alternative."
+      ],
+      "starterCode": "class PriceBuilder {\n  #price = 0;\n\n  add(amount) {\n    // TODO: validate amount, update #price, and return this.\n  }\n\n  multiply(factor) {\n    // TODO: validate factor, update #price, and return this.\n  }\n\n  discount(percent) {\n    // TODO: validate 0..100, update #price, and return this.\n  }\n\n  value() {\n    // TODO: return the computed number.\n  }\n}\n\nconst result = new PriceBuilder().add(100).discount(10).multiply(2).value();\n// Expected: 180",
+      "hints": [
+        "Each intermediate method should return the same instance after the state update.",
+        "Perform all argument validation before changing `#price`; `Number.isFinite` rejects NaN and infinities.",
+        "The terminal `value()` returns a number, so later builder methods should not be chained after it."
+      ],
+      "successCriteria": [
+        "The happy-path chain returns the expected value.",
+        "Zero and 100% discounts are handled correctly.",
+        "Invalid values throw before changing the current step's state.",
+        "Every intermediate method preserves the fluent return contract.",
+        "The explanation distinguishes mutable builder chaining, array transformation chaining, and Promise chaining."
       ]
     },
     {
@@ -709,6 +822,16 @@
         {
           "title": "MDN: Object.freeze",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Classes",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Array.prototype.reduce()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce",
           "kind": "official-docs"
         }
       ]

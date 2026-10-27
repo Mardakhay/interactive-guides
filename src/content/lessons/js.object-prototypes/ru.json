@@ -1,7 +1,7 @@
 {
   "id": "js.object-prototypes",
   "locale": "ru",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 2,
   "title": "Модель объектов JavaScript: прототипы, new, классы и this",
   "description": "Прослеживай поиск свойств по цепочке прототипов, объясняй поведение конструктора/new и выбирай правильную привязку this.",
-  "estimatedMinutes": 95,
+  "estimatedMinutes": 105,
   "difficulty": "advanced",
   "prerequisites": [
     "js.functions-arrays-objects"
@@ -21,7 +21,8 @@
     "Объяснять new и размещение методов классов в прототипах.",
     "Предсказывать this и сравнивать call/apply/bind.",
     "Осознанно использовать private fields и наследование.",
-    "Объяснять конструкторы классов, методы прототипа, наследование, static members, private fields и правила классов."
+    "Объяснять конструкторы классов, методы прототипа, наследование, static members, private fields и правила классов.",
+    "Объяснять fluent API, контракт возвращаемого значения и различия mutable, array/string и Promise chaining."
   ],
   "tags": [
     "javascript",
@@ -29,7 +30,9 @@
     "prototypes",
     "classes",
     "this",
-    "inheritance"
+    "inheritance",
+    "method-chaining",
+    "fluent-api"
   ],
   "blocks": [
     {
@@ -306,6 +309,116 @@
         "У профилей независимые вложенные объекты настроек.",
         "Есть проверка, подтверждающая изоляцию экземпляров.",
         "Диагноз подтверждён проверкой прототипа или дескриптора."
+      ]
+    },
+    {
+      "id": "method-chaining-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Method chaining: определи контракт возвращаемого значения"
+    },
+    {
+      "id": "method-chaining-contract",
+      "type": "paragraph",
+      "text": "Method chaining — это синтаксический паттерн, а не особая функция движка JavaScript: результат каждого вызова становится объектом для следующего вызова. Mutable fluent API обычно возвращает `this` из промежуточных методов, а терминальный метод вроде `value()` возвращает результат. Методы массива `filter()` и `map()` возвращают новые массивы; `reduce()` возвращает накопленное значение. Методы строк возвращают новые строки, потому что строки неизменяемы. Promise chaining — отдельный async-контракт: `.then()` возвращает Promise, а не тот же объект."
+    },
+    {
+      "id": "method-chaining-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "class PriceBuilder {\n  #price = 0;\n\n  add(amount) {\n    if (!Number.isFinite(amount)) throw new TypeError('amount must be finite');\n    this.#price += amount;\n    return this;\n  }\n\n  multiply(factor) {\n    if (!Number.isFinite(factor) || factor < 0) throw new RangeError('factor must be finite and non-negative');\n    this.#price *= factor;\n    return this;\n  }\n\n  discount(percent) {\n    if (!Number.isFinite(percent) || percent < 0 || percent > 100) throw new RangeError('discount must be 0..100');\n    this.#price *= (100 - percent) / 100;\n    return this;\n  }\n\n  value() {\n    return this.#price;\n  }\n}\n\nconst price = new PriceBuilder().add(100).discount(10).multiply(2).value(); // 180\n\nconst total = [1, 2, 3, 4].filter((n) => n % 2 === 0).map((n) => n * 2).reduce((sum, n) => sum + n, 0); // 12\nconst label = '  Hello WORLD  '.trim().toLowerCase().replace('world', 'JS'); // 'hello js'",
+      "steps": [
+        {
+          "title": "Возвращай текущий экземпляр из промежуточных методов",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "`add`, `multiply` и `discount` возвращают `this`, поэтому следующий вызов получает тот же экземпляр builder. Если забыть `return this`, следующий поиск метода сломается на `undefined`."
+        },
+        {
+          "title": "Проверяй входные данные на границе API",
+          "lineStart": 10,
+          "lineEnd": 19,
+          "explanation": "Проверяй аргументы до изменения состояния. Fluent-синтаксис не делает всю цепочку атомарной: ошибка после предыдущего шага может оставить тот же объект частично изменённым. Реши, нужен ли rollback или immutable API."
+        },
+        {
+          "title": "Используй терминальный метод для результата",
+          "lineStart": 22,
+          "lineEnd": 27,
+          "explanation": "`value()` намеренно возвращает число, а не builder: это терминальная операция. После неё нельзя ожидать продолжения цепочки методов builder с другим типом результата."
+        },
+        {
+          "title": "Различай разные контракты цепочек",
+          "lineStart": 29,
+          "lineEnd": 30,
+          "explanation": "Array и string chaining зависят от типа результата каждого встроенного метода. Здесь `reduce()` возвращает число 12, а цепочка строк создаёт новую строку. Promise `.then()` соединяет будущие значения и ошибки и разбирается в async-уроке."
+        }
+      ]
+    },
+    {
+      "id": "method-chaining-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В mutable builder метод `add()` меняет состояние, но забывает `return this`. Что произойдёт в `builder.add(2).multiply(3)`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Движок JavaScript автоматически возвращает builder из методов",
+          "correct": false,
+          "feedback": "Обычный метод без явного return возвращает `undefined`; движок не добавляет автоматическое chaining."
+        },
+        {
+          "id": "b",
+          "text": "Первый вызов возвращает `undefined`, поэтому у результата нельзя прочитать `.multiply`",
+          "correct": true,
+          "feedback": "Следующий вызов выполняется на результате предыдущего метода. Отсутствие `return this` нарушает контракт fluent API."
+        },
+        {
+          "id": "c",
+          "text": "Вызов `multiply` пропускается, но `add` всё равно возвращает экземпляр",
+          "correct": false,
+          "feedback": "Неявный return не возвращает receiver; JavaScript не пропускает обращение к следующему свойству."
+        },
+        {
+          "id": "d",
+          "text": "Это только ошибка компиляции TypeScript",
+          "correct": false,
+          "feedback": "В JavaScript ошибка происходит во время выполнения, когда метод ищется на результате предыдущего вызова."
+        }
+      ],
+      "explanation": "Fluent-метод должен явно возвращать receiver, если таков контракт API. Используй терминальный метод, когда нужен результат другого типа."
+    },
+    {
+      "id": "method-chaining-practice",
+      "type": "codingExercise",
+      "title": "Реализуй проверяемый fluent price builder",
+      "language": "javascript",
+      "context": "Для оценки заказа нужно применять добавления, множители и скидку в заданном порядке. Черновой код меняет число, но один метод ничего не возвращает, а неверные параметры могут испортить оценку.",
+      "instructions": [
+        "Реализуй `add(amount)`, `multiply(factor)` и `discount(percent)`: каждый метод проверяет аргументы, меняет состояние builder и возвращает тот же экземпляр.",
+        "Добавь терминальный `value()`, который возвращает число, а не builder.",
+        "Напиши тесты для корректной цепочки и результата, включая скидку 0% и 100%.",
+        "Отклоняй не конечные суммы, отрицательные множители и проценты вне 0–100 понятными ошибками.",
+        "Объясни, почему mutable fluent API зависит от порядка вызовов и когда immutable-преобразования проще проверять."
+      ],
+      "requirements": [
+        "Все промежуточные методы после успешной проверки и изменения возвращают `this`.",
+        "`value()` возвращает число и завершает цепочку.",
+        "Корректные вызовы дают ожидаемое значение в документированном порядке.",
+        "Неверные параметры отклоняются до мутации состояния внутри текущего шага.",
+        "Объяснение описывает изменение общего экземпляра и immutable-альтернативу."
+      ],
+      "starterCode": "class PriceBuilder {\n  #price = 0;\n\n  add(amount) {\n    // TODO: проверь amount, обнови #price и верни this.\n  }\n\n  multiply(factor) {\n    // TODO: проверь factor, обнови #price и верни this.\n  }\n\n  discount(percent) {\n    // TODO: проверь диапазон 0..100, обнови #price и верни this.\n  }\n\n  value() {\n    // TODO: верни вычисленное число.\n  }\n}\n\nconst result = new PriceBuilder().add(100).discount(10).multiply(2).value();\n// Ожидается: 180",
+      "hints": [
+        "Каждый промежуточный метод должен вернуть тот же экземпляр после обновления состояния.",
+        "Проверяй аргументы до изменения `#price`; `Number.isFinite` отклоняет NaN и бесконечности.",
+        "Терминальный `value()` возвращает число, поэтому после него не нужно вызывать методы builder."
+      ],
+      "successCriteria": [
+        "Корректная цепочка возвращает ожидаемое значение.",
+        "Скидки 0% и 100% обрабатываются корректно.",
+        "Неверные значения вызывают ошибку до изменения состояния этим шагом.",
+        "Каждый промежуточный метод соблюдает fluent return contract.",
+        "Объяснение различает mutable builder, цепочки преобразования массивов и Promise chaining."
       ]
     },
     {
@@ -709,6 +822,16 @@
         {
           "title": "MDN: Object.freeze",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Классы",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Array.prototype.reduce()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce",
           "kind": "official-docs"
         }
       ]
