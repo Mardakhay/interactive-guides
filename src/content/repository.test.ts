@@ -5,6 +5,7 @@ import {
   getCurriculumWeek,
   getStructuredLesson,
   getStructuredLessonIds,
+  getStructuredLessonMetadata,
   getWeekForLesson,
   getSupplementaryTrackForLesson,
   getSupplementaryTrackById,
@@ -22,12 +23,14 @@ function getCurriculumLessonIds(locale: 'en' | 'ru') {
 const expectedIds = getCurriculumLessonIds('en');
 
 describe('structured content repository', () => {
-  it('registers every bilingual lesson exactly once by stable ID', () => {
+  it('registers every bilingual lesson exactly once by stable ID and metadata', async () => {
     expect(getCurriculumLessonIds('ru')).toEqual(expectedIds);
     expect(getStructuredLessonIds().sort()).toEqual(expectedIds);
     for (const id of expectedIds) {
-      expect(getStructuredLesson(id, 'en')?.locale).toBe('en');
-      expect(getStructuredLesson(id, 'ru')?.locale).toBe('ru');
+      expect((await getStructuredLesson(id, 'en'))?.locale).toBe('en');
+      expect((await getStructuredLesson(id, 'ru'))?.locale).toBe('ru');
+      expect(getStructuredLessonMetadata(id, 'en')?.id).toBe(id);
+      expect(getStructuredLessonMetadata(id, 'ru')?.id).toBe(id);
     }
   });
 
@@ -69,8 +72,8 @@ describe('structured content repository', () => {
     }
   });
 
-  it('returns no structured lesson for an unknown ID', () => {
-    expect(getStructuredLesson('unknown.lesson', 'en')).toBeUndefined();
+  it('returns no structured lesson for an unknown ID', async () => {
+    expect(await getStructuredLesson('unknown.lesson', 'en')).toBeUndefined();
     expect(getAdjacentStructuredLessons('unknown.lesson', 'ru')).toEqual({
       previous: undefined,
       next: undefined,
@@ -92,7 +95,7 @@ describe('structured content repository', () => {
     expect(getCurriculumWeek('month-6-week-24', 'ru')?.lessonIds).toContain('capstone.review-demo');
   });
 
-  it('keeps EN/RU block structure aligned for every registered lesson', () => {
+  it('keeps EN/RU block structure aligned for every registered lesson', async () => {
     const englishIds = getBootcampCurriculum('en').months.flatMap((month) =>
       month.weeks.flatMap((week) => week.lessonIds),
     );
@@ -102,8 +105,10 @@ describe('structured content repository', () => {
     expect(russianIds).toEqual(englishIds);
 
     for (const lessonId of expectedIds) {
-      const english = getStructuredLesson(lessonId, 'en');
-      const russian = getStructuredLesson(lessonId, 'ru');
+      const [english, russian] = await Promise.all([
+        getStructuredLesson(lessonId, 'en'),
+        getStructuredLesson(lessonId, 'ru'),
+      ]);
       expect(english).toBeDefined();
       expect(russian).toBeDefined();
       expect(english?.blocks.map(({ id, type }) => ({ id, type }))).toEqual(

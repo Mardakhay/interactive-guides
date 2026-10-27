@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Clock3, Languages, RotateCcw } from 'lucide-react';
 import { getAdjacentStructuredLessons, getBootcampCurriculum, getStructuredLesson, getWeekForLesson, getSupplementaryTrackForLesson, SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
+import type { LessonTranslation } from '@/content/schemas/lessonContent';
 import { StructuredLessonRenderer } from '@/features/structured-lesson/StructuredLessonRenderer';
 import { useProgressStore } from '@/features/progress';
 
@@ -13,7 +14,33 @@ export default function StructuredLessonPage() {
   const { locale: localeParam, lessonId } = useParams<{ locale: string; lessonId: string }>();
   const isLocaleSupported = isSupportedLocale(localeParam);
   const locale: SupportedLocale = isLocaleSupported ? localeParam : 'en';
-  const lesson = lessonId ? getStructuredLesson(lessonId, locale) : undefined;
+  const requestKey = `${localeParam ?? ''}:${lessonId ?? ''}`;
+  const [loadedLesson, setLoadedLesson] = useState<{
+    requestKey: string;
+    lesson?: LessonTranslation;
+    failed?: boolean;
+  } | null>(null);
+  const hasCurrentLessonResult = loadedLesson?.requestKey === requestKey;
+  const lesson = hasCurrentLessonResult ? loadedLesson?.lesson : undefined;
+  const isLoadingLesson = isLocaleSupported && Boolean(lessonId) && !hasCurrentLessonResult;
+  const lessonLoadFailed = hasCurrentLessonResult && loadedLesson?.failed === true;
+
+  useEffect(() => {
+    let active = true;
+    if (!isLocaleSupported || !lessonId) {
+      setLoadedLesson({ requestKey });
+      return () => { active = false; };
+    }
+    void getStructuredLesson(lessonId, locale)
+      .then((nextLesson) => {
+        if (active) setLoadedLesson({ requestKey, lesson: nextLesson });
+      })
+      .catch(() => {
+        if (active) setLoadedLesson({ requestKey, failed: true });
+      });
+    return () => { active = false; };
+  }, [isLocaleSupported, lessonId, locale, requestKey]);
+
   const week = lesson ? getWeekForLesson(lesson.id, locale) : undefined;
   const supplementaryTrack = lesson && !week ? getSupplementaryTrackForLesson(lesson.id, locale) : undefined;
   const curriculum = getBootcampCurriculum(locale);
@@ -81,9 +108,35 @@ export default function StructuredLessonPage() {
         switch: 'Русский',
         notFound: 'Structured lesson not found',
         notFoundDetail: 'This lesson is not available in the new content system yet, or the selected locale is unsupported.',
+        loadingLesson: 'Loading lesson content…',
+        loadFailedTitle: 'Could not load this lesson',
+        loadFailedDetail: 'Check your connection and reload the page to try again.',
         duration: 'min',
         difficulty: 'Beginner',
       };
+
+  if (isLoadingLesson) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+        <p role="status" className="rounded-xl border border-neutral-200 bg-white p-6 text-sm text-neutral-600">{copy.loadingLesson}</p>
+      </main>
+    );
+  }
+
+  if (lessonLoadFailed) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+        <div className="rounded-2xl border border-error-200 bg-white p-6 sm:p-8">
+          <h1 className="text-2xl font-semibold text-neutral-950">{copy.loadFailedTitle}</h1>
+          <p className="mt-3 leading-7 text-neutral-600">{copy.loadFailedDetail}</p>
+          <Link to="/courses" className="mt-6 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-primary-700">
+            <ArrowLeft className="h-4 w-4" />
+            {copy.catalog}
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   if (!isLocaleSupported || !lesson) {
     return (

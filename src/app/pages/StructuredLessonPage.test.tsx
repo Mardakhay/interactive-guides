@@ -25,26 +25,26 @@ afterEach(() => {
 });
 
 describe('StructuredLessonPage', () => {
-  it('sets the document language and links to the next lesson in curriculum order', () => {
+  it('sets the document language and links to the next lesson in curriculum order', async () => {
     renderLesson('/en/structured-lessons/html.document-structure');
     expect(document.documentElement.lang).toBe('en');
-    expect(screen.getByRole('link', { name: /Next lesson HTML Forms and Accessibility Basics/ })).toBeTruthy();
+    expect(await screen.findByRole('link', { name: /Next lesson HTML Forms and Accessibility Basics/ })).toBeTruthy();
   });
 
-  it('records a self-attested completion marker without claiming mastery', () => {
+  it('records a self-attested completion marker without claiming mastery', async () => {
     renderLesson('/en/structured-lessons/html.document-structure');
-    fireEvent.click(screen.getByRole('button', { name: 'Mark lesson complete' }));
-    expect(screen.getByText('Marked complete')).toBeTruthy();
+    fireEvent.click(await screen.findByRole('button', { name: 'Mark lesson complete' }));
+    expect(await screen.findByText('Marked complete')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Mark incomplete' })).toBeTruthy();
     expect(screen.getByText(/does not validate your code or prove mastery/)).toBeTruthy();
   });
 
-  it('exposes previous lesson navigation and changes the document language when switching locale', () => {
+  it('exposes previous lesson navigation and changes the document language when switching locale', async () => {
     renderLesson('/ru/structured-lessons/html.forms-accessibility');
     expect(document.documentElement.lang).toBe('ru');
-    expect(screen.getByRole('link', { name: /Предыдущий урок Структура HTML-документа и семантические области страницы/ })).toBeTruthy();
+    expect(await screen.findByRole('link', { name: /Предыдущий урок Структура HTML-документа и семантические области страницы/ })).toBeTruthy();
     fireEvent.click(screen.getByRole('link', { name: /English/ }));
-    expect(screen.getByRole('heading', { name: 'HTML Forms and Accessibility Basics' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'HTML Forms and Accessibility Basics' })).toBeTruthy();
     expect(document.documentElement.lang).toBe('en');
   });
 });
