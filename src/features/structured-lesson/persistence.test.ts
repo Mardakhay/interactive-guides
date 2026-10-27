@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { clearLastStorageError } from '@/lib/storage';
+import { clearLastStorageError, getLastStorageError } from '@/lib/storage';
 import {
   LEGACY_STRUCTURED_LEARNING_STORAGE_KEY,
   STRUCTURED_LEARNING_STORAGE_KEY,
@@ -67,6 +67,28 @@ describe('structured learning persistence migration', () => {
     expect(storage.getItem(STRUCTURED_LEARNING_STORAGE_KEY)).toBeNull();
   });
 
+  it('preserves legacy data and reports cleanup failure after the current envelope is saved', () => {
+    class FailLegacyRemoveStorage extends MemoryStorage {
+      override removeItem(key: string): void {
+        if (key === LEGACY_STRUCTURED_LEARNING_STORAGE_KEY) {
+          throw new DOMException('Removal denied', 'SecurityError');
+        }
+        super.removeItem(key);
+      }
+    }
+    const storage = new FailLegacyRemoveStorage();
+    const legacyRaw = JSON.stringify({ quizAttempts: {}, codeDrafts: {}, practiceChecklists: {} });
+    storage.setItem(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, legacyRaw);
+
+    const result = readStructuredLearningState(storage);
+    expect(result.source).toBe('migrated-legacy');
+    expect(result.invalid).toBe(false);
+    expect(storage.getItem(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY)).toBe(legacyRaw);
+    const savedCurrent = JSON.parse(storage.getItem(STRUCTURED_LEARNING_STORAGE_KEY) ?? '{}') as { schemaVersion?: number; data?: unknown };
+    expect(savedCurrent.schemaVersion).toBe(2);
+    expect(savedCurrent.data).toEqual(result.state);
+    expect(getLastStorageError()).toEqual({ key: LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, operation: 'remove' });
+  });
   it('saves future changes in the versioned v2 envelope', () => {
     const storage = new MemoryStorage();
     const result = readStructuredLearningState(storage);
