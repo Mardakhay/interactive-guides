@@ -506,7 +506,7 @@ describe('React shared state and Context lesson translation', () => {
       const boundaries = lesson.blocks.find((block) => block.id === 'provider-boundaries');
       expect(boundaries?.type).toBe('list');
       if (boundaries?.type === 'list') {
-        expect(boundaries.items.some((item) => /not.*persist|не.*сохраня/i.test(item))).toBe(true);
+        expect(boundaries.items.some((item) => /not.*persist|neither.*persist|не.*сохраня/i.test(item))).toBe(true);
         expect(boundaries.items.some((item) => /authori|авторизац/i.test(item))).toBe(true);
       }
     }
