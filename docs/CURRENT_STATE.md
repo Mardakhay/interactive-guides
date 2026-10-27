@@ -654,3 +654,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - `js.object-prototypes` v3 adds 5 blocks (42 total) for fluent `return this`, terminal methods, array/string chain return types, and safe builder practice. The separate async lesson continues to own Promise chaining.
 - `supplementaryLessons.test.ts` now checks EN/RU shape, walkthrough ranges, correct answer count, builder exercise rubric and MDN references. Exact-head CI is pending.
 - Notion Advanced JS page remains `verification.state=unverified`; this is a focused slice mapping, not full-page verification.
+
+
+## Capability API lifecycle continuation — 2026-10-27
+
+- `browser.capability-apis` v2 adds Notification permission/show guidance and fixes the Page Visibility listener identity mismatch. Bilingual content covers secure-context/user-gesture rules, mobile persistent notification display through Service Worker when available, and in-page fallback for denied/unsupported/display failure.
+- Regression checks require the same callback for Page Visibility setup/cleanup, validate EN/RU alignment and walkthrough ranges, and assert official MDN references. Advanced JS Notion remains `verification.state=unverified`.
+- The last known-green head before this change was `2f1ac9738d9690d6c9509e784c73368eb5803107`; capability lesson/test changes are in `5a2b52828d3f9e0e13a8f6ffc1c9d34b8e3bf1d7` and need exact-head CI.

@@ -402,3 +402,10 @@ The Advanced JS Notion page remains connector-unverified; this is source-slice m
 `js.object-prototypes` v3 now explicitly covers the method-chaining section with a mutable fluent builder that returns `this`, terminal result extraction, argument validation, and contrasts with array/string return types. `js.async-fetch` remains the canonical home for Promise `.then()` chains. This avoids duplicating the same async content.
 
 The source's jQuery-style DOM wrapper is recorded as an illustration rather than a universal recommendation because production wrappers need missing-selector handling, semantic controls and event-listener lifecycle policy. The connector page remains unverified; full Advanced JS source parity and legacy playground parity remain open.
+
+
+## Capability API permission and teardown review — 2026-10-27
+
+`browser.capability-apis` v2 now teaches Notification permission after user action, secure-context detection, denied/unsupported fallback, service-worker notification display for mobile-compatible flows, and same-reference listener cleanup for Page Visibility. Tests check bilingual structure, walkthrough ranges and corrected event-handler identity.
+
+The Advanced JS Notion source remains marked `verification.state=unverified`. Notification compatibility notes follow current MDN guidance; exact legacy interaction parity and whole-page Notion verification remain open.

@@ -768,3 +768,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Expanded `js.object-prototypes` to v3 / 42 aligned EN/RU blocks with a fluent-method walkthrough, a missing-`return this` check and a validated `PriceBuilder` practice.
 - Content separates mutable return-this chains from array/string method return types and Promise chaining (already mapped in `js.async-fetch`). Added regression tests for structure, range, answer cardinality, exercise rubric and official MDN references.
 - Notion metadata remains `verification.state=unverified`; this section is mapped, but full-page and legacy visual interaction parity remain open.
+
+
+## Capability API permission and teardown checkpoint — 2026-10-27
+
+- Fixed `browser.capability-apis` Page Visibility example so `addEventListener` and `removeEventListener` use the same named callback; added a regression assertion against the previous anonymous-handler bug.
+- Expanded the lesson to v2 / 20 aligned EN/RU blocks with Notification permission/display flow: secure-context and user-click requestPermission, denied/default handling, ServiceWorkerRegistration.showNotification preference for mobile, desktop constructor fallback and in-page failure fallback. Added MDN refs and exercise requirements.
+- Advanced JS Notion source remains `verification.state=unverified`; focused source coverage improved but formal verification and legacy UI parity remain open.
