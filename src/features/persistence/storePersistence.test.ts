@@ -4,6 +4,7 @@ import { clearLastStorageError } from '@/lib/storage';
 import { useBookmarkStore } from '@/features/bookmarks/store';
 import { useNoteStore } from '@/features/notes/store';
 import { useProgressStore } from '@/features/progress/store';
+import type { ProgressState } from '@/features/progress/types';
 import { useQuizResultsStore } from '@/features/quizzes/store';
 import { LOCAL_STORE_FORMAT, LOCAL_STORE_SCHEMA_VERSION } from '@/lib/versionedStorage';
 
@@ -40,10 +41,9 @@ afterEach(() => {
 
 describe('learner stores persist versioned records', () => {
   it('persists progress actions through a schema-v1 envelope', () => {
-    const store = useProgressStore.getState();
-    store.markLessonOpened('html-semantic-structure');
-    store.markLessonCompleted('html-semantic-structure');
-    const record = readEnvelope<typeof store extends never ? never : { lessons: Record<string, { status: string; startedAt: string | null; completedAt: string | null }>; lastOpenedLessonId: string | null; lastOpenedAt: string | null }>(STORAGE_KEYS.PROGRESS);
+    useProgressStore.getState().markLessonOpened('html-semantic-structure');
+    useProgressStore.getState().markLessonCompleted('html-semantic-structure');
+    const record = readEnvelope<ProgressState>(STORAGE_KEYS.PROGRESS);
     expect(record.format).toBe(LOCAL_STORE_FORMAT);
     expect(record.schemaVersion).toBe(LOCAL_STORE_SCHEMA_VERSION);
     expect(record.data.lessons['html-semantic-structure'].status).toBe('completed');
