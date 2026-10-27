@@ -7,6 +7,7 @@ import {
   Bookmark,
   StickyNote,
   Search,
+  Database,
   GraduationCap,
   X,
 } from 'lucide-react';
@@ -29,6 +30,7 @@ const navItems: NavEntry[] = [
   { label: 'bookmarks', path: ROUTE_PATHS.BOOKMARKS, icon: Bookmark },
   { label: 'notes', path: ROUTE_PATHS.NOTES, icon: StickyNote },
   { label: 'search', path: ROUTE_PATHS.SEARCH, icon: Search },
+  { label: 'dataBackup', path: ROUTE_PATHS.BACKUP, icon: Database },
 ];
 
 export function Sidebar() {
