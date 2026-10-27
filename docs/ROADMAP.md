@@ -527,3 +527,9 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - Progress, bookmarks and notes are maps keyed by `lessonId`. A one-to-many topic mapping is insufficient by itself: decide whether to migrate status/bookmarks/notes to one target, split notes, retain legacy IDs or keep the old route. Do not silently clone or discard learner state.
 - A new loader regression test requires every catalog entry to resolve either non-empty embedded content or an existing local HTML fallback. It protects route renderability but is not content-equivalence certification.
 - Before cutover, produce a reviewed crosswalk for all legacy IDs, test preservation/migration for learner-data stores, and explicitly retain the source route for items whose coverage remains partial. Supabase stays behind this gate.
+
+## Candidate crosswalk checkpoint — 2026-10-27
+
+- [x] Produce a reviewable candidate map for all 25 classic catalog IDs in [LEGACY_ROUTE_CUTOVER_MATRIX.md](./LEGACY_ROUTE_CUTOVER_MATRIX.md).
+- [ ] Review every candidate against actual EN/RU target content, exercises/answers and unresolved source interactions.
+- [ ] Specify and test per-store learner-state migration or explicit legacy-record retention before redirect; do not use topic overlap as an identity mapping.

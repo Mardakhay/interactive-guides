@@ -767,3 +767,7 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - `react.forms-validation` is now v3 / 52 aligned EN/RU blocks after a full review of the legacy 13-section forms source, ten-item quiz and five practice tasks. Added a cross-field password confirmation walkthrough, accessible error associations, and a regression check for revalidation when either dependent value changes.
 - Source-specific caveat: legacy custom validation has a malformed password-length comparison; canonical TypeScript is valid and library/controlled-input recommendations are qualified. Exact legacy answer-reveal/accordion UI is not rebuilt.
 - Exact-head CI must pass before considering this update verified. Main remains unchanged; HTML learner-route cutover and Notion claim/example parity remain open.
+
+## Legacy route crosswalk — 2026-10-27
+
+The candidate mapping of all 25 classic catalog IDs to possible structured destinations is documented in [LEGACY_ROUTE_CUTOVER_MATRIX.md](./LEGACY_ROUTE_CUTOVER_MATRIX.md). All entries remain blocked for cutover; this matrix distinguishes candidates from verified content equivalence and learner-state migration. The loader regression test verifies renderability, not semantic parity.

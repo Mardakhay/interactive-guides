@@ -948,3 +948,7 @@ The lockfile-writing migration run was successful, but workflow changes and the 
 - Added a regression test iterating the entire catalog: each entry must resolve to a non-empty in-app body or a `/lessons/*.html` source that exists under `public/`. This guards new catalog entries against silently producing an empty lesson.
 - The 44 structured IDs do not reuse the legacy catalog IDs. Progress, bookmarks and notes are keyed by lesson ID, so route cutover without an explicit crosswalk and tested state-retention policy could orphan learner data. Before cutover, specify one-to-many destinations or keep-legacy dispositions for every legacy ID.
 - The new regression/test-doc commit requires exact-head CI; keep the legacy routes and source files until the content-parity and learner-state migration gates have evidence.
+
+## Legacy-route cutover matrix — 2026-10-27
+
+The new [legacy route cutover matrix](./LEGACY_ROUTE_CUTOVER_MATRIX.md) lists all 25 legacy IDs, HTML sources, provisional structured destinations and known parity gaps. It is intentionally a candidate map, not authorization to redirect any route. Progress/bookmark/note records are keyed by old lesson ID; mapping decisions and store migration tests remain open.

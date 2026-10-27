@@ -432,3 +432,7 @@ The classic learner catalog contains 25 entries keyed by IDs such as `wb-002` an
 Added a regression test to `lessonLoader.test.ts` that iterates every catalog entry and fails if it resolves neither a non-empty embedded body nor an existing `public/lessons/*.html` file. The check is about route/renderability only; it does not certify that a target JSON lesson reproduces the source's examples, solutions, quiz feedback or interactive UI.
 
 Before replacing legacy routes, create a reviewed crosswalk from every old ID to one or more structured IDs or an explicit keep-legacy/defer disposition. Learner progress, bookmarks and notes are keyed by lesson ID, so any transition must define and test how those records remain reachable without incorrectly assigning one legacy result to unrelated lessons. Do not redirect routes or delete HTML merely because content counts/IDs are present.
+
+## Legacy catalog route crosswalk — 2026-10-27
+
+A provisional 25-entry old-to-new route matrix is documented in [LEGACY_ROUTE_CUTOVER_MATRIX.md](./LEGACY_ROUTE_CUTOVER_MATRIX.md). Candidate destinations are not treated as completed parity; all routes remain blocked until each EN/RU target's examples, checks, exercises, answers and interaction decisions are reviewed. Learner-state maps remain keyed by legacy ID and need an explicit tested disposition.
