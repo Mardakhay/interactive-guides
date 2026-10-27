@@ -805,3 +805,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Shared `versionedStorage.test.ts` covers raw JSON migration, a failed migration write preserving the old raw value, retry on a subsequent read, future schema-version rejection, invalid data and storage read/write errors. Backup tests cover raw and versioned record compatibility and restore envelopes for all four classic stores.
 - Exact-head CI passed for code commit `0fd1b488a2a6ea1b1c7c54eda5194b3bb3f4393c` in run [40490205475](https://github.com/Mardakhay/interactive-guides/actions/runs/40490205475). The follow-up docs commit needs exact-head CI.
 - Remaining Phase 5 acceptance: real-browser/device checks for download, file picker, invalid/oversize file, confirmation, successful restore and failure/recovery feedback. Do not mark Phase 5 complete until those checks are recorded.
+
+## Backup UI interaction coverage — 2026-10-27
+
+- Expanded `src/app/pages/BackupPage.test.tsx` beyond render-only checks: valid upload/preview, explicit replacement confirmation, successful restore with active-store and persisted-envelope assertions, malformed JSON, pre-read 10 MiB size rejection, and JSON download filename/announcement/object-URL cleanup.
+- These are automated Vitest/jsdom interaction tests. The roadmap's real-browser/device gate remains open: still verify native file picker, actual browser download behavior, storage-denied/quota behavior, and the UI flow in supported desktop/mobile browsers.

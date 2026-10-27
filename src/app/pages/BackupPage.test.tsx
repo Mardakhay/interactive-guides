@@ -1,14 +1,53 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import BackupPage from './BackupPage';
 import { useLocaleStore } from '@/features/localization/localeStore';
+import { STORAGE_KEYS } from '@/lib/constants';
+import { createLocalBackup, MAX_BACKUP_FILE_BYTES, serializeBackup } from '@/features/backup';
+import { createLocalStoreRecord } from '@/lib/versionedStorage';
+import { useProgressStore } from '@/features/progress/store';
+import { useBookmarkStore } from '@/features/bookmarks/store';
+import { useNoteStore } from '@/features/notes/store';
+import { useQuizResultsStore } from '@/features/quizzes/store';
+import { EMPTY_STRUCTURED_LEARNING_STATE } from '@/features/structured-lesson/schemas';
+import { useStructuredLearningStore } from '@/features/structured-lesson/store';
 
 afterEach(() => {
   cleanup();
   useLocaleStore.setState({ locale: 'en' });
+  useProgressStore.setState({ lessons: {}, lastOpenedLessonId: null, lastOpenedAt: null });
+  useBookmarkStore.setState({ lessons: {} });
+  useNoteStore.setState({ lessons: {} });
+  useQuizResultsStore.setState({ quizzes: {} });
+  useStructuredLearningStore.setState(EMPTY_STRUCTURED_LEARNING_STATE);
   localStorage.clear();
+  vi.restoreAllMocks();
 });
+
+
+function createReadableFile(contents: string, name = 'learning-backup.json'): File {
+  const file = new File([contents], name, { type: 'application/json' });
+  Object.defineProperty(file, 'text', { configurable: true, value: vi.fn().mockResolvedValue(contents) });
+  return file;
+}
+
+function createBackupFileWithCompletedLesson(): File {
+  const timestamp = '2026-10-27T10:00:00.000Z';
+  localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(createLocalStoreRecord({
+    lessons: { 'backup-target': { status: 'completed', startedAt: timestamp, completedAt: timestamp } },
+    lastOpenedLessonId: 'backup-target',
+    lastOpenedAt: timestamp,
+  })));
+  const payload = serializeBackup(createLocalBackup(localStorage, new Date(timestamp)));
+  localStorage.clear();
+  return createReadableFile(payload);
+}
+
+function renderBackupPage() {
+  return render(<MemoryRouter><BackupPage /></MemoryRouter>);
+}
 
 describe('data backup page', () => {
   it('renders export and guarded restore controls in English', () => {
@@ -18,6 +57,7 @@ describe('data backup page', () => {
     expect(screen.getByRole('button', { name: 'Download backup file' })).toBeInTheDocument();
     expect(screen.getByLabelText('Backup JSON file')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Restore backup' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: /I understand that restoring replaces/ })).toBeDisabled();
   });
 
   it('renders the backup workflow in Russian when Russian is preferred', () => {
@@ -27,5 +67,85 @@ describe('data backup page', () => {
     expect(screen.getByRole('button', { name: 'Скачать резервную копию' })).toBeInTheDocument();
     expect(screen.getByLabelText('JSON-файл резервной копии')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Восстановить копию' })).toBeDisabled();
+  });
+  it('validates a selected backup and requires explicit replacement confirmation', async () => {
+    const user = userEvent.setup();
+    renderBackupPage();
+    await user.upload(screen.getByLabelText('Backup JSON file'), createBackupFileWithCompletedLesson());
+    expect(await screen.findByRole('heading', { name: 'Backup contents' })).toBeInTheDocument();
+    expect(await screen.findByRole('status')).toHaveTextContent('The backup is valid. Review its contents');
+    expect(screen.getByText('Selected file: learning-backup.json')).toBeInTheDocument();
+    const restoreButton = screen.getByRole('button', { name: 'Restore backup' });
+    expect(restoreButton).toBeDisabled();
+    const confirmation = screen.getByRole('checkbox', { name: /I understand that restoring replaces/ });
+    expect(confirmation).toBeEnabled();
+    await user.click(confirmation);
+    expect(restoreButton).toBeEnabled();
+  });
+
+  it('restores validated data after confirmation and updates the active stores', async () => {
+    const user = userEvent.setup();
+    renderBackupPage();
+    await user.upload(screen.getByLabelText('Backup JSON file'), createBackupFileWithCompletedLesson());
+    expect(await screen.findByRole('heading', { name: 'Backup contents' })).toBeInTheDocument();
+    await user.click(screen.getByRole('checkbox', { name: /I understand that restoring replaces/ }));
+    await user.click(screen.getByRole('button', { name: 'Restore backup' }));
+    expect(await screen.findByRole('status')).toHaveTextContent('Backup restored. The app now uses the restored learning data.');
+    expect(useProgressStore.getState().lessons['backup-target']?.status).toBe('completed');
+    const storedProgress = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROGRESS) ?? '{}') as { data?: { lessons?: Record<string, { status: string }> }; schemaVersion?: number };
+    expect(storedProgress.schemaVersion).toBe(1);
+    expect(storedProgress.data?.lessons?.['backup-target']?.status).toBe('completed');
+    expect(screen.getByRole('button', { name: 'Restore backup' })).toBeDisabled();
+  });
+
+  it('reports invalid JSON and never enables restore for that file', async () => {
+    const user = userEvent.setup();
+    renderBackupPage();
+    await user.upload(screen.getByLabelText('Backup JSON file'), createReadableFile('{not json', 'broken-backup.json'));
+    expect(await screen.findByRole('alert')).toHaveTextContent('The selected file is not valid JSON.');
+    expect(screen.getByText('Selected file: broken-backup.json')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Backup contents' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Restore backup' })).toBeDisabled();
+  });
+
+  it('rejects files over 10 MiB before reading their contents', async () => {
+    const user = userEvent.setup();
+    renderBackupPage();
+    const oversized = new File([new Uint8Array(MAX_BACKUP_FILE_BYTES + 1)], 'oversized-backup.json', { type: 'application/json' });
+    const textRead = vi.fn().mockResolvedValue('{}');
+    Object.defineProperty(oversized, 'text', { configurable: true, value: textRead });
+    await user.upload(screen.getByLabelText('Backup JSON file'), oversized);
+    expect(await screen.findByRole('alert')).toHaveTextContent('This file is larger than the 10 MB backup limit.');
+    expect(textRead).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Restore backup' })).toBeDisabled();
+  });
+
+  it('prepares a JSON download with a dated filename and announces success', async () => {
+    const user = userEvent.setup();
+    const createDescriptor = Object.getOwnPropertyDescriptor(URL, 'createObjectURL');
+    const revokeDescriptor = Object.getOwnPropertyDescriptor(URL, 'revokeObjectURL');
+    const createObjectURL = vi.fn((_blob: Blob) => 'blob:backup-test');
+    const revokeObjectURL = vi.fn((_url: string) => undefined);
+    let downloadedName = '';
+    Object.defineProperty(URL, 'createObjectURL', { configurable: true, writable: true, value: createObjectURL });
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, writable: true, value: revokeObjectURL });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      downloadedName = this.download;
+    });
+    try {
+      renderBackupPage();
+      await user.click(screen.getByRole('button', { name: 'Download backup file' }));
+      expect(createObjectURL).toHaveBeenCalledOnce();
+      expect(createObjectURL.mock.calls[0]?.[0]).toBeInstanceOf(Blob);
+      expect(click).toHaveBeenCalledOnce();
+      expect(downloadedName).toMatch(/^interactive-guides-backup-\d{4}-\d{2}-\d{2}\.json$/);
+      expect(await screen.findByRole('status')).toHaveTextContent('Backup file prepared for download.');
+      await waitFor(() => expect(revokeObjectURL).toHaveBeenCalledWith('blob:backup-test'));
+    } finally {
+      if (createDescriptor) Object.defineProperty(URL, 'createObjectURL', createDescriptor);
+      else Reflect.deleteProperty(URL, 'createObjectURL');
+      if (revokeDescriptor) Object.defineProperty(URL, 'revokeObjectURL', revokeDescriptor);
+      else Reflect.deleteProperty(URL, 'revokeObjectURL');
+    }
   });
 });

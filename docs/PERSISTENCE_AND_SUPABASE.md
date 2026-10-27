@@ -125,3 +125,10 @@ Never expose the Supabase service-role key to the browser. A Vite `VITE_*` varia
 ## Decision still needed
 
 Whether to sync notes by default, and whether the app should support multiple providers or only one initial sign-in option. Implement after the basic content/local-first foundation.
+
+
+## Backup UI automated interaction tests — 2026-10-27
+
+The page-level tests now cover the primary user interactions in Vitest/jsdom: valid file selection and preview, confirmation gating, restore updates both local versioned storage and the active Zustand stores, malformed JSON, 10 MiB rejection before calling `File.text()`, and the export filename/status plus object-URL cleanup. The initial English/Russian render checks remain.
+
+These tests catch app/UI logic regressions but do not assert native browser download prompts or mobile file-picker UX. Real-browser/device smoke acceptance remains required.

@@ -689,3 +689,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - `src/features/persistence/storePersistence.test.ts` verifies progress open/complete transitions, bookmark add/dedup/toggle, note set/delete-on-blank and quiz save/clear against the schema-v1 persisted envelopes.
 - Exact-head CI passed for code SHA `0fd1b488a2a6ea1b1c7c54eda5194b3bb3f4393c` in run [40490205475](https://github.com/Mardakhay/interactive-guides/actions/runs/40490205475). The browser download/file-picker restore workflow has not yet been verified in a real browser/device.
 - `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains open Draft.
+
+## Backup UI interaction coverage — 2026-10-27
+
+- `BackupPage.test.tsx` now covers valid import preview and disabled-by-default restore, explicit replace confirmation, restore-to-active-store behavior, malformed JSON, rejection of files over 10 MiB before reading, and download filename/status/object-URL cleanup.
+- Automated Vitest/jsdom coverage does not replace actual browser/device smoke checks. Phase 5 browser acceptance stays open until file-picker/download behavior and recovery feedback are checked in supported browsers.
