@@ -122,6 +122,29 @@ describe('local learning data backups', () => {
     expect((caught as BackupError).code).toBe('storage-read-failed');
   });
 
+  it('restores all previous keys if removing the legacy record fails after replacement writes', () => {
+    class FailLegacyRemoveStorage extends MemoryStorage {
+      private shouldFail = true;
+      override removeItem(key: string): void {
+        if (key === LEGACY_STRUCTURED_LEARNING_STORAGE_KEY && this.shouldFail) {
+          this.shouldFail = false;
+          throw new DOMException('Storage denied while removing legacy record', 'SecurityError');
+        }
+        super.removeItem(key);
+      }
+    }
+    const rawBackup = serializeBackup(createLocalBackup(createPopulatedStorage()));
+    const target = new FailLegacyRemoveStorage();
+    const keys = [STORAGE_KEYS.PROGRESS, STORAGE_KEYS.BOOKMARKS, STORAGE_KEYS.NOTES, STORAGE_KEYS.QUIZ_RESULTS, STRUCTURED_LEARNING_STORAGE_KEY, LEGACY_STRUCTURED_LEARNING_STORAGE_KEY];
+    const before = new Map<string, string>(keys.map((key) => [key, `before:${key}`]));
+    for (const [key, value] of before) target.setItem(key, value);
+
+    let caught: unknown;
+    try { restoreLocalBackup(rawBackup, target); } catch (error) { caught = error; }
+    expect(caught).toBeInstanceOf(BackupError);
+    expect((caught as BackupError).code).toBe('storage-write-failed');
+    for (const [key, value] of before) expect(target.getItem(key)).toBe(value);
+  });
   it('reports when restoring the old snapshot also fails', () => {
     class FailCountStorage extends MemoryStorage {
       private failures = new Map<string, number>();
