@@ -904,3 +904,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Bumped direct dependency `zod` from `^4.4.3` to `^4.6.7` and updated the matching lockfile package entry. GitHub-reviewed advisory GHSA-mrhx-c7xc-m3w5 marks versions `<4.6.6` affected and `4.6.6` patched; 4.6.7 is the newer same-major patch release.
 - Source: https://github.com/advisories/GHSA-mrhx-c7xc-m3w5 and https://github.com/colinhacks/zod/releases.
 - Remaining audit findings include Vite/Vitest tooling and React Router 6 routing; they need separate compatibility work rather than blind `npm audit fix --force`.
+
+
+## Exact-head status refresh — 2026-10-27
+
+- Current feature head: `213dd0db21491f4749d60d5668d841aaa3973a8e`; exact-head CI [40506040390](https://github.com/Mardakhay/interactive-guides/actions/runs/40506040390) passed npm ci, audit diagnostic, lint, typecheck, 181 tests, production build and bundle budget.
+- Bundle guard and direct Zod patch are verified. The audit report decreased from 12 to 11 findings; Zod 4.6.7 no longer appears. Current remaining count is 2 critical, 3 high and 6 moderate; Vite/Vitest/Router fixes need planned compatibility migrations.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains open Draft. No local checkout or real-browser/device acceptance is claimed.

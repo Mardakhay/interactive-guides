@@ -493,14 +493,14 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Convert the structured lesson page to async load states and update repository/renderer tests for lazy imports.
 - [x] Verify exact-head CI on `55644ccf50f14bcaab796bd6058b25297b621d16` ([run 40504186937](https://github.com/Mardakhay/interactive-guides/actions/runs/40504186937)); 181/181 tests passed.
 - [x] Measure production output: repository chunk fell from 2,363.77 kB / 784.88 kB gzip to 54.26 kB / 17.15 kB gzip (about 97.8% lower gzip size). Entry chunk is 280.15 kB / 92.89 kB gzip.
-- [ ] Add a CI-enforced bundle budget so future builds fail if entry/repository chunks regress, then verify the new guard in exact-head CI.
+- [x] Add a CI-enforced bundle budget for entry/repository chunks and verify it in exact-head CI (run [40506040390](https://github.com/Mardakhay/interactive-guides/actions/runs/40506040390)); entry 280.15 kB raw / 92.90 kB gzip and repository 54.26 kB / 17.15 kB gzip pass.
 - [ ] Execute W-03 on real supported browsers/devices: verify revisiting an online-loaded lesson offline and the visible failure for a never-visited lesson. Lazy chunks are runtime-cached after first fetch, not precached.
 
 
 ## Dependency audit triage — 2026-10-27
 
 - [x] Expose detailed `npm audit` findings in CI without making the existing known vulnerabilities silently disappear or breaking the current delivery pipeline before triage.
-- [ ] Read each finding and dependency path from the latest CI audit output; distinguish direct packages, transitive packages, patched semver ranges and major-version changes.
+- [x] Read the latest exact-head CI audit output and record direct/transitive status, affected ranges and fix targets in `CURRENT_STATE.md`; dependency remediation remains open.
 - [ ] Apply the smallest compatible updates without `npm audit fix --force`, update `package-lock.json`, and rerun lint/typecheck/tests/build.
 - [ ] Reassess whether any residual critical/high finding needs a documented exception or separate migration.
 
@@ -509,6 +509,13 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 
 - [x] Add a non-blocking CI report of detailed npm audit advisories.
 - [x] Update direct Zod to 4.6.7 within major version 4 to address GHSA-mrhx-c7xc-m3w5 (`<4.6.6` affected; `4.6.6` patched).
-- [ ] Verify the Zod patch on exact-head CI and confirm the finding is gone in the report.
+- [x] Verify Zod 4.6.7 on exact-head CI [run 40506040390](https://github.com/Mardakhay/interactive-guides/actions/runs/40506040390); audit report fell from 12 to 11 findings and no longer lists Zod.
 - [ ] Plan/test the Vite 5 to supported Vite 6.4/7 branch and Vitest 2 to patched Vitest 3.2.6 or 4.x migration, including Node compatibility and plugin/test API changes.
 - [ ] Decide a React Router migration: the current React Router 6 line lacks a patched release for GHSA-wrjc-x8rr-h8h6; the advisory's fix is in v7.18.0+. Validate link/navigate behavior before migrating.
+
+
+## Latest exact-head validation — 2026-10-27
+
+- Feature head `213dd0db21491f4749d60d5668d841aaa3973a8e` passed exact-head CI run [40506040390](https://github.com/Mardakhay/interactive-guides/actions/runs/40506040390): install, audit diagnostic, lint, typecheck, 181 tests, build and bundle budget.
+- The direct Zod patch to 4.6.7 is verified: audit findings decreased from 12 to 11 and Zod is absent from the current findings. Remaining: 2 critical, 3 high, 6 moderate. Vite/Vitest/Router updates are major or compatibility-sensitive; continue with a focused migration branch/step, not `npm audit fix --force`.
+- Bundle budget is implemented and verified. Native browser/device acceptance, Notion factual verification, and the JSON learner-route cutover remain open.
