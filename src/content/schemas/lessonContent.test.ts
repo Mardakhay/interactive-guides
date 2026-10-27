@@ -1070,3 +1070,45 @@ describe('utility types from the integrated intro.dev source', () => {
   });
 
 });
+
+describe('UI design system accessible fields and React refs', () => {
+  it('documents accessible input relationships and version-aware refs', () => {
+    expect(lessonTranslationSchema.safeParse(englishDesignSystem).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianDesignSystem).success).toBe(true);
+    expect(englishDesignSystem.version).toBe(3);
+    expect(englishDesignSystem.blocks).toHaveLength(32);
+    expect(englishDesignSystem.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianDesignSystem.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    for (const lesson of [englishDesignSystem, russianDesignSystem]) {
+      const walk = lesson.blocks.find((block) => block.id === 'ui-accessible-field-walkthrough');
+      expect(walk?.type).toBe('codeWalkthrough');
+      if (walk?.type !== 'codeWalkthrough') return;
+      const lineCount = walk.code.split('\n').length;
+      expect(walk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      expect(walk.code).toContain('aria-invalid');
+      expect(walk.code).toContain('aria-describedby');
+      expect(walk.code).toContain('htmlFor');
+      const patterns = lesson.blocks.find((block) => block.id === 'ui-advanced-composition-model');
+      expect(patterns?.type).toBe('list');
+      if (patterns?.type === 'list') {
+        expect(patterns.items.some((item) => item.includes('React 19'))).toBe(true);
+        expect(patterns.items.some((item) => item.includes('Atomic Design'))).toBe(true);
+      }
+      const check = lesson.blocks.find((block) => block.id === 'ui-component-api-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') return;
+      expect(check.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      const practice = lesson.blocks.find((block) => block.id === 'deep-design-practice');
+      expect(practice?.type).toBe('codingExercise');
+      if (practice?.type === 'codingExercise') {
+        expect(practice.instructions.some((item) => item.includes('aria-describedby'))).toBe(true);
+        expect(practice.successCriteria.some((item) => item.includes('focus') || item.includes('фокус'))).toBe(true);
+      }
+      const refs = lesson.blocks.find((block) => block.id === 'ui-references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') expect(refs.items.some((item) => item.url === 'https://react.dev/reference/react/forwardRef')).toBe(true);
+    }
+  });
+});

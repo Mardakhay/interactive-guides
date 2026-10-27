@@ -604,3 +604,11 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Expanded `testing.react-testing-library` to v4, 39 aligned EN/RU blocks, adding Vitest mock lifecycle: call history vs implementation reset vs restoring spies, global stubs, and isolated API mock practice. Added source-specific regression checks and official Vitest references.
 - Qualified legacy pyramid/production-cost statistics as heuristics; kept project guidance aligned with Vitest/RTL rather than copying Jest-only commands/global mutation. Tabs, FAQs and exact original quiz UI remain interaction parity gaps.
 - Full HTML source reads documented: 23/25. Remaining unread source: `ui-design-system-learn.html`; `html-reference.html` re-review and Notion source verification remain open.
+
+
+## Full source and content checkpoint — ui-design-system-learn.html — 2026-10-27
+
+- Fully reviewed `public/lessons/ui-design-system-learn.html` (120,500 bytes, 2,430 lines; blob `eb2e17ffacdd1a7fb742153ee3130d7dfb024ed1`), including token tabs, variant/playground controls, Button/Input/Card implementation, compound/forwardRef/polymorphic examples, quiz, live practice challenges and scripts.
+- Expanded `ui.design-systems` to v3 / 32 EN/RU blocks. Added accessible custom-field code with label/help/error associations, focus-visible requirement and knowledge check for ref API choice; documented that React 18 and earlier use `forwardRef` where needed while React 19 supports `ref` as a prop. Regression tests and official docs reference added.
+- Qualified source caveats: library speed claims and Atomic Design are not universal laws; `outline:none` needs a visible replacement; polymorphic `as` adds semantic and typing complexity. MUI/Bootstrap selection remains in `ui.bootstrap-mui`; keyboard behavior maps to `performance.accessibility`.
+- HTML content/code/interaction review count: 24/25. Only `html-reference.html` re-review remains on the audit checklist; Notion source verification remains separate and incomplete.

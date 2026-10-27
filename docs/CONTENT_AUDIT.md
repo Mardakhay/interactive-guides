@@ -311,3 +311,10 @@ The audit records the source's dialect/transaction overgeneralizations and links
 The full `test.guide.html` source has been reviewed. The canonical `testing.react-testing-library` lesson already maps test levels, matcher intent, RTL query priority, user interactions, async states, mocking and AAA. It is now v4 with assessed Vitest mock lifecycle guidance (`clearAllMocks` vs `resetAllMocks` vs `restoreAllMocks`), global-stub cleanup and practice for order-independent tests.
 
 The audit notes that the source's test-pyramid percentages/100x production-cost ratio are heuristics, not universal measurements, and that Jest-specific setup must not be copied into the repository's Vitest/RTL setup. Legacy tabs/FAQ/quiz UI remains a parity gap. Full HTML reviews documented: 23/25; one HTML source (`ui-design-system-learn.html`) remains unread, plus `html-reference.html` re-review and Notion verification.
+
+
+## UI design-system source deep-review — 2026-10-27
+
+The full `ui-design-system-learn.html` source is reviewed. The canonical `ui.design-systems` lesson is now v3 with an accessible custom TextField walkthrough, focus-visible guidance, and version-aware guidance for compound components, `forwardRef`, and polymorphic `as`. The existing MUI/Bootstrap and performance/accessibility lessons cover adjacent library and keyboard/focus concerns.
+
+The audit corrects the source's universal library-speed claim and unqualified `forwardRef` guidance, and records that `outline:none` needs a visible replacement. The live token/Button/CSS playgrounds are not recreated one-for-one. Full HTML reviews documented: 24/25; only `html-reference.html` re-review and Notion source verification remain open.

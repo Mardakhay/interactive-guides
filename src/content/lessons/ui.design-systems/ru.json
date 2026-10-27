@@ -1,7 +1,7 @@
 {
   "id": "ui.design-systems",
   "locale": "ru",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-23",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "UI Kit, дизайн-токены и переиспользуемые компоненты",
   "description": "Создай небольшую согласованную систему компонентов с понятными API, семантическими токенами, документированными вариантами и встроенной доступностью.",
-  "estimatedMinutes": 85,
+  "estimatedMinutes": 105,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -23,7 +23,8 @@
     "Создавать переиспользуемые компоненты с явными типами, вариантами и состояниями.",
     "Выбирать композицию вместо огромного набора boolean props.",
     "Встраивать доступность в общие кнопки, поля и сообщения.",
-    "Документировать небольшой UI Kit и переделывать экраны так, чтобы они его использовали."
+    "Документировать небольшой UI Kit и переделывать экраны так, чтобы они его использовали.",
+    "Создавать доступные поля и выбирать ref-паттерн под установленную версию React."
   ],
   "tags": [
     "ui-kit",
@@ -31,7 +32,9 @@
     "design-tokens",
     "react",
     "components",
-    "accessibility"
+    "accessibility",
+    "accessible-fields",
+    "component-contracts"
   ],
   "blocks": [
     {
@@ -267,6 +270,100 @@
       ]
     },
     {
+      "id": "ui-field-accessibility-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Реализуй поле с доступным контрактом ошибки"
+    },
+    {
+      "id": "ui-field-accessibility-model",
+      "type": "paragraph",
+      "text": "Переиспользуемое поле должно связывать label, подсказку, неверное состояние и текст ошибки. Используй `htmlFor`/`id`, `aria-invalid` и `aria-describedby`, чтобы смысл не передавался только цветом. Сохраняй видимый keyboard focus через `:focus-visible`; не удаляй browser outline без столь же заметной замены."
+    },
+    {
+      "id": "ui-accessible-field-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type FieldProps = {\n  id: string;\n  label: string;\n  value: string;\n  onChange: (value: string) => void;\n  helpText?: string;\n  error?: string;\n};\n\nexport function Field({ id, label, value, onChange, helpText, error }: FieldProps) {\n  const helpId = `${id}-help`;\n  const errorId = `${id}-error`;\n  const describedBy = [helpText ? helpId : null, error ? errorId : null]\n    .filter(Boolean).join(' ') || undefined;\n  return (\n    <div>\n      <label htmlFor={id}>{label}</label>\n      <input id={id} value={value}\n        onChange={(event) => onChange(event.target.value)}\n        aria-invalid={Boolean(error)} aria-describedby={describedBy} />\n      {helpText && <p id={helpId}>{helpText}</p>}\n      {error && <p id={errorId} role=\"alert\">{error}</p>}\n    </div>\n  );\n}\n\n/* CSS companion: input:focus-visible { outline: 3px solid var(--color-action-primary); outline-offset: 2px; } */\n/* Never remove the browser outline without a visible replacement. */",
+      "steps": [
+        {
+          "title": "Определи контракт поля",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "API описывает label, значение, обработчик изменения, подсказку и необязательную ошибку."
+        },
+        {
+          "title": "Создай ID описаний",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "explanation": "Input ссылается на подсказку/ошибку, отрисованные для этого экземпляра. ID должны быть уникальными, а `aria-describedby` — включать только существующие ID."
+        },
+        {
+          "title": "Свяжи label и ошибку",
+          "lineStart": 15,
+          "lineEnd": 26,
+          "explanation": "`htmlFor` связывает label с input; `aria-invalid` объявляет неверное состояние, а `aria-describedby` связывает описания. Смысл ошибки нельзя передавать только цветом."
+        },
+        {
+          "title": "Сохрани видимый фокус",
+          "lineStart": 27,
+          "lineEnd": 28,
+          "explanation": "Комментарии показывают CSS-компаньон: заметное кольцо `:focus-visible`. Не отключай outline без равно заметного индикатора."
+        }
+      ]
+    },
+    {
+      "id": "ui-advanced-composition-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Продвинутые паттерны — это контракты, а не обязательные приёмы"
+    },
+    {
+      "id": "ui-advanced-composition-model",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Compound components вроде `Card.Header`, `Card.Body` и `Card.Footer` выражают общую структуру через гибкие children; используй их, если composition улучшает API потребителя.",
+        "В React 18 и ранее `forwardRef` позволяет открыть DOM node для фокуса, измерений или интеграции с библиотекой. React 19 позволяет function components принимать `ref` как prop; выбирай под установленную версию.",
+        "Polymorphic prop `as` меняет отрисованный элемент и допустимые attributes/ref types. Добавляй его при реальной потребности, сохраняй семантику link versus button и не усложняй типы без use case.",
+        "Loading/disabled feedback и видимый focus должны быть частью контракта общего компонента. Loading icon не должен создавать дублирующее accessible name.",
+        "Atomic Design (atoms/molecules/organisms/pages) — терминология организации системы, а не обязательная структура папок."
+      ]
+    },
+    {
+      "id": "ui-component-api-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В проекте установлен React 18. Родительской форме нужно сфокусировать native input внутри переиспользуемого поля. Какая рекомендация корректна?",
+      "options": [
+        {
+          "id": "a",
+          "text": "При необходимости передать DOM node через `forwardRef`, сохранив доступную связь поля с label и ошибкой",
+          "correct": true,
+          "feedback": "В React 18 и ранее `forwardRef` — стандартный способ, когда function component должен получить и передать ref."
+        },
+        {
+          "id": "b",
+          "text": "Добавить `role=\"textbox\"` к div и передать ref, не прокидывая его дальше",
+          "correct": false,
+          "feedback": "Role не создаёт нативное поведение input и не передаёт ref реальному DOM-элементу."
+        },
+        {
+          "id": "c",
+          "text": "Использовать `forwardRef` во всех компонентах, даже когда ref не нужен",
+          "correct": false,
+          "feedback": "Публикуй ref при реальной потребности в фокусе, измерениях или интеграции; лишний API дороже поддерживать."
+        },
+        {
+          "id": "d",
+          "text": "Игнорировать версию React, потому что `forwardRef` обязателен всегда",
+          "correct": false,
+          "feedback": "React 19 позволяет function components принимать `ref` как prop, поэтому паттерн зависит от версии."
+        }
+      ],
+      "explanation": "React 18 и ранее используют `forwardRef`, когда нужно передавать ref; React 19 поддерживает `ref` как prop. В любой версии сохраняй семантику и доступные описания."
+    },
+    {
       "id": "deep-design-heading",
       "type": "heading",
       "level": 2,
@@ -359,14 +456,16 @@
         "Создай union-типы ButtonVariant и ButtonSize.",
         "Реализуй поведение disabled и loading с нативным button.",
         "Добавь видимый focus state и доступное имя для icon-only сценария.",
-        "Напиши примеры использования и объясни, когда нужна ссылка вместо кнопки."
+        "Напиши примеры использования и объясни, когда нужна ссылка вместо кнопки.",
+        "Реализуй TextField со связью label/help/error через `aria-describedby`, `aria-invalid` и видимым стилем `:focus-visible`."
       ],
       "requirements": [
         "Props компонента ограничивают варианты и размеры поддерживаемыми значениями.",
         "Визуальные значения именованы tokens, а не повторяющимися необъяснимыми литералами.",
         "Disabled/loading предотвращают нежелательное повторное действие и сообщают о состоянии.",
         "Клавиатурный фокус видим, контролы имеют доступные имена.",
-        "Навигация реализована ссылкой, а действие внутри страницы — кнопкой."
+        "Навигация реализована ссылкой, а действие внутри страницы — кнопкой.",
+        "Label, подсказка и ошибка поля связаны программно; keyboard focus остаётся видимым."
       ],
       "starterCode": "type ButtonVariant = 'primary' | 'secondary' | 'danger';\ntype ButtonSize = 'sm' | 'md' | 'lg';\n\ntype ButtonProps = {\n  variant?: ButtonVariant;\n  size?: ButtonSize;\n  disabled?: boolean;\n  loading?: boolean;\n  children: React.ReactNode;\n};\n\n// TODO: реализуй нативную кнопку и соответствующий token-based CSS.",
       "hints": [
@@ -379,7 +478,8 @@
         "У компонента есть разумные defaults и компактный API.",
         "Состояния loading/disabled/focus доступны.",
         "Tokens централизованы и переиспользуются.",
-        "Объяснена разница между навигацией и действием."
+        "Объяснена разница между навигацией и действием.",
+        "Screen reader определяет label и описание ошибки, а пользователь клавиатуры видит фокус."
       ]
     },
     {
@@ -420,6 +520,11 @@
           "title": "W3C WAI: Focus Appearance",
           "url": "https://www.w3.org/WAI/WCAG22/Understanding/focus-appearance.html",
           "kind": "guide"
+        },
+        {
+          "title": "React: forwardRef и ref prop в React 19",
+          "url": "https://react.dev/reference/react/forwardRef",
+          "kind": "official-docs"
         }
       ]
     }

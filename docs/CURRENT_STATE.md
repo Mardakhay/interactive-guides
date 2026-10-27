@@ -496,3 +496,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Reviewed the complete `test.guide.html` source (98,371 bytes / 2,421 lines). Updated `testing.react-testing-library` v4 EN/RU with mock lifecycle semantics for Vitest, a walkthrough, knowledge check and exercise; test isolation and global-stub cleanup now have explicit source-derived evidence.
 - Source count: 23/25 HTML files fully reviewed. The only unread HTML source is `ui-design-system-learn.html`; the planned `html-reference.html` re-review and Notion source verification remain open.
 - Latest SQL SHA `96f654ca784f58b8311837accadeb0a946ce3dc7` passed exact-head CI [40463048117](https://github.com/Mardakhay/interactive-guides/actions/runs/40463048117). This testing lesson/docs update needs exact-head CI. Keep changes on `feat/learning-platform-foundation`; `main` remains unchanged.
+
+
+## Content audit continuation — 2026-10-27
+
+- Full review of `ui-design-system-learn.html` is complete (120,500 bytes / 2,430 lines). `ui.design-systems` v3 adds accessible input description/error associations, visible-focus guidance and React-version-aware advanced component API guidance. Tests protect EN/RU parity, walkthrough ranges, React 18/19 ref guidance and official documentation links.
+- HTML content/code/interaction review count: 24/25. The remaining source work is the planned `html-reference.html` re-review. Notion source verification remains a separate open gate.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; continue only on `feat/learning-platform-foundation`.
