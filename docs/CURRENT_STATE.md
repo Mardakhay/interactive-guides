@@ -576,3 +576,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - `js.regex-text-processing` v2 expands source parity for the Notion Advanced JS regex subsection: practical format/extraction examples, dynamic constructor escaping, and flags `d/g/i/m/s/u/v/y`. Checks and walkthrough range tests cover the new EN/RU blocks.
 - The Advanced JS source overall remains partially mapped, and Notion metadata stays `verification.state=unverified`; this focused regex update does not claim full page verification.
+
+
+## Advanced JS collections source pass — 2026-10-27
+
+- `js.collections-weakmaps` v2 now covers Map methods/iteration, Set operations and Symbols, in addition to object-key identity and weak-collection lifetime. EN/RU structure, walkthrough line references, check feedback and documentation links have regression coverage.
+- Broader Advanced JS source parity remains partial and Notion metadata remains `verification.state=unverified`; this change is a focused subsection update, not a full page verification.

@@ -687,3 +687,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - `js.regex-text-processing` v2 adds two source-driven walkthroughs for phone/password/URL/hashtag/whitespace examples and safely escaping dynamic text before `new RegExp`, plus a feedback-rich knowledge check.
 - The flags list now includes `d`, `g`, `i`, `m`, `s`, `u`, `v`, and `y`; the lesson marks practical format patterns as limited rules and links the current MDN RegExp reference. Regression tests protect 22-block EN/RU parity, five walkthrough ranges, three quizzes, dynamic escaping and exercise rubric.
+
+
+## Advanced JS collections continuation — 2026-10-27
+
+- `js.collections-weakmaps` v2 adds a Map methods/iteration walkthrough, Set union/intersection/difference examples, and a Symbols walkthrough with `Symbol.for`, symbol-key inspection and `Symbol.iterator`. New assessment clarifies that `Object.keys` omits symbol keys and symbols are not private storage.
+- Regression tests now protect v2's 23 aligned blocks, six walkthroughs, three checks, valid line ranges, required Map/Set/Symbol APIs, warning text and official MDN links. WeakMap/WeakSet lifetime guidance remains intact.

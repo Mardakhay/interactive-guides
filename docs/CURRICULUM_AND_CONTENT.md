@@ -325,3 +325,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## Regex supplement source deepening — 2026-10-27
 
 `js.regex-text-processing` v2 now maps the Advanced JS Notion subsection's remaining practical examples (phone/password patterns, URL/hashtag extraction, whitespace normalization) and the `RegExp` constructor case where dynamic input must be escaped. The lesson documents `d/g/i/m/s/u/v/y` flags with current MDN references and explicitly limits what each format pattern proves. Broader Advanced JS source parity remains open.
+
+
+## Map/Set/Symbol supplement deepening — 2026-10-27
+
+`js.collections-weakmaps` v2 adds the Notion subsection's Map method/iteration patterns, Set union/intersection/difference, and Symbol uniqueness/global registry/property visibility plus `Symbol.iterator`. The applied check rejects treating Symbol keys as private. The complete Advanced JS reference page still has unrelated source-mapping gaps.
