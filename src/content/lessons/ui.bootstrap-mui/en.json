@@ -1,7 +1,7 @@
 {
   "id": "ui.bootstrap-mui",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "UI Libraries: Bootstrap Grid, Material UI, and Build-versus-Buy",
   "description": "Compare a CSS framework with a React component library, understand their APIs, and choose based on product constraints rather than popularity.",
-  "estimatedMinutes": 85,
+  "estimatedMinutes": 95,
   "difficulty": "intermediate",
   "prerequisites": [
     "html.document-structure",
@@ -99,6 +99,50 @@
         "Do not copy old installation snippets without checking package versions; dependency versions in the legacy MUI source may differ from the app you are building.",
         "Use one coherent token/theme layer where possible. Mixing independent libraries often duplicates resets, typography, spacing and focus behavior."
       ]
+    },
+    {
+      "id": "uilib-version-compatibility-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Check the installed major before using a component example"
+    },
+    {
+      "id": "uilib-version-compatibility-note",
+      "type": "paragraph",
+      "text": "Material UI APIs, peer dependencies and deprecated props can change across major versions. Read the version page and matching migration guide for the version in your lockfile; keep related @mui packages aligned and confirm the supported React peer versions. If the project uses React 18, also follow the official `react-is` compatibility guidance. Upgrade on a separate branch, inspect type/build warnings and run interaction/accessibility checks. Do not install a new major just because a standalone example uses it."
+    },
+    {
+      "id": "uilib-version-compatibility-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A tutorial uses Material UI v9 APIs, but your project's lockfile pins an older MUI major and React version. What is the best first step?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Copy the code as-is because semver guarantees compatibility between all MUI major versions",
+          "correct": false,
+          "feedback": "Major versions can include breaking API and peer-dependency changes; semver does not guarantee cross-major source compatibility."
+        },
+        {
+          "id": "b",
+          "text": "Check the installed version, its supported React peers and the matching migration guide before planning an upgrade",
+          "correct": true,
+          "feedback": "Use documentation for the installed major first, then make any dependency upgrade deliberate and validate the app after migration."
+        },
+        {
+          "id": "c",
+          "text": "Install a second MUI major beside the existing one and import whichever component happens to compile",
+          "correct": false,
+          "feedback": "Multiple major versions can produce duplicate dependencies, theme/context mismatches and confusing bundle behavior."
+        },
+        {
+          "id": "d",
+          "text": "Downgrade React blindly until the tutorial compiles, without checking the installed library requirements",
+          "correct": false,
+          "feedback": "Compatibility must be checked across the project's actual dependency graph; a blind downgrade can break unrelated packages."
+        }
+      ],
+      "explanation": "A component snippet is tied to a versioned API. Check the lockfile, peer dependencies, version-specific documentation and migration guide before changing the dependency graph."
     },
     {
       "id": "uilib-check",
@@ -436,6 +480,16 @@
         {
           "title": "MUI: Theming",
           "url": "https://mui.com/material-ui/customization/theming/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Material UI: versions and compatibility",
+          "url": "https://mui.com/material-ui/getting-started/versions/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Material UI: upgrade to v9",
+          "url": "https://mui.com/material-ui/migration/upgrade-to-v9/",
           "kind": "official-docs"
         }
       ]

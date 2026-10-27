@@ -1,7 +1,7 @@
 {
   "id": "ui.bootstrap-mui",
   "locale": "ru",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "UI-библиотеки: Bootstrap Grid, Material UI и выбор build-versus-buy",
   "description": "Сравни CSS-фреймворк с React-библиотекой компонентов и выбирай по ограничениям продукта, а не популярности.",
-  "estimatedMinutes": 85,
+  "estimatedMinutes": 95,
   "difficulty": "intermediate",
   "prerequisites": [
     "html.document-structure",
@@ -99,6 +99,50 @@
         "Не копируй старые команды установки без сверки версий; версии зависимостей в legacy MUI source могут отличаться от приложения.",
         "По возможности используй единый слой tokens/theme. Смешение независимых библиотек часто дублирует reset, typography, spacing и focus behavior."
       ]
+    },
+    {
+      "id": "uilib-version-compatibility-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Проверяй установленную major-версию перед копированием примера"
+    },
+    {
+      "id": "uilib-version-compatibility-note",
+      "type": "paragraph",
+      "text": "API Material UI, peer dependencies и deprecated props могут меняться между major-версиями. Открой страницу версий и подходящий migration guide для версии из lockfile; согласуй версии связанных пакетов @mui и проверь поддерживаемые версии React. Если проект использует React 18, следуй и официальным инструкциям по совместимости `react-is`. Обновляй зависимости отдельной веткой, изучай предупреждения typecheck/build и проверяй взаимодействия и accessibility. Не устанавливай новую major только потому, что её использует отдельный пример."
+    },
+    {
+      "id": "uilib-version-compatibility-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В tutorial используется API Material UI v9, но lockfile проекта закрепляет более старую major-версию MUI и версию React. Как лучше поступить сначала?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Копировать код без изменений, потому что semver гарантирует совместимость между всеми major-версиями MUI",
+          "correct": false,
+          "feedback": "В major-версиях могут меняться API и peer dependencies; semver не гарантирует совместимость исходного кода между major-версиями."
+        },
+        {
+          "id": "b",
+          "text": "Проверить установленную версию, поддерживаемые версии React и соответствующий migration guide перед планированием обновления",
+          "correct": true,
+          "feedback": "Сначала используй документацию для установленной major-версии, затем планируй обновление зависимостей и проверь приложение после миграции."
+        },
+        {
+          "id": "c",
+          "text": "Установить вторую major-версию MUI рядом с существующей и импортировать компоненты, которые компилируются",
+          "correct": false,
+          "feedback": "Несколько major-версий могут привести к дублирующим зависимостям, конфликтам theme/context и лишней сложности bundle."
+        },
+        {
+          "id": "d",
+          "text": "Сразу понизить React до версии из tutorial, не проверяя требования текущей библиотеки",
+          "correct": false,
+          "feedback": "Совместимость проверяется по фактическому dependency graph проекта; необдуманный downgrade может сломать другие пакеты."
+        }
+      ],
+      "explanation": "Пример компонента привязан к определённой версии API. Перед изменением dependency graph проверь lockfile, peer dependencies, документацию нужной версии и migration guide."
     },
     {
       "id": "uilib-check",
@@ -436,6 +480,16 @@
         {
           "title": "MUI: Theming",
           "url": "https://mui.com/material-ui/customization/theming/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Material UI: versions and compatibility",
+          "url": "https://mui.com/material-ui/getting-started/versions/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Material UI: upgrade to v9",
+          "url": "https://mui.com/material-ui/migration/upgrade-to-v9/",
           "kind": "official-docs"
         }
       ]

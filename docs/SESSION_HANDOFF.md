@@ -570,3 +570,11 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Replaced same-page `new Function` execution with a dedicated Web Worker; examples have no DOM access, are terminated after 2.5 seconds, and have bounded log/output volume. Reset/re-run stops the existing worker. Added `src/content/jsInteractiveBookRunner.test.ts` for the runner contract. This is page-context isolation, not a network sandbox.
 - Full HTML source reads documented: 19/25. Five files remain unread (`material-ui-masterclass.html`, `react-performance-a11y.html`, `sql-learning-page.html`, `test.guide.html`, `ui-design-system-learn.html`) plus the planned `html-reference.html` re-review; Notion source verification remains open.
 - Run the complete CI suite on this exact head after the in-flight async-demo fix and runner changes; keep `main` unchanged.
+
+
+## Full source checkpoint — material-ui-masterclass.html — 2026-10-27
+
+- Reviewed the complete Material UI v9 masterclass (blob `33b619de0bd56186eae81d9a54ae3227eea050d4`, 86445 bytes): installation/version, `sx`, themes/tokens, responsive layout, controls/forms, accessibility and interactive demos.
+- Updated `ui.bootstrap-mui` v4 in EN/RU with an installed-version/peer-dependency/migration guide section, a feedback-rich knowledge check, and official Material UI versions and v9 upgrade references. No duplicate course was created; design system, forms and accessibility content remain in their canonical lessons.
+- Full HTML reviews: 20/25. Four unread sources remain (`react-performance-a11y.html`, `sql-learning-page.html`, `test.guide.html`, `ui-design-system-learn.html`) plus the tracked `html-reference.html` re-review. Notion verification remains open.
+- The previous runner and async-demo security checkpoint passed CI. This new MUI/content/docs commit needs CI for its exact SHA; continue only on `feat/learning-platform-foundation`.

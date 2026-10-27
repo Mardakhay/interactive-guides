@@ -332,3 +332,27 @@ describe('frontend authentication security and lifecycle', () => {
     }
   });
 });
+
+describe('Material UI version compatibility guidance', () => {
+  it('documents version-specific peer dependencies and the v9 migration path in both locales', () => {
+    expect(lessonTranslationSchema.safeParse(englishUiLibraries).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianUiLibraries).success).toBe(true);
+    expect(englishUiLibraries.version).toBe(4);
+    expect(englishUiLibraries.blocks.map(({ id, type }) => [id, type])).toEqual(
+      russianUiLibraries.blocks.map(({ id, type }) => [id, type]),
+    );
+    for (const lesson of [englishUiLibraries, russianUiLibraries]) {
+      const check = lesson.blocks.find((block) => block.id === 'uilib-version-compatibility-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') return;
+      expect(check.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      expect(check.explanation).toContain('version');
+      const references = lesson.blocks.find((block) => block.id === 'uilib-references');
+      expect(references?.type).toBe('references');
+      if (references?.type !== 'references') return;
+      expect(references.items.some((item) => item.url === 'https://mui.com/material-ui/getting-started/versions/')).toBe(true);
+      expect(references.items.some((item) => item.url === 'https://mui.com/material-ui/migration/upgrade-to-v9/')).toBe(true);
+    }
+  });
+});

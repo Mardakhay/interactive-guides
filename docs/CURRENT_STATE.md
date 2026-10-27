@@ -469,3 +469,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Mapped `js_interactive_book.html` to existing canonical EN/RU JavaScript lessons. The legacy runner was changed from same-page `new Function` to a dedicated Web Worker with a 2.5-second time window, bounded output, safe text rendering and explicit cleanup on Reset/re-run. Static regression coverage added.
 - Full source review count: 19/25; five HTML sources remain unread plus planned `html-reference.html` re-review. Notion verification still open.
+
+
+## Material UI source checkpoint — 2026-10-27
+
+- Reviewed `material-ui-masterclass.html` and updated the canonical `ui.bootstrap-mui` EN/RU lesson to v4 with version compatibility, React peer dependency and migration-guide guidance. Added regression tests for the check and official links.
+- Full HTML source review count: 20/25; four source files remain unread plus planned `html-reference.html` re-review. Notion source verification remains open.

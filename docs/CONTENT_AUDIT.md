@@ -283,3 +283,10 @@ Full HTML source reads documented: 18/25; six unread source files and the planne
 The full `js_interactive_book.html` content is mapped to four canonical bilingual lessons (JS fundamentals, functions/arrays/objects, DOM/events, and async/fetch), so no parallel mega-lesson was added. The legacy book had a code editor that ran `new Function` in the page context. It now runs inside a dedicated Web Worker with no DOM access, a 2.5-second execution window, bounded output and cleanup on Reset/re-run; regression tests guard the behavior. Worker isolation does not block all network access.
 
 Full HTML source reviews documented: 19/25. Five source files remain unread plus the planned `html-reference.html` re-review; Notion source verification remains incomplete.
+
+
+## Material UI masterclass source and version audit — 2026-10-27
+
+Full source review completed. Existing bilingual `ui.bootstrap-mui` is expanded to v4 with version-specific dependency/migration guidance, plus official MUI versions and upgrade-to-v9 links. The MUI masterclass content is mapped to the current component-library/design-system lesson and the dedicated forms/accessibility lessons; no duplicate JSON masterclass was added.
+
+Full HTML source reviews documented: 20/25. Four unread HTML files and the `html-reference.html` re-review remain; Notion source verification is not closed.
