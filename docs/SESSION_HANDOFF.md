@@ -761,3 +761,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - The first CI for `browser.realtime-workers` v2 showed that the existing `lessonContent.test.ts` suite still expected 2 knowledge checks and 4 walkthroughs. The v2 lesson contains 5 knowledge checks and 7 walkthroughs. Updated those assertions and added targeted checks for progress handling, reconnect safeguards and scoped cache cleanup.
 - The broader supplementary lesson tests already check EN/RU registration; exact-head CI for the new correction is pending.
+
+
+## Advanced JS method-chaining follow-up — 2026-10-27
+
+- Expanded `js.object-prototypes` to v3 / 42 aligned EN/RU blocks with a fluent-method walkthrough, a missing-`return this` check and a validated `PriceBuilder` practice.
+- Content separates mutable return-this chains from array/string method return types and Promise chaining (already mapped in `js.async-fetch`). Added regression tests for structure, range, answer cardinality, exercise rubric and official MDN references.
+- Notion metadata remains `verification.state=unverified`; this section is mapped, but full-page and legacy visual interaction parity remain open.

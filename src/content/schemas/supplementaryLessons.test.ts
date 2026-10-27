@@ -561,3 +561,47 @@ describe('realtime transport progress and lifecycle', () => {
     }
   });
 });
+
+describe('method chaining and fluent API contracts', () => {
+  it('distinguishes return-this builders from collection and Promise chaining', () => {
+    expect(lessonTranslationSchema.safeParse(englishPrototypes).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianPrototypes).success).toBe(true);
+    expect(englishPrototypes.version).toBe(3);
+    expect(englishPrototypes.blocks).toHaveLength(42);
+    expect(englishPrototypes.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianPrototypes.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    for (const lesson of [englishPrototypes, russianPrototypes]) {
+      const walkthrough = lesson.blocks.find((block) => block.id === 'method-chaining-walkthrough');
+      expect(walkthrough?.type).toBe('codeWalkthrough');
+      if (walkthrough?.type !== 'codeWalkthrough') return;
+      const lineCount = walkthrough.code.split('\n').length;
+      expect(walkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      expect(walkthrough.code).toContain('return this;');
+      expect(walkthrough.code).toContain('.add(100).discount(10).multiply(2).value()');
+      expect(walkthrough.code).toContain('.filter(');
+      expect(walkthrough.code).toContain('.reduce(');
+      const contract = lesson.blocks.find((block) => block.id === 'method-chaining-contract');
+      expect(contract?.type).toBe('paragraph');
+      if (contract?.type === 'paragraph') expect(contract.text).toContain(lesson.locale === 'en' ? 'Promise' : 'Promise');
+      const check = lesson.blocks.find((block) => block.id === 'method-chaining-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') return;
+      expect(check.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      expect(check.explanation.trim().length).toBeGreaterThan(20);
+      const practice = lesson.blocks.find((block) => block.id === 'method-chaining-practice');
+      expect(practice?.type).toBe('codingExercise');
+      if (practice?.type !== 'codingExercise') return;
+      expect(practice.requirements.length).toBeGreaterThanOrEqual(5);
+      expect(practice.hints.length).toBeGreaterThanOrEqual(3);
+      expect(practice.successCriteria.length).toBeGreaterThanOrEqual(5);
+      const refs = lesson.blocks.find((block) => block.id === 'object-model-references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') {
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce')).toBe(true);
+      }
+    }
+  });
+});

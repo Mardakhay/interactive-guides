@@ -647,3 +647,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## Realtime test-count correction — 2026-10-27
 
 - `browser.realtime-workers` v2 adds three knowledge checks and three walkthroughs; the existing core test still expected v1 counts (2 and 4). Corrected expected counts to 5 and 7 and added assertions for new XHR, WebSocket and Service Worker code. Verify exact-head CI.
+
+
+## Advanced JS method chaining continuation — 2026-10-27
+
+- `js.object-prototypes` v3 adds 5 blocks (42 total) for fluent `return this`, terminal methods, array/string chain return types, and safe builder practice. The separate async lesson continues to own Promise chaining.
+- `supplementaryLessons.test.ts` now checks EN/RU shape, walkthrough ranges, correct answer count, builder exercise rubric and MDN references. Exact-head CI is pending.
+- Notion Advanced JS page remains `verification.state=unverified`; this is a focused slice mapping, not full-page verification.

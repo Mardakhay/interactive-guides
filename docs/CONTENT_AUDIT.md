@@ -395,3 +395,10 @@ Mapped the IntersectionObserver, ResizeObserver and Page Visibility subsections 
 `browser.realtime-workers` v2 maps XHR/WebSocket/Service Worker gaps with bilingual content for XHR progress and readyState, bounded WebSocket reconnect/backoff and disposal, and versioned Service Worker cache cleanup. It guards unknown progress totals, separates HTTP status from network errors, avoids duplicate retry schedulers, and scopes cache deletion by app-owned prefix.
 
 The Advanced JS Notion page remains connector-unverified; this is source-slice mapping, not formal verification of the full page or exact interaction parity.
+
+
+## Advanced JS method-chaining source pass — 2026-10-27
+
+`js.object-prototypes` v3 now explicitly covers the method-chaining section with a mutable fluent builder that returns `this`, terminal result extraction, argument validation, and contrasts with array/string return types. `js.async-fetch` remains the canonical home for Promise `.then()` chains. This avoids duplicating the same async content.
+
+The source's jQuery-style DOM wrapper is recorded as an illustration rather than a universal recommendation because production wrappers need missing-selector handling, semantic controls and event-listener lifecycle policy. The connector page remains unverified; full Advanced JS source parity and legacy playground parity remain open.
