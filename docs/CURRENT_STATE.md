@@ -594,3 +594,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Added leading-edge throttle implementation and teardown teaching to `js.dom-events` v5. The lesson explicitly states that intermediate calls can be skipped and no trailing timer is created; cleanup removes the exact callback reference. New regression checks cover the implementation in EN/RU.
 - Debounced search remains a separate async/API-hook topic; full legacy DOM lesson UI parity remains open.
+
+
+## DOM throttle reference follow-up — 2026-10-27
+
+- Added the MDN `EventTarget.addEventListener` reference to `js.dom-events` v5 EN/RU after exact-head CI exposed that missing reference. Existing throttle walkthrough/test remains the behavioral guard; re-check exact-head CI.

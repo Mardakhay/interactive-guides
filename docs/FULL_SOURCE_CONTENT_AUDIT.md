@@ -826,3 +826,7 @@ Known source corrections/gaps: the Notion's naive wrapped Fibonacci example cach
 Revisited the Notion Advanced JS throttling example and the DOM lesson's rate-control scaffold. `js.dom-events` is now v5 / 62 aligned EN/RU blocks. The lesson includes a leading-edge scroll throttle, a note that events during the interval are dropped (including the last one when no trailing callback is scheduled), a passive listener where `preventDefault` is not used, and teardown with the exact listener reference. A knowledge check and the existing advanced practice rubric protect cleanup and behavior.
 
 The source's throttling example is interpreted as a leading-edge cadence limit; a trailing-edge throttle is an alternative when the final state must be processed. Debounced search stays covered by `js.async-fetch`/React API-hook lesson, and rate-limiting UI/interactions are not claimed as a full recreation of the legacy widgets.
+
+## DOM throttle reference regression follow-up — 2026-10-27
+
+CI for `js.dom-events` v5 initially failed only on its new assertion requiring the official `EventTarget.addEventListener` reference. The throttle walkthrough already demonstrates passive listener registration and exact-reference teardown; the EN/RU `dom-references` blocks now link to MDN's `EventTarget.addEventListener` page. The regression test stays in place to protect the implementation/reference connection.

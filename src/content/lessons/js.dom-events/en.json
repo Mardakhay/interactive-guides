@@ -1232,6 +1232,11 @@
           "title": "MDN: Element.closest()",
           "url": "https://developer.mozilla.org/en-US/docs/Web/API/Element/closest",
           "kind": "official-docs"
+        },
+        {
+          "title": "MDN: EventTarget.addEventListener",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener",
+          "kind": "official-docs"
         }
       ]
     }
