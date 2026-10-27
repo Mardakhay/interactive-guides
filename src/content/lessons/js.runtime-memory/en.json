@@ -1,16 +1,16 @@
 {
   "id": "js.runtime-memory",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-27",
   "moduleId": "supplement-js-internals",
   "supplementaryTrackId": "supplement-js-internals",
   "order": 1,
   "title": "JavaScript Runtime: Execution Contexts, Stack, Heap, and Garbage Collection",
   "description": "Trace execution contexts and closures, reason about reachability, and diagnose stack overflow and memory-retention bugs.",
-  "estimatedMinutes": 100,
+  "estimatedMinutes": 115,
   "difficulty": "advanced",
   "prerequisites": [
     "js.basics-types-control-flow",
@@ -23,7 +23,8 @@
     "Explain garbage collection using reachability/mark-and-sweep as a mental model.",
     "Diagnose closure retention and unintended memory growth with evidence.",
     "Predict how assignment, shallow copies, and structured cloning affect nested object identity.",
-    "Investigate memory growth with repeatable heap snapshots, retaining paths, and allocation profiling."
+    "Investigate memory growth with repeatable heap snapshots, retaining paths, and allocation profiling.",
+    "Design a memoization key that captures semantic inputs and explain cache lifetime and invalidation."
   ],
   "tags": [
     "javascript",
@@ -31,7 +32,9 @@
     "call-stack",
     "memory",
     "closures",
-    "garbage-collection"
+    "garbage-collection",
+    "memoization",
+    "cache-lifetime"
   ],
   "blocks": [
     {
@@ -193,6 +196,117 @@
       "id": "runtime-memory-tools",
       "type": "paragraph",
       "text": "A high reading after one action is not enough to prove a leak: caches, delayed collection, warm-up, and temporary allocations can all raise memory. Reproduce the same action several times, take comparable heap snapshots, compare retained objects, and inspect retaining paths back to roots. Check that cleanup actually ran for listeners, timers, subscriptions, detached DOM, and long-lived collections. Allocation sampling or a timeline can show when objects are created; interpret it alongside the user-visible lifecycle and engine documentation.\n\nIn Chrome DevTools, use Memory → Heap snapshot to inspect retained objects and retaining paths, and compare snapshots after equivalent actions and cleanup. Use Allocation instrumentation on timeline or sampling to investigate when growth occurs. A snapshot is evidence to interpret, not an automatic leak verdict."
+    },
+    {
+      "id": "runtime-memoization-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Memoization is a cache contract, not a universal speed switch"
+    },
+    {
+      "id": "runtime-memoization-model",
+      "type": "paragraph",
+      "text": "Memoization stores a result and reuses it when a later call has the same semantic inputs. It suits deterministic calculations where repeated work is measurably expensive. The key must include every input that can change the result; use an explicit key selector rather than assuming `JSON.stringify(args)` is a universal identity function."
+    },
+    {
+      "id": "runtime-memoization-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function memoizeByKey(fn, keyOf) {\n  const cache = new Map();\n  return function (...args) {\n    const key = keyOf.apply(this, args);\n    if (cache.has(key)) return cache.get(key);\n    const value = fn.apply(this, args);\n    cache.set(key, value);\n    return value;\n  };\n}\n\nconst taxableTotal = memoizeByKey(\n  (subtotal, rate) => {\n    console.log(\"computing total\");\n    return subtotal * (1 + rate);\n  },\n  (subtotal, rate) => `${subtotal}:${rate}`,\n);\n\nconsole.log(taxableTotal(100, 0.1)); // computes\nconsole.log(taxableTotal(100, 0.1)); // uses the cached value",
+      "steps": [
+        {
+          "title": "Create a scoped cache",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "The cache is scoped to this memoized wrapper. Map supports an explicit membership check and avoids confusing a missing entry with a stored value of `undefined`."
+        },
+        {
+          "title": "Define call equivalence explicitly",
+          "lineStart": 3,
+          "lineEnd": 10,
+          "explanation": "The key selector defines which calls count as equivalent. Include every input that affects the result and keep the key's meaning stable for the cached function."
+        },
+        {
+          "title": "Observe a cache hit",
+          "lineStart": 12,
+          "lineEnd": 21,
+          "explanation": "The wrapped function executes on a cache miss, and its result is stored for later calls with the same key. This example uses a deterministic numeric calculation with both subtotal and rate in the key."
+        }
+      ]
+    },
+    {
+      "id": "runtime-memoization-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Memoization has correctness and memory costs",
+      "text": "Do not cache a function whose output depends on hidden mutable state, time, locale or network state unless that dependency is part of the key or the cache has explicit invalidation. `JSON.stringify` is not universal: it fails on cycles and does not express object identity. A long-lived Map retains keys and results, so unbounded caching can cause memory growth. Caching async Promises also needs a policy for failures, stale data and expiration."
+    },
+    {
+      "id": "runtime-memoization-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A memoized formatter uses `userId` as its cache key, but its output also depends on the active locale. What should change?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Include locale in the cache key or invalidate entries when locale changes",
+          "correct": true,
+          "feedback": "Every input that can change the output must participate in key selection or trigger invalidation, otherwise a different locale may reuse stale output."
+        },
+        {
+          "id": "b",
+          "text": "Keep the key unchanged because Map automatically detects changed external state",
+          "correct": false,
+          "feedback": "Map compares the supplied keys; it does not observe external state or know what affects the result."
+        },
+        {
+          "id": "c",
+          "text": "Use JSON.stringify on any possible input because it is an exact identity function",
+          "correct": false,
+          "feedback": "JSON serialization has edge cases and does not represent object identity or every possible input shape."
+        },
+        {
+          "id": "d",
+          "text": "Replace memoization with debounce because it expires cache entries",
+          "correct": false,
+          "feedback": "Debounce controls when work starts after a burst of calls; it does not define a cache key or expiration policy."
+        }
+      ],
+      "explanation": "A cache key is part of the function's correctness contract. Include all output-affecting inputs or invalidate entries when those inputs change."
+    },
+    {
+      "id": "runtime-memoization-practice",
+      "type": "codingExercise",
+      "title": "Make the cache key match the function's real inputs",
+      "language": "javascript",
+      "context": "A UI formats monetary values using both amount and currency. A cache keyed only by amount can return a result formatted in the wrong currency.",
+      "instructions": [
+        "Complete the memoized formatter so its key represents both amount and currency.",
+        "Call it twice with the same pair and explain why the second call can reuse the result.",
+        "Call it with the same amount and a different currency and show that the result is not reused incorrectly.",
+        "State which inputs would require invalidation if output also depended on locale or user preferences.",
+        "Explain how a long-lived cache could retain entries and name an appropriate bounded or invalidation strategy."
+      ],
+      "requirements": [
+        "The key selector includes every input used by the output.",
+        "The formatter does not mutate input arguments.",
+        "A matching key may reuse a cached value, while a different currency yields a distinct key.",
+        "The explanation distinguishes memoization from debounce and HTTP caching.",
+        "The explanation covers cache lifetime or invalidation instead of claiming that memoization is always faster."
+      ],
+      "starterCode": "function memoizeByKey(fn, keyOf) {\n  const cache = new Map();\n  return function (...args) {\n    const key = keyOf.apply(this, args);\n    if (cache.has(key)) return cache.get(key);\n    const value = fn.apply(this, args);\n    cache.set(key, value);\n    return value;\n  };\n}\n\nconst formatAmount = memoizeByKey(\n  (amount, currency) => `${currency} ${amount.toFixed(2)}`,\n  (amount) => amount, // TODO: include currency\n);",
+      "hints": [
+        "The key selector should express call equivalence, not simply pick the first argument.",
+        "A cache is correct only if equal keys guarantee equivalent results or changes trigger invalidation.",
+        "For network data, consider in-flight request deduplication, caching successful results, errors and freshness separately."
+      ],
+      "successCriteria": [
+        "The same amount/currency pair reuses a cached result.",
+        "The same amount in another currency does not receive a wrongly cached result.",
+        "The explanation identifies all output-affecting inputs in the key.",
+        "The design addresses cache growth or invalidation.",
+        "The solution distinguishes memoization from debounce and server/browser caching."
+      ]
     },
     {
       "id": "runtime-copy-practice",
@@ -368,7 +482,8 @@
         "Execution contexts model the active environment; the call stack records nested calls in LIFO order.",
         "Objects remain while reachable; garbage collection timing is nondeterministic.",
         "Closures can retain large structures, and leaks require evidence of unintended retention over time.",
-        "Engine-specific optimizations are implementation details, not portable language guarantees."
+        "Engine-specific optimizations are implementation details, not portable language guarantees.",
+        "Memoization is valid only when the cache key represents all output-affecting inputs; long-lived caches need a retention and invalidation policy."
       ]
     },
     {
@@ -398,6 +513,16 @@
         {
           "title": "Chrome DevTools: Memory overview",
           "url": "https://developer.chrome.com/docs/devtools/memory",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Map",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: JSON.stringify",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify",
           "kind": "official-docs"
         }
       ]

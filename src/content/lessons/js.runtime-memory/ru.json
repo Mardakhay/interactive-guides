@@ -1,16 +1,16 @@
 {
   "id": "js.runtime-memory",
   "locale": "ru",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-27",
   "moduleId": "supplement-js-internals",
   "supplementaryTrackId": "supplement-js-internals",
   "order": 1,
   "title": "Runtime JavaScript: контексты выполнения, стек, куча и сборка мусора",
   "description": "Отслеживай execution contexts и замыкания, рассуждай о достижимости объектов и диагностируй переполнение стека и удержание памяти.",
-  "estimatedMinutes": 100,
+  "estimatedMinutes": 115,
   "difficulty": "advanced",
   "prerequisites": [
     "js.basics-types-control-flow",
@@ -23,7 +23,8 @@
     "Объяснять сборку мусора через reachability/mark-and-sweep как модель.",
     "Диагностировать удержание памяти замыканиями и неожиданный рост потребления по данным измерений.",
     "Predict how assignment, shallow copies, and structured cloning affect nested object identity.",
-    "Investigate memory growth with repeatable heap snapshots, retaining paths, and allocation profiling."
+    "Investigate memory growth with repeatable heap snapshots, retaining paths, and allocation profiling.",
+    "Проектировать ключ мемоизации по смысловым входам и объяснять срок жизни и инвалидацию кэша."
   ],
   "tags": [
     "javascript",
@@ -31,7 +32,9 @@
     "call-stack",
     "memory",
     "closures",
-    "garbage-collection"
+    "garbage-collection",
+    "memoization",
+    "cache-lifetime"
   ],
   "blocks": [
     {
@@ -193,6 +196,117 @@
       "id": "runtime-memory-tools",
       "type": "paragraph",
       "text": "Высокое значение после одного действия не доказывает утечку: кэширование, отложенная сборка мусора, прогрев и временные выделения тоже увеличивают память. Повторите одно и то же действие несколько раз, сделайте сопоставимые снимки heap, сравните удерживаемые объекты и проверьте цепочки ссылок от корней. Убедитесь, что очистка действительно сработала для обработчиков, таймеров, подписок, отсоединённых DOM-узлов и долгоживущих коллекций. Выборка или временная шкала распределений может показать, когда создаются объекты; сопоставляйте это с жизненным циклом и документацией движка.\n\nВ Chrome DevTools откройте Memory → Heap snapshot, чтобы изучить удерживаемые объекты и цепочки удержания, и сравните снимки после одинаковых действий и очистки. Для выяснения времени роста используйте Allocation instrumentation on timeline или sampling. Снимок — материал для анализа, а не автоматическое доказательство утечки."
+    },
+    {
+      "id": "runtime-memoization-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Мемоизация — это контракт кэша, а не универсальный переключатель ускорения"
+    },
+    {
+      "id": "runtime-memoization-model",
+      "type": "paragraph",
+      "text": "Мемоизация сохраняет результат и повторно использует его, когда более поздний вызов имеет те же смысловые входные данные. Она подходит для детерминированных вычислений, повторная работа которых заметно дорога. Ключ должен включать все входы, влияющие на результат; используй явный key selector, а не считай `JSON.stringify(args)` универсальным способом определения идентичности."
+    },
+    {
+      "id": "runtime-memoization-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function memoizeByKey(fn, keyOf) {\n  const cache = new Map();\n  return function (...args) {\n    const key = keyOf.apply(this, args);\n    if (cache.has(key)) return cache.get(key);\n    const value = fn.apply(this, args);\n    cache.set(key, value);\n    return value;\n  };\n}\n\nconst taxableTotal = memoizeByKey(\n  (subtotal, rate) => {\n    console.log(\"computing total\");\n    return subtotal * (1 + rate);\n  },\n  (subtotal, rate) => `${subtotal}:${rate}`,\n);\n\nconsole.log(taxableTotal(100, 0.1)); // computes\nconsole.log(taxableTotal(100, 0.1)); // uses the cached value",
+      "steps": [
+        {
+          "title": "Создай локальный кэш",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Кэш ограничен областью этого memoized wrapper. Map позволяет явно проверить наличие записи и не смешивать отсутствие записи со значением `undefined`."
+        },
+        {
+          "title": "Явно определи эквивалентность вызовов",
+          "lineStart": 3,
+          "lineEnd": 10,
+          "explanation": "Key selector определяет, какие вызовы считаются эквивалентными. Учитывай каждый вход, влияющий на результат, и сохраняй стабильный смысл ключа для функции."
+        },
+        {
+          "title": "Посмотри повторный вызов",
+          "lineStart": 12,
+          "lineEnd": 21,
+          "explanation": "При cache miss вызывается исходная функция, а результат сохраняется для последующих вызовов с тем же ключом. Пример использует детерминированное числовое вычисление, где ключ включает subtotal и rate."
+        }
+      ]
+    },
+    {
+      "id": "runtime-memoization-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "У мемоизации есть цена для корректности и памяти",
+      "text": "Не кэшируй функцию, результат которой зависит от скрытого изменяемого состояния, времени, locale или сети, если зависимость не включена в ключ или нет явной инвалидации. `JSON.stringify` не универсален: он не работает с циклическими структурами и не выражает identity объектов. Долгоживущий Map удерживает ключи и результаты, поэтому неограниченный кэш может увеличивать память. Для кэширования async Promise нужна политика ошибок, устаревших данных и expiration."
+    },
+    {
+      "id": "runtime-memoization-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Мемоизированный formatter использует `userId` как ключ, но результат зависит ещё и от активного locale. Что нужно изменить?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Добавить locale в cache key или инвалидировать записи при смене locale",
+          "correct": true,
+          "feedback": "Все входы, влияющие на результат, должны участвовать в ключе или вызывать инвалидацию; иначе другой locale может получить устаревшее значение."
+        },
+        {
+          "id": "b",
+          "text": "Оставить ключ как есть, поскольку Map сама замечает изменение внешнего состояния",
+          "correct": false,
+          "feedback": "Map сравнивает только переданные ключи; она не наблюдает внешнее состояние и не знает, что влияет на результат."
+        },
+        {
+          "id": "c",
+          "text": "Использовать JSON.stringify для любых входов, потому что это точная функция идентичности",
+          "correct": false,
+          "feedback": "У JSON-сериализации есть ограничения, и она не выражает identity объектов или все возможные формы входа."
+        },
+        {
+          "id": "d",
+          "text": "Заменить мемоизацию на debounce, потому что он удаляет записи по времени",
+          "correct": false,
+          "feedback": "Debounce регулирует момент запуска работы после серии вызовов; он не определяет cache key или expiration."
+        }
+      ],
+      "explanation": "Cache key — часть контракта корректности функции. Включай в него все входы, меняющие результат, или инвалидируй записи при изменении этих входов."
+    },
+    {
+      "id": "runtime-memoization-practice",
+      "type": "codingExercise",
+      "title": "Согласуй cache key с реальными входами функции",
+      "language": "javascript",
+      "context": "UI форматирует денежные значения на основе суммы и валюты. Кэш по одной сумме может вернуть результат, форматированный в неправильной валюте.",
+      "instructions": [
+        "Заверши memoized formatter так, чтобы ключ учитывал и сумму, и валюту.",
+        "Вызови его дважды с одинаковой парой сумма/валюта и объясни, почему второй вызов может использовать результат из кэша.",
+        "Вызови его с той же суммой и другой валютой и покажи, что неправильный результат не переиспользуется.",
+        "Укажи, какие входы потребовали бы инвалидации, если бы вывод также зависел от locale или пользовательских настроек.",
+        "Объясни, как долгоживущий кэш может удерживать записи, и назови стратегию ограничения или инвалидации."
+      ],
+      "requirements": [
+        "Key selector включает все входы, используемые результатом.",
+        "Formatter не мутирует аргументы.",
+        "Одинаковая пара сумма/валюта может использовать кэш, а другая валюта получает отдельный ключ.",
+        "Объяснение различает memoization, debounce и HTTP caching.",
+        "Объяснение затрагивает срок жизни/инвалидацию кэша, а не утверждает, что мемоизация всегда быстрее."
+      ],
+      "starterCode": "function memoizeByKey(fn, keyOf) {\n  const cache = new Map();\n  return function (...args) {\n    const key = keyOf.apply(this, args);\n    if (cache.has(key)) return cache.get(key);\n    const value = fn.apply(this, args);\n    cache.set(key, value);\n    return value;\n  };\n}\n\nconst formatAmount = memoizeByKey(\n  (amount, currency) => `${currency} ${amount.toFixed(2)}`,\n  (amount) => amount, // TODO: include currency\n);",
+      "hints": [
+        "Key selector должен описывать эквивалентность вызовов, а не просто выбирать первый аргумент.",
+        "Кэш корректен только если одинаковые ключи гарантируют эквивалентный результат или предусмотрена инвалидация.",
+        "Для сетевых данных отдельно продумай дедупликацию запросов в полёте, кэш успешных результатов, ошибки и актуальность."
+      ],
+      "successCriteria": [
+        "Одинаковая пара сумма/валюта использует кэшированное значение.",
+        "Та же сумма в другой валюте не получает ошибочный переиспользованный результат.",
+        "Объяснение называет все входы, влияющие на результат, в ключе.",
+        "Дизайн учитывает рост кэша или инвалидацию.",
+        "Решение различает memoization, debounce и кэширование на сервере/в браузере."
+      ]
     },
     {
       "id": "runtime-copy-practice",
@@ -368,7 +482,8 @@
         "Execution context моделирует активное окружение; call stack хранит вложенные вызовы в порядке LIFO.",
         "Объекты сохраняются, пока достижимы; время GC недетерминировано.",
         "Замыкания могут удерживать большие структуры, а утечку нужно подтверждать непреднамеренным удержанием во времени.",
-        "Специфичные для движка оптимизации — детали реализации, а не гарантии языка."
+        "Специфичные для движка оптимизации — детали реализации, а не гарантии языка.",
+        "Мемоизация корректна, только если ключ отражает все входы, влияющие на результат; долгоживущему кэшу нужна политика удержания и инвалидации."
       ]
     },
     {
@@ -398,6 +513,16 @@
         {
           "title": "Chrome DevTools: Memory overview",
           "url": "https://developer.chrome.com/docs/devtools/memory",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Map",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: JSON.stringify",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify",
           "kind": "official-docs"
         }
       ]
