@@ -23,6 +23,7 @@ jobs:
         run: |
           git fetch origin "refs/heads/${GITHUB_HEAD_REF}:refs/remotes/origin/${GITHUB_HEAD_REF}"
           git checkout --detach "refs/remotes/origin/${GITHUB_HEAD_REF}"
+          rm -f package-lock.json
           npm install --package-lock-only --ignore-scripts --no-audit
       - run: npm ci
       - name: Report npm audit advisories (non-blocking while triaging)
