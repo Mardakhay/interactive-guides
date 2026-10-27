@@ -297,3 +297,10 @@ Full HTML source reviews documented: 20/25. Four unread HTML files and the `html
 Completed the full `react-performance-a11y.html` content/code/interaction review and expanded the canonical bilingual `performance.accessibility` lesson to v4 (41 aligned blocks). Added React.lazy named-export and rejected-chunk recovery nuance, plus a native site-navigation disclosure with Escape close and focus return, assessed with a feedback-rich check and practice criteria.
 
 The lesson distinguishes ordinary site navigation from an application-menu role pattern, keeps ARIA separate from keyboard behavior, and avoids repeating fixed package-size/compression claims as current facts. Render/bundle simulators and exact copy/focus UI are documented as non-equivalent interactions. Full HTML reviews documented: 21/25; three HTML sources remain unread plus `html-reference.html` re-review and unverified Notion source mapping.
+
+
+## SQL source deep-review — 2026-10-27
+
+The complete `sql-learning-page.html` source is reviewed. `data.sql-postgresql` v2 adds assessed SQL dialect/version guidance, current MySQL CHECK enforcement nuance, a transactional UPDATE/RETURNING walkthrough with a rollback decision, DML practice, and views/CASE/set-operation guidance. The old Run Query editor is explicitly documented as a canned string-pattern simulator, not a live SQL database.
+
+The audit records the source's dialect/transaction overgeneralizations and links MySQL 8.4's official CHECK documentation. Full HTML reviews documented: 22/25; two sources remain unread plus the separate `html-reference.html` re-review and open Notion source verification.

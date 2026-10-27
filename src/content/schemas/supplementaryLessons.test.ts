@@ -356,3 +356,55 @@ describe('Material UI version compatibility guidance', () => {
     }
   });
 });
+
+describe('SQL dialect, write safety, and set-operation guidance', () => {
+  it('documents version-specific CHECK enforcement and safe data-changing workflows in both locales', () => {
+    expect(lessonTranslationSchema.safeParse(englishSql).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianSql).success).toBe(true);
+    expect(englishSql.version).toBe(2);
+    expect(englishSql.blocks).toHaveLength(46);
+    expect(englishSql.blocks.map(({ id, type }) => [id, type])).toEqual(
+      russianSql.blocks.map(({ id, type }) => [id, type]),
+    );
+    for (const lesson of [englishSql, russianSql]) {
+      const dialectNote = lesson.blocks.find((block) => block.id === 'sql-dialect-note');
+      expect(dialectNote?.type).toBe('paragraph');
+      if (dialectNote?.type === 'paragraph') {
+        expect(dialectNote.text).toContain('8.0.16');
+        expect(dialectNote.text).toContain('NOT ENFORCED');
+      }
+      const dialectCheck = lesson.blocks.find((block) => block.id === 'sql-dialect-check');
+      expect(dialectCheck?.type).toBe('knowledgeCheck');
+      if (dialectCheck?.type !== 'knowledgeCheck') return;
+      expect(dialectCheck.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(dialectCheck.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      const labNote = lesson.blocks.find((block) => block.id === 'sql-lab-boundary');
+      expect(labNote?.type).toBe('callout');
+      if (labNote?.type === 'callout') expect(labNote.text).toContain(lesson.locale === 'en' ? 'canned sample results' : 'заготовленные результаты');
+      const walk = lesson.blocks.find((block) => block.id === 'sql-dml-safety-walkthrough');
+      expect(walk?.type).toBe('codeWalkthrough');
+      if (walk?.type !== 'codeWalkthrough') return;
+      const lineCount = walk.code.split('\n').length;
+      expect(walk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      expect(walk.code).toContain('RETURNING product_id, unit_price');
+      expect(walk.code).toContain('ROLLBACK');
+      const dmlCheck = lesson.blocks.find((block) => block.id === 'sql-dml-safety-check');
+      expect(dmlCheck?.type).toBe('knowledgeCheck');
+      if (dmlCheck?.type !== 'knowledgeCheck') return;
+      expect(dmlCheck.options.filter((option) => option.correct)).toHaveLength(1);
+      const exercise = lesson.blocks.find((block) => block.id === 'sql-dml-safety-practice');
+      expect(exercise?.type).toBe('codingExercise');
+      if (exercise?.type !== 'codingExercise') return;
+      expect(exercise.requirements.length).toBeGreaterThanOrEqual(6);
+      expect(exercise.hints.length).toBeGreaterThanOrEqual(3);
+      expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
+      const setCheck = lesson.blocks.find((block) => block.id === 'sql-views-set-ops-check');
+      expect(setCheck?.type).toBe('knowledgeCheck');
+      if (setCheck?.type !== 'knowledgeCheck') return;
+      expect(setCheck.options.filter((option) => option.correct)).toHaveLength(1);
+      const refs = lesson.blocks.find((block) => block.id === 'sql-references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') expect(refs.items.some((item) => item.url === 'https://dev.mysql.com/doc/refman/8.4/en/create-table-check-constraints.html')).toBe(true);
+    }
+  });
+});

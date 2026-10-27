@@ -1,7 +1,7 @@
 {
   "id": "data.sql-postgresql",
   "locale": "ru",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-23",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "SQL и PostgreSQL для frontend-разработчиков",
   "description": "Безопасно работай с реляционными данными: JOIN, агрегации, NULL, ограничения и контроль доступа.",
-  "estimatedMinutes": 110,
+  "estimatedMinutes": 135,
   "difficulty": "intermediate",
   "prerequisites": [
     "web.internet-http",
@@ -73,6 +73,13 @@
       "text": "NULL, ограничения и безопасное построение запросов"
     },
     {
+      "id": "sql-lab-boundary",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Понимай, что на самом деле делает редактор для практики",
+      "text": "Кнопка Run Query на старой SQL-странице выбирает заранее заготовленные результаты по простым проверкам текста; она не разбирает и не выполняет произвольный SQL в базе. Считай эти таблицы иллюстрациями, а не доказательством правильности запроса. Проверяй SQL на одноразовой PostgreSQL-базе с известной схемой и никогда не практикуй разрушительные команды на production-данных."
+    },
+    {
       "id": "sql-null-text",
       "type": "paragraph",
       "text": "Используй IS NULL или IS NOT NULL для проверки SQL NULL; это не обычное значение, поэтому = NULL неверно. Ограничения PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK и NOT NULL обеспечивают целостность сверх frontend. Параметризуй пользовательские значения через доверенный API/сервер, не склеивай их с SQL."
@@ -89,6 +96,50 @@
       "type": "heading",
       "level": 2,
       "text": "Читай запрос по логическим этапам"
+    },
+    {
+      "id": "sql-dialect-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "SQL-диалекты и поведение, зависящее от версии"
+    },
+    {
+      "id": "sql-dialect-note",
+      "type": "paragraph",
+      "text": "В этом уроке используется синтаксис PostgreSQL, если не указано иное. SQL-диалекты различаются синтаксисом ограничения строк, функциями дат, правилами кавычек, identity-колонками и сравнением текста/collation. В MySQL CHECK не обеспечивались до версии 8.0.16; начиная с 8.0.16 они по умолчанию enforced, если constraint явно не объявлен NOT ENFORCED. Проверяй реальную версию сервера и метаданные ограничений вместо повторения общего утверждения. Чувствительность LIKE к регистру зависит от движка и collation."
+    },
+    {
+      "id": "sql-dialect-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В старом руководстве сказано, что MySQL игнорирует CHECK. Команда использует MySQL 8.4. Что проверить до того, как полагаться на ограничение цены?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Считать, что CHECK не работает ни в одной версии MySQL",
+          "correct": false,
+          "feedback": "MySQL добавил enforced CHECK constraints в 8.0.16; старые рекомендации нужно уточнять по версии."
+        },
+        {
+          "id": "b",
+          "text": "Проверить версию сервера и то, включено ли enforcement ограничения",
+          "correct": true,
+          "feedback": "MySQL 8.4 поддерживает CHECK и обеспечивает его по умолчанию, но ограничение может быть явно объявлено NOT ENFORCED."
+        },
+        {
+          "id": "c",
+          "text": "Считать, что все CHECK гарантированно enforced, раз сервер современный",
+          "correct": false,
+          "feedback": "Проверь определение ограничения и статус enforcement: NOT ENFORCED — поддерживаемая настройка."
+        },
+        {
+          "id": "d",
+          "text": "Заменить ограничение базы только frontend-валидацией формы",
+          "correct": false,
+          "feedback": "Frontend-валидация улучшает обратную связь, но не обеспечивает целостность для всех клиентов и прямых записей в базу."
+        }
+      ],
+      "explanation": "Диалект и версия важны. Перед тем как полагаться на правило, проверь установленную версию сервера и метаданные реального ограничения."
     },
     {
       "id": "sql-select-body",
@@ -195,6 +246,58 @@
       "code": "SELECT id,\n       CASE WHEN total >= 100 THEN 'large' ELSE 'standard' END AS order_size\nFROM orders\nWHERE customer_id = $1;"
     },
     {
+      "id": "sql-views-set-ops-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Views, условные значения и операции над множествами"
+    },
+    {
+      "id": "sql-views-set-ops",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "View хранит определение запроса и может использоваться как таблица; materialized results — отдельная, зависящая от СУБД возможность.",
+        "CASE возвращает значение первой совпавшей ветки и подходит для вычисляемых меток и явного приоритета сортировки.",
+        "UNION объединяет совместимые результаты и удаляет дубликаты; UNION ALL сохраняет их и обычно уместен, когда дубликаты имеют значение.",
+        "У операций над множествами должны совпадать количество и совместимость типов колонок. Для сортировки общего результата ставь итоговый ORDER BY после всего set expression.",
+        "DDL определяет структуру (CREATE, ALTER, DROP); DML изменяет строки (INSERT, UPDATE, DELETE). TRUNCATE очищает таблицу целиком; транзакционное поведение и триггеры зависят от СУБД.",
+        "Identity/sequence values — идентификаторы, а не гарантированно непрерывные счётчики. Rollback и удаление могут оставлять пропуски; бизнес-логика не должна зависеть от последовательных ID."
+      ]
+    },
+    {
+      "id": "sql-views-set-ops-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Нужно объединить результаты двух совместимых SELECT и сохранить повторяющиеся строки. Какой оператор выбрать?",
+      "options": [
+        {
+          "id": "a",
+          "text": "UNION",
+          "correct": false,
+          "feedback": "UNION объединяет результаты, а затем удаляет дублирующиеся строки."
+        },
+        {
+          "id": "b",
+          "text": "UNION ALL",
+          "correct": true,
+          "feedback": "UNION ALL объединяет совместимые наборы результатов без удаления дубликатов."
+        },
+        {
+          "id": "c",
+          "text": "INTERSECT",
+          "correct": false,
+          "feedback": "INTERSECT возвращает строки, присутствующие в обоих наборах, а не все строки из обоих."
+        },
+        {
+          "id": "d",
+          "text": "EXCEPT",
+          "correct": false,
+          "feedback": "EXCEPT возвращает строки первого набора, которых нет во втором."
+        }
+      ],
+      "explanation": "Выбирай set operator по нужному результату: UNION убирает дубликаты, UNION ALL сохраняет их, INTERSECT оставляет общие строки, EXCEPT вычитает второй набор из первого."
+    },
+    {
       "id": "sql-schema-heading",
       "type": "heading",
       "level": 2,
@@ -217,6 +320,112 @@
       "tone": "important",
       "title": "Ограничение — часть контракта данных",
       "text": "Проверки приложения улучшают обратную связь; ограничение базы — последняя защита целостности. Обрабатывай ошибки ограничений как ожидаемый результат, а не невозможный сбой."
+    },
+    {
+      "id": "sql-dml-safety-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Безопасно изменяй данные с помощью DML и транзакций"
+    },
+    {
+      "id": "sql-dml-safety-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "BEGIN;\n\n-- Сначала проверь строки, которые попадут под условие.\nSELECT product_id, unit_price\nFROM products\nWHERE category_id = 3\nORDER BY product_id;\n\n-- Выполняй UPDATE только после проверки preview.\nUPDATE products\nSET unit_price = unit_price * 1.10\nWHERE category_id = 3\nRETURNING product_id, unit_price;\n\n-- Проверь возвращённые строки и число изменённых записей.\n-- Затем выполни ровно одну команду: COMMIT; или ROLLBACK;",
+      "steps": [
+        {
+          "title": "Открой транзакцию",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "В PostgreSQL транзакция позволяет отменить незавершённые изменения через ROLLBACK. Транзакция не заменяет проверку условия и число затронутых строк."
+        },
+        {
+          "title": "Просмотри целевые строки",
+          "lineStart": 3,
+          "lineEnd": 7,
+          "explanation": "Используй то же условие, что и в UPDATE. Сверь IDs и количество строк с ожидаемым изменением до записи."
+        },
+        {
+          "title": "Ограничь и проверь UPDATE",
+          "lineStart": 9,
+          "lineEnd": 13,
+          "explanation": "Явный WHERE ограничивает набор, а RETURNING показывает фактически изменённые строки в PostgreSQL. Не удаляй WHERE и не полагайся только на frontend-проверки."
+        },
+        {
+          "title": "Выбери COMMIT или ROLLBACK",
+          "lineStart": 15,
+          "lineEnd": 16,
+          "explanation": "Проверь результат до подтверждения. Если результат неожиданный, выполни ROLLBACK вместо COMMIT; команда BEGIN не делает запись безопасной сама по себе."
+        }
+      ]
+    },
+    {
+      "id": "sql-dml-safety-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Нужно увеличить цены для категории 3 и подтвердить, какие строки изменились. Какой процесс безопаснее?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Выполнить UPDATE без WHERE и потом отфильтровать отображённые строки",
+          "correct": false,
+          "feedback": "Без WHERE обновятся все строки; фильтрация результата не отменит неверную запись."
+        },
+        {
+          "id": "b",
+          "text": "Проверить целевые строки, использовать транзакцию и такой же WHERE, изучить RETURNING, затем выполнить commit или rollback",
+          "correct": true,
+          "feedback": "Preview подтверждает scope, RETURNING показывает фактические изменения, а транзакция позволяет отменить их до commit."
+        },
+        {
+          "id": "c",
+          "text": "Изменить значения во frontend и предположить, что база отклонит изменения не тех строк",
+          "correct": false,
+          "feedback": "Клиентское состояние не ограничивает прямой SQL и других клиентов; область изменения и целостность должны обеспечиваться на уровне базы."
+        },
+        {
+          "id": "d",
+          "text": "Сразу выполнить TRUNCATE для products и импортировать ожидаемые строки заново",
+          "correct": false,
+          "feedback": "TRUNCATE удаляет все строки и не является точечным обновлением; оно не подходит для изменения цены категории."
+        }
+      ],
+      "explanation": "Для изменяющего данные SQL сначала проверь условие, ограничь запись, изучи затронутые строки и выбери COMMIT или ROLLBACK перед завершением транзакции."
+    },
+    {
+      "id": "sql-dml-safety-practice",
+      "type": "codingExercise",
+      "title": "Спланируй безопасное обновление цены в PostgreSQL",
+      "language": "sql",
+      "context": "В тестовой базе нужно увеличить цены на 10% для товаров категории 3. Нужно подтвердить затронутые товары и не менять другие категории.",
+      "instructions": [
+        "Напиши SELECT с точным условием, чтобы посмотреть IDs товаров и текущие цены до изменения.",
+        "Напиши UPDATE с тем же условием и RETURNING IDs и новых цен.",
+        "Помести запись в транзакцию PostgreSQL и опиши, как выбрать между COMMIT и ROLLBACK.",
+        "Определи, что проверить в возвращённых строках и как подтвердить число изменённых записей.",
+        "Объясни, почему сначала нужно проверять изменение в disposable/test базе, а не в production."
+      ],
+      "requirements": [
+        "Предварительный SELECT и UPDATE используют одинаковое условие категории.",
+        "UPDATE содержит ограничивающий WHERE и возвращает затронутые строки.",
+        "Решение COMMIT/ROLLBACK зависит от фактического результата.",
+        "План проверяет IDs товаров, новые значения и количество изменённых строк.",
+        "План исключает первые эксперименты на production-данных.",
+        "Ответ объясняет, почему frontend-валидация не является границей безопасности базы."
+      ],
+      "starterCode": "BEGIN;\n\n-- TODO: проверь ровно те товары, которые нужно изменить\nSELECT product_id, unit_price\nFROM products\nWHERE category_id = 3\nORDER BY product_id;\n\n-- TODO: обнови те же строки и изучи RETURNING\nUPDATE products\nSET unit_price = unit_price * 1.10\nWHERE category_id = 3\nRETURNING product_id, unit_price;\n\n-- Проверь результат и выполни ровно одну команду:\n-- COMMIT;\n-- ROLLBACK;",
+      "hints": [
+        "Используй одинаковое WHERE-условие в preview и update, чтобы проверить область изменения.",
+        "В PostgreSQL RETURNING показывает строки, изменённые командой; сравни результат с требованием.",
+        "Не выполняй и COMMIT, и ROLLBACK; выбери после проверки строк и количества. Не проверяй разрушительные изменения на production."
+      ],
+      "successCriteria": [
+        "Preview SELECT показывает ожидаемый scope.",
+        "UPDATE меняет только нужную категорию и возвращает новые значения.",
+        "Решение транзакции основано на реальных возвращённых строках и их количестве.",
+        "План включает rollback при неожиданном результате.",
+        "Ученик объясняет, почему целостность должна обеспечиваться базой, а не только frontend."
+      ]
     },
     {
       "id": "sql-transactions-heading",
@@ -476,6 +685,11 @@
         {
           "title": "Supabase: Row Level Security",
           "url": "https://supabase.com/docs/guides/database/postgres/row-level-security",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MySQL 8.4: CHECK constraints",
+          "url": "https://dev.mysql.com/doc/refman/8.4/en/create-table-check-constraints.html",
           "kind": "official-docs"
         }
       ]

@@ -587,3 +587,12 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - The source's blanket child rerender statement, package-size/compression figures and default-export-only statement are treated as simplifications. ARIA is not keyboard behavior; application menu roles need their full keyboard/focus pattern. Simulator/copy UI parity remains partial.
 - Full HTML source reviews documented: 21/25. Remaining unread: `sql-learning-page.html`, `test.guide.html`, `ui-design-system-learn.html`, plus the tracked `html-reference.html` re-review. Notion source verification remains open.
 - MUI test count fix commit `56d17b467c154b9f0d0a9cb47eed2e6355db4cf2` is running CI; the performance content and docs commit needs its own exact-head CI.
+
+
+## Full source and content checkpoint — sql-learning-page.html — 2026-10-27
+
+- Fully reviewed `public/lessons/sql-learning-page.html` (112,768 bytes, 2,003 lines; blob `cb73f0f6e6ec317dfba76395836582f18c5b9f75`), including all 11 topics, 7 editors, checks, hints, copy/toggle controls and result-rendering JavaScript.
+- Expanded `data.sql-postgresql` to v2 with 46 aligned EN/RU blocks. Added dialect/version checks, MySQL CHECK enforcement nuance, explicit warning that the old query editor returns canned results rather than executing SQL, safe transaction/UPDATE/RETURNING walkthrough and exercise, plus views/CASE/set-operation coverage.
+- Official MySQL 8.4 docs are linked: CHECK constraints are enforced by default in current MySQL but can be NOT ENFORCED; older versions differ. LIKE sensitivity and some transaction/correlated-query behavior depend on engine/collation. The legacy runner is pattern-matched canned output, not evidence that arbitrary SQL parses or runs.
+- Full HTML source reads documented: 22/25. Remaining unread: `test.guide.html` and `ui-design-system-learn.html`, plus planned `html-reference.html` re-review. Notion source verification is still open.
+- Last exact-head performance/accessibility CI passed on `bb409a9b13ce54ee8e96899c26165db7686f7cf4` (run `40462441522`). This SQL commit needs CI on its exact SHA.
