@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
@@ -25,7 +25,9 @@ describe('StorageErrorNotice', () => {
   it('updates the visible message for a storage error raised while mounted', () => {
     render(<MemoryRouter><StorageErrorNotice /></MemoryRouter>);
 
-    reportStorageError('ig:notes', 'read');
+    act(() => {
+      reportStorageError('ig:notes', 'read');
+    });
 
     expect(screen.getByRole('alert')).toHaveTextContent('The app could not read some saved learning data');
   });
