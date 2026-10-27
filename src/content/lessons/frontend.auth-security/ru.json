@@ -1,7 +1,7 @@
 {
   "id": "frontend.auth-security",
   "locale": "ru",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-23",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Аутентификация и авторизация для frontend-разработчика",
   "description": "Разбери сессии, риски browser credentials, роли OAuth/OIDC и почему авторизация API не может находиться только в UI.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 95,
   "difficulty": "advanced",
   "prerequisites": [
     "react.router-spa",
@@ -51,6 +51,50 @@
       "text": "Пользователь может изменить JavaScript, повторить запрос или вызвать endpoint вне UI. Не помещай привилегированные API-ключи в браузерный bundle. Проверяй права на доверенном сервере/слое данных и тестируй прямые запросы наряду с обычным экранным сценарием."
     },
     {
+      "id": "auth-http-status-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Обрабатывай 401 и 403 как разные состояния"
+    },
+    {
+      "id": "auth-http-status-model",
+      "type": "paragraph",
+      "text": "Ответ `401` означает, что в запросе нет подходящих учётных данных согласно контракту API; при поддерживаемой архитектуре может подойти refresh. `403` означает, что сервер понял запрос, но у клиента недостаточно прав, поэтому повторная аутентификация обычно не поможет. Покажи пользователю состояние «доступ запрещён», а не запускай цикл возврата на login. Некоторые API намеренно отвечают `404`, когда раскрытие существования ресурса может быть небезопасным, поэтому следуй документированному контракту."
+    },
+    {
+      "id": "auth-http-status-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Авторизованный пользователь запрашивает admin-отчёт, но API отвечает `403`, потому что у аккаунта нет нужной роли. Что должна сделать frontend-часть?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Отправлять пользователя на login и повторять тот же запрос, пока он не сработает",
+          "correct": false,
+          "feedback": "403 означает решение об авторизации: повторный вход не добавит отсутствующие права и может создать цикл редиректов."
+        },
+        {
+          "id": "b",
+          "text": "Показать понятное сообщение о запрете доступа и сохранить серверную проверку прав",
+          "correct": true,
+          "feedback": "Пользователь уже аутентифицирован, но не имеет права на действие; доверенный API обязан продолжать проверять эту политику."
+        },
+        {
+          "id": "c",
+          "text": "Декодировать JWT в браузере и переопределить ответ сервера, если в payload указана роль admin",
+          "correct": false,
+          "feedback": "Claims, декодированные на клиенте, не являются источником полномочий и не могут отменить отказ доверенного resource server."
+        },
+        {
+          "id": "d",
+          "text": "Считать каждый 403 истёкшим токеном и бесконечно запускать refresh",
+          "correct": false,
+          "feedback": "Refresh нужен для истёкших или неверных credentials, если это поддерживает API; отказ в правах не должен запускать бесконечные повторы."
+        }
+      ],
+      "explanation": "Разделяй ошибки аутентификации и прав доступа. 401 может начать ограниченное восстановление credentials, а 403 обычно требует показать отказ в доступе."
+    },
+    {
       "id": "auth-sessions-heading",
       "type": "heading",
       "level": 2,
@@ -67,6 +111,63 @@
         "Любые учётные данные, доступные frontend JavaScript, могут быть раскрыты при XSS. Не существует универсального правила «всегда localStorage» или «cookies решают всё»; выбор делается с учётом threat model, фреймворка и серверной архитектуры.",
         "Logout, истечение срока, rotation/revocation, session fixation, XSS и CSRF входят в threat model, а не только в валидацию формы входа."
       ]
+    },
+    {
+      "id": "auth-storage-tradeoffs",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "localStorage и sessionStorage доступны JavaScript того же origin; успешная XSS-атака может украсть или изменить их содержимое. Разница в сроке жизни не делает их безопасным хранилищем чувствительных credentials по умолчанию.",
+        "In-memory access token исчезает после перезагрузки, но вредоносный JavaScript на странице всё ещё может его прочитать или использовать. Память уменьшает время хранения, но не защищает от XSS.",
+        "HttpOnly запрещает JavaScript читать cookie. Secure ограничивает отправку cookie через HTTPS, а SameSite меняет условия её передачи в cross-site запросах; для изменяющих состояние cookie-запросов всё равно нужна осознанная защита от CSRF.",
+        "BFF может хранить OAuth-токены на сервере и выдавать браузеру сессию вместо самих токенов. Это уменьшает прямое раскрытие токенов JavaScript, но добавляет серверную/сессионную инфраструктуру и всё равно требует учитывать CSRF для cookie.",
+        "При logout нужно инвалидировать серверную сессию или отзывать credentials, если это поддерживается, очистить клиентское auth-state и вывести пользователя из защищённой навигации. Очистка React-state сама по себе не завершает серверную сессию.",
+        "CORS — это политика браузера для cross-origin запросов, а не аутентификация. Resource server обязан проверять credentials и права для каждой защищённой операции независимо от настройки CORS."
+      ]
+    },
+    {
+      "id": "auth-jwt-validation-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Декодирование JWT — не его верификация"
+    },
+    {
+      "id": "auth-jwt-validation-model",
+      "type": "paragraph",
+      "text": "Заголовок и payload JWT, закодированные Base64URL, читаемы любым обладателем токена; кодирование — не шифрование. Декодирование помогает показать UI неподтверждённую подсказку, например время истечения, но не проверяет подпись, issuer, audience, политику срока жизни или права. Resource server обязан проверить токен по своему контракту и авторизовать конкретную операцию. Не помещай пароли, API-секреты и чувствительные персональные данные в читаемый payload."
+    },
+    {
+      "id": "auth-jwt-validation-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Разработчик декодирует JWT в браузере, видит `role: \"admin\"` и `exp` в будущем. Что это доказывает?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Подпись и issuer верны, поэтому браузер может разрешить admin-запросы",
+          "correct": false,
+          "feedback": "Base64URL-декодирование лишь читает payload; оно не проверяет подпись, issuer, audience или правила доступа API."
+        },
+        {
+          "id": "b",
+          "text": "Только то, что payload читаем; доверенный resource server должен проверить токен и политику доступа",
+          "correct": true,
+          "feedback": "UI может использовать декодированные значения как подсказки, но API остаётся источником истины для верификации и авторизации."
+        },
+        {
+          "id": "c",
+          "text": "Токен зашифрован, потому что payload не выглядит обычным JSON в URL",
+          "correct": false,
+          "feedback": "Payload JWT обычно закодирован в Base64URL, а не зашифрован; любой владелец токена может декодировать claims."
+        },
+        {
+          "id": "d",
+          "text": "Серверная проверка не нужна, если timestamp истечения ещё не наступил",
+          "correct": false,
+          "feedback": "Будущий exp ничего не говорит о подлинности подписи, issuer, audience, отзыве токена или необходимых правах."
+        }
+      ],
+      "explanation": "Decoder нужен для отображения и диагностики, а не для верификации. Проверяй свойства токена и права на доверенной стороне ресурса."
     },
     {
       "id": "auth-flow",
@@ -89,6 +190,39 @@
       ]
     },
     {
+      "id": "auth-oauth-flow-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Новому browser-based приложению нужен вход пользователя через OpenID Connect provider. Какой подход лучше рассмотреть первым?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Использовать Implicit flow, потому что он возвращает токены прямо во фрагменте URL",
+          "correct": false,
+          "feedback": "Возврат токенов в URL открывает дополнительные пути утечки; Implicit flow не является рекомендуемым выбором для новых browser-приложений."
+        },
+        {
+          "id": "b",
+          "text": "Использовать Authorization Code с PKCE для публичного SPA или оценить BFF; для API передавать access token, а не ID token",
+          "correct": true,
+          "feedback": "PKCE связывает обмен кода с начавшим поток клиентом, а access token и ID token имеют разные цели и аудитории."
+        },
+        {
+          "id": "c",
+          "text": "Положить OAuth client secret в переменную окружения Vite, чтобы скрыть его от пользователей браузера",
+          "correct": false,
+          "feedback": "Build-time переменные, попавшие в браузерный bundle, публичны; secret confidential-клиента должен оставаться на доверенном сервере, например в BFF."
+        },
+        {
+          "id": "d",
+          "text": "Использовать ID token как универсальный credential для каждого backend API",
+          "correct": false,
+          "feedback": "ID token передаёт клиенту claims об аутентификации; API должен получать access credential, предусмотренный контрактом."
+        }
+      ],
+      "explanation": "Для публичного SPA ориентируйся на актуальные инструкции провайдера и Authorization Code с PKCE; BFF — другая архитектура, переносящая обработку токенов на сервер."
+    },
+    {
       "id": "auth-options-heading",
       "type": "heading",
       "level": 2,
@@ -98,6 +232,71 @@
       "id": "auth-options",
       "type": "paragraph",
       "text": "Обычная SPA может использовать authorization-code flow с PKCE, следуя актуальным рекомендациям identity provider и внимательно управляя сроком жизни, хранением и обновлением токена. BFF хранит OAuth-токены на сервере и предоставляет SPA браузерную сессию, снижая прямую доступность токенов для JavaScript, но добавляя обязанности по серверным сессиям и CSRF. Это архитектурный выбор, не универсальный победитель: учитывай чувствительность данных, deployment, поддержку провайдера и операционные возможности команды."
+    },
+    {
+      "id": "auth-refresh-race-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Предотвращай гонки при параллельном refresh"
+    },
+    {
+      "id": "auth-refresh-race-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "// Token-based SPA sketch; transport and response types are project-specific.\nlet refreshInFlight: Promise<string> | null = null;\n\nfunction getFreshAccessToken(): Promise<string> {\n  if (!refreshInFlight) {\n    refreshInFlight = requestRefreshToken()\n      .then(({ accessToken }) => accessToken)\n      .finally(() => {\n        refreshInFlight = null;\n      });\n  }\n  return refreshInFlight;\n}\n\nasync function sendWithOneRefresh(\n  request: ApiRequest,\n): Promise<ApiResponse> {\n  const first = await send(request);\n  if (first.status !== 401 || request.authRetry || request.skipRefresh) {\n    return first;\n  }\n\n  try {\n    const accessToken = await getFreshAccessToken();\n    return send({ ...request, accessToken, authRetry: true });\n  } catch {\n    clearClientAuthState();\n    return { status: 401, body: { error: 'reauthentication-required' } };\n  }\n}",
+      "steps": [
+        {
+          "title": "Разделяй один активный refresh",
+          "lineStart": 1,
+          "lineEnd": 13,
+          "explanation": "Параллельные ответы 401 могут использовать один ожидающий refresh promise вместо нескольких одновременных refresh-запросов. После завершения promise очищается, чтобы позднее истечение могло запустить новый запрос."
+        },
+        {
+          "title": "Не повторяй любой сбой",
+          "lineStart": 15,
+          "lineEnd": 21,
+          "explanation": "Запускай refresh, только если контракт API говорит, что 401 можно так восстановить. Исключи сам refresh endpoint и уже повторённые запросы; 403 не означает истёкший токен."
+        },
+        {
+          "title": "Повтори один раз и восстановись при ошибке",
+          "lineStart": 23,
+          "lineEnd": 30,
+          "explanation": "Повтори исходный запрос с новым access token не более одного раза. Если refresh не удался, очисти клиентское auth-state и предложи повторный вход; BFF/cookie-сессии требуют собственного контракта и защиты от CSRF."
+        }
+      ]
+    },
+    {
+      "id": "auth-refresh-race-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Пять параллельных API-запросов почти одновременно получили `401`. Какая стратегия лучше предотвращает гонки refresh и бесконечные повторы?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Запустить пять refresh-запросов и принять тот ответ, который придёт последним",
+          "correct": false,
+          "feedback": "Параллельные refresh-запросы могут одновременно вращать или инвалидировать credential и оставить запросы с несовместимым состоянием токена."
+        },
+        {
+          "id": "b",
+          "text": "Использовать общий promise активного refresh, повторить подходящие исходные запросы один раз и предложить вход заново, если refresh не удался",
+          "correct": true,
+          "feedback": "Общий promise предотвращает дубликаты; ограничение одного повтора не даёт зациклиться, а неудачный refresh требует понятного восстановления."
+        },
+        {
+          "id": "c",
+          "text": "Обновлять токен при каждом ответе, включая 403, пока API не вернёт 200",
+          "correct": false,
+          "feedback": "403 обычно означает недостаточные права; бесконечные повторы создают цикл и не устраняют причину отказа."
+        },
+        {
+          "id": "d",
+          "text": "Незаметно повторять запросы в фоне и не очищать состояние, если refresh завершился ошибкой",
+          "correct": false,
+          "feedback": "Тихие повторы могут оставить UI в противоречивом состоянии; при неудачном refresh нужна явная обработка восстановления или выхода."
+        }
+      ],
+      "explanation": "Объединяй параллельные refresh и ограничивай повторы. Точный поток зависит от контракта API; при BFF браузер может вообще не получать refresh token."
     },
     {
       "id": "auth-check",
@@ -139,30 +338,37 @@
       "language": "text",
       "context": "Проанализируй гипотетическую dashboard с входом, браузерными credentials и защищёнными API-операциями.",
       "instructions": [
-        "Опиши, какой компонент аутентифицирует личность и какой слой авторизует доступ к данным.",
-        "Сравни SPA с authorization-code + PKCE и серверную сессию BFF для этой функции.",
-        "Определи риски XSS/CSRF для выбранной модели хранения/передачи credential.",
-        "Опиши истечение сессии/токена, logout и поведение API после отзыва доступа.",
-        "Напиши тесты для неаутентифицированного, аутентифицированного без прав и разрешённого запроса, включая прямые вызовы API."
+        "Identify the identity provider/client, the API resource server, and which layer owns each authentication and authorization decision.",
+        "Compare an Authorization Code + PKCE SPA design with a BFF session design; state why the selected architecture fits the threat model.",
+        "Explain how XSS and CSRF risks differ for JavaScript-readable credentials and HttpOnly cookies.",
+        "Specify distinct frontend behavior for 401, 403 and an intentionally concealed 404 response.",
+        "Define expiry, refresh, bounded retry, logout, server-session invalidation and credential-revocation behavior.",
+        "Explain why decoding a JWT payload cannot validate its signature or grant API access.",
+        "Write tests for unauthenticated, authenticated-but-forbidden and authorized requests, parallel 401 responses, refresh failure, and direct API calls that bypass the UI."
       ],
       "requirements": [
-        "Аутентификация и авторизация чётко различаются.",
-        "Привилегированный секрет не отправляется в JavaScript браузера.",
-        "Модель хранения/передачи обоснована через threat model.",
-        "Авторизация сервером/слоем данных нужна независимо от UI guards.",
-        "Тесты включают прямые неавторизованные запросы и жизненный цикл credentials."
+        "Authentication and authorization are explicitly distinguished.",
+        "No privileged client secret or server credential is bundled into browser JavaScript.",
+        "The selected storage/transport model has a threat-model rationale and an explicit CSRF/XSS plan.",
+        "Trusted server/data-layer authorization is required regardless of UI guards or decoded JWT claims.",
+        "401, 403 and concealed 404 responses have distinct and contract-aware UX.",
+        "Refresh operations are deduplicated, retry is bounded, and failure transitions into explicit recovery.",
+        "Logout covers the server session or credential lifecycle as well as client state."
       ],
-      "starterCode": "Feature: admin dashboard\n\nIdentity provider:\nCredential transport/storage:\nServer/API authorization rules:\nXSS/CSRF mitigations:\nExpiry / refresh / logout:\n\nTest cases:\n- no session:\n- authenticated but forbidden:\n- authorized:\n- direct API request bypassing UI:",
+      "starterCode": "Функция: admin dashboard\n\nIdentity provider / тип клиента:\nResource server и правила авторизации:\nРешение SPA PKCE vs BFF и компромиссы:\nПередача / хранение credentials:\nЗащита от XSS / CSRF:\nПоведение для 401 / 403 / скрытого 404:\nПараллельный refresh / ограничение повтора:\nLogout / expiry / отзыв credentials:\n\nТест-кейсы:\n- нет сессии / неверные credentials:\n- пользователь вошёл, но прав нет:\n- доступ разрешён:\n- параллельные ответы 401:\n- refresh завершился ошибкой:\n- прямой API-запрос в обход UI:",
       "hints": [
-        "Route guard — UX, а не access control.",
-        "PKCE защищает обмен authorization code, но не отменяет защиты токенов и ресурсов API.",
-        "HttpOnly cookie ограничивает доступ JavaScript, но автоматически не предотвращает CSRF."
+        "Route guard улучшает UX, но API должен авторизовывать каждый защищённый запрос.",
+        "Декодирование JWT — не проверка подписи; не доверяй client claims при выдаче прав.",
+        "HttpOnly ограничивает чтение JavaScript, но не все запросы; изменяющие состояние cookie-запросы требуют защиты от CSRF.",
+        "Объединяй параллельные refresh-запросы и повторяй каждый подходящий запрос не более одного раза."
       ],
       "successCriteria": [
-        "Определены роли identity provider, client и API.",
-        "Объяснены выбранная архитектура и угрозы токена/сессии.",
-        "Авторизация предусмотрена на доверенной границе данных.",
-        "Есть тесты жизненного цикла и прямого запроса."
+        "Определяет роли identity provider, client и resource server.",
+        "Объясняет выбранную модель credentials и её XSS/CSRF-риски.",
+        "Требует авторизацию на доверенной границе API/data layer.",
+        "Различает 401, 403 и намеренно скрываемый 404 согласно контракту API.",
+        "Использует общий refresh и ограниченную политику повторов.",
+        "Проверяет жизненный цикл credentials, обход UI прямым запросом и восстановление после сбоя refresh/logout."
       ]
     },
     {
@@ -170,10 +376,13 @@
       "type": "list",
       "ordered": false,
       "items": [
-        "Аутентификация подтверждает личность, авторизация проверяет конкретную операцию на соответствие policy.",
-        "Frontend guards не являются границей безопасности — проверяй credentials и права на API/слое данных.",
-        "У cookie и токенов разные компромиссы; планируй XSS, CSRF, expiry, logout и revocation.",
-        "OAuth 2.0 (авторизация) и OpenID Connect (идентичность) связаны, но различны."
+        "Аутентификация подтверждает личность, а авторизация проверяет право на конкретную операцию.",
+        "Frontend guards не являются границей безопасности; credentials и права проверяются на уровне API/data layer.",
+        "HTTP 401 и 403 требуют разного восстановления; следуй контракту API и избегай циклов login/refresh.",
+        "Декодирование JWT не проверяет подлинность, issuer, audience или права доступа.",
+        "У cookie и token-моделей есть компромиссы; учитывай XSS, CSRF, expiry, logout и отзыв.",
+        "OAuth authorization и OpenID Connect identity связаны, но различаются; используй актуальные инструкции провайдера для SPA/BFF.",
+        "Параллельные refresh-запросы должны объединяться, повторы ограничиваться, а сбой вести к явному восстановлению."
       ]
     },
     {
@@ -199,6 +408,21 @@
           "title": "OpenID Connect Core 1.0",
           "url": "https://openid.net/specs/openid-connect-core-1_0.html",
           "kind": "standard"
+        },
+        {
+          "title": "OWASP: предотвращение Cross-Site Request Forgery",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "OWASP: безопасность HTML5 и browser storage",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: 401 Unauthorized",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/401",
+          "kind": "reference"
         }
       ]
     }

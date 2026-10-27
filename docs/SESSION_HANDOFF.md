@@ -527,3 +527,11 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - UI planning, component responsibilities, state ownership and API contracts already overlap with `capstone.design-architecture-planning`; dedicated router/forms/state/UI/testing lessons cover related ecosystem areas. FSD rules are presented as methodology-specific, and `index.ts` is not described as access control unless lint/import boundaries enforce it.
 - Source audit: 14/25 full HTML reads. Remaining: `frontend-auth.html`, `frontend-bootcamp-notes.html`, `git-reference.html`, `interactive-async-js.html`, `js_interactive_book.html`, `material-ui-masterclass.html`, `react-performance-a11y.html`, `sql-learning-page.html`, `test.guide.html`, `ui-design-system-learn.html`, plus the planned `html-reference.html` re-review. Notion source verification remains incomplete.
 - Run the full CI suite on the exact pushed SHA. Continue on `feat/learning-platform-foundation`; do not merge or alter `main`.
+
+
+## Full source and content checkpoint — frontend-auth.html — 2026-10-27
+
+- Fully reviewed `public/lessons/frontend-auth.html` (2,300 lines, 90,060 bytes; blob `867a4a5e499a29d60db9335374dee8958a29c9aa`), covering status-code cards, cookies/sessions, access/refresh tokens, JWT, OAuth/PKCE/OIDC/BFF, React auth patterns, storage/XSS/CSRF/CORS, logout, and the interactive decoder/tabs.
+- Expanded `frontend.auth-security` to v2, 23 aligned EN/RU blocks: assessed 401/403 handling, JWT decode-vs-verify, OAuth Code + PKCE and token roles, credential storage trade-offs, a concurrency-safe refresh sketch with one retry, and a more demanding threat-model practice task.
+- Full HTML reads documented: 15/25. Remaining: `frontend-bootcamp-notes.html`, `git-reference.html`, `interactive-async-js.html`, `js_interactive_book.html`, `material-ui-masterclass.html`, `react-performance-a11y.html`, `sql-learning-page.html`, `test.guide.html`, `ui-design-system-learn.html`, plus `html-reference.html` re-review. Notion source verification remains incomplete.
+- CI must pass on exact feature head; stay on `feat/learning-platform-foundation` and do not alter `main`.

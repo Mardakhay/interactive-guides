@@ -287,3 +287,48 @@ describe('architecture colocation and public APIs', () => {
     }
   });
 });
+
+describe('frontend authentication security and lifecycle', () => {
+  it('covers status codes, JWT limits, OAuth roles and concurrent token refresh', () => {
+    expect(lessonTranslationSchema.safeParse(englishAuth).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianAuth).success).toBe(true);
+    expect(englishAuth.version).toBe(2);
+    expect(englishAuth.blocks).toHaveLength(23);
+    expect(englishAuth.blocks.map(({ id, type }) => [id, type])).toEqual(
+      russianAuth.blocks.map(({ id, type }) => [id, type]),
+    );
+    for (const lesson of [englishAuth, russianAuth]) {
+      for (const id of ['auth-http-status-check', 'auth-jwt-validation-check', 'auth-oauth-flow-check', 'auth-refresh-race-check']) {
+        const check = lesson.blocks.find((block) => block.id === id);
+        expect(check?.type).toBe('knowledgeCheck');
+        if (check?.type !== 'knowledgeCheck') return;
+        expect(check.options.filter((option) => option.correct)).toHaveLength(1);
+        expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+        expect(check.explanation.trim().length).toBeGreaterThan(0);
+      }
+      const refreshWalk = lesson.blocks.find((block) => block.id === 'auth-refresh-race-walkthrough');
+      expect(refreshWalk?.type).toBe('codeWalkthrough');
+      if (refreshWalk?.type !== 'codeWalkthrough') return;
+      const lineCount = refreshWalk.code.split('\n').length;
+      expect(refreshWalk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      expect(refreshWalk.code).toContain('refreshInFlight');
+      expect(refreshWalk.code).toContain('request.authRetry');
+      expect(refreshWalk.code).toContain('first.status !== 401');
+      const storage = lesson.blocks.find((block) => block.id === 'auth-storage-tradeoffs');
+      expect(storage?.type).toBe('list');
+      if (storage?.type === 'list') expect(storage.items).toHaveLength(6);
+      const practice = lesson.blocks.find((block) => block.id === 'auth-practice');
+      expect(practice?.type).toBe('codingExercise');
+      if (practice?.type !== 'codingExercise') return;
+      expect(practice.requirements.length).toBeGreaterThanOrEqual(7);
+      expect(practice.hints.length).toBeGreaterThanOrEqual(4);
+      expect(practice.successCriteria.length).toBeGreaterThanOrEqual(6);
+      const refs = lesson.blocks.find((block) => block.id === 'auth-references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') {
+        expect(refs.items.some((item) => item.url === 'https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/401')).toBe(true);
+      }
+    }
+  });
+});

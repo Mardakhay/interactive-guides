@@ -248,3 +248,10 @@ This is a full source-content review, not a claim that the old interactive pipel
 The full `frontend-architecture-and-planning.html` source is reviewed. The bilingual `frontend.architecture-boundaries` lesson is now v3 with 28 aligned blocks, including an explicit colocation/public-API walkthrough, quiz and exercise, a qualified abstraction rule, and responsibility-based tool guidance. UI planning, wireframes, component ownership, state placement and API contracts are mapped to the existing capstone design lesson rather than duplicated. See `FULL_SOURCE_CONTENT_AUDIT.md` for block-level evidence, current official FSD reference and deliberate corrections to absolute claims.
 
 Full HTML reads documented: 14 of 25. Ten further HTML sources and a planned `html-reference.html` re-review remain; Notion source verification is not closed.
+
+
+## Authentication source deep-review — 2026-10-27
+
+The full `frontend-auth.html` source is reviewed. `frontend.auth-security` is now v2 with 23 aligned EN/RU blocks, adding assessed 401/403 handling, JWT decode-vs-verify, OAuth Code + PKCE, cookie/storage trade-offs, single-flight token refresh and expanded credential-lifecycle threat-model practice. The lesson links current MDN/OWASP references; the old interactive decoder/tabs remain documented UI-parity gaps.
+
+Full HTML reads documented: 15 of 25; nine HTML sources plus the planned `html-reference.html` re-review remain, and Notion source verification is still open.
