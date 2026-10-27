@@ -1,16 +1,16 @@
 {
   "id": "js.dom-events",
   "locale": "en",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-27",
   "moduleId": "month-2-week-7",
   "week": 7,
   "order": 1,
   "title": "The DOM and Browser Events",
   "description": "Understand the browser's live document tree, select and update elements, handle events, and build a data-driven DOM to-do list.",
-  "estimatedMinutes": 115,
+  "estimatedMinutes": 125,
   "difficulty": "beginner",
   "prerequisites": [
     "js.functions-arrays-objects",
@@ -23,7 +23,8 @@
     "Explain event target/currentTarget, capture/target/bubble, delegation and default actions.",
     "Debug initial HTML attributes versus mutable DOM properties.",
     "Build a data-driven DOM list and validate behavior with browser DevTools.",
-    "Choose between textContent, innerText and innerHTML, and drive classes and data attributes from one state object."
+    "Choose between textContent, innerText and innerHTML, and drive classes and data attributes from one state object.",
+    "Choose a leading-edge throttle intentionally and remove its DOM event listener during teardown."
   ],
   "tags": [
     "javascript",
@@ -31,7 +32,9 @@
     "events",
     "browser",
     "forms",
-    "security"
+    "security",
+    "throttle",
+    "event-lifecycle"
   ],
   "blocks": [
     {
@@ -780,6 +783,76 @@
       ]
     },
     {
+      "id": "dom-throttle-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Throttle a scroll handler and clean it up"
+    },
+    {
+      "id": "dom-throttle-model",
+      "type": "paragraph",
+      "text": "A leading-edge throttle lets the first event through, then skips further calls until the interval has elapsed. It fits repeated scroll/resize signals when periodic updates are useful. This version has no trailing timer: intermediate events, including a final event inside the interval, can be dropped. Choose a trailing-edge version or debounce when the final value must always be processed."
+    },
+    {
+      "id": "dom-throttle-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function throttleLeading(fn, intervalMs) {\n  let lastRun = -Infinity;\n\n  return function (...args) {\n    const now = Date.now();\n    if (now - lastRun < intervalMs) return;\n    lastRun = now;\n    return fn.apply(this, args);\n  };\n}\n\nconst handleScroll = throttleLeading(() => {\n  console.log(window.scrollY);\n}, 250);\n\nwindow.addEventListener('scroll', handleScroll, { passive: true });\n\nfunction disposeScrollTracking() {\n  window.removeEventListener('scroll', handleScroll);\n}",
+      "steps": [
+        {
+          "title": "Limit the call rate",
+          "lineStart": 1,
+          "lineEnd": 10,
+          "explanation": "The wrapper records the last execution time and returns early when the interval has not elapsed. It is leading-edge only and schedules no trailing callback, so there is no pending timer to clear."
+        },
+        {
+          "title": "Register a reusable listener",
+          "lineStart": 12,
+          "lineEnd": 16,
+          "explanation": "The handler reads scroll position but never calls `preventDefault`, so a passive listener expresses that intent. Reuse the same function reference for removal."
+        },
+        {
+          "title": "Remove the exact listener reference",
+          "lineStart": 18,
+          "lineEnd": 20,
+          "explanation": "`removeEventListener` must receive the same callback reference and matching relevant options. Calling this disposer when the view is removed prevents the listener from retaining the handler and its closure."
+        }
+      ]
+    },
+    {
+      "id": "dom-throttle-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "This leading-edge throttle limits a scroll callback to at most once per 250 ms and does not create timers. What is the correct teardown?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Call `removeEventListener` with the same `handleScroll` function reference",
+          "correct": true,
+          "feedback": "Listener cleanup requires the original callback reference. This implementation creates no timer, so only the listener needs removal."
+        },
+        {
+          "id": "b",
+          "text": "Create a new wrapper by calling `throttleLeading` again and pass it to `removeEventListener`",
+          "correct": false,
+          "feedback": "A newly created wrapper is a different function reference, so it will not remove the registered listener."
+        },
+        {
+          "id": "c",
+          "text": "Call `clearTimeout` with the last timestamp",
+          "correct": false,
+          "feedback": "A timestamp is not a timer id, and this leading-only implementation does not schedule a trailing timer."
+        },
+        {
+          "id": "d",
+          "text": "Do nothing because browsers remove all listeners as soon as a callback returns",
+          "correct": false,
+          "feedback": "Event listeners stay registered until removed or their target is collected; the page's window normally outlives the view."
+        }
+      ],
+      "explanation": "A registered event listener stays active until it is removed or its target is collected. Retain and remove the exact callback reference; add timer cleanup only if the chosen throttle implementation actually schedules timers."
+    },
+    {
       "id": "dom-advanced-practice",
       "type": "codingExercise",
       "title": "Choose, connect, and clean up DOM observers",
@@ -790,14 +863,16 @@
         "Use IntersectionObserver for deferred image loading, and compare the custom implementation with native loading=\"lazy\".",
         "Use MutationObserver only for a subtree changed by another system; limit observed options and prevent callback feedback loops.",
         "Dispatch and handle a typed-by-convention CustomEvent with a documented detail payload.",
-        "Implement either a debounced search or throttled scroll handler and clean up observers/listeners/timers when the view is removed."
+        "Implement either a debounced search or throttled scroll handler and clean up observers/listeners/timers when the view is removed.",
+        "Implement a leading-edge throttled scroll handler using one stored callback reference, explain why intermediate events can be skipped, and remove the listener during teardown."
       ],
       "requirements": [
         "User-visible strings are inserted as text, not interpolated into innerHTML.",
         "Each observer is selected for the signal it actually reports and is scoped narrowly.",
         "Observation and event listeners have explicit cleanup.",
         "Rate limiting choice matches the interaction and does not hide necessary feedback.",
-        "Tests or a manual verification plan cover target-missing, no-intersection, teardown, and repeated-change cases."
+        "Tests or a manual verification plan cover target-missing, no-intersection, teardown, and repeated-change cases.",
+        "Any scroll listener added by the exercise is removed with the exact same callback reference; timers are cleaned only if the chosen implementation creates them."
       ],
       "starterCode": "const root = document.querySelector('#cards');\n\n// TODO: create several cards safely with a DocumentFragment.\n// TODO: defer an expensive action until an item approaches the viewport.\n// TODO: observe external DOM changes only if the feature requires them.\n// TODO: clean up all observers, event listeners, and timers on teardown.",
       "hints": [
@@ -811,7 +886,8 @@
         "Explains the tradeoff between custom intersection logic and native lazy loading.",
         "Observers are narrowly configured and disconnected/unobserved at teardown.",
         "Debounce or throttle behavior matches the stated user need and has no orphaned timer/listener.",
-        "Failure cases and lifecycle cleanup are verified."
+        "Failure cases and lifecycle cleanup are verified.",
+        "The handler rate is limited, the leading-only/trailing behavior is described, and teardown removes the registered listener without orphaned timers."
       ]
     },
     {

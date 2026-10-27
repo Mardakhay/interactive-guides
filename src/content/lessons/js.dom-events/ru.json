@@ -1,16 +1,16 @@
 {
   "id": "js.dom-events",
   "locale": "ru",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-27",
   "moduleId": "month-2-week-7",
   "week": 7,
   "order": 1,
   "title": "DOM и события браузера",
   "description": "Разберись в живом дереве документа браузера, безопасно выбирай и обновляй элементы, обрабатывай события и создай DOM-список задач на основе данных.",
-  "estimatedMinutes": 115,
+  "estimatedMinutes": 125,
   "difficulty": "beginner",
   "prerequisites": [
     "js.functions-arrays-objects",
@@ -23,7 +23,8 @@
     "Объяснять event target/currentTarget, фазы capture/target/bubble, delegation и действия браузера по умолчанию.",
     "Отлаживать различия между HTML-атрибутами и изменяемыми DOM-свойствами.",
     "Создавать список с источником данных в JS и проверять поведение через DevTools.",
-    "Выбирать между textContent, innerText и innerHTML и управлять классами и data-атрибутами из одного объекта состояния."
+    "Выбирать между textContent, innerText и innerHTML и управлять классами и data-атрибутами из одного объекта состояния.",
+    "Осознанно выбирать leading-edge throttle и снимать DOM listener при teardown."
   ],
   "tags": [
     "javascript",
@@ -31,7 +32,9 @@
     "events",
     "browser",
     "forms",
-    "security"
+    "security",
+    "throttle",
+    "event-lifecycle"
   ],
   "blocks": [
     {
@@ -780,6 +783,76 @@
       ]
     },
     {
+      "id": "dom-throttle-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Ограничь частоту scroll-обработчика и корректно удали его"
+    },
+    {
+      "id": "dom-throttle-model",
+      "type": "paragraph",
+      "text": "Throttle с leading edge пропускает первый event, затем игнорирует новые вызовы, пока не пройдёт интервал. Он подходит для повторяющихся scroll/resize-сигналов, когда полезны периодические обновления. Эта версия не имеет trailing timer: промежуточные события, включая последнее внутри интервала, могут быть пропущены. Выбирай trailing-edge-версию или debounce, если последнее значение обязательно нужно обработать."
+    },
+    {
+      "id": "dom-throttle-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function throttleLeading(fn, intervalMs) {\n  let lastRun = -Infinity;\n\n  return function (...args) {\n    const now = Date.now();\n    if (now - lastRun < intervalMs) return;\n    lastRun = now;\n    return fn.apply(this, args);\n  };\n}\n\nconst handleScroll = throttleLeading(() => {\n  console.log(window.scrollY);\n}, 250);\n\nwindow.addEventListener('scroll', handleScroll, { passive: true });\n\nfunction disposeScrollTracking() {\n  window.removeEventListener('scroll', handleScroll);\n}",
+      "steps": [
+        {
+          "title": "Ограничь частоту вызовов",
+          "lineStart": 1,
+          "lineEnd": 10,
+          "explanation": "Обёртка сохраняет время последнего выполнения и выходит раньше, если интервал ещё не прошёл. Это только leading-edge вариант без отложенного trailing callback, поэтому удалять ожидающий timer не нужно."
+        },
+        {
+          "title": "Зарегистрируй переиспользуемый listener",
+          "lineStart": 12,
+          "lineEnd": 16,
+          "explanation": "Обработчик читает scroll position и не вызывает `preventDefault`, поэтому passive listener отражает намерение. Для удаления сохраняй ту же ссылку на функцию."
+        },
+        {
+          "title": "Удали тот же экземпляр listener",
+          "lineStart": 18,
+          "lineEnd": 20,
+          "explanation": "`removeEventListener` должен получить ту же ссылку на callback и совпадающие значимые options. Вызови disposer при удалении представления, чтобы listener не удерживал handler и его closure."
+        }
+      ]
+    },
+    {
+      "id": "dom-throttle-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Этот leading-edge throttle ограничивает scroll callback одним вызовом не чаще чем раз в 250 мс и не создаёт таймеры. Как правильно очистить его?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Вызвать `removeEventListener` с той же ссылкой на функцию `handleScroll`",
+          "correct": true,
+          "feedback": "Для удаления listener нужна исходная ссылка на callback. Эта реализация не создаёт таймер, поэтому достаточно снять обработчик."
+        },
+        {
+          "id": "b",
+          "text": "Создать новую обёртку через `throttleLeading` и передать её в `removeEventListener`",
+          "correct": false,
+          "feedback": "Новая обёртка — другая ссылка на функцию, поэтому зарегистрированный listener не будет удалён."
+        },
+        {
+          "id": "c",
+          "text": "Вызвать `clearTimeout` с последним timestamp",
+          "correct": false,
+          "feedback": "Timestamp не является timer id, а эта leading-only реализация не планирует trailing timer."
+        },
+        {
+          "id": "d",
+          "text": "Ничего не делать, потому что браузер удаляет listener после каждого callback",
+          "correct": false,
+          "feedback": "Listener остаётся зарегистрированным, пока его не снимут или его target не будет собран; window обычно живёт дольше компонента."
+        }
+      ],
+      "explanation": "Зарегистрированный listener остаётся активным до явного удаления или сборки target. Сохраняй и удаляй ту же ссылку на callback; очищай таймеры только тогда, когда выбранная реализация throttle действительно их создаёт."
+    },
+    {
       "id": "dom-advanced-practice",
       "type": "codingExercise",
       "title": "Выберите, подключите и очистите DOM observers",
@@ -790,14 +863,16 @@
         "Используйте IntersectionObserver для отложенной загрузки и сравните с нативным loading=\"lazy\".",
         "Используйте MutationObserver лишь для DOM-поддерева, которое меняет другая система; ограничьте параметры наблюдения и не допускайте обратных циклов.",
         "Отправьте и обработайте CustomEvent с описанным payload.",
-        "Реализуйте debounce-поиск или throttle-обработчик scroll и очищайте observers, listeners и timers при удалении представления."
+        "Реализуйте debounce-поиск или throttle-обработчик scroll и очищайте observers, listeners и timers при удалении представления.",
+        "Реализуй leading-edge throttled scroll handler с одной сохранённой ссылкой на callback, объясни, почему промежуточные события пропускаются, и сними listener при teardown."
       ],
       "requirements": [
         "Пользовательский текст вставляется как текст, не интерполируется в innerHTML.",
         "Каждый observer выбран по нужному сигналу и ограничен подходящей областью.",
         "У наблюдения и обработчиков есть явная очистка.",
         "Частота обработки соответствует взаимодействию и не скрывает необходимую обратную связь.",
-        "План проверки учитывает отсутствующую цель, отсутствие пересечения, teardown и повторные изменения."
+        "План проверки учитывает отсутствующую цель, отсутствие пересечения, teardown и повторные изменения.",
+        "Любой добавленный scroll listener снимается той же ссылкой на callback; таймеры очищаются только если выбранная реализация их создаёт."
       ],
       "starterCode": "const root = document.querySelector('#cards');\n\n// TODO: безопасно создайте несколько карточек с DocumentFragment.\n// TODO: отложите тяжёлое действие, пока карточка не приблизится к экрану.\n// TODO: наблюдайте DOM-изменения только если это нужно функции.\n// TODO: при teardown очистите observers, listeners и timers.",
       "hints": [
@@ -811,7 +886,8 @@
         "Объяснён компромисс между собственной intersection-логикой и встроенной lazy loading.",
         "Observers настроены узко и отключаются при teardown.",
         "Debounce или throttle соответствуют потребности, а таймеры/обработчики не остаются после удаления.",
-        "Проверены крайние случаи и очистка жизненного цикла."
+        "Проверены крайние случаи и очистка жизненного цикла.",
+        "Частота обработчика ограничена, leading-only/trailing-поведение объяснено, а teardown удаляет listener без оставшихся таймеров."
       ]
     },
     {

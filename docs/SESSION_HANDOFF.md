@@ -699,3 +699,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - `js.runtime-memory` v3 has 30 aligned EN/RU blocks. It adds explicit cache-key selection, safe `Map.has` handling, invalidation/lifetime caveats, a feedback-rich check and a coding task that varies currency as a cache dimension.
 - Tests assert valid walkthrough ranges, key selector use, JSON stringify caveat, check feedback, practice rubric and official Map references. TTL/async cache implementation remains partial; Notion's recursive Fibonacci example and universal JSON.stringify advice were explicitly qualified.
+
+
+## DOM throttle source continuation — 2026-10-27
+
+- `js.dom-events` v5 adds `dom-throttle-walkthrough` and `dom-throttle-check`; the existing `dom-advanced-practice` now explicitly asks for same-reference listener teardown and states the leading/trailing behavior requirement.
+- EN/RU lessons have 62 aligned blocks, 15 walkthroughs and 11 checks. Tests protect ranges, `Date.now`, passive listener option, removeEventListener, feedback, task rubric and MDN reference.

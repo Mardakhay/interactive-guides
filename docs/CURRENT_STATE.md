@@ -588,3 +588,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Added source-derived memoization coverage in `js.runtime-memory` v3, with a key selector, explicit cache-hit semantics, retention/invalidation warning, assessment and currency-key practice. CI for the content change passed run [40472468871](https://github.com/Mardakhay/interactive-guides/actions/runs/40472468871).
 - The Advanced JS Notion page remains `verification.state=unverified`; this focused source mapping is not formal Notion verification. Full TTL implementation and adjacent throttle code mapping remain open.
+
+
+## DOM rate-control coverage — 2026-10-27
+
+- Added leading-edge throttle implementation and teardown teaching to `js.dom-events` v5. The lesson explicitly states that intermediate calls can be skipped and no trailing timer is created; cleanup removes the exact callback reference. New regression checks cover the implementation in EN/RU.
+- Debounced search remains a separate async/API-hook topic; full legacy DOM lesson UI parity remains open.

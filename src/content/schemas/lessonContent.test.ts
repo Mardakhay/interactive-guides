@@ -610,10 +610,10 @@ describe('DOM and events lesson translation', () => {
     expect(englishDom.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianDom.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
-    expect(russianDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
-    expect(englishDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(14);
-    expect(russianDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(14);
+    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
+    expect(russianDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
+    expect(englishDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(15);
+    expect(russianDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(15);
     expect(englishDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(russianDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(englishDom.blocks.map((block) => block.id)).toEqual(
@@ -623,11 +623,41 @@ describe('DOM and events lesson translation', () => {
         'dom-mutation-walkthrough',
         'dom-custom-event-walkthrough',
         'dom-observer-check',
+        'dom-throttle-walkthrough',
+        'dom-throttle-check',
         'dom-rate-control',
         'dom-advanced-practice',
       ]),
     );
     const advancedPractice = englishDom.blocks.find((block) => block.id === 'dom-advanced-practice');
+    for (const lesson of [englishDom, russianDom]) {
+      expect(lesson.version).toBe(5);
+      expect(lesson.blocks).toHaveLength(62);
+      const throttle = lesson.blocks.find((block) => block.id === 'dom-throttle-walkthrough');
+      expect(throttle?.type).toBe('codeWalkthrough');
+      if (throttle?.type !== 'codeWalkthrough') return;
+      const lineCount = throttle.code.split('\n').length;
+      expect(throttle.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      expect(throttle.code).toContain('Date.now()');
+      expect(throttle.code).toContain("{ passive: true }");
+      expect(throttle.code).toContain('removeEventListener');
+      expect(throttle.code).toContain('lastRun = -Infinity');
+      const quiz = lesson.blocks.find((block) => block.id === 'dom-throttle-check');
+      expect(quiz?.type).toBe('knowledgeCheck');
+      if (quiz?.type !== 'knowledgeCheck') return;
+      expect(quiz.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(quiz.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      expect(quiz.explanation).toContain('callback reference');
+      const exercise = lesson.blocks.find((block) => block.id === 'dom-advanced-practice');
+      expect(exercise?.type).toBe('codingExercise');
+      if (exercise?.type === 'codingExercise') {
+        expect(exercise.instructions.some((instruction) => /throttled scroll handler/.test(instruction))).toBe(true);
+        expect(exercise.requirements.some((requirement) => /callback reference/.test(requirement))).toBe(true);
+      }
+      const refs = lesson.blocks.find((block) => block.id === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener')).toBe(true);
+    }
     expect(advancedPractice).toMatchObject({
       type: 'codingExercise',
       requirements: expect.arrayContaining([expect.stringContaining('observer')]),

@@ -335,3 +335,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## Memoization and cache lifetime — 2026-10-27
 
 `js.runtime-memory` v3 maps the Advanced JS Notion memoization subsection with an explicit cache-key selector, a deterministic numeric example, and an applied task that tests whether all output-affecting inputs participate in the key. It corrects the source's naive recursive Fibonacci wrapper and unqualified JSON.stringify key strategy. TTL and asynchronous cache behavior are covered as risks, but not yet as a complete implementation.
+
+
+## DOM throttle continuation — 2026-10-27
+
+`js.dom-events` v5 now provides a worked leading-edge throttle for scroll signals, documents the dropped-intermediate-call behavior, demonstrates a passive listener and same-reference teardown, and assesses the cleanup contract. The existing async/API-hook lesson continues to own debounced search and request cancellation; the legacy interaction widgets are not claimed as fully duplicated.
