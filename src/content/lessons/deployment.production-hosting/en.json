@@ -1,7 +1,7 @@
 {
   "id": "deployment.production-hosting",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Production Hosting: Build, Environment, Deep Links, and Rollback",
   "description": "Prepare a Vite SPA for production and verify routing, configuration, and recovery in a deployed preview.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 90,
   "difficulty": "intermediate",
   "prerequisites": [
     "tooling.node-npm-vite",
@@ -243,6 +243,129 @@
       "text": "A Git-connected host typically installs dependencies, runs the configured build, publishes dist, and creates preview deploys for branches or pull requests. A manual upload can be useful for a quick experiment, but it does not rebuild on later commits. Vercel and Netlify can both host a Vite SPA; verify the actual build command, output directory, environment scope (preview versus production), and rewrite behavior in current project settings. A common Netlify SPA rule is `/* /index.html 200` in public/_redirects. Scope and test fallbacks so API endpoints and missing asset paths are not accidentally served as the app HTML. Follow current provider docs instead of copying old dashboard screenshots."
     },
     {
+      "id": "deploy-domain-heading",
+      "type": "heading",
+      "title": "Custom domains: DNS and HTTPS"
+    },
+    {
+      "id": "deploy-domain-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Hosting project: add example.com and www.example.com\nProvider dashboard: read the exact DNS records for each hostname\nDNS zone: configure provider-required records for apex and subdomain\nNameserver change: preserve existing MX, TXT and other required records\nVerify: check DNS answers and the provider's domain status\nTLS: wait for domain verification and certificate issuance\nSmoke-test: HTTPS, redirects, direct app routes, assets and API calls",
+      "steps": [
+        {
+          "title": "Attach the hostname to the project",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "Add the apex domain and any subdomains you intend to serve in the hosting dashboard. Registering a domain does not automatically connect it to a deployment."
+        },
+        {
+          "title": "Read the provider's required records",
+          "lineStart": 2,
+          "lineEnd": 2,
+          "explanation": "Use the records shown for this exact project and hostname. Providers may require an ownership-verification record as well as traffic-routing records."
+        },
+        {
+          "title": "Distinguish apex from subdomain records",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "An apex such as example.com and a subdomain such as www.example.com may need different record types. A or ALIAS/ANAME-style records are common at the apex, while subdomains commonly use CNAME; the host's exact instructions win."
+        },
+        {
+          "title": "Preserve unrelated DNS services",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "If you change nameservers, migrate existing records such as MX for email and required TXT records before switching delegation. A website migration should not silently break mail or domain verification."
+        },
+        {
+          "title": "Verify DNS before debugging HTTPS",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "explanation": "Check resolver results and the hosting provider's domain status. Caches and TTLs mean changes may take time; do not assume a fixed propagation duration."
+        },
+        {
+          "title": "Wait for certificate provisioning",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "Managed certificates are usually issued after the provider can validate the domain and see the expected DNS configuration. If issuance fails, inspect the reported verification problem before changing application code."
+        },
+        {
+          "title": "Test the published site",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "Open the HTTPS URL, test redirects between canonical and alias hostnames, refresh a nested SPA route, and confirm assets and API requests return expected responses."
+        }
+      ]
+    },
+    {
+      "id": "deploy-domain-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You added example.com to a hosting project, but domain verification and HTTPS setup are still pending. What should you check first?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Add an arbitrary CNAME record at the apex because every hostname uses CNAME",
+          "correct": false,
+          "feedback": "Apex and subdomain record requirements can differ, and the target is provider-specific. Follow the records shown for this project."
+        },
+        {
+          "id": "b",
+          "text": "Compare the provider-required records with the active DNS zone and verify the domain status",
+          "correct": true,
+          "feedback": "DNS routing and ownership verification must succeed before managed certificate provisioning can complete."
+        },
+        {
+          "id": "c",
+          "text": "Change VITE_API_URL and rebuild because Vite controls domain ownership",
+          "correct": false,
+          "feedback": "Vite build configuration does not verify a domain or change its DNS records."
+        },
+        {
+          "id": "d",
+          "text": "Delete the existing MX records to free the domain for HTTPS",
+          "correct": false,
+          "feedback": "MX records may provide email service and should not be removed as part of a website setup without a separate migration plan."
+        }
+      ],
+      "explanation": "Domain setup is a DNS/provider-validation task first. Verify the host's exact records for the apex or subdomain, preserve unrelated DNS records, and troubleshoot certificate issuance only after domain validation."
+    },
+    {
+      "id": "deploy-domain-practice",
+      "type": "codingExercise",
+      "title": "Plan a custom-domain change without breaking production services",
+      "language": "text",
+      "context": "A React SPA currently works at a provider subdomain. You want example.com and www.example.com to point to the production project. Email for example.com is already active, and HTTPS verification is still pending.",
+      "instructions": [
+        "List the host-dashboard steps to attach the apex and www hostnames and retrieve the exact DNS instructions for the project.",
+        "Explain how likely DNS record types differ for an apex and a subdomain, without assuming one universal target.",
+        "Write a safe change plan that preserves existing MX/TXT and any other required records if nameserver delegation changes.",
+        "Define how to verify DNS and domain ownership before checking certificate issuance.",
+        "Test HTTPS, canonical-host redirects, direct load/refresh of a nested SPA route, static assets, and API requests."
+      ],
+      "requirements": [
+        "Uses the hosting project's own DNS instructions instead of hard-coding a universal provider target.",
+        "Distinguishes apex and subdomain requirements and names the likely record types accurately.",
+        "Preserves existing MX/TXT records or explicitly documents a reviewed migration for them.",
+        "Treats DNS propagation as variable rather than promising a fixed completion time.",
+        "Verifies domain status and HTTPS certificate separately from Vite build configuration.",
+        "Includes a post-change route, asset, redirect, and API smoke test."
+      ],
+      "starterCode": "Host project and domains to add:\n\nProvider-required DNS records:\n- apex (example.com):\n- subdomain (www.example.com):\n- ownership/verification record:\n\nRecords to preserve (MX/TXT/other):\n\nDNS verification evidence:\n\nCertificate/HTTPS checks:\n\nRoute, redirect, asset and API smoke tests:\n\nFallback / recovery plan:",
+      "hints": [
+        "Open the provider's instructions for the exact hostname; apex and subdomain targets are not interchangeable.",
+        "Changing nameservers can break email and other services unless existing records are migrated.",
+        "Managed HTTPS depends on provider validation; a Vite rebuild cannot repair an incorrect DNS record."
+      ],
+      "successCriteria": [
+        "The DNS plan is specific to the provider's current instructions.",
+        "Existing mail and verification records have a preservation plan.",
+        "The learner separates DNS validation from certificate issuance.",
+        "The test plan covers canonical domains, HTTPS, deep routes and real assets.",
+        "The recovery plan avoids deleting unrelated DNS records during troubleshooting."
+      ]
+    },
+    {
       "id": "deploy-resource-heading",
       "type": "heading",
       "level": 3,
@@ -431,6 +554,16 @@
         {
           "title": "Netlify: Page not found and SPA fallback",
           "url": "https://docs.netlify.com/resources/troubleshooting/page-not-found-error-guide/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vercel: Setting up a custom domain",
+          "url": "https://vercel.com/docs/domains/set-up-custom-domain",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Netlify: Custom domains and DNS setup",
+          "url": "https://docs.netlify.com/domains-https/custom-domains/",
           "kind": "official-docs"
         }
       ]

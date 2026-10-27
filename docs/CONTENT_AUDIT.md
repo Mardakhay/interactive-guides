@@ -234,3 +234,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - CSS fundamentals and Flexbox/Grid lessons already cover the substantive topics in both locales, with deeper cascade, box sizing, margin collapse, overflow/intrinsic sizing, reduced motion, accessibility and responsive diagnosis than the reference source. Matrix records exact block evidence; no duplicate lesson was created.
 - UI parity is partial because the reference copy/property playground is not recreated as a visual simulator; practice, feedback and debugging move to structured blocks.
 - Full HTML source reviews: 11/25; 14 remain. Docs HEAD `e3997b2232158f5433ab6e3ffa78ee8dfb6b57f6` passed CI [40290564642](https://github.com/Mardakhay/interactive-guides/actions/runs/40290564642).
+
+
+## Deployment source deep-review — 2026-10-27
+
+The complete `deployment-learning.html` source (2,267 lines) has now been reviewed. The existing bilingual `deployment.production-hosting` lesson is v3 with 30 aligned blocks per locale, including a custom-domain/DNS/HTTPS walkthrough, feedback-rich domain-verification check and applied domain-migration plan. The lesson now distinguishes provider-directed apex/subdomain DNS, preserves existing MX/TXT records during nameserver changes, and separates DNS verification from certificate issuance. See `FULL_SOURCE_CONTENT_AUDIT.md` for block-level evidence and deliberate corrections to legacy env-precedence and fixed-timing claims.
+
+This is a full source-content review, not a claim that the old interactive pipeline simulator, provider tabs, copy buttons or live checklist have been recreated. Full reads documented: 13 of 25 HTML sources; the remaining source/Notion parity gate is still open.

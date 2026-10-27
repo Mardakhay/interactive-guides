@@ -57,6 +57,8 @@ import englishTesting from '../lessons/testing.react-testing-library/en.json';
 import russianTesting from '../lessons/testing.react-testing-library/ru.json';
 import englishGitWorkflow from '../lessons/git.workflow-ci/en.json';
 import russianGitWorkflow from '../lessons/git.workflow-ci/ru.json';
+import englishDeployment from '../lessons/deployment.production-hosting/en.json';
+import russianDeployment from '../lessons/deployment.production-hosting/ru.json';
 import englishCapstoneRequirements from '../lessons/capstone.requirements-discovery/en.json';
 import russianCapstoneRequirements from '../lessons/capstone.requirements-discovery/ru.json';
 import englishCapstoneDesign from '../lessons/capstone.design-architecture-planning/en.json';
@@ -652,6 +654,44 @@ describe('Git workflow lesson translation', () => {
   });
 });
 
+describe('deployment and production hosting lesson translation', () => {
+  it('covers provider-specific custom domains with aligned DNS/HTTPS guidance', () => {
+    expect(lessonTranslationSchema.safeParse(englishDeployment).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianDeployment).success).toBe(true);
+    expect(englishDeployment.id).toBe('deployment.production-hosting');
+    expect(englishDeployment.id).toBe(russianDeployment.id);
+    expect(englishDeployment.moduleId).toBe(russianDeployment.moduleId);
+    expect(englishDeployment.version).toBe(3);
+    expect(englishDeployment.blocks.map(({ id, type }) => ({ id, type }))).toEqual(russianDeployment.blocks.map(({ id, type }) => ({ id, type })));
+    expect(englishDeployment.blocks).toHaveLength(30);
+    expect(englishDeployment.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(4);
+    expect(englishDeployment.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishDeployment.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
+    expect(englishDeployment.blocks.map((block) => block.id)).toEqual(expect.arrayContaining(['deploy-domain-heading', 'deploy-domain-walkthrough', 'deploy-domain-check', 'deploy-domain-practice']));
+    for (const walkthrough of englishDeployment.blocks.filter((block) => block.type === 'codeWalkthrough')) {
+      const lineCount = walkthrough.code.split('\n').length;
+      expect(walkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+    }
+    const domainCheck = englishDeployment.blocks.find((block) => block.id === 'deploy-domain-check');
+    expect(domainCheck?.type).toBe('knowledgeCheck');
+    if (domainCheck?.type !== 'knowledgeCheck') return;
+    expect(domainCheck.options.filter((option) => option.correct)).toHaveLength(1);
+    expect(domainCheck.options.every((option) => option.feedback.trim().length > 0)).toBe(true);
+    expect(domainCheck.explanation.trim().length).toBeGreaterThan(0);
+    const domainPractice = englishDeployment.blocks.find((block) => block.id === 'deploy-domain-practice');
+    expect(domainPractice?.type).toBe('codingExercise');
+    if (domainPractice?.type !== 'codingExercise') return;
+    expect(domainPractice.requirements.join(' ')).toContain('MX/TXT');
+    expect(domainPractice.requirements.join(' ')).toContain('provider');
+    expect(domainPractice.hints.length).toBeGreaterThanOrEqual(3);
+    expect(domainPractice.successCriteria.length).toBeGreaterThanOrEqual(5);
+    const references = englishDeployment.blocks.find((block) => block.id === 'deploy-references');
+    expect(references?.type).toBe('references');
+    if (references?.type !== 'references') return;
+    expect(references.items.some((item) => item.url === 'https://vercel.com/docs/domains/set-up-custom-domain')).toBe(true);
+    expect(references.items.some((item) => item.url === 'https://docs.netlify.com/domains-https/custom-domains/')).toBe(true);
+  });
+});
 describe('Capstone requirements discovery lesson translation', () => {
   it('validates both locales and preserves equivalent block structure', () => {
     expect(lessonTranslationSchema.safeParse(englishCapstoneRequirements).success).toBe(true);
