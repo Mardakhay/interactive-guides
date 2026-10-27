@@ -37,10 +37,16 @@ describe('StorageErrorNotice', () => {
     reportStorageError('ig:bookmarks', 'remove');
     render(<MemoryRouter><StorageErrorNotice /></MemoryRouter>);
 
+    expect(screen.getByRole('alert')).toHaveTextContent('A saved record could not be removed');
     await user.click(screen.getByRole('button', { name: 'Dismiss storage warning' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(getLastStorageError()).toBeNull();
+
+    act(() => {
+      reportStorageError('ig:quiz-results', 'write');
+    });
+    expect(screen.getByRole('alert')).toHaveTextContent('The latest change could not be saved');
   });
 
   it('uses Russian copy for a storage write failure', () => {
