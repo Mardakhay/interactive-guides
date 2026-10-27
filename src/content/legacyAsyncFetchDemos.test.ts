@@ -1,8 +1,9 @@
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const legacyAsyncHtml = readFileSync(
-  new URL('../../public/lessons/interactive-async-js.html', import.meta.url),
+  resolve(process.cwd(), 'public/lessons/interactive-async-js.html'),
   'utf8',
 );
 
