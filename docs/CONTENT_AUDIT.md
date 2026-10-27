@@ -290,3 +290,10 @@ Full HTML source reviews documented: 19/25. Five source files remain unread plus
 Full source review completed. Existing bilingual `ui.bootstrap-mui` is expanded to v4 with version-specific dependency/migration guidance, plus official MUI versions and upgrade-to-v9 links. The MUI masterclass content is mapped to the current component-library/design-system lesson and the dedicated forms/accessibility lessons; no duplicate JSON masterclass was added.
 
 Full HTML source reviews documented: 20/25. Four unread HTML files and the `html-reference.html` re-review remain; Notion source verification is not closed.
+
+
+## React performance and accessibility source deep-review — 2026-10-27
+
+Completed the full `react-performance-a11y.html` content/code/interaction review and expanded the canonical bilingual `performance.accessibility` lesson to v4 (41 aligned blocks). Added React.lazy named-export and rejected-chunk recovery nuance, plus a native site-navigation disclosure with Escape close and focus return, assessed with a feedback-rich check and practice criteria.
+
+The lesson distinguishes ordinary site navigation from an application-menu role pattern, keeps ARIA separate from keyboard behavior, and avoids repeating fixed package-size/compression claims as current facts. Render/bundle simulators and exact copy/focus UI are documented as non-equivalent interactions. Full HTML reviews documented: 21/25; three HTML sources remain unread plus `html-reference.html` re-review and unverified Notion source mapping.

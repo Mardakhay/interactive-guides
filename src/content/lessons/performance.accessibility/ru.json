@@ -1,7 +1,7 @@
 {
   "id": "performance.accessibility",
   "locale": "ru",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Производительность React и доступность веб-интерфейсов",
   "description": "Измеряй до оптимизации, понимай memoization и code splitting, применяй семантический HTML и клавиатурную доступность в настоящем интерфейсе.",
-  "estimatedMinutes": 105,
+  "estimatedMinutes": 115,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -116,6 +116,11 @@
       "language": "tsx",
       "caption": "Отложенная загрузка крупного маршрута",
       "code": "import { lazy, Suspense } from \"react\";\n\nconst AnalyticsPage = lazy(() => import(\"./AnalyticsPage\"));\n\nfunction AnalyticsRoute() {\n  return (\n    <Suspense fallback={<p>Загрузка аналитики…</p>}>\n      <AnalyticsPage />\n    </Suspense>\n  );\n}"
+    },
+    {
+      "id": "performance-lazy-export-note",
+      "type": "paragraph",
+      "text": "`React.lazy` ожидает, что импортированный модуль предоставит компонент в `default` export. Named export тоже можно использовать, преобразовав promise модуля, например `lazy(() => import(\"./AnalyticsPage\").then((module) => ({ default: module.AnalyticsPage })))`. Fallback загрузки относится к `Suspense`; ошибка загрузки чанка требует обработки ошибки (часто через Error Boundary) и пути восстановления. Не превращай стиль экспорта из одного примера в универсальное правило."
     },
     {
       "id": "semantic-html",
@@ -452,6 +457,82 @@
       ]
     },
     {
+      "id": "performance-disclosure-nav-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Реализуй клавиатурно-доступный disclosure для навигации"
+    },
+    {
+      "id": "performance-disclosure-nav-intro",
+      "type": "paragraph",
+      "text": "Для обычной навигации сайта нативные ссылки внутри nav landmark обычно подходят лучше, чем ARIA application menu. Используй disclosure-кнопку с aria-expanded и aria-controls, убирай закрытые ссылки из взаимодействия и возвращай фокус при закрытии по Escape. Применяй role=menu/menuitem только тогда, когда нужна и реализована полная клавиатурная модель application menu."
+    },
+    {
+      "id": "performance-disclosure-nav-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useRef, useState, type KeyboardEvent } from \"react\";\n\nexport function ProductNavigation() {\n  const [open, setOpen] = useState(false);\n  const triggerRef = useRef<HTMLButtonElement>(null);\n\n  function handleKeyDown(event: KeyboardEvent<HTMLElement>) {\n    if (event.key !== \"Escape\" || !open) return;\n    setOpen(false);\n    triggerRef.current?.focus();\n  }\n\n  return (\n    <nav aria-label=\"Навигация по продуктам\" onKeyDown={handleKeyDown}>\n      <button\n        ref={triggerRef}\n        type=\"button\"\n        aria-expanded={open}\n        aria-controls=\"product-navigation-links\"\n        onClick={() => setOpen((current) => !current)}\n      >\n        Товары\n      </button>\n      <div id=\"product-navigation-links\" hidden={!open}>\n        <a href=\"/products/new\">Новинки</a>\n        <a href=\"/products/sale\">Распродажа</a>\n      </div>\n    </nav>\n  );\n}",
+      "steps": [
+        {
+          "title": "Храни состояние и цель для возврата фокуса",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "Состояние disclosure определяет, видны ли ссылки. Ref указывает на trigger, чтобы после Escape вернуть клавиатурный фокус на элемент, который открыл ссылки."
+        },
+        {
+          "title": "Закрывай меню с клавиатуры предсказуемо",
+          "lineStart": 7,
+          "lineEnd": 11,
+          "explanation": "Escape закрывает disclosure и восстанавливает фокус. В реальной реализации также проверь порядок фокуса, закрытие по клику снаружи, если оно предусмотрено, и закрытие при переходе по ссылке."
+        },
+        {
+          "title": "Объявляй состояние через семантику disclosure",
+          "lineStart": 13,
+          "lineEnd": 24,
+          "explanation": "Native button задаёт действие; aria-expanded сообщает состояние open/closed, а aria-controls связывает кнопку с управляемой областью. Атрибут hidden убирает закрытые ссылки из взаимодействия и accessibility tree."
+        },
+        {
+          "title": "Сохраняй естественное поведение ссылок",
+          "lineStart": 25,
+          "lineEnd": 26,
+          "explanation": "Для обычной навигации сайта обычно нужны landmark nav, ссылки, предсказуемый порядок Tab и disclosure trigger, а не роли application menu. role=menu/menuitem подразумевают более сложную клавиатурную модель, которую нужно реализовать и проверить."
+        }
+      ]
+    },
+    {
+      "id": "performance-disclosure-nav-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Ты создаёшь disclosure для навигации сайта, которая показывает две обычные ссылки на страницы. Какой вариант лучше использовать по умолчанию?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Кнопку с aria-expanded/aria-controls, обычные ссылки внутри nav и закрытие по Escape с возвратом фокуса",
+          "correct": true,
+          "feedback": "Нативные элементы дают привычное клавиатурное поведение; состояние и управляемая область объявлены, а Escape возвращает фокус на trigger."
+        },
+        {
+          "id": "b",
+          "text": "Добавить role=menu к div и рассчитывать, что ARIA реализует недостающую клавиатурную логику",
+          "correct": false,
+          "feedback": "ARIA-роли передают семантику, но не реализуют навигацию стрелками, управление фокусом или активацию."
+        },
+        {
+          "id": "c",
+          "text": "Добавить tabindex=0 каждому элементу и использовать clickable div, чтобы всё получало фокус",
+          "correct": false,
+          "feedback": "Лишние tab stops создают шумный порядок фокуса, а div не получает нативного поведения ссылки или кнопки."
+        },
+        {
+          "id": "d",
+          "text": "Указать aria-label у иконки, но не объявлять раскрытое/закрытое состояние",
+          "correct": false,
+          "feedback": "Доступное имя само по себе не сообщает, раскрыта ли область и какой регион она контролирует."
+        }
+      ],
+      "explanation": "Для обычной навигации используй нативные ссылки и disclosure-кнопку. ARIA application menu следует использовать только при полной реализации ожидаемого клавиатурного поведения и управления фокусом."
+    },
+    {
       "id": "deep-performance-warning",
       "type": "callout",
       "tone": "important",
@@ -502,7 +583,8 @@
         "Выбери одну проверяемую гипотезу производительности и зафиксируй измерение до/после.",
         "Реши, лучше ли гипотезу проверит route-level code splitting, оптимизация ресурсов или React memoization.",
         "Сделай меню доступным с клавиатуры, с видимым фокусом и подходящим открытием/закрытием.",
-        "Проверь доступные имена всех контролов и то, что состояние не передаётся только цветом."
+        "Проверь доступные имена всех контролов и то, что состояние не передаётся только цветом.",
+        "Для обычной навигации используй нативную кнопку и ссылки вместо role=menu; если выбираешь application menu, опиши и проверь полную клавиатурную модель."
       ],
       "requirements": [
         "План начинается с измерения и называет конкретное узкое место.",
@@ -522,7 +604,8 @@
         "Выбранная оптимизация соответствует данным.",
         "Триггер меню доступен с клавиатуры и семантически корректен.",
         "Обработаны фокус и доступные имена.",
-        "Определён наблюдаемый результат до/после."
+        "Определён наблюдаемый результат до/после.",
+        "Disclosure объявляет expanded state, поддерживает Escape/возврат фокуса и не предполагает, что ARIA сама реализует клавиатурное поведение."
       ]
     },
     {
@@ -582,6 +665,11 @@
         {
           "title": "W3C WAI: Руководство по изображениям",
           "url": "https://www.w3.org/WAI/tutorials/images/",
+          "kind": "guide"
+        },
+        {
+          "title": "W3C WAI-ARIA APG: паттерн Disclosure",
+          "url": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
           "kind": "guide"
         }
       ]

@@ -475,3 +475,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Reviewed `material-ui-masterclass.html` and updated the canonical `ui.bootstrap-mui` EN/RU lesson to v4 with version compatibility, React peer dependency and migration-guide guidance. Added regression tests for the check and official links.
 - Full HTML source review count: 20/25; four source files remain unread plus planned `html-reference.html` re-review. Notion source verification remains open.
+
+
+## Content audit continuation — 2026-10-27
+
+- Full review of `react-performance-a11y.html` is complete (86,420 bytes / 1,885 lines). `performance.accessibility` v4 EN/RU adds named-export handling for React.lazy, error recovery for failed route chunks, a keyboard-operable native navigation disclosure with Escape/focus return, and regression coverage. Full evidence and source corrections are in `FULL_SOURCE_CONTENT_AUDIT.md`.
+- Full HTML source review count: 21/25. Three files remain unread: `sql-learning-page.html`, `test.guide.html`, `ui-design-system-learn.html`; the separate `html-reference.html` re-review and Notion source verification remain open.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; continue only on `feat/learning-platform-foundation`. Check exact-head CI for the MUI test-count fix and the next performance/content commit.

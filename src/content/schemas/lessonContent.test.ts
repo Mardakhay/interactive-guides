@@ -622,10 +622,39 @@ describe('Performance and accessibility lesson translation', () => {
     expect(lessonTranslationSchema.safeParse(russianPerformance).success).toBe(true);
     expect(englishPerformance.id).toBe(russianPerformance.id);
     expect(englishPerformance.moduleId).toBe('month-5-week-18');
+    expect(englishPerformance.version).toBe(4);
+    expect(englishPerformance.blocks).toHaveLength(41);
     expect(englishPerformance.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianPerformance.blocks.map(({ id, type }) => ({ id, type })),
     );
   });
+    for (const lesson of [englishPerformance, russianPerformance]) {
+      const menuWalkthrough = lesson.blocks.find((block) => block.id === 'performance-disclosure-nav-walkthrough');
+      expect(menuWalkthrough?.type).toBe('codeWalkthrough');
+      if (menuWalkthrough?.type !== 'codeWalkthrough') return;
+      const lineCount = menuWalkthrough.code.split('\n').length;
+      expect(menuWalkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      expect(menuWalkthrough.code).toContain('aria-expanded');
+      expect(menuWalkthrough.code).toContain('Escape');
+      expect(menuWalkthrough.code).toContain('triggerRef.current?.focus()');
+      const menuCheck = lesson.blocks.find((block) => block.id === 'performance-disclosure-nav-check');
+      expect(menuCheck?.type).toBe('knowledgeCheck');
+      if (menuCheck?.type !== 'knowledgeCheck') return;
+      expect(menuCheck.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(menuCheck.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      expect(menuCheck.explanation).toContain(lesson.locale === 'en' ? 'navigation' : 'навигации');
+      const lazyNote = lesson.blocks.find((block) => block.id === 'performance-lazy-export-note');
+      expect(lazyNote?.type).toBe('paragraph');
+      if (lazyNote?.type === 'paragraph') {
+        expect(lazyNote.text).toContain(lesson.locale === 'en' ? 'module' : 'модуль');
+        expect(lazyNote.text).toContain('Error Boundary');
+      }
+      const refs = lesson.blocks.find((block) => block.id === 'performance-references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') {
+        expect(refs.items.some((item) => item.url === 'https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/')).toBe(true);
+      }
+    }
 });
 
 describe('React component testing lesson translation', () => {

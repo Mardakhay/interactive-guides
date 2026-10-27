@@ -578,3 +578,12 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Updated `ui.bootstrap-mui` v4 in EN/RU with an installed-version/peer-dependency/migration guide section, a feedback-rich knowledge check, and official Material UI versions and v9 upgrade references. No duplicate course was created; design system, forms and accessibility content remain in their canonical lessons.
 - Full HTML reviews: 20/25. Four unread sources remain (`react-performance-a11y.html`, `sql-learning-page.html`, `test.guide.html`, `ui-design-system-learn.html`) plus the tracked `html-reference.html` re-review. Notion verification remains open.
 - The previous runner and async-demo security checkpoint passed CI. This new MUI/content/docs commit needs CI for its exact SHA; continue only on `feat/learning-platform-foundation`.
+
+
+## Full source and content checkpoint — react-performance-a11y.html — 2026-10-27
+
+- Fully reviewed `public/lessons/react-performance-a11y.html` (86,420 bytes, 1,885 lines; blob `cad3d8d1135d443fa01f20d600f54c58e5a3af66`), including the render-cascade and bundle simulators, memoization examples, focus-style demo, ARIA/navigation example, image-alt guidance and interactive handlers.
+- Expanded `performance.accessibility` to v4 with 41 aligned EN/RU blocks: added React.lazy named-export and chunk-error guidance, a native navigation disclosure walkthrough (aria-expanded/controls, Escape and focus return), a knowledge check and stronger keyboard/menu exercise criteria. Existing contextual image-alt and favorite-toggle assessment remains.
+- The source's blanket child rerender statement, package-size/compression figures and default-export-only statement are treated as simplifications. ARIA is not keyboard behavior; application menu roles need their full keyboard/focus pattern. Simulator/copy UI parity remains partial.
+- Full HTML source reviews documented: 21/25. Remaining unread: `sql-learning-page.html`, `test.guide.html`, `ui-design-system-learn.html`, plus the tracked `html-reference.html` re-review. Notion source verification remains open.
+- MUI test count fix commit `56d17b467c154b9f0d0a9cb47eed2e6355db4cf2` is running CI; the performance content and docs commit needs its own exact-head CI.

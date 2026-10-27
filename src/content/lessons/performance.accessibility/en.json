@@ -1,7 +1,7 @@
 {
   "id": "performance.accessibility",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "React Performance and Web Accessibility",
   "description": "Measure before optimizing, understand memoization and code splitting, and apply semantic and keyboard-friendly accessibility patterns to real interfaces.",
-  "estimatedMinutes": 105,
+  "estimatedMinutes": 115,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -116,6 +116,11 @@
       "language": "tsx",
       "caption": "Lazy-load a large route component",
       "code": "import { lazy, Suspense } from \"react\";\n\nconst AnalyticsPage = lazy(() => import(\"./AnalyticsPage\"));\n\nfunction AnalyticsRoute() {\n  return (\n    <Suspense fallback={<p>Loading analytics…</p>}>\n      <AnalyticsPage />\n    </Suspense>\n  );\n}"
+    },
+    {
+      "id": "performance-lazy-export-note",
+      "type": "paragraph",
+      "text": "`React.lazy` expects the imported module to provide a component as its `default` export. A named export can still be used by adapting the module promise, for example `lazy(() => import(\"./AnalyticsPage\").then((module) => ({ default: module.AnalyticsPage })))`. The loading fallback belongs to `Suspense`; a rejected chunk import needs error handling (commonly an Error Boundary) and a recovery path. Avoid turning one snippet's export style into a universal rule."
     },
     {
       "id": "semantic-html",
@@ -452,6 +457,82 @@
       ]
     },
     {
+      "id": "performance-disclosure-nav-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Implement a keyboard-friendly navigation disclosure"
+    },
+    {
+      "id": "performance-disclosure-nav-intro",
+      "type": "paragraph",
+      "text": "For ordinary website navigation, native links inside a nav landmark are usually a better fit than the ARIA application menu pattern. Use a disclosure button with aria-expanded and aria-controls, remove closed links from interaction, and restore focus when Escape closes the panel. Only use role=menu/menuitem when the complete application-menu keyboard pattern is required and implemented."
+    },
+    {
+      "id": "performance-disclosure-nav-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useRef, useState, type KeyboardEvent } from \"react\";\n\nexport function ProductNavigation() {\n  const [open, setOpen] = useState(false);\n  const triggerRef = useRef<HTMLButtonElement>(null);\n\n  function handleKeyDown(event: KeyboardEvent<HTMLElement>) {\n    if (event.key !== \"Escape\" || !open) return;\n    setOpen(false);\n    triggerRef.current?.focus();\n  }\n\n  return (\n    <nav aria-label=\"Product navigation\" onKeyDown={handleKeyDown}>\n      <button\n        ref={triggerRef}\n        type=\"button\"\n        aria-expanded={open}\n        aria-controls=\"product-navigation-links\"\n        onClick={() => setOpen((current) => !current)}\n      >\n        Products\n      </button>\n      <div id=\"product-navigation-links\" hidden={!open}>\n        <a href=\"/products/new\">New arrivals</a>\n        <a href=\"/products/sale\">Sale</a>\n      </div>\n    </nav>\n  );\n}",
+      "steps": [
+        {
+          "title": "Keep open state and focus target",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "The disclosure state controls whether links are visible. The ref points to the trigger so Escape can return keyboard focus to the control that opened the links."
+        },
+        {
+          "title": "Close from the keyboard intentionally",
+          "lineStart": 7,
+          "lineEnd": 11,
+          "explanation": "Escape closes the disclosure and restores focus. A real implementation should also test focus order, clicking outside if designed, and how route navigation closes the disclosure."
+        },
+        {
+          "title": "Expose state with native disclosure semantics",
+          "lineStart": 13,
+          "lineEnd": 24,
+          "explanation": "The native button exposes the action; aria-expanded communicates open/closed state, and aria-controls identifies the controlled region. The hidden attribute removes closed links from interaction and the accessibility tree."
+        },
+        {
+          "title": "Keep navigation links natively operable",
+          "lineStart": 25,
+          "lineEnd": 26,
+          "explanation": "Ordinary site navigation usually needs a nav landmark, links, predictable Tab order, and a disclosure trigger—not application-menu roles. role=menu/menuitem implies a richer keyboard interaction pattern that must be implemented and tested."
+        }
+      ]
+    },
+    {
+      "id": "performance-disclosure-nav-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You are building a site-navigation disclosure that reveals two ordinary page links. Which implementation is the safest default?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use a button with aria-expanded/aria-controls, keep normal links in a nav landmark, and support Escape close/focus return",
+          "correct": true,
+          "feedback": "Native controls and links provide familiar keyboard behavior; the state and controlled region are exposed, and Escape returns focus to the trigger."
+        },
+        {
+          "id": "b",
+          "text": "Add role=menu to a div and rely on ARIA to implement the missing keyboard behavior",
+          "correct": false,
+          "feedback": "ARIA roles communicate semantics but do not implement arrow-key navigation, focus management, or activation behavior."
+        },
+        {
+          "id": "c",
+          "text": "Make every item tabindex=0 and use clickable divs so all elements receive focus",
+          "correct": false,
+          "feedback": "Adding tab stops to every element creates noisy focus order and does not give a div native link/button behavior."
+        },
+        {
+          "id": "d",
+          "text": "Use aria-label on the icon and omit open/closed state",
+          "correct": false,
+          "feedback": "An accessible name alone does not communicate whether the disclosure is expanded or which region it controls."
+        }
+      ],
+      "explanation": "For ordinary site navigation, prefer native links and a disclosure button. Use the ARIA application menu pattern only when the complete expected keyboard and focus behavior is implemented."
+    },
+    {
       "id": "deep-performance-warning",
       "type": "callout",
       "tone": "important",
@@ -502,7 +583,8 @@
         "Choose one measurable performance hypothesis and describe the before/after measurement.",
         "Decide whether route-level code splitting, asset optimization or React memoization best matches the hypothesis.",
         "Make the menu operable by keyboard with visible focus and appropriate open/close behavior.",
-        "Ensure all controls have accessible names and state is not communicated by color alone."
+        "Ensure all controls have accessible names and state is not communicated by color alone.",
+        "For ordinary site navigation, prefer a native button and links rather than adding role=menu; if you choose an application menu, document and test the full expected keyboard pattern."
       ],
       "requirements": [
         "The plan starts with measurement and identifies a concrete bottleneck.",
@@ -522,7 +604,8 @@
         "Chooses an optimization aligned to evidence.",
         "Menu trigger is keyboard-operable and semantically correct.",
         "Focus and accessible names are handled.",
-        "Defines an observable before/after outcome."
+        "Defines an observable before/after outcome.",
+        "The disclosure exposes its expanded state, supports Escape/focus return, and does not claim that ARIA alone supplies keyboard behavior."
       ]
     },
     {
@@ -582,6 +665,11 @@
         {
           "title": "W3C WAI: Images Tutorial",
           "url": "https://www.w3.org/WAI/tutorials/images/",
+          "kind": "guide"
+        },
+        {
+          "title": "W3C WAI-ARIA APG: Disclosure Pattern",
+          "url": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
           "kind": "guide"
         }
       ]
