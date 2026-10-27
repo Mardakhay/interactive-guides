@@ -759,3 +759,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Added pre-write restore protection coverage: if any original value cannot be read while collecting the rollback snapshot, restore aborts before the first write/removal. The test confirms all prior raw keys remain intact.
 - Exact-head CI passed on `b9f500ee8509a986c12b0babd25a2c9947183a90`: [40498940471](https://github.com/Mardakhay/interactive-guides/actions/runs/40498940471).
 - Real-browser/device storage privacy/quota, file picker and download remain explicit manual acceptance gates.
+
+
+## React forms source parity — 2026-10-27
+
+- `react.forms-validation` is now v3 / 52 aligned EN/RU blocks after a full review of the legacy 13-section forms source, ten-item quiz and five practice tasks. Added a cross-field password confirmation walkthrough, accessible error associations, and a regression check for revalidation when either dependent value changes.
+- Source-specific caveat: legacy custom validation has a malformed password-length comparison; canonical TypeScript is valid and library/controlled-input recommendations are qualified. Exact legacy answer-reveal/accordion UI is not rebuilt.
+- Exact-head CI must pass before considering this update verified. Main remains unchanged; HTML learner-route cutover and Notion claim/example parity remain open.

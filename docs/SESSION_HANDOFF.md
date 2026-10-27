@@ -934,3 +934,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## Standard CI follow-up
 
 The lockfile-writing migration run was successful, but workflow changes and the config-loader warning fix are a separate commit. Confirm the ordinary pull-request CI run is green on the post-cleanup SHA before treating the latest branch head as final CI-verified. If any check fails, inspect the exact job log rather than relaxing dependency checks or bundle budgets.
+
+
+## React forms source parity — 2026-10-27
+
+- Fully reviewed `react-forms-tutorial.html`: controlled/uncontrolled approaches, native/custom validation, timing, RHF, server errors, ten quiz questions and five practice tasks.
+- `react.forms-validation` v3 adds cross-field password confirmation with field-keyed validation errors, `aria-invalid`/`aria-describedby`, and a knowledge check for stale dependent-field errors. Tests protect EN/RU parity and walkthrough line ranges.
+- The source's malformed password-length comparison is not copied. Controlled vs uncontrolled and RHF guidance remain contextual, not universal rules. HTML quiz/accordion interaction parity remains partial.

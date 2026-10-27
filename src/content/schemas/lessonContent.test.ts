@@ -1465,3 +1465,36 @@ describe('HTML reference source coverage', () => {
     }
   });
 });
+
+describe('React forms cross-field validation source coverage', () => {
+  it('revalidates dependent fields and keeps accessible errors in sync', () => {
+    expect(lessonTranslationSchema.safeParse(englishReactForms).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianReactForms).success).toBe(true);
+    expect(englishReactForms.version).toBe(3);
+    expect(englishReactForms.blocks).toHaveLength(52);
+    expect(englishReactForms.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianReactForms.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    for (const lesson of [englishReactForms, russianReactForms]) {
+      const walkthrough = lesson.blocks.find((block) => block.id === 'cross-field-validation-walkthrough');
+      expect(walkthrough?.type).toBe('codeWalkthrough');
+      if (walkthrough?.type !== 'codeWalkthrough') return;
+      const lineCount = walkthrough.code.split('\n').length;
+      expect(walkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      expect(walkthrough.code).toContain('confirmPassword !== values.password');
+      expect(walkthrough.code).toContain('aria-invalid');
+      expect(walkthrough.code).toContain('aria-describedby');
+      const check = lesson.blocks.find((block) => block.id === 'cross-field-validation-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') return;
+      expect(check.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      const registration = lesson.blocks.find((block) => block.id === 'practice-registration-form');
+      expect(registration?.type).toBe('codingExercise');
+      if (registration?.type === 'codingExercise') {
+        expect(registration.instructions.some((item) => item.includes('matching passwords') || item.includes('matching passwords.'))).toBe(true);
+        expect(registration.successCriteria.some((item) => item.includes('Confirmation validation') || item.includes('Подтверждение validation') || item.includes('подтверждения'))).toBe(true);
+      }
+    }
+  });
+});
