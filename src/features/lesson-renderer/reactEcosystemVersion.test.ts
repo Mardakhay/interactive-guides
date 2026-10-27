@@ -15,7 +15,7 @@ describe('React ecosystem lesson compatibility', () => {
     expect(projectPackage.dependencies['react-router-dom']).toBe('^7.18.0');
     expect(lessonHtml).toContain('React Router 7.18.0');
     expect(lessonHtml).toContain("'react-router-dom'");
-    expect(lessonHtml).toContain('React Router v7');
+    expect(lessonHtml).not.toContain('React Router 6.26.2');
     expect(lessonHtml).not.toContain("'react-router'</span>");
   });
 
