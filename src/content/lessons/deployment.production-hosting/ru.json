@@ -245,7 +245,8 @@
     {
       "id": "deploy-domain-heading",
       "type": "heading",
-      "title": "Свой домен: DNS и HTTPS"
+      "level": 2,
+      "text": "Свой домен: DNS и HTTPS"
     },
     {
       "id": "deploy-domain-walkthrough",

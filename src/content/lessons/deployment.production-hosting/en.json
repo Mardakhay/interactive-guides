@@ -245,7 +245,8 @@
     {
       "id": "deploy-domain-heading",
       "type": "heading",
-      "title": "Custom domains: DNS and HTTPS"
+      "level": 2,
+      "text": "Custom domains: DNS and HTTPS"
     },
     {
       "id": "deploy-domain-walkthrough",
