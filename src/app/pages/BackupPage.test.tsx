@@ -27,6 +27,17 @@ afterEach(() => {
 });
 
 
+async function readBlobAsText(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') resolve(reader.result);
+      else reject(new Error('Could not read the exported backup Blob as text.'));
+    };
+    reader.onerror = () => reject(reader.error ?? new Error('Could not read the exported backup Blob.'));
+    reader.readAsText(blob);
+  });
+}
 function createReadableFile(contents: string, name = 'learning-backup.json'): File {
   const file = new File([contents], name, { type: 'application/json' });
   Object.defineProperty(file, 'text', { configurable: true, value: vi.fn().mockResolvedValue(contents) });
@@ -176,7 +187,7 @@ describe('data backup page', () => {
       expect(createObjectURL.mock.calls[0]?.[0]).toBeInstanceOf(Blob);
       const exportedBlob = downloadedBlob;
       if (!exportedBlob) throw new Error('The export did not create a Blob.');
-      const exported = JSON.parse(await exportedBlob.text()) as {
+      const exported = JSON.parse(await readBlobAsText(exportedBlob)) as {
         format: string;
         schemaVersion: number;
         data: { notes: { lessons: Record<string, { content: string }> }; [key: string]: unknown };
