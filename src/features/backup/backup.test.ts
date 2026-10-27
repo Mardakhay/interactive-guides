@@ -88,7 +88,8 @@ describe('local learning data backups', () => {
     target.setItem(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, JSON.stringify({ quizAttempts: {}, codeDrafts: {}, practiceChecklists: {} }));
     const restored = restoreLocalBackup(backup, target);
     expect(restored.data.notes.lessons['html-basics'].content).toContain('semantic');
-    expect(JSON.parse(target.getItem(STORAGE_KEYS.NOTES) ?? '{}').lessons.stale).toBeUndefined();
+    expect(JSON.parse(target.getItem(STORAGE_KEYS.NOTES) ?? '{}').data.lessons.stale).toBeUndefined();
+    expect(JSON.parse(target.getItem(STORAGE_KEYS.NOTES) ?? '{}').schemaVersion).toBe(1);
     expect(JSON.parse(target.getItem(STRUCTURED_LEARNING_STORAGE_KEY) ?? '{}').schemaVersion).toBe(2);
     expect(target.getItem(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY)).toBeNull();
   });

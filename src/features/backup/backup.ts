@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { STORAGE_KEYS } from '@/lib/constants';
 import { reportStorageError } from '@/lib/storage';
+import { createLocalStoreRecord, LOCAL_STORE_FORMAT, LOCAL_STORE_SCHEMA_VERSION, localStoreRecordSchema } from '@/lib/versionedStorage';
 import { bookmarksStateSchema } from '@/features/bookmarks/schemas';
 import type { BookmarksState } from '@/features/bookmarks/types';
 import { notesStateSchema } from '@/features/notes/schemas';
@@ -106,7 +107,19 @@ function parseStoredJSON(raw: string, key: string): unknown {
 function readValidated<T>(storage: Storage, key: string, schema: z.ZodType<T>, fallback: T): T {
   const raw = readRaw(storage, key);
   if (raw === null) return fallback;
-  const parsed = schema.safeParse(parseStoredJSON(raw, key));
+  const parsedRaw = parseStoredJSON(raw, key);
+  const isVersionedEnvelope = typeof parsedRaw === 'object' && parsedRaw !== null
+    && 'format' in parsedRaw && parsedRaw.format === LOCAL_STORE_FORMAT;
+  let candidate: unknown = parsedRaw;
+  if (isVersionedEnvelope) {
+    const envelope = localStoreRecordSchema.safeParse(parsedRaw);
+    if (!envelope.success || envelope.data.schemaVersion !== LOCAL_STORE_SCHEMA_VERSION) {
+      reportStorageError(key, 'read');
+      throw new BackupError('stored-data-invalid');
+    }
+    candidate = envelope.data.data;
+  }
+  const parsed = schema.safeParse(candidate);
   if (!parsed.success) {
     reportStorageError(key, 'read');
     throw new BackupError('stored-data-invalid');
@@ -203,10 +216,10 @@ export function restoreLocalBackup(raw: string, storage?: Storage): BackupPayloa
   const snapshots = new Map<string, string | null>();
   for (const key of keys) snapshots.set(key, readRaw(target, key));
   const operations: { key: string; value: string | null }[] = [
-    { key: STORAGE_KEYS.PROGRESS, value: JSON.stringify(backup.data.progress) },
-    { key: STORAGE_KEYS.BOOKMARKS, value: JSON.stringify(backup.data.bookmarks) },
-    { key: STORAGE_KEYS.NOTES, value: JSON.stringify(backup.data.notes) },
-    { key: STORAGE_KEYS.QUIZ_RESULTS, value: JSON.stringify(backup.data.quizResults) },
+    { key: STORAGE_KEYS.PROGRESS, value: JSON.stringify(createLocalStoreRecord(backup.data.progress)) },
+    { key: STORAGE_KEYS.BOOKMARKS, value: JSON.stringify(createLocalStoreRecord(backup.data.bookmarks)) },
+    { key: STORAGE_KEYS.NOTES, value: JSON.stringify(createLocalStoreRecord(backup.data.notes)) },
+    { key: STORAGE_KEYS.QUIZ_RESULTS, value: JSON.stringify(createLocalStoreRecord(backup.data.quizResults)) },
     { key: STRUCTURED_LEARNING_STORAGE_KEY, value: JSON.stringify({ schemaVersion: STRUCTURED_LEARNING_SCHEMA_VERSION, data: backup.data.structuredLearning }) },
     { key: LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, value: null },
   ];
