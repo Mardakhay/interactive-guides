@@ -498,12 +498,12 @@ describe('DOM and events lesson translation', () => {
     expect(englishDom.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianDom.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
-    expect(russianDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
-    expect(englishDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(11);
-    expect(russianDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(11);
-    expect(englishDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
-    expect(russianDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
+    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
+    expect(russianDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
+    expect(englishDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(14);
+    expect(russianDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(14);
+    expect(englishDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
+    expect(russianDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(englishDom.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
         'dom-fragment-walkthrough',
@@ -521,6 +521,52 @@ describe('DOM and events lesson translation', () => {
       requirements: expect.arrayContaining([expect.stringContaining('observer')]),
       successCriteria: expect.arrayContaining([expect.stringContaining('Observers')]),
     });
+  });
+
+  it('teaches traversal, content properties and state-driven rendering in both locales', () => {
+    for (const lesson of [englishDom, russianDom]) {
+      expect(lessonTranslationSchema.safeParse(lesson).success).toBe(true);
+      expect(lesson.version).toBe(4);
+      for (const id of ['dom-traversal-walkthrough', 'dom-content-walkthrough', 'dom-state-render-walkthrough']) {
+        const walkthrough = lesson.blocks.find((block) => block.id === id);
+        expect(walkthrough?.type).toBe('codeWalkthrough');
+        if (walkthrough?.type !== 'codeWalkthrough') return;
+        const lineCount = walkthrough.code.split('\n').length;
+        expect(walkthrough.steps.every((step) => (step.lineEnd ?? 1) <= lineCount)).toBe(true);
+      }
+      const traversal = lesson.blocks.find((block) => block.id === 'dom-traversal-walkthrough');
+      if (traversal?.type === 'codeWalkthrough') {
+        expect(traversal.code).toContain('firstElementChild');
+        expect(traversal.code).toContain('firstChild.nodeType');
+        expect(traversal.code).toContain('closest');
+      }
+      const content = lesson.blocks.find((block) => block.id === 'dom-content-walkthrough');
+      if (content?.type === 'codeWalkthrough') {
+        expect(content.code).toContain('innerText');
+        expect(content.code).toContain('textContent');
+        expect(content.code).toContain('innerHTML +=');
+      }
+      const state = lesson.blocks.find((block) => block.id === 'dom-state-render-walkthrough');
+      if (state?.type === 'codeWalkthrough') {
+        expect(state.code).toContain("toggle('open', state.isOpen)");
+        expect(state.code).toContain('aria-expanded');
+      }
+      const contentCheck = lesson.blocks.find((block) => block.id === 'dom-content-check');
+      expect(contentCheck?.type).toBe('knowledgeCheck');
+      if (contentCheck?.type === 'knowledgeCheck') {
+        expect(contentCheck.questionType).toBe('multi-select');
+        expect(contentCheck.options.filter((option) => option.correct)).toHaveLength(2);
+      }
+      const practice = lesson.blocks.find((block) => block.id === 'dom-card-manager-practice');
+      expect(practice?.type).toBe('codingExercise');
+      if (practice?.type !== 'codingExercise') return;
+      expect(practice.starterCode.match(/TODO \d/g)).toHaveLength(6);
+      expect(practice.instructions).toHaveLength(5);
+      expect(practice.requirements).toHaveLength(5);
+      expect(practice.hints.join(' ')).toContain('onerror');
+      expect(practice.successCriteria).toHaveLength(4);
+    }
+    expect(englishDom.learningOutcomes).toHaveLength(russianDom.learningOutcomes.length);
   });
 });
 

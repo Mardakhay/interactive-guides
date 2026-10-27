@@ -1,7 +1,7 @@
 {
   "id": "js.dom-events",
   "locale": "ru",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "DOM и события браузера",
   "description": "Разберись в живом дереве документа браузера, безопасно выбирай и обновляй элементы, обрабатывай события и создай DOM-список задач на основе данных.",
-  "estimatedMinutes": 95,
+  "estimatedMinutes": 115,
   "difficulty": "beginner",
   "prerequisites": [
     "js.functions-arrays-objects",
@@ -22,7 +22,8 @@
     "Создавать и обновлять узлы безопасными API для текста, атрибутов и свойств.",
     "Объяснять event target/currentTarget, фазы capture/target/bubble, delegation и действия браузера по умолчанию.",
     "Отлаживать различия между HTML-атрибутами и изменяемыми DOM-свойствами.",
-    "Создавать список с источником данных в JS и проверять поведение через DevTools."
+    "Создавать список с источником данных в JS и проверять поведение через DevTools.",
+    "Выбирать между textContent, innerText и innerHTML и управлять классами и data-атрибутами из одного объекта состояния."
   ],
   "tags": [
     "javascript",
@@ -814,6 +815,290 @@
       ]
     },
     {
+      "id": "dom-traversal-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Переходите от найденного узла к соседям, а не ищите заново"
+    },
+    {
+      "id": "dom-traversal-body",
+      "type": "paragraph",
+      "text": "Когда у вас уже есть элемент, дерево связывает его с родственниками. Свойства только для элементов (`parentElement`, `children`, `firstElementChild`, `lastElementChild`, `previousElementSibling`, `nextElementSibling`) пропускают текстовые узлы и комментарии. Свойства для узлов (`parentNode`, `childNodes`, `firstChild`, `nextSibling`) включают их, а отступы в разметке создают пробельные текстовые узлы между тегами. Если вам не нужны другие типы узлов, используйте варианты только для элементов. На краях эти свойства возвращают `null`, поэтому перед обращением к свойству результата нужна проверка. `closest(selector)` идёт вверх, начиная с самого элемента, и возвращает первое совпадение или `null`; `parent.contains(node)` проверяет отношение потомка. Цепочки вроде `parentElement.parentElement` привязывают код к точной форме разметки, поэтому `closest()` с осмысленным селектором или data-атрибутом обычно переживает изменения вёрстки лучше."
+    },
+    {
+      "id": "dom-traversal-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "// <section class=\"board\">\n//   <div class=\"item item-a\">A</div>\n//   <div class=\"item item-b\"><span>Label</span><em>Note</em></div>\n//   <div class=\"item item-c\">C</div>\n// </section>\nconst current = document.querySelector('.item-b');\n\nconsole.log(current.parentElement.className);            // \"board\"\nconsole.log(current.previousElementSibling.textContent); // \"A\"\nconsole.log(current.nextElementSibling.textContent);     // \"C\"\nconsole.log(current.firstElementChild.tagName);          // \"SPAN\"\nconsole.log(current.lastElementChild.tagName);           // \"EM\"\nconsole.log(current.children.length);                    // 2\n\nconsole.log(current.parentNode.firstChild.nodeType);     // 3: whitespace text\nconsole.log(current.parentElement.firstElementChild.className); // \"item item-a\"\nconsole.log(current.closest('.board') === current.parentElement); // true\nconsole.log(current.closest('.item') === current);       // true: starts at itself",
+      "steps": [
+        {
+          "title": "Начните с одного уже найденного элемента",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "Комментарий показывает разметку и единственный вызов `querySelector`, который находит `.item-b`. Все связи ниже читаются от этого узла без нового поиска по документу."
+        },
+        {
+          "title": "Читайте связи только между элементами",
+          "lineStart": 8,
+          "lineEnd": 13,
+          "explanation": "Каждое свойство возвращает Element или `null`. `children` — live HTMLCollection только из дочерних элементов, поэтому её длина не учитывает текст и комментарии. У первого или последнего элемента списка `previousElementSibling` или `nextElementSibling` равен `null`, и это нужно обработать."
+        },
+        {
+          "title": "Обратите внимание на ловушку с пробелами",
+          "lineStart": 15,
+          "lineEnd": 16,
+          "explanation": "`firstChild` — первый узел любого типа. При отступах в разметке это обычно пробельный текстовый узел (nodeType 3), у которого нет `className`. `firstElementChild` пропускает не-элементы и возвращает нужный элемент."
+        },
+        {
+          "title": "Ищите вверх через closest",
+          "lineStart": 17,
+          "lineEnd": 18,
+          "explanation": "`closest()` сначала проверяет сам элемент, затем каждого предка. Поэтому `closest('.item')` возвращает `current`. Если совпадений нет, возвращается `null`; это стандартный инструмент для делегирования событий."
+        }
+      ]
+    },
+    {
+      "id": "dom-traversal-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Разметка контейнера записана с отступами на нескольких строках. `container.firstChild.className` равен `undefined`, хотя первый тег внутри — `div` с классом. Чем это объясняется и что использовать?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`firstChild` вернул пробельный текстовый узел, созданный отступами; когда нужен элемент, используйте `firstElementChild`",
+          "correct": true,
+          "feedback": "У текстовых узлов нет `className`. Пробелы между тегами парсятся в текстовые узлы, а `firstChild` возвращает узел любого типа."
+        },
+        {
+          "id": "b",
+          "text": "`firstChild` работает только после полной загрузки страницы, поэтому нужно дождаться `DOMContentLoaded`",
+          "correct": false,
+          "feedback": "Дело не во времени: дерево уже построено, просто первый узел в нём не элемент."
+        },
+        {
+          "id": "c",
+          "text": "HTML-парсер удаляет пробелы между тегами, поэтому `div` должен был найтись",
+          "correct": false,
+          "feedback": "В большинстве контекстов парсер сохраняет пробельные текстовые узлы — именно поэтому существуют свойства только для элементов."
+        },
+        {
+          "id": "d",
+          "text": "`className` определён у элемента только после добавления в документ",
+          "correct": false,
+          "feedback": "`className` есть у любого элемента, добавленного в документ или нет. Просто вернулся не элемент."
+        }
+      ],
+      "explanation": "В DOM есть текстовые узлы и комментарии наряду с элементами. Когда вам нужны элементы, используйте свойства связей только для элементов и проверяйте `null` на краях."
+    },
+    {
+      "id": "dom-content-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Выбирайте, как читать и записывать текст и разметку"
+    },
+    {
+      "id": "dom-content-body",
+      "type": "paragraph",
+      "text": "`textContent` читает или записывает точный текст всех дочерних текстовых узлов. Он включает текст скрытых элементов, не разбирает разметку и является выбором по умолчанию для видимого текста. `innerText` работает с отрисованным результатом: учитывает CSS вроде `display: none` и переносы строк по вёрстке, поэтому чтение может потребовать от браузера расчёта layout и обычно дороже. `innerHTML` при чтении сериализует детей в строку разметки, а при записи разбирает строку как HTML и заменяет всех существующих детей. `outerHTML` включает сам элемент. Распространённое мнение, что скрипты, вставленные через `innerHTML`, выполняются, неверно: они не запускаются, но атрибуты обработчиков, например `onerror` у `img`, могут сработать, поэтому любая недоверенная строка остаётся опасной. Запись `el.innerHTML += html` пересоздаёт всех существующих детей, теряя обработчики, назначенные им напрямую, и их состояние, например введённый текст."
+    },
+    {
+      "id": "dom-content-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "// <div class=\"box\"><strong>Hello</strong> <span hidden>secret</span>World</div>\nconst box = document.querySelector('.box');\nconst input = '<img src=\"x\" onerror=\"reportAttack()\">';\n\nconsole.log(box.textContent); // \"Hello secretWorld\": every text node, even hidden\nconsole.log(box.innerText);   // \"Hello World\": rendered text, hidden span omitted\nconsole.log(box.innerHTML);   // the child markup as a string, span included\n\nbox.textContent = input;\nconsole.log(box.children.length); // 0: the string is stored as plain text\n\nbox.innerHTML = '<strong>Saved</strong>'; // parses markup, replaces all children\nbox.innerHTML += '<em>appended</em>';     // re-serializes and re-parses everything",
+      "steps": [
+        {
+          "title": "Подготовьте разметку и недоверенную строку",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "В элементе смешаны видимый текст, скрытый элемент и вложенный тег. Строка `input` изображает пользовательские данные с атрибутом обработчика события."
+        },
+        {
+          "title": "Сравните три способа чтения",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "`textContent` возвращает весь текст, включая скрытый span. `innerText` возвращает то, что увидит читатель, поэтому скрытый span пропущен. `innerHTML` возвращает разметку с тегами и атрибутами. Выбирайте то чтение, которое отвечает на ваш вопрос."
+        },
+        {
+          "title": "Записывайте недоверенные данные как текст",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "Присваивание в `textContent` сохраняет строку как один текстовый узел. Элемент `img` не создаётся, `children.length` равно 0, и обработчик не сможет сработать."
+        },
+        {
+          "title": "Воспринимайте запись разметки как пересборку",
+          "lineStart": 12,
+          "lineEnd": 13,
+          "explanation": "Присваивание `innerHTML` разбирает строку и заменяет всех детей. Форма `+=` сериализует текущих детей, склеивает строки и разбирает заново, поэтому существующие узлы заменяются новыми. Чтобы добавить один элемент без пересборки остального, используйте `append()` или `insertAdjacentElement()` с созданными узлами."
+        }
+      ]
+    },
+    {
+      "id": "dom-content-check",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Комментарий пользователя нужно показать внутри абзаца. Какие утверждения верны? Выберите все подходящие.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Присваивание строки в `textContent` сохраняет её как обычный текст и никогда не разбирает разметку",
+          "correct": true,
+          "feedback": "Значение становится текстовым узлом, поэтому угловые скобки отображаются как есть."
+        },
+        {
+          "id": "b",
+          "text": "Присваивание в `innerText` тоже вставляет текст, а не разметку, но чтение `innerText` зависит от отрисовки",
+          "correct": true,
+          "feedback": "Запись трактуется как текст, а чтение отражает CSS и layout, поэтому для данных проще использовать `textContent`."
+        },
+        {
+          "id": "c",
+          "text": "Присваивание в `innerHTML` безопасно, если комментарий короткий",
+          "correct": false,
+          "feedback": "Длина ничего не значит. Короткой строки с `img` и атрибутом `onerror` достаточно, чтобы выполнить код."
+        },
+        {
+          "id": "d",
+          "text": "`list.innerHTML += itemMarkup` — эффективный способ добавить один элемент",
+          "correct": false,
+          "feedback": "Он сериализует и заново разбирает всех существующих детей, теряя их обработчики и состояние."
+        },
+        {
+          "id": "e",
+          "text": "Тег `<script>`, присвоенный через `innerHTML`, всегда выполняется, поэтому достаточно фильтровать только script",
+          "correct": false,
+          "feedback": "Скрипты, вставленные так, не запускаются, зато атрибуты обработчиков могут. Фильтрация одного тега не делает безопасным разбор недоверенной разметки."
+        }
+      ],
+      "explanation": "Для данных используйте `textContent`. Разбирайте HTML только из источников, которые вы контролируете, по проверенной политике, а один элемент добавляйте созданным узлом, не пересобирая контейнер."
+    },
+    {
+      "id": "dom-state-render-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Храните состояние в данных, отображайте его в DOM, оформляйте через CSS"
+    },
+    {
+      "id": "dom-state-render-body",
+      "type": "paragraph",
+      "text": "`element.style` записывает inline-стили с именами в camelCase (`style.backgroundColor`) и читает только inline-значения. Inline-объявления перекрывают обычные правила таблицы стилей, поэтому их трудно потом изменить из CSS. `getComputedStyle(el)` доступен только для чтения и возвращает итоговые значения после каскада, например `rgb(255, 0, 0)` или `24px`. Для состояний вроде open, active или selected меняйте класс или data-атрибут и позволяйте CSS решать, как это выглядит: `classList.add`, `remove`, `contains`, `replace` и `toggle`. `toggle(name, force)` задаёт явное состояние, поэтому повторный вызов безопасен, а `toggle(name)` без второго аргумента переключает то, что сейчас в DOM. Присваивание `className` заменяет всю строку классов. Скорость зависит не от того, что вы выбрали класс вместо `style`, а от того, какие свойства меняются: `transform` и `opacity` часто можно анимировать без layout, а width или top — нет. Масштабируемый паттерн — объект состояния как источник истины, `render()`, который записывает его в текст, атрибуты и классы, и обработчики событий, которые меняют состояние и затем вызывают `render()`."
+    },
+    {
+      "id": "dom-state-render-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const state = { count: 0, theme: 'dark', isOpen: false };\n\nconst countEl = document.querySelector('#count');\nconst menuEl = document.querySelector('#menu');\nconst openBtn = document.querySelector('#open');\n\nfunction render() {\n  countEl.textContent = String(state.count);\n  document.body.dataset.theme = state.theme;\n  menuEl.classList.toggle('open', state.isOpen);\n  openBtn.setAttribute('aria-expanded', String(state.isOpen));\n}\n\nopenBtn.addEventListener('click', () => {\n  state.isOpen = !state.isOpen;\n  state.count += 1;\n  render();\n});\n\nrender();\n\n/* CSS: [data-theme=\"dark\"] { background: #0a0e1a; }\n   .menu { transform: translateX(-100%); }\n   .menu.open { transform: translateX(0); } */",
+      "steps": [
+        {
+          "title": "Объявите единый источник истины",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Объект состояния хранит факты, а не DOM-узлы. Ссылки на элементы находятся один раз и переиспользуются."
+        },
+        {
+          "title": "Пишите в DOM только в render",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "explanation": "Текст идёт через `textContent`, тема — в data-атрибут, а `toggle('open', state.isOpen)` задаёт класс по состоянию, а не переключает его. `aria-expanded` обновляется там же, поэтому визуальное состояние и состояние для вспомогательных технологий не расходятся."
+        },
+        {
+          "title": "Обработчики меняют состояние и вызывают render",
+          "lineStart": 14,
+          "lineEnd": 18,
+          "explanation": "Обработчик клика не трогает меню напрямую. Он меняет состояние и вызывает `render()`, поэтому любой путь выполнения строит DOM из одних и тех же данных."
+        },
+        {
+          "title": "Вызовите render один раз при старте",
+          "lineStart": 20,
+          "lineEnd": 20,
+          "explanation": "Первый вызов приводит начальную страницу в соответствие с состоянием, включая значение `aria-expanded`."
+        },
+        {
+          "title": "Отдайте внешний вид CSS",
+          "lineStart": 22,
+          "lineEnd": 24,
+          "explanation": "Таблица стилей сопоставляет data-атрибут и класс с визуальными эффектами. Чтобы изменить дизайн, нужно править CSS, а не JavaScript, и inline-стиль не конкурирует с этими правилами."
+        }
+      ]
+    },
+    {
+      "id": "dom-state-render-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Один обработчик вызывает `menu.classList.toggle('open')`, а другой код ставит `state.isOpen = false`, не трогая меню. Что пойдёт не так и как это исправить?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Класс и состояние могут разойтись, потому что `toggle` без аргумента переключает то, что сейчас в DOM; задавайте класс из состояния через `toggle('open', state.isOpen)` внутри `render()`",
+          "correct": true,
+          "feedback": "Когда DOM выводится из состояния в одной функции, они остаются согласованными, а повторный вызов безвреден."
+        },
+        {
+          "id": "b",
+          "text": "`classList.toggle` устарел, поэтому обработчик должен присваивать `className`",
+          "correct": false,
+          "feedback": "`toggle` актуален. Присваивание `className` к тому же перезапишет остальные классы элемента."
+        },
+        {
+          "id": "c",
+          "text": "Ничего: изменения классов ускоряются GPU, поэтому DOM всегда догоняет состояние",
+          "correct": false,
+          "feedback": "Скорость отрисовки не синхронизирует состояние. Ничто не связывает класс с `state.isOpen`, если этого не делает код."
+        },
+        {
+          "id": "d",
+          "text": "У `toggle` нет второго аргумента, поэтому нужны `if` с `add` и `remove`",
+          "correct": false,
+          "feedback": "Необязательный второй аргумент принудительно задаёт результат, и так писать чище."
+        }
+      ],
+      "explanation": "Одна функция render, которая выводит классы, атрибуты и текст из состояния, убирает целый класс ошибок синхронизации."
+    },
+    {
+      "id": "dom-card-manager-practice",
+      "type": "codingExercise",
+      "title": "Соберите безопасный менеджер карточек с фильтром",
+      "language": "javascript",
+      "context": "На небольшой странице показан список учебных карточек. Пользователи добавляют карточки через форму, отмечают их выполненными, удаляют и фильтруют по статусу. Каждое видимое изменение должно происходить из одного объекта состояния, а страница должна оставаться безопасной, если в названии есть разметка.",
+      "instructions": [
+        "Опишите состояние как массив карточек с полями `id`, `title`, `tag` и `done` и поле `filter` со значениями `all`, `active` или `done`.",
+        "Напишите `createCardElement(card)` с `createElement`, `textContent` и `dataset`; никогда не подставляйте заголовок или тег в строку для `innerHTML`.",
+        "Напишите `render()` так, чтобы он вычислял видимые карточки по `state.filter`, пересобирал сетку через DocumentFragment, показывал сообщение о пустом списке и синхронизировал класс `active` и `aria-pressed` у кнопок фильтра.",
+        "Повесьте на сетку один делегированный обработчик клика: найдите `closest('[data-action]')`, убедитесь, что он принадлежит сетке, и переключайте или удаляйте карточку по её id из состояния.",
+        "Обработайте отправку формы: `preventDefault`, проверка после `trim` и тег по умолчанию, затем очистите поля, верните фокус в поле названия и вызовите `render()`. Подключите кнопки фильтра, чтобы они меняли `state.filter`."
+      ],
+      "requirements": [
+        "Весь введённый пользователем текст вставляется через `textContent`; ни одна пользовательская строка не разбирается как HTML.",
+        "Состояние — единственный источник истины: обработчики меняют состояние, затем вызывают `render()`.",
+        "Один обработчик обслуживает действия карточек, включая карточки, добавленные после загрузки страницы.",
+        "Фильтрация вычисляет список для показа и никогда не изменяет `state.cards`.",
+        "Пустые названия и названия из одних пробелов отклоняются без добавления карточки, а кнопки фильтра показывают состояние нажатия."
+      ],
+      "starterCode": "const state = {\n  cards: [\n    { id: 1, title: 'Learn the DOM', tag: 'JavaScript', done: false },\n    { id: 2, title: 'Master events', tag: 'Events', done: false },\n  ],\n  filter: 'all',\n  nextId: 3,\n};\n\n// TODO 1: найдите сетку, форму, поля и кнопки фильтра; явно сообщите, если чего-то нет.\n// TODO 2: createCardElement(card) через textContent, dataset и две кнопки действий.\n// TODO 3: render() выводит видимые карточки из состояния и пересобирает сетку.\n// TODO 4: один делегированный обработчик done и delete через closest('[data-action]').\n// TODO 5: обработчик submit проверяет данные, обновляет состояние и вызывает render().\n// TODO 6: кнопки фильтра меняют state.filter; render() синхронизирует их состояние нажатия.",
+      "hints": [
+        "Читайте действие и id из `closest('[data-action]')`, а не из `event.target`: клик может попасть по иконке внутри кнопки.",
+        "Вычисляйте `visible` через `filter()`; не меняйте и не сортируйте `state.cards` только ради показа фильтра.",
+        "`grid.replaceChildren(fragment)` очищает и вставляет за один вызов; если `visible` пуст, покажите абзац с сообщением.",
+        "Проверьте название `<img src=x onerror=alert(1)>`: оно должно отображаться как обычный текст и ничего не запускать."
+      ],
+      "successCriteria": [
+        "Добавление, выполнение, удаление и фильтрация карточек обновляют страницу только из состояния.",
+        "Проверка с вредоносным названием показывает его как текст и не выполняет код.",
+        "Карточки, добавленные после загрузки, реагируют на действия без регистрации новых обработчиков.",
+        "Кнопки фильтра и сообщение о пустом списке остаются корректными после каждого действия."
+      ]
+    },
+    {
+      "id": "dom-state-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Используйте свойства связей только для элементов, проверяйте `null` и предпочитайте `closest()` цепочкам `parentElement`.",
+        "`textContent` — для данных, `innerText` отражает отрисованный текст, а `innerHTML` разбирает разметку и пересобирает всех детей.",
+        "Храните состояние в данных, пишите в DOM в одном `render()`, используйте `classList.toggle(name, force)` и data-атрибуты, а внешний вид отдавайте CSS."
+      ]
+    },
+    {
       "id": "deep-dom-summary",
       "type": "list",
       "ordered": false,
@@ -851,6 +1136,26 @@
           "title": "OWASP: Cross Site Scripting Prevention",
           "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
           "kind": "guide"
+        },
+        {
+          "title": "MDN: Node.textContent",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: HTMLElement.innerText",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/innerText",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Element.classList",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Element/classList",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Element.closest()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Element/closest",
+          "kind": "official-docs"
         }
       ]
     }

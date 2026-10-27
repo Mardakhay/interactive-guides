@@ -1,7 +1,7 @@
 {
   "id": "js.dom-events",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "The DOM and Browser Events",
   "description": "Understand the browser's live document tree, select and update elements, handle events, and build a data-driven DOM to-do list.",
-  "estimatedMinutes": 95,
+  "estimatedMinutes": 115,
   "difficulty": "beginner",
   "prerequisites": [
     "js.functions-arrays-objects",
@@ -22,7 +22,8 @@
     "Create and update nodes using safe text and attribute/property APIs.",
     "Explain event target/currentTarget, capture/target/bubble, delegation and default actions.",
     "Debug initial HTML attributes versus mutable DOM properties.",
-    "Build a data-driven DOM list and validate behavior with browser DevTools."
+    "Build a data-driven DOM list and validate behavior with browser DevTools.",
+    "Choose between textContent, innerText and innerHTML, and drive classes and data attributes from one state object."
   ],
   "tags": [
     "javascript",
@@ -814,6 +815,290 @@
       ]
     },
     {
+      "id": "dom-traversal-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Navigate from a known node instead of querying again"
+    },
+    {
+      "id": "dom-traversal-body",
+      "type": "paragraph",
+      "text": "Once you hold an element, the tree already links it to its relatives. Element-only properties (`parentElement`, `children`, `firstElementChild`, `lastElementChild`, `previousElementSibling`, `nextElementSibling`) skip text and comment nodes. Node-based properties (`parentNode`, `childNodes`, `firstChild`, `nextSibling`) include them, and indented markup creates whitespace text nodes between tags. Prefer the element-only forms unless you really need other node types. At the edges these properties return `null`, so guard before reading a property of the result. `closest(selector)` walks upward starting with the element itself and returns the first match or `null`; `parent.contains(node)` tests descendant relationships. Chains such as `parentElement.parentElement` couple code to the exact markup shape, so a `closest()` call with a meaningful selector or data attribute usually survives layout changes better."
+    },
+    {
+      "id": "dom-traversal-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "// <section class=\"board\">\n//   <div class=\"item item-a\">A</div>\n//   <div class=\"item item-b\"><span>Label</span><em>Note</em></div>\n//   <div class=\"item item-c\">C</div>\n// </section>\nconst current = document.querySelector('.item-b');\n\nconsole.log(current.parentElement.className);            // \"board\"\nconsole.log(current.previousElementSibling.textContent); // \"A\"\nconsole.log(current.nextElementSibling.textContent);     // \"C\"\nconsole.log(current.firstElementChild.tagName);          // \"SPAN\"\nconsole.log(current.lastElementChild.tagName);           // \"EM\"\nconsole.log(current.children.length);                    // 2\n\nconsole.log(current.parentNode.firstChild.nodeType);     // 3: whitespace text\nconsole.log(current.parentElement.firstElementChild.className); // \"item item-a\"\nconsole.log(current.closest('.board') === current.parentElement); // true\nconsole.log(current.closest('.item') === current);       // true: starts at itself",
+      "steps": [
+        {
+          "title": "Start from one element you already hold",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "The comment shows the markup and the single `querySelector` call that finds `.item-b`. Every relationship below is read from that node without another search of the document."
+        },
+        {
+          "title": "Read element-only relationships",
+          "lineStart": 8,
+          "lineEnd": 13,
+          "explanation": "Each property returns an Element or `null`. `children` is a live HTMLCollection containing only element children, so its length ignores text and comments. For the first or last item in a list, `previousElementSibling` or `nextElementSibling` is `null`, which must be handled."
+        },
+        {
+          "title": "Notice the whitespace trap",
+          "lineStart": 15,
+          "lineEnd": 16,
+          "explanation": "`firstChild` is the first node of any type. With indented markup it is usually a whitespace text node (nodeType 3), which has no `className`. `firstElementChild` skips non-element nodes and returns the element you meant."
+        },
+        {
+          "title": "Search upward with closest",
+          "lineStart": 17,
+          "lineEnd": 18,
+          "explanation": "`closest()` checks the element itself first, then each ancestor. That is why `closest('.item')` returns `current`. It returns `null` when nothing matches, which makes it the standard tool for event delegation."
+        }
+      ]
+    },
+    {
+      "id": "dom-traversal-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A container's markup is indented across several lines. `container.firstChild.className` is `undefined`, although the first tag inside is a `div` with a class. What explains this, and what should you use?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`firstChild` returned a whitespace text node created by the indentation; use `firstElementChild` when you need an element",
+          "correct": true,
+          "feedback": "Text nodes have no `className`. Whitespace between tags is parsed into text nodes, and `firstChild` returns any node type."
+        },
+        {
+          "id": "b",
+          "text": "`firstChild` only works after the page has finished loading, so wait for `DOMContentLoaded`",
+          "correct": false,
+          "feedback": "Timing is not the problem: the tree already exists, and the first node in it is simply not an element."
+        },
+        {
+          "id": "c",
+          "text": "The HTML parser removes whitespace between tags, so the `div` should have been found",
+          "correct": false,
+          "feedback": "The parser keeps whitespace text nodes in most contexts, which is exactly why element-only properties exist."
+        },
+        {
+          "id": "d",
+          "text": "`className` is only defined on elements after they have been attached to the document",
+          "correct": false,
+          "feedback": "`className` exists on any element, attached or not. The returned node was not an element."
+        }
+      ],
+      "explanation": "The DOM contains text and comment nodes as well as elements. Use the element-only relationship properties when you mean elements, and guard against `null` at the edges."
+    },
+    {
+      "id": "dom-content-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Choose how text and markup are read and written"
+    },
+    {
+      "id": "dom-content-body",
+      "type": "paragraph",
+      "text": "`textContent` reads or writes the exact text of every descendant text node. It includes text in hidden elements, does not parse markup, and is the default for showing user-visible text. `innerText` works with the rendered result: it respects CSS such as `display: none` and reflects layout line breaks, so reading it can require the browser to compute layout and is generally more costly. `innerHTML` serializes the children as a markup string when read and parses a string as HTML when written, replacing all existing children. `outerHTML` includes the element itself. A common security belief is that scripts inserted through `innerHTML` run; they do not, but event-handler attributes such as `onerror` on an `img` can, so any untrusted string must still be treated as dangerous. Writing `el.innerHTML += html` rebuilds every existing child, which discards listeners attached directly to them and any state they held, such as typed input."
+    },
+    {
+      "id": "dom-content-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "// <div class=\"box\"><strong>Hello</strong> <span hidden>secret</span>World</div>\nconst box = document.querySelector('.box');\nconst input = '<img src=\"x\" onerror=\"reportAttack()\">';\n\nconsole.log(box.textContent); // \"Hello secretWorld\": every text node, even hidden\nconsole.log(box.innerText);   // \"Hello World\": rendered text, hidden span omitted\nconsole.log(box.innerHTML);   // the child markup as a string, span included\n\nbox.textContent = input;\nconsole.log(box.children.length); // 0: the string is stored as plain text\n\nbox.innerHTML = '<strong>Saved</strong>'; // parses markup, replaces all children\nbox.innerHTML += '<em>appended</em>';     // re-serializes and re-parses everything",
+      "steps": [
+        {
+          "title": "Set up markup and an untrusted string",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "The element mixes visible text, a hidden element and a nested tag. The `input` string stands for user-supplied data that contains an event-handler attribute."
+        },
+        {
+          "title": "Compare the three reads",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "`textContent` returns all text, including the hidden span. `innerText` returns what a reader would see, so the hidden span is omitted. `innerHTML` returns markup, including tags and attributes. Choose the read that matches the question you are asking."
+        },
+        {
+          "title": "Write untrusted data as text",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "Assigning to `textContent` stores the string as a single text node. No `img` element is created, so `children.length` is 0 and the handler can never fire."
+        },
+        {
+          "title": "Treat markup writes as rebuilds",
+          "lineStart": 12,
+          "lineEnd": 13,
+          "explanation": "Assigning `innerHTML` parses a string and replaces every child. The `+=` form serializes the current children, concatenates, and parses again, so existing nodes are replaced with new ones. Use `append()` or `insertAdjacentElement()` with created nodes to add one item without rebuilding the rest."
+        }
+      ]
+    },
+    {
+      "id": "dom-content-check",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "A comment entered by a user must be displayed inside a paragraph. Which statements are accurate? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Assigning the string to `textContent` stores it as plain text and never parses markup",
+          "correct": true,
+          "feedback": "The value becomes a text node, so angle brackets are displayed literally."
+        },
+        {
+          "id": "b",
+          "text": "Assigning to `innerText` also inserts text rather than markup, but reading `innerText` depends on rendering",
+          "correct": true,
+          "feedback": "Writes are treated as text, while reads reflect CSS and layout, which is why `textContent` is the simpler default for data."
+        },
+        {
+          "id": "c",
+          "text": "Assigning to `innerHTML` is safe when the comment is short",
+          "correct": false,
+          "feedback": "Length does not matter. A short string such as an `img` with an `onerror` attribute is enough to run code."
+        },
+        {
+          "id": "d",
+          "text": "`list.innerHTML += itemMarkup` is an efficient way to add one item",
+          "correct": false,
+          "feedback": "It serializes and re-parses every existing child, discarding their listeners and state."
+        },
+        {
+          "id": "e",
+          "text": "A `<script>` tag assigned through `innerHTML` always executes, so only script tags need to be filtered",
+          "correct": false,
+          "feedback": "Scripts inserted this way do not run, but event-handler attributes can. Filtering one tag does not make parsing untrusted markup safe."
+        }
+      ],
+      "explanation": "Use `textContent` for data. Parse HTML only from sources you control, with a reviewed policy, and add single items with created nodes rather than rebuilding a container."
+    },
+    {
+      "id": "dom-state-render-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Keep state in data, render it to the DOM, style it with CSS"
+    },
+    {
+      "id": "dom-state-render-body",
+      "type": "paragraph",
+      "text": "`element.style` writes inline styles with camelCase names (`style.backgroundColor`) and reads only inline values. Inline declarations override ordinary stylesheet rules, so they are hard to change later from CSS. `getComputedStyle(el)` is read-only and returns resolved values after the cascade, such as `rgb(255, 0, 0)` or `24px`. For states such as open, active or selected, change a class or a data attribute and let CSS decide how it looks: `classList.add`, `remove`, `contains`, `replace`, and `toggle`. `toggle(name, force)` sets an explicit state, so the same call is safe to repeat, while a bare `toggle(name)` flips whatever the DOM currently holds. Assigning `className` replaces the entire class string. Performance does not come from using a class rather than `style`; it depends on which properties change, because properties such as `transform` and `opacity` can often be animated without layout, while width or top cannot. The pattern that scales is a state object that is the source of truth, a `render()` that writes it to text, attributes and classes, and event handlers that change state and then call `render()`."
+    },
+    {
+      "id": "dom-state-render-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const state = { count: 0, theme: 'dark', isOpen: false };\n\nconst countEl = document.querySelector('#count');\nconst menuEl = document.querySelector('#menu');\nconst openBtn = document.querySelector('#open');\n\nfunction render() {\n  countEl.textContent = String(state.count);\n  document.body.dataset.theme = state.theme;\n  menuEl.classList.toggle('open', state.isOpen);\n  openBtn.setAttribute('aria-expanded', String(state.isOpen));\n}\n\nopenBtn.addEventListener('click', () => {\n  state.isOpen = !state.isOpen;\n  state.count += 1;\n  render();\n});\n\nrender();\n\n/* CSS: [data-theme=\"dark\"] { background: #0a0e1a; }\n   .menu { transform: translateX(-100%); }\n   .menu.open { transform: translateX(0); } */",
+      "steps": [
+        {
+          "title": "Declare one source of truth",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "The state object holds the facts, not DOM nodes. The element references are looked up once and reused."
+        },
+        {
+          "title": "Write the DOM only in render",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "explanation": "Text goes through `textContent`, the theme goes into a data attribute, and `toggle('open', state.isOpen)` sets the class from the state instead of flipping it. `aria-expanded` is updated in the same place so visual state and assistive-technology state cannot drift apart."
+        },
+        {
+          "title": "Handlers change state, then render",
+          "lineStart": 14,
+          "lineEnd": 18,
+          "explanation": "The click handler never touches the menu directly. It changes state and calls `render()`, so every code path produces the DOM from the same data."
+        },
+        {
+          "title": "Render once at startup",
+          "lineStart": 20,
+          "lineEnd": 20,
+          "explanation": "The first call makes the initial page match the state, including the `aria-expanded` value."
+        },
+        {
+          "title": "Let CSS own appearance",
+          "lineStart": 22,
+          "lineEnd": 24,
+          "explanation": "The stylesheet maps the data attribute and class to visuals. Changing the design means editing CSS, not JavaScript, and no inline style competes with these rules."
+        }
+      ]
+    },
+    {
+      "id": "dom-state-render-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "One handler calls `menu.classList.toggle('open')`, while other code sets `state.isOpen = false` without touching the menu. What goes wrong, and what is the fix?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The class and the state can disagree, because a bare toggle flips whatever the DOM holds; set it from state with `toggle('open', state.isOpen)` inside `render()`",
+          "correct": true,
+          "feedback": "Deriving the DOM from state in one function keeps both in agreement, and repeating the call is harmless."
+        },
+        {
+          "id": "b",
+          "text": "`classList.toggle` is deprecated, so the handler should assign `className` instead",
+          "correct": false,
+          "feedback": "`toggle` is current. Assigning `className` would also overwrite the other classes on the element."
+        },
+        {
+          "id": "c",
+          "text": "Nothing: class changes are GPU-accelerated, so the DOM always catches up",
+          "correct": false,
+          "feedback": "Rendering speed does not synchronize state. Nothing connects the class to `state.isOpen` unless the code does."
+        },
+        {
+          "id": "d",
+          "text": "`toggle` cannot take a second argument, so an `if` statement with `add` and `remove` is required",
+          "correct": false,
+          "feedback": "The optional second argument forces the result and is the cleaner way to write this."
+        }
+      ],
+      "explanation": "A single render function that derives classes, attributes and text from state removes a whole category of synchronization bugs."
+    },
+    {
+      "id": "dom-card-manager-practice",
+      "type": "codingExercise",
+      "title": "Build a safe, filterable card manager",
+      "language": "javascript",
+      "context": "A small page lists learning cards. Users add cards from a form, mark them done, delete them and filter by status. Every visible change must come from one state object, and the page must stay safe when a title contains markup.",
+      "instructions": [
+        "Model state as an array of cards with `id`, `title`, `tag` and `done`, plus a `filter` of `all`, `active` or `done`.",
+        "Write `createCardElement(card)` with `createElement`, `textContent` and `dataset`; never interpolate a title or tag into an `innerHTML` string.",
+        "Write `render()` so it derives the visible cards from `state.filter`, rebuilds the grid with a DocumentFragment, shows an empty message, and syncs the filter buttons' `active` class and `aria-pressed`.",
+        "Attach one delegated click listener to the grid that finds `closest('[data-action]')`, checks it belongs to the grid, and toggles or deletes the card by its id in state.",
+        "Handle form submission with `preventDefault`, trimmed validation and a default tag, then clear the inputs, return focus to the title input and call `render()`. Wire the filter buttons to update `state.filter`."
+      ],
+      "requirements": [
+        "All user-entered text is inserted with `textContent`; no user string is parsed as HTML.",
+        "State is the only source of truth: handlers change state and then call `render()`.",
+        "One listener covers the card actions, including cards added after the page loads.",
+        "Filtering derives a visible list and never mutates `state.cards`.",
+        "Empty or whitespace-only titles are rejected without adding a card, and filter buttons expose their pressed state."
+      ],
+      "starterCode": "const state = {\n  cards: [\n    { id: 1, title: 'Learn the DOM', tag: 'JavaScript', done: false },\n    { id: 2, title: 'Master events', tag: 'Events', done: false },\n  ],\n  filter: 'all',\n  nextId: 3,\n};\n\n// TODO 1: select the grid, form, inputs and filter buttons; fail clearly if one is missing.\n// TODO 2: createCardElement(card) using textContent, dataset and two action buttons.\n// TODO 3: render() derives the visible cards from state and rebuilds the grid.\n// TODO 4: one delegated click handler for done and delete using closest('[data-action]').\n// TODO 5: form submit handler that validates, updates state and calls render().\n// TODO 6: filter buttons update state.filter; render() syncs their pressed state.",
+      "hints": [
+        "Read the action and the id from `closest('[data-action]')`, not from `event.target`, because a click can land on an icon inside the button.",
+        "Compute `visible` with `filter()`; do not splice or sort `state.cards` just to display a filter.",
+        "`grid.replaceChildren(fragment)` clears and inserts in one call; render an empty-state paragraph when `visible` is empty.",
+        "Test with the title `<img src=x onerror=alert(1)>`; it must appear as literal text and run nothing."
+      ],
+      "successCriteria": [
+        "Adding, completing, deleting and filtering cards all update the page from state alone.",
+        "The hostile-title test is displayed literally and executes no code.",
+        "Cards added after load respond to actions without registering new listeners.",
+        "Filter buttons and the empty message stay correct after every action."
+      ]
+    },
+    {
+      "id": "dom-state-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use element-only relationship properties for elements, guard against `null`, and prefer `closest()` over chains of `parentElement`.",
+        "`textContent` is for data, `innerText` reflects rendered text, and `innerHTML` parses markup and rebuilds every child.",
+        "Keep state in data, write the DOM in one `render()`, use `classList.toggle(name, force)` and data attributes, and let CSS own appearance."
+      ]
+    },
+    {
       "id": "deep-dom-summary",
       "type": "list",
       "ordered": false,
@@ -851,6 +1136,26 @@
           "title": "OWASP: Cross Site Scripting Prevention",
           "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
           "kind": "guide"
+        },
+        {
+          "title": "MDN: Node.textContent",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: HTMLElement.innerText",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/innerText",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Element.classList",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Element/classList",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Element.closest()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Element/closest",
+          "kind": "official-docs"
         }
       ]
     }
