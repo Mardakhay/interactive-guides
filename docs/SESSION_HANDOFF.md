@@ -668,3 +668,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - HTML source content/code/interaction review checklist: 25/25 documented. Exact source-to-block claims and one-for-one app-side UI interaction parity remain partial; legacy sources/routes stay in place.
 - Notion source ledger is one 21-page table: 20 frontend-course pages plus one separate English assessment. All are marked `verification.state=unverified` in Notion metadata; read/mapped is not formal verification.
 - `frontend.architecture-boundaries` v4 explicitly covers SOLID (34 aligned blocks). The prompt-fix code SHA `4473d094a60c0b85c569390778605b58769eb6d2` passed CI run [40467814647](https://github.com/Mardakhay/interactive-guides/actions/runs/40467814647); latest docs HEAD needs separate CI.
+
+
+## Part 4 content regression coverage — 2026-10-27
+
+- Added source-specific assertions for `react.router-spa`, `react.forms-validation` and `react.context-shared-state`: query-param/shareable URL state and not-found/host fallback, accessible form-error associations plus FormData/RHF submit flow, and custom-Hook instance ownership plus reducer/Context boundaries.
+- Existing API v4 regression tests for debounce versus abort/stale response, Fetch status semantics, retries and service boundaries remain active. These assertions protect the stated lesson content and EN/RU structure; they do not mean all code snippets are executed or that legacy interactions are identical.

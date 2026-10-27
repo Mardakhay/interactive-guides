@@ -368,3 +368,8 @@ All 21 pages return `verification.state=unverified`. The ledger distinguishes in
 ## Current status reconciliation — 2026-10-27
 
 The earlier 37-pair/74-file count and incomplete HTML-read counts are historical snapshots, superseded by the current tree: 44 EN/RU lesson pairs (26 core + 18 supplementary; 88 lesson JSON files). Content/code/interaction reviews for all 25 HTML sources are documented 25/25; source-to-block fidelity and equivalent UI-interaction parity remain partial. The Notion ledger documents 21 fetched pages, all marked `verification.state=unverified` by source metadata.
+
+
+## Part 4 test-coverage continuation — 2026-10-27
+
+Strengthened tests around the four React-ecosystem lessons. Router tests now guard query-parameter state, nested layouts/Outlet, wildcard not-found and route-guard/server-authorization distinction; forms tests guard FormData, accessible label/error links, RHF and async submission; Context tests guard separate custom-Hook instances, reducer exhaustiveness and provider boundaries. The API lesson already has content-specific regression coverage for debounce, request abort/stale responses and Fetch failures.

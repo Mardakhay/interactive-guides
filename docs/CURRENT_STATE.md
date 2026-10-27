@@ -557,3 +557,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Legacy HTML content/code/interaction review checklist: 25/25 documented. Exact source-to-block/claim parity and identical learner-facing interaction parity remain open; legacy sources/routes are retained.
 - Notion fetch ledger: 21 pages (20 course-related plus one separate English assessment); every fetched page remains `verification.state=unverified`.
 - `frontend.architecture-boundaries` v4 includes SOLID. The prompt-schema failure in `e4b2de1` was corrected in `4473d09`, whose exact-head CI passed [run 40467814647](https://github.com/Mardakhay/interactive-guides/actions/runs/40467814647). Confirm CI on the latest docs HEAD.
+
+
+## Part 4 regression tests — 2026-10-27
+
+- Added explicit regression tests for the Router, forms/validation and shared-state/Context lessons, supplementing the existing detailed API custom-hook tests. The assertions cover URLs and deep-link fallback, semantic fields and RHF, independent Hook state and reducer/Context boundaries.
+- Exact-heading CI must pass on the new test commit; no runtime/external service execution of every lesson snippet is implied by schema/content tests.

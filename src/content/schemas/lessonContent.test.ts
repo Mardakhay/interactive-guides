@@ -397,6 +397,29 @@ describe('React Router lesson translation', () => {
     expect(englishRouter.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(russianRouter.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
+  it('protects URL state, nested routes, fallback semantics, and auth boundaries', () => {
+    for (const lesson of [englishRouter, russianRouter]) {
+      const urlState = lesson.blocks.find((block) => block.id === 'deep-router-url-state');
+      expect(urlState?.type).toBe('list');
+      if (urlState?.type !== 'list') return;
+      expect(urlState.items).toHaveLength(5);
+      expect(urlState.items.join(' ').toLowerCase()).toMatch(/query|запрос/);
+      expect(urlState.items.join(' ').toLowerCase()).toMatch(/authorization|авторизац/);
+      const routeTrace = lesson.blocks.find((block) => block.id === 'deep-router-trace');
+      expect(routeTrace?.type).toBe('codeWalkthrough');
+      if (routeTrace?.type !== 'codeWalkthrough') return;
+      expect(routeTrace.code).toContain('<Outlet />');
+      expect(routeTrace.code).toContain('path="*"');
+      const lineCount = routeTrace.code.split('\n').length;
+      expect(routeTrace.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      const practice = lesson.blocks.find((block) => block.id === 'deep-router-practice');
+      expect(practice?.type).toBe('codingExercise');
+      if (practice?.type !== 'codingExercise') return;
+      expect(practice.requirements).toHaveLength(5);
+      expect(practice.successCriteria.length).toBeGreaterThanOrEqual(5);
+      expect(practice.instructions.join(' ').toLowerCase()).toMatch(/query|запрос/);
+    }
+  });
 });
 
 describe('React forms and validation lesson translation', () => {
@@ -409,6 +432,42 @@ describe('React forms and validation lesson translation', () => {
     expect(englishReactForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
     expect(russianReactForms.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
+  it('keeps form input semantics, accessible errors, and async submit states in both locales', () => {
+    for (const lesson of [englishReactForms, russianReactForms]) {
+      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
+      const uncontrolled = lesson.blocks.find((block) => block.id === 'uncontrolled-example');
+      expect(uncontrolled?.type).toBe('code');
+      if (uncontrolled?.type !== 'code') return;
+      expect(uncontrolled.code).toContain('new FormData(');
+      expect(uncontrolled.code).toContain('event.preventDefault()');
+      const accessible = lesson.blocks.find((block) => block.id === 'accessible-errors-example');
+      expect(accessible?.type).toBe('code');
+      if (accessible?.type !== 'code') return;
+      expect(accessible.code).toContain('aria-invalid');
+      expect(accessible.code).toContain('aria-describedby');
+      expect(accessible.code).toContain('htmlFor=');
+      const rhf = lesson.blocks.find((block) => block.id === 'rhf-complete-example-code');
+      expect(rhf?.type).toBe('codeWalkthrough');
+      if (rhf?.type !== 'codeWalkthrough') return;
+      expect(rhf.code).toContain('useForm<RegistrationValues>');
+      expect(rhf.code).toContain('handleSubmit(onSubmit)');
+      expect(rhf.code).toContain('isSubmitting');
+      const lineCount = rhf.code.split('\n').length;
+      expect(rhf.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      const submission = lesson.blocks.find((block) => block.id === 'submission-states-body');
+      expect(submission?.type).toBe('paragraph');
+      if (submission?.type === 'paragraph') {
+        expect(submission.text.toLowerCase()).toMatch(/success|успех/);
+        expect(submission.text.toLowerCase()).toMatch(/error|ошиб/);
+      }
+      const rhfPractice = lesson.blocks.find((block) => block.id === 'practice-refactor-to-rhf');
+      expect(rhfPractice?.type).toBe('codingExercise');
+      if (rhfPractice?.type === 'codingExercise') {
+        expect(rhfPractice.requirements.join(' ').toLowerCase()).toMatch(/server|сервер/);
+        expect(rhfPractice.requirements.join(' ').toLowerCase()).toMatch(/aria|accessib|доступ/);
+      }
+    }
+  });
 });
 
 describe('React shared state and Context lesson translation', () => {
@@ -420,6 +479,37 @@ describe('React shared state and Context lesson translation', () => {
     );
     expect(englishContext.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
     expect(russianContext.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+  it('protects custom-hook instance boundaries and reducer/provider semantics', () => {
+    for (const lesson of [englishContext, russianContext]) {
+      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+      const hookModel = lesson.blocks.find((block) => block.id === 'custom-hook-instance-body');
+      expect(hookModel?.type).toBe('paragraph');
+      if (hookModel?.type === 'paragraph') {
+        expect(hookModel.text.toLowerCase()).toMatch(/each call|each invocation|кажд/);
+        expect(hookModel.text.toLowerCase()).toMatch(/context|контекст|shared value|общ/);
+      }
+      const hookExample = lesson.blocks.find((block) => block.id === 'custom-hook-instance-example');
+      expect(hookExample?.type).toBe('codeWalkthrough');
+      if (hookExample?.type !== 'codeWalkthrough') return;
+      expect(hookExample.code).toContain('function CounterA()');
+      expect(hookExample.code).toContain('function CounterB()');
+      expect(hookExample.code.match(/useCounter\(\)/g)?.length).toBeGreaterThanOrEqual(3);
+      const reducer = lesson.blocks.find((block) => block.id === 'reducer-context-example');
+      expect(reducer?.type).toBe('codeWalkthrough');
+      if (reducer?.type !== 'codeWalkthrough') return;
+      expect(reducer.code).toContain('useReducer');
+      expect(reducer.code).toContain('PreferencesContext.Provider');
+      expect(reducer.code).toContain('const exhaustiveCheck: never = action');
+      const lineCount = reducer.code.split('\n').length;
+      expect(reducer.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      const boundaries = lesson.blocks.find((block) => block.id === 'provider-boundaries');
+      expect(boundaries?.type).toBe('list');
+      if (boundaries?.type === 'list') {
+        expect(boundaries.items.some((item) => /not.*persist|не.*сохраня/i.test(item))).toBe(true);
+        expect(boundaries.items.some((item) => /authori|авторизац/i.test(item))).toBe(true);
+      }
+    }
   });
 });
 
