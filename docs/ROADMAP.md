@@ -58,9 +58,10 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
   - `content(tooling): migrate Git, package and deployment lessons`
 
 ## Phase 5 — Local-first data foundations
-- [ ] Introduce versioned local repositories and explicit migration/export behavior.
-- [ ] Migrate existing progress, notes, bookmarks and quiz data without silent loss.
-- [ ] Add tests for malformed state, storage unavailable and migration retry.
+- [x] Add a versioned JSON backup format and explicit export/restore for current learning datasets; validation, preview, replace confirmation and best-effort multi-key rollback are implemented.
+- [ ] Introduce versioned local repositories independently of the backup format and migrate all legacy progress, notes, bookmarks and quiz records without silent loss.
+- [x] Test malformed backup files, unsupported versions, legacy structured-learning reads, restore replacement and rollback after a write failure.
+- [ ] Expand tests for storage unavailable, rollback failure and migration retry across all stores; run browser/device download and file-picker smoke checks.
 - Acceptance: existing saved state survives update or export/import recovery.
 - Suggested commit: `refactor(storage): add versioned local repositories`
 
@@ -430,3 +431,11 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - CSS fundamentals and Flexbox/Grid lessons already cover the substantive topics in both locales, with deeper cascade, box sizing, margin collapse, overflow/intrinsic sizing, reduced motion, accessibility and responsive diagnosis than the reference source. Matrix records exact block evidence; no duplicate lesson was created.
 - UI parity is partial because the reference copy/property playground is not recreated as a visual simulator; practice, feedback and debugging move to structured blocks.
 - Full HTML source reviews: 11/25; 14 remain. Docs HEAD `e3997b2232158f5433ab6e3ffa78ee8dfb6b57f6` passed CI [40290564642](https://github.com/Mardakhay/interactive-guides/actions/runs/40290564642).
+
+
+## Local-data backup/export-restore checkpoint — 2026-10-27
+
+- Implemented `/backup` with bilingual copy and sidebar navigation. The versioned JSON v1 includes progress, bookmarks, notes, classic quiz results, and structured lesson attempts/drafts/checklists/section progress.
+- Import validates the format and dataset schemas before writing, previews record counts, requires explicit confirmation, replaces rather than merges data, writes the canonical structured-learning v2 record, and removes the legacy record after successful writes. On a failed write it attempts to restore prior raw values and reports if rollback itself fails.
+- Exact-head CI passed for code commit `73a47b96b1c0fc00d454c0cd955f24514bb32024` in run [40487424471](https://github.com/Mardakhay/interactive-guides/actions/runs/40487424471). This documentation sync is separate from that already validated code commit.
+- Phase 5 is still partial: repositories are not all independently versioned, migration/retry behavior needs broader tests, and browser-specific download/import smoke tests are outstanding. Supabase remains gated.

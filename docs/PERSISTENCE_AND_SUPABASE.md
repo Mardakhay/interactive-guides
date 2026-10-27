@@ -1,6 +1,6 @@
 # Persistence and Supabase Plan
 
-**Status:** proposed. Supabase is not currently shown as a dependency in the audited `package.json`.
+**Status:** local JSON backup/restore v1 is implemented on `feat/learning-platform-foundation`. Supabase auth/sync remains proposed and is not a package dependency.
 
 ## Product decisions
 
@@ -10,6 +10,16 @@
 4. Supabase is added only after local repository contracts and stable models exist.
 5. Cloud synchronization is scoped per authenticated user and protected by Row Level Security.
 6. A UI route guard is not an authorization boundary; the database/API must enforce access.
+
+## Local data backup/export-restore — v1 implementation checkpoint (2026-10-27)
+
+The bilingual `/backup` route is available from the application sidebar. It exports and restores the current local learning datasets as a versioned JSON document (`format: interactive-guides-backup`, `schemaVersion: 1`, 10 MiB maximum file size). Included data: lesson progress, bookmarks, notes, classic quiz results, and structured-lesson quiz attempts, code drafts, practice checklists and section progress. UI locale, theme and other application preferences are intentionally not part of this learner-data backup.
+
+Before export, current stored records are parsed and checked against their Zod schemas; invalid stored data fails visibly rather than producing a partial archive. Import validates the format/version and every dataset before any write. The user sees a record-count preview and must explicitly confirm replacement. Restore is replacement, not merge: it writes canonical current storage records and removes the legacy structured-learning record only after the preceding writes succeed. If a write fails, the implementation attempts to restore the previous raw values for every affected key. The browser Storage API is not transactional, so rollback is best-effort; if rollback also fails the page reports a prominent recovery warning.
+
+Backup files are plain JSON and can contain private notes/code drafts. Users should store them somewhere private and avoid sharing them casually. Exact-head CI for code commit [`73a47b9`](https://github.com/Mardakhay/interactive-guides/commit/73a47b96b1c0fc00d454c0cd955f24514bb32024) passed run [40487424471](https://github.com/Mardakhay/interactive-guides/actions/runs/40487424471). Browser-specific download/file-picker smoke testing remains outstanding.
+
+Still open: migrate/version every local repository independently of the backup envelope; audit storage-unavailable and migration-retry behavior across all stores; decide field-level merge semantics for future cloud sync; and implement/account-test Supabase only after those contracts stabilize.
 
 ## First cloud features worth implementing
 
