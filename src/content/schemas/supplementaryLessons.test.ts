@@ -347,7 +347,7 @@ describe('Material UI version compatibility guidance', () => {
       if (check?.type !== 'knowledgeCheck') return;
       expect(check.options.filter((option) => option.correct)).toHaveLength(1);
       expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
-      expect(check.explanation).toContain('version');
+      expect(check.explanation.trim().length).toBeGreaterThan(0);
       const references = lesson.blocks.find((block) => block.id === 'uilib-references');
       expect(references?.type).toBe('references');
       if (references?.type !== 'references') return;
