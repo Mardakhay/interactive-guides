@@ -383,3 +383,8 @@ Quota material is phrased as approximate origin-level usage/quota, not a univers
 ## Advanced JS destructuring source follow-up — 2026-10-27
 
 `js.functions-arrays-objects` v3 maps source examples for nested object destructuring, function-parameter destructuring and swapping variables with an array pattern. The lesson distinguishes destructuring from optional chaining and defaults from null checks, while keeping the nullable API-normalizer exercise as applied practice. Tests cover EN/RU parity and walkthrough ranges.
+
+
+## Advanced JS observer API review — 2026-10-27
+
+Mapped the IntersectionObserver, ResizeObserver and Page Visibility subsections from Advanced JS. `js.dom-events` v6 now covers element-size updates independent of window resizing, ResizeObserver teardown/feedback-loop risk, document hidden/visible state, interval pause/resume, and cleanup of the same visibility listener. Existing intersection and mutation observer examples remain. The source's Notion metadata is still `verification.state=unverified`; XHR/WebSocket/worker and other API sections remain open.

@@ -623,3 +623,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - `js.functions-arrays-objects` v3 has 76 aligned blocks and an explicit nested/function-parameter/swap walkthrough and check. The existing exercise now requires guarded nested paths and parameter destructuring. Confirm exact-head CI for current work.
 - The Advanced JS Notion page remains connector-unverified; mapping these source slices does not imply formal page verification.
+
+
+## Advanced JS observer API continuation — 2026-10-27
+
+- `js.dom-events` v6 adds ResizeObserver and Page Visibility walkthroughs, an API-selection knowledge check, lifecycle rubric updates and official MDN references. EN/RU block parity and walkthrough ranges are tested.
+- Advanced JS Notion source remains `verification.state=unverified`; this is mapped subsection coverage, not a formal verification claim. Continue with focused WebSocket/XHR/worker slices after exact-head CI.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; changes are confined to `feat/learning-platform-foundation`.

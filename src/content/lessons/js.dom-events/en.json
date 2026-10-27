@@ -1,7 +1,7 @@
 {
   "id": "js.dom-events",
   "locale": "en",
-  "version": 5,
+  "version": 6,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-27",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "The DOM and Browser Events",
   "description": "Understand the browser's live document tree, select and update elements, handle events, and build a data-driven DOM to-do list.",
-  "estimatedMinutes": 125,
+  "estimatedMinutes": 140,
   "difficulty": "beginner",
   "prerequisites": [
     "js.functions-arrays-objects",
@@ -719,6 +719,102 @@
       ]
     },
     {
+      "id": "dom-size-visibility-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Observe element size and document visibility"
+    },
+    {
+      "id": "dom-size-visibility-model",
+      "type": "paragraph",
+      "text": "Choose an observer for the signal you need. `ResizeObserver` reports an element's box-size changes even when the viewport does not resize; `window.resize` only reports viewport resize events. Use CSS/container queries when the response is purely presentational. Avoid changing the observed element's own dimensions from its callback without a guard: that feedback can trigger repeated resize notifications. The Page Visibility API is different from `IntersectionObserver`: it reports whether the document is considered visible or hidden, not whether an individual card intersects the viewport. Stop unnecessary background work while hidden and clean up both listeners and timers."
+    },
+    {
+      "id": "dom-resize-observer-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const card = document.querySelector(\"#responsive-card\");\nconst measurement = document.querySelector(\"#card-measurement\");\n\nif (card && measurement) {\n  const resizeObserver = new ResizeObserver((entries) => {\n    for (const entry of entries) {\n      const { width, height } = entry.contentRect;\n      measurement.textContent =\n        `${Math.round(width)} × ${Math.round(height)} px`;\n    }\n  });\n\n  resizeObserver.observe(card);\n\n  // Disconnect when this view is disposed.\n  // resizeObserver.disconnect();\n}",
+      "steps": [
+        {
+          "title": "Select the element and output",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "Observe the element whose dimensions actually matter, not just the window. A nested panel can change size when grid, content, fonts or a sibling changes without a window resize event."
+        },
+        {
+          "title": "Read size notifications without changing the observed box",
+          "lineStart": 5,
+          "lineEnd": 11,
+          "explanation": "`entry.contentRect` exposes the content-box width and height. This example writes measurements to a separate output element; changing the observed element's own size here can create a ResizeObserver feedback loop."
+        },
+        {
+          "title": "Connect observation and teardown",
+          "lineStart": 13,
+          "lineEnd": 17,
+          "explanation": "Start observing only after the required elements exist, then call `disconnect()` when the view/component is disposed. Use `unobserve()` if just one target should stop being observed."
+        }
+      ]
+    },
+    {
+      "id": "dom-page-visibility-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function startVisibleUpdates(statusElement) {\n  let timerId;\n  let ticks = 0;\n\n  function stopUpdates() {\n    if (timerId !== undefined) {\n      window.clearInterval(timerId);\n      timerId = undefined;\n    }\n  }\n\n  function syncVisibility() {\n    if (document.hidden) {\n      stopUpdates();\n      return;\n    }\n    if (timerId !== undefined) return;\n\n    timerId = window.setInterval(() => {\n      ticks += 1;\n      statusElement.textContent = `Active updates: ${ticks}`;\n    }, 1000);\n  }\n\n  document.addEventListener(\"visibilitychange\", syncVisibility);\n  syncVisibility();\n\n  return () => {\n    document.removeEventListener(\"visibilitychange\", syncVisibility);\n    stopUpdates();\n  };\n}\n\nconst statusElement = document.querySelector(\"#status\");\nif (statusElement) {\n  const stopVisibleUpdates = startVisibleUpdates(statusElement);\n  // Call stopVisibleUpdates when this feature is disposed.\n}",
+      "steps": [
+        {
+          "title": "Keep the timer state local",
+          "lineStart": 1,
+          "lineEnd": 9,
+          "explanation": "The timer ID records whether updates are active; a single tick counter survives pauses without creating multiple concurrent intervals."
+        },
+        {
+          "title": "Stop work while the document is hidden",
+          "lineStart": 11,
+          "lineEnd": 20,
+          "explanation": "`visibilitychange` does not include the new state in the event payload. Read `document.hidden` or `document.visibilityState`, then stop unnecessary updates while hidden and restart them when visible."
+        },
+        {
+          "title": "Register, synchronize and clean up",
+          "lineStart": 21,
+          "lineEnd": 33,
+          "explanation": "Run the state handler once after registration to handle the initial visibility. The returned cleanup removes the exact stored callback and clears the interval. Background timers are throttled and must not be treated as a reliable scheduler."
+        }
+      ]
+    },
+    {
+      "id": "dom-observer-signal-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A dashboard panel changes width because its grid column changes, while the browser window stays the same size. Which API is designed for this signal?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`ResizeObserver` on the panel element",
+          "correct": true,
+          "feedback": "ResizeObserver reports changes to an element's content or border box even when the viewport size itself has not changed."
+        },
+        {
+          "id": "b",
+          "text": "`window.addEventListener(\"resize\", ...)` only",
+          "correct": false,
+          "feedback": "The window resize event describes viewport resizing; it does not report every element size change caused by content or layout."
+        },
+        {
+          "id": "c",
+          "text": "`IntersectionObserver` on the panel",
+          "correct": false,
+          "feedback": "IntersectionObserver reports intersection against a root/viewport, not the element's width and height."
+        },
+        {
+          "id": "d",
+          "text": "`MutationObserver` for every node in the document",
+          "correct": false,
+          "feedback": "MutationObserver reports DOM-tree mutations and attributes, not computed element-box sizes; observing the whole document is also unnecessarily broad."
+        }
+      ],
+      "explanation": "Select the observer by the signal: `ResizeObserver` for element size, `IntersectionObserver` for intersection, `MutationObserver` for DOM mutations, and Page Visibility for document visibility."
+    },
+    {
       "id": "dom-custom-event-walkthrough",
       "type": "codeWalkthrough",
       "language": "javascript",
@@ -864,7 +960,9 @@
         "Use MutationObserver only for a subtree changed by another system; limit observed options and prevent callback feedback loops.",
         "Dispatch and handle a typed-by-convention CustomEvent with a documented detail payload.",
         "Implement either a debounced search or throttled scroll handler and clean up observers/listeners/timers when the view is removed.",
-        "Implement a leading-edge throttled scroll handler using one stored callback reference, explain why intermediate events can be skipped, and remove the listener during teardown."
+        "Implement a leading-edge throttled scroll handler using one stored callback reference, explain why intermediate events can be skipped, and remove the listener during teardown.",
+        "Use ResizeObserver when an element's size changes independently of the viewport; show measurements in a separate output and disconnect the observer at teardown.",
+        "Use `visibilitychange` plus `document.hidden` to pause unnecessary UI updates while the page is hidden; clear its interval and remove the same listener during teardown."
       ],
       "requirements": [
         "User-visible strings are inserted as text, not interpolated into innerHTML.",
@@ -872,14 +970,19 @@
         "Observation and event listeners have explicit cleanup.",
         "Rate limiting choice matches the interaction and does not hide necessary feedback.",
         "Tests or a manual verification plan cover target-missing, no-intersection, teardown, and repeated-change cases.",
-        "Any scroll listener added by the exercise is removed with the exact same callback reference; timers are cleaned only if the chosen implementation creates them."
+        "Any scroll listener added by the exercise is removed with the exact same callback reference; timers are cleaned only if the chosen implementation creates them.",
+        "The ResizeObserver callback avoids unguarded writes to the observed element's dimensions and the observer is disconnected/unobserved at teardown.",
+        "The Page Visibility handler checks the document's current hidden state, prevents duplicate timers, and cleans up both its interval and exact listener reference."
       ],
       "starterCode": "const root = document.querySelector('#cards');\n\n// TODO: create several cards safely with a DocumentFragment.\n// TODO: defer an expensive action until an item approaches the viewport.\n// TODO: observe external DOM changes only if the feature requires them.\n// TODO: clean up all observers, event listeners, and timers on teardown.",
       "hints": [
         "Use DocumentFragment to stage nodes, but measure before claiming a performance win.",
         "IntersectionObserver entries include isIntersecting; unobserve a one-time target after it is handled.",
         "MutationObserver can become noisy if you observe the whole document or mutate the observed subtree in its callback.",
-        "Keep cleanup functions next to setup so lifecycle symmetry is visible."
+        "Keep cleanup functions next to setup so lifecycle symmetry is visible.",
+        "Use ResizeObserver for element-box changes that are not reliably described by the window resize event; a CSS container query may be enough if only styles need to change.",
+        "A ResizeObserver callback that changes the observed element's own size can create a notification loop; guard expected sizes or change a different output.",
+        "The visibilitychange event does not carry the new visibility state. Read document.hidden/visibilityState and clean up listener and timer together."
       ],
       "successCriteria": [
         "Renders cards safely and preserves the intended order.",
@@ -887,7 +990,9 @@
         "Observers are narrowly configured and disconnected/unobserved at teardown.",
         "Debounce or throttle behavior matches the stated user need and has no orphaned timer/listener.",
         "Failure cases and lifecycle cleanup are verified.",
-        "The handler rate is limited, the leading-only/trailing behavior is described, and teardown removes the registered listener without orphaned timers."
+        "The handler rate is limited, the leading-only/trailing behavior is described, and teardown removes the registered listener without orphaned timers.",
+        "Element-size observation works without a window resize and does not create an unbounded resize-feedback loop.",
+        "Hidden-document work pauses without starting duplicate intervals, then resumes only when appropriate; teardown removes the same listener and clears timers."
       ]
     },
     {
@@ -1236,6 +1341,21 @@
         {
           "title": "MDN: EventTarget.addEventListener",
           "url": "https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Resize Observer API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Resize_Observer_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Page Visibility API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: visibilitychange event",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilitychange_event",
           "kind": "official-docs"
         }
       ]

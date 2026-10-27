@@ -610,10 +610,10 @@ describe('DOM and events lesson translation', () => {
     expect(englishDom.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianDom.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
-    expect(russianDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
-    expect(englishDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(15);
-    expect(russianDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(15);
+    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(12);
+    expect(russianDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(12);
+    expect(englishDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(17);
+    expect(russianDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(17);
     expect(englishDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(russianDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(englishDom.blocks.map((block) => block.id)).toEqual(
@@ -623,6 +623,9 @@ describe('DOM and events lesson translation', () => {
         'dom-mutation-walkthrough',
         'dom-custom-event-walkthrough',
         'dom-observer-check',
+        'dom-resize-observer-walkthrough',
+        'dom-page-visibility-walkthrough',
+        'dom-observer-signal-check',
         'dom-throttle-walkthrough',
         'dom-throttle-check',
         'dom-rate-control',
@@ -631,8 +634,29 @@ describe('DOM and events lesson translation', () => {
     );
     const advancedPractice = englishDom.blocks.find((block) => block.id === 'dom-advanced-practice');
     for (const lesson of [englishDom, russianDom]) {
-      expect(lesson.version).toBe(5);
-      expect(lesson.blocks).toHaveLength(62);
+      expect(lesson.version).toBe(6);
+      expect(lesson.blocks).toHaveLength(67);
+      const resize = lesson.blocks.find((block) => block.id === 'dom-resize-observer-walkthrough');
+      expect(resize?.type).toBe('codeWalkthrough');
+      if (resize?.type !== 'codeWalkthrough') return;
+      const resizeLineCount = resize.code.split('\n').length;
+      expect(resize.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= resizeLineCount)).toBe(true);
+      expect(resize.code).toContain('new ResizeObserver');
+      expect(resize.code).toContain('resizeObserver.disconnect()');
+      const visibility = lesson.blocks.find((block) => block.id === 'dom-page-visibility-walkthrough');
+      expect(visibility?.type).toBe('codeWalkthrough');
+      if (visibility?.type !== 'codeWalkthrough') return;
+      const visibilityLineCount = visibility.code.split('\n').length;
+      expect(visibility.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= visibilityLineCount)).toBe(true);
+      expect(visibility.code).toContain('document.hidden');
+      expect(visibility.code).toContain('removeEventListener');
+      expect(visibility.code).toContain('clearInterval');
+      const signalCheck = lesson.blocks.find((block) => block.id === 'dom-observer-signal-check');
+      expect(signalCheck?.type).toBe('knowledgeCheck');
+      if (signalCheck?.type !== 'knowledgeCheck') return;
+      expect(signalCheck.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(signalCheck.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      expect(signalCheck.options.find((option) => option.correct)?.text).toContain('ResizeObserver');
       const throttle = lesson.blocks.find((block) => block.id === 'dom-throttle-walkthrough');
       expect(throttle?.type).toBe('codeWalkthrough');
       if (throttle?.type !== 'codeWalkthrough') return;
@@ -648,6 +672,13 @@ describe('DOM and events lesson translation', () => {
       expect(quiz.options.filter((option) => option.correct)).toHaveLength(1);
       expect(quiz.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
       expect(quiz.explanation).toContain(lesson.locale === 'en' ? 'callback reference' : 'ссылку на callback');
+      const observerPractice = lesson.blocks.find((block) => block.id === 'dom-advanced-practice');
+      expect(observerPractice?.type).toBe('codingExercise');
+      if (observerPractice?.type === 'codingExercise') {
+        expect(observerPractice.instructions.some((item) => item.includes('ResizeObserver'))).toBe(true);
+        expect(observerPractice.instructions.some((item) => item.includes('visibilitychange') || item.includes('Page Visibility'))).toBe(true);
+        expect(observerPractice.requirements.length).toBeGreaterThanOrEqual(8);
+      }
       const exercise = lesson.blocks.find((block) => block.id === 'dom-advanced-practice');
       expect(exercise?.type).toBe('codingExercise');
       if (exercise?.type === 'codingExercise') {

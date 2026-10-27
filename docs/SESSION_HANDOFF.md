@@ -736,3 +736,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Expanded `js.functions-arrays-objects` to v3 / 76 aligned EN/RU blocks. Added nested object destructuring, function-parameter destructuring with a default, variable swapping, a knowledge check and warning about null/missing nested paths.
 - Expanded `modern-syntax-practice` to require guarded nested access and an object-parameter helper; source parity tests check the walkthrough, localized structure and MDN reference. The Advanced JS Notion page itself remains `unverified`.
+
+
+## Advanced JS observer API checkpoint — 2026-10-27
+
+- `js.dom-events` expanded from v5 / 62 blocks to v6 / 67 aligned EN/RU blocks. New ResizeObserver walkthrough measures an element and disconnects it at teardown; the Page Visibility walkthrough pauses updates in hidden documents, resumes while visible, prevents duplicate intervals, and cleans up listener and timer.
+- Added `dom-observer-signal-check`, expanded the applied observer exercise with resize feedback-loop and hidden-tab lifecycle criteria, and linked MDN Resize Observer/Page Visibility/visibilitychange documentation.
+- Advanced JS source status remains partial and Notion metadata `verification.state=unverified`. Covered observer slices include IntersectionObserver/MutationObserver plus ResizeObserver/Page Visibility; XHR, WebSockets, Web Workers and Service Workers still require a focused pass.
