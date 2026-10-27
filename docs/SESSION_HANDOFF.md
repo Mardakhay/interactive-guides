@@ -897,3 +897,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - `npm ci` has consistently reported 12 audit findings (6 moderate, 4 high, 2 critical), but CI previously surfaced only the aggregate count. Added a non-blocking CI diagnostic that calls `npm audit --json` and prints each affected package, severity, advisory links, affected range and the npm-reported fix target.
 - This is visibility, not remediation: no dependency upgrades or lockfile changes were made in this step, no audit finding is considered resolved, and no `--force` update is planned without a compatibility review. Check the exact-head CI output, then patch the smallest compatible dependency set and rerun all tests/build.
+
+
+## Zod security patch — 2026-10-27
+
+- Bumped direct dependency `zod` from `^4.4.3` to `^4.6.7` and updated the matching lockfile package entry. GitHub-reviewed advisory GHSA-mrhx-c7xc-m3w5 marks versions `<4.6.6` affected and `4.6.6` patched; 4.6.7 is the newer same-major patch release.
+- Source: https://github.com/advisories/GHSA-mrhx-c7xc-m3w5 and https://github.com/colinhacks/zod/releases.
+- Remaining audit findings include Vite/Vitest tooling and React Router 6 routing; they need separate compatibility work rather than blind `npm audit fix --force`.

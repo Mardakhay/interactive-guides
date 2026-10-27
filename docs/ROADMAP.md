@@ -503,3 +503,12 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [ ] Read each finding and dependency path from the latest CI audit output; distinguish direct packages, transitive packages, patched semver ranges and major-version changes.
 - [ ] Apply the smallest compatible updates without `npm audit fix --force`, update `package-lock.json`, and rerun lint/typecheck/tests/build.
 - [ ] Reassess whether any residual critical/high finding needs a documented exception or separate migration.
+
+
+## Security dependency triage — 2026-10-27
+
+- [x] Add a non-blocking CI report of detailed npm audit advisories.
+- [x] Update direct Zod to 4.6.7 within major version 4 to address GHSA-mrhx-c7xc-m3w5 (`<4.6.6` affected; `4.6.6` patched).
+- [ ] Verify the Zod patch on exact-head CI and confirm the finding is gone in the report.
+- [ ] Plan/test the Vite 5 to supported Vite 6.4/7 branch and Vitest 2 to patched Vitest 3.2.6 or 4.x migration, including Node compatibility and plugin/test API changes.
+- [ ] Decide a React Router migration: the current React Router 6 line lacks a patched release for GHSA-wrjc-x8rr-h8h6; the advisory's fix is in v7.18.0+. Validate link/navigate behavior before migrating.
