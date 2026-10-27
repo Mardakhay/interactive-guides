@@ -1112,3 +1112,48 @@ describe('UI design system accessible fields and React refs', () => {
     }
   });
 });
+
+describe('HTML reference source coverage', () => {
+  it('covers text semantics, links, metadata, and global attributes in both locales', () => {
+    expect(lessonTranslationSchema.safeParse(englishLesson).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianLesson).success).toBe(true);
+    expect(englishLesson.version).toBe(6);
+    expect(englishLesson.blocks).toHaveLength(50);
+    expect(englishLesson.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianLesson.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    for (const lesson of [englishLesson, russianLesson]) {
+      const textWalk = lesson.blocks.find((block) => block.id === 'html-text-markup-walkthrough');
+      expect(textWalk?.type).toBe('codeWalkthrough');
+      if (textWalk?.type !== 'codeWalkthrough') return;
+      const textLines = textWalk.code.split('\n').length;
+      expect(textWalk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= textLines)).toBe(true);
+      expect(textWalk.code).toContain('<strong>');
+      expect(textWalk.code).toContain('<em>');
+      expect(textWalk.code).toContain('<br>');
+      const textCheck = lesson.blocks.find((block) => block.id === 'html-text-markup-check');
+      expect(textCheck?.type).toBe('knowledgeCheck');
+      if (textCheck?.type !== 'knowledgeCheck') return;
+      expect(textCheck.options.filter((option) => option.correct)).toHaveLength(1);
+      const linksWalk = lesson.blocks.find((block) => block.id === 'html-links-metadata-walkthrough');
+      expect(linksWalk?.type).toBe('codeWalkthrough');
+      if (linksWalk?.type !== 'codeWalkthrough') return;
+      const linksLines = linksWalk.code.split('\n').length;
+      expect(linksWalk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= linksLines)).toBe(true);
+      expect(linksWalk.code).toContain('rel="noopener"');
+      expect(linksWalk.code).toContain('property="og:title"');
+      const globals = lesson.blocks.find((block) => block.id === 'html-global-attributes');
+      expect(globals?.type).toBe('list');
+      if (globals?.type === 'list') {
+        expect(globals.items.some((item) => item.includes('tabindex'))).toBe(true);
+        expect(globals.items.some((item) => item.includes('data-*'))).toBe(true);
+      }
+      const refs = lesson.blocks.find((block) => block.id === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') {
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a')).toBe(true);
+      }
+    }
+  });
+});

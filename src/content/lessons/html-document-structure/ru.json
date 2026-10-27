@@ -1,7 +1,7 @@
 {
   "id": "html.document-structure",
   "locale": "ru",
-  "version": 5,
+  "version": 6,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Структура HTML-документа и семантические области страницы",
   "description": "Разберись, как устроен HTML-документ, зачем нужна метаинформация в head, какую роль играет body и как семантические элементы описывают назначение частей страницы.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 90,
   "difficulty": "beginner",
   "prerequisites": [],
   "learningOutcomes": [
@@ -264,6 +264,133 @@
         "Структура HTML корректна, а отступы используются последовательно.",
         "Ученик может объяснить выбор семантического элемента для каждой крупной области одним предложением.",
         "Ученик может найти header, nav, main, секции, article и footer в панели Elements."
+      ]
+    },
+    {
+      "id": "html-text-markup-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Выбирай текстовые элементы по смыслу, а не по внешнему виду"
+    },
+    {
+      "id": "html-text-markup-body",
+      "type": "paragraph",
+      "text": "Используй `strong` для важности, а `em` — для смыслового акцента; `b` и `i` могут привлекать внимание или обозначать другую манеру речи без того же смысла важности/акцента. `mark` выделяет содержимое, релевантное текущему контексту. `code` обозначает фрагмент кода. `br` — перенос строки внутри содержимого, например адреса или стихотворения, а не инструмент отступов; `hr` обозначает тематический переход. Поддерживай логичную иерархию заголовков, а не выбирай их по размеру шрифта по умолчанию."
+    },
+    {
+      "id": "html-text-markup-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<h1>HTML text with meaning</h1>\n<p>Follow the <strong>required</strong> steps and <em>carefully</em> review the <mark>updated</mark> notice.</p>\n\n<p><b>Product label</b> and <i>a phrase in another voice</i> may be stylistic.</p>\n\n<p>Address line one<br>Address line two</p>\n<hr>\n<p>Use <code>aria-describedby</code> to connect supporting text to a field.</p>",
+      "steps": [
+        {
+          "title": "Отмечай важность и акцент по смыслу",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "`strong` сообщает о важности, `em` — об акценте, а `mark` выделяет текст, релевантный контексту. Визуальный стиль вторичен; главное — значение."
+        },
+        {
+          "title": "Различай смысловой акцент и визуальную манеру",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "`b` и `i` могут привлекать внимание или показывать другую манеру речи, не утверждая то же самое, что `strong` и `em`. Выбирай элемент по смыслу."
+        },
+        {
+          "title": "Правильно используй перенос и тематический разделитель",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "`br` переносит строку там, где перенос осмыслен внутри содержимого. `hr` обозначает тематический переход. Ни один из них не заменяет CSS-разметку и отступы."
+        },
+        {
+          "title": "Обозначай встроенный код",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "`code` помечает фрагмент кода; `pre` часто используется для блока, в котором нужно сохранить пробелы и переносы. Сами по себе эти элементы не запускают JavaScript."
+        }
+      ]
+    },
+    {
+      "id": "html-text-markup-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Предложение описывает критически важное требование. Какой элемент обозначает важность, а не только делает текст жирным?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`<strong>`",
+          "correct": true,
+          "feedback": "Strong обозначает высокую важность содержимого; браузер часто показывает его жирным, но цель элемента — смысл."
+        },
+        {
+          "id": "b",
+          "text": "`<b>`",
+          "correct": false,
+          "feedback": "B привлекает внимание, но не добавляет того же смысла сильной важности."
+        },
+        {
+          "id": "c",
+          "text": "`<span style=\"font-weight: bold\">`",
+          "correct": false,
+          "feedback": "Стилизованный span меняет внешний вид, но не передаёт тот же нативный смысл."
+        },
+        {
+          "id": "d",
+          "text": "`<br>`",
+          "correct": false,
+          "feedback": "Br создаёт перенос строки и не обозначает важность фрагмента."
+        }
+      ],
+      "explanation": "Выбирай разметку по роли содержимого; CSS отдельно управляет внешним видом."
+    },
+    {
+      "id": "html-links-metadata-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Ссылки, метаданные и глобальные атрибуты"
+    },
+    {
+      "id": "html-links-metadata-body",
+      "type": "paragraph",
+      "text": "Атрибут `href` задаёт назначение ссылки; текст ссылки должен объяснять, куда она ведёт, а не повторять расплывчатое «нажми здесь». Если ссылка открывает новую вкладку, при необходимости сообщи об этом и используй `rel=\"noopener\"`, чтобы новая страница не могла обращаться к открывшей её странице через `window.opener`; добавляй `noreferrer`, когда нужно также не передавать referrer. В `head` мета-описание может использоваться как фрагмент результата поиска, но не гарантирует его точный текст; Open Graph поддерживает предпросмотр при публикации ссылки в соцсетях. У глобальных атрибутов разные задачи: `id` — уникальный идентификатор в документе, `class` группирует элементы для стилей, `data-*` хранит данные приложения, а `lang` задаёт язык части содержимого. Используй `hidden`, когда содержимое должно быть скрыто и недоступно для взаимодействия; не задавай положительные значения `tabindex`, которые нарушают естественный порядок фокуса."
+    },
+    {
+      "id": "html-links-metadata-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<!-- In the body -->\n<a href=\"/lessons/html\">HTML lessons</a>\n<a href=\"https://example.org/help\" target=\"_blank\" rel=\"noopener\">\n  Partner help (opens in a new tab)\n</a>\n\n<!-- In the head -->\n<meta name=\"description\" content=\"A reference to core HTML patterns.\">\n<meta property=\"og:title\" content=\"HTML Reference\">\n<meta property=\"og:image\" content=\"/images/social-card.png\">\n\n<!-- On a relevant body element -->\n<button id=\"search-toggle\" data-action=\"toggle-search\" type=\"button\">Search</button>",
+      "steps": [
+        {
+          "title": "Сделай назначение ссылки понятным",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Href задаёт назначение, а текст объясняет цель ссылки. `target=\"_blank\"` открывает новый browsing context; `rel=\"noopener\"` блокирует доступ к opener. `noreferrer` добавляют, когда не нужно отправлять referrer."
+        },
+        {
+          "title": "Разделяй метаданные документа и предпросмотра",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "Мета-описание может использоваться в результате поиска, но поисковая система сама выбирает отображаемый текст. Open Graph описывает предпросмотр при публикации ссылки и не является видимым содержимым body."
+        },
+        {
+          "title": "Используй глобальные атрибуты по назначению",
+          "lineStart": 12,
+          "lineEnd": 13,
+          "explanation": "Id должен быть уникальным; data-атрибуты передают собственные значения скриптам. Предпочитай нативные элементы и естественный порядок Tab вместо подмены семантики атрибутами."
+        }
+      ]
+    },
+    {
+      "id": "html-global-attributes",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`id`: идентифицирует элемент в документе; значение должно быть уникальным, чтобы label, фрагмент URL и скрипты находили нужный элемент.",
+        "`class`: группирует элементы для CSS и другого поведения; один класс можно повторно использовать.",
+        "`data-*`: хранит пользовательские данные элемента для скриптов без выдумывания нестандартных атрибутов.",
+        "`hidden`: указывает, что элемент сейчас не должен отображаться; не используй его для визуального переноса контента за пределы экрана ради доступности.",
+        "`lang`: указывает язык текста элемента, если он отличается от языка окружающего документа.",
+        "`tabindex=\"0\"` может включить собственный focusable-элемент в обычный порядок Tab; `tabindex=\"-1\"` позволяет программный фокус без добавления в этот порядок. Избегай положительных значений.",
+        "`title` может давать дополнительную информацию, но не заменяет видимую подпись, понятный текст ссылки или инструкцию."
       ]
     },
     {
@@ -746,6 +873,26 @@
         {
           "title": "MDN: <iframe> element and sandbox security",
           "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: элемент Strong",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/strong",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: элемент Anchor",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: элемент Meta",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: глобальные HTML-атрибуты",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes",
           "kind": "official-docs"
         }
       ]

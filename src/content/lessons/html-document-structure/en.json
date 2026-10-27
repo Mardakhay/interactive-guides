@@ -1,7 +1,7 @@
 {
   "id": "html.document-structure",
   "locale": "en",
-  "version": 5,
+  "version": 6,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "HTML document structure and semantic page regions",
   "description": "Learn how a complete HTML document is organized, why metadata belongs in the head, how the browser treats the body, and how semantic elements communicate the purpose of page regions.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 90,
   "difficulty": "beginner",
   "prerequisites": [],
   "learningOutcomes": [
@@ -264,6 +264,133 @@
         "The HTML structure is valid and consistently indented.",
         "The semantic choice for each major region can be explained in one sentence.",
         "The learner can find header, nav, main, sections, article and footer in the Elements panel."
+      ]
+    },
+    {
+      "id": "html-text-markup-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Choose text elements for meaning, not default appearance"
+    },
+    {
+      "id": "html-text-markup-body",
+      "type": "paragraph",
+      "text": "Use `strong` for importance and `em` for emphasis; `b` and `i` can draw attention or mark a different voice without adding the same importance/emphasis meaning. `mark` highlights content relevant to the current context. `code` marks a code fragment. `br` is a line break within content such as an address or verse, not a spacing tool; `hr` marks a thematic break. Keep heading levels in a logical content hierarchy instead of selecting them for their default font size."
+    },
+    {
+      "id": "html-text-markup-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<h1>HTML text with meaning</h1>\n<p>Follow the <strong>required</strong> steps and <em>carefully</em> review the <mark>updated</mark> notice.</p>\n\n<p><b>Product label</b> and <i>a phrase in another voice</i> may be stylistic.</p>\n\n<p>Address line one<br>Address line two</p>\n<hr>\n<p>Use <code>aria-describedby</code> to connect supporting text to a field.</p>",
+      "steps": [
+        {
+          "title": "Give important or emphasized words their meaning",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "`strong` conveys importance, `em` conveys emphasis, and `mark` calls out contextually relevant text. They may have visual styles, but the semantic meaning is the point."
+        },
+        {
+          "title": "Distinguish semantic emphasis from visual voice",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "`b` and `i` can indicate attention or an alternate voice without making the same claim as `strong` and `em`. Choose an element based on the content and intent."
+        },
+        {
+          "title": "Use line and thematic breaks appropriately",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "`br` creates a line break within content where the break is meaningful. `hr` indicates a thematic break. Neither should be used as a substitute for CSS layout and spacing."
+        },
+        {
+          "title": "Mark up inline code",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "The `code` element marks a code fragment; `pre` is commonly used when a preformatted block needs to preserve whitespace. Neither runs JavaScript by itself."
+        }
+      ]
+    },
+    {
+      "id": "html-text-markup-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A sentence describes a critical requirement. Which element most clearly marks the text as important, beyond making it bold?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`<strong>`",
+          "correct": true,
+          "feedback": "Strong marks content as having strong importance; browsers commonly render it bold, but its purpose is semantic."
+        },
+        {
+          "id": "b",
+          "text": "`<b>`",
+          "correct": false,
+          "feedback": "B draws attention without adding the same strong-importance meaning."
+        },
+        {
+          "id": "c",
+          "text": "`<span style=\"font-weight: bold\">`",
+          "correct": false,
+          "feedback": "A styled span changes appearance but does not communicate the same native meaning."
+        },
+        {
+          "id": "d",
+          "text": "`<br>`",
+          "correct": false,
+          "feedback": "Br creates a line break and does not mark a passage as important."
+        }
+      ],
+      "explanation": "Choose text markup according to the role of the content; CSS controls appearance independently."
+    },
+    {
+      "id": "html-links-metadata-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Links, metadata, and global attributes"
+    },
+    {
+      "id": "html-links-metadata-body",
+      "type": "paragraph",
+      "text": "An anchor's `href` determines its destination; use link text that explains where it goes instead of repeating vague labels such as “click here.” When a link opens a new tab, explain that behavior when it matters and use `rel=\"noopener\"` to prevent access through `window.opener`; add `noreferrer` when suppressing the referrer is also intended. In `head`, a description can be used as a search-result snippet but does not guarantee the snippet, while Open Graph metadata supports social-sharing previews. Global attributes have different jobs: `id` is a unique document identifier, `class` groups elements for styling, `data-*` stores application-specific data, and `lang` identifies the language of a content subtree. Use `hidden` only when content should be hidden from presentation and interaction, and avoid positive `tabindex` values that disrupt natural focus order."
+    },
+    {
+      "id": "html-links-metadata-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<!-- In the body -->\n<a href=\"/lessons/html\">HTML lessons</a>\n<a href=\"https://example.org/help\" target=\"_blank\" rel=\"noopener\">\n  Partner help (opens in a new tab)\n</a>\n\n<!-- In the head -->\n<meta name=\"description\" content=\"A reference to core HTML patterns.\">\n<meta property=\"og:title\" content=\"HTML Reference\">\n<meta property=\"og:image\" content=\"/images/social-card.png\">\n\n<!-- On a relevant body element -->\n<button id=\"search-toggle\" data-action=\"toggle-search\" type=\"button\">Search</button>",
+      "steps": [
+        {
+          "title": "Make the destination understandable",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "The href provides the destination and the text names the link purpose. `target=\"_blank\"` opens a new browsing context; `rel=\"noopener\"` blocks access to the opener. `noreferrer` is an additional choice when referrer information should not be sent."
+        },
+        {
+          "title": "Separate document and sharing metadata",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "The description meta element may be used as a result snippet, but search engines choose their displayed text. Open Graph properties provide metadata used by sharing platforms; they are not visible body content."
+        },
+        {
+          "title": "Use global attributes for their intended role",
+          "lineStart": 12,
+          "lineEnd": 13,
+          "explanation": "An id must be unique in the document; data attributes can expose application-specific values to scripts. Prefer native controls and natural tab order instead of using attributes as substitutes for semantics."
+        }
+      ]
+    },
+    {
+      "id": "html-global-attributes",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`id`: identifies one element in the document; keep it unique so labels, fragments and scripts resolve predictably.",
+        "`class`: groups elements for CSS and other class-based behavior; classes can be reused.",
+        "`data-*`: exposes custom data values on an element for scripts without inventing nonstandard attributes.",
+        "`hidden`: indicates that the element is not currently relevant for display; do not use it just to visually move content off-screen for accessibility.",
+        "`lang`: identifies the language of an element's text when it differs from the surrounding document language.",
+        "`tabindex=\"0\"` can place a custom focusable element in normal sequential focus order; `tabindex=\"-1\"` permits programmatic focus without adding it to that order. Avoid positive values.",
+        "`title` may provide advisory information but is not a replacement for a visible label, clear link text or instructions."
       ]
     },
     {
@@ -746,6 +873,26 @@
         {
           "title": "MDN: <iframe> element and sandbox security",
           "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Strong importance element",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/strong",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: The anchor element",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Meta element",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: HTML global attributes",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes",
           "kind": "official-docs"
         }
       ]

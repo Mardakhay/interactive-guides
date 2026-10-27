@@ -612,3 +612,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Expanded `ui.design-systems` to v3 / 32 EN/RU blocks. Added accessible custom-field code with label/help/error associations, focus-visible requirement and knowledge check for ref API choice; documented that React 18 and earlier use `forwardRef` where needed while React 19 supports `ref` as a prop. Regression tests and official docs reference added.
 - Qualified source caveats: library speed claims and Atomic Design are not universal laws; `outline:none` needs a visible replacement; polymorphic `as` adds semantic and typing complexity. MUI/Bootstrap selection remains in `ui.bootstrap-mui`; keyboard behavior maps to `performance.accessibility`.
 - HTML content/code/interaction review count: 24/25. Only `html-reference.html` re-review remains on the audit checklist; Notion source verification remains separate and incomplete.
+
+
+## Full source re-review — html-reference.html — 2026-10-27
+
+- Re-reviewed `public/lessons/html-reference.html` (recorded source SHA `bd7da030a8e6135d39513188bf66fc1187c12829`, 86,813 bytes, 1,335 lines). Confirmed semantic structure/table/media/iframe topics already map into `html.document-structure`, while form submission, labels and input types map into `html.forms-accessibility`.
+- Expanded `html.document-structure` to v6 / 50 aligned EN/RU blocks with text semantics, links/new-tab opener considerations, head/search/social metadata and global attributes. Added code walkthroughs, assessment, official docs references and regression coverage. No duplicate HTML-reference lesson created.
+- HTML content/code/interaction reviews now documented: 25/25. The legacy searchable reference and preview/copy tabs remain interaction parity gaps; Notion source verification remains open.

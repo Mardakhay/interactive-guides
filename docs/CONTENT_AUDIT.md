@@ -318,3 +318,10 @@ The audit notes that the source's test-pyramid percentages/100x production-cost 
 The full `ui-design-system-learn.html` source is reviewed. The canonical `ui.design-systems` lesson is now v3 with an accessible custom TextField walkthrough, focus-visible guidance, and version-aware guidance for compound components, `forwardRef`, and polymorphic `as`. The existing MUI/Bootstrap and performance/accessibility lessons cover adjacent library and keyboard/focus concerns.
 
 The audit corrects the source's universal library-speed claim and unqualified `forwardRef` guidance, and records that `outline:none` needs a visible replacement. The live token/Button/CSS playgrounds are not recreated one-for-one. Full HTML reviews documented: 24/25; only `html-reference.html` re-review and Notion source verification remain open.
+
+
+## HTML reference re-review — 2026-10-27
+
+The complete `html-reference.html` source has been re-reviewed. Core concepts are consolidated in the existing `html.document-structure` and `html.forms-accessibility` lesson pair; `html.document-structure` v6 now covers text semantics, anchor/link behavior, meta/Open Graph distinctions, and common global attributes in addition to existing semantic/table/media/iframe coverage.
+
+The review corrects overgeneralized SEO/snippet/heading claims and documents remaining interaction parity for searchable reference, preview tabs and copy controls. All 25/25 HTML sources now have content/code reviews documented. Notion source verification remains incomplete.

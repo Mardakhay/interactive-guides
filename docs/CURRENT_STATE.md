@@ -503,3 +503,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Full review of `ui-design-system-learn.html` is complete (120,500 bytes / 2,430 lines). `ui.design-systems` v3 adds accessible input description/error associations, visible-focus guidance and React-version-aware advanced component API guidance. Tests protect EN/RU parity, walkthrough ranges, React 18/19 ref guidance and official documentation links.
 - HTML content/code/interaction review count: 24/25. The remaining source work is the planned `html-reference.html` re-review. Notion source verification remains a separate open gate.
 - `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; continue only on `feat/learning-platform-foundation`.
+
+
+## Content audit continuation — 2026-10-27
+
+- Re-reviewed `html-reference.html`; expanded the canonical `html.document-structure` lesson to v6 (50 EN/RU blocks) with text semantics, links, metadata/Open Graph and global attributes. Existing HTML form lesson continues to own submission and input-type behavior. Source audit records what is covered and what legacy UI is still not duplicated.
+- Full HTML content/code/interaction reviews documented: 25/25. Notion source verification remains a separate open gate.
+- Most recent committed head before this HTML patch was `21666f51ce7bbdce3ae9e09a42ccf15c6737f9d7`; its exact-head CI passed run [40466012442](https://github.com/Mardakhay/interactive-guides/actions/runs/40466012442). The new HTML commit needs a new exact-head CI check. Continue only on `feat/learning-platform-foundation`; `main` remains unchanged.
