@@ -720,3 +720,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Final implementation adds `StorageErrorNotice` to `AppLayout`, localized read/write/remove failure explanations, and a dismiss-state notification from the storage helper. The component reads pre-existing storage errors and reacts to new events.
 - Exact-head CI passed on `56197eb6a903d6f808ea5944d01627f7dfc00381`: run [40494779602](https://github.com/Mardakhay/interactive-guides/actions/runs/40494779602). The intermediate test failures were test harness issues and have been corrected.
 - Real-browser localStorage privacy/quota validation and `/backup` file-picker/download smoke checks remain open; this notice improves error visibility but does not itself guarantee persistence.
+
+
+## Storage notice app-shell integration — 2026-10-27
+
+- Added an `AppLayout` integration test to assert that a storage write error reported before the layout mounts becomes a visible alert in the running shell, not merely when `StorageErrorNotice` is tested in isolation.
+- Previous component implementation/test suite passed exact-head CI on `e509bf66cd3d50d3a40629520f07a2f07f6873fd` in run [40495155044](https://github.com/Mardakhay/interactive-guides/actions/runs/40495155044); this shell integration test needs its own exact-head run.

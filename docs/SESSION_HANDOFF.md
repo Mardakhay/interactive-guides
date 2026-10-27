@@ -837,3 +837,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - `StorageErrorNotice` is mounted in `AppLayout`, uses the versioned storage-error snapshot/events, supports dismiss and later re-announcement, and has EN/RU copy. Component tests cover pre-mount failure, live event, dismissal and locale.
 - Final exact-head CI passed for code commit `56197eb6a903d6f808ea5944d01627f7dfc00381` in run [40494779602](https://github.com/Mardakhay/interactive-guides/actions/runs/40494779602). A missing `MemoryRouter` and an unwrapped event update were corrected in the test harness.
 - Remaining user-facing acceptance gates are actual browser/device checks for localStorage privacy/quota failures and the `/backup` file picker/download/recovery flow.
+
+
+## Storage notice shell integration — 2026-10-27
+
+- Added `src/components/layout/AppLayout.test.tsx` to verify a storage write error reported before mount is surfaced by the actual application shell. This protects the wiring between `AppLayout` and `StorageErrorNotice` in addition to the notice's own interaction tests.
+- The preceding exact-head component test suite passed run [40495155044](https://github.com/Mardakhay/interactive-guides/actions/runs/40495155044); verify CI on the new integration test before calling it validated. Browser/device localStorage quota/privacy and `/backup` file picker/download checks remain open.
