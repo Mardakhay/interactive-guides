@@ -716,3 +716,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## DOM throttle localized-test follow-up — 2026-10-27
 
 - CI after the MDN bibliography fix found one remaining locale-blind assertion: it expected the English phrase `callback reference` in both translations. Changed it to assert the matching EN/RU phrase based on `lesson.locale`; the behavior, cleanup and reference assertions remain.
+
+
+## DOM throttle bilingual exercise test — 2026-10-27
+
+- The next CI run after localizing the quiz explanation exposed a matching issue in the practice rubric: the `callback reference` assertion was still English-only. It now selects an EN/RU phrase by `lesson.locale`; teardown/range/API/reference coverage stays intact.

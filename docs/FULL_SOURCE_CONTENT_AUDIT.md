@@ -835,3 +835,8 @@ CI for `js.dom-events` v5 initially failed only on its new assertion requiring t
 ## DOM throttle CI follow-up — localized assertion — 2026-10-27
 
 After adding the missing MDN listener reference, exact-head CI advanced to the throttle-check assertion and showed that it compared the English words `callback reference` against the Russian explanation. The content is already localized correctly; the test now selects the expected phrase using the lesson locale. No assertion coverage is removed.
+
+
+## DOM throttle bilingual assertion follow-up — 2026-10-27
+
+The second exact-head run passed the localized quiz explanation assertion and identified the same locale-blind assumption in the exercise requirement check. The test now checks `callback reference` in EN and `той же ссылкой на callback` in RU. This keeps the requirement that teardown use the exact stored listener reference without requiring the same-language string in both lessons.

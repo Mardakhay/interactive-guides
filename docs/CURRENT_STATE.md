@@ -604,3 +604,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## DOM throttle test localization — 2026-10-27
 
 - The CI after adding MDN `addEventListener` documentation exposed a locale-sensitive test expectation, not a content/schema defect. The test now checks `callback reference` in EN and `ссылку на callback` in RU while retaining the same cleanup assertions.
+
+
+## DOM throttle practice assertion — 2026-10-27
+
+- Localized the throttle practice requirement assertion as well as the quiz explanation assertion. EN still must mention `callback reference`; RU must mention `той же ссылкой на callback`, preserving the same cleanup-contract test.

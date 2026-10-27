@@ -652,7 +652,7 @@ describe('DOM and events lesson translation', () => {
       expect(exercise?.type).toBe('codingExercise');
       if (exercise?.type === 'codingExercise') {
         expect(exercise.instructions.some((instruction) => /throttled scroll handler/.test(instruction))).toBe(true);
-        expect(exercise.requirements.some((requirement) => /callback reference/.test(requirement))).toBe(true);
+        expect(exercise.requirements.some((requirement) => lesson.locale === 'en' ? /callback reference/.test(requirement) : /той же ссылкой на callback/.test(requirement))).toBe(true);
       }
       const refs = lesson.blocks.find((block) => block.id === 'dom-references');
       expect(refs?.type).toBe('references');
