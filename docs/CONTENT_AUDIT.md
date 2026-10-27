@@ -325,3 +325,8 @@ The audit corrects the source's universal library-speed claim and unqualified `f
 The complete `html-reference.html` source has been re-reviewed. Core concepts are consolidated in the existing `html.document-structure` and `html.forms-accessibility` lesson pair; `html.document-structure` v6 now covers text semantics, anchor/link behavior, meta/Open Graph distinctions, and common global attributes in addition to existing semantic/table/media/iframe coverage.
 
 The review corrects overgeneralized SEO/snippet/heading claims and documents remaining interaction parity for searchable reference, preview tabs and copy controls. All 25/25 HTML sources now have content/code reviews documented. Notion source verification remains incomplete.
+
+
+## Notion source cross-read checkpoint — 2026-10-27
+
+Fetched the parent handbook, its first three course parts, and the HTML, DOM, CSS, JavaScript and Git reference pages. The content supports a broad topic mapping to the current curriculum, but the Notion metadata for the fetched pages is `verification.state=unverified`. Treat this as source-read/mapping progress only: no formal verification status was asserted or changed, and claim-by-claim fact checking remains open.

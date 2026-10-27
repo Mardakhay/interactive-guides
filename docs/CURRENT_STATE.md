@@ -510,3 +510,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Re-reviewed `html-reference.html`; expanded the canonical `html.document-structure` lesson to v6 (50 EN/RU blocks) with text semantics, links, metadata/Open Graph and global attributes. Existing HTML form lesson continues to own submission and input-type behavior. Source audit records what is covered and what legacy UI is still not duplicated.
 - Full HTML content/code/interaction reviews documented: 25/25. Notion source verification remains a separate open gate.
 - Most recent committed head before this HTML patch was `21666f51ce7bbdce3ae9e09a42ccf15c6737f9d7`; its exact-head CI passed run [40466012442](https://github.com/Mardakhay/interactive-guides/actions/runs/40466012442). The new HTML commit needs a new exact-head CI check. Continue only on `feat/learning-platform-foundation`; `main` remains unchanged.
+
+
+## CI and Notion status — 2026-10-27
+
+- The HTML v6 commit `ead62fd60a7b4189a2550c9e7ee27ea91776c23d` exposed two stale test expectations after adding a knowledge check and two walkthroughs. This follow-up updates the counts to 7/7 and extends the existing suite name/assertions; verify the new exact-head CI before considering it resolved.
+- Notion pages for the parent handbook, three course parts, HTML, DOM, CSS, JavaScript and Git were fetched and mapped. Their metadata reports `verification.state=unverified`; the pages were not edited and no formal verification is claimed.

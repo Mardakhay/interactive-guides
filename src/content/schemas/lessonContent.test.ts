@@ -163,13 +163,13 @@ describe('iterators and generators supplementary lesson', () => {
   });
 });
 
-describe('HTML media content', () => {
-  it('teaches image alternatives, captions, and bilingual media practice', () => {
+describe('HTML document content and media', () => {
+  it('covers media, text semantics, links, metadata, and bilingual practice', () => {
     expect(englishLesson.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianLesson.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishLesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
-    expect(englishLesson.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(englishLesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    expect(englishLesson.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(7);
     expect(englishLesson.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(englishLesson.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([

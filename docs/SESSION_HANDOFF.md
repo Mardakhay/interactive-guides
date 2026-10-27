@@ -619,3 +619,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Re-reviewed `public/lessons/html-reference.html` (recorded source SHA `bd7da030a8e6135d39513188bf66fc1187c12829`, 86,813 bytes, 1,335 lines). Confirmed semantic structure/table/media/iframe topics already map into `html.document-structure`, while form submission, labels and input types map into `html.forms-accessibility`.
 - Expanded `html.document-structure` to v6 / 50 aligned EN/RU blocks with text semantics, links/new-tab opener considerations, head/search/social metadata and global attributes. Added code walkthroughs, assessment, official docs references and regression coverage. No duplicate HTML-reference lesson created.
 - HTML content/code/interaction reviews now documented: 25/25. The legacy searchable reference and preview/copy tabs remain interaction parity gaps; Notion source verification remains open.
+
+
+## CI correction and Notion source checkpoint — 2026-10-27
+
+- CI for HTML source commit `ead62fd60a7b4189a2550c9e7ee27ea91776c23d` failed only because the existing HTML content test still expected six knowledge checks and five code walkthroughs. The v6 lesson now has seven knowledge checks and seven walkthroughs; the next commit updates these stale expectations and renames the suite to reflect its wider coverage.
+- Fetched Notion `HTML`, `Часть 1`, `Часть 2`, `Часть 3`, `DOM`, `CSS`, `GIT`, `JavaScript`, and the parent handbook. The fetched pages show `verification.state=unverified`; source read/mapping is not formal Notion verification. No Notion content or status was modified.
