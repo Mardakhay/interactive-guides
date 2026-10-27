@@ -11,11 +11,11 @@ const projectPackage = JSON.parse(
 ) as { dependencies: Record<string, string> };
 
 describe('React ecosystem lesson compatibility', () => {
-  it('uses the React Router browser API installed by the project', () => {
-    expect(projectPackage.dependencies['react-router-dom']).toBe('^6.26.2');
-    expect(lessonHtml).toContain('React Router 6.26.2');
+  it('keeps the legacy ecosystem source aligned to the installed React Router version', () => {
+    expect(projectPackage.dependencies['react-router-dom']).toBe('^7.18.0');
+    expect(lessonHtml).toContain('React Router 7.18.0');
     expect(lessonHtml).toContain("'react-router-dom'");
-    expect(lessonHtml).not.toContain('React Router v7');
+    expect(lessonHtml).toContain('React Router v7');
     expect(lessonHtml).not.toContain("'react-router'</span>");
   });
 
