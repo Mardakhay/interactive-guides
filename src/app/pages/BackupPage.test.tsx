@@ -124,8 +124,8 @@ describe('data backup page', () => {
     const user = userEvent.setup();
     const createDescriptor = Object.getOwnPropertyDescriptor(URL, 'createObjectURL');
     const revokeDescriptor = Object.getOwnPropertyDescriptor(URL, 'revokeObjectURL');
-    const createObjectURL = vi.fn((_blob: Blob) => 'blob:backup-test');
-    const revokeObjectURL = vi.fn((_url: string) => undefined);
+    const createObjectURL = vi.fn((blob: Blob) => blob.type === 'application/json' ? 'blob:backup-test' : 'blob:unexpected');
+    const revokeObjectURL = vi.fn((url: string) => { expect(url).toBe('blob:backup-test'); });
     let downloadedName = '';
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, writable: true, value: createObjectURL });
     Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, writable: true, value: revokeObjectURL });
