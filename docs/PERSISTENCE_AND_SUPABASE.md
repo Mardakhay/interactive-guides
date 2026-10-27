@@ -144,3 +144,10 @@ File-import UI now identifies the active read request and ignores stale completi
 `docs/LOCAL_CLOUD_RECONCILIATION.md` is the draft for future local-to-Supabase reconciliation. It records current data-shape gaps, especially missing per-record progress revisions, deletion tombstones, stable attempt IDs and concurrent-edit semantics. It proposes optimistic concurrency, idempotent mutations, tombstones, conflict preservation for notes/code drafts and required RLS tests.
 
 This proposal is not approved as product behavior and does not enable cloud sync. Settle note opt-in, classic quiz-history semantics, concurrent bookmark behavior, tombstone retention and conflict UX before schema migrations or auth/sync code.
+
+
+## Visible local-storage failure feedback — 2026-10-27
+
+The application shell now mounts a bilingual storage-error alert. It reads the most recent reported failure (including failures raised while learner stores initialize), subscribes to subsequent read/write/remove events, explains the likely impact and next step, and allows dismissal. Dismissal clears the stored notice snapshot; subsequent errors can re-open the alert.
+
+Automated component tests cover an error before mount, a new event while mounted, dismiss/clear behavior and Russian copy. This improves failure visibility but does not prove localStorage behavior on actual browser/device privacy modes or quota exhaustion. Those real-browser acceptance items remain open.

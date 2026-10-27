@@ -823,3 +823,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Added `docs/LOCAL_CLOUD_RECONCILIATION.md` (proposal only) with per-entity conflict rules, schema gaps, idempotency/revision/tombstone requirements and acceptance tests. Supabase remains unimplemented; review note-sync privacy, classic quiz history, bookmark conflict behavior and conflict UX before migration.
 - `/backup` UI tests cover import preview, confirmation gating, successful restore to active stores and versioned storage, malformed JSON, 10 MiB guard, dated download filename/status and object-URL cleanup. `BackupPage` ignores stale async file reads after a newer selection and invalidates pending reads on unmount.
 - Exact-head CI for backup UI and file-read race hardening: [40492871900](https://github.com/Mardakhay/interactive-guides/actions/runs/40492871900) succeeded on `36f9ee744b20ee14c9d3ac0b2b63e05eba1d0b76` (lint, typecheck, tests, build).
+
+
+## Global persistence-error visibility — 2026-10-27
+
+- The application shell now mounts `StorageErrorNotice`, which surfaces existing and future `STORAGE_ERROR_EVENT` failures for read/write/remove operations. It uses `useSyncExternalStore` and a separate clear notification so dismissing updates the external snapshot while future errors remain visible.
+- EN/RU copy explains that a failed write may remain only in memory; it does not claim the data has been saved. Component tests cover pre-mount failure, live update, dismissal, and Russian copy.
+- Code commit `011379483d21de82387c07f9de8248e7efedf200` is under exact-head CI run [40494213854](https://github.com/Mardakhay/interactive-guides/actions/runs/40494213854). Browser/device localStorage privacy/quota checks and `/backup` native file-picker/download smoke testing remain open.
