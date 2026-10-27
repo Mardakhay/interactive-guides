@@ -61,7 +61,8 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - [x] Add a versioned JSON backup format and explicit export/restore for current learning datasets; validation, preview, replace confirmation and best-effort multi-key rollback are implemented.
 - [x] Introduce schema-v1 envelopes for progress, bookmarks, notes and classic quiz results, including read-through migration from valid legacy raw JSON. A failed migration write preserves the raw value for a later retry.
 - [x] Test malformed/unsupported backup files, current and legacy store records, invalid/future versions, storage read/write failures, migration retry, restore replacement and rollback (including rollback failure).
-- [ ] Add focused action-level integration tests for each learner store and run real-browser/device download/import smoke checks; test results are CI-based, not a substitute for browser acceptance.
+- [x] Add focused action-level integration tests for progress, bookmarks, notes and classic quiz actions; CI covers the store envelopes and common update/delete paths.
+- [ ] Run real-browser/device download/import smoke checks for the file picker, downloaded filename, large-file guard, confirmation and restore success/failure feedback.
 - Acceptance: existing saved state survives update or export/import recovery.
 - Suggested commit: `refactor(storage): add versioned local repositories`
 
@@ -446,3 +447,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Valid legacy raw JSON is read and then migrated through a single-key replace. If the write fails, the old raw value is preserved and the state is returned in memory; the next read retries. Invalid data and unknown schema versions are not overwritten.
 - The portable backup file remains its own v1 format. Export accepts current envelopes and old raw data; restore writes current store envelopes plus the structured-learning v2 envelope, removing the legacy structured key only at the end.
 - Exact-head CI passed on code commit `3b6bb04caf338282f1f8f52d8724d11f7792b7a3`, run [40489627861](https://github.com/Mardakhay/interactive-guides/actions/runs/40489627861). Phase 5 remains partial until action-level store tests and browser/device smoke checks are done.
+
+## Learner-store action test checkpoint — 2026-10-27
+
+- Added `src/features/persistence/storePersistence.test.ts`: store actions persist versioned envelopes for progress, bookmarks, notes and classic quiz results; tests exercise progress status transitions, duplicate bookmark avoidance/toggle removal, blank-note deletion, and quiz save/clear.
+- The shared versioned-storage tests separately cover legacy migration, failed migration writes and retry, malformed/future version records, and storage read/write errors. Backup tests cover current/legacy input and restore envelopes.
+- Exact-head CI passed on code commit `0fd1b488a2a6ea1b1c7c54eda5194b3bb3f4393c` in run [40490205475](https://github.com/Mardakhay/interactive-guides/actions/runs/40490205475). Browser/device file picker and download smoke checks remain open.

@@ -798,3 +798,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - The independent user backup format is still `interactive-guides-backup` v1. It imports current envelopes and raw legacy datasets, exports a stable portable model, and restores as versioned envelopes for the four classic stores plus the existing structured-learning v2 envelope.
 - Tests cover successful migration, migration write failure and retry, unknown future version, invalid state, storage read/write errors, backup reading of versioned records, restoring all versioned records and rollback. Code SHA `3b6bb04caf338282f1f8f52d8724d11f7792b7a3` passed CI run [40489627861](https://github.com/Mardakhay/interactive-guides/actions/runs/40489627861).
 - Remaining Phase 5 gates: store action-level integration tests across each slice and browser/device file-picker/download smoke checks. Supabase remains gated until local-first contracts and acceptance evidence are stable. Work remains on `feat/learning-platform-foundation`; do not merge/change `main` as part of continuation.
+
+## Learner-store action test checkpoint — 2026-10-27
+
+- Added `src/features/persistence/storePersistence.test.ts` to exercise state-store actions against persisted schema-v1 envelopes: progress open/complete, bookmark add/dedup/toggle, note editing/blank deletion, and quiz attempt save/clear.
+- Shared `versionedStorage.test.ts` covers raw JSON migration, a failed migration write preserving the old raw value, retry on a subsequent read, future schema-version rejection, invalid data and storage read/write errors. Backup tests cover raw and versioned record compatibility and restore envelopes for all four classic stores.
+- Exact-head CI passed for code commit `0fd1b488a2a6ea1b1c7c54eda5194b3bb3f4393c` in run [40490205475](https://github.com/Mardakhay/interactive-guides/actions/runs/40490205475). The follow-up docs commit needs exact-head CI.
+- Remaining Phase 5 acceptance: real-browser/device checks for download, file picker, invalid/oversize file, confirmation, successful restore and failure/recovery feedback. Do not mark Phase 5 complete until those checks are recorded.
