@@ -195,3 +195,7 @@ Exact-head CI passed on `9fb38aa1252e6a8f9191b777889b3c8cbe1229dc`: [run 4049845
 `backup.test.ts` now forces a read failure while `restoreLocalBackup` is collecting the original six-key snapshot. The test verifies the operation returns `storage-read-failed`, performs zero `setItem`/`removeItem` mutations, and leaves all six original raw values unchanged. This protects the rule that rollback state must be readable before replacement starts.
 
 Exact-head CI passed on `b9f500ee8509a986c12b0babd25a2c9947183a90`: [run 40498940471](https://github.com/Mardakhay/interactive-guides/actions/runs/40498940471). These remain deterministic Storage test doubles; actual browser/device acceptance is separate.
+
+## Real-browser/device acceptance protocol
+
+The reproducible test procedure is documented in [`BROWSER_SMOKE_TEST_CHECKLIST.md`](./BROWSER_SMOKE_TEST_CHECKLIST.md). It covers fresh-profile learner-state setup, export-file inspection, restore replacement/confirmation, invalid and oversized files, denied storage, and PWA/deep-link/offline/update checks. No real-browser/device results are recorded by this documentation change; the protocol is not a claim of acceptance.

@@ -11,7 +11,8 @@ Read these documents in order:
 5. [Legacy HTML inventory](./LEGACY_CONTENT_INVENTORY.md) — all original HTML source files and migration notes.
 6. [Week 14–15 source parity review](./CONTENT_PARITY_REVIEW_WEEK14-15.md) — focused React forms/shared-state review.
 7. [Product requirements](./PRODUCT_REQUIREMENTS.md), [architecture](./ARCHITECTURE.md), [persistence](./PERSISTENCE_AND_SUPABASE.md), [PWA/mobile](./PWA_AND_MOBILE.md), and [roadmap](./ROADMAP.md).
-8. [Session handoff](./SESSION_HANDOFF.md) — latest verified branch/CI checkpoint and next action.
+8. [Browser/device smoke-test checklist](./BROWSER_SMOKE_TEST_CHECKLIST.md) — reproducible local-storage, backup/restore and PWA acceptance steps; results must be recorded, not inferred from CI.
+9. [Session handoff](./SESSION_HANDOFF.md) — latest verified branch/CI checkpoint and next action.
 
 ## Working rules
 
