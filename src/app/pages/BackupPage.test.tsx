@@ -45,6 +45,14 @@ function createBackupFileWithCompletedLesson(): File {
   return createReadableFile(payload);
 }
 
+function createPendingReadableFile(name: string) {
+  let resolveRead: (contents: string) => void = () => { throw new Error('File read has not started'); };
+  const file = new File(['pending read'], name, { type: 'application/json' });
+  const text = vi.fn(() => new Promise<string>((resolve) => { resolveRead = resolve; }));
+  Object.defineProperty(file, 'text', { configurable: true, value: text });
+  return { file, text, resolve: (contents: string) => resolveRead(contents) };
+}
+
 function renderBackupPage() {
   return render(<MemoryRouter><BackupPage /></MemoryRouter>);
 }
@@ -147,5 +155,23 @@ describe('data backup page', () => {
       if (revokeDescriptor) Object.defineProperty(URL, 'revokeObjectURL', revokeDescriptor);
       else Reflect.deleteProperty(URL, 'revokeObjectURL');
     }
+  });
+  it('ignores a slower file read after a newer file has been selected', async () => {
+    const user = userEvent.setup();
+    renderBackupPage();
+    const stale = createPendingReadableFile('stale-invalid.json');
+    const fileInput = screen.getByLabelText('Backup JSON file');
+    await user.upload(fileInput, stale.file);
+    await waitFor(() => expect(stale.text).toHaveBeenCalledOnce());
+    await user.upload(fileInput, createBackupFileWithCompletedLesson());
+    expect(await screen.findByRole('heading', { name: 'Backup contents' })).toBeInTheDocument();
+    expect(screen.getByText('Selected file: learning-backup.json')).toBeInTheDocument();
+    stale.resolve('{not json');
+    await waitFor(async () => {
+      await expect(stale.text.mock.results[0]?.value).resolves.toBe('{not json');
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(screen.getByText('Selected file: learning-backup.json')).toBeInTheDocument();
+      expect(screen.getByRole('status')).toHaveTextContent('The backup is valid. Review its contents');
+    });
   });
 });

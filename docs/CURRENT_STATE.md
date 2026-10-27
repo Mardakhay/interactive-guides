@@ -694,3 +694,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - `BackupPage.test.tsx` now covers valid import preview and disabled-by-default restore, explicit replace confirmation, restore-to-active-store behavior, malformed JSON, rejection of files over 10 MiB before reading, and download filename/status/object-URL cleanup.
 - Automated Vitest/jsdom coverage does not replace actual browser/device smoke checks. Phase 5 browser acceptance stays open until file-picker/download behavior and recovery feedback are checked in supported browsers.
+
+
+## Backup read-race hardening — 2026-10-27
+
+- Added a request-generation guard around asynchronous backup file reads. A previous slow or rejected file read cannot overwrite the state of a newer selection, and a pending read is invalidated on page unmount. Regression coverage resolves an invalid first file after a valid second file.
+- This improves application-level behavior only. Native file picker/download and mobile/browser storage acceptance still require real-browser/device smoke checks.

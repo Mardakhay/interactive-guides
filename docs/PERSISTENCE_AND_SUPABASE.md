@@ -132,3 +132,8 @@ Whether to sync notes by default, and whether the app should support multiple pr
 The page-level tests now cover the primary user interactions in Vitest/jsdom: valid file selection and preview, confirmation gating, restore updates both local versioned storage and the active Zustand stores, malformed JSON, 10 MiB rejection before calling `File.text()`, and the export filename/status plus object-URL cleanup. The initial English/Russian render checks remain.
 
 These tests catch app/UI logic regressions but do not assert native browser download prompts or mobile file-picker UX. Real-browser/device smoke acceptance remains required.
+
+
+## Backup selection race protection — 2026-10-27
+
+File-import UI now identifies the active read request and ignores stale completions from earlier file selections. A read that resolves or rejects after the user selects a newer file cannot overwrite the new preview or announce a stale error; pending reads are invalidated on unmount. `BackupPage.test.tsx` includes a delayed-first-file regression test.

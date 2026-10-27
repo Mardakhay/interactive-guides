@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { AlertTriangle, CheckCircle2, Database, Download, FileUp, ShieldCheck } from 'lucide-react';
 import { Button, Card } from '@/components/ui';
 import { useBookmarkStore } from '@/features/bookmarks/store';
@@ -47,6 +47,11 @@ export default function BackupPage() {
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
   const [confirmReplace, setConfirmReplace] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
+  const fileReadRequest = useRef(0);
+
+  useEffect(() => () => {
+    fileReadRequest.current += 1;
+  }, []);
 
   function downloadBackup(): void {
     try {
@@ -67,6 +72,7 @@ export default function BackupPage() {
   }
 
   async function handleFileChange(event: ChangeEvent<HTMLInputElement>): Promise<void> {
+    const requestId = ++fileReadRequest.current;
     const input = event.currentTarget;
     const file = input.files?.[0];
     input.value = '';
@@ -82,11 +88,13 @@ export default function BackupPage() {
     }
     try {
       const raw = await file.text();
+      if (requestId !== fileReadRequest.current) return;
       const parsed = parseBackup(raw);
       setRawBackup(raw);
       setPreview(parsed);
       setNotice({ kind: 'success', key: 'backupValidated' });
     } catch (error) {
+      if (requestId !== fileReadRequest.current) return;
       setSelectedFileName(file.name);
       setNotice({ kind: 'error', key: getErrorKey(error) });
     }

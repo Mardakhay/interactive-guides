@@ -810,3 +810,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Expanded `src/app/pages/BackupPage.test.tsx` beyond render-only checks: valid upload/preview, explicit replacement confirmation, successful restore with active-store and persisted-envelope assertions, malformed JSON, pre-read 10 MiB size rejection, and JSON download filename/announcement/object-URL cleanup.
 - These are automated Vitest/jsdom interaction tests. The roadmap's real-browser/device gate remains open: still verify native file picker, actual browser download behavior, storage-denied/quota behavior, and the UI flow in supported desktop/mobile browsers.
+
+
+## Backup file-read race hardening — 2026-10-27
+
+- `BackupPage` now uses a monotonically increasing read token so results from a slower earlier `File.text()` cannot overwrite the preview/status for a newer file selection. The active request is invalidated on unmount as well.
+- Added an interaction regression test where an invalid first file resolves after a valid second file; the valid preview/status must remain and no stale error may appear. Exact-head CI for the prior UI interaction tests passed run [40492610625](https://github.com/Mardakhay/interactive-guides/actions/runs/40492610625); this race-fix commit needs its own CI.
