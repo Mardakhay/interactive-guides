@@ -501,8 +501,8 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 
 - [x] Expose detailed `npm audit` findings in CI without making the existing known vulnerabilities silently disappear or breaking the current delivery pipeline before triage.
 - [x] Read the latest exact-head CI audit output and record direct/transitive status, affected ranges and fix targets in `CURRENT_STATE.md`; dependency remediation remains open.
-- [ ] Apply the smallest compatible updates without `npm audit fix --force`, update `package-lock.json`, and rerun lint/typecheck/tests/build.
-- [ ] Reassess whether any residual critical/high finding needs a documented exception or separate migration.
+- [x] Apply compatible tooling and router updates with a regenerated `package-lock.json`; controlled CI passed lint, typecheck, all 182 tests, production build and bundle budgets.
+- [x] Reassess the dependency graph: current `npm audit` reports 0 findings. Keep the audit diagnostic in CI and re-evaluate future advisories against the installed lockfile.
 
 
 ## Security dependency triage — 2026-10-27
@@ -510,12 +510,13 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Add a non-blocking CI report of detailed npm audit advisories.
 - [x] Update direct Zod to 4.6.7 within major version 4 to address GHSA-mrhx-c7xc-m3w5 (`<4.6.6` affected; `4.6.6` patched).
 - [x] Verify Zod 4.6.7 on exact-head CI [run 40506040390](https://github.com/Mardakhay/interactive-guides/actions/runs/40506040390); audit report fell from 12 to 11 findings and no longer lists Zod.
-- [ ] Plan/test the Vite 5 to supported Vite 6.4/7 branch and Vitest 2 to patched Vitest 3.2.6 or 4.x migration, including Node compatibility and plugin/test API changes.
-- [ ] Decide a React Router migration: the current React Router 6 line lacks a patched release for GHSA-wrjc-x8rr-h8h6; the advisory's fix is in v7.18.0+. Validate link/navigate behavior before migrating.
+- [x] Upgrade Vite to 8.3.5, `@vitejs/plugin-react` to 6.1.2 and Vitest to 4.1.12; CI runs under Node 22 and validates build/test compatibility.
+- [x] Upgrade React Router DOM to 7.18.0, align the legacy ecosystem lesson and bilingual SPA routing lesson to v7, and add a package/source compatibility regression test.
 
 
-## Latest exact-head validation — 2026-10-27
+## Dependency-refresh validation — 2026-10-27
 
-- Feature head `213dd0db21491f4749d60d5668d841aaa3973a8e` passed exact-head CI run [40506040390](https://github.com/Mardakhay/interactive-guides/actions/runs/40506040390): install, audit diagnostic, lint, typecheck, 181 tests, build and bundle budget.
-- The direct Zod patch to 4.6.7 is verified: audit findings decreased from 12 to 11 and Zod is absent from the current findings. Remaining: 2 critical, 3 high, 6 moderate. Vite/Vitest/Router updates are major or compatibility-sensitive; continue with a focused migration branch/step, not `npm audit fix --force`.
-- Bundle budget is implemented and verified. Native browser/device acceptance, Notion factual verification, and the JSON learner-route cutover remain open.
+- Upgraded the top-level toolchain/router to `vite@8.3.5`, `@vitejs/plugin-react@6.1.2`, `vitest@4.1.12`, and `react-router-dom@7.18.0`; kept React 18 and Zod 4.6.7.
+- Controlled migration CI [run #40536336285](https://github.com/Mardakhay/interactive-guides/actions/runs/40536336285) passed install, lint, typecheck, 182 tests/30 files, production build and the bundle-budget script; `npm audit` reports 0 findings for the tested graph. The generated lockfile is committed as `59432ad63d24d2ab0e37267091ce4de2f59a0d69`.
+- Entry bundle is 211.08 kB raw / 68.05 kB gzip and lesson repository is 61.22 kB raw / 16.81 kB gzip; all 125 JS chunks pass their limits. CI uses Node 22 and pinned npm 11.21.1.
+- The one-time lockfile-writing helper is removed in the cleanup commit and normal PR CI will verify the final workflow. Native browser/device acceptance, Notion formal verification and JSON-only learner-route cutover remain open.

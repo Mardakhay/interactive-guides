@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   verify:
@@ -18,17 +18,10 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Prepare lockfile for the one-time dependency migration
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'feat/learning-platform-foundation' && contains(github.event.pull_request.title, '[dependency-refresh]')
-        run: |
-          git fetch origin "refs/heads/${GITHUB_HEAD_REF}:refs/remotes/origin/${GITHUB_HEAD_REF}"
-          git checkout --detach "refs/remotes/origin/${GITHUB_HEAD_REF}"
-          npm install --global npm@11.21.1
-          npm --version
-          rm -f package-lock.json
-          npm install --package-lock-only --ignore-scripts --no-audit
+      - name: Use the npm version used to generate the lockfile
+        run: npm install --global npm@11.21.1
       - run: npm ci
-      - name: Report npm audit advisories (non-blocking while triaging)
+      - name: Report npm audit advisories (informational)
         if: success()
         continue-on-error: true
         run: |
@@ -38,15 +31,3 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - name: Commit the regenerated lockfile after successful verification
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'feat/learning-platform-foundation' && contains(github.event.pull_request.title, '[dependency-refresh]') && success()
-        run: |
-          if git diff --quiet -- package-lock.json; then
-            echo "The lockfile is already current."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package-lock.json
-          git commit -m "chore(deps): regenerate lockfile for compatible security updates"
-          git push origin "HEAD:refs/heads/${GITHUB_HEAD_REF}"

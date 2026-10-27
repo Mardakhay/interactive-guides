@@ -903,3 +903,11 @@ The Advanced JS Notion page still reports `verification.state=unverified`; this 
 Closed the documented runnable-example gap for TTL and async-result caching in `js.runtime-memory` v4 / 35 aligned EN/RU blocks. The cache shares in-flight Promises per semantic key, starts TTL after successful resolution, lazily removes expired entries, evicts rejected Promises, exposes `invalidate`/`clear`, and checks entry identity before settlement handlers mutate the Map so a pending request cannot undo invalidation.
 
 Added a knowledge check and practice with an injectable clock for deterministic expiry tests. The lesson explicitly distinguishes freshness TTL from a hard memory limit: an expired key that is never looked up again may remain in a Map, so high-cardinality caches need a size/eviction policy. API/network caching remains service-specific; the Advanced JS Notion page continues to report `verification.state=unverified`.
+
+ 
+## Toolchain security migration — 2026-10-27
+
+The repository's dependency graph was refreshed after reviewing the audit output and compatibility requirements: React Router DOM `7.18.0`, Vite `8.3.5`, `@vitejs/plugin-react` `6.1.2`, Vitest `4.1.12`; React 18 and Zod 4.6.7 remain. The lockfile was generated with npm `11.21.1`. Controlled CI [run #40536336285](https://github.com/Mardakhay/interactive-guides/actions/runs/40536336285) passed install, lint, typecheck (182 tests/30 files), production build and bundle budgets, with 0 findings from `npm audit`.
+
+The Vite 8 output is entry `211.08 kB raw / 68.05 kB gzip` and lesson repository `61.22 kB raw / 16.81 kB gzip`; all 125 JavaScript chunks pass budget checks. The follow-up standardizes CI to use read-only permissions and no one-off lockfile regeneration, and changes the config alias to `import.meta.dirname` to avoid Vite's ESM `__dirname` warning. Normal CI is re-run for that final cleanup.
+

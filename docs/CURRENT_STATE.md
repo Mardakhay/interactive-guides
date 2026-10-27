@@ -8,16 +8,16 @@ This audit combines remote source inspection with exact-head GitHub Actions evid
 
 ## Authoritative implementation snapshot — 2026-10-27
 
-- **Current feature head:** `213dd0db21491f4749d60d5668d841aaa3973a8e`; exact-head CI [run #40506040390](https://github.com/Mardakhay/interactive-guides/actions/runs/40506040390) passed `npm ci`, non-blocking npm audit reporting, lint, typecheck, all 181 tests, production build and bundle budget.
+- **Dependency-refresh validation:** controlled CI [run #40536336285](https://github.com/Mardakhay/interactive-guides/actions/runs/40536336285) passed install, lint, typecheck, all 182 tests across 30 files, production build and bundle budget while using the freshly generated lockfile. It reported zero npm audit findings and committed that validated lockfile as `59432ad63d24d2ab0e37267091ce4de2f59a0d69`. The follow-up restores ordinary least-privilege CI and replaces a Vite config warning source; its normal PR run is the final gate for this cleanup.
 - **Branch safety:** PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) remains open Draft, base `main`, head `feat/learning-platform-foundation`. `main` remains unchanged at `b13af92576e8a73753a6e3f3d26765d9f9c44397`.
 - **Structured curriculum:** 26 core and 18 supplementary lesson IDs are registered in English and Russian (44 bilingual lesson pairs / 88 JSON files). A small static manifest supplies translated titles; complete lesson bodies load on demand through dynamic imports.
-- **Measured bundle improvement:** before lazy loading, `repository-*.js` was 2,363.77 kB minified / 784.88 kB gzip. The latest successful build measures it at 54.26 kB / 17.15 kB gzip (about 97.8% less gzip transfer). The `index-*.js` entry is 280.15 kB / 92.90 kB gzip. CI enforces 350 kB raw / 120 kB gzip entry budgets, 100 kB raw / 30 kB gzip repository budgets, and a 500 kB raw maximum per JavaScript chunk. Lesson chunks are not precached; service worker caching starts after a successful same-origin asset request, so never-visited lesson offline behavior remains a manual check.
+- **Measured bundle improvement:** before lazy loading, `repository-*.js` was 2,363.77 kB minified / 784.88 kB gzip. The dependency-refresh build measures the entry chunk at 211.08 kB raw / 68.05 kB gzip and the lesson repository chunk at 61.22 kB raw / 16.81 kB gzip; all 125 JavaScript chunks passed the current budgets. CI enforces 350 kB raw / 120 kB gzip for the entry, 100 kB raw / 30 kB gzip for the repository, and a 500 kB raw maximum per JavaScript chunk. Lesson chunks are not precached, so never-visited lesson offline behavior remains a manual check. Lesson chunks are not precached; service worker caching starts after a successful same-origin asset request, so never-visited lesson offline behavior remains a manual check.
 - **Content review:** full content/code/interaction reviews for 25/25 legacy HTML sources are documented, but exact legacy-widget parity and claim-by-claim factual verification remain incomplete. 21 Notion pages have been fetched/mapped; their metadata still reports `verification.state=unverified`, so this is not formal source verification.
 - **Recent bilingual content improvements:** `html.document-structure` v6 (50 aligned blocks), `ui.design-systems` v3 (32), `performance.accessibility` v4 (41), `data.sql-postgresql` v2 (46) and `testing.react-testing-library` v4 (39) have source-derived additions and regression checks.
 - **UI localization:** EN/RU preference and route-aware locale support exist across the shell and major learner routes. Uncommon strings, responsive/keyboard/touch behavior and screen-reader announcements still need broader audits.
 - **Local-first persistence:** progress/bookmarks/notes/classic quiz results use schema-v1 local-store envelopes; structured learning uses a v2 envelope with legacy migration. Backup/restore validates and previews replacement, includes learner data, excludes UI preferences and has automated coverage for failure/rollback paths. Browser/device acceptance of native storage restrictions/file picker/download remains unrun.
 - **PWA/deployment:** manifest/icons, scoped static-asset cache, SPA fallback and user-approved service-worker update flow are implemented. Actual install/offline/deep-link/update tests on supported desktop/mobile browsers are not recorded.
-- **Dependency audit:** the exact-head npm audit diagnostic now reports **11 findings** (6 moderate, 3 high, 2 critical), down from 12 after updating direct Zod to `4.6.7`. Zod no longer appears in the report. Remaining findings include `vite`, `vitest`/`tinypool`, `react-router`/`react-router-dom`, `esbuild`, `brace-expansion`, `source-map-js`, and `postcss-selector-parser`; several suggested fixes require major-version migration and must be tested separately. Do not run `npm audit fix --force`.
+- **Dependency audit and toolchain:** the tested dependency graph reports **0 npm audit findings**. Direct versions now include React Router DOM `7.18.0`, Vite `8.3.5`, `@vitejs/plugin-react` `6.1.2`, Vitest `4.1.12`, Zod `4.6.7`; lockfile is pinned and generated with npm `11.21.1`. Node 22 is used by CI. Follow-up standard CI verifies the committed lockfile without write permissions or one-off regeneration.
 - **Cloud/release:** Supabase auth/sync is not implemented and remains gated behind local/cloud conflict decisions and RLS/account-isolation work. Notion factual verification, browser/device acceptance and remaining dependency remediation are open.
 
 This snapshot is authoritative; earlier checkpoint sections below are chronological history and should not override it.
@@ -26,12 +26,12 @@ This snapshot is authoritative; earlier checkpoint sections below are chronologi
 
 The repository is already a React application, not just a set of HTML files:
 
-- React 18, TypeScript, Vite 5, Tailwind CSS 3
-- React Router 6
+- React 18, TypeScript, Vite 8, Tailwind CSS 3
+- React Router 7.18.0 (the app still imports through `react-router-dom` for v6-to-v7 compatibility)
 - Zustand for state
 - Zod schemas
-- Vitest and Testing Library
-- ESLint and GitHub Actions CI
+- Vitest 4.1 and Testing Library
+- ESLint and GitHub Actions CI (Node 22; pinned npm 11.21.1 for reproducible lockfile handling)
 
 Available scripts from `package.json`:
 
@@ -188,7 +188,7 @@ The project is **not release-complete** while source-to-block parity, all-screen
 2. Finish localization coverage for remaining less-common strings/edge states and review source lesson-body equivalence, not only UI labels.
 3. Implement/test a safe local-data migration plus export/import and recovery path before a storage-format change.
 4. Record Android Chrome and iOS Safari install, deep-link, offline, update and external-font acceptance outcomes. Do not infer these outcomes from unit tests.
-5. Triage the dependency audit findings and production bundle-size warning without applying an unreviewed forced dependency upgrade.
+5. Retain the dependency audit diagnostic and bundle budgets; investigate any future findings before changing dependency majors.
 
 Do not mark overall release readiness complete until the source audit, learner-data portability and manual PWA acceptance gates have evidence.
 

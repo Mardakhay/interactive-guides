@@ -416,3 +416,11 @@ The Advanced JS Notion source remains marked `verification.state=unverified`. No
 `js.runtime-memory` v4 adds an explicit async TTL cache implementation. It shares in-flight work for the same key, starts expiration after success, removes failed entries to allow retry, and guards settlement callbacks by entry identity so invalidation is not undone by an older pending request. The practice requires deterministic injected-clock tests.
 
 The lesson also clarifies that TTL-on-access is not an absolute memory bound, and that network cache freshness must follow API/product rules. The source Notion page remains connector-unverified.
+
+ 
+## Toolchain security migration — 2026-10-27
+
+The repository's dependency graph was refreshed after reviewing the audit output and compatibility requirements: React Router DOM `7.18.0`, Vite `8.3.5`, `@vitejs/plugin-react` `6.1.2`, Vitest `4.1.12`; React 18 and Zod 4.6.7 remain. The lockfile was generated with npm `11.21.1`. Controlled CI [run #40536336285](https://github.com/Mardakhay/interactive-guides/actions/runs/40536336285) passed install, lint, typecheck (182 tests/30 files), production build and bundle budgets, with 0 findings from `npm audit`.
+
+The Vite 8 output is entry `211.08 kB raw / 68.05 kB gzip` and lesson repository `61.22 kB raw / 16.81 kB gzip`; all 125 JavaScript chunks pass budget checks. The follow-up standardizes CI to use read-only permissions and no one-off lockfile regeneration, and changes the config alias to `import.meta.dirname` to avoid Vite's ESM `__dirname` warning. Normal CI is re-run for that final cleanup.
+
