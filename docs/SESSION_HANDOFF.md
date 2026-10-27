@@ -674,3 +674,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Added source-specific assertions for `react.router-spa`, `react.forms-validation` and `react.context-shared-state`: query-param/shareable URL state and not-found/host fallback, accessible form-error associations plus FormData/RHF submit flow, and custom-Hook instance ownership plus reducer/Context boundaries.
 - Existing API v4 regression tests for debounce versus abort/stale response, Fetch status semantics, retries and service boundaries remain active. These assertions protect the stated lesson content and EN/RU structure; they do not mean all code snippets are executed or that legacy interactions are identical.
+
+
+## Advanced JS tooling continuation — 2026-10-27
+
+- `tooling.advanced-package-workflows` v2 now has 17 aligned EN/RU blocks. New content maps npm scripts and the project's `npm ci` → dev → typecheck/lint/test/build workflow, with distinctions between Vite, Webpack, Babel, `tsc`, ESLint, Prettier, and the repository's Vitest runner.
+- Added an assessed check, applied repository-toolchain task, official tool references, and tests for EN/RU parity, walkthrough line ranges, feedback length, exercise rubric and link presence.
+- Source note: the Advanced JS Notion page is still `verification.state=unverified`; this focused subsection review does not close the full page's remaining source parity or UI interactions.

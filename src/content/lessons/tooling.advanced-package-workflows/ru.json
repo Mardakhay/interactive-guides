@@ -1,16 +1,16 @@
 {
   "id": "tooling.advanced-package-workflows",
   "locale": "ru",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-27",
   "moduleId": "supplement-tooling",
   "supplementaryTrackId": "supplement-tooling",
   "order": 1,
   "title": "Продвинутая работа с пакетами: SemVer, lockfiles и CI",
   "description": "Разбирайся в диапазонах зависимостей, воспроизводимых npm-установках, scripts и обновлениях в командном репозитории.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 95,
   "difficulty": "intermediate",
   "prerequisites": [
     "tooling.node-npm-vite"
@@ -19,14 +19,17 @@
     "Объяснять диапазоны версий и lockfile.",
     "Выбирать npm install, npm ci и npm update.",
     "Проверять peer requirements и изменения зависимостей.",
-    "Унифицировать scripts и CI quality gates."
+    "Унифицировать scripts и CI quality gates.",
+    "Различать задачи bundling, преобразования, проверки типов, lint, форматирования и тестирования."
   ],
   "tags": [
     "npm",
     "package-management",
     "semver",
     "lockfile",
-    "ci"
+    "ci",
+    "build-toolchain",
+    "test-tooling"
   ],
   "blocks": [
     {
@@ -163,6 +166,124 @@
       ]
     },
     {
+      "id": "pkg-toolchain-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Различай инструменты по их назначению"
+    },
+    {
+      "id": "pkg-toolchain-body",
+      "type": "paragraph",
+      "text": "Frontend toolchain состоит из отдельных задач, даже если один продукт поддерживает несколько из них. Package manager разрешает зависимости; dev server обслуживает приложение с быстрым feedback; bundler собирает production assets; compiler/transpiler преобразует исходники; type checker проверяет типы TypeScript; linter анализирует шаблоны кода; formatter форматирует код; test runner выполняет тесты. Используй реальные scripts проекта как общий контракт команды. Не повторяй безусловное утверждение, что Vite всегда быстрее Webpack: сравнивай настроенные сценарии и измеряй проект, когда важна производительность."
+    },
+    {
+      "id": "pkg-toolchain-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "# Inspect package.json, lockfile and the project's configured toolchain first\n# For an npm project with a committed package-lock.json:\nnpm ci\n\nnpm run dev\n\nnpm run typecheck\nnpm run lint\nnpm test\n\nnpm run build",
+      "steps": [
+        {
+          "title": "Используй команды самого репозитория",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Сначала изучи package.json, соответствующий lockfile и конфигурацию — только потом копируй команды из туториала. `npm ci` подходит npm-проекту с закоммиченным package-lock.json; это не универсальная команда для любого package manager."
+        },
+        {
+          "title": "Не смешивай статические проверки",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "Проверка типов, lint и тесты — отдельные проверки. Vite преобразует TypeScript, но сам по себе не выполняет полную проверку типов, поэтому в репозитории есть отдельная команда `typecheck`."
+        },
+        {
+          "title": "Собери production-артефакт",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "explanation": "Script `build` задаёт production pipeline. В этом репозитории сначала выполняется TypeScript project build, затем `vite build`; в другом проекте последовательность может отличаться."
+        }
+      ]
+    },
+    {
+      "id": "pkg-toolchain-roles",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Node.js — JavaScript runtime для локальных инструментов разработки; npm — package manager, который обычно устанавливается вместе с Node.js.",
+        "Vite объединяет dev server и production build pipeline. Он преобразует TypeScript для запуска, но не выполняет полноценную проверку типов самостоятельно.",
+        "Webpack — альтернативный static module bundler на основе графа зависимостей; loaders и plugins включают нужные преобразования и build-задачи. Проекту на Vite не нужен второй bundler лишь потому, что в туториале есть webpack.config.js.",
+        "Babel — JavaScript compiler/toolchain для преобразования синтаксиса и target compatibility; он автоматически не заменяет bundler, linter или test runner.",
+        "TypeScript `tsc` проверяет типы. Быстрое преобразование исходников и полная проверка программы — разные операции.",
+        "ESLint анализирует код по правилам корректности и поддерживаемости; Prettier форматирует его. Успех одного не означает, что запускался другой.",
+        "Этот репозиторий использует Vitest для тестов. Jest — другой test runner, а не команда, которую нужно копировать без соответствующих зависимостей и scripts.",
+        "Согласуй scripts с выбранным package manager и его lockfile; не поддерживай конкурирующие npm/Yarn lockfiles только ради двух разных туториалов."
+      ]
+    },
+    {
+      "id": "pkg-toolchain-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Dev server Vite отображает страницу, но `tsc` сообщает об ошибках TypeScript. Что должен делать надёжный CI pipeline?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Запустить настроенную проверку TypeScript отдельным этапом и сохранить Vite build",
+          "correct": true,
+          "feedback": "Vite преобразует TypeScript для браузера, но сам по себе не выполняет полную проверку типов; оставь явную проверку компилятором."
+        },
+        {
+          "id": "b",
+          "text": "Удалить typecheck, потому что успешный dev server доказывает корректность типов",
+          "correct": false,
+          "feedback": "Dev server может запускать преобразованный TypeScript, даже если система типов отвергает программу."
+        },
+        {
+          "id": "c",
+          "text": "Заменить Vitest на Webpack, потому что bundler проверяет типы TypeScript",
+          "correct": false,
+          "feedback": "Webpack — bundler; он автоматически не заменяет проверку TypeScript или test runner."
+        },
+        {
+          "id": "d",
+          "text": "Использовать Prettier вместо lint и проверки типов",
+          "correct": false,
+          "feedback": "Prettier форматирует исходники, но не проверяет типы TypeScript и не запускает поведенческие тесты."
+        }
+      ],
+      "explanation": "Разделяй роли и проверки: transform/build, проверка типов, lint, форматирование и тесты отвечают на разные вопросы."
+    },
+    {
+      "id": "pkg-toolchain-practice",
+      "type": "codingExercise",
+      "title": "Сопоставь toolchain из туториала с реальным репозиторием",
+      "language": "bash",
+      "context": "В скопированном туториале используются Webpack, Babel и Jest, но в проекте уже могут быть настроены Vite, TypeScript, Vitest, ESLint и Prettier. Сопоставь назначения, прежде чем менять команды или добавлять зависимости.",
+      "instructions": [
+        "Изучи package.json, lockfile и конфигурационные файлы проекта до использования команд из туториала.",
+        "Определи scripts для разработки, проверки типов, lint, тестов, форматирования и production-сборки.",
+        "Для каждого упомянутого инструмента запиши основную задачу и пересечения, не считая инструменты взаимозаменяемыми.",
+        "Проверь, что команды соответствуют установленным зависимостям и выбранному package manager.",
+        "Предложи только минимально необходимое изменение; не мигрируй на другой bundler или test runner только потому, что он используется в туториале."
+      ],
+      "requirements": [
+        "Manifest зависимостей и выбранный lockfile проверены вместе.",
+        "Преобразование TypeScript в Vite отличается от проверки типов.",
+        "Webpack и Babel описаны по назначению, а не как обязательные дополнительные зависимости.",
+        "Задачи lint, format, test и build сопоставлены с реальными scripts.",
+        "Команды и изменения зависимостей соответствуют конфигурации репозитория."
+      ],
+      "starterCode": "# Изучи репозиторий до копирования команд\ncat package.json\n# TODO: изучи lockfile и связанные конфигурации\n\nnpm ci\nnpm run typecheck\nnpm run lint\nnpm test\nnpm run build",
+      "hints": [
+        "Начинай с scripts репозитория: их имена — соглашение, а поведение определяет конкретная команда.",
+        "Vite может преобразовать TypeScript без проверки всей программы; проверь, запускается ли также tsc.",
+        "Наличие примера в туториале не доказывает, что Webpack, Babel или Jest установлены или нужны."
+      ],
+      "successCriteria": [
+        "Каждая команда связана с существующим script или явно отмечена как предлагаемое изменение.",
+        "Выбранный package manager согласован с lockfile.",
+        "Pipeline включает нужные проверки типов, качества кода, тестов и production output.",
+        "Рекомендация объясняет trade-offs без универсальных заявлений о производительности."
+      ]
+    },
+    {
       "id": "pkg-summary",
       "type": "list",
       "ordered": false,
@@ -189,6 +310,41 @@
         {
           "title": "npm: SemVer ranges",
           "url": "https://docs.npmjs.com/about-semantic-versioning",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vite: возможности и TypeScript",
+          "url": "https://vite.dev/guide/features",
+          "kind": "official-docs"
+        },
+        {
+          "title": "webpack: основные понятия",
+          "url": "https://webpack.js.org/concepts/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Babel: назначение Babel",
+          "url": "https://babeljs.io/docs/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "npm: scripts",
+          "url": "https://docs.npmjs.com/cli/v11/using-npm/scripts",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vitest: руководство",
+          "url": "https://vitest.dev/guide/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "ESLint: основные понятия",
+          "url": "https://eslint.org/docs/latest/use/core-concepts",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Prettier: документация",
+          "url": "https://prettier.io/docs/en/",
           "kind": "official-docs"
         }
       ]

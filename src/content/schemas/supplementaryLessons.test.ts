@@ -432,3 +432,52 @@ describe('SQL dialect, write safety, and set-operation guidance', () => {
     }
   });
 });
+
+describe('Advanced package workflow toolchain coverage', () => {
+  it('separates bundling, transformation, checking, and test-runner responsibilities', () => {
+    expect(lessonTranslationSchema.safeParse(englishAdvancedTooling).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianAdvancedTooling).success).toBe(true);
+    expect(englishAdvancedTooling.version).toBe(2);
+    expect(englishAdvancedTooling.blocks).toHaveLength(17);
+    expect(englishAdvancedTooling.blocks.map(({ id, type }) => [id, type])).toEqual(
+      russianAdvancedTooling.blocks.map(({ id, type }) => [id, type]),
+    );
+    for (const lesson of [englishAdvancedTooling, russianAdvancedTooling]) {
+      const workflow = lesson.blocks.find((block) => block.id === 'pkg-toolchain-walkthrough');
+      expect(workflow?.type).toBe('codeWalkthrough');
+      if (workflow?.type !== 'codeWalkthrough') return;
+      const lineCount = workflow.code.split('\n').length;
+      expect(workflow.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      expect(workflow.code).toContain('npm run typecheck');
+      expect(workflow.code).toContain('npm test');
+      const roles = lesson.blocks.find((block) => block.id === 'pkg-toolchain-roles');
+      expect(roles?.type).toBe('list');
+      if (roles?.type === 'list') {
+        expect(roles.items.some((item) => item.includes('Vite'))).toBe(true);
+        expect(roles.items.some((item) => item.includes('Webpack'))).toBe(true);
+        expect(roles.items.some((item) => item.includes('Babel'))).toBe(true);
+        expect(roles.items.some((item) => item.includes('Vitest'))).toBe(true);
+        expect(roles.items.some((item) => item.includes('Prettier'))).toBe(true);
+      }
+      const check = lesson.blocks.find((block) => block.id === 'pkg-toolchain-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') return;
+      expect(check.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      expect(check.explanation.trim().length).toBeGreaterThan(0);
+      const practice = lesson.blocks.find((block) => block.id === 'pkg-toolchain-practice');
+      expect(practice?.type).toBe('codingExercise');
+      if (practice?.type !== 'codingExercise') return;
+      expect(practice.requirements.length).toBeGreaterThanOrEqual(5);
+      expect(practice.hints.length).toBeGreaterThanOrEqual(3);
+      expect(practice.successCriteria.length).toBeGreaterThanOrEqual(4);
+      const refs = lesson.blocks.find((block) => block.id === 'pkg-references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') {
+        expect(refs.items.some((item) => item.url === 'https://vite.dev/guide/features')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://docs.npmjs.com/cli/v11/using-npm/scripts')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://vitest.dev/guide/')).toBe(true);
+      }
+    }
+  });
+});

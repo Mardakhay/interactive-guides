@@ -315,3 +315,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - CSS fundamentals and Flexbox/Grid lessons already cover the substantive topics in both locales, with deeper cascade, box sizing, margin collapse, overflow/intrinsic sizing, reduced motion, accessibility and responsive diagnosis than the reference source. Matrix records exact block evidence; no duplicate lesson was created.
 - UI parity is partial because the reference copy/property playground is not recreated as a visual simulator; practice, feedback and debugging move to structured blocks.
 - Full HTML source reviews: 11/25; 14 remain. Docs HEAD `e3997b2232158f5433ab6e3ffa78ee8dfb6b57f6` passed CI [40290564642](https://github.com/Mardakhay/interactive-guides/actions/runs/40290564642).
+
+
+## Advanced package-tooling supplement — 2026-10-27
+
+`tooling.advanced-package-workflows` v2 now adds source-derived coverage for the Advanced JS Notion page's tooling subsection: npm scripts, toolchain responsibility boundaries, a repository-specific check workflow, an assessed question and a practical command/config review. It differentiates Vite transpilation from TypeScript type checking, bundling from compilation, and lint/format/test responsibilities. Webpack/Babel/Jest examples from the source are discussed as alternatives, not mandatory dependencies. Remaining Advanced JS subtopics and interaction parity stay open.
