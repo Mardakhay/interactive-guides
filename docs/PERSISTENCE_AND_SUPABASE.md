@@ -25,7 +25,7 @@ Before export, current stored records are parsed and checked against their Zod s
 
 Backup files are plain JSON and can contain private notes/code drafts. Users should store them somewhere private and avoid sharing them casually. Exact-head CI for code commit [`73a47b9`](https://github.com/Mardakhay/interactive-guides/commit/73a47b96b1c0fc00d454c0cd955f24514bb32024) passed run [40487424471](https://github.com/Mardakhay/interactive-guides/actions/runs/40487424471). Browser-specific download/file-picker smoke testing remains outstanding.
 
-Still open: migrate/version every local repository independently of the backup envelope; audit storage-unavailable and migration-retry behavior across all stores; decide field-level merge semantics for future cloud sync; and implement/account-test Supabase only after those contracts stabilize.
+Still open: complete the remaining real-browser/device acceptance in [`BROWSER_SMOKE_TEST_CHECKLIST.md`](./BROWSER_SMOKE_TEST_CHECKLIST.md); finish a final inventory of persistence call sites/preferences; decide field-level merge semantics for future cloud sync; and implement/account-test Supabase only after those contracts stabilize. Progress, bookmarks, notes and classic quiz results use local-store schema-v1 envelopes; structured learning uses a v2 envelope. UI locale is a separate preference and is intentionally excluded from learner backup.
 
 ## First cloud features worth implementing
 

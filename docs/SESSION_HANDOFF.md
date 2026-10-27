@@ -5,6 +5,13 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
+
+## Current checkpoint — 2026-10-27
+
+- Feature head at start of this checkpoint: `cb24724b5b1c5317c24cf3adf6af5f40f944afda`; exact-head CI passed [40500504527](https://github.com/Mardakhay/interactive-guides/actions/runs/40500504527). `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
+- Latest implementation work adds pre-restore snapshot-read protection and stronger storage/backup failure-path tests; the test listener cleanup was also corrected to remove the exact registered callback in `afterEach`.
+- A manual smoke-test protocol now exists at [`BROWSER_SMOKE_TEST_CHECKLIST.md`](./BROWSER_SMOKE_TEST_CHECKLIST.md). It is a procedure, not evidence that a browser/device run was completed.
+- Current near-term priorities: verify CI for the current docs/status update, record manual Phase 5 browser/device results when a real environment is available, then continue the open source-claim parity and UI/reader acceptance. Do not start Supabase implementation before conflict/RLS/product gates are resolved.
 ## Project goal
 
 Rebuild the existing Interactive Guides as a cohesive bilingual (English/Russian), mobile-friendly, PWA-ready learning platform based on:
