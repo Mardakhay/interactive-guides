@@ -570,3 +570,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Advanced JS / `intro.dev.html` tooling gap addressed in `tooling.advanced-package-workflows` v2: 17 EN/RU blocks now distinguish npm scripts, Vite, Webpack, Babel, TypeScript checks, ESLint/Prettier and Vitest. Added code walkthrough, check, task and official documentation references.
 - The Advanced JS source remains partially mapped overall; its Notion metadata is `verification.state=unverified`. No formal Notion verification or full page parity is claimed.
 - Exact-head CI before this addition passed at `84ee48a872303b5840ad57b4df695330cb9dfaf4`, run [40470071802](https://github.com/Mardakhay/interactive-guides/actions/runs/40470071802). The new content/test commit must pass its own exact-head CI.
+
+
+## Regex source coverage — 2026-10-27
+
+- `js.regex-text-processing` v2 expands source parity for the Notion Advanced JS regex subsection: practical format/extraction examples, dynamic constructor escaping, and flags `d/g/i/m/s/u/v/y`. Checks and walkthrough range tests cover the new EN/RU blocks.
+- The Advanced JS source overall remains partially mapped, and Notion metadata stays `verification.state=unverified`; this focused regex update does not claim full page verification.

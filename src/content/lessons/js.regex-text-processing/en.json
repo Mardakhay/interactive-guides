@@ -1,16 +1,16 @@
 {
   "id": "js.regex-text-processing",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-27",
   "moduleId": "supplement-js-internals",
   "supplementaryTrackId": "supplement-js-internals",
   "order": 5,
   "title": "Regular Expressions: Search and Parse Text",
   "description": "Patterns, captures, flags, and safer text extraction.",
-  "estimatedMinutes": 60,
+  "estimatedMinutes": 75,
   "difficulty": "intermediate",
   "prerequisites": [
     "js.basics-types-control-flow",
@@ -20,14 +20,17 @@
     "Build patterns with groups, character classes, quantifiers, and anchors.",
     "Distinguish substring search from whole-string checks.",
     "Extract multiple results safely and explain how g/y affect lastIndex.",
-    "Assess regex validation limits and avoid excessively costly patterns."
+    "Assess regex validation limits and avoid excessively costly patterns.",
+    "Escape literal dynamic search text and explain why common format regexes have limited scope."
   ],
   "tags": [
     "javascript",
     "regex",
     "regular expressions",
     "text processing",
-    "validation"
+    "validation",
+    "dynamic-regexp",
+    "pattern-limits"
   ],
   "blocks": [
     {
@@ -81,7 +84,11 @@
         "g searches for all matches but makes test/exec stateful through lastIndex.",
         "i ignores case; m changes how ^ and $ work on strings containing line breaks.",
         "s lets . match line breaks; u enables Unicode mode. Flags change pattern meaning and should be deliberate.",
-        "A /pattern/ literal is convenient for a fixed pattern; new RegExp(text) is useful for dynamic patterns, but dynamic input must be escaped correctly."
+        "A /pattern/ literal is convenient for a fixed pattern; new RegExp(text) is useful for dynamic patterns, but dynamic input must be escaped correctly.",
+        "`d` adds start/end indices for captured substrings to the match result; it does not change which text matches.",
+        "`g` searches repeatedly and advances `lastIndex`; `y` (sticky) only tries to match at `lastIndex` rather than searching forward. Both need deliberate state handling.",
+        "`i` ignores case; `m` makes `^`/`$` operate per line; `s` lets `.` match line breaks.",
+        "`u` enables Unicode code-point mode. `v` adds Unicode set features and cannot be combined with `u`; use it when the target runtime supports it and its extra class syntax is needed."
       ]
     },
     {
@@ -150,6 +157,114 @@
       ]
     },
     {
+      "id": "regex-practical-patterns-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Practical patterns: extract candidates and state the limits"
+    },
+    {
+      "id": "regex-practical-patterns-body",
+      "type": "paragraph",
+      "text": "Common examples include a local phone-number shape, a password policy, URL candidates, hashtags, and whitespace normalization. These patterns implement only the policy written into them: phone formats differ by region, password requirements differ by product, and a URL-matching regex is not a complete URL parser. Explain what a pattern accepts before calling it validation."
+    },
+    {
+      "id": "regex-practical-patterns-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const phonePattern = /^\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4}$/;\nconst passwordPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$/;\n\nconst note = \"Call (555) 123-4567; visit https://example.com, #WebDev   #JS\";\n\nconsole.log(phonePattern.test(\"(555) 123-4567\"));\nconsole.log(passwordPolicy.test(\"Strong123!\"));\nconsole.log(note.match(/https?:\\/\\/[^\\s,]+/g) ?? []);\nconsole.log(note.match(/#\\w+/g) ?? []);\nconsole.log(note.replace(/\\s+/g, \" \").trim());",
+      "steps": [
+        {
+          "title": "Write the exact policy in the pattern",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "The phone pattern recognizes one illustrative 10-digit arrangement; the password pattern encodes one explicit character/length policy. Neither is a universal international rule, and neither should be the only security boundary."
+        },
+        {
+          "title": "Separate the input from the operations",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "The sample contains a phone number, URL, hashtags, and repeated spaces so each example has a concrete input."
+        },
+        {
+          "title": "Test local formats without overclaiming",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "test() answers only whether a string matches the chosen expression. It does not confirm a phone number is assigned or a password is secure against every threat."
+        },
+        {
+          "title": "Extract and normalize with explicit limits",
+          "lineStart": 8,
+          "lineEnd": 10,
+          "explanation": "These expressions demonstrate simple URL-candidate extraction, hashtag extraction, and whitespace normalization. The URL example intentionally skips a comma delimiter; it is not a standards-complete URL parser."
+        }
+      ]
+    },
+    {
+      "id": "regex-dynamic-constructor-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Build a RegExp from text without treating text as syntax"
+    },
+    {
+      "id": "regex-dynamic-constructor-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function escapeRegExp(value) {\n  return value.replace(/[.*+?^${}()|[\\]\\\\]/g, \"\\\\$&\");\n}\n\nconst userText = \"C++\";\nconst literalPattern = new RegExp(escapeRegExp(userText), \"i\");\n\nconsole.log(literalPattern.test(\"Learn C++ today\")); // true\nconsole.log(literalPattern.test(\"Learn C today\"));   // false",
+      "steps": [
+        {
+          "title": "Escape regex metacharacters in literal input",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "If a search phrase comes from a user and should match literally, escape characters such as +, ., *, ?, (, and [ before passing the text to RegExp. Otherwise the input changes the pattern's meaning."
+        },
+        {
+          "title": "Construct the pattern only after escaping",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "The constructor receives a string, so the pattern's escaping rules are different from writing a regex literal directly in source code. Keep flags intentional and validate the constructed pattern where input or configuration can vary."
+        },
+        {
+          "title": "Verify literal matching with a metacharacter",
+          "lineStart": 8,
+          "lineEnd": 9,
+          "explanation": "The phrase C++ matches the literal text C++, not a different string such as C. This helper is for literal searches; it does not make arbitrary complex patterns safe from ReDoS."
+        }
+      ]
+    },
+    {
+      "id": "regex-constructor-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A search box accepts text that should be treated literally, such as `C++`. What is the safest approach before using `new RegExp(text, 'i')`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Escape regex metacharacters in the user text before constructing the pattern",
+          "correct": true,
+          "feedback": "Escaping makes characters such as + or . literal instead of allowing user text to change the regex operators."
+        },
+        {
+          "id": "b",
+          "text": "Add the global flag so every character becomes literal",
+          "correct": false,
+          "feedback": "The g flag controls repeated matching and lastIndex; it does not escape metacharacters."
+        },
+        {
+          "id": "c",
+          "text": "Wrap the input in ^ and $ without escaping it",
+          "correct": false,
+          "feedback": "Anchors require a whole-string match, but unescaped metacharacters still change the constructed pattern."
+        },
+        {
+          "id": "d",
+          "text": "Use eval to parse the user's expression as JavaScript",
+          "correct": false,
+          "feedback": "Eval executes JavaScript and is not needed to construct a RegExp; it increases risk instead of escaping the input."
+        }
+      ],
+      "explanation": "The RegExp constructor treats its first argument as pattern syntax. Escape user-provided literal text before constructing a regex; separate regex syntax from a literal search string."
+    },
+    {
       "id": "regex-validation-limits",
       "type": "paragraph",
       "text": "A /^...$/ check answers a question about one specific format. A primitive email pattern cannot establish that an address exists and may reject valid addresses; for ordinary forms, use input type=email and server-side checks based on product requirements. Complex or adversarial patterns with nested ambiguous quantifiers can cause catastrophic backtracking and a hang (ReDoS)."
@@ -165,28 +280,32 @@
         "A match must start at the string boundary or after whitespace/punctuation, and end at a boundary rather than inside an alphanumeric token.",
         "Handle multiple references and no matches; explain the global search choice and how repeated calls avoid lastIndex leakage.",
         "Add checks for '#7', 'Fix (#12), then #34', 'ticket#123abc', empty text, and two consecutive calls with different results.",
-        "Do not use regex as a substitute for authorization checks or server-side validation."
+        "Do not use regex as a substitute for authorization checks or server-side validation.",
+        "Add a helper that escapes regex metacharacters before constructing a RegExp from literal search text, and explain why a URL or password pattern is only as strong as its stated requirements."
       ],
       "requirements": [
         "Returns all IDs in source order and excludes the # character.",
         "Does not extract #123 from ticket#123abc.",
         "Returns an empty array when there are no matches.",
         "Repeated calls do not depend on lastIndex left by an earlier call.",
-        "Input text is not mutated; explanation distinguishes substring extraction from whole-string validation."
+        "Input text is not mutated; explanation distinguishes substring extraction from whole-string validation.",
+        "Dynamic literal search text is escaped before RegExp construction; practical-format patterns are described as limited examples rather than universal validators."
       ],
       "starterCode": "function extractTicketIds(text) {\n  const pattern = /(?<![\\p{L}\\p{N}_])#(\\d+)(?![\\p{L}\\p{N}_])/gu;\n  const matches = text.matchAll(pattern);\n  const ids = [];\n\n  for (const match of matches) {\n    // TODO: add the captured numeric ID, not the full match.\n  }\n\n  return ids;\n}\n\nconsole.log(extractTicketIds(\"Fix (#12), then #34\"));\n// Expected: [\"12\", \"34\"]\nconsole.log(extractTicketIds(\"ticket#123abc\"));\n// Expected: []",
       "hints": [
         "Consider lookbehind or capture the allowed separator; do not include that separator in the returned ID.",
         "Choose a token boundary so a letter/digit cannot appear before # or continue after the digits.",
         "matchAll is convenient for global capture extraction; create the pattern locally per call or account for lastIndex.",
-        "Test the empty result and repeated calls to the same function."
+        "Test the empty result and repeated calls to the same function.",
+        "Test a query containing `+`, `.`, or `(`, because these characters have meaning in regex syntax."
       ],
       "successCriteria": [
         "Returns [\"12\", \"34\"] for 'Fix (#12), then #34' in order.",
         "Returns [] for 'ticket#123abc'.",
         "Two consecutive calls with different strings return independent correct results.",
         "Implementation excludes #/separators and does not modify the input.",
-        "Explains why test with /g may depend on lastIndex."
+        "Explains why test with /g may depend on lastIndex.",
+        "A dynamic phrase such as `C++` is matched literally; the explanation identifies limits of phone, URL, and password patterns."
       ]
     },
     {
@@ -283,6 +402,16 @@
         {
           "title": "MDN: String.prototype.matchAll()",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: RegExp constructor and flags",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/RegExp",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Regular expression flags",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions",
           "kind": "official-docs"
         }
       ]

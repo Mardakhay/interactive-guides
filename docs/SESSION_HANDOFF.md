@@ -681,3 +681,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - `tooling.advanced-package-workflows` v2 now has 17 aligned EN/RU blocks. New content maps npm scripts and the project's `npm ci` → dev → typecheck/lint/test/build workflow, with distinctions between Vite, Webpack, Babel, `tsc`, ESLint, Prettier, and the repository's Vitest runner.
 - Added an assessed check, applied repository-toolchain task, official tool references, and tests for EN/RU parity, walkthrough line ranges, feedback length, exercise rubric and link presence.
 - Source note: the Advanced JS Notion page is still `verification.state=unverified`; this focused subsection review does not close the full page's remaining source parity or UI interactions.
+
+
+## Advanced JS regex continuation — 2026-10-27
+
+- `js.regex-text-processing` v2 adds two source-driven walkthroughs for phone/password/URL/hashtag/whitespace examples and safely escaping dynamic text before `new RegExp`, plus a feedback-rich knowledge check.
+- The flags list now includes `d`, `g`, `i`, `m`, `s`, `u`, `v`, and `y`; the lesson marks practical format patterns as limited rules and links the current MDN RegExp reference. Regression tests protect 22-block EN/RU parity, five walkthrough ranges, three quizzes, dynamic escaping and exercise rubric.

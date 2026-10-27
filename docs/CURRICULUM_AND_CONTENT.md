@@ -320,3 +320,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## Advanced package-tooling supplement — 2026-10-27
 
 `tooling.advanced-package-workflows` v2 now adds source-derived coverage for the Advanced JS Notion page's tooling subsection: npm scripts, toolchain responsibility boundaries, a repository-specific check workflow, an assessed question and a practical command/config review. It differentiates Vite transpilation from TypeScript type checking, bundling from compilation, and lint/format/test responsibilities. Webpack/Babel/Jest examples from the source are discussed as alternatives, not mandatory dependencies. Remaining Advanced JS subtopics and interaction parity stay open.
+
+
+## Regex supplement source deepening — 2026-10-27
+
+`js.regex-text-processing` v2 now maps the Advanced JS Notion subsection's remaining practical examples (phone/password patterns, URL/hashtag extraction, whitespace normalization) and the `RegExp` constructor case where dynamic input must be escaped. The lesson documents `d/g/i/m/s/u/v/y` flags with current MDN references and explicitly limits what each format pattern proves. Broader Advanced JS source parity remains open.

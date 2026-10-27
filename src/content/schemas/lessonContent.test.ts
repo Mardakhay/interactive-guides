@@ -973,20 +973,59 @@ describe('regular expressions supplementary lesson', () => {
       russianRegex.blocks.map(({ id, type }) => ({ id, type })),
     );
     const quizzes = englishRegex.blocks.filter((block) => block.type === 'knowledgeCheck');
-    expect(quizzes).toHaveLength(2);
+    expect(quizzes).toHaveLength(3);
     for (const quiz of quizzes) {
       expect(quiz.options.filter((option) => option.correct)).toHaveLength(1);
       expect(quiz.options.every((option) => option.feedback.trim().length > 0)).toBe(true);
       expect(quiz.explanation.trim().length).toBeGreaterThan(0);
     }
-    expect(englishRegex.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
+    expect(englishRegex.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     const exercise = englishRegex.blocks.find((block) => block.type === 'codingExercise');
     expect(exercise?.type).toBe('codingExercise');
     if (exercise?.type !== 'codingExercise') return;
     expect(exercise.starterCode).toContain('matchAll');
     expect(exercise.requirements.length).toBeGreaterThanOrEqual(4);
     expect(exercise.hints.length).toBeGreaterThanOrEqual(3);
-    expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(4);
+    expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
+    for (const lesson of [englishRegex, russianRegex]) {
+      const practical = lesson.blocks.find((block) => block.id === 'regex-practical-patterns-walkthrough');
+      expect(practical?.type).toBe('codeWalkthrough');
+      if (practical?.type !== 'codeWalkthrough') return;
+      const practicalLines = practical.code.split('\n').length;
+      expect(practical.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= practicalLines)).toBe(true);
+      expect(practical.code).toContain('passwordPolicy');
+      expect(practical.code).toContain('https?:');
+      expect(practical.code).toContain('#\\w+');
+      const constructor = lesson.blocks.find((block) => block.id === 'regex-dynamic-constructor-walkthrough');
+      expect(constructor?.type).toBe('codeWalkthrough');
+      if (constructor?.type !== 'codeWalkthrough') return;
+      const constructorLines = constructor.code.split('\n').length;
+      expect(constructor.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= constructorLines)).toBe(true);
+      expect(constructor.code).toContain('new RegExp');
+      expect(constructor.code).toContain('escapeRegExp');
+      const constructorCheck = lesson.blocks.find((block) => block.id === 'regex-constructor-check');
+      expect(constructorCheck?.type).toBe('knowledgeCheck');
+      if (constructorCheck?.type !== 'knowledgeCheck') return;
+      expect(constructorCheck.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(constructorCheck.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      const flags = lesson.blocks.find((block) => block.id === 'regex-flags');
+      expect(flags?.type).toBe('list');
+      if (flags?.type === 'list') {
+        expect(flags.items.some((item) => item.includes('`y`'))).toBe(true);
+        expect(flags.items.some((item) => item.includes('`d`'))).toBe(true);
+        expect(flags.items.some((item) => item.includes('`v`'))).toBe(true);
+      }
+      const references = lesson.blocks.find((block) => block.id === 'regex-references');
+      expect(references?.type).toBe('references');
+      if (references?.type === 'references') expect(references.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/RegExp')).toBe(true);
+      const exercise = lesson.blocks.find((block) => block.id === 'regex-practice');
+      expect(exercise?.type).toBe('codingExercise');
+      if (exercise?.type === 'codingExercise') {
+        expect(exercise.instructions.some((item) => /escape.*meta|экранир.*метасимвол/i.test(item))).toBe(true);
+        expect(exercise.requirements.length).toBeGreaterThanOrEqual(5);
+        expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
+      }
+    }
   });
 });
 
