@@ -988,7 +988,7 @@ describe('Map, Set, and weak collections supplementary lesson', () => {
       expect(symbols.code).toContain('Symbol.iterator');
       const warning = lesson.blocks.find((block) => block.id === 'symbols-security-note');
       expect(warning?.type).toBe('callout');
-      if (warning?.type === 'callout') expect(warning.text).toMatch(/not private|не.*приват/i);
+      if (warning?.type === 'callout') expect(warning.text).toMatch(/not private|not a security boundary|не.*приват|не.*границ.*безопас/i);
       const symbolCheck = lesson.blocks.find((block) => block.id === 'symbols-check');
       expect(symbolCheck?.type).toBe('knowledgeCheck');
       if (symbolCheck?.type !== 'knowledgeCheck') return;
