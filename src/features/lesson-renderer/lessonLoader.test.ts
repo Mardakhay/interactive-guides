@@ -33,7 +33,7 @@ describe('lesson source migration', () => {
         continue;
       }
 
-      if (!/^\/lessons\/[a-z0-9.-]+\.html$/.test(source.url)) {
+      if (!/^\/lessons\/[a-z0-9_.-]+\.html$/.test(source.url)) {
         throw new Error(`Catalog lesson "${lesson.id}" has an invalid legacy URL: ${source.url}`);
       }
 
