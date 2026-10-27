@@ -276,3 +276,10 @@ The audit records safer recovery semantics, configured GitHub Pages sources, tra
 The complete `interactive-async-js.html` review found that existing bilingual `js.async-fetch` and `web.internet-http` lessons already provide the canonical concepts; the old interactive animations and run/reset API widgets are not copied into another lesson. The source's live GET/joke/POST examples did contain risky dynamic `innerHTML` interpolation, and POST treated parseable non-2xx responses as success. Those issues are fixed on the legacy page, with a new regression test for safe `textContent` rendering and HTTP status handling.
 
 Full HTML source reads documented: 18/25; six unread source files and the planned `html-reference.html` re-review remain. Notion source verification is still open.
+
+
+## Interactive JavaScript book — content mapping and runner isolation — 2026-10-27
+
+The full `js_interactive_book.html` content is mapped to four canonical bilingual lessons (JS fundamentals, functions/arrays/objects, DOM/events, and async/fetch), so no parallel mega-lesson was added. The legacy book had a code editor that ran `new Function` in the page context. It now runs inside a dedicated Web Worker with no DOM access, a 2.5-second execution window, bounded output and cleanup on Reset/re-run; regression tests guard the behavior. Worker isolation does not block all network access.
+
+Full HTML source reviews documented: 19/25. Five source files remain unread plus the planned `html-reference.html` re-review; Notion source verification remains incomplete.

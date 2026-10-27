@@ -561,3 +561,12 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Fixed a real DOM-XSS risk in the legacy live GET, joke and POST demos: API response fields and fetch error messages are rendered through `textContent` and DOM nodes, not dynamic `innerHTML`. POST now checks `response.ok` before parsing or announcing success. Added `src/content/legacyAsyncFetchDemos.test.ts` for the security and status-code contracts.
 - Audit notes the source's “Five Components”/six-item mismatch, non-guaranteed 3× timing claim, `Promise.race` semantics and overbroad “allSettled never throws” statement. Full HTML reads documented: 18/25; six unread sources remain plus `html-reference.html` re-review; Notion verification remains open.
 - Prior code update `60515dce63a7ae0ae51125aa249a1182cb884cce` passed CI [run 40459477061](https://github.com/Mardakhay/interactive-guides/actions/runs/40459477061). This new source/test change needs CI on its exact SHA. `main` remains unchanged.
+
+
+## Full source and runner-security checkpoint — js_interactive_book.html — 2026-10-27
+
+- Reviewed the whole `public/lessons/js_interactive_book.html` source (84,043 bytes, 1,682 lines; original blob `74cd065086617f9b903a5fc9e0b3b05e7a2e4b30`), including its 20 editors, quizzes, topic navigation and progress UI.
+- Existing EN/RU canonical lessons already cover the syllabus: basics v2/46 blocks, functions-arrays-objects v2/71, DOM-events v4/58, async-fetch v2/34. No duplicate all-in-one JavaScript lesson created.
+- Replaced same-page `new Function` execution with a dedicated Web Worker; examples have no DOM access, are terminated after 2.5 seconds, and have bounded log/output volume. Reset/re-run stops the existing worker. Added `src/content/jsInteractiveBookRunner.test.ts` for the runner contract. This is page-context isolation, not a network sandbox.
+- Full HTML source reads documented: 19/25. Five files remain unread (`material-ui-masterclass.html`, `react-performance-a11y.html`, `sql-learning-page.html`, `test.guide.html`, `ui-design-system-learn.html`) plus the planned `html-reference.html` re-review; Notion source verification remains open.
+- Run the complete CI suite on this exact head after the in-flight async-demo fix and runner changes; keep `main` unchanged.

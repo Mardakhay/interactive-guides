@@ -463,3 +463,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Existing EN/RU structured async/network lessons cover the full concept set; no duplicative lesson was added. The older `interactive-async-js.html` live API demos were corrected to avoid DOM-XSS via dynamic `innerHTML`, check POST `response.ok`, and show accurate status information. New `legacyAsyncFetchDemos.test.ts` checks the security/status contract.
 - Full HTML source review count: 18/25; six sources remain unread plus the planned `html-reference.html` re-review. Notion source verification remains open. All changes remain on `feat/learning-platform-foundation`, with `main` unchanged.
+
+
+## JavaScript interactive book checkpoint — 2026-10-27
+
+- Mapped `js_interactive_book.html` to existing canonical EN/RU JavaScript lessons. The legacy runner was changed from same-page `new Function` to a dedicated Web Worker with a 2.5-second time window, bounded output, safe text rendering and explicit cleanup on Reset/re-run. Static regression coverage added.
+- Full source review count: 19/25; five HTML sources remain unread plus planned `html-reference.html` re-review. Notion verification still open.
