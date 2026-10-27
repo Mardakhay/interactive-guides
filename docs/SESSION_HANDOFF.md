@@ -535,3 +535,12 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Expanded `frontend.auth-security` to v2, 23 aligned EN/RU blocks: assessed 401/403 handling, JWT decode-vs-verify, OAuth Code + PKCE and token roles, credential storage trade-offs, a concurrency-safe refresh sketch with one retry, and a more demanding threat-model practice task.
 - Full HTML reads documented: 15/25. Remaining: `frontend-bootcamp-notes.html`, `git-reference.html`, `interactive-async-js.html`, `js_interactive_book.html`, `material-ui-masterclass.html`, `react-performance-a11y.html`, `sql-learning-page.html`, `test.guide.html`, `ui-design-system-learn.html`, plus `html-reference.html` re-review. Notion source verification remains incomplete.
 - CI must pass on exact feature head; stay on `feat/learning-platform-foundation` and do not alter `main`.
+
+
+## Full source and content checkpoint — frontend-bootcamp-notes.html — 2026-10-27
+
+- Fully reviewed `public/lessons/frontend-bootcamp-notes.html` (source blob `7738655ae7d17fa08c282c9839d102c73646a4e2`), including all six month tabs, 24 weekly coverage sections, code samples, five answer reveals, and navigation scripts.
+- Verified both `bootcamp-core.en.json` and `bootcamp-core.ru.json` define six months and 24 weeks with the same 26 canonical `lessonIds`. The survey is mapped to canonical lessons; no duplicate handbook lesson was created.
+- Matrix records the complete week-to-ID mapping and deliberately excludes unsafe/overgeneralized source statements as standards (notably `git push origin main`, “always use Vite”/benchmark claims, fixed tool-selection rules and missing `fetch` response.ok handling). Legacy six-tab UI and answer reveals remain a parity gap.
+- Full HTML reads documented: 16/25. Remaining content reviews: `git-reference.html`, `interactive-async-js.html`, `js_interactive_book.html`, `material-ui-masterclass.html`, `react-performance-a11y.html`, `sql-learning-page.html`, `test.guide.html`, `ui-design-system-learn.html`, plus the planned `html-reference.html` re-review. Notion source verification is still incomplete.
+- Latest code checkpoint: auth content/test fix commit `29fc1cb46e32a7c2720dceca1bcb3665e2bcd772` passed CI run [40458761411](https://github.com/Mardakhay/interactive-guides/actions/runs/40458761411). The documentation update itself will get a new SHA and requires exact-head CI. `main` remains unchanged.

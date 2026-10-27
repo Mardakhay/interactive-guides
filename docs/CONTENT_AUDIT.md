@@ -255,3 +255,10 @@ Full HTML reads documented: 14 of 25. Ten further HTML sources and a planned `ht
 The full `frontend-auth.html` source is reviewed. `frontend.auth-security` is now v2 with 23 aligned EN/RU blocks, adding assessed 401/403 handling, JWT decode-vs-verify, OAuth Code + PKCE, cookie/storage trade-offs, single-flight token refresh and expanded credential-lifecycle threat-model practice. The lesson links current MDN/OWASP references; the old interactive decoder/tabs remain documented UI-parity gaps.
 
 Full HTML reads documented: 15 of 25; nine HTML sources plus the planned `html-reference.html` re-review remain, and Notion source verification is still open.
+
+
+## Cross-course handbook source review — 2026-10-27
+
+Completed a full review of `frontend-bootcamp-notes.html`. Its scope is a six-month, 24-week survey, not a separate canonical lesson. Both EN/RU bootcamp curricula contain 26 aligned lesson IDs across the 24 weeks; the audit matrix now enumerates the complete mapping to canonical lessons, and no duplicative 24-week JSON copy was added.
+
+Source-specific caveats and the remaining month-tab/answer-reveal UI parity gap are in `FULL_SOURCE_CONTENT_AUDIT.md`. Full HTML reads documented: 16/25; nine other HTML files remain unread, with `html-reference.html` tracked for a separate re-review. Notion source verification remains open.
