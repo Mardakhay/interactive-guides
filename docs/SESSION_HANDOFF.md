@@ -755,3 +755,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Expanded `browser.realtime-workers` to v2 / 33 aligned EN/RU blocks. Added XHR upload/download progress and readyState, bounded WebSocket reconnect with jitter and disposal, and version-scoped Service Worker cache cleanup/update caveats.
 - Added lifecycle knowledge checks, a WebSocket exercise, official current MDN references, and regression tests for EN/RU parity, walkthrough ranges, progress safeguards, retry cleanup and cache ownership.
 - The Advanced JS Notion page remains `verification.state=unverified`; these subsections are mapped, but the whole page is not marked complete.
+
+
+## Realtime lesson CI assertion update — 2026-10-27
+
+- The first CI for `browser.realtime-workers` v2 showed that the existing `lessonContent.test.ts` suite still expected 2 knowledge checks and 4 walkthroughs. The v2 lesson contains 5 knowledge checks and 7 walkthroughs. Updated those assertions and added targeted checks for progress handling, reconnect safeguards and scoped cache cleanup.
+- The broader supplementary lesson tests already check EN/RU registration; exact-head CI for the new correction is pending.

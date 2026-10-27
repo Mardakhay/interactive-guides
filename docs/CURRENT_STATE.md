@@ -642,3 +642,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - `browser.realtime-workers` v2 covers XHR progress/readyState and separate status/network/timeout/abort cases; WebSocket reconnect has finite retries, backoff+jitter, OPEN guards, a single retry path and timer/socket disposal; Service Worker cache cleanup uses versioned app-owned prefixes and avoids unconditional takeover.
 - Regression coverage added for EN/RU parity, ranges, progress behavior, retry cleanup, cache scope and official MDN references. Confirm exact-head CI before treating this patch as green.
 - The Advanced JS Notion page still reports `verification.state=unverified`; only targeted topic slices are mapped.
+
+
+## Realtime test-count correction — 2026-10-27
+
+- `browser.realtime-workers` v2 adds three knowledge checks and three walkthroughs; the existing core test still expected v1 counts (2 and 4). Corrected expected counts to 5 and 7 and added assertions for new XHR, WebSocket and Service Worker code. Verify exact-head CI.

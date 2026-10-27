@@ -1284,13 +1284,27 @@ describe('browser networking and workers supplementary lesson', () => {
       russianRealtime.blocks.map(({ id, type }) => ({ id, type })),
     );
     const quizzes = englishRealtime.blocks.filter((block) => block.type === 'knowledgeCheck');
-    expect(quizzes).toHaveLength(2);
+    expect(quizzes).toHaveLength(5);
     for (const quiz of quizzes) {
       expect(quiz.options.filter((option) => option.correct)).toHaveLength(1);
       expect(quiz.options.every((option) => option.feedback.trim().length > 0)).toBe(true);
       expect(quiz.explanation.trim().length).toBeGreaterThan(0);
     }
-    expect(englishRealtime.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(4);
+    expect(englishRealtime.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(7);
+    for (const id of ['xhr-progress-walkthrough', 'ws-reconnect-walkthrough', 'service-worker-lifecycle-walkthrough']) {
+      const walk = englishRealtime.blocks.find((block) => block.id === id);
+      expect(walk?.type).toBe('codeWalkthrough');
+      if (walk?.type !== 'codeWalkthrough') return;
+      const lineCount = walk.code.split('\n').length;
+      expect(walk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+    }
+    const xhrProgress = englishRealtime.blocks.find((block) => block.id === 'xhr-progress-walkthrough');
+    expect(xhrProgress?.type === 'codeWalkthrough' && xhrProgress.code).toContain('event.lengthComputable');
+    const reconnect = englishRealtime.blocks.find((block) => block.id === 'ws-reconnect-walkthrough');
+    expect(reconnect?.type === 'codeWalkthrough' && reconnect.code).toContain('MAX_RETRIES');
+    expect(reconnect?.type === 'codeWalkthrough' && reconnect.code).toContain('WebSocket.OPEN');
+    const cacheCleanup = englishRealtime.blocks.find((block) => block.id === 'service-worker-lifecycle-walkthrough');
+    expect(cacheCleanup?.type === 'codeWalkthrough' && cacheCleanup.code).toContain('name.startsWith(CACHE_PREFIX)');
     const exercise = englishRealtime.blocks.find((block) => block.type === 'codingExercise');
     expect(exercise?.type).toBe('codingExercise');
     if (exercise?.type !== 'codingExercise') return;
