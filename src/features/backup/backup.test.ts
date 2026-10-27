@@ -95,6 +95,37 @@ describe('local learning data backups', () => {
     expect(target.getItem(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY)).toBeNull();
   });
 
+  it('does not write anything when reading the pre-restore snapshot fails', () => {
+    class ReadFailingSnapshotStorage extends MemoryStorage {
+      writes = 0;
+      removals = 0;
+      override getItem(key: string): string | null {
+        if (key === STORAGE_KEYS.NOTES) throw new DOMException('Storage denied while snapshotting', 'SecurityError');
+        return super.getItem(key);
+      }
+      override setItem(key: string, value: string): void {
+        this.writes += 1;
+        super.setItem(key, value);
+      }
+      override removeItem(key: string): void {
+        this.removals += 1;
+        super.removeItem(key);
+      }
+    }
+    const rawBackup = serializeBackup(createLocalBackup(createPopulatedStorage()));
+    const target = new ReadFailingSnapshotStorage();
+    const keys = [STORAGE_KEYS.PROGRESS, STORAGE_KEYS.BOOKMARKS, STORAGE_KEYS.NOTES, STORAGE_KEYS.QUIZ_RESULTS, STRUCTURED_LEARNING_STORAGE_KEY, LEGACY_STRUCTURED_LEARNING_STORAGE_KEY];
+    const before = new Map<string, string>(keys.map((key) => [key, `before:${key}`]));
+    for (const [key, value] of before) MemoryStorage.prototype.setItem.call(target, key, value);
+
+    let caught: unknown;
+    try { restoreLocalBackup(rawBackup, target); } catch (error) { caught = error; }
+    expect(caught).toBeInstanceOf(BackupError);
+    expect((caught as BackupError).code).toBe('storage-read-failed');
+    expect(target.writes).toBe(0);
+    expect(target.removals).toBe(0);
+    for (const [key, value] of before) expect(MemoryStorage.prototype.getItem.call(target, key)).toBe(value);
+  });
   it('rolls back every affected key if one write fails', () => {
     const rawBackup = serializeBackup(createLocalBackup(createPopulatedStorage()));
     const target = new FailOnceStorage();
