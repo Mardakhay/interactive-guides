@@ -1,7 +1,7 @@
 {
   "id": "frontend.architecture-boundaries",
   "locale": "ru",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-26",
@@ -10,14 +10,15 @@
   "order": 1,
   "title": "Архитектура frontend: границы модулей и рефакторинг",
   "description": "Выстраивай направление зависимостей, определяй владельцев состояния, устраняй дублирование и делай ошибки восстанавливаемыми.",
-  "estimatedMinutes": 105,
+  "estimatedMinutes": 120,
   "difficulty": "intermediate",
   "learningOutcomes": [
     "Определять границы модулей по обязанностям и причинам изменений.",
     "Объяснять направление импортов и находить циклические зависимости.",
     "Распределять URL-, server-, shared- и локальное UI-состояние между подходящими владельцами.",
     "Устранять дублирование за стабильным контрактом без избыточных абстракций.",
-    "Проектировать согласованные error states и воспроизводимую проверку."
+    "Проектировать согласованные error states и воспроизводимую проверку.",
+    "Применять SOLID, когда это снижает конкретную связанность или стоимость изменений, не создавая overengineering."
   ],
   "blocks": [
     {
@@ -434,6 +435,122 @@
       ]
     },
     {
+      "id": "arch-solid-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Используй SOLID как вопросы к дизайну, а не обязательный чек-лист"
+    },
+    {
+      "id": "arch-solid-model",
+      "type": "paragraph",
+      "text": "SOLID — пять принципов, которые могут помочь, когда обязанности и зависимости делают изменения дорогими. Это вопросы для анализа архитектуры, а не требование создавать интерфейс, factory, repository, service и Hook для каждого компонента. Начинай с конкретного изменения, проблемы тестируемости или зависимости, которую сложно заменить; вводи только ту границу, которая решает наблюдаемую проблему."
+    },
+    {
+      "id": "arch-solid-principles",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Single Responsibility (SRP): объединяй поведение вокруг одной связной причины изменения. Компонент может отображать форму, функция feature — координировать отправку, а service — владеть HTTP-деталями; «одна ответственность» не означает одну строку или один метод.",
+        "Open/Closed (OCP): позволяй расширять стабильное поведение через осмысленный variant, mapping или strategy, если новые сценарии постоянно заставляют менять множество веток. Это не запрет менять существующий код и не требование заранее делать точки расширения для всех возможных вариантов.",
+        "Liskov Substitution (LSP): реализация, соответствующая контракту, должна сохранять описанное поведение и ожидания к результатам/ошибкам. Mock, cache adapter и HTTP implementation не должны незаметно обещать разную семантику одной операции.",
+        "Interface Segregation (ISP): давай потребителю небольшую нужную capability вместо широкого объекта с несвязанными действиями. Разделяй узкие контракты, если у них разные потребители или причины изменения, а не ради максимального числа типов.",
+        "Dependency Inversion (DIP): логика высокого уровня должна зависеть от стабильного контракта, а не встраивать конкретный транспорт или service. Передавай функцию или контракт сервиса, если такая граница помогает замене или тестам; dependency injection — инструмент, а не самоцель."
+      ]
+    },
+    {
+      "id": "arch-solid-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type Order = { id: string; totalCents: number };\ntype SaveResult =\n  | { ok: true; orderId: string }\n  | { ok: false; reason: 'validation' | 'network'; message: string };\ntype SaveOrder = (order: Order) => Promise<SaveResult>;\ntype SendReceipt = (order: Order) => Promise<void>;\n\nasync function submitOrder(\n  order: Order,\n  saveOrder: SaveOrder,\n  sendReceipt: SendReceipt,\n) {\n  const saved = await saveOrder(order);\n  if (!saved.ok) return saved;\n  await sendReceipt(order);\n  return saved;\n}\n\nexport function OrderSummary({\n  order, onSubmit,\n}: { order: Order; onSubmit: (order: Order) => void }) {\n  return (\n    <section aria-labelledby=\"order-summary-title\">\n      <h2 id=\"order-summary-title\">Order {order.id}</h2>\n      <p>Total: {order.totalCents}</p>\n      <button type=\"button\" onClick={() => onSubmit(order)}>Confirm order</button>\n    </section>\n  );\n}",
+      "steps": [
+        {
+          "title": "Сделай контракты операций явными",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "Union результата явно описывает успех и ожидаемую ошибку валидации/сети. SaveOrder и SendReceipt — узкие capabilities вместо одного большого объекта сервиса."
+        },
+        {
+          "title": "Отдели orchestration от транспорта",
+          "lineStart": 8,
+          "lineEnd": 17,
+          "explanation": "submitOrder координирует workflow через переданные операции. Его можно тестировать контролируемыми реализациями, не зная, использует сохранение fetch, Axios или локальный test adapter."
+        },
+        {
+          "title": "Оставь UI ответственным за представление",
+          "lineStart": 19,
+          "lineEnd": 29,
+          "explanation": "OrderSummary отображает заказ и выдаёт action. Он не парсит HTTP, не отправляет email и не владеет analytics; feature может координировать побочные эффекты и сообщать состояние."
+        }
+      ]
+    },
+    {
+      "id": "arch-solid-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "options": [
+        {
+          "id": "a",
+          "text": "Определить причины изменений, вынести transport/orchestration в подходящие контракты, а в компоненте оставить UI",
+          "correct": true,
+          "feedback": "Небольшой рефакторинг разделяет обязанности и позволяет тестировать workflow без браузера или живых HTTP/email-зависимостей."
+        },
+        {
+          "id": "b",
+          "text": "Создать отдельный package, interface и factory для каждой функции до написания тестов",
+          "correct": false,
+          "feedback": "SOLID не задаёт фиксированное количество слоёв; спекулятивные абстракции могут удорожить каждое изменение."
+        },
+        {
+          "id": "c",
+          "text": "Оставить все побочные эффекты в компоненте, потому что один файл легче найти",
+          "correct": false,
+          "feedback": "Colocation помогает навигации, но не разделяет transport failures, workflow rules и визуальное представление."
+        },
+        {
+          "id": "d",
+          "text": "Заменить компонент generic base class и запретить менять его в будущем",
+          "correct": false,
+          "feedback": "OCP не запрещает изменять код. Стабильная точка расширения нужна, когда её оправдывает реальный сценарий."
+        }
+      ],
+      "explanation": "Применяй принцип к наблюдаемому изменению или проблеме тестирования. Начни с одной границы, которая снижает coupling, и сохрани изменение небольшим и проверяемым."
+    },
+    {
+      "id": "arch-solid-practice",
+      "type": "codingExercise",
+      "title": "Отрефактори одну границу feature по принципу SOLID",
+      "language": "typescript",
+      "context": "Компонент заказа одновременно отображает форму, разбирает HTTP JSON, выбирает текст ошибки, отправляет email и пишет analytics. Добавляется новый payment adapter, а тестам для проверки workflow нужен живой API.",
+      "instructions": [
+        "Нарисуй текущие зависимости/причины изменений и выдели конкретное поведение, которого касается новая payment adapter.",
+        "Выбери один или два принципа (SRP, OCP, LSP, ISP, DIP) и объясни, почему они подходят наблюдаемой проблеме, вместо механического применения всех пяти.",
+        "Выдели один небольшой контракт или функцию, чтобы UI отображал состояние и выдавал actions, feature координировала workflow, а service отвечал за transport parsing.",
+        "Определи успех и ожидаемые ошибки; реализации разных adapters должны соответствовать одному описанному контракту.",
+        "Напиши минимальные полезные тесты с контролируемыми реализациями, сохраняя текущее видимое поведение."
+      ],
+      "requirements": [
+        "Выбранный принцип связан с конкретной причиной изменения или проблемой тестируемости.",
+        "Направление зависимостей явно и не содержит обратного импорта/цикла.",
+        "Компонент не владеет несвязанными деталями HTTP, email и analytics.",
+        "Контракт явно описывает успех и ожидаемые ошибки.",
+        "Решение не вводит generic layers/extension points без потребности потребителя.",
+        "План проверяет успех и хотя бы одну ожидаемую ошибку, сохраняя поведение."
+      ],
+      "starterCode": "type SaveResult =\n  | { ok: true; orderId: string }\n  | { ok: false; reason: 'validation' | 'network'; message: string };\n\n// TODO: определи минимальные capabilities сервиса.\n// TODO: оставь request/response parsing за пределами presentational component.\n// TODO: тестируй workflow с контролируемыми реализациями, не живой сетью.",
+      "hints": [
+        "Спроси, какое требование или участник вызывает изменение; это полезнее, чем считать строки компонента.",
+        "Узкого function type может быть достаточно для dependency inversion в небольшой React feature; class/interface/factory нужны не всегда.",
+        "Сохраняй один контракт успеха/ошибки для настоящей реализации, mock и теста; проверяй наблюдаемый результат на границе feature."
+      ],
+      "successCriteria": [
+        "Рефакторинг описывает конкретную причину изменения и принцип, которому он отвечает.",
+        "У UI и orchestration побочных эффектов есть чёткая граница.",
+        "Зависимости заменяемы в тестах без живого network/email service.",
+        "Контракт согласованно описывает успех и ожидаемую ошибку.",
+        "Решение избегает спекулятивных слоёв и сохраняет поведение тестами."
+      ]
+    },
+    {
       "id": "arch-ecosystem-heading",
       "type": "heading",
       "level": 2,
@@ -498,6 +615,8 @@
     "modules",
     "state-ownership",
     "refactoring",
-    "frontend"
+    "frontend",
+    "solid-principles",
+    "dependency-inversion"
   ]
 }

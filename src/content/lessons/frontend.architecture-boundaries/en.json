@@ -1,7 +1,7 @@
 {
   "id": "frontend.architecture-boundaries",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,14 +10,15 @@
   "order": 1,
   "title": "Frontend Architecture: Module Boundaries and Refactoring",
   "description": "Design dependency direction, assign state ownership, refactor duplicated behavior and make errors recoverable.",
-  "estimatedMinutes": 105,
+  "estimatedMinutes": 120,
   "difficulty": "intermediate",
   "learningOutcomes": [
     "Define module boundaries around responsibilities and reasons to change.",
     "Explain import direction and recognize circular dependencies.",
     "Assign URL, server, shared and local UI state to suitable owners.",
     "Refactor duplication behind a stable contract without building unnecessary abstractions.",
-    "Design consistent error states and repeatable verification."
+    "Design consistent error states and repeatable verification.",
+    "Apply SOLID principles when they reduce a concrete coupling or change-cost problem without overengineering."
   ],
   "blocks": [
     {
@@ -434,6 +435,122 @@
       ]
     },
     {
+      "id": "arch-solid-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Apply SOLID as design questions, not a mandatory checklist"
+    },
+    {
+      "id": "arch-solid-model",
+      "type": "paragraph",
+      "text": "SOLID names five principles that can help when responsibilities or dependencies make change expensive. They are prompts for examining a design—not a requirement to create an interface, factory, repository, service and Hook for every component. Start from a concrete change, testability problem or dependency that is hard to replace; introduce only the boundary that addresses it."
+    },
+    {
+      "id": "arch-solid-principles",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Single Responsibility (SRP): group behavior around one coherent reason to change. A component may render a form, while a feature function coordinates submission and a service owns HTTP details; “one responsibility” does not mean one line or one method.",
+        "Open/Closed (OCP): let stable behavior be extended through an intentional variant, mapping or strategy when new cases repeatedly force edits in many branches. It does not mean existing code must never change or every possible future variant needs an extension point.",
+        "Liskov Substitution (LSP): an implementation that satisfies a contract should preserve its documented behavior and result/error expectations. A mock, cache adapter and HTTP implementation should not silently promise different semantics for the same operation.",
+        "Interface Segregation (ISP): give a consumer the small capability it needs instead of a broad object containing unrelated actions. Separate narrow contracts when they have different consumers/reasons to change, not merely to maximise the number of types.",
+        "Dependency Inversion (DIP): high-level feature logic should depend on a stable contract rather than embedding a particular transport or concrete service. Pass a function or service contract when that seam enables replacement or testing; dependency injection is a technique, not an end in itself."
+      ]
+    },
+    {
+      "id": "arch-solid-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type Order = { id: string; totalCents: number };\ntype SaveResult =\n  | { ok: true; orderId: string }\n  | { ok: false; reason: 'validation' | 'network'; message: string };\ntype SaveOrder = (order: Order) => Promise<SaveResult>;\ntype SendReceipt = (order: Order) => Promise<void>;\n\nasync function submitOrder(\n  order: Order,\n  saveOrder: SaveOrder,\n  sendReceipt: SendReceipt,\n) {\n  const saved = await saveOrder(order);\n  if (!saved.ok) return saved;\n  await sendReceipt(order);\n  return saved;\n}\n\nexport function OrderSummary({\n  order, onSubmit,\n}: { order: Order; onSubmit: (order: Order) => void }) {\n  return (\n    <section aria-labelledby=\"order-summary-title\">\n      <h2 id=\"order-summary-title\">Order {order.id}</h2>\n      <p>Total: {order.totalCents}</p>\n      <button type=\"button\" onClick={() => onSubmit(order)}>Confirm order</button>\n    </section>\n  );\n}",
+      "steps": [
+        {
+          "title": "Make operation contracts explicit",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "The result union makes success and expected validation/network failure explicit. SaveOrder and SendReceipt are narrow capabilities rather than one broad service object."
+        },
+        {
+          "title": "Keep orchestration separate from transport",
+          "lineStart": 8,
+          "lineEnd": 17,
+          "explanation": "submitOrder coordinates the workflow through injected operations. It can be tested with controlled implementations without knowing whether saving uses fetch, Axios or a local test adapter."
+        },
+        {
+          "title": "Keep the UI focused on presentation",
+          "lineStart": 19,
+          "lineEnd": 29,
+          "explanation": "OrderSummary renders an order and emits an action. It does not parse HTTP, send email or own analytics; the feature can coordinate those side effects and report status."
+        }
+      ]
+    },
+    {
+      "id": "arch-solid-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "options": [
+        {
+          "id": "a",
+          "text": "Identify the reasons to change, move transport/orchestration to focused contracts, and keep the component responsible for its UI",
+          "correct": true,
+          "feedback": "A small refactor separates responsibilities and allows the workflow to be tested without the browser or live HTTP/email dependencies."
+        },
+        {
+          "id": "b",
+          "text": "Create a separate package, interface and factory for every function before writing tests",
+          "correct": false,
+          "feedback": "SOLID does not prescribe a fixed number of layers; speculative abstractions can increase the cost of every change."
+        },
+        {
+          "id": "c",
+          "text": "Keep every side effect in the component because one file is easier to find",
+          "correct": false,
+          "feedback": "Colocation can help navigation, but it does not separate transport failures, workflow rules and visual presentation."
+        },
+        {
+          "id": "d",
+          "text": "Replace the component with a generic base class and prohibit future edits to it",
+          "correct": false,
+          "feedback": "OCP is not a ban on changing code. Choose a stable extension point only when a concrete variation justifies it."
+        }
+      ],
+      "explanation": "Apply a principle to an observed change or testing problem. Start with one boundary that lowers coupling, and keep the change small enough to verify."
+    },
+    {
+      "id": "arch-solid-practice",
+      "type": "codingExercise",
+      "title": "Refactor one feature seam using a SOLID principle",
+      "language": "typescript",
+      "context": "An order component currently renders a form, parses HTTP JSON, selects a validation message, sends a receipt email and tracks analytics. A new payment adapter is being added, and tests require a live API to cover the flow.",
+      "instructions": [
+        "Draw the current dependency/reason-to-change map and identify the specific behavior that changes for the payment-adapter requirement.",
+        "Choose one or two relevant principles (SRP, OCP, LSP, ISP, DIP) and explain why they fit the observed problem rather than applying all five mechanically.",
+        "Extract one small contract or function so the UI renders and emits actions while feature orchestration owns the workflow and the service owns transport parsing.",
+        "Define success and expected failure results; keep adapter implementations consistent with the documented contract.",
+        "Write the smallest useful tests that exercise the workflow with controlled implementations and preserve existing user-visible behavior."
+      ],
+      "requirements": [
+        "The selected principle is tied to a concrete reason to change or a testability problem.",
+        "The new dependency direction is explicit and has no reverse import/cycle.",
+        "The component does not own unrelated HTTP, email and analytics implementation details.",
+        "Success and expected error outcomes are documented in a small contract.",
+        "The design does not add a generic layer or extension point without a stated consumer need.",
+        "The plan includes tests for success and at least one expected failure while preserving behavior."
+      ],
+      "starterCode": "type SaveResult =\n  | { ok: true; orderId: string }\n  | { ok: false; reason: 'validation' | 'network'; message: string };\n\n// TODO: define the smallest service capabilities the feature needs.\n// TODO: keep request/response parsing outside the presentational component.\n// TODO: test the workflow with controlled implementations, not live services.",
+      "hints": [
+        "Ask which requirement or actor causes this code to change; that is more useful than counting lines in a component.",
+        "A narrow function type can be enough for dependency inversion in a small React feature; a class/interface/factory is not always required.",
+        "Keep the success/error contract consistent for real, mock and test implementations, and test observable outcomes at the feature boundary."
+      ],
+      "successCriteria": [
+        "The refactor explains one concrete reason to change and names the principle it addresses.",
+        "UI rendering and side-effect orchestration have a clear boundary.",
+        "Dependencies can be replaced in tests without using a live network/email service.",
+        "The contract describes success and expected failure consistently.",
+        "The solution avoids speculative layers and preserves existing behavior with tests."
+      ]
+    },
+    {
       "id": "arch-ecosystem-heading",
       "type": "heading",
       "level": 2,
@@ -498,6 +615,8 @@
     "modules",
     "state-ownership",
     "refactoring",
-    "frontend"
+    "frontend",
+    "solid-principles",
+    "dependency-inversion"
   ]
 }

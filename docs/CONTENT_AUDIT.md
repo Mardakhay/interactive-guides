@@ -349,3 +349,10 @@ All fetched Notion pages are marked `verification.state=unverified` by source me
 Part 5 (`5.1`–`5.9`, last edited 2026-08-29, 27,478 returned text characters) is now mapped subsection by subsection to design system, performance/a11y, testing, Git workflow/CI, deployment, architecture and capstone-review lessons. The map records concrete evidence IDs and partial UI parity instead of claiming that its legacy tabs, token playgrounds or integrated workflow UI has been recreated.
 
 The source metadata remains `verification.state=unverified`; topic mapping does not constitute formal Notion verification. Source's Jest examples are adapted to the repository's Vitest setup, and exact-commit CI and deployment verification are kept distinct.
+
+
+## Part 6 architecture content update — 2026-10-27
+
+A source review found a substantive gap in the canonical architecture supplement: it had boundary/colocation/state-owner examples but no explicit walkthrough of the five SOLID principles that appear in Notion Part 6. `frontend.architecture-boundaries` v4 now adds SRP/OCP/LSP/ISP/DIP with React/TypeScript examples, assessment and a coding exercise. The material cautions that SOLID principles are design prompts, not a requirement for a fixed layer/factory/repository for every component.
+
+Part 6 is now mapped subsection-by-subsection (6.1–6.18) to the architecture and four capstone destinations. Notion still reports `verification.state=unverified`; a full factual and example/UI parity audit remains open.

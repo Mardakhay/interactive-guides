@@ -646,3 +646,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Expanded `FULL_SOURCE_CONTENT_AUDIT.md` with the 5.1–5.9 subsection map for Notion Part 5. Design system, performance, accessibility, testing, PR/review, CI/CD, conflict strategy, common quality errors and professional workflow are now individually mapped to canonical lessons and evidence IDs.
 - Critical distinctions are explicit: the Notion page uses Jest examples while the repo uses Vitest; CI must apply to the exact commit; continuous delivery differs from deployment; accessible semantics require behavior/focus testing. Legacy tabs/playgrounds are still not one-to-one.
 - Source metadata remains `verification.state=unverified`; this mapping is not formal Notion verification.
+
+
+## Part 6 SOLID gap closed — 2026-10-27
+
+- Source inspection found that `frontend.architecture-boundaries` covered dependency direction, boundaries, colocation and state ownership, but did not explicitly teach the five SOLID principles covered in Notion Part 6 sections 6.11–6.15.
+- Expanded `frontend.architecture-boundaries` to v4 / 34 aligned EN/RU blocks: all five principles with frontend-specific trade-offs, a typed order-flow walkthrough using narrow contracts, a knowledge check and applied refactoring exercise. The content explicitly cautions against mandatory layer stacks and speculative abstractions.
+- `FULL_SOURCE_CONTENT_AUDIT.md` now maps Part 6 sections 6.1–6.18 to architecture and capstone destinations, with SOLID marked as newly covered and Notion status kept `unverified`.

@@ -536,3 +536,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Added a 5.1–5.9 mapping of the Notion course section to canonical design-system, performance/accessibility, test, Git/CI, deployment, architecture and capstone-review lessons, with source evidence IDs and explicit partial UI-parity gaps.
 - Notion metadata still says `verification.state=unverified`. Concept mapping is not formal verification; exact example parity and a claim-by-claim fact audit remain open.
+
+
+## Part 6 content update — 2026-10-27
+
+- Added explicit SOLID coverage to `frontend.architecture-boundaries` v4: 34 aligned EN/RU blocks, five-principle list, typed walkthrough, knowledge check and refactoring exercise. This closes a confirmed content gap against Notion Part 6 sections 6.11–6.15; exact source UI/example parity remains partial.
+- Added source map for Part 6 sections 6.1–6.18 to architecture/capstone/Git/deployment lesson IDs. Notion source metadata remains `unverified`; do not describe it as formally verified.

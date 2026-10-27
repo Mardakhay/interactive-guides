@@ -249,11 +249,11 @@ describe('hosting capacity and model trade-offs', () => {
 });
 
 describe('architecture colocation and public APIs', () => {
-  it('teaches colocated files, an intentional public API, and context-aware tool choices', () => {
+  it('teaches architecture boundaries, SOLID trade-offs, and context-aware tool choices', () => {
     for (const lesson of [englishArchitecture, russianArchitecture]) {
       expect(lessonTranslationSchema.safeParse(lesson).success, lesson.locale).toBe(true);
-      expect(lesson.version).toBe(3);
-      expect(lesson.blocks).toHaveLength(28);
+      expect(lesson.version).toBe(4);
+      expect(lesson.blocks).toHaveLength(34);
       expect(lesson.blocks.map(({ id, type }) => [id, type])).toEqual(
         englishArchitecture.blocks.map(({ id, type }) => [id, type]),
       );
@@ -284,6 +284,30 @@ describe('architecture colocation and public APIs', () => {
       if (references?.type === 'references') {
         expect(references.items.some((item) => item.url === 'https://feature-sliced.design/docs/concepts/low-coupling')).toBe(true);
       }
+      const solidPrinciples = lesson.blocks.find((block) => block.id === 'arch-solid-principles');
+            expect(solidPrinciples?.type).toBe('list');
+            if (solidPrinciples?.type !== 'list') return;
+            expect(solidPrinciples.items).toHaveLength(5);
+            expect(solidPrinciples.items.join(' ')).toContain('Single Responsibility');
+            expect(solidPrinciples.items.join(' ')).toContain('Dependency Inversion');
+            const solidWalk = lesson.blocks.find((block) => block.id === 'arch-solid-walkthrough');
+            expect(solidWalk?.type).toBe('codeWalkthrough');
+            if (solidWalk?.type !== 'codeWalkthrough') return;
+            const solidLineCount = solidWalk.code.split('\n').length;
+            expect(solidWalk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= solidLineCount)).toBe(true);
+            expect(solidWalk.code).toContain('SaveOrder');
+            expect(solidWalk.code).toContain('onSubmit');
+            const solidCheck = lesson.blocks.find((block) => block.id === 'arch-solid-check');
+            expect(solidCheck?.type).toBe('knowledgeCheck');
+            if (solidCheck?.type !== 'knowledgeCheck') return;
+            expect(solidCheck.options.filter((option) => option.correct)).toHaveLength(1);
+            expect(solidCheck.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+            const solidPractice = lesson.blocks.find((block) => block.id === 'arch-solid-practice');
+            expect(solidPractice?.type).toBe('codingExercise');
+            if (solidPractice?.type !== 'codingExercise') return;
+            expect(solidPractice.requirements.length).toBeGreaterThanOrEqual(6);
+            expect(solidPractice.hints.length).toBeGreaterThanOrEqual(3);
+            expect(solidPractice.successCriteria.length).toBeGreaterThanOrEqual(5);
     }
   });
 });
