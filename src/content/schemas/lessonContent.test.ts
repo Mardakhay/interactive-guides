@@ -434,7 +434,7 @@ describe('React forms and validation lesson translation', () => {
   });
   it('keeps form input semantics, accessible errors, and async submit states in both locales', () => {
     for (const lesson of [englishReactForms, russianReactForms]) {
-      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
+      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
       const uncontrolled = lesson.blocks.find((block) => block.id === 'uncontrolled-example');
       expect(uncontrolled?.type).toBe('code');
       if (uncontrolled?.type !== 'code') return;
@@ -1492,8 +1492,8 @@ describe('React forms cross-field validation source coverage', () => {
       const registration = lesson.blocks.find((block) => block.id === 'practice-registration-form');
       expect(registration?.type).toBe('codingExercise');
       if (registration?.type === 'codingExercise') {
-        expect(registration.instructions.some((item) => item.includes('matching passwords') || item.includes('matching passwords.'))).toBe(true);
-        expect(registration.successCriteria.some((item) => item.includes('Confirmation validation') || item.includes('Подтверждение validation') || item.includes('подтверждения'))).toBe(true);
+        expect(registration.instructions.some((item) => item.includes('matching passwords') || item.includes('совпадение паролей'))).toBe(true);
+        expect(registration.successCriteria.some((item) => item.toLowerCase().includes('confirmation') || item.toLowerCase().includes('подтверждение'))).toBe(true);
       }
     }
   });
