@@ -10,7 +10,7 @@
 - Dependency versions were refreshed on the feature branch: `react-router-dom@7.18.0`, `vite@8.3.5`, `@vitejs/plugin-react@6.1.2`, `vitest@4.1.12`; `zod@4.6.7` remains. CI uses Node 22 and npm `11.21.1` for lockfile consistency.
 - Controlled CI [run #40536336285](https://github.com/Mardakhay/interactive-guides/actions/runs/40536336285) passed `npm ci`, lint, typecheck, 182 tests/30 files, production build and bundle budgets after generating the same lockfile now committed as `59432ad63d24d2ab0e37267091ce4de2f59a0d69`. `npm audit` reported 0 findings on that graph.
 - Vite 8 build output: entry `211.08 kB raw / 68.05 kB gzip`; lesson repository `61.22 kB raw / 16.81 kB gzip`; all 125 JavaScript chunks pass the configured budgets. A config edit to `import.meta.dirname` removes Vite's `__dirname` native-loader warning.
-- Temporary lockfile-regeneration/write automation is being removed from CI. The final workflow should be ordinary read-only PR CI; verify its exact run after this cleanup.
+- The temporary lockfile-regeneration/write automation has been removed from CI. Ordinary read-only exact-head CI [run #40537074543](https://github.com/Mardakhay/interactive-guides/actions/runs/40537074543) passed on cleanup SHA `56f5786cb68395936c6ac0b29b5703b85f708b73`.
 - PR #1 remains a Draft against `main`; `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`. No browser/device acceptance is claimed.
 - Release gates remain: legacy learner routes have not been cut over to JSON-only routes, Notion pages fetched to date still report `verification.state=unverified`, and real-browser/device persistence/PWA checks remain manual. Supabase stays gated on content parity and the learner-route cutover.
 
@@ -941,3 +941,10 @@ The lockfile-writing migration run was successful, but workflow changes and the 
 - Fully reviewed `react-forms-tutorial.html`: controlled/uncontrolled approaches, native/custom validation, timing, RHF, server errors, ten quiz questions and five practice tasks.
 - `react.forms-validation` v3 adds cross-field password confirmation with field-keyed validation errors, `aria-invalid`/`aria-describedby`, and a knowledge check for stale dependent-field errors. Tests protect EN/RU parity and walkthrough line ranges.
 - The source's malformed password-length comparison is not copied. Controlled vs uncontrolled and RHF guidance remain contextual, not universal rules. HTML quiz/accordion interaction parity remains partial.
+
+## Legacy route/crosswalk safety checkpoint — 2026-10-27
+
+- The classic catalog contains 25 legacy IDs. A quick regex inventory initially missed `sec-001` because that prefix has three letters; direct source inspection confirmed the `frontend-auth.html` fallback is already registered. No speculative loader change was made.
+- Added a regression test iterating the entire catalog: each entry must resolve to a non-empty in-app body or a `/lessons/*.html` source that exists under `public/`. This guards new catalog entries against silently producing an empty lesson.
+- The 44 structured IDs do not reuse the legacy catalog IDs. Progress, bookmarks and notes are keyed by lesson ID, so route cutover without an explicit crosswalk and tested state-retention policy could orphan learner data. Before cutover, specify one-to-many destinations or keep-legacy dispositions for every legacy ID.
+- The new regression/test-doc commit requires exact-head CI; keep the legacy routes and source files until the content-parity and learner-state migration gates have evidence.

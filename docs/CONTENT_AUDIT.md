@@ -424,3 +424,11 @@ The repository's dependency graph was refreshed after reviewing the audit output
 
 The Vite 8 output is entry `211.08 kB raw / 68.05 kB gzip` and lesson repository `61.22 kB raw / 16.81 kB gzip`; all 125 JavaScript chunks pass budget checks. The follow-up standardizes CI to use read-only permissions and no one-off lockfile regeneration, and changes the config alias to `import.meta.dirname` to avoid Vite's ESM `__dirname` warning. Normal CI is re-run for that final cleanup.
 
+
+## Legacy catalog / structured-ID crosswalk gate — 2026-10-27
+
+The classic learner catalog contains 25 entries keyed by IDs such as `wb-002` and `re-005`. The structured curriculum has 44 separately named IDs such as `html.document-structure` and `react.router-spa`. These namespaces are not treated as interchangeable. The old route still resolves an embedded legacy body first and falls back to its HTML source only when its body is blank.
+
+Added a regression test to `lessonLoader.test.ts` that iterates every catalog entry and fails if it resolves neither a non-empty embedded body nor an existing `public/lessons/*.html` file. The check is about route/renderability only; it does not certify that a target JSON lesson reproduces the source's examples, solutions, quiz feedback or interactive UI.
+
+Before replacing legacy routes, create a reviewed crosswalk from every old ID to one or more structured IDs or an explicit keep-legacy/defer disposition. Learner progress, bookmarks and notes are keyed by lesson ID, so any transition must define and test how those records remain reachable without incorrectly assigning one legacy result to unrelated lessons. Do not redirect routes or delete HTML merely because content counts/IDs are present.

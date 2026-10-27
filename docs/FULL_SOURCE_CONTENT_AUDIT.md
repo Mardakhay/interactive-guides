@@ -921,3 +921,11 @@ Expanded `react.forms-validation` from v2 / 48 blocks to v3 / 52 aligned EN/RU b
 Source caveats were preserved and qualified: controlled inputs are not universally best for every form; RHF reduces wiring but does not replace accessible markup or server validation; `type=email` checks a format, not whether an address exists; native browser constraints and custom validation are separate layers; `preventDefault()` alone does not bypass constraint validation. The source's custom password example has a malformed length comparison; the canonical walkthrough uses valid TypeScript instead of copying the broken snippet.
 
 Legacy accordion, answer-reveal, quiz-score and sidebar-progress UI remains a parity gap. The HTML source-content review count remains 25/25, but full Notion claim/example parity and learner-route cutover are still open.
+
+## Legacy catalog / structured-ID crosswalk gate — 2026-10-27
+
+The classic learner catalog contains 25 entries keyed by IDs such as `wb-002` and `re-005`. The structured curriculum has 44 separately named IDs such as `html.document-structure` and `react.router-spa`. These namespaces are not treated as interchangeable. The old route still resolves an embedded legacy body first and falls back to its HTML source only when its body is blank.
+
+Added a regression test to `lessonLoader.test.ts` that iterates every catalog entry and fails if it resolves neither a non-empty embedded body nor an existing `public/lessons/*.html` file. The check is about route/renderability only; it does not certify that a target JSON lesson reproduces the source's examples, solutions, quiz feedback or interactive UI.
+
+Before replacing legacy routes, create a reviewed crosswalk from every old ID to one or more structured IDs or an explicit keep-legacy/defer disposition. Learner progress, bookmarks and notes are keyed by lesson ID, so any transition must define and test how those records remain reachable without incorrectly assigning one legacy result to unrelated lessons. Do not redirect routes or delete HTML merely because content counts/IDs are present.

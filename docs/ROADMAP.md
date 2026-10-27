@@ -520,3 +520,10 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - Controlled migration CI [run #40536336285](https://github.com/Mardakhay/interactive-guides/actions/runs/40536336285) passed install, lint, typecheck, 182 tests/30 files, production build and the bundle-budget script; `npm audit` reports 0 findings for the tested graph. The generated lockfile is committed as `59432ad63d24d2ab0e37267091ce4de2f59a0d69`.
 - Entry bundle is 211.08 kB raw / 68.05 kB gzip and lesson repository is 61.22 kB raw / 16.81 kB gzip; all 125 JS chunks pass their limits. CI uses Node 22 and pinned npm 11.21.1.
 - The one-time lockfile-writing helper is removed in the cleanup commit and normal PR CI will verify the final workflow. Native browser/device acceptance, Notion formal verification and JSON-only learner-route cutover remain open.
+
+## Legacy route and learner-state cutover gate — 2026-10-27
+
+- The classic catalog has 25 IDs; the structured curriculum/manifest has 44 different IDs. They are distinct namespaces, not direct aliases.
+- Progress, bookmarks and notes are maps keyed by `lessonId`. A one-to-many topic mapping is insufficient by itself: decide whether to migrate status/bookmarks/notes to one target, split notes, retain legacy IDs or keep the old route. Do not silently clone or discard learner state.
+- A new loader regression test requires every catalog entry to resolve either non-empty embedded content or an existing local HTML fallback. It protects route renderability but is not content-equivalence certification.
+- Before cutover, produce a reviewed crosswalk for all legacy IDs, test preservation/migration for learner-data stores, and explicitly retain the source route for items whose coverage remains partial. Supabase stays behind this gate.
