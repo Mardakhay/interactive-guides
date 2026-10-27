@@ -653,3 +653,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Source inspection found that `frontend.architecture-boundaries` covered dependency direction, boundaries, colocation and state ownership, but did not explicitly teach the five SOLID principles covered in Notion Part 6 sections 6.11–6.15.
 - Expanded `frontend.architecture-boundaries` to v4 / 34 aligned EN/RU blocks: all five principles with frontend-specific trade-offs, a typed order-flow walkthrough using narrow contracts, a knowledge check and applied refactoring exercise. The content explicitly cautions against mandatory layer stacks and speculative abstractions.
 - `FULL_SOURCE_CONTENT_AUDIT.md` now maps Part 6 sections 6.1–6.18 to architecture and capstone destinations, with SOLID marked as newly covered and Notion status kept `unverified`.
+
+
+## Notion fetch ledger reconciled to 21 pages — 2026-10-27
+
+- The detailed ledger now covers all 21 fetched Notion pages: 20 course-related pages plus one separate English assessment. Added Parts 4–6 and nine supplementary/reference pages (Advanced JS, the full JavaScript guide, How JavaScript Works, Master Prompt, English Assessment, Internet Fundamentals, Sass/SCSS, Bootstrap and SQL), with last-edited dates, returned text sizes, mappings and open parity work.
+- Every fetched page reports `verification.state=unverified`. Master Prompt is tracked as teaching/process guidance, English Assessment is outside the technical frontend curriculum, and the Bootstrap reference explicitly targets v4. Source reads do not constitute formal Notion verification.
+- SOLID content commit `e4b2de1d9bd71bb5547d070f5d007503ab0db5c3` exposed a Zod failure because `arch-solid-check.prompt` was missing; follow-up `4473d094a60c0b85c569390778605b58769eb6d2` fills both locale prompts. CI for the follow-up must be checked on its exact head.

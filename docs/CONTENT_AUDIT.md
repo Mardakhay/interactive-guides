@@ -356,3 +356,10 @@ The source metadata remains `verification.state=unverified`; topic mapping does 
 A source review found a substantive gap in the canonical architecture supplement: it had boundary/colocation/state-owner examples but no explicit walkthrough of the five SOLID principles that appear in Notion Part 6. `frontend.architecture-boundaries` v4 now adds SRP/OCP/LSP/ISP/DIP with React/TypeScript examples, assessment and a coding exercise. The material cautions that SOLID principles are design prompts, not a requirement for a fixed layer/factory/repository for every component.
 
 Part 6 is now mapped subsection-by-subsection (6.1–6.18) to the architecture and four capstone destinations. Notion still reports `verification.state=unverified`; a full factual and example/UI parity audit remains open.
+
+
+## Notion fetch inventory reconciled to 21 pages — 2026-10-27
+
+The detailed ledger now covers 21 fetched pages: 20 frontend course-related pages and one separate English speaking/writing assessment. It includes the six course parts, major HTML/DOM/CSS/Git/JavaScript references, advanced JS, the JavaScript book notes, How JavaScript Works, Master Prompt, Internet Fundamentals, Sass/SCSS, Bootstrap and SQL.
+
+All 21 pages return `verification.state=unverified`. The ledger distinguishes instructional requirements from technical references and from the unrelated English assessment; factual checks and full example/UI parity remain open.

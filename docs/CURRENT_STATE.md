@@ -542,3 +542,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Added explicit SOLID coverage to `frontend.architecture-boundaries` v4: 34 aligned EN/RU blocks, five-principle list, typed walkthrough, knowledge check and refactoring exercise. This closes a confirmed content gap against Notion Part 6 sections 6.11–6.15; exact source UI/example parity remains partial.
 - Added source map for Part 6 sections 6.1–6.18 to architecture/capstone/Git/deployment lesson IDs. Notion source metadata remains `unverified`; do not describe it as formally verified.
+
+
+## Notion inventory reconciled — 2026-10-27
+
+- Detailed source-fetch ledger now includes 21 Notion pages: 20 course-related sources plus one separate English interview assessment. Last-edited dates, returned text sizes, target lessons and open parity work are included.
+- All fetched pages remain `verification.state=unverified`; no Notion pages or verification flags were changed. Read/mapped is not formally verified.
+- CI on `e4b2de1d9bd71bb5547d070f5d007503ab0db5c3` failed because `arch-solid-check.prompt` was missing in both locales; commit `4473d094a60c0b85c569390778605b58769eb6d2` fixes the prompt in EN/RU. Check CI against that exact SHA.
