@@ -158,3 +158,10 @@ Automated component tests cover an error before mount, a new event while mounted
 The global storage-error alert and EN/RU content have passed exact-head CI. It surfaces errors that occur before mount and subsequent read/write/remove failures; dismissal clears the active notice and future errors remain observable. Automated coverage passes for pre-mount event state, live event updates, dismissal, and Russian copy.
 
 This is visibility/recovery guidance, not transactional persistence. Browser-specific permission/quota modes still need device-level smoke testing.
+
+
+## Storage notice shell integration acceptance — 2026-10-27
+
+The global storage-error notice is now tested both independently and through `AppLayout`. The integration test verifies that an error recorded before layout mount is visible after the real shell is rendered. Exact-head CI succeeded in run [40495501752](https://github.com/Mardakhay/interactive-guides/actions/runs/40495501752).
+
+Real browser/device permission, privacy-mode and quota validation remain required to close the remaining local-first acceptance gate.

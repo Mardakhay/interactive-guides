@@ -843,3 +843,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Added `src/components/layout/AppLayout.test.tsx` to verify a storage write error reported before mount is surfaced by the actual application shell. This protects the wiring between `AppLayout` and `StorageErrorNotice` in addition to the notice's own interaction tests.
 - The preceding exact-head component test suite passed run [40495155044](https://github.com/Mardakhay/interactive-guides/actions/runs/40495155044); verify CI on the new integration test before calling it validated. Browser/device localStorage quota/privacy and `/backup` file picker/download checks remain open.
+
+
+## Storage-error application-shell acceptance — 2026-10-27
+
+- Added `src/components/layout/AppLayout.test.tsx` so the global warning is verified through the actual layout, not only in isolation: a write failure reported before mounting becomes a visible `role=alert` in the app shell.
+- Exact-head CI passed on `d2e9fc961b01a28353d72772b8d4d95b5cd1b13b` in run [40495501752](https://github.com/Mardakhay/interactive-guides/actions/runs/40495501752) (npm ci, lint, typecheck, tests, production build).
+- Remaining Phase 5 user-environment checks are localStorage privacy/quota behavior and `/backup` file picker/download/recovery in real browsers/devices.

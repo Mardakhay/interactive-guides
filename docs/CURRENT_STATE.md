@@ -726,3 +726,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Added an `AppLayout` integration test to assert that a storage write error reported before the layout mounts becomes a visible alert in the running shell, not merely when `StorageErrorNotice` is tested in isolation.
 - Previous component implementation/test suite passed exact-head CI on `e509bf66cd3d50d3a40629520f07a2f07f6873fd` in run [40495155044](https://github.com/Mardakhay/interactive-guides/actions/runs/40495155044); this shell integration test needs its own exact-head run.
+
+
+## Storage-error app-shell integration accepted — 2026-10-27
+
+- `AppLayout.test.tsx` now exercises the actual shell and proves that a write failure reported before mounting the layout appears in its accessible alert. The component suite also covers read/write/remove copy, event updates, dismissal/reopening and Russian localization.
+- Exact-head CI passed on `d2e9fc961b01a28353d72772b8d4d95b5cd1b13b` in run [40495501752](https://github.com/Mardakhay/interactive-guides/actions/runs/40495501752) (npm ci, lint, typecheck, tests, production build).
+- Browser/device storage privacy/quota validation and `/backup` native file-picker/download smoke checks remain open acceptance gates.
