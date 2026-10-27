@@ -752,3 +752,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - `readStructuredLearningState` has test coverage for the case where writing the current v2 envelope succeeds but deletion of the legacy key fails: current state is recoverable, legacy raw data is retained, and a removal-error snapshot is reported.
 - Exact-head CI passed on `9fb38aa1252e6a8f9191b777889b3c8cbe1229dc`: [40498451420](https://github.com/Mardakhay/interactive-guides/actions/runs/40498451420).
 - Outstanding Phase 5 acceptance remains manual: native browser/device storage privacy/quota and actual download/import/file-picker behavior.
+
+## Backup snapshot-read safety test — 2026-10-27
+
+- Added pre-write restore protection coverage: if any original value cannot be read while collecting the rollback snapshot, restore aborts before the first write/removal. The test confirms all prior raw keys remain intact.
+- Exact-head CI passed on `b9f500ee8509a986c12b0babd25a2c9947183a90`: [40498940471](https://github.com/Mardakhay/interactive-guides/actions/runs/40498940471).
+- Real-browser/device storage privacy/quota, file picker and download remain explicit manual acceptance gates.

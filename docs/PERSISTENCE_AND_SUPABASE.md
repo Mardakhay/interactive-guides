@@ -189,3 +189,9 @@ Still required: real-browser/device validation of storage privacy/quota, the act
 `src/features/structured-lesson/persistence.test.ts` now simulates a browser refusing removal of the legacy structured-learning key after the current v2 envelope was successfully saved. The test verifies the new envelope contains the recovered state, the legacy source remains available, and the UI-wide storage error snapshot identifies the failed `remove` operation.
 
 Exact-head CI passed on `9fb38aa1252e6a8f9191b777889b3c8cbe1229dc`: [run 40498451420](https://github.com/Mardakhay/interactive-guides/actions/runs/40498451420). This was a deterministic Storage API failure test, not real-browser quota/privacy validation.
+
+## Backup restore snapshot-read failure coverage — 2026-10-27
+
+`backup.test.ts` now forces a read failure while `restoreLocalBackup` is collecting the original six-key snapshot. The test verifies the operation returns `storage-read-failed`, performs zero `setItem`/`removeItem` mutations, and leaves all six original raw values unchanged. This protects the rule that rollback state must be readable before replacement starts.
+
+Exact-head CI passed on `b9f500ee8509a986c12b0babd25a2c9947183a90`: [run 40498940471](https://github.com/Mardakhay/interactive-guides/actions/runs/40498940471). These remain deterministic Storage test doubles; actual browser/device acceptance is separate.

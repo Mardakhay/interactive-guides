@@ -869,3 +869,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Added a migration test where the v2 envelope write succeeds but removal of the v1 legacy key throws. The current record remains usable, the legacy raw record is preserved, and the central storage alert records the `remove` failure.
 - Exact-head CI passed on `9fb38aa1252e6a8f9191b777889b3c8cbe1229dc`: [40498451420](https://github.com/Mardakhay/interactive-guides/actions/runs/40498451420).
 - `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 is open Draft. Real-browser/device localStorage quota/privacy and `/backup` file-picker/download acceptance remain open.
+
+## Backup snapshot-read safety test — 2026-10-27
+
+- `backup.test.ts` simulates a SecurityError while collecting the pre-restore snapshot and verifies that no `setItem` or `removeItem` calls occur and every prior raw value remains unchanged.
+- Exact-head CI passed on `b9f500ee8509a986c12b0babd25a2c9947183a90`: [40498940471](https://github.com/Mardakhay/interactive-guides/actions/runs/40498940471).
+- Backup/restore failure paths now cover snapshot-read failure, write failure with successful rollback, legacy-key removal failure and rollback failure. Actual browser/device acceptance remains open.

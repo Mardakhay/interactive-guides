@@ -479,3 +479,9 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Verify if writing succeeds but removing the legacy key fails, the new envelope remains valid, the legacy source is preserved and a storage-removal error is reported.
 - Exact-head CI passed on `9fb38aa1252e6a8f9191b777889b3c8cbe1229dc` (run [40498451420](https://github.com/Mardakhay/interactive-guides/actions/runs/40498451420)).
 - [ ] Run native browser/device checks for privacy/quota restrictions, file picker/download and recovery. Automated Storage mocks do not close these acceptance items.
+
+## Restore snapshot-read guard — 2026-10-27
+
+- [x] Verify that a read failure while snapshotting pre-restore storage aborts before any writes/removals and preserves every raw key.
+- Exact-head CI passed on `b9f500ee8509a986c12b0babd25a2c9947183a90` (run [40498940471](https://github.com/Mardakhay/interactive-guides/actions/runs/40498940471)).
+- [ ] Actual desktop/mobile browser tests for storage privacy/quota and native file picker/download remain open. Storage API mocks do not close these acceptance items.
