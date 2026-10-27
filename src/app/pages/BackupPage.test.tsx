@@ -156,7 +156,11 @@ describe('data backup page', () => {
     const user = userEvent.setup();
     const createDescriptor = Object.getOwnPropertyDescriptor(URL, 'createObjectURL');
     const revokeDescriptor = Object.getOwnPropertyDescriptor(URL, 'revokeObjectURL');
-    const createObjectURL = vi.fn((blob: Blob) => blob.type === 'application/json' ? 'blob:backup-test' : 'blob:unexpected');
+    let downloadedBlob: Blob | null = null;
+    const createObjectURL = vi.fn((blob: Blob) => {
+      downloadedBlob = blob;
+      return blob.type === 'application/json' ? 'blob:backup-test' : 'blob:unexpected';
+    });
     const revokeObjectURL = vi.fn((url: string) => { expect(url).toBe('blob:backup-test'); });
     let downloadedName = '';
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, writable: true, value: createObjectURL });
@@ -165,10 +169,23 @@ describe('data backup page', () => {
       downloadedName = this.download;
     });
     try {
+      useNoteStore.getState().setNote('exported-note', 'This note must be present in the downloaded backup.');
       renderBackupPage();
       await user.click(screen.getByRole('button', { name: 'Download backup file' }));
       expect(createObjectURL).toHaveBeenCalledOnce();
       expect(createObjectURL.mock.calls[0]?.[0]).toBeInstanceOf(Blob);
+      const exportedBlob = downloadedBlob;
+      if (!exportedBlob) throw new Error('The export did not create a Blob.');
+      const exported = JSON.parse(await exportedBlob.text()) as {
+        format: string;
+        schemaVersion: number;
+        data: { notes: { lessons: Record<string, { content: string }> }; [key: string]: unknown };
+      };
+      expect(exported.format).toBe('interactive-guides-backup');
+      expect(exported.schemaVersion).toBe(1);
+      expect(exported.data.notes.lessons['exported-note']?.content).toBe('This note must be present in the downloaded backup.');
+      expect(Object.keys(exported.data).sort()).toEqual(['bookmarks', 'notes', 'progress', 'quizResults', 'structuredLearning'].sort());
+      expect(exported.data).not.toHaveProperty('locale');
       expect(click).toHaveBeenCalledOnce();
       expect(downloadedName).toMatch(/^interactive-guides-backup-\d{4}-\d{2}-\d{2}\.json$/);
       expect(await screen.findByRole('status')).toHaveTextContent('Backup file prepared for download.');
@@ -240,6 +257,23 @@ describe('data backup page', () => {
     expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.PROGRESS) ?? '{}').data.lessons['backup-target'].status).toBe('completed');
     expect(useProgressStore.getState().lessons['current-only']?.status).toBe('in-progress');
     expect(useProgressStore.getState().lessons['backup-target']).toBeUndefined();
+  });
+  it('refuses to export a partial backup when stored learner data is malformed', async () => {
+    const user = userEvent.setup();
+    const createDescriptor = Object.getOwnPropertyDescriptor(URL, 'createObjectURL');
+    const createObjectURL = vi.fn(() => 'blob:must-not-be-created');
+    Object.defineProperty(URL, 'createObjectURL', { configurable: true, writable: true, value: createObjectURL });
+    try {
+      localStorage.setItem(STORAGE_KEYS.NOTES, '{not valid json');
+      renderBackupPage();
+      await user.click(screen.getByRole('button', { name: 'Download backup file' }));
+      expect(await screen.findByRole('alert')).toHaveTextContent('Some current local data is invalid, so a complete backup cannot be created safely.');
+      expect(createObjectURL).not.toHaveBeenCalled();
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    } finally {
+      if (createDescriptor) Object.defineProperty(URL, 'createObjectURL', createDescriptor);
+      else Reflect.deleteProperty(URL, 'createObjectURL');
+    }
   });
   it('ignores a slower file read after a newer file has been selected', async () => {
     const user = userEvent.setup();
