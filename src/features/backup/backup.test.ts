@@ -108,4 +108,39 @@ describe('local learning data backups', () => {
     const summary = getBackupSummary(createLocalBackup(createPopulatedStorage()));
     expect(summary).toEqual({ progressRecords: 2, completedLessons: 1, bookmarks: 1, notes: 1, quizResults: 1, structuredQuizAttempts: 1, codeDrafts: 1, practiceChecklists: 1, sectionProgress: 1 });
   });
+  it('surfaces storage read errors instead of treating an unavailable store as empty', () => {
+    class ReadFailStorage extends MemoryStorage {
+      override getItem(_key: string): string | null {
+        throw new DOMException('Storage denied', 'SecurityError');
+      }
+    }
+    let caught: unknown;
+    try { createLocalBackup(new ReadFailStorage()); } catch (error) { caught = error; }
+    expect(caught).toBeInstanceOf(BackupError);
+    expect((caught as BackupError).code).toBe('storage-read-failed');
+  });
+
+  it('reports when restoring the old snapshot also fails', () => {
+    class FailCountStorage extends MemoryStorage {
+      private failures = new Map<string, number>();
+      failWrites(key: string, count: number): void { this.failures.set(key, count); }
+      override setItem(key: string, value: string): void {
+        const remaining = this.failures.get(key) ?? 0;
+        if (remaining > 0) {
+          this.failures.set(key, remaining - 1);
+          throw new DOMException('Quota exceeded', 'QuotaExceededError');
+        }
+        super.setItem(key, value);
+      }
+    }
+    const target = new FailCountStorage();
+    const keys = [STORAGE_KEYS.PROGRESS, STORAGE_KEYS.BOOKMARKS, STORAGE_KEYS.NOTES, STORAGE_KEYS.QUIZ_RESULTS, STRUCTURED_LEARNING_STORAGE_KEY, LEGACY_STRUCTURED_LEARNING_STORAGE_KEY];
+    for (const key of keys) target.setItem(key, `before:${key}`);
+    target.failWrites(STORAGE_KEYS.NOTES, 2);
+    const rawBackup = serializeBackup(createLocalBackup(createPopulatedStorage()));
+    let caught: unknown;
+    try { restoreLocalBackup(rawBackup, target); } catch (error) { caught = error; }
+    expect(caught).toBeInstanceOf(BackupError);
+    expect((caught as BackupError).code).toBe('rollback-failed');
+  });
 });
