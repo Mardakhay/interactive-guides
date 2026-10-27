@@ -523,3 +523,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Source-fetch ledger added for nine Notion pages, with last-edited metadata, returned-text sizes, mappings and open parity work.
 - All nine Notion pages remain `verification.state=unverified` in connector metadata; read/mapped is not the same as formally verified. Claim-level audit remains open.
 - Exact-head CI passed for `e1b26f6beed58ce444258e0c215f83e873991ed7` (run [40466672880](https://github.com/Mardakhay/interactive-guides/actions/runs/40466672880)). `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`.
+
+
+## Notion coverage update — 2026-10-27
+
+- Ledger extended to 12 fetched Notion pages, adding Parts 4–6 of the course with date, returned text length, destination lessons, and open topic/example parity work.
+- Source metadata for all fetched pages remains `verification.state=unverified`; the docs intentionally distinguish read/mapped status from formal verification. Factual checks and exact source parity remain open.
+- Keep changes on `feat/learning-platform-foundation`; `main` remains unchanged.

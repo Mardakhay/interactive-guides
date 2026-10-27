@@ -335,3 +335,10 @@ Fetched the parent handbook, its first three course parts, and the HTML, DOM, CS
 ## Notion source inventory — 2026-10-27
 
 A structured fetch ledger now records nine Notion pages (course handbook, Parts 1–3, HTML, DOM, CSS, Git and JavaScript), last-edited dates, returned-text sizes and their canonical lesson mappings. This improves source traceability but is not formal verification: every fetched page's Notion metadata still reports `verification.state=unverified`. Claim-level technical audit and exact example/UI parity remain distinct follow-ups.
+
+
+## Notion source coverage update — 2026-10-27
+
+The source-fetch ledger now contains twelve Notion pages, including Parts 4–6 for React ecosystem, UI/performance/testing/workflow, and architecture/professional practice. It records connector last-edited metadata, returned text sizes, canonical lesson destinations and outstanding parity/fact-review work.
+
+All fetched Notion pages are marked `verification.state=unverified` by source metadata. Do not describe them as verified merely because they were readable; technical claims, version drift and exercise/UI parity need separate review.
