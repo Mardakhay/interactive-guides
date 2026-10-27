@@ -1,7 +1,7 @@
 {
   "id": "browser.realtime-workers",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Browser Messaging and Workers",
   "description": "XHR, WebSocket, Web Worker, and Service Worker communication models and lifecycles.",
-  "estimatedMinutes": 85,
+  "estimatedMinutes": 110,
   "difficulty": "intermediate",
   "prerequisites": [
     "js.async-fetch",
@@ -22,7 +22,10 @@
     "Handle XHR HTTP status separately from transport errors.",
     "Manage WebSocket open/message/close, validation, cleanup, and reconnect policy.",
     "Move computation to a Web Worker and assess structured-clone cost.",
-    "Explain Service Worker scope/lifecycle and limit caching safely."
+    "Explain Service Worker scope/lifecycle and limit caching safely.",
+    "Explain XHR progress and readyState without assuming a percentage is always computable.",
+    "Design bounded WebSocket reconnection with backoff, send guards, and disposal.",
+    "Manage versioned Service Worker caches without deleting unrelated origin caches."
   ],
   "tags": [
     "browser APIs",
@@ -30,7 +33,10 @@
     "Web Workers",
     "Service Workers",
     "XHR",
-    "concurrency"
+    "concurrency",
+    "xhr-progress",
+    "websocket-lifecycle",
+    "service-worker-updates"
   ],
   "blocks": [
     {
@@ -326,6 +332,270 @@
       ]
     },
     {
+      "id": "xhr-progress-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Track XHR progress and request states"
+    },
+    {
+      "id": "xhr-progress-model",
+      "type": "paragraph",
+      "text": "XHR exposes upload progress on `xhr.upload` and download progress on the `XMLHttpRequest` object. A `ProgressEvent` only supports a useful percentage when `lengthComputable` is true; never divide by an unknown or zero total. Inspect HTTP status separately from `error`/`timeout`/`abort`. Upload listeners can trigger CORS preflight on cross-origin requests."
+    },
+    {
+      "id": "xhr-progress-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const xhr = new XMLHttpRequest();\nconst file = fileInput.files?.[0];\nif (!file) throw new Error('Choose a file first');\n\nxhr.upload.addEventListener('progress', (event) => {\n  const fraction = event.lengthComputable ? event.loaded / event.total : null;\n  onUploadProgress(fraction);\n});\nxhr.addEventListener('progress', (event) => {\n  onDownloadProgress(event.lengthComputable ? event.loaded / event.total : null);\n});\n\nxhr.addEventListener('readystatechange', () => {\n  const states = ['UNSENT', 'OPENED', 'HEADERS_RECEIVED', 'LOADING', 'DONE'];\n  onRequestState(states[xhr.readyState] ?? 'UNKNOWN', xhr.status);\n});\nxhr.addEventListener('load', () => {\n  if (xhr.status >= 200 && xhr.status < 300) onSuccess(xhr.responseText);\n  else onFailure(new Error(`HTTP ${xhr.status}`));\n});\nxhr.addEventListener('error', () => onFailure(new Error('Network error')));\nxhr.addEventListener('timeout', () => onFailure(new Error('Timed out')));\nxhr.addEventListener('abort', () => onFailure(new DOMException('Aborted', 'AbortError')));\n\nxhr.open('POST', '/api/uploads');\nxhr.timeout = 30_000;\nconst body = new FormData();\nbody.append('file', file);\nxhr.send(body);",
+      "steps": [
+        {
+          "title": "Track upload progress safely",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "Upload events come from `xhr.upload`. The total may be unknown, so use a nullable fraction instead of inventing a percentage."
+        },
+        {
+          "title": "Track download and request state",
+          "lineStart": 9,
+          "lineEnd": 16,
+          "explanation": "Download progress comes from XHR itself. `readyState` describes request progress, not whether the final HTTP status is successful."
+        },
+        {
+          "title": "Separate status from transport failure",
+          "lineStart": 17,
+          "lineEnd": 23,
+          "explanation": "`load` can fire for HTTP errors such as 404. Inspect status; `error`, `timeout`, and `abort` are different outcomes."
+        },
+        {
+          "title": "Configure and send last",
+          "lineStart": 25,
+          "lineEnd": 29,
+          "explanation": "Attach listeners before `send()`, set the timeout and send FormData. An upload event does not prove that the server accepted the file."
+        }
+      ]
+    },
+    {
+      "id": "xhr-progress-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "An XHR upload progress event fires with `lengthComputable === false`. What should the UI do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Show 100% because an event fired",
+          "correct": false,
+          "feedback": "A progress event means an update occurred; it does not indicate completion."
+        },
+        {
+          "id": "b",
+          "text": "Show indeterminate progress instead of a percentage",
+          "correct": true,
+          "feedback": "When total length cannot be computed, it cannot support a reliable percentage; do not display a fabricated number."
+        },
+        {
+          "id": "c",
+          "text": "Divide loaded by zero and clamp the result",
+          "correct": false,
+          "feedback": "An unknown or zero total cannot produce a meaningful fraction."
+        },
+        {
+          "id": "d",
+          "text": "Treat it as a network error",
+          "correct": false,
+          "feedback": "Unknown total length is not a network failure; `error`, `timeout`, and `abort` are different outcomes."
+        }
+      ],
+      "explanation": "Use indeterminate progress when total length cannot be computed. Upload events come from `xhr.upload`; download progress comes from XHR. Check HTTP status separately from transport errors."
+    },
+    {
+      "id": "ws-reconnect-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Reconnect a WebSocket without leaking timers"
+    },
+    {
+      "id": "ws-reconnect-model",
+      "type": "paragraph",
+      "text": "A WebSocket does not reconnect automatically and has no built-in message backpressure. Use bounded backoff with jitter, stop at a limit, send only in `OPEN`, and clear timers/close the socket when its owner is disposed. This example treats close code `1000` as intentional; production code should classify retryable close codes explicitly."
+    },
+    {
+      "id": "ws-reconnect-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const MAX_RETRIES = 5;\nlet attempts = 0;\nlet retryTimer;\nlet stableTimer;\nlet socket;\nlet disposed = false;\n\nfunction connect(url) {\n  if (disposed) return;\n  socket = new WebSocket(url);\n  socket.addEventListener('open', () => {\n    setStatus('online');\n    stableTimer = window.setTimeout(() => { attempts = 0; }, 30_000);\n  });\n  socket.addEventListener('error', () => setStatus('error'));\n  socket.addEventListener('close', (event) => {\n    setStatus('offline');\n    clearTimeout(stableTimer);\n    if (disposed || event.code === 1000 || attempts >= MAX_RETRIES) return;\n    const delay = Math.min(500 * 2 ** attempts, 15_000);\n    attempts += 1;\n    retryTimer = window.setTimeout(() => connect(url), delay + Math.random() * 250);\n  });\n}\n\nfunction send(message) {\n  if (socket?.readyState !== WebSocket.OPEN) return false;\n  socket.send(JSON.stringify(message));\n  return true;\n}\n\nfunction dispose() {\n  disposed = true;\n  clearTimeout(retryTimer);\n  clearTimeout(stableTimer);\n  socket?.close(1000, 'client disposed');\n}\n\nconnect('wss://example.test/events');",
+      "steps": [
+        {
+          "title": "Set a retry budget",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "A retry limit and capped delay prevent an unbounded rapid reconnect loop."
+        },
+        {
+          "title": "Reset only after a stable session",
+          "lineStart": 8,
+          "lineEnd": 14,
+          "explanation": "A brief open connection should not erase prior failures. Here the counter resets only after 30 seconds connected."
+        },
+        {
+          "title": "Schedule retry in one handler",
+          "lineStart": 15,
+          "lineEnd": 24,
+          "explanation": "Use `close` as the single retry path so `error` and `close` do not schedule duplicate timers. Do not retry after intentional close or when the budget is exhausted."
+        },
+        {
+          "title": "Guard sends and dispose",
+          "lineStart": 26,
+          "lineEnd": 37,
+          "explanation": "Only send in `WebSocket.OPEN`. Disposal sets a flag, clears timers and closes the socket, preventing a late `close` from reconnecting."
+        }
+      ]
+    },
+    {
+      "id": "ws-reconnect-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A WebSocket emits `error`, then `close`. Your code schedules retries from both handlers. What is the main problem?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The browser cannot close a socket after an error",
+          "correct": false,
+          "feedback": "A failing WebSocket can emit both error and close; the application must handle that lifecycle."
+        },
+        {
+          "id": "b",
+          "text": "Two timers may start duplicate connections",
+          "correct": true,
+          "feedback": "Use one retry-scheduling path and clear its timer during disposal."
+        },
+        {
+          "id": "c",
+          "text": "Backoff is incompatible with WebSockets",
+          "correct": false,
+          "feedback": "Backoff is application policy that helps avoid rapid retry loops."
+        },
+        {
+          "id": "d",
+          "text": "The browser automatically replays all old messages",
+          "correct": false,
+          "feedback": "The WebSocket API does not automatically replay application messages or define their idempotency."
+        }
+      ],
+      "explanation": "Use one retry path, bound attempts and clear timers at dispose. Policy must consider close codes, authentication, idempotency, resubscription and offline UX."
+    },
+    {
+      "id": "ws-reconnect-practice",
+      "type": "codingExercise",
+      "title": "Design a resilient WebSocket client lifecycle",
+      "language": "javascript",
+      "context": "A chat panel reconnects every three seconds after every close, sends while the socket is connecting, and leaves a retry timer after unmount. Incoming messages are parsed as JSON without validation.",
+      "instructions": [
+        "Keep one current socket and send only when `readyState === WebSocket.OPEN`.",
+        "Implement capped exponential backoff with jitter and explicit policy for intentional close codes.",
+        "Ensure `error` does not schedule a second retry if `close` owns retry scheduling.",
+        "Parse JSON in `try/catch`, then validate message shape before passing it to the UI.",
+        "Return `dispose()` to clear timers, mark the client disposed, and close the socket without reconnecting."
+      ],
+      "requirements": [
+        "Messages are sent only while the current socket is OPEN.",
+        "Retries use a bounded delay and finite retry budget.",
+        "Only one handler schedules retries; intentional close and disposed clients do not reconnect.",
+        "Malformed JSON or invalid protocol messages do not crash UI code.",
+        "dispose clears timers and closes the connection; a late close cannot schedule another retry."
+      ],
+      "starterCode": "const MAX_RETRIES = 5;\nlet socket;\nlet retries = 0;\nlet retryTimer;\nlet disposed = false;\n\nfunction connect(url, onMessage, onStatus) {\n  // TODO: create socket and register open/message/error/close handlers.\n  // TODO: schedule one bounded retry path for retryable close codes.\n  // TODO: validate parsed messages before calling onMessage.\n  return {\n    send(message) {\n      // TODO: send only when the socket is OPEN.\n    },\n    dispose() {\n      // TODO: prevent retries, clear timers and close the socket.\n    },\n  };\n}",
+      "hints": [
+        "Treat error and close as related events; use one retry path instead of both.",
+        "Cap exponential delay and total attempts; jitter helps avoid synchronized reconnect bursts.",
+        "Set `disposed = true` before closing the socket, then clear timers so close knows not to reconnect."
+      ],
+      "successCriteria": [
+        "The client does not send before OPEN.",
+        "Retry delay and budget are bounded, with explicit retryable close codes.",
+        "Message JSON and shape are validated before the UI receives data.",
+        "dispose is idempotent and leaves no retry timer behind.",
+        "The design discusses intentional close, resubscription and message idempotency."
+      ]
+    },
+    {
+      "id": "service-worker-lifecycle-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Version Service Worker caches and clean up safely"
+    },
+    {
+      "id": "service-worker-lifecycle-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const CACHE_PREFIX = 'study-shell-';\nconst CURRENT_CACHE = `${CACHE_PREFIX}v2`;\n\nself.addEventListener('install', (event) => {\n  event.waitUntil(\n    caches.open(CURRENT_CACHE).then((cache) =>\n      cache.addAll(['/', '/index.html', '/assets/app.css']),\n    ),\n  );\n});\n\nself.addEventListener('activate', (event) => {\n  event.waitUntil((async () => {\n    const names = await caches.keys();\n    const outdated = names.filter(\n      (name) => name.startsWith(CACHE_PREFIX) && name !== CURRENT_CACHE,\n    );\n    await Promise.all(outdated.map((name) => caches.delete(name)));\n  })());\n});\n\n// Keep fetch handling scoped to eligible requests.\nself.addEventListener('fetch', (event) => {\n  const url = new URL(event.request.url);\n  if (event.request.method !== 'GET' || url.origin !== self.location.origin) return;\n  event.respondWith(caches.match(event.request).then((cached) => cached ?? fetch(event.request)));\n});",
+      "steps": [
+        {
+          "title": "Version the app-owned cache",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "A prefix and version distinguish this app's caches from other features sharing the origin."
+        },
+        {
+          "title": "Pre-cache at installation",
+          "lineStart": 4,
+          "lineEnd": 10,
+          "explanation": "`waitUntil` keeps the install event alive until selected assets are cached. A failed `addAll` rejects installation rather than silently installing a partial shell."
+        },
+        {
+          "title": "Delete only outdated app caches",
+          "lineStart": 12,
+          "lineEnd": 20,
+          "explanation": "Filter by the application's prefix before deleting. Cache names owned by other features are preserved."
+        },
+        {
+          "title": "Keep takeover deliberate",
+          "lineStart": 22,
+          "lineEnd": 27,
+          "explanation": "This snippet does not force `skipWaiting()` or call `clients.claim()`. Coordinate takeover timing with already-open clients."
+        }
+      ]
+    },
+    {
+      "id": "service-worker-update-caveat",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Do not force activation without checking client compatibility",
+      "text": "A new Service Worker can install while an older worker still controls open pages. Use `install`/`activate` with `event.waitUntil()`, version cache names, and delete only outdated caches under your application's prefix. Do not delete every Cache Storage entry for the origin. `skipWaiting()` and `clients.claim()` change control timing, so coordinate them with asset/version compatibility."
+    },
+    {
+      "id": "service-worker-lifecycle-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "During Service Worker activation, which cache-cleanup rule is safest on a multi-feature site?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Delete every cache from `caches.keys()`",
+          "correct": false,
+          "feedback": "The origin can contain caches owned by unrelated features; deleting all can break those features."
+        },
+        {
+          "id": "b",
+          "text": "Delete only old cache names under this app's prefix",
+          "correct": true,
+          "feedback": "Scoped, versioned cleanup removes this feature's old assets without crossing ownership boundaries."
+        },
+        {
+          "id": "c",
+          "text": "Never delete any cache version",
+          "correct": false,
+          "feedback": "Old versions can accumulate; clean only caches the app owns and no longer needs."
+        },
+        {
+          "id": "d",
+          "text": "Call `skipWaiting()` before checking caches",
+          "correct": false,
+          "feedback": "Activation policy and cache cleanup are separate; skipWaiting does not determine which caches are safe to delete."
+        }
+      ],
+      "explanation": "Use `event.waitUntil` and versioned cache names; delete only caches owned by this app. Forcing activation/takeover requires a compatibility decision."
+    },
+    {
       "id": "messaging-summary",
       "type": "list",
       "ordered": false,
@@ -354,6 +624,26 @@
         {
           "title": "MDN: Using Web Workers",
           "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using Service Workers",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: XMLHttpRequest upload progress",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/upload",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: XMLHttpRequest progress events",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequestEventTarget/progress_event",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Service Worker API lifecycle",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API",
           "kind": "official-docs"
         },
         {
