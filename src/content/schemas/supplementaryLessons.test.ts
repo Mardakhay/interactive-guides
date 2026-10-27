@@ -260,7 +260,7 @@ describe('architecture colocation and public APIs', () => {
       const walk = lesson.blocks.find((block) => block.id === 'arch-colocation-public-api-walkthrough');
       expect(walk?.type).toBe('codeWalkthrough');
       if (walk?.type !== 'codeWalkthrough') return;
-      const lineCount = walk.code.split('\\n').length;
+      const lineCount = walk.code.split('\n').length;
       expect(walk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
       expect(walk.code).toContain('index.ts');
       expect(walk.code).toContain('export { ProductCard }');
