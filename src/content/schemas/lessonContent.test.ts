@@ -654,7 +654,7 @@ describe('DOM and events lesson translation', () => {
         expect(exercise.instructions.some((instruction) => /throttled scroll handler/.test(instruction))).toBe(true);
         expect(exercise.requirements.some((requirement) => /callback reference/.test(requirement))).toBe(true);
       }
-      const refs = lesson.blocks.find((block) => block.id === 'references');
+      const refs = lesson.blocks.find((block) => block.id === 'dom-references');
       expect(refs?.type).toBe('references');
       if (refs?.type === 'references') expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener')).toBe(true);
     }
@@ -668,7 +668,7 @@ describe('DOM and events lesson translation', () => {
   it('teaches traversal, content properties and state-driven rendering in both locales', () => {
     for (const lesson of [englishDom, russianDom]) {
       expect(lessonTranslationSchema.safeParse(lesson).success).toBe(true);
-      expect(lesson.version).toBe(4);
+      expect(lesson.version).toBe(5);
       for (const id of ['dom-traversal-walkthrough', 'dom-content-walkthrough', 'dom-state-render-walkthrough']) {
         const walkthrough = lesson.blocks.find((block) => block.id === id);
         expect(walkthrough?.type).toBe('codeWalkthrough');
