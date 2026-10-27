@@ -39,7 +39,7 @@ function createPopulatedStorage(): MemoryStorage {
     quizAttempts: { 'html-basics::check-1': [{ selectedOptionIds: ['b'], isCorrect: true, submittedAt: '2026-10-01T10:15:00.000Z' }] },
     codeDrafts: { 'html-basics::exercise-1': { code: 'const total = 3;', updatedAt: '2026-10-01T10:15:00.000Z' } },
     practiceChecklists: { 'html-basics::exercise-1': { checkedCriteria: [0], updatedAt: '2026-10-01T10:15:00.000Z' } },
-    sectionProgress: { 'html-basics': { completedBlockIds: ['intro'], updatedAt: '2026-10-01T10:15:00.000Z' } },
+    sectionProgress: { 'html-basics': { completedBlockIds: ['intro', 'practice-1'], updatedAt: '2026-10-01T10:15:00.000Z' } },
   } }));
   return storage;
 }
@@ -108,7 +108,7 @@ describe('local learning data backups', () => {
 
   it('summarizes records for a confirmation preview', () => {
     const summary = getBackupSummary(createLocalBackup(createPopulatedStorage()));
-    expect(summary).toEqual({ progressRecords: 2, completedLessons: 1, bookmarks: 1, notes: 1, quizResults: 1, structuredQuizAttempts: 1, codeDrafts: 1, practiceChecklists: 1, sectionProgress: 1 });
+    expect(summary).toEqual({ progressRecords: 2, completedLessons: 1, bookmarks: 1, notes: 1, quizResults: 1, structuredQuizAttempts: 1, codeDrafts: 1, practiceChecklists: 1, sectionProgress: 2 });
   });
   it('surfaces storage read errors instead of treating an unavailable store as empty', () => {
     class ReadFailStorage extends MemoryStorage {
@@ -161,5 +161,10 @@ describe('local learning data backups', () => {
       expect(record.schemaVersion).toBe(1);
       expect(record.data).toBeDefined();
     }
+  });
+  it('rejects a backup with an invalid creation timestamp', () => {
+    const valid = createLocalBackup(createPopulatedStorage());
+    const invalid = { ...valid, createdAt: 'not-a-timestamp' };
+    expect(() => parseBackup(JSON.stringify(invalid))).toThrowError(BackupError);
   });
 });
