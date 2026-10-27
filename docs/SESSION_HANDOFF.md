@@ -693,3 +693,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - `js.collections-weakmaps` v2 adds a Map methods/iteration walkthrough, Set union/intersection/difference examples, and a Symbols walkthrough with `Symbol.for`, symbol-key inspection and `Symbol.iterator`. New assessment clarifies that `Object.keys` omits symbol keys and symbols are not private storage.
 - Regression tests now protect v2's 23 aligned blocks, six walkthroughs, three checks, valid line ranges, required Map/Set/Symbol APIs, warning text and official MDN links. WeakMap/WeakSet lifetime guidance remains intact.
+
+
+## Memoization source checkpoint — 2026-10-27
+
+- `js.runtime-memory` v3 has 30 aligned EN/RU blocks. It adds explicit cache-key selection, safe `Map.has` handling, invalidation/lifetime caveats, a feedback-rich check and a coding task that varies currency as a cache dimension.
+- Tests assert valid walkthrough ranges, key selector use, JSON stringify caveat, check feedback, practice rubric and official Map references. TTL/async cache implementation remains partial; Notion's recursive Fibonacci example and universal JSON.stringify advice were explicitly qualified.

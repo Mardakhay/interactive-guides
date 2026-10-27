@@ -582,3 +582,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - `js.collections-weakmaps` v2 now covers Map methods/iteration, Set operations and Symbols, in addition to object-key identity and weak-collection lifetime. EN/RU structure, walkthrough line references, check feedback and documentation links have regression coverage.
 - Broader Advanced JS source parity remains partial and Notion metadata remains `verification.state=unverified`; this change is a focused subsection update, not a full page verification.
+
+
+## Memoization source review — 2026-10-27
+
+- Added source-derived memoization coverage in `js.runtime-memory` v3, with a key selector, explicit cache-hit semantics, retention/invalidation warning, assessment and currency-key practice. CI for the content change passed run [40472468871](https://github.com/Mardakhay/interactive-guides/actions/runs/40472468871).
+- The Advanced JS Notion page remains `verification.state=unverified`; this focused source mapping is not formal Notion verification. Full TTL implementation and adjacent throttle code mapping remain open.

@@ -330,3 +330,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## Map/Set/Symbol supplement deepening — 2026-10-27
 
 `js.collections-weakmaps` v2 adds the Notion subsection's Map method/iteration patterns, Set union/intersection/difference, and Symbol uniqueness/global registry/property visibility plus `Symbol.iterator`. The applied check rejects treating Symbol keys as private. The complete Advanced JS reference page still has unrelated source-mapping gaps.
+
+
+## Memoization and cache lifetime — 2026-10-27
+
+`js.runtime-memory` v3 maps the Advanced JS Notion memoization subsection with an explicit cache-key selector, a deterministic numeric example, and an applied task that tests whether all output-affecting inputs participate in the key. It corrects the source's naive recursive Fibonacci wrapper and unqualified JSON.stringify key strategy. TTL and asynchronous cache behavior are covered as risks, but not yet as a complete implementation.
