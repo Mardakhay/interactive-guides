@@ -8,8 +8,18 @@ import {
   type StorageErrorDetail,
 } from './storage';
 
+const storageErrorListeners: EventListener[] = [];
+
+function listenForStorageErrors(listener: (event: Event) => void): void {
+  window.addEventListener(STORAGE_ERROR_EVENT, listener);
+  storageErrorListeners.push(listener);
+}
+
 afterEach(() => {
-  window.removeEventListener(STORAGE_ERROR_EVENT, () => undefined);
+  for (const listener of storageErrorListeners) {
+    window.removeEventListener(STORAGE_ERROR_EVENT, listener);
+  }
+  storageErrorListeners.length = 0;
   vi.restoreAllMocks();
   localStorage.clear();
   clearLastStorageError();
@@ -28,7 +38,7 @@ describe('local storage helper', () => {
     const listener = (event: Event) => {
       if (event instanceof CustomEvent) events.push(event.detail as StorageErrorDetail);
     };
-    window.addEventListener(STORAGE_ERROR_EVENT, listener);
+    listenForStorageErrors(listener);
     vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
       throw new DOMException('Quota exceeded', 'QuotaExceededError');
     });
@@ -44,7 +54,7 @@ describe('local storage helper', () => {
     const listener = (event: Event) => {
       if (event instanceof CustomEvent) events.push(event.detail as StorageErrorDetail);
     };
-    window.addEventListener(STORAGE_ERROR_EVENT, listener);
+    listenForStorageErrors(listener);
     vi.spyOn(localStorage, 'removeItem').mockImplementation(() => {
       throw new DOMException('Storage unavailable', 'SecurityError');
     });
