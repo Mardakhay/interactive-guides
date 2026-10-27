@@ -513,7 +513,8 @@
           "feedback": "OCP is not a ban on changing code. Choose a stable extension point only when a concrete variation justifies it."
         }
       ],
-      "explanation": "Apply a principle to an observed change or testing problem. Start with one boundary that lowers coupling, and keep the change small enough to verify."
+      "explanation": "Apply a principle to an observed change or testing problem. Start with one boundary that lowers coupling, and keep the change small enough to verify.",
+      "prompt": "The source component renders an order, parses an HTTP response, sends a receipt email, and records analytics. Which first move best applies SOLID without overengineering?"
     },
     {
       "id": "arch-solid-practice",
