@@ -151,3 +151,10 @@ This proposal is not approved as product behavior and does not enable cloud sync
 The application shell now mounts a bilingual storage-error alert. It reads the most recent reported failure (including failures raised while learner stores initialize), subscribes to subsequent read/write/remove events, explains the likely impact and next step, and allows dismissal. Dismissal clears the stored notice snapshot; subsequent errors can re-open the alert.
 
 Automated component tests cover an error before mount, a new event while mounted, dismiss/clear behavior and Russian copy. This improves failure visibility but does not prove localStorage behavior on actual browser/device privacy modes or quota exhaustion. Those real-browser acceptance items remain open.
+
+
+## Storage failure notice validation — 2026-10-27
+
+The global storage-error alert and EN/RU content have passed exact-head CI. It surfaces errors that occur before mount and subsequent read/write/remove failures; dismissal clears the active notice and future errors remain observable. Automated coverage passes for pre-mount event state, live event updates, dismissal, and Russian copy.
+
+This is visibility/recovery guidance, not transactional persistence. Browser-specific permission/quota modes still need device-level smoke testing.

@@ -713,3 +713,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - Added `StorageErrorNotice` to the application shell. It uses the last reported error to catch failures that happen before mount, subscribes to read/write/remove storage failures, displays EN/RU recovery guidance, and can be dismissed without suppressing later failures.
 - `StorageErrorNotice.test.tsx` covers pre-mount error, live error, dismissal/cleared state and Russian copy. Exact-head CI for code commit `011379483d21de82387c07f9de8248e7efedf200` is run [40494213854](https://github.com/Mardakhay/interactive-guides/actions/runs/40494213854); check its final conclusion before marking the change validated.
+
+
+## Storage-error notice CI resolution — 2026-10-27
+
+- Final implementation adds `StorageErrorNotice` to `AppLayout`, localized read/write/remove failure explanations, and a dismiss-state notification from the storage helper. The component reads pre-existing storage errors and reacts to new events.
+- Exact-head CI passed on `56197eb6a903d6f808ea5944d01627f7dfc00381`: run [40494779602](https://github.com/Mardakhay/interactive-guides/actions/runs/40494779602). The intermediate test failures were test harness issues and have been corrected.
+- Real-browser localStorage privacy/quota validation and `/backup` file-picker/download smoke checks remain open; this notice improves error visibility but does not itself guarantee persistence.

@@ -830,3 +830,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - The application shell now mounts `StorageErrorNotice`, which surfaces existing and future `STORAGE_ERROR_EVENT` failures for read/write/remove operations. It uses `useSyncExternalStore` and a separate clear notification so dismissing updates the external snapshot while future errors remain visible.
 - EN/RU copy explains that a failed write may remain only in memory; it does not claim the data has been saved. Component tests cover pre-mount failure, live update, dismissal, and Russian copy.
 - Code commit `011379483d21de82387c07f9de8248e7efedf200` is under exact-head CI run [40494213854](https://github.com/Mardakhay/interactive-guides/actions/runs/40494213854). Browser/device localStorage privacy/quota checks and `/backup` native file-picker/download smoke testing remain open.
+
+
+## Storage-error notice final CI checkpoint — 2026-10-27
+
+- `StorageErrorNotice` is mounted in `AppLayout`, uses the versioned storage-error snapshot/events, supports dismiss and later re-announcement, and has EN/RU copy. Component tests cover pre-mount failure, live event, dismissal and locale.
+- Final exact-head CI passed for code commit `56197eb6a903d6f808ea5944d01627f7dfc00381` in run [40494779602](https://github.com/Mardakhay/interactive-guides/actions/runs/40494779602). A missing `MemoryRouter` and an unwrapped event update were corrected in the test harness.
+- Remaining user-facing acceptance gates are actual browser/device checks for localStorage privacy/quota failures and the `/backup` file picker/download/recovery flow.
