@@ -863,3 +863,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Added a storage-unit regression test for failure removing the legacy structured-learning key after replacement writes; all prior raw values must be restored. Existing UI tests cover rollback success/failure and active-store behavior.
 - Exact-head CI passed on `814c4d6f51deefb8f8904a4a3a15321aa537d233`: [run 40497807964](https://github.com/Mardakhay/interactive-guides/actions/runs/40497807964). An intermediate test-only failure on `35a79df` was due to jsdom Blob missing `.text()` and was corrected by using `FileReader`.
 - Next: continue reviewing Phase 5 acceptance and current source-audit gaps. Manual real-browser/device tests for storage privacy/quota and native file picker/download remain open.
+
+## Structured-learning migration cleanup test — 2026-10-27
+
+- Added a migration test where the v2 envelope write succeeds but removal of the v1 legacy key throws. The current record remains usable, the legacy raw record is preserved, and the central storage alert records the `remove` failure.
+- Exact-head CI passed on `9fb38aa1252e6a8f9191b777889b3c8cbe1229dc`: [40498451420](https://github.com/Mardakhay/interactive-guides/actions/runs/40498451420).
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 is open Draft. Real-browser/device localStorage quota/privacy and `/backup` file-picker/download acceptance remain open.

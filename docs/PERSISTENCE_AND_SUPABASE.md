@@ -183,3 +183,9 @@ Remaining Phase 5 acceptance: record a real-browser/device smoke pass for localS
 Exact-head CI passed on `814c4d6f51deefb8f8904a4a3a15321aa537d233` in [run 40497807964](https://github.com/Mardakhay/interactive-guides/actions/runs/40497807964). The earlier export-content test run failed because jsdom's Blob implementation did not provide `.text()`; the test now uses `FileReader` without weakening payload assertions.
 
 Still required: real-browser/device validation of storage privacy/quota, the actual download/file picker, and restore behavior under native browser restrictions. Vitest/jsdom coverage does not close those manual acceptance items.
+
+## Structured-learning legacy cleanup failure test — 2026-10-27
+
+`src/features/structured-lesson/persistence.test.ts` now simulates a browser refusing removal of the legacy structured-learning key after the current v2 envelope was successfully saved. The test verifies the new envelope contains the recovered state, the legacy source remains available, and the UI-wide storage error snapshot identifies the failed `remove` operation.
+
+Exact-head CI passed on `9fb38aa1252e6a8f9191b777889b3c8cbe1229dc`: [run 40498451420](https://github.com/Mardakhay/interactive-guides/actions/runs/40498451420). This was a deterministic Storage API failure test, not real-browser quota/privacy validation.

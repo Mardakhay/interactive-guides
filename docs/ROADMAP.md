@@ -472,3 +472,10 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Verify failure while removing the legacy structured-learning key rolls back all previous raw keys.
 - Exact-head CI passed on `814c4d6f51deefb8f8904a4a3a15321aa537d233` (run [40497807964](https://github.com/Mardakhay/interactive-guides/actions/runs/40497807964)). The export test reads Blob contents through `FileReader` because the configured jsdom Blob does not implement `.text()`.
 - [ ] Native desktop/mobile browser acceptance is still open for real quota/privacy restrictions, system file picker and the resulting downloaded JSON file. Phase 5 is not release-accepted until those results are recorded.
+
+## Structured-learning migration cleanup validation — 2026-10-27
+
+- [x] Verify legacy structured-learning data is preserved if the new v2 record write fails.
+- [x] Verify if writing succeeds but removing the legacy key fails, the new envelope remains valid, the legacy source is preserved and a storage-removal error is reported.
+- Exact-head CI passed on `9fb38aa1252e6a8f9191b777889b3c8cbe1229dc` (run [40498451420](https://github.com/Mardakhay/interactive-guides/actions/runs/40498451420)).
+- [ ] Run native browser/device checks for privacy/quota restrictions, file picker/download and recovery. Automated Storage mocks do not close these acceptance items.

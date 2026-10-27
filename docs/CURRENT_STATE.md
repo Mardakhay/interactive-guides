@@ -746,3 +746,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Restore coverage now simulates legacy-key removal failing after writes and verifies raw-key rollback; prior tests also cover successful rollback and failed rollback UI.
 - Exact-head CI passed on `814c4d6f51deefb8f8904a4a3a15321aa537d233`: [40497807964](https://github.com/Mardakhay/interactive-guides/actions/runs/40497807964). `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`.
 - Remaining acceptance is explicitly manual: real browser/device quota/privacy modes, native download/file picker, and recovery behavior with native storage restrictions.
+
+## Structured-learning migration cleanup test — 2026-10-27
+
+- `readStructuredLearningState` has test coverage for the case where writing the current v2 envelope succeeds but deletion of the legacy key fails: current state is recoverable, legacy raw data is retained, and a removal-error snapshot is reported.
+- Exact-head CI passed on `9fb38aa1252e6a8f9191b777889b3c8cbe1229dc`: [40498451420](https://github.com/Mardakhay/interactive-guides/actions/runs/40498451420).
+- Outstanding Phase 5 acceptance remains manual: native browser/device storage privacy/quota and actual download/import/file-picker behavior.
