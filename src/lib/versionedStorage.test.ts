@@ -68,4 +68,20 @@ describe('versioned local JSON storage', () => {
     expect(JSON.parse(storage.getItem('ig:versioned-test') ?? '{}').schemaVersion).toBe(1);
     expect(saveVersionedJSON('ig:versioned-test', { count: -3 }, stateSchema, storage)).toBe(false);
   });
+  it('reports storage read failures instead of silently claiming that the saved state is empty', () => {
+    class ReadFailStorage extends MemoryStorage {
+      override getItem(key: string): string | null {
+        throw new DOMException(`Storage denied for ${key}`, 'SecurityError');
+      }
+    }
+    const result = readVersionedJSON('ig:versioned-test', stateSchema, fallback, new ReadFailStorage());
+    expect(result).toEqual({ data: fallback, source: 'empty', invalid: false });
+    expect(getLastStorageError()).toEqual({ key: 'ig:versioned-test', operation: 'read' });
+  });
+
+  it('reports failed writes while leaving the in-memory state usable', () => {
+    const storage = new FailWritesStorage();
+    expect(saveVersionedJSON('ig:versioned-test', { count: 5 }, stateSchema, storage)).toBe(false);
+    expect(getLastStorageError()).toEqual({ key: 'ig:versioned-test', operation: 'write' });
+  });
 });

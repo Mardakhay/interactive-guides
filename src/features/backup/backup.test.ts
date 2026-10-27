@@ -3,6 +3,7 @@ import { STORAGE_KEYS } from '@/lib/constants';
 import { clearLastStorageError } from '@/lib/storage';
 import { BACKUP_FORMAT, BACKUP_SCHEMA_VERSION, BackupError, createLocalBackup, getBackupSummary, parseBackup, restoreLocalBackup, serializeBackup } from './backup';
 import { LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, STRUCTURED_LEARNING_STORAGE_KEY } from '@/features/structured-lesson/schemas';
+import { createLocalStoreRecord, LOCAL_STORE_FORMAT } from '@/lib/versionedStorage';
 
 class MemoryStorage implements Storage {
   private values = new Map<string, string>();
@@ -143,5 +144,22 @@ describe('local learning data backups', () => {
     try { restoreLocalBackup(rawBackup, target); } catch (error) { caught = error; }
     expect(caught).toBeInstanceOf(BackupError);
     expect((caught as BackupError).code).toBe('rollback-failed');
+  });
+  it('exports versioned store envelopes and restores every legacy dataset as a current envelope', () => {
+    const source = new MemoryStorage();
+    const progress = { lessons: {
+      'semantic-html': { status: 'completed' as const, startedAt: '2026-10-10T10:00:00.000Z', completedAt: '2026-10-10T10:20:00.000Z' },
+    }, lastOpenedLessonId: 'semantic-html', lastOpenedAt: '2026-10-10T10:20:00.000Z' };
+    source.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(createLocalStoreRecord(progress)));
+    const backup = createLocalBackup(source);
+    expect(backup.data.progress.lessons['semantic-html'].status).toBe('completed');
+    const target = new MemoryStorage();
+    restoreLocalBackup(serializeBackup(backup), target);
+    for (const key of [STORAGE_KEYS.PROGRESS, STORAGE_KEYS.BOOKMARKS, STORAGE_KEYS.NOTES, STORAGE_KEYS.QUIZ_RESULTS]) {
+      const record = JSON.parse(target.getItem(key) ?? '{}') as { format?: string; schemaVersion?: number; data?: unknown };
+      expect(record.format).toBe(LOCAL_STORE_FORMAT);
+      expect(record.schemaVersion).toBe(1);
+      expect(record.data).toBeDefined();
+    }
   });
 });
