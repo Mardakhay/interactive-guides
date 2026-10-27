@@ -500,7 +500,8 @@ describe('supplementary UI ecosystem lesson', () => {
         'uilib-mui-form-check',
       ]),
     );
-    expect(englishUiEcosystem.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(englishUiEcosystem.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(russianUiEcosystem.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(englishUiEcosystem.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(englishUiEcosystem.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
     expect(englishUiEcosystem.blocks.some((block) => block.id === 'uilib-mui-form-practice')).toBe(true);
