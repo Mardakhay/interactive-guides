@@ -1,6 +1,6 @@
 # Persistence and Supabase Plan
 
-**Status:** local JSON backup/restore v1 is implemented on `feat/learning-platform-foundation`. Supabase auth/sync remains proposed and is not a package dependency.
+**Status:** versioned local learner stores and JSON backup/restore v1 are implemented on `feat/learning-platform-foundation`. Supabase auth/sync remains proposed and is not a package dependency.
 
 ## Product decisions
 
@@ -12,6 +12,12 @@
 6. A UI route guard is not an authorization boundary; the database/API must enforce access.
 
 ## Local data backup/export-restore — v1 implementation checkpoint (2026-10-27)
+
+### Versioned local stores — schema v1 (2026-10-27)
+
+The existing progress, bookmarks, notes and classic quiz-result stores now persist an envelope with `format: "interactive-guides-local-store"`, `schemaVersion: 1`, and `data`. `readVersionedJSON` accepts valid legacy raw JSON, migrates it by replacing the same storage key with the envelope, and keeps the validated data usable in memory if that one-key write fails. The raw legacy value remains intact in that case, so a later read can retry migration. Unknown envelope versions and malformed data are not overwritten; read/write failures emit the existing storage-error event. Writes validate against the relevant state Zod schema before persisting.
+
+The backup file format stays distinct (`interactive-guides-backup`, schema version 1) so it is portable and does not expose repository-specific wrappers as its public data model. Export reads both valid legacy raw datasets and current local-store envelopes; restore writes current envelopes for the four classic stores and the existing structured-learning v2 envelope.
 
 The bilingual `/backup` route is available from the application sidebar. It exports and restores the current local learning datasets as a versioned JSON document (`format: interactive-guides-backup`, `schemaVersion: 1`, 10 MiB maximum file size). Included data: lesson progress, bookmarks, notes, classic quiz results, and structured-lesson quiz attempts, code drafts, practice checklists and section progress. UI locale, theme and other application preferences are intentionally not part of this learner-data backup.
 

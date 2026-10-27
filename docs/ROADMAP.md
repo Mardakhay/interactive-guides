@@ -59,9 +59,9 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 
 ## Phase 5 — Local-first data foundations
 - [x] Add a versioned JSON backup format and explicit export/restore for current learning datasets; validation, preview, replace confirmation and best-effort multi-key rollback are implemented.
-- [ ] Introduce versioned local repositories independently of the backup format and migrate all legacy progress, notes, bookmarks and quiz records without silent loss.
-- [x] Test malformed backup files, unsupported versions, legacy structured-learning reads, restore replacement and rollback after a write failure.
-- [ ] Expand tests for storage unavailable, rollback failure and migration retry across all stores; run browser/device download and file-picker smoke checks.
+- [x] Introduce schema-v1 envelopes for progress, bookmarks, notes and classic quiz results, including read-through migration from valid legacy raw JSON. A failed migration write preserves the raw value for a later retry.
+- [x] Test malformed/unsupported backup files, current and legacy store records, invalid/future versions, storage read/write failures, migration retry, restore replacement and rollback (including rollback failure).
+- [ ] Add focused action-level integration tests for each learner store and run real-browser/device download/import smoke checks; test results are CI-based, not a substitute for browser acceptance.
 - Acceptance: existing saved state survives update or export/import recovery.
 - Suggested commit: `refactor(storage): add versioned local repositories`
 
@@ -439,3 +439,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Import validates the format and dataset schemas before writing, previews record counts, requires explicit confirmation, replaces rather than merges data, writes the canonical structured-learning v2 record, and removes the legacy record after successful writes. On a failed write it attempts to restore prior raw values and reports if rollback itself fails.
 - Exact-head CI passed for code commit `73a47b96b1c0fc00d454c0cd955f24514bb32024` in run [40487424471](https://github.com/Mardakhay/interactive-guides/actions/runs/40487424471). This documentation sync is separate from that already validated code commit.
 - Phase 5 is still partial: repositories are not all independently versioned, migration/retry behavior needs broader tests, and browser-specific download/import smoke tests are outstanding. Supabase remains gated.
+
+## Versioned local-store checkpoint — 2026-10-27
+
+- Added `src/lib/versionedStorage.ts`; progress, bookmarks, notes and classic quiz results now store `format: interactive-guides-local-store`, `schemaVersion: 1`, `data` envelopes.
+- Valid legacy raw JSON is read and then migrated through a single-key replace. If the write fails, the old raw value is preserved and the state is returned in memory; the next read retries. Invalid data and unknown schema versions are not overwritten.
+- The portable backup file remains its own v1 format. Export accepts current envelopes and old raw data; restore writes current store envelopes plus the structured-learning v2 envelope, removing the legacy structured key only at the end.
+- Exact-head CI passed on code commit `3b6bb04caf338282f1f8f52d8724d11f7792b7a3`, run [40489627861](https://github.com/Mardakhay/interactive-guides/actions/runs/40489627861). Phase 5 remains partial until action-level store tests and browser/device smoke checks are done.
