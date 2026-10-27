@@ -748,3 +748,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## DOM v6 CI follow-up — 2026-10-27
 
 - Exact-head CI for `5446e03` found one stale version assertion in the pre-existing traversal/content/state-render test (`expected 5`, actual v6); all other 136 tests passed and lint/typecheck were green. The test now expects version 6. Verify CI on this follow-up commit.
+
+
+## Advanced JS realtime API lifecycle follow-up — 2026-10-27
+
+- Expanded `browser.realtime-workers` to v2 / 33 aligned EN/RU blocks. Added XHR upload/download progress and readyState, bounded WebSocket reconnect with jitter and disposal, and version-scoped Service Worker cache cleanup/update caveats.
+- Added lifecycle knowledge checks, a WebSocket exercise, official current MDN references, and regression tests for EN/RU parity, walkthrough ranges, progress safeguards, retry cleanup and cache ownership.
+- The Advanced JS Notion page remains `verification.state=unverified`; these subsections are mapped, but the whole page is not marked complete.

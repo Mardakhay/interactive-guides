@@ -635,3 +635,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## DOM v6 regression-test correction — 2026-10-27
 
 - Updated the remaining version expectation from 5 to 6 in the existing DOM translation test after adding ResizeObserver/Page Visibility blocks. This was the single failure in run [40479202670](https://github.com/Mardakhay/interactive-guides/actions/runs/40479202670); re-run exact-head CI. Main remains unchanged.
+
+
+## Advanced JS realtime APIs continuation — 2026-10-27
+
+- `browser.realtime-workers` v2 covers XHR progress/readyState and separate status/network/timeout/abort cases; WebSocket reconnect has finite retries, backoff+jitter, OPEN guards, a single retry path and timer/socket disposal; Service Worker cache cleanup uses versioned app-owned prefixes and avoids unconditional takeover.
+- Regression coverage added for EN/RU parity, ranges, progress behavior, retry cleanup, cache scope and official MDN references. Confirm exact-head CI before treating this patch as green.
+- The Advanced JS Notion page still reports `verification.state=unverified`; only targeted topic slices are mapped.

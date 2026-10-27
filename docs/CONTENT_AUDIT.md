@@ -388,3 +388,10 @@ Quota material is phrased as approximate origin-level usage/quota, not a univers
 ## Advanced JS observer API review — 2026-10-27
 
 Mapped the IntersectionObserver, ResizeObserver and Page Visibility subsections from Advanced JS. `js.dom-events` v6 now covers element-size updates independent of window resizing, ResizeObserver teardown/feedback-loop risk, document hidden/visible state, interval pause/resume, and cleanup of the same visibility listener. Existing intersection and mutation observer examples remain. The source's Notion metadata is still `verification.state=unverified`; XHR/WebSocket/worker and other API sections remain open.
+
+
+## Advanced JS realtime APIs source gap — 2026-10-27
+
+`browser.realtime-workers` v2 maps XHR/WebSocket/Service Worker gaps with bilingual content for XHR progress and readyState, bounded WebSocket reconnect/backoff and disposal, and versioned Service Worker cache cleanup. It guards unknown progress totals, separates HTTP status from network errors, avoids duplicate retry schedulers, and scopes cache deletion by app-owned prefix.
+
+The Advanced JS Notion page remains connector-unverified; this is source-slice mapping, not formal verification of the full page or exact interaction parity.

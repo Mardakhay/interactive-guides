@@ -10,6 +10,8 @@ import englishTypedArrays from '../lessons/js.typed-arrays-binary/en.json';
 import russianTypedArrays from '../lessons/js.typed-arrays-binary/ru.json';
 import englishCapabilities from '../lessons/browser.capability-apis/en.json';
 import russianCapabilities from '../lessons/browser.capability-apis/ru.json';
+import englishRealtimeWorkers from '../lessons/browser.realtime-workers/en.json';
+import russianRealtimeWorkers from '../lessons/browser.realtime-workers/ru.json';
 import englishAuth from '../lessons/frontend.auth-security/en.json';
 import russianAuth from '../lessons/frontend.auth-security/ru.json';
 import englishDeployment from '../lessons/deployment.production-hosting/en.json';
@@ -41,6 +43,7 @@ const lessonPairs = [
   [englishArchitecture, russianArchitecture],
   [englishAdvancedTooling, russianAdvancedTooling],
   [englishCapabilities, russianCapabilities],
+  [englishRealtimeWorkers, russianRealtimeWorkers],
   [englishTypedArrays, russianTypedArrays],
 ] as const;
 
@@ -503,6 +506,57 @@ describe('Advanced package workflow toolchain coverage', () => {
         expect(refs.items.some((item) => item.url === 'https://vite.dev/guide/features')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://docs.npmjs.com/cli/v11/using-npm/scripts')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://vitest.dev/guide/')).toBe(true);
+      }
+    }
+  });
+});
+
+describe('realtime transport progress and lifecycle', () => {
+  it('covers XHR progress, bounded WebSocket retries, and scoped Service Worker cache cleanup in both locales', () => {
+    for (const lesson of [englishRealtimeWorkers, russianRealtimeWorkers]) {
+      expect(lessonTranslationSchema.safeParse(lesson).success).toBe(true);
+      expect(lesson.version).toBe(2);
+      expect(lesson.blocks).toHaveLength(33);
+      const peer = lesson.locale === 'en' ? russianRealtimeWorkers : englishRealtimeWorkers;
+      expect(lesson.blocks.map(({ id, type }) => ({ id, type }))).toEqual(peer.blocks.map(({ id, type }) => ({ id, type })));
+      for (const id of ['xhr-progress-walkthrough', 'ws-reconnect-walkthrough', 'service-worker-lifecycle-walkthrough']) {
+        const walk = lesson.blocks.find((block) => block.id === id);
+        expect(walk?.type).toBe('codeWalkthrough');
+        if (walk?.type !== 'codeWalkthrough') return;
+        const lines = walk.code.split('\n').length;
+        expect(walk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lines)).toBe(true);
+      }
+      const xhr = lesson.blocks.find((block) => block.id === 'xhr-progress-walkthrough');
+      expect(xhr?.type === 'codeWalkthrough' && xhr.code).toContain('event.lengthComputable');
+      expect(xhr?.type === 'codeWalkthrough' && xhr.code).toContain("xhr.upload.addEventListener('progress'");
+      const xhrCheck = lesson.blocks.find((block) => block.id === 'xhr-progress-check');
+      expect(xhrCheck?.type).toBe('knowledgeCheck');
+      if (xhrCheck?.type === 'knowledgeCheck') expect(xhrCheck.options.filter((option) => option.correct)).toHaveLength(1);
+      const ws = lesson.blocks.find((block) => block.id === 'ws-reconnect-walkthrough');
+      expect(ws?.type === 'codeWalkthrough' && ws.code).toContain('MAX_RETRIES');
+      expect(ws?.type === 'codeWalkthrough' && ws.code).toContain('clearTimeout(retryTimer)');
+      expect(ws?.type === 'codeWalkthrough' && ws.code).toContain('WebSocket.OPEN');
+      const wsCheck = lesson.blocks.find((block) => block.id === 'ws-reconnect-check');
+      expect(wsCheck?.type).toBe('knowledgeCheck');
+      if (wsCheck?.type === 'knowledgeCheck') expect(wsCheck.options.filter((option) => option.correct)).toHaveLength(1);
+      const practice = lesson.blocks.find((block) => block.id === 'ws-reconnect-practice');
+      expect(practice?.type).toBe('codingExercise');
+      if (practice?.type === 'codingExercise') {
+        expect(practice.requirements.length).toBeGreaterThanOrEqual(5);
+        expect(practice.hints.length).toBeGreaterThanOrEqual(3);
+        expect(practice.successCriteria.length).toBeGreaterThanOrEqual(5);
+      }
+      const sw = lesson.blocks.find((block) => block.id === 'service-worker-lifecycle-walkthrough');
+      expect(sw?.type === 'codeWalkthrough' && sw.code).toContain('name.startsWith(CACHE_PREFIX)');
+      expect(sw?.type === 'codeWalkthrough' && sw.code).toContain('event.waitUntil');
+      const swCheck = lesson.blocks.find((block) => block.id === 'service-worker-lifecycle-check');
+      expect(swCheck?.type).toBe('knowledgeCheck');
+      if (swCheck?.type === 'knowledgeCheck') expect(swCheck.options.filter((option) => option.correct)).toHaveLength(1);
+      const refs = lesson.blocks.find((block) => block.id === 'messaging-references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') {
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/upload')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API')).toBe(true);
       }
     }
   });
