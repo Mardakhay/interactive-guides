@@ -62,7 +62,7 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - [x] Introduce schema-v1 envelopes for progress, bookmarks, notes and classic quiz results, including read-through migration from valid legacy raw JSON. A failed migration write preserves the raw value for a later retry.
 - [x] Test malformed/unsupported backup files, current and legacy store records, invalid/future versions, storage read/write failures, migration retry, restore replacement and rollback (including rollback failure).
 - [x] Add focused action-level integration tests for progress, bookmarks, notes and classic quiz actions; CI covers the store envelopes and common update/delete paths.
-- [ ] Run real-browser/device download/import smoke checks for the file picker, downloaded filename, large-file guard, confirmation and restore success/failure feedback using [the execution checklist](./BROWSER_SMOKE_TEST_CHECKLIST.md#-local-persistence-and-backupexport).
+- [ ] Run real-browser/device download/import smoke checks for the file picker, downloaded filename, large-file guard, confirmation and restore success/failure feedback using [the execution checklist](./BROWSER_SMOKE_TEST_CHECKLIST.md).
 - Acceptance: existing saved state survives update or export/import recovery.
 - Suggested commit: `refactor(storage): add versioned local repositories`
 
@@ -84,7 +84,7 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - [x] Add a service worker with scoped static-asset caching, an app-shell fallback and an explicit user-approved update lifecycle.
 - [x] Add a host-side SPA rewrite for client-side deep-link reloads (`public/_redirects`).
 - [ ] Configure/review the actual production deployment and add post-deploy smoke checks.
-- [ ] Test clean install, deep-link refresh, offline revisit, update activation and external-font fallback in supported desktop/mobile browsers; record browser/OS versions using [the browser/device checklist](./BROWSER_SMOKE_TEST_CHECKLIST.md#-pwa-navigation-and-mobile-acceptance).
+- [ ] Test clean install, deep-link refresh, offline revisit, update activation and external-font fallback in supported desktop/mobile browsers; record browser/OS versions using [the browser/device checklist](./BROWSER_SMOKE_TEST_CHECKLIST.md).
 - **Status:** technical foundation implemented; not release-accepted until real-browser/device checks are recorded.
 
 ## Phase 8 — Capstone and release readiness
