@@ -409,3 +409,10 @@ The source's jQuery-style DOM wrapper is recorded as an illustration rather than
 `browser.capability-apis` v2 now teaches Notification permission after user action, secure-context detection, denied/unsupported fallback, service-worker notification display for mobile-compatible flows, and same-reference listener cleanup for Page Visibility. Tests check bilingual structure, walkthrough ranges and corrected event-handler identity.
 
 The Advanced JS Notion source remains marked `verification.state=unverified`. Notification compatibility notes follow current MDN guidance; exact legacy interaction parity and whole-page Notion verification remain open.
+
+
+## Advanced JS memoization TTL implementation — 2026-10-27
+
+`js.runtime-memory` v4 adds an explicit async TTL cache implementation. It shares in-flight work for the same key, starts expiration after success, removes failed entries to allow retry, and guards settlement callbacks by entry identity so invalidation is not undone by an older pending request. The practice requires deterministic injected-clock tests.
+
+The lesson also clarifies that TTL-on-access is not an absolute memory bound, and that network cache freshness must follow API/product rules. The source Notion page remains connector-unverified.

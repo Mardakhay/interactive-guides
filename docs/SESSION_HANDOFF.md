@@ -775,3 +775,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Fixed `browser.capability-apis` Page Visibility example so `addEventListener` and `removeEventListener` use the same named callback; added a regression assertion against the previous anonymous-handler bug.
 - Expanded the lesson to v2 / 20 aligned EN/RU blocks with Notification permission/display flow: secure-context and user-click requestPermission, denied/default handling, ServiceWorkerRegistration.showNotification preference for mobile, desktop constructor fallback and in-page failure fallback. Added MDN refs and exercise requirements.
 - Advanced JS Notion source remains `verification.state=unverified`; focused source coverage improved but formal verification and legacy UI parity remain open.
+
+
+## Memoization TTL source checkpoint — 2026-10-27
+
+- Expanded `js.runtime-memory` to v4 / 35 aligned EN/RU blocks with an async TTL cache: shared in-flight Promise, expiry begins on success, rejected-entry eviction, explicit invalidation/clear, and a guard against stale pending requests undoing invalidation.
+- Added a knowledge check and applied exercise with an injectable clock, deterministic expiry tests, retry/invalidation-race requirements and memory-growth policy; regression tests cover ranges, IDs, answer cardinality, exercise rubric and MDN Promise reference.
+- TTL is lazy freshness, not a strict memory cap; API/network cache policy remains endpoint-specific. Advanced JS source page metadata remains `verification.state=unverified`.

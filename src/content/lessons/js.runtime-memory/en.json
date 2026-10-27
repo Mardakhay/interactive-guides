@@ -1,7 +1,7 @@
 {
   "id": "js.runtime-memory",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-27",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "JavaScript Runtime: Execution Contexts, Stack, Heap, and Garbage Collection",
   "description": "Trace execution contexts and closures, reason about reachability, and diagnose stack overflow and memory-retention bugs.",
-  "estimatedMinutes": 115,
+  "estimatedMinutes": 130,
   "difficulty": "advanced",
   "prerequisites": [
     "js.basics-types-control-flow",
@@ -24,7 +24,8 @@
     "Diagnose closure retention and unintended memory growth with evidence.",
     "Predict how assignment, shallow copies, and structured cloning affect nested object identity.",
     "Investigate memory growth with repeatable heap snapshots, retaining paths, and allocation profiling.",
-    "Design a memoization key that captures semantic inputs and explain cache lifetime and invalidation."
+    "Design a memoization key that captures semantic inputs and explain cache lifetime and invalidation.",
+    "Implement async memoization with in-flight Promise sharing, TTL expiry, rejected-entry eviction and safe invalidation."
   ],
   "tags": [
     "javascript",
@@ -34,7 +35,9 @@
     "closures",
     "garbage-collection",
     "memoization",
-    "cache-lifetime"
+    "cache-lifetime",
+    "ttl-cache",
+    "async-result-caching"
   ],
   "blocks": [
     {
@@ -309,6 +312,121 @@
       ]
     },
     {
+      "id": "runtime-memoization-ttl-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Add TTL and failure policy to async memoization"
+    },
+    {
+      "id": "runtime-memoization-ttl-model",
+      "type": "paragraph",
+      "text": "Memoization of async work has two states: an in-flight Promise can be shared by concurrent callers, while a successful result may be reused only until its freshness window expires. Start TTL after success, remove rejected entries so callers can retry, and guard settlement writes with entry identity so an invalidated older request cannot overwrite a newer entry. This example expires entries on lookup; TTL alone is not a hard memory cap, because untouched expired keys can remain in the Map. Use invalidation or an explicit size/eviction policy for high-cardinality keys."
+    },
+    {
+      "id": "runtime-memoization-ttl-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function createAsyncTtlCache(ttlMs, now = () => Date.now()) {\n  if (!Number.isFinite(ttlMs) || ttlMs < 0) {\n    throw new RangeError(\"ttlMs must be a non-negative finite number\");\n  }\n  const entries = new Map();\n\n  function getOrLoad(key, loader) {\n    const cached = entries.get(key);\n    if (cached && (cached.expiresAt === null || cached.expiresAt > now())) {\n      return cached.promise;\n    }\n    if (cached) entries.delete(key);\n\n    const entry = { promise: undefined, expiresAt: null };\n    entry.promise = Promise.resolve().then(loader);\n    entries.set(key, entry);\n\n    entry.promise.then(\n      () => {\n        if (entries.get(key) === entry) entry.expiresAt = now() + ttlMs;\n      },\n      () => {\n        if (entries.get(key) === entry) entries.delete(key);\n      },\n    );\n    return entry.promise;\n  }\n\n  return {\n    getOrLoad,\n    invalidate(key) { entries.delete(key); },\n    clear() { entries.clear(); },\n  };\n}\n\nconst cache = createAsyncTtlCache(5_000);\nconst getProfile = (userId, locale) => cache.getOrLoad(\n  `${userId}:${locale}`,\n  async () => {\n    const response = await fetch(`/api/users/${userId}?locale=${locale}`);\n    if (!response.ok) throw new Error(`HTTP ${response.status}`);\n    return response.json();\n  },\n);",
+      "steps": [
+        {
+          "title": "Validate the cache policy",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "Reject invalid durations up front. The injected clock makes the example deterministic in tests without waiting for real wall-clock time."
+        },
+        {
+          "title": "Share pending work and remove stale entries",
+          "lineStart": 7,
+          "lineEnd": 17,
+          "explanation": "An entry with null expiry is still in-flight, so concurrent calls with the same key reuse its Promise. Expired entries are removed lazily when next requested."
+        },
+        {
+          "title": "Set expiry after success and evict failures",
+          "lineStart": 18,
+          "lineEnd": 28,
+          "explanation": "Expiry begins after success. A rejected Promise is removed to allow retry; checking that the Map still contains the same entry prevents an older completion from modifying the cache after invalidation or replacement."
+        },
+        {
+          "title": "Expose invalidation and use a semantic key",
+          "lineStart": 29,
+          "lineEnd": 44,
+          "explanation": "The key includes both user ID and locale because both can affect output. `invalidate` and `clear` expose explicit invalidation rather than assuming cached data remains correct forever."
+        }
+      ]
+    },
+    {
+      "id": "runtime-memoization-ttl-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Two callers request the same key while its network request is still pending. What should an async TTL cache do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Start a second network request because no value has been cached yet",
+          "correct": false,
+          "feedback": "Without caching the in-flight Promise, concurrent callers duplicate work and may race to update the cache."
+        },
+        {
+          "id": "b",
+          "text": "Share the in-flight Promise, start TTL after success, and remove the entry if it rejects",
+          "correct": true,
+          "feedback": "Promise sharing deduplicates in-flight work; success-based TTL provides a full freshness window, and rejection eviction permits retry."
+        },
+        {
+          "id": "c",
+          "text": "Cache a rejected Promise until the TTL expires",
+          "correct": false,
+          "feedback": "Caching rejection can repeat a transient failure for every caller until expiry; this policy removes failed entries to permit retry."
+        },
+        {
+          "id": "d",
+          "text": "Use JSON.stringify for every key because it preserves all identities",
+          "correct": false,
+          "feedback": "JSON serialization cannot represent every input or object identity; callers must still define semantic key equivalence."
+        }
+      ],
+      "explanation": "An async cache should make in-flight, success, failure, expiration and invalidation policies explicit. A cached Promise is shared work, but a rejected result should not be treated as a successful value."
+    },
+    {
+      "id": "runtime-memoization-ttl-practice",
+      "type": "codingExercise",
+      "title": "Build a deterministic async TTL cache",
+      "language": "javascript",
+      "context": "A profile panel fetches data by user ID and locale. Concurrent renders should share the in-flight request, successful data should expire after a freshness window, transient failures should be retryable, and invalidation must not be undone by an older request finishing later.",
+      "instructions": [
+        "Implement `getOrLoad(key, loader)` so concurrent callers with the same key share one pending Promise.",
+        "Start TTL after the Promise fulfills; when a cached entry expires, discard it and load again.",
+        "If the loader rejects, remove that entry so a later call can retry instead of reusing a cached rejection.",
+        "Implement `invalidate(key)` and `clear()`; guard settlement handlers so an invalidated request cannot modify a newer cache entry.",
+        "Use an injected clock to test expiry boundaries without real timers, and explain why a TTL cache may need a max-size/eviction policy."
+      ],
+      "requirements": [
+        "Concurrent requests for one semantic key share a single in-flight Promise.",
+        "The freshness window starts at successful completion rather than request start.",
+        "Rejected Promise entries are evicted so a later call can retry.",
+        "Invalidation during an in-flight request cannot let the old request overwrite or recreate its removed entry.",
+        "Tests cover before/at/after expiry deterministically with an injected clock.",
+        "The key includes every output-affecting input, including locale.",
+        "The explanation distinguishes TTL freshness from a hard memory-size limit."
+      ],
+      "starterCode": "function createAsyncTtlCache(ttlMs, now = () => Date.now()) {\n  const entries = new Map();\n\n  function getOrLoad(key, loader) {\n    // TODO: share an in-flight Promise and reuse only an unexpired result.\n    // TODO: evict an expired entry before starting a replacement.\n  }\n\n  return {\n    getOrLoad,\n    invalidate(key) { entries.delete(key); },\n    clear() { entries.clear(); },\n  };\n}\n\n// TODO: test TTL boundaries deterministically with a controllable `now` value.",
+      "hints": [
+        "Use `expiresAt: null` for an entry whose Promise is pending; concurrent callers can share it.",
+        "Set `expiresAt = now() + ttlMs` only when the Promise resolves successfully.",
+        "On rejection, delete the entry only if the Map still points to that same entry object.",
+        "Invalidate should remove the mapping immediately; an older Promise resolving later must not repopulate or overwrite its removed entry.",
+        "TTL-on-access is lazy expiry, not a strict memory cap for keys never looked up again."
+      ],
+      "successCriteria": [
+        "Same key + concurrent calls invoke the loader once and share the in-flight result.",
+        "A successful result is reused before expiry and refreshed at the expiry boundary.",
+        "A rejected load is removed and the next call can succeed.",
+        "Invalidation remains effective if a prior request settles afterward.",
+        "Tests are deterministic and do not sleep for wall-clock time.",
+        "The key covers user ID and locale, and the explanation describes cache growth."
+      ]
+    },
+    {
       "id": "runtime-copy-practice",
       "type": "codingExercise",
       "title": "Make a nested update without mutating the previous state",
@@ -483,7 +601,8 @@
         "Objects remain while reachable; garbage collection timing is nondeterministic.",
         "Closures can retain large structures, and leaks require evidence of unintended retention over time.",
         "Engine-specific optimizations are implementation details, not portable language guarantees.",
-        "Memoization is valid only when the cache key represents all output-affecting inputs; long-lived caches need a retention and invalidation policy."
+        "Memoization is valid only when the cache key represents all output-affecting inputs; long-lived caches need a retention and invalidation policy.",
+        "For async caches, share in-flight Promises, start TTL after success, evict failures, and guard invalidation races; TTL alone is not a hard size bound."
       ]
     },
     {
@@ -523,6 +642,11 @@
         {
           "title": "MDN: JSON.stringify",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Promise",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise",
           "kind": "official-docs"
         }
       ]

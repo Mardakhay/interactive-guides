@@ -1,7 +1,7 @@
 {
   "id": "js.runtime-memory",
   "locale": "ru",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-27",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Runtime JavaScript: контексты выполнения, стек, куча и сборка мусора",
   "description": "Отслеживай execution contexts и замыкания, рассуждай о достижимости объектов и диагностируй переполнение стека и удержание памяти.",
-  "estimatedMinutes": 115,
+  "estimatedMinutes": 130,
   "difficulty": "advanced",
   "prerequisites": [
     "js.basics-types-control-flow",
@@ -24,7 +24,8 @@
     "Диагностировать удержание памяти замыканиями и неожиданный рост потребления по данным измерений.",
     "Predict how assignment, shallow copies, and structured cloning affect nested object identity.",
     "Investigate memory growth with repeatable heap snapshots, retaining paths, and allocation profiling.",
-    "Проектировать ключ мемоизации по смысловым входам и объяснять срок жизни и инвалидацию кэша."
+    "Проектировать ключ мемоизации по смысловым входам и объяснять срок жизни и инвалидацию кэша.",
+    "Реализовать async memoization с общим in-flight Promise, TTL, удалением rejected-записей и безопасной invalidation."
   ],
   "tags": [
     "javascript",
@@ -34,7 +35,9 @@
     "closures",
     "garbage-collection",
     "memoization",
-    "cache-lifetime"
+    "cache-lifetime",
+    "ttl-cache",
+    "async-result-caching"
   ],
   "blocks": [
     {
@@ -309,6 +312,121 @@
       ]
     },
     {
+      "id": "runtime-memoization-ttl-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Добавь TTL и политику ошибок в async memoization"
+    },
+    {
+      "id": "runtime-memoization-ttl-model",
+      "type": "paragraph",
+      "text": "У memoization асинхронной работы два состояния: ожидающий Promise можно разделить между параллельными вызовами, а успешный результат можно переиспользовать только до конца окна свежести. Начинай TTL после успеха, удаляй отклонённые записи для retry и проверяй идентичность записи перед изменением cache после завершения Promise: старый запрос после invalidation не должен перезаписывать новую запись. Пример удаляет истёкшие записи при следующем обращении; один TTL не является жёстким лимитом памяти, потому что неиспользуемые ключи могут остаться в Map. Для большого числа уникальных ключей нужна invalidation или ограничение размера/eviction."
+    },
+    {
+      "id": "runtime-memoization-ttl-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function createAsyncTtlCache(ttlMs, now = () => Date.now()) {\n  if (!Number.isFinite(ttlMs) || ttlMs < 0) {\n    throw new RangeError(\"ttlMs must be a non-negative finite number\");\n  }\n  const entries = new Map();\n\n  function getOrLoad(key, loader) {\n    const cached = entries.get(key);\n    if (cached && (cached.expiresAt === null || cached.expiresAt > now())) {\n      return cached.promise;\n    }\n    if (cached) entries.delete(key);\n\n    const entry = { promise: undefined, expiresAt: null };\n    entry.promise = Promise.resolve().then(loader);\n    entries.set(key, entry);\n\n    entry.promise.then(\n      () => {\n        if (entries.get(key) === entry) entry.expiresAt = now() + ttlMs;\n      },\n      () => {\n        if (entries.get(key) === entry) entries.delete(key);\n      },\n    );\n    return entry.promise;\n  }\n\n  return {\n    getOrLoad,\n    invalidate(key) { entries.delete(key); },\n    clear() { entries.clear(); },\n  };\n}\n\nconst cache = createAsyncTtlCache(5_000);\nconst getProfile = (userId, locale) => cache.getOrLoad(\n  `${userId}:${locale}`,\n  async () => {\n    const response = await fetch(`/api/users/${userId}?locale=${locale}`);\n    if (!response.ok) throw new Error(`HTTP ${response.status}`);\n    return response.json();\n  },\n);",
+      "steps": [
+        {
+          "title": "Проверь политику cache",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "Сразу отклоняй некорректный TTL. Внедряемые часы делают пример детерминированным в тестах без ожидания реального времени."
+        },
+        {
+          "title": "Разделяй ожидающую работу и удаляй устаревшие записи",
+          "lineStart": 7,
+          "lineEnd": 17,
+          "explanation": "Запись с null expiry ещё выполняется, поэтому параллельные вызовы одного ключа используют общий Promise. Истёкшие записи удаляются при следующем обращении."
+        },
+        {
+          "title": "Устанавливай expiry после успеха и удаляй ошибки",
+          "lineStart": 18,
+          "lineEnd": 28,
+          "explanation": "Expiry начинается после успеха. Отклонённый Promise удаляется для retry; проверка, что Map всё ещё содержит ту же запись, не позволяет старому завершению изменить cache после invalidation или замены."
+        },
+        {
+          "title": "Предоставь invalidation и используй смысловой ключ",
+          "lineStart": 29,
+          "lineEnd": 44,
+          "explanation": "Ключ включает user ID и locale, потому что оба значения влияют на результат. `invalidate` и `clear` дают явную политику сброса вместо предположения, что cached data всегда корректна."
+        }
+      ]
+    },
+    {
+      "id": "runtime-memoization-ttl-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Два вызова запрашивают один ключ, пока сетевой запрос ещё выполняется. Как должен вести себя async TTL cache?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Запустить второй сетевой запрос, потому что значение ещё не закешировано",
+          "correct": false,
+          "feedback": "Если не кешировать ожидающий Promise, параллельные вызовы дублируют работу и могут конкурировать при обновлении cache."
+        },
+        {
+          "id": "b",
+          "text": "Разделить in-flight Promise, запускать TTL после успеха и удалять запись при отказе",
+          "correct": true,
+          "feedback": "Общий Promise устраняет дублирующую работу; TTL после успеха даёт полное окно свежести, а удаление ошибки разрешает retry."
+        },
+        {
+          "id": "c",
+          "text": "Кешировать rejected Promise до конца TTL",
+          "correct": false,
+          "feedback": "Кеширование отказа может повторять временную ошибку всем вызывающим до истечения TTL; эта политика удаляет failed entries для retry."
+        },
+        {
+          "id": "d",
+          "text": "Использовать JSON.stringify для любого ключа, потому что он сохраняет всю идентичность",
+          "correct": false,
+          "feedback": "JSON serialization не описывает каждый вход и объектную идентичность; смысловую эквивалентность ключа определяет вызывающий код."
+        }
+      ],
+      "explanation": "Async cache должен явно определять in-flight, success, failure, expiration и invalidation. Cached Promise разделяет работу, но rejected результат не следует считать успешным значением."
+    },
+    {
+      "id": "runtime-memoization-ttl-practice",
+      "type": "codingExercise",
+      "title": "Создай детерминированный async TTL cache",
+      "language": "javascript",
+      "context": "Панель профиля загружает данные по user ID и locale. Параллельные рендеры должны разделять ожидающий запрос, успешные данные должны истекать по TTL, временные ошибки должны позволять retry, а invalidation не должна отменяться старым запросом, завершившимся позже.",
+      "instructions": [
+        "Реализуй `getOrLoad(key, loader)`, чтобы параллельные вызовы одного ключа делили один ожидающий Promise.",
+        "Начинай TTL после успешного resolve; при истечении записи удали её и начни загрузку заново.",
+        "Если loader отклоняет Promise, удали эту запись, чтобы следующий вызов мог повторить запрос вместо использования cached rejection.",
+        "Реализуй `invalidate(key)` и `clear()`; защити обработчики завершения так, чтобы старый invalidated-запрос не менял новую запись.",
+        "Используй внедряемые часы для проверки границ TTL без ожидания реальных таймеров и объясни, почему cache может нуждаться в max-size/eviction."
+      ],
+      "requirements": [
+        "Параллельные запросы одного смыслового ключа разделяют один in-flight Promise.",
+        "Окно свежести начинается после успешного завершения, а не при старте запроса.",
+        "Rejected Promise удаляется, чтобы следующий вызов мог выполнить retry.",
+        "Во время in-flight запроса invalidation не позволяет ему перезаписать или воссоздать удалённую запись.",
+        "Граница до/в момент/после expiry тестируется детерминированно с injected clock.",
+        "Ключ включает все факторы результата, включая locale.",
+        "Объяснение различает свежесть/TTL и жёсткое ограничение размера памяти."
+      ],
+      "starterCode": "function createAsyncTtlCache(ttlMs, now = () => Date.now()) {\n  const entries = new Map();\n\n  function getOrLoad(key, loader) {\n    // TODO: раздели in-flight Promise и используй только неистёкший результат.\n    // TODO: удали истёкшую запись перед новой загрузкой.\n  }\n\n  return {\n    getOrLoad,\n    invalidate(key) { entries.delete(key); },\n    clear() { entries.clear(); },\n  };\n}\n\n// TODO: тестируй границы TTL с управляемым `now`, без ожидания реальных таймеров.",
+      "hints": [
+        "Используй `expiresAt: null` для записи, Promise которой ещё выполняется; параллельные вызовы могут разделять её.",
+        "Устанавливай `expiresAt = now() + ttlMs` только после успешного resolve.",
+        "При отказе удаляй запись только если Map всё ещё указывает на тот же объект.",
+        "Invalidate должен сразу удалить mapping; старый Promise после завершения не должен восстанавливать или перезаписывать его.",
+        "TTL с удалением при следующем обращении — ленивое истечение, а не жёсткий лимит памяти для неиспользуемых ключей."
+      ],
+      "successCriteria": [
+        "Параллельные вызовы одного ключа запускают loader один раз и делят in-flight result.",
+        "Успешный результат переиспользуется до expiry и обновляется на границе истечения.",
+        "Rejected load удаляется, следующий вызов может завершиться успешно.",
+        "Invalidation действует, даже если предыдущий запрос завершается позже.",
+        "Тесты детерминированы и не ждут реального времени через sleep.",
+        "Ключ учитывает user ID и locale; объяснение описывает рост cache."
+      ]
+    },
+    {
       "id": "runtime-copy-practice",
       "type": "codingExercise",
       "title": "Обновите вложенное состояние, не изменяя прежнюю версию",
@@ -483,7 +601,8 @@
         "Объекты сохраняются, пока достижимы; время GC недетерминировано.",
         "Замыкания могут удерживать большие структуры, а утечку нужно подтверждать непреднамеренным удержанием во времени.",
         "Специфичные для движка оптимизации — детали реализации, а не гарантии языка.",
-        "Мемоизация корректна, только если ключ отражает все входы, влияющие на результат; долгоживущему кэшу нужна политика удержания и инвалидации."
+        "Мемоизация корректна, только если ключ отражает все входы, влияющие на результат; долгоживущему кэшу нужна политика удержания и инвалидации.",
+        "Для async cache разделяй in-flight Promises, начинай TTL после успеха, удаляй ошибки и защищай invalidation от гонок; TTL сам по себе не является жёстким лимитом размера."
       ]
     },
     {
@@ -523,6 +642,11 @@
         {
           "title": "MDN: JSON.stringify",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Promise",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise",
           "kind": "official-docs"
         }
       ]
