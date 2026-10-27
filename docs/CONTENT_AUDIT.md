@@ -269,3 +269,10 @@ Source-specific caveats and the remaining month-tab/answer-reveal UI parity gap 
 The complete `git-reference.html` source has been reviewed. Its broad reference material maps to `git.fundamentals` and `git.workflow-ci`; the former was upgraded to v4 in both locales to clarify README/Markdown essentials and demonstrate publishing the checked-out branch only after inspecting the current branch and team policy. A focused regression check covers the push example and pull-request guard.
 
 The audit records safer recovery semantics, configured GitHub Pages sources, tracked-secret handling, and non-equivalent search/copy UI. Full HTML reads documented: 17/25; seven other unread sources remain plus the planned `html-reference.html` re-review. Notion verification is still open.
+
+
+## Async JavaScript source and legacy-demo remediation — 2026-10-27
+
+The complete `interactive-async-js.html` review found that existing bilingual `js.async-fetch` and `web.internet-http` lessons already provide the canonical concepts; the old interactive animations and run/reset API widgets are not copied into another lesson. The source's live GET/joke/POST examples did contain risky dynamic `innerHTML` interpolation, and POST treated parseable non-2xx responses as success. Those issues are fixed on the legacy page, with a new regression test for safe `textContent` rendering and HTTP status handling.
+
+Full HTML source reads documented: 18/25; six unread source files and the planned `html-reference.html` re-review remain. Notion source verification is still open.

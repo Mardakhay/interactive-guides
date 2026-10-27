@@ -457,3 +457,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Reviewed `git-reference.html` against both existing Git lessons. `git.fundamentals` is now v4 and clarifies Markdown README basics and safe branch publication (`git push -u origin HEAD` after branch/policy checks); its EN/RU regression checks were updated. Detailed evidence and caveats are in `FULL_SOURCE_CONTENT_AUDIT.md`.
 - Full HTML source reviews: 17/25. Seven sources remain unread (`interactive-async-js.html`, `js_interactive_book.html`, `material-ui-masterclass.html`, `react-performance-a11y.html`, `sql-learning-page.html`, `test.guide.html`, `ui-design-system-learn.html`) plus the planned `html-reference.html` re-review. Notion source verification remains incomplete.
 - The latest documentation-only HEAD `962b8a88ad1b97d05962d6d22ee4f34efae21fe3` passed CI run [40459042995](https://github.com/Mardakhay/interactive-guides/actions/runs/40459042995). The new Git lesson update has not been run through CI yet. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`.
+
+
+## Async JavaScript legacy source checkpoint — 2026-10-27
+
+- Existing EN/RU structured async/network lessons cover the full concept set; no duplicative lesson was added. The older `interactive-async-js.html` live API demos were corrected to avoid DOM-XSS via dynamic `innerHTML`, check POST `response.ok`, and show accurate status information. New `legacyAsyncFetchDemos.test.ts` checks the security/status contract.
+- Full HTML source review count: 18/25; six sources remain unread plus the planned `html-reference.html` re-review. Notion source verification remains open. All changes remain on `feat/learning-platform-foundation`, with `main` unchanged.
