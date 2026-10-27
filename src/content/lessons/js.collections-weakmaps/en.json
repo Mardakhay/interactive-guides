@@ -1,16 +1,16 @@
 {
   "id": "js.collections-weakmaps",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-27",
   "moduleId": "supplement-js-internals",
   "supplementaryTrackId": "supplement-js-internals",
   "order": 4,
   "title": "JavaScript Collections: Map, Set, and WeakMap",
   "description": "Choose collections by key semantics, uniqueness, ordering, and data lifetime.",
-  "estimatedMinutes": 55,
+  "estimatedMinutes": 70,
   "difficulty": "intermediate",
   "prerequisites": [
     "js.functions-arrays-objects",
@@ -22,13 +22,17 @@
     "Map",
     "Set",
     "WeakMap",
-    "data structures"
+    "data structures",
+    "map-iteration",
+    "set-operations",
+    "symbols"
   ],
   "learningOutcomes": [
     "Explain Map key identity and insertion ordering.",
     "Use Set for unique primitive values and recognize its limits for objects.",
     "Choose WeakMap/WeakSet for object-associated metadata and account for non-enumerability.",
-    "Aggregate domain data without mutating inputs."
+    "Aggregate domain data without mutating inputs.",
+    "Use Map methods/iteration, perform basic Set operations, and explain symbol-key visibility."
   ],
   "blocks": [
     {
@@ -73,6 +77,43 @@
           "explanation": "The results are ready, size 2, and keys in their first-insertion order. A new object { id: \"a\" } is not the same key: objects compare by identity."
         }
       ]
+    },
+    {
+      "id": "map-methods-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Use Map methods and iteration deliberately"
+    },
+    {
+      "id": "map-methods-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const scores = new Map([\n  [\"Alice\", 95],\n  [\"Bob\", 87],\n  [\"Charlie\", 92],\n]);\n\nconsole.log(scores.has(\"Bob\"), scores.get(\"Bob\"));\nscores.set(\"Bob\", 90);\nscores.delete(\"Charlie\");\nconsole.log(scores.size);\n\nfor (const [name, score] of scores) {\n  console.log(`${name}: ${score}`);\n}\n\nconsole.log([...scores.keys()]);\nconsole.log([...scores.values()]);",
+      "steps": [
+        {
+          "title": "Initialize a Map",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Map accepts keys of different types and retains insertion order. It is initialized here from entry pairs so the starting data is explicit."
+        },
+        {
+          "title": "Use Map's common methods",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "`has` checks membership independently of the value; `get` may return `undefined` for a missing key. `set` inserts/replaces, `delete` removes an entry, and `size` reports the number of entries."
+        },
+        {
+          "title": "Iterate through keys and values",
+          "lineStart": 12,
+          "lineEnd": 17,
+          "explanation": "A Map iterates as `[key, value]` pairs. `keys()` and `values()` expose iterators for the corresponding sequence; `forEach` is another option."
+        }
+      ]
+    },
+    {
+      "id": "map-methods-model",
+      "type": "paragraph",
+      "text": "Use `has` when you must distinguish a missing key from a key mapped to `undefined`. Map supports insertion-ordered iteration, and object keys use reference identity."
     },
     {
       "id": "map-check",
@@ -140,6 +181,32 @@
       ]
     },
     {
+      "id": "set-operations-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const first = new Set([1, 2, 3, 4]);\nconst second = new Set([3, 4, 5, 6]);\n\nconst union = new Set([...first, ...second]);\nconst intersection = new Set([...first].filter((value) => second.has(value)));\nconst difference = new Set([...first].filter((value) => !second.has(value)));\n\nconsole.log([...union]);\nconsole.log([...intersection]);\nconsole.log([...difference]);",
+      "steps": [
+        {
+          "title": "Build the input sets",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Each Set keeps one copy of a value under JavaScript equality semantics. Separate objects with identical fields remain distinct values because objects compare by identity."
+        },
+        {
+          "title": "Combine their values",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "Union combines both sets without repeated values. The example constructs a new Set rather than mutating either original."
+        },
+        {
+          "title": "Compare shared and distinct values",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "explanation": "Intersection keeps values in the first set that are present in the second; difference keeps values from the first that are absent. Order follows iteration of the first set."
+        }
+      ]
+    },
+    {
       "id": "set-pitfall",
       "type": "callout",
       "tone": "warning",
@@ -176,6 +243,78 @@
       "id": "weak-limits",
       "type": "paragraph",
       "text": "WeakSet similarly tracks object membership, such as DOM nodes already processed. “Weak” does not mean a cleanup timer or a cache with an observable size: garbage-collection timing is nondeterministic. If you need iteration, counting, or guaranteed deletion, use ordinary Map/Set and manage lifetime explicitly."
+    },
+    {
+      "id": "symbols-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Symbols: unique keys and well-known protocols"
+    },
+    {
+      "id": "symbols-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const id = Symbol(\"id\");\nconst duplicate = Symbol(\"id\");\nconst sharedA = Symbol.for(\"app.id\");\nconst sharedB = Symbol.for(\"app.id\");\nconst record = { name: \"Ada\", [id]: 42 };\n\nconsole.log(id === duplicate);\nconsole.log(sharedA === sharedB);\nconsole.log(Object.keys(record));\nconsole.log(Object.getOwnPropertySymbols(record));\n\nconst iterable = { values: [1, 2, 3], [Symbol.iterator]() { return this.values[Symbol.iterator](); } };\nconsole.log([...iterable]);",
+      "steps": [
+        {
+          "title": "Compare local and registry symbols",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "A new `Symbol('id')` is unique even if another symbol has the same description. `Symbol.for('app.id')` uses the global registry and returns the same symbol for the same registry key."
+        },
+        {
+          "title": "Inspect symbol-keyed properties",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "`Object.keys` returns enumerable own string-keyed properties, so it omits symbol-keyed properties. `Object.getOwnPropertySymbols` can retrieve them."
+        },
+        {
+          "title": "Use the iterable protocol",
+          "lineStart": 12,
+          "lineEnd": 13,
+          "explanation": "`Symbol.iterator` is the protocol used by `for...of` and spread. This object delegates iteration to its contained array."
+        }
+      ]
+    },
+    {
+      "id": "symbols-security-note",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Symbols are not private storage",
+      "text": "Symbol keys can reduce accidental name collisions, but they do not make data secret. Code can inspect them with `Object.getOwnPropertySymbols` or `Reflect.ownKeys`; they are not a security boundary."
+    },
+    {
+      "id": "symbols-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A record has a symbol-keyed own property. What does `Object.keys(record)` return?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Only enumerable own string-keyed property names; symbol keys are omitted",
+          "correct": true,
+          "feedback": "Object.keys returns enumerable string-keyed own property names. Use Object.getOwnPropertySymbols or Reflect.ownKeys to inspect symbol keys."
+        },
+        {
+          "id": "b",
+          "text": "All own keys, including symbols and non-enumerable properties",
+          "correct": false,
+          "feedback": "Reflect.ownKeys returns all own string and symbol keys, including non-enumerable ones."
+        },
+        {
+          "id": "c",
+          "text": "No keys, because a symbol makes the entire record private",
+          "correct": false,
+          "feedback": "A symbol does not make an object or its properties private; symbol-keyed properties remain inspectable."
+        },
+        {
+          "id": "d",
+          "text": "Only inherited string properties",
+          "correct": false,
+          "feedback": "Object.keys does not enumerate inherited properties."
+        }
+      ],
+      "explanation": "Symbol keys are omitted by Object.keys because it returns enumerable own string-keyed properties. Symbol keys are discoverable through reflection APIs and are not a security mechanism."
     },
     {
       "id": "collections-practice",
@@ -278,6 +417,26 @@
         {
           "title": "MDN: WeakMap",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Map",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Set",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Symbol",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Object.getOwnPropertySymbols",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertySymbols",
           "kind": "official-docs"
         }
       ]

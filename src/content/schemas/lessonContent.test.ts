@@ -947,19 +947,57 @@ describe('Map, Set, and weak collections supplementary lesson', () => {
       russianCollections.blocks.map(({ id, type }) => ({ id, type })),
     );
     const checks = englishCollections.blocks.filter((block) => block.type === 'knowledgeCheck');
-    expect(checks).toHaveLength(2);
+    expect(checks).toHaveLength(3);
     for (const check of checks) {
       expect(check.options.filter((option) => option.correct)).toHaveLength(1);
       expect(check.options.every((option) => option.feedback.trim().length > 0)).toBe(true);
       expect(check.explanation.trim().length).toBeGreaterThan(0);
     }
-    expect(englishCollections.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
+    expect(englishCollections.version).toBe(2);
+    expect(englishCollections.blocks).toHaveLength(23);
+    expect(englishCollections.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
     const exercise = englishCollections.blocks.find((block) => block.type === 'codingExercise');
     expect(exercise?.type).toBe('codingExercise');
     if (exercise?.type !== 'codingExercise') return;
     expect(exercise.requirements.length).toBeGreaterThanOrEqual(4);
     expect(exercise.hints.length).toBeGreaterThanOrEqual(3);
     expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(4);
+    for (const lesson of [englishCollections, russianCollections]) {
+      const mapWalk = lesson.blocks.find((block) => block.id === 'map-methods-walkthrough');
+      expect(mapWalk?.type).toBe('codeWalkthrough');
+      if (mapWalk?.type !== 'codeWalkthrough') return;
+      const mapLines = mapWalk.code.split('\n').length;
+      expect(mapWalk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= mapLines)).toBe(true);
+      expect(mapWalk.code).toContain('.has(');
+      expect(mapWalk.code).toContain('.delete(');
+      expect(mapWalk.code).toContain('.keys()');
+      const setWalk = lesson.blocks.find((block) => block.id === 'set-operations-walkthrough');
+      expect(setWalk?.type).toBe('codeWalkthrough');
+      if (setWalk?.type !== 'codeWalkthrough') return;
+      const setLines = setWalk.code.split('\n').length;
+      expect(setWalk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= setLines)).toBe(true);
+      expect(setWalk.code).toContain('intersection');
+      expect(setWalk.code).toContain('difference');
+      const symbols = lesson.blocks.find((block) => block.id === 'symbols-walkthrough');
+      expect(symbols?.type).toBe('codeWalkthrough');
+      if (symbols?.type !== 'codeWalkthrough') return;
+      const symbolLines = symbols.code.split('\n').length;
+      expect(symbols.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= symbolLines)).toBe(true);
+      expect(symbols.code).toContain('Symbol.for');
+      expect(symbols.code).toContain('Object.getOwnPropertySymbols');
+      expect(symbols.code).toContain('Symbol.iterator');
+      const warning = lesson.blocks.find((block) => block.id === 'symbols-security-note');
+      expect(warning?.type).toBe('callout');
+      if (warning?.type === 'callout') expect(warning.text).toMatch(/not private|не.*приват/i);
+      const symbolCheck = lesson.blocks.find((block) => block.id === 'symbols-check');
+      expect(symbolCheck?.type).toBe('knowledgeCheck');
+      if (symbolCheck?.type !== 'knowledgeCheck') return;
+      expect(symbolCheck.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(symbolCheck.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.id === 'collections-references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol')).toBe(true);
+    }
   });
 });
 
