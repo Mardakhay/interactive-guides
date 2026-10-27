@@ -489,3 +489,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Full review of `sql-learning-page.html` is complete (112,768 bytes / 2,003 lines). `data.sql-postgresql` v2 EN/RU adds dialect/version guidance, safe transactional UPDATE/RETURNING practice, views/set operations, and a clear warning that the old seven-editor SQL runner returns canned result sets rather than executing SQL. The source matrix includes corrections to the MySQL CHECK statement and variable dialect behavior.
 - Full HTML source review count: 22/25. Two source files remain unread: `test.guide.html` and `ui-design-system-learn.html`; `html-reference.html` re-review and Notion source verification remain open.
 - `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; changes remain on `feat/learning-platform-foundation`.
+
+
+## Content audit continuation — 2026-10-27
+
+- Reviewed the complete `test.guide.html` source (98,371 bytes / 2,421 lines). Updated `testing.react-testing-library` v4 EN/RU with mock lifecycle semantics for Vitest, a walkthrough, knowledge check and exercise; test isolation and global-stub cleanup now have explicit source-derived evidence.
+- Source count: 23/25 HTML files fully reviewed. The only unread HTML source is `ui-design-system-learn.html`; the planned `html-reference.html` re-review and Notion source verification remain open.
+- Latest SQL SHA `96f654ca784f58b8311837accadeb0a946ce3dc7` passed exact-head CI [40463048117](https://github.com/Mardakhay/interactive-guides/actions/runs/40463048117). This testing lesson/docs update needs exact-head CI. Keep changes on `feat/learning-platform-foundation`; `main` remains unchanged.

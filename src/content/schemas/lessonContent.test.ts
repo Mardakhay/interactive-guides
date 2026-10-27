@@ -627,7 +627,6 @@ describe('Performance and accessibility lesson translation', () => {
     expect(englishPerformance.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianPerformance.blocks.map(({ id, type }) => ({ id, type })),
     );
-  });
     for (const lesson of [englishPerformance, russianPerformance]) {
       const menuWalkthrough = lesson.blocks.find((block) => block.id === 'performance-disclosure-nav-walkthrough');
       expect(menuWalkthrough?.type).toBe('codeWalkthrough');
@@ -655,6 +654,7 @@ describe('Performance and accessibility lesson translation', () => {
         expect(refs.items.some((item) => item.url === 'https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/')).toBe(true);
       }
     }
+  });
 });
 
 describe('React component testing lesson translation', () => {
@@ -667,8 +667,46 @@ describe('React component testing lesson translation', () => {
       russianTesting.blocks.map(({ id, type }) => ({ id, type })),
     );
   });
+  it('keeps Vitest mock history, implementation, and spy restoration distinct', () => {
+    expect(lessonTranslationSchema.safeParse(englishTesting).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianTesting).success).toBe(true);
+    expect(englishTesting.version).toBe(4);
+    expect(englishTesting.blocks).toHaveLength(39);
+    expect(englishTesting.blocks.map(({ id, type }) => ({ id, type }))).toEqual(russianTesting.blocks.map(({ id, type }) => ({ id, type })));
+    for (const lesson of [englishTesting, russianTesting]) {
+      const model = lesson.blocks.find((block) => block.id === 'test-mock-lifecycle-model');
+      expect(model?.type).toBe('paragraph');
+      if (model?.type === 'paragraph') {
+        expect(model.text).toContain('clearAllMocks');
+        expect(model.text).toContain('resetAllMocks');
+        expect(model.text).toContain('restoreAllMocks');
+      }
+      const walkthrough = lesson.blocks.find((block) => block.id === 'test-mock-lifecycle-walkthrough');
+      expect(walkthrough?.type).toBe('codeWalkthrough');
+      if (walkthrough?.type !== 'codeWalkthrough') return;
+      const lineCount = walkthrough.code.split('\n').length;
+      expect(walkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      expect(walkthrough.code).toContain('vi.restoreAllMocks()');
+      const check = lesson.blocks.find((block) => block.id === 'test-mock-lifecycle-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') return;
+      expect(check.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      const practice = lesson.blocks.find((block) => block.id === 'test-mock-lifecycle-practice');
+      expect(practice?.type).toBe('codingExercise');
+      if (practice?.type !== 'codingExercise') return;
+      expect(practice.requirements.length).toBeGreaterThanOrEqual(5);
+      expect(practice.hints.length).toBeGreaterThanOrEqual(3);
+      expect(practice.successCriteria.length).toBeGreaterThanOrEqual(5);
+      const refs = lesson.blocks.find((block) => block.id === 'testing-references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') {
+        expect(refs.items.some((item) => item.url === 'https://vitest.dev/guide/learn/mock-functions')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://vitest.dev/api/mock')).toBe(true);
+      }
+    }
+  });
 });
-
 describe('Git workflow lesson translation', () => {
   it('validates both locales and preserves equivalent block structure', () => {
     expect(lessonTranslationSchema.safeParse(englishGitWorkflow).success).toBe(true);

@@ -304,3 +304,10 @@ The lesson distinguishes ordinary site navigation from an application-menu role 
 The complete `sql-learning-page.html` source is reviewed. `data.sql-postgresql` v2 adds assessed SQL dialect/version guidance, current MySQL CHECK enforcement nuance, a transactional UPDATE/RETURNING walkthrough with a rollback decision, DML practice, and views/CASE/set-operation guidance. The old Run Query editor is explicitly documented as a canned string-pattern simulator, not a live SQL database.
 
 The audit records the source's dialect/transaction overgeneralizations and links MySQL 8.4's official CHECK documentation. Full HTML reviews documented: 22/25; two sources remain unread plus the separate `html-reference.html` re-review and open Notion source verification.
+
+
+## Testing guide source deep-review — 2026-10-27
+
+The full `test.guide.html` source has been reviewed. The canonical `testing.react-testing-library` lesson already maps test levels, matcher intent, RTL query priority, user interactions, async states, mocking and AAA. It is now v4 with assessed Vitest mock lifecycle guidance (`clearAllMocks` vs `resetAllMocks` vs `restoreAllMocks`), global-stub cleanup and practice for order-independent tests.
+
+The audit notes that the source's test-pyramid percentages/100x production-cost ratio are heuristics, not universal measurements, and that Jest-specific setup must not be copied into the repository's Vitest/RTL setup. Legacy tabs/FAQ/quiz UI remains a parity gap. Full HTML reviews documented: 23/25; one HTML source (`ui-design-system-learn.html`) remains unread, plus `html-reference.html` re-review and Notion verification.

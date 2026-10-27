@@ -596,3 +596,11 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Official MySQL 8.4 docs are linked: CHECK constraints are enforced by default in current MySQL but can be NOT ENFORCED; older versions differ. LIKE sensitivity and some transaction/correlated-query behavior depend on engine/collation. The legacy runner is pattern-matched canned output, not evidence that arbitrary SQL parses or runs.
 - Full HTML source reads documented: 22/25. Remaining unread: `test.guide.html` and `ui-design-system-learn.html`, plus planned `html-reference.html` re-review. Notion source verification is still open.
 - Last exact-head performance/accessibility CI passed on `bb409a9b13ce54ee8e96899c26165db7686f7cf4` (run `40462441522`). This SQL commit needs CI on its exact SHA.
+
+
+## Full source and content checkpoint — test.guide.html — 2026-10-27
+
+- Fully reviewed `public/lessons/test.guide.html` (98,371 bytes, 2,421 lines; blob `5e7004c2a752a2ec90dbe6638161120cc0d4adcc`), including test pyramid, Jest examples/matchers, mock tabs, RTL query priority, `userEvent`, async UI states, FAQs, quiz and interactions.
+- Expanded `testing.react-testing-library` to v4, 39 aligned EN/RU blocks, adding Vitest mock lifecycle: call history vs implementation reset vs restoring spies, global stubs, and isolated API mock practice. Added source-specific regression checks and official Vitest references.
+- Qualified legacy pyramid/production-cost statistics as heuristics; kept project guidance aligned with Vitest/RTL rather than copying Jest-only commands/global mutation. Tabs, FAQs and exact original quiz UI remain interaction parity gaps.
+- Full HTML source reads documented: 23/25. Remaining unread source: `ui-design-system-learn.html`; `html-reference.html` re-review and Notion source verification remain open.

@@ -1,7 +1,7 @@
 {
   "id": "testing.react-testing-library",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Testing React Components with Testing Library",
   "description": "Write behavior-focused component tests, query the UI through accessible roles and names, handle asynchronous updates, and keep test scope aligned with the project's actual runner.",
-  "estimatedMinutes": 107,
+  "estimatedMinutes": 120,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -25,7 +25,8 @@
     "Use userEvent and async queries to represent real interaction and asynchronous UI updates.",
     "Keep test data, network boundaries, and assertions deterministic.",
     "Write meaningful tests in the project's Vitest + React Testing Library setup and understand what changes if Jest is used.",
-    "Control API success and failure behavior with isolated Vitest mocks while asserting user-visible UI outcomes."
+    "Control API success and failure behavior with isolated Vitest mocks while asserting user-visible UI outcomes.",
+    "Distinguish mock call history, reset behavior, and restoring a spied method in Vitest."
   ],
   "tags": [
     "testing",
@@ -35,7 +36,9 @@
     "user-event",
     "accessibility",
     "testing-library",
-    "mocking"
+    "mocking",
+    "mock-cleanup",
+    "test-isolation"
   ],
   "blocks": [
     {
@@ -242,6 +245,116 @@
         "A rejected request produces accessible error feedback.",
         "Each scenario owns an isolated mock and awaits its UI outcome.",
         "No test depends on external network access or arbitrary sleep."
+      ]
+    },
+    {
+      "id": "test-mock-lifecycle-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Keep mocks isolated between tests"
+    },
+    {
+      "id": "test-mock-lifecycle-model",
+      "type": "paragraph",
+      "text": "Mocks have call history and behavior. `vi.clearAllMocks()` clears recorded calls but keeps implementations. `vi.resetAllMocks()` clears history and resets mock behavior. `vi.restoreAllMocks()` restores original methods replaced by `vi.spyOn`. A global stub made with `vi.stubGlobal` has separate cleanup through `vi.unstubAllGlobals`. Use the APIs supported by this repository's Vitest version and inspect `vitest.config`; do not assume defaults from another major version or copy Jest-only setup."
+    },
+    {
+      "id": "test-mock-lifecycle-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { afterEach, expect, it, vi } from \"vitest\";\n\nconst auditLog = { save: (id: number) => `saved:${id}` };\n\nafterEach(() => {\n  vi.restoreAllMocks();\n});\n\nit(\"controls one scenario and restores the method\", () => {\n  const spy = vi.spyOn(auditLog, \"save\").mockReturnValue(\"mocked\");\n  expect(auditLog.save(7)).toBe(\"mocked\");\n  expect(spy).toHaveBeenCalledWith(7);\n});\n\n// clearAllMocks: clear calls, keep implementation.\n// resetAllMocks: clear calls and reset implementation.\n// restoreAllMocks: restore original methods for spies.\n// vi.stubGlobal needs its own cleanup: vi.unstubAllGlobals().",
+      "steps": [
+        {
+          "title": "Spy on one object method",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "`vi.spyOn` replaces one method so the test can control its result and inspect arguments; keep the mock at a narrow boundary."
+        },
+        {
+          "title": "Restore the real method after the test",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "`afterEach` restores spies created with `vi.spyOn`, preventing the replacement from leaking into later tests."
+        },
+        {
+          "title": "Choose cleanup by what changed",
+          "lineStart": 9,
+          "lineEnd": 13,
+          "explanation": "The test stubs `save`, verifies its visible result and argument, then relies on cleanup to restore the original method."
+        },
+        {
+          "title": "Know the scope of each reset API",
+          "lineStart": 15,
+          "lineEnd": 18,
+          "explanation": "Call history, implementation and the original method are separate concerns. Stubbed globals have their own cleanup."
+        }
+      ]
+    },
+    {
+      "id": "test-mock-lifecycle-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A test uses `vi.spyOn(service, \"save\").mockResolvedValue(...)`. The next test must call the real `service.save`. Which cleanup best matches that goal?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`vi.clearAllMocks()`; it always restores the original method",
+          "correct": false,
+          "feedback": "Clearing removes recorded calls but keeps the mock implementation, so the method can remain replaced."
+        },
+        {
+          "id": "b",
+          "text": "`vi.restoreAllMocks()` after the test",
+          "correct": true,
+          "feedback": "Restore returns original implementations/descriptors for methods replaced using `vi.spyOn`."
+        },
+        {
+          "id": "c",
+          "text": "`screen.cleanup()`; it restores all service methods",
+          "correct": false,
+          "feedback": "DOM cleanup and mock cleanup are separate; unmounting does not restore an object spy."
+        },
+        {
+          "id": "d",
+          "text": "Reset every mock without checking what the next test needs",
+          "correct": false,
+          "feedback": "Reset and restore differ; choose the operation that matches the changed dependency."
+        }
+      ],
+      "explanation": "Use restore for a spy when the next test must call the real object method. Clearing call history and resetting mock behavior solve different problems."
+    },
+    {
+      "id": "test-mock-lifecycle-practice",
+      "type": "codingExercise",
+      "title": "Make a mocked-service test deterministic and isolated",
+      "language": "tsx",
+      "context": "A component test sometimes fails depending on test order because a spy implementation or API response leaks into later tests.",
+      "instructions": [
+        "Create each `vi.fn()` in the test or local setup where it belongs, and configure its response explicitly.",
+        "Choose clear, reset or restore based on whether call history, behavior or the real object method must be restored.",
+        "Add `afterEach` cleanup for spies, and restore global values stubbed with `vi.stubGlobal`.",
+        "Assert the user-visible result while using the mock only to control the external service boundary.",
+        "Explain why a test should not depend on execution order, a live API or a fixed sleep timer."
+      ],
+      "requirements": [
+        "Mocks have explicit return, resolved or rejected behavior when required.",
+        "Call history and implementation are treated as separate state.",
+        "Object spies are restored so later tests can call the original method.",
+        "Stubbed globals are explicitly restored where used.",
+        "The assertion checks visible behavior without relying on test order or network timing."
+      ],
+      "starterCode": "import { afterEach, expect, it, vi } from \"vitest\";\n\nconst service = { load: async () => [\"real value\"] };\nafterEach(() => {\n  // TODO: choose correct spy/global cleanup.\n});\n\nit(\"shows the mocked result\", async () => {\n  const loadSpy = vi.spyOn(service, \"load\");\n  // TODO: configure a deterministic resolved value.\n  // TODO: render and await the visible result.\n  // TODO: assert the service call without reading private component state.\n});",
+      "hints": [
+        "`clearAllMocks` clears observations; it does not restore the original implementation.",
+        "`resetAllMocks` also resets configured mock behavior; a plain `vi.fn()` may then return `undefined`.",
+        "`restoreAllMocks` restores spies; `vi.stubGlobal` uses `vi.unstubAllGlobals` for cleanup."
+      ],
+      "successCriteria": [
+        "The test outcome does not depend on test ordering.",
+        "Mock cleanup matches the state that must be cleared or restored.",
+        "The visible result is asserted with an accessible query and proper async waiting.",
+        "Responses are controlled in the test rather than by a live service.",
+        "Every global stub or spy is restored after the scenario."
       ]
     },
     {
@@ -571,6 +684,16 @@
           "title": "Testing Library: React Testing Library",
           "url": "https://testing-library.com/docs/react-testing-library/intro/",
           "kind": "guide"
+        },
+        {
+          "title": "Vitest: Mock Functions and cleanup",
+          "url": "https://vitest.dev/guide/learn/mock-functions",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vitest: Mock API",
+          "url": "https://vitest.dev/api/mock",
+          "kind": "official-docs"
         }
       ]
     }

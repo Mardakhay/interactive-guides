@@ -1,7 +1,7 @@
 {
   "id": "testing.react-testing-library",
   "locale": "ru",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Тестирование React-компонентов с Testing Library",
   "description": "Пиши тесты поведения компонентов, выбирай элементы интерфейса через доступные роли и имена, проверяй асинхронные обновления и учитывай реально настроенный тестовый runner.",
-  "estimatedMinutes": 107,
+  "estimatedMinutes": 120,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -25,7 +25,8 @@
     "Использовать userEvent и асинхронные запросы для реалистичного взаимодействия и обновлений UI.",
     "Делать тестовые данные, сетевые границы и проверки детерминированными.",
     "Писать осмысленные тесты в связке Vitest + React Testing Library и понимать, что изменится при использовании Jest.",
-    "Управлять успехом и ошибками API с изолированными Vitest mocks, проверяя видимые пользователю результаты."
+    "Управлять успехом и ошибками API с изолированными Vitest mocks, проверяя видимые пользователю результаты.",
+    "Различать очистку истории mock, сброс реализации и восстановление метода spy в Vitest."
   ],
   "tags": [
     "testing",
@@ -35,7 +36,9 @@
     "user-event",
     "accessibility",
     "testing-library",
-    "mocking"
+    "mocking",
+    "mock-cleanup",
+    "test-isolation"
   ],
   "blocks": [
     {
@@ -242,6 +245,116 @@
         "Отклонённый запрос приводит к доступному сообщению об ошибке.",
         "Каждый сценарий использует отдельный mock и ожидает UI-результат.",
         "Нет внешнего сетевого запроса и произвольных задержек."
+      ]
+    },
+    {
+      "id": "test-mock-lifecycle-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Изолируй mock между тестами"
+    },
+    {
+      "id": "test-mock-lifecycle-model",
+      "type": "paragraph",
+      "text": "У mock есть история вызовов и поведение. `vi.clearAllMocks()` очищает историю, но сохраняет реализации. `vi.resetAllMocks()` очищает историю и сбрасывает поведение mock. `vi.restoreAllMocks()` восстанавливает исходные методы, подменённые через `vi.spyOn`. У глобального stub, созданного через `vi.stubGlobal`, отдельная очистка — `vi.unstubAllGlobals`. Используй API версии Vitest, установленной в проекте, и проверь `vitest.config`; не полагайся на defaults другой major-версии и не копируй Jest-only настройку."
+    },
+    {
+      "id": "test-mock-lifecycle-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { afterEach, expect, it, vi } from \"vitest\";\n\nconst auditLog = { save: (id: number) => `saved:${id}` };\n\nafterEach(() => {\n  vi.restoreAllMocks();\n});\n\nit(\"controls one scenario and restores the method\", () => {\n  const spy = vi.spyOn(auditLog, \"save\").mockReturnValue(\"mocked\");\n  expect(auditLog.save(7)).toBe(\"mocked\");\n  expect(spy).toHaveBeenCalledWith(7);\n});\n\n// clearAllMocks: clear calls, keep implementation.\n// resetAllMocks: clear calls and reset implementation.\n// restoreAllMocks: restore original methods for spies.\n// vi.stubGlobal needs its own cleanup: vi.unstubAllGlobals().",
+      "steps": [
+        {
+          "title": "Подмени один метод объекта",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "`vi.spyOn` заменяет выбранный метод на время сценария, чтобы управлять результатом и проверять аргументы. Держи mock на узкой границе зависимости."
+        },
+        {
+          "title": "Восстанови реальный метод после теста",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "`afterEach` восстанавливает spy, созданные через `vi.spyOn`, чтобы подмена не попадала в последующие тесты."
+        },
+        {
+          "title": "Выбери очистку под изменённое состояние",
+          "lineStart": 9,
+          "lineEnd": 13,
+          "explanation": "Тест подменяет `save`, проверяет видимый результат и аргумент, затем полагается на cleanup для восстановления исходного метода."
+        },
+        {
+          "title": "Различай области действия API сброса",
+          "lineStart": 15,
+          "lineEnd": 18,
+          "explanation": "История вызовов, реализация и исходный метод объекта — разные вещи. Для глобальных stub есть отдельная очистка."
+        }
+      ]
+    },
+    {
+      "id": "test-mock-lifecycle-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Тест использует `vi.spyOn(service, \"save\").mockResolvedValue(...)`. Следующий тест должен вызвать настоящий `service.save`. Какая очистка подходит лучше?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`vi.clearAllMocks()`; она всегда восстанавливает исходный метод",
+          "correct": false,
+          "feedback": "Clear удаляет записи о вызовах, но сохраняет реализацию mock, поэтому метод может остаться подменённым."
+        },
+        {
+          "id": "b",
+          "text": "`vi.restoreAllMocks()` после теста",
+          "correct": true,
+          "feedback": "Restore возвращает исходные реализации/дескрипторы методов, заменённых через `vi.spyOn`."
+        },
+        {
+          "id": "c",
+          "text": "`screen.cleanup()`; она восстанавливает все методы сервисов",
+          "correct": false,
+          "feedback": "Очистка DOM и mock — разные задачи; размонтирование компонента не восстанавливает spy объекта."
+        },
+        {
+          "id": "d",
+          "text": "Сбрасывать все mock без проверки потребностей следующего теста",
+          "correct": false,
+          "feedback": "Reset и restore различаются; выбирай операцию под состояние зависимости, которое изменял тест."
+        }
+      ],
+      "explanation": "Если следующий тест должен вызвать настоящий метод объекта, восстанови spy. Очистка истории и сброс поведения решают другие задачи."
+    },
+    {
+      "id": "test-mock-lifecycle-practice",
+      "type": "codingExercise",
+      "title": "Сделай тест с mock детерминированным и изолированным",
+      "language": "tsx",
+      "context": "Тест компонента иногда падает в зависимости от порядка запуска, потому что реализация spy или ответ API остаётся подменённым для следующих тестов.",
+      "instructions": [
+        "Создавай каждый `vi.fn()` в нужной области теста или локальной настройки и явно определяй ответ.",
+        "Выбирай clear, reset или restore исходя из того, нужно ли очистить историю, поведение или вернуть настоящий метод объекта.",
+        "Добавь `afterEach` для восстановления spy и возвращай глобальные значения, подменённые через `vi.stubGlobal`.",
+        "Проверяй видимый результат, используя mock только для контроля внешней границы сервиса.",
+        "Объясни, почему тест не должен зависеть от порядка запуска, live API или фиксированного таймера сна."
+      ],
+      "requirements": [
+        "У mock явно настроен результат или resolved/rejected behavior, если он нужен тесту.",
+        "История вызовов и реализация считаются разными состояниями.",
+        "Spy объекта восстанавливаются, чтобы следующие тесты вызывали исходный метод.",
+        "Глобальные stub явно восстанавливаются там, где используются.",
+        "Проверка направлена на видимое поведение и не зависит от порядка тестов или времени сети."
+      ],
+      "starterCode": "import { afterEach, expect, it, vi } from \"vitest\";\n\nconst service = { load: async () => [\"real value\"] };\nafterEach(() => {\n  // TODO: выбери очистку spy/global.\n});\n\nit(\"показывает mock-результат\", async () => {\n  const loadSpy = vi.spyOn(service, \"load\");\n  // TODO: задай детерминированный resolved value.\n  // TODO: отрендери и дождись видимого результата.\n  // TODO: проверь вызов сервиса, не читая private state компонента.\n});",
+      "hints": [
+        "`clearAllMocks` очищает наблюдения, но не возвращает исходную реализацию.",
+        "`resetAllMocks` также сбрасывает настроенное поведение; обычный `vi.fn()` после этого может вернуть `undefined`.",
+        "`restoreAllMocks` восстанавливает spy; для `vi.stubGlobal` используй `vi.unstubAllGlobals`."
+      ],
+      "successCriteria": [
+        "Результат теста не зависит от порядка запуска.",
+        "Очистка mock соответствует состоянию, которое нужно очистить или восстановить.",
+        "Видимый результат проверяется доступным запросом и корректным async ожиданием.",
+        "Ответы контролируются в тесте, а не реальным сервисом.",
+        "Каждый глобальный stub или spy восстанавливается после сценария."
       ]
     },
     {
@@ -571,6 +684,16 @@
           "title": "Testing Library: React Testing Library",
           "url": "https://testing-library.com/docs/react-testing-library/intro/",
           "kind": "guide"
+        },
+        {
+          "title": "Vitest: mock functions и очистка",
+          "url": "https://vitest.dev/guide/learn/mock-functions",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vitest: Mock API",
+          "url": "https://vitest.dev/api/mock",
+          "kind": "official-docs"
         }
       ]
     }
