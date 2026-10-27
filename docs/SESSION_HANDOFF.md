@@ -8,10 +8,11 @@
 
 ## Current checkpoint — 2026-10-27
 
-- Feature head at start of this checkpoint: `cb24724b5b1c5317c24cf3adf6af5f40f944afda`; exact-head CI passed [40500504527](https://github.com/Mardakhay/interactive-guides/actions/runs/40500504527). `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
-- Latest implementation work adds pre-restore snapshot-read protection and stronger storage/backup failure-path tests; the test listener cleanup was also corrected to remove the exact registered callback in `afterEach`.
-- A manual smoke-test protocol now exists at [`BROWSER_SMOKE_TEST_CHECKLIST.md`](./BROWSER_SMOKE_TEST_CHECKLIST.md). It is a procedure, not evidence that a browser/device run was completed.
-- Current near-term priorities: verify CI for the current docs/status update, record manual Phase 5 browser/device results when a real environment is available, then continue the open source-claim parity and UI/reader acceptance. Do not start Supabase implementation before conflict/RLS/product gates are resolved.
+- Current feature head: `55644ccf50f14bcaab796bd6058b25297b621d16`; exact-head CI passed [40504186937](https://github.com/Mardakhay/interactive-guides/actions/runs/40504186937) (`npm ci`, lint, typecheck, 181 tests, production build). `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
+- The structured lesson repository now uses a lightweight bilingual static manifest and lazy JSON body imports. The repository chunk fell from 2,363.77 kB / 784.88 kB gzip to 54.26 kB / 17.15 kB gzip; the entry chunk is 280.15 kB / 92.89 kB gzip. Next change adds a build-time budget guard to stop the large repository chunk returning.
+- Lesson bodies are cached by the existing service worker on first successful same-origin asset request; they are not precached. W-03 must still confirm cached revisit offline and provide a clear limitation for a lesson never visited while online.
+- A manual smoke-test protocol exists at [`BROWSER_SMOKE_TEST_CHECKLIST.md`](./BROWSER_SMOKE_TEST_CHECKLIST.md); it is a procedure, not evidence of an actual browser/device run.
+- Open gates remain: actual browser/device persistence, backup and PWA acceptance; dependency audit triage; claim-by-claim source/Notion verification; full UI localization/accessibility review. Do not start Supabase implementation before conflict/RLS/product gates are resolved.
 ## Project goal
 
 Rebuild the existing Interactive Guides as a cohesive bilingual (English/Russian), mobile-friendly, PWA-ready learning platform based on:
@@ -882,3 +883,11 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - `backup.test.ts` simulates a SecurityError while collecting the pre-restore snapshot and verifies that no `setItem` or `removeItem` calls occur and every prior raw value remains unchanged.
 - Exact-head CI passed on `b9f500ee8509a986c12b0babd25a2c9947183a90`: [40498940471](https://github.com/Mardakhay/interactive-guides/actions/runs/40498940471).
 - Backup/restore failure paths now cover snapshot-read failure, write failure with successful rollback, legacy-key removal failure and rollback failure. Actual browser/device acceptance remains open.
+
+
+## Lazy lesson content and bundle-size checkpoint — 2026-10-27
+
+- `repository.ts` originally statically imported 44 bilingual JSON lesson pairs. The old production chunk was `repository-*.js` 2,363.77 kB minified / 784.88 kB gzip.
+- Added `src/content/lessonManifest.ts` with lightweight EN/RU metadata and changed complete lesson bodies to `import.meta.glob` dynamic imports. Curriculum cards and adjacent links use manifest metadata; opening a lesson loads and validates that body asynchronously. The page has localized loading/failure states and existing same-origin static-asset caching stores loaded chunks after first successful fetch.
+- Exact-head CI passed on `55644ccf50f14bcaab796bd6058b25297b621d16` ([run 40504186937](https://github.com/Mardakhay/interactive-guides/actions/runs/40504186937)); tests 181/181. New repository chunk is 54.26 kB / 17.15 kB gzip; entry is 280.15 kB / 92.89 kB gzip. Build budget enforcement is being added separately.
+- Offline acceptance still requires W-03: visit a lesson online, revisit that same lesson offline, and test a never-visited lesson offline. The latter is not precached and should fail through a visible loading error, not be described as available offline.

@@ -485,3 +485,13 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Verify that a read failure while snapshotting pre-restore storage aborts before any writes/removals and preserves every raw key.
 - Exact-head CI passed on `b9f500ee8509a986c12b0babd25a2c9947183a90` (run [40498940471](https://github.com/Mardakhay/interactive-guides/actions/runs/40498940471)).
 - [ ] Actual desktop/mobile browser tests for storage privacy/quota and native file picker/download remain open. Storage API mocks do not close these acceptance items.
+
+
+## Lazy lesson bundle and regression budget — 2026-10-27
+
+- [x] Replace static imports of all structured lesson JSON bodies with a lightweight bilingual metadata manifest and on-demand dynamic imports.
+- [x] Convert the structured lesson page to async load states and update repository/renderer tests for lazy imports.
+- [x] Verify exact-head CI on `55644ccf50f14bcaab796bd6058b25297b621d16` ([run 40504186937](https://github.com/Mardakhay/interactive-guides/actions/runs/40504186937)); 181/181 tests passed.
+- [x] Measure production output: repository chunk fell from 2,363.77 kB / 784.88 kB gzip to 54.26 kB / 17.15 kB gzip (about 97.8% lower gzip size). Entry chunk is 280.15 kB / 92.89 kB gzip.
+- [ ] Add a CI-enforced bundle budget so future builds fail if entry/repository chunks regress, then verify the new guard in exact-head CI.
+- [ ] Execute W-03 on real supported browsers/devices: verify revisiting an online-loaded lesson offline and the visible failure for a never-visited lesson. Lazy chunks are runtime-cached after first fetch, not precached.
