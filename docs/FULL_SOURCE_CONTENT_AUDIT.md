@@ -848,3 +848,7 @@ Cross-read the IndexedDB section of the Advanced JS Notion page against `browser
 Source inaccuracies qualified: do not promise fixed 5–10 MB or 5 MB storage limits across browsers. `estimate()` gives approximate usage/quota at origin level, and failed writes still need transaction error/abort handling. Request `success` is not the transaction commit boundary. Indexes must exist before querying them, and cursor iteration must advance with `continue()`. The legacy Notion API sandbox/UI is not reproduced one-for-one.
 
 Notion metadata for the Advanced JS page still reports `verification.state=unverified`; this is a focused source-slice review, not formal Notion verification.
+
+## IndexedDB exercise schema follow-up — 2026-10-27
+
+The first exact-head CI for IndexedDB v2 correctly caught a malformed `codingExercise`: the localized title was assigned through a mismatched property name and serialized as `undefined`. Both locale files now explicitly set the required `title`; the source lesson content, locale parity, and new CRUD/index/cursor/quota coverage are otherwise unchanged.

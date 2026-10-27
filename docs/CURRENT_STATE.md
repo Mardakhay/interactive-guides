@@ -614,3 +614,7 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 
 - `browser.storage-indexeddb` v2 now covers the previously open Advanced JS CRUD/index/cursor/quota-estimate slice: 30 aligned blocks, 7 walkthroughs, 3 knowledge checks and 2 coding exercises. Regression tests cover line ranges, `add/put/delete`, `IDBKeyRange`, cursor continuation, quota feature detection and official docs.
 - Fixed 5–10 MB guidance is qualified as non-portable. Browser quotas/eviction vary, estimate results are approximate, and transaction failures still need handling. Notion metadata remains unverified.
+
+## IndexedDB exercise title fix — 2026-10-27
+
+- Follow-up to IndexedDB v2: set the required EN/RU title on `indexeddb-crud-practice` after CI found `blocks[23].title` undefined. The fix is limited to the coding-exercise metadata; repeat exact-head CI.

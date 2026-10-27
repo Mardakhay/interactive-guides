@@ -727,3 +727,7 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Expanded `browser.storage-indexeddb` to v2 / 30 aligned EN/RU blocks. New walkthroughs cover `add/get/put/delete`, index/range/cursor query and feature-detected `navigator.storage.estimate()`; new knowledge check and repository exercise cover commit timing, cursor progression and quota fallback.
 - Corrected fixed-5–10 MB source guidance as non-portable; estimates are origin-level approximations and do not remove the need to handle failed writes. Regression tests cover line ranges, CRUD, index, cursor, quota API and exercise completeness.
 - Advanced JS Notion metadata remains `verification.state=unverified`; this is a focused source slice, not a formal verification claim.
+
+## IndexedDB exercise title fix — 2026-10-27
+
+- CI for `0d66dce` exposed a missing required `title` on `indexeddb-crud-practice`. Explicit EN/RU titles are now set; the lesson schema requires this field for every coding exercise. Recheck CI on the new exact SHA.

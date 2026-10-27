@@ -395,7 +395,8 @@
         "Write promises cannot resolve before commit and reject on failure.",
         "Quota estimation has a graceful unsupported path and is never described as a guaranteed cap.",
         "The design has a fallback and does not mistake local data for server-backed sync."
-      ]
+      ],
+      "title": "Build a small IndexedDB repository safely"
     },
     {
       "id": "indexeddb-tradeoffs",
