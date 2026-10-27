@@ -609,3 +609,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## DOM throttle practice assertion — 2026-10-27
 
 - Localized the throttle practice requirement assertion as well as the quiz explanation assertion. EN still must mention `callback reference`; RU must mention `той же ссылкой на callback`, preserving the same cleanup-contract test.
+
+## IndexedDB source follow-up — 2026-10-27
+
+- `browser.storage-indexeddb` v2 now covers the previously open Advanced JS CRUD/index/cursor/quota-estimate slice: 30 aligned blocks, 7 walkthroughs, 3 knowledge checks and 2 coding exercises. Regression tests cover line ranges, `add/put/delete`, `IDBKeyRange`, cursor continuation, quota feature detection and official docs.
+- Fixed 5–10 MB guidance is qualified as non-portable. Browser quotas/eviction vary, estimate results are approximate, and transaction failures still need handling. Notion metadata remains unverified.

@@ -721,3 +721,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## DOM throttle bilingual exercise test — 2026-10-27
 
 - The next CI run after localizing the quiz explanation exposed a matching issue in the practice rubric: the `callback reference` assertion was still English-only. It now selects an EN/RU phrase by `lesson.locale`; teardown/range/API/reference coverage stays intact.
+
+## IndexedDB CRUD/source pass — 2026-10-27
+
+- Expanded `browser.storage-indexeddb` to v2 / 30 aligned EN/RU blocks. New walkthroughs cover `add/get/put/delete`, index/range/cursor query and feature-detected `navigator.storage.estimate()`; new knowledge check and repository exercise cover commit timing, cursor progression and quota fallback.
+- Corrected fixed-5–10 MB source guidance as non-portable; estimates are origin-level approximations and do not remove the need to handle failed writes. Regression tests cover line ranges, CRUD, index, cursor, quota API and exercise completeness.
+- Advanced JS Notion metadata remains `verification.state=unverified`; this is a focused source slice, not a formal verification claim.

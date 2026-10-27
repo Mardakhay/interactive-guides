@@ -1,7 +1,7 @@
 {
   "id": "browser.storage-indexeddb",
   "locale": "ru",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Web Storage и IndexedDB",
   "description": "Локальное хранение, транзакции IndexedDB, безопасность и границы browser storage.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 100,
   "difficulty": "intermediate",
   "prerequisites": [
     "js.async-fetch",
@@ -215,6 +215,189 @@
       ]
     },
     {
+      "id": "indexeddb-crud-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Полный жизненный цикл записи: добавить, прочитать, обновить, удалить"
+    },
+    {
+      "id": "indexeddb-crud-intro",
+      "type": "paragraph",
+      "text": "IndexedDB хранит записи в object store. Используй `add()`, когда запись должна быть новой; `put()` — для вставки или замены. `get()` читает по первичному ключу, `delete()` удаляет по ключу, а `getAll()` удобен для небольшого ограниченного результата. Каждая операция выполняется внутри транзакции. Событие `success` отдельного request не является границей commit: сообщай UI об успешной записи только после `complete` транзакции и обрабатывай `error`/`abort` как сбой."
+    },
+    {
+      "id": "indexeddb-crud-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function addDraft(db, draft) {\n  const transaction = db.transaction(\"drafts\", \"readwrite\");\n  const store = transaction.objectStore(\"drafts\");\n  const request = store.add(draft); // insert only; duplicate keys can fail\n  request.onsuccess = () => console.log(\"Request succeeded\", request.result);\n  request.onerror = () => console.error(\"Add request failed\", request.error);\n  transaction.oncomplete = () => console.log(\"Draft committed\");\n  transaction.onabort = () => console.error(\"Transaction aborted\", transaction.error);\n}\n\nfunction readDraft(db, id) {\n  const transaction = db.transaction(\"drafts\", \"readonly\");\n  const request = transaction.objectStore(\"drafts\").get(id);\n  request.onsuccess = () => console.log(\"Draft result\", request.result);\n  request.onerror = () => console.error(\"Read failed\", request.error);\n}\n\nfunction saveDraft(db, draft) {\n  const transaction = db.transaction(\"drafts\", \"readwrite\");\n  const request = transaction.objectStore(\"drafts\").put(draft); // insert or replace\n  request.onerror = () => console.error(\"Save request failed\", request.error);\n  transaction.oncomplete = () => console.log(\"Save transaction committed\");\n  transaction.onabort = () => console.error(\"Save transaction aborted\", transaction.error);\n}\n\nfunction deleteDraft(db, id) {\n  const transaction = db.transaction(\"drafts\", \"readwrite\");\n  const request = transaction.objectStore(\"drafts\").delete(id);\n  request.onerror = () => console.error(\"Delete failed\", request.error);\n  transaction.oncomplete = () => console.log(\"Delete transaction committed\");\n  transaction.onabort = () => console.error(\"Delete transaction aborted\", transaction.error);\n}",
+      "steps": [
+        {
+          "title": "Добавь новую запись",
+          "lineStart": 1,
+          "lineEnd": 10,
+          "explanation": "`add()` только вставляет новую запись. Если ключ уже существует, request может завершиться constraint error, а транзакция — отмениться."
+        },
+        {
+          "title": "Прочитай по первичному ключу",
+          "lineStart": 11,
+          "lineEnd": 17,
+          "explanation": "`get()` — запрос на чтение. Проверь результат прежде, чем считать, что запись существует."
+        },
+        {
+          "title": "Вставь или замени",
+          "lineStart": 18,
+          "lineEnd": 25,
+          "explanation": "`put()` вставляет или заменяет запись с тем же ключом. Успешный request ещё не означает, что транзакция целиком завершена."
+        },
+        {
+          "title": "Удали по ключу",
+          "lineStart": 26,
+          "lineEnd": 31,
+          "explanation": "`delete()` удаляет запись по первичному ключу. Обрабатывай ошибки request и abort транзакции."
+        }
+      ]
+    },
+    {
+      "id": "indexeddb-queries-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Используй индексы и cursor для адресного чтения"
+    },
+    {
+      "id": "indexeddb-queries-intro",
+      "type": "paragraph",
+      "text": "Создавай индекс в `onupgradeneeded` и используй его, когда поле действительно нужно для поиска. `IDBKeyRange` ограничивает запрос, а cursor постепенно проходит по совпадениям. Пример предполагает, что `updatedAt` хранится как одинаково нормализованные ISO date strings, совместимые с индексом `by-updated` из примера схемы."
+    },
+    {
+      "id": "indexeddb-query-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function listDraftsByDate(db, fromIso, toIso) {\n  const transaction = db.transaction(\"drafts\", \"readonly\");\n  const index = transaction.objectStore(\"drafts\").index(\"by-updated\");\n  const range = IDBKeyRange.bound(fromIso, toIso);\n  const request = index.openCursor(range, \"prev\");\n  request.onsuccess = () => {\n    const cursor = request.result;\n    if (!cursor) return; // no more matching records\n    console.log(cursor.primaryKey, cursor.value);\n    cursor.continue();\n  };\n  request.onerror = () => console.error(\"Cursor failed\", request.error);\n}\n\n// getAll() is convenient when the complete result is small and needed at once.\n// A cursor processes entries incrementally and can stop early.",
+      "steps": [
+        {
+          "title": "Открой индекс и диапазон",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Индекс `by-updated` создан в примере обновления схемы. Граничные ключи должны иметь тот же тип и порядок, что индексируемые значения."
+        },
+        {
+          "title": "Обработай и продвинь cursor",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "explanation": "Cursor существует, пока `request.result` truthy. Вызывай `continue()` для перехода; отсутствие cursor означает конец совпадений."
+        },
+        {
+          "title": "Выбери массив или cursor",
+          "lineStart": 15,
+          "lineEnd": 16,
+          "explanation": "Используй `getAll()`, когда небольшой результат нужен целиком; cursor не собирает все записи одним массивом и позволяет закончить раньше."
+        }
+      ]
+    },
+    {
+      "id": "indexeddb-quota-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Оценивай хранилище, не обещая фиксированную квоту"
+    },
+    {
+      "id": "indexeddb-quota-intro",
+      "type": "paragraph",
+      "text": "Квота и политика очистки зависят от браузера, устройства и условий хранения. Не утверждай универсально, что IndexedDB всегда предоставляет «5–10 MB». `navigator.storage.estimate()` при поддержке возвращает приблизительную оценку usage/quota на уровне origin; она не гарантирует, что следующая запись пройдёт. Ошибки транзакции всё равно нужно обрабатывать. `navigator.storage.persist()` может запросить постоянное хранение, но запрос могут отклонить."
+    },
+    {
+      "id": "indexeddb-quota-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "async function readOriginStorageEstimate() {\n  if (!navigator.storage?.estimate) return null;\n  const { usage, quota } = await navigator.storage.estimate();\n  return {\n    usageBytes: usage ?? null,\n    quotaBytes: quota ?? null,\n    usageRatio: usage !== undefined && quota ? usage / quota : null,\n  };\n}",
+      "steps": [
+        {
+          "title": "Проверь наличие API оценки",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "В некоторых контекстах estimate API недоступен. Предусмотри fallback, а не предполагай, что метод всегда есть."
+        },
+        {
+          "title": "Считай значения приблизительными",
+          "lineStart": 3,
+          "lineEnd": 7,
+          "explanation": "Usage и quota — оценки для origin, а не фиксированный лимит object store. Неудачную запись всё равно нужно обрабатывать через error/abort."
+        }
+      ]
+    },
+    {
+      "id": "indexeddb-crud-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Для object store с keyPath `id` какая операция обычно используется для вставки или замены записи?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`add(record)`, потому что она заменяет запись с тем же ключом",
+          "correct": false,
+          "feedback": "`add()` только вставляет; существующий ключ может вызвать constraint error вместо замены."
+        },
+        {
+          "id": "b",
+          "text": "`put(record)`, потому что она вставляет или заменяет запись по ключу",
+          "correct": true,
+          "feedback": "`put()` выполняет insert-or-update для ключа; успешный commit всё равно зависит от завершения транзакции."
+        },
+        {
+          "id": "c",
+          "text": "`get(record)`, потому что она записывает только отсутствующие значения",
+          "correct": false,
+          "feedback": "`get()` читает и не вставляет или обновляет запись."
+        },
+        {
+          "id": "d",
+          "text": "`openCursor(record)`, потому что она коммитит весь store",
+          "correct": false,
+          "feedback": "Cursor предназначен для перебора записей и не заменяет операцию записи или жизненный цикл транзакции."
+        }
+      ],
+      "explanation": "Используй `add()` для вставки только новой записи и `put()` для вставки или замены. Дождись завершения транзакции, прежде чем сообщать об успешной записи."
+    },
+    {
+      "id": "indexeddb-crud-practice",
+      "type": "codingExercise",
+      "language": "javascript",
+      "context": "Offline-экран заметок хранит черновики в object store `drafts` с keyPath `id` и индексом `by-updated`. Ему нужны надёжные CRUD-операции и выборка по диапазону дат.",
+      "instructions": [
+        "Реализуй create через `add()`, read через `get()`, update/upsert через `put()` и delete через `delete()` для `drafts`.",
+        "Запроси `by-updated` через `IDBKeyRange.bound()` и пройди совпадения с `openCursor()`/`continue()`.",
+        "Разрешай write Promise только после `complete` транзакции; отклоняй при abort/error и не путай success request с commit транзакции.",
+        "Создавай object store и индекс идемпотентно внутри `onupgradeneeded`, закрывай старые соединения при `versionchange`.",
+        "Проверь поддержку `navigator.storage.estimate()` и показывай usage/quota как приблизительные значения origin, а не гарантированный лимит в мегабайтах.",
+        "Опиши fallback при недоступном или переполненном хранилище, не утверждая, что локальный IndexedDB синхронизирует черновики на другое устройство."
+      ],
+      "requirements": [
+        "CRUD-функции используют правильный object store, режим транзакции, первичный ключ и операцию.",
+        "`add()` остаётся insert-only, а `put()` используется как insert-or-replace.",
+        "Запрос по индексу использует существующее имя индекса и совместимый `IDBKeyRange`.",
+        "Cursor продвигается через `continue()` и корректно завершает перебор.",
+        "Успех записи сообщается только на `transaction.complete`; при error/abort Promise отклоняется.",
+        "Оценка квоты проверяет поддержку API и не обещает фиксированные лимиты во всех браузерах.",
+        "Есть fallback, а локальное сохранение не смешивается с серверной синхронизацией."
+      ],
+      "starterCode": "function listDraftsByDate(db, fromIso, toIso) {\n  const transaction = db.transaction(\"drafts\", \"readonly\");\n  const index = transaction.objectStore(\"drafts\").index(\"by-updated\");\n  const range = IDBKeyRange.bound(fromIso, toIso);\n  const request = index.openCursor(range, \"prev\");\n\n  request.onsuccess = () => {\n    const cursor = request.result;\n    if (!cursor) return;\n    // TODO: собери/покажи cursor.value или cursor.primaryKey.\n    // TODO: перейди к следующему cursor.\n  };\n  request.onerror = () => {\n    // TODO: покажи ошибку чтения.\n  };\n}\n\nasync function readOriginStorageEstimate() {\n  // TODO: проверь поддержку navigator.storage.estimate().\n  // TODO: верни приблизительные usage/quota без фиксированного лимита.\n}",
+      "hints": [
+        "`add()` отклоняет дубликаты ключа; `put()` обновляет или вставляет.",
+        "Индекс должен существовать в обновлённой схеме до вызова `store.index(name)`.",
+        "`cursor.continue()` продвигает запрос; отсутствие cursor означает конец совпадений.",
+        "Успех request не означает commit транзакции. Разрешай Promise только на `transaction.complete`.",
+        "Storage estimate — приблизительная оценка уровня origin; сбои записи всё равно нужно обрабатывать."
+      ],
+      "successCriteria": [
+        "Каждая CRUD-операция использует нужный ключ и режим readonly/readwrite.",
+        "Диапазон индекса возвращает только записи в заданном временном окне.",
+        "Cursor корректно продвигается и останавливается.",
+        "Write Promise не разрешается до commit транзакции и отклоняется при сбое.",
+        "Оценка квоты имеет graceful fallback и не описывается как гарантированный лимит.",
+        "Предусмотрен fallback, и локальные данные не выдаются за серверную синхронизацию."
+      ]
+    },
+    {
       "id": "indexeddb-tradeoffs",
       "type": "paragraph",
       "text": "IndexedDB асинхронна, same-origin и использует structured clone, object stores, индексы, запросы, cursors и транзакции. Браузер управляет квотой и политикой вытеснения; это не резервная копия и не общий аккаунт между устройствами. Не держите транзакцию открытой, ожидая постороннюю сеть или таймер; создавайте короткую транзакцию возле операции."
@@ -333,6 +516,26 @@
         {
           "title": "MDN: Using IndexedDB",
           "url": "https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: IDBObjectStore.add()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/add",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: IDBObjectStore.put()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/put",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: IDBObjectStore.openCursor()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/openCursor",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: StorageManager.estimate()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/estimate",
           "kind": "official-docs"
         }
       ]

@@ -373,3 +373,9 @@ The earlier 37-pair/74-file count and incomplete HTML-read counts are historical
 ## Part 4 test-coverage continuation — 2026-10-27
 
 Strengthened tests around the four React-ecosystem lessons. Router tests now guard query-parameter state, nested layouts/Outlet, wildcard not-found and route-guard/server-authorization distinction; forms tests guard FormData, accessible label/error links, RHF and async submission; Context tests guard separate custom-Hook instances, reducer exhaustiveness and provider boundaries. The API lesson already has content-specific regression coverage for debounce, request abort/stale responses and Fetch failures.
+
+## IndexedDB CRUD and quota follow-up — 2026-10-27
+
+`browser.storage-indexeddb` v2 maps the Advanced JS Notion page's previously missing IndexedDB examples: create/read/upsert/delete, index-based range queries, cursor traversal and storage quota estimation. The lesson includes explicit schema/transaction constraints and tests for EN/RU parity and walkthrough ranges.
+
+Quota material is phrased as approximate origin-level usage/quota, not a universal 5–10 MB browser limit. The Notion page connector verification is still `unverified`, so only this content slice is marked reviewed.

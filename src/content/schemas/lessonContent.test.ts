@@ -1102,26 +1102,70 @@ describe('browser storage supplementary lesson', () => {
     expect(lessonTranslationSchema.safeParse(englishStorage).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianStorage).success).toBe(true);
     expect(englishStorage.id).toBe('browser.storage-indexeddb');
+    expect(englishStorage.version).toBe(2);
+    expect(englishStorage.blocks).toHaveLength(30);
     expect(englishStorage.moduleId).toBe('supplement-browser-storage');
     expect(englishStorage.supplementaryTrackId).toBe('supplement-browser-storage');
     expect(englishStorage.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianStorage.blocks.map(({ id, type }) => ({ id, type })),
     );
     const quizzes = englishStorage.blocks.filter((block) => block.type === 'knowledgeCheck');
-    expect(quizzes).toHaveLength(2);
+    expect(quizzes).toHaveLength(3);
     for (const quiz of quizzes) {
       expect(quiz.options.filter((option) => option.correct)).toHaveLength(1);
       expect(quiz.options.every((option) => option.feedback.trim().length > 0)).toBe(true);
       expect(quiz.explanation.trim().length).toBeGreaterThan(0);
     }
-    expect(englishStorage.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(4);
-    const exercise = englishStorage.blocks.find((block) => block.type === 'codingExercise');
+    expect(englishStorage.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(7);
+    const exercise = englishStorage.blocks.find((block) => block.id === 'storage-practice');
     expect(exercise?.type).toBe('codingExercise');
     if (exercise?.type !== 'codingExercise') return;
     expect(exercise.starterCode).toContain('transaction.oncomplete');
     expect(exercise.requirements.length).toBeGreaterThanOrEqual(5);
     expect(exercise.hints.length).toBeGreaterThanOrEqual(4);
     expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
+    for (const lesson of [englishStorage, russianStorage]) {
+      for (const walk of lesson.blocks.filter((block) => block.type === 'codeWalkthrough')) {
+        if (walk.type !== 'codeWalkthrough') continue;
+        const lineCount = walk.code.split('\n').length;
+        expect(walk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      }
+      const crud = lesson.blocks.find((block) => block.id === 'indexeddb-crud-walkthrough');
+      expect(crud?.type).toBe('codeWalkthrough');
+      if (crud?.type !== 'codeWalkthrough') return;
+      expect(crud.code).toContain('store.add(draft)');
+      expect(crud.code).toContain('objectStore("drafts").put(draft)');
+      expect(crud.code).toContain('objectStore("drafts").delete(id)');
+      expect(crud.code).toContain('transaction.oncomplete');
+      const query = lesson.blocks.find((block) => block.id === 'indexeddb-query-walkthrough');
+      expect(query?.type).toBe('codeWalkthrough');
+      if (query?.type !== 'codeWalkthrough') return;
+      expect(query.code).toContain('IDBKeyRange.bound');
+      expect(query.code).toContain('openCursor');
+      expect(query.code).toContain('cursor.continue()');
+      const quota = lesson.blocks.find((block) => block.id === 'indexeddb-quota-walkthrough');
+      expect(quota?.type).toBe('codeWalkthrough');
+      if (quota?.type !== 'codeWalkthrough') return;
+      expect(quota.code).toContain('navigator.storage?.estimate');
+      expect(quota.code).toContain('quotaBytes');
+      const crudCheck = lesson.blocks.find((block) => block.id === 'indexeddb-crud-check');
+      expect(crudCheck?.type).toBe('knowledgeCheck');
+      if (crudCheck?.type !== 'knowledgeCheck') return;
+      expect(crudCheck.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(crudCheck.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      const practice = lesson.blocks.find((block) => block.id === 'indexeddb-crud-practice');
+      expect(practice?.type).toBe('codingExercise');
+      if (practice?.type !== 'codingExercise') return;
+      expect(practice.requirements.length).toBeGreaterThanOrEqual(7);
+      expect(practice.hints.length).toBeGreaterThanOrEqual(5);
+      expect(practice.successCriteria.length).toBeGreaterThanOrEqual(6);
+      const refs = lesson.blocks.find((block) => block.id === 'storage-references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') {
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/add')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/estimate')).toBe(true);
+      }
+    }
   });
 });
 

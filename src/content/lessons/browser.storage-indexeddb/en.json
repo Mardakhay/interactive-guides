@@ -1,7 +1,7 @@
 {
   "id": "browser.storage-indexeddb",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Web Storage and IndexedDB",
   "description": "Local browser storage, IndexedDB transactions, security, and storage boundaries.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 100,
   "difficulty": "intermediate",
   "prerequisites": [
     "js.async-fetch",
@@ -215,6 +215,189 @@
       ]
     },
     {
+      "id": "indexeddb-crud-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Complete the record lifecycle: add, read, update, delete"
+    },
+    {
+      "id": "indexeddb-crud-intro",
+      "type": "paragraph",
+      "text": "IndexedDB stores records in object stores. Use `add()` when a record must be new; use `put()` for insert-or-replace. `get()` reads by primary key, `delete()` removes by key, and `getAll()` suits a small bounded result. Each operation runs in a transaction. A request's `success` event is not the commit boundary: report a successful write only after transaction `complete`, and handle `error`/`abort` as failure."
+    },
+    {
+      "id": "indexeddb-crud-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function addDraft(db, draft) {\n  const transaction = db.transaction(\"drafts\", \"readwrite\");\n  const store = transaction.objectStore(\"drafts\");\n  const request = store.add(draft); // insert only; duplicate keys can fail\n  request.onsuccess = () => console.log(\"Request succeeded\", request.result);\n  request.onerror = () => console.error(\"Add request failed\", request.error);\n  transaction.oncomplete = () => console.log(\"Draft committed\");\n  transaction.onabort = () => console.error(\"Transaction aborted\", transaction.error);\n}\n\nfunction readDraft(db, id) {\n  const transaction = db.transaction(\"drafts\", \"readonly\");\n  const request = transaction.objectStore(\"drafts\").get(id);\n  request.onsuccess = () => console.log(\"Draft result\", request.result);\n  request.onerror = () => console.error(\"Read failed\", request.error);\n}\n\nfunction saveDraft(db, draft) {\n  const transaction = db.transaction(\"drafts\", \"readwrite\");\n  const request = transaction.objectStore(\"drafts\").put(draft); // insert or replace\n  request.onerror = () => console.error(\"Save request failed\", request.error);\n  transaction.oncomplete = () => console.log(\"Save transaction committed\");\n  transaction.onabort = () => console.error(\"Save transaction aborted\", transaction.error);\n}\n\nfunction deleteDraft(db, id) {\n  const transaction = db.transaction(\"drafts\", \"readwrite\");\n  const request = transaction.objectStore(\"drafts\").delete(id);\n  request.onerror = () => console.error(\"Delete failed\", request.error);\n  transaction.oncomplete = () => console.log(\"Delete transaction committed\");\n  transaction.onabort = () => console.error(\"Delete transaction aborted\", transaction.error);\n}",
+      "steps": [
+        {
+          "title": "Insert a new record",
+          "lineStart": 1,
+          "lineEnd": 10,
+          "explanation": "`add()` is insert-only. If the key already exists, the request can fail with a constraint error and the transaction can abort."
+        },
+        {
+          "title": "Read by primary key",
+          "lineStart": 11,
+          "lineEnd": 17,
+          "explanation": "`get()` is a readonly request. Check its result before assuming that a record exists."
+        },
+        {
+          "title": "Insert or replace",
+          "lineStart": 18,
+          "lineEnd": 25,
+          "explanation": "`put()` inserts or replaces a record with the same key. Request success still does not prove the transaction committed."
+        },
+        {
+          "title": "Delete by key",
+          "lineStart": 26,
+          "lineEnd": 31,
+          "explanation": "`delete()` removes the record with that primary key. Handle request errors and transaction aborts."
+        }
+      ]
+    },
+    {
+      "id": "indexeddb-queries-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Use indexes and cursors for targeted reads"
+    },
+    {
+      "id": "indexeddb-queries-intro",
+      "type": "paragraph",
+      "text": "Create an index during `onupgradeneeded` and query it when the field is a real access path. `IDBKeyRange` scopes the query; a cursor walks matching entries incrementally. This example assumes `updatedAt` values are consistently normalized ISO date strings compatible with the `by-updated` index created during schema upgrade."
+    },
+    {
+      "id": "indexeddb-query-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function listDraftsByDate(db, fromIso, toIso) {\n  const transaction = db.transaction(\"drafts\", \"readonly\");\n  const index = transaction.objectStore(\"drafts\").index(\"by-updated\");\n  const range = IDBKeyRange.bound(fromIso, toIso);\n  const request = index.openCursor(range, \"prev\");\n  request.onsuccess = () => {\n    const cursor = request.result;\n    if (!cursor) return; // no more matching records\n    console.log(cursor.primaryKey, cursor.value);\n    cursor.continue();\n  };\n  request.onerror = () => console.error(\"Cursor failed\", request.error);\n}\n\n// getAll() is convenient when the complete result is small and needed at once.\n// A cursor processes entries incrementally and can stop early.",
+      "steps": [
+        {
+          "title": "Open the index and range",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The `by-updated` index comes from the schema-upgrade example. Range keys must use the same type/order as indexed values."
+        },
+        {
+          "title": "Process and advance the cursor",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "explanation": "A cursor is present while `request.result` is truthy. Call `continue()` to advance; no cursor means no more matching entries."
+        },
+        {
+          "title": "Choose an array or cursor",
+          "lineStart": 15,
+          "lineEnd": 16,
+          "explanation": "Use `getAll()` when a small result is needed all at once; a cursor avoids materializing every matching record in one array and can stop early."
+        }
+      ]
+    },
+    {
+      "id": "indexeddb-quota-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Estimate storage without promising a fixed quota"
+    },
+    {
+      "id": "indexeddb-quota-intro",
+      "type": "paragraph",
+      "text": "Browser quotas and eviction policies vary by browser, device, and storage conditions. Do not teach a universal “IndexedDB gives 5–10 MB” rule. `navigator.storage.estimate()` provides approximate origin-level usage/quota when supported; it does not guarantee the next write will succeed. Still handle transaction failures. `navigator.storage.persist()` may request persistence, but the request can be denied."
+    },
+    {
+      "id": "indexeddb-quota-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "async function readOriginStorageEstimate() {\n  if (!navigator.storage?.estimate) return null;\n  const { usage, quota } = await navigator.storage.estimate();\n  return {\n    usageBytes: usage ?? null,\n    quotaBytes: quota ?? null,\n    usageRatio: usage !== undefined && quota ? usage / quota : null,\n  };\n}",
+      "steps": [
+        {
+          "title": "Detect whether estimation is available",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Some contexts may not expose the estimate API. Return a fallback rather than assuming it exists."
+        },
+        {
+          "title": "Treat values as approximate",
+          "lineStart": 3,
+          "lineEnd": 7,
+          "explanation": "Usage and quota are estimates for the origin, not a fixed object-store limit. A failed write still needs error/abort handling."
+        }
+      ]
+    },
+    {
+      "id": "indexeddb-crud-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "For an object store with keyPath `id`, which operation is the normal insert-or-replace choice?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`add(record)` because it overwrites a record with the same key",
+          "correct": false,
+          "feedback": "`add()` is insert-only; an existing key can cause a constraint error rather than replacement."
+        },
+        {
+          "id": "b",
+          "text": "`put(record)` because it inserts or replaces by key",
+          "correct": true,
+          "feedback": "`put()` provides insert-or-update behavior for a record key; the surrounding transaction still determines commit success."
+        },
+        {
+          "id": "c",
+          "text": "`get(record)` because it writes only if missing",
+          "correct": false,
+          "feedback": "`get()` is a read request and does not insert or update a record."
+        },
+        {
+          "id": "d",
+          "text": "`openCursor(record)` because it commits the whole store",
+          "correct": false,
+          "feedback": "A cursor iterates records and does not replace a write operation or transaction lifecycle."
+        }
+      ],
+      "explanation": "Use `add()` for insert-only semantics and `put()` for insert-or-replace. Wait for transaction completion before reporting that a write committed."
+    },
+    {
+      "id": "indexeddb-crud-practice",
+      "type": "codingExercise",
+      "language": "javascript",
+      "context": "An offline notes view stores drafts in a `drafts` object store keyed by `id` with a `by-updated` index. It needs reliable CRUD operations and date-range listing.",
+      "instructions": [
+        "Implement create with `add()`, read with `get()`, update/upsert with `put()`, and delete with `delete()` against `drafts.",
+        "Query `by-updated` with `IDBKeyRange.bound()` and walk matching results with `openCursor()`/`continue()`.",
+        "Resolve a write Promise only after transaction `complete`; reject on abort/error and do not mistake request success for commit.",
+        "Create the object store and index idempotently inside `onupgradeneeded`, and close old connections on `versionchange`.",
+        "Feature-detect `navigator.storage.estimate()` and present usage/quota as approximate origin-level values rather than a guaranteed megabyte limit.",
+        "Describe a fallback if storage is unavailable or full without claiming local IndexedDB syncs drafts to another device."
+      ],
+      "requirements": [
+        "CRUD functions use the intended object store, transaction mode, primary key, and operation.",
+        "`add()` stays insert-only and `put()` is insert-or-replace.",
+        "Index queries use the named index and a compatible `IDBKeyRange`.",
+        "Cursor iteration advances with `continue()` and terminates when no cursor remains.",
+        "Write success is reported only on transaction completion; error/abort rejects.",
+        "Quota handling uses feature detection and avoids fixed cross-browser thresholds.",
+        "The plan includes a fallback and distinguishes local persistence from server sync."
+      ],
+      "starterCode": "function listDraftsByDate(db, fromIso, toIso) {\n  const transaction = db.transaction(\"drafts\", \"readonly\");\n  const index = transaction.objectStore(\"drafts\").index(\"by-updated\");\n  const range = IDBKeyRange.bound(fromIso, toIso);\n  const request = index.openCursor(range, \"prev\");\n\n  request.onsuccess = () => {\n    const cursor = request.result;\n    if (!cursor) return;\n    // TODO: collect/render cursor.value or cursor.primaryKey.\n    // TODO: advance the cursor.\n  };\n  request.onerror = () => {\n    // TODO: surface the read failure.\n  };\n}\n\nasync function readOriginStorageEstimate() {\n  // TODO: feature-detect navigator.storage.estimate().\n  // TODO: return approximate usage/quota without assuming a fixed limit.\n}",
+      "hints": [
+        "`add()` rejects duplicate keys; `put()` updates or inserts.",
+        "An index must exist in the upgraded schema before `store.index(name)` can be used.",
+        "`cursor.continue()` advances the request; no cursor means there are no further results.",
+        "Request success is not the commit boundary. Resolve only on `transaction.complete`.",
+        "Storage estimates are approximate and origin-scoped; failed writes still need explicit handling."
+      ],
+      "successCriteria": [
+        "Each CRUD operation uses the intended key and readonly/readwrite mode.",
+        "The indexed range returns only records in the requested time window.",
+        "Cursor processing advances and stops correctly.",
+        "Write promises cannot resolve before commit and reject on failure.",
+        "Quota estimation has a graceful unsupported path and is never described as a guaranteed cap.",
+        "The design has a fallback and does not mistake local data for server-backed sync."
+      ]
+    },
+    {
       "id": "indexeddb-tradeoffs",
       "type": "paragraph",
       "text": "IndexedDB is asynchronous, same-origin, and uses structured clone, object stores, indexes, requests, cursors, and transactions. The browser controls quota and eviction; this is not a backup or account shared across devices. Do not keep a transaction open while awaiting unrelated network work or timers; create a short transaction near the operation."
@@ -333,6 +516,26 @@
         {
           "title": "MDN: Using IndexedDB",
           "url": "https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: IDBObjectStore.add()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/add",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: IDBObjectStore.put()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/put",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: IDBObjectStore.openCursor()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/openCursor",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: StorageManager.estimate()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/estimate",
           "kind": "official-docs"
         }
       ]
