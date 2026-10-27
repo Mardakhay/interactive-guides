@@ -110,8 +110,8 @@ describe('local learning data backups', () => {
   });
   it('surfaces storage read errors instead of treating an unavailable store as empty', () => {
     class ReadFailStorage extends MemoryStorage {
-      override getItem(_key: string): string | null {
-        throw new DOMException('Storage denied', 'SecurityError');
+      override getItem(key: string): string | null {
+        throw new DOMException(`Storage denied for ${key}`, 'SecurityError');
       }
     }
     let caught: unknown;
