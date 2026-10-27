@@ -489,6 +489,7 @@
       "id": "html-iframe-security-walkthrough",
       "type": "codeWalkthrough",
       "language": "html",
+      "code": "<iframe\n  src=\"https://reports.example.net/summary\"\n  title=\"Сводка партнёрского отчёта\"\n  loading=\"lazy\"\n  sandbox\n></iframe>\n\n<a href=\"https://reports.example.net/summary\">Открыть отчёт</a>",
       "steps": [
         {
           "title": "Назовите встроенный контекст просмотра",

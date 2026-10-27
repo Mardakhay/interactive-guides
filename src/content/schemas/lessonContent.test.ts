@@ -166,9 +166,9 @@ describe('HTML media content', () => {
     expect(englishLesson.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianLesson.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishLesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
-    expect(englishLesson.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(4);
-    expect(englishLesson.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
+    expect(englishLesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(englishLesson.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(englishLesson.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(englishLesson.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
         'html-media-body',
@@ -891,7 +891,8 @@ describe('utility types from the integrated intro.dev source', () => {
       expect(exercise.requirements).toHaveLength(4);
       expect(exercise.hints).toHaveLength(3);
       expect(exercise.successCriteria).toHaveLength(4);
-      expect(exercise.starterCode).toContain('sandbox');
+      expect(exercise.starterCode.match(/TODO/g)).toHaveLength(3);
+      expect(exercise.hints.join(' ')).toContain('sandbox');
     }
   });
 
