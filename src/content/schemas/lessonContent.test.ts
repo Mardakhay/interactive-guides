@@ -1177,6 +1177,8 @@ describe('deep modern JavaScript syntax in the core functions lesson', () => {
       russianJsFunctions.blocks.map(({ id, type }) => ({ id, type })),
     );
 
+    expect(englishJsFunctions.version).toBe(3);
+    expect(englishJsFunctions.blocks).toHaveLength(76);
     const deepIds = [
       'array-destructure-heading',
       'array-destructure-explainer',
@@ -1195,7 +1197,7 @@ describe('deep modern JavaScript syntax in the core functions lesson', () => {
     const deepBlocks = deepIds.map((id) => englishJsFunctions.blocks.find((block) => block.id === id));
     expect(deepBlocks.every(Boolean)).toBe(true);
 
-    for (const quizId of ['array-default-quiz', 'nullish-quiz']) {
+    for (const quizId of ['array-default-quiz', 'nullish-quiz', 'nested-destructuring-check']) {
       const quiz = englishJsFunctions.blocks.find((block) => block.id === quizId);
       expect(quiz?.type).toBe('knowledgeCheck');
       if (quiz?.type !== 'knowledgeCheck') continue;
@@ -1212,6 +1214,26 @@ describe('deep modern JavaScript syntax in the core functions lesson', () => {
     expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
     expect(exercise.starterCode).toContain('...otherTags');
     expect(exercise.starterCode).toContain('??');
+
+    const nestedWalk = englishJsFunctions.blocks.find((block) => block.id === 'nested-destructuring-walkthrough');
+    expect(nestedWalk?.type).toBe('codeWalkthrough');
+    if (nestedWalk?.type !== 'codeWalkthrough') return;
+    expect(nestedWalk.code).toContain('info: { name, contact: { email } }');
+    expect(nestedWalk.code).toContain('function displayUser({ name, age, city = "Unknown" })');
+    expect(nestedWalk.code).toContain('[x, y] = [y, x]');
+    const nestedLineCount = nestedWalk.code.split('\n').length;
+    expect(nestedWalk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= nestedLineCount)).toBe(true);
+    for (const lesson of [englishJsFunctions, russianJsFunctions]) {
+      const practiceBlock = lesson.blocks.find((block) => block.id === 'modern-syntax-practice');
+      expect(practiceBlock?.type).toBe('codingExercise');
+      if (practiceBlock?.type === 'codingExercise') {
+        expect(practiceBlock.instructions.some((instruction) => instruction.includes('parameter') || instruction.includes('параметр'))).toBe(true);
+        expect(practiceBlock.requirements.some((requirement) => requirement.includes('Nested destructuring') || requirement.includes('Вложенная деструктуризация'))).toBe(true);
+      }
+      const refs = lesson.blocks.find((block) => block.id === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring')).toBe(true);
+    }
 
     for (const walkthrough of englishJsFunctions.blocks.filter((block) => block.type === 'codeWalkthrough')) {
       const lineCount = walkthrough.code.split('\n').length;

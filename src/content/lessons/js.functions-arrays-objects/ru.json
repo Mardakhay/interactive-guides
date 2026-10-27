@@ -1,7 +1,7 @@
 {
   "id": "js.functions-arrays-objects",
   "locale": "ru",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-23",
@@ -10,7 +10,7 @@
   "order": 0,
   "title": "Функции, массивы и объекты",
   "description": "Научись составлять небольшие функции и предсказуемо преобразовывать наборы данных. Разбери function declaration, function expression и стрелочные функции; выбирай map, filter, reduce, find, some или every по типу результата; работай с объектами через деструктуризацию и spread без случайных мутаций.",
-  "estimatedMinutes": 105,
+  "estimatedMinutes": 110,
   "difficulty": "beginner",
   "prerequisites": [
     "js.basics-types-control-flow"
@@ -579,6 +579,83 @@
       ]
     },
     {
+      "id": "nested-destructuring-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Вложенная деструктуризация объекта и параметров функции"
+    },
+    {
+      "id": "nested-destructuring-intro",
+      "type": "paragraph",
+      "text": "Объектный pattern следует именам свойств, в том числе во вложенных путях. `{ info: { contact: { email } } }` создаёт локальные привязки для явно перечисленных имён; переменных `info` или `contact` не будет, если их отдельно не связать. Функция может деструктурировать объект прямо в списке параметров и задавать defaults свойствам. Array destructuring также позволяет менять местами переменные без временной переменной. Такие patterns предполагают, что путь объекта существует: отсутствующий или null-вложенный объект всё ещё может вызвать ошибку."
+    },
+    {
+      "id": "nested-destructuring-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const user = {\n  id: 1,\n  info: {\n    name: \"John\",\n    contact: { email: \"john@example.com\", phone: \"555-1234\" },\n  },\n};\nconst { info: { name, contact: { email } } } = user;\nconsole.log(name, email); // \"John\", \"john@example.com\"\n\nconst person = { name: \"Sarah\", age: 28 };\nfunction displayUser({ name, age, city = \"Unknown\" }) {\n  return `${name}, ${age}, from ${city}`;\n}\nconsole.log(displayUser(person)); // \"Sarah, 28, from Unknown\"\n\nlet x = 1;\nlet y = 2;\n[x, y] = [y, x];\nconsole.log(x, y); // 2, 1",
+      "steps": [
+        {
+          "title": "Прочитай вложенный путь свойства",
+          "lineStart": 1,
+          "lineEnd": 10,
+          "explanation": "Путь вложен в `info.contact`, но локальные привязки — `name` и `email`. Входной объект примера имеет ожидаемую структуру."
+        },
+        {
+          "title": "Деструктурируй аргументы функции",
+          "lineStart": 11,
+          "lineEnd": 16,
+          "explanation": "`displayUser` получает один объект и извлекает свойства прямо в списке параметров. Default для `city` применяется, когда свойства нет или оно undefined, но не при null."
+        },
+        {
+          "title": "Поменяй переменные через array pattern",
+          "lineStart": 17,
+          "lineEnd": 20,
+          "explanation": "Правая часть-массив вычисляется до присваивания, поэтому старые значения обеих переменных доступны для обмена без временной переменной."
+        }
+      ]
+    },
+    {
+      "id": "nested-destructuring-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Дана функция `displayUser({ name, age, city = \"Unknown\" }) { ... }`. Какой вызов соответствует ожидаемой форме параметра?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`displayUser({ name: \"Sarah\", age: 28 })`",
+          "correct": true,
+          "feedback": "Функция получает один объект и деструктурирует его свойства; отсутствующий city использует default."
+        },
+        {
+          "id": "b",
+          "text": "`displayUser(\"Sarah\", 28)`",
+          "correct": false,
+          "feedback": "Функция ожидает один объектный аргумент, а не отдельные позиционные аргументы имени и возраста."
+        },
+        {
+          "id": "c",
+          "text": "`displayUser({ fullName: \"Sarah\", years: 28 })`",
+          "correct": false,
+          "feedback": "Ключи не совпадают с именами параметров, поэтому name и age будут undefined."
+        },
+        {
+          "id": "d",
+          "text": "`displayUser(null)`",
+          "correct": false,
+          "feedback": "Деструктуризация параметра из null вызывает ошибку; defaults свойств не делают null безопасным."
+        }
+      ],
+      "explanation": "Деструктуризация параметров задаёт ожидаемую форму объекта на границе функции. Defaults заполняют отсутствующие/undefined свойства, но не валидируют корневой объект и не переименовывают автоматически другие ключи."
+    },
+    {
+      "id": "nested-destructuring-caveat",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Вложенным patterns нужна корректная структура",
+      "text": "Деструктуризация — не optional chaining. Если `user.info` или `contact` равны null/undefined, вложенный pattern вызовет ошибку. Сначала проверь путь или используй optional chaining; default свойства обрабатывает undefined, но не null."
+    },
+    {
       "id": "spread-shallow",
       "type": "heading",
       "level": 3,
@@ -1069,7 +1146,9 @@
         "Используйте object destructuring для извлечения полей и array destructuring с default/rest для tags.",
         "Примените ?? и optional chaining для theme/name/score так, чтобы score=0 сохранялся.",
         "Верните { displayName, score, primaryTag, otherTags, theme } без мутации исходного ответа.",
-        "Проверьте пустой ответ, null profile, score 0, пустое имя и несколько тегов; объясните поведение default и ??."
+        "Проверьте пустой ответ, null profile, score 0, пустое имя и несколько тегов; объясните поведение default и ??.",
+        "Извлеки вложенное поле контакта только после проверки nullable-пути объекта и добавь helper с деструктурированными параметрами объекта и default свойства.",
+        "Покажи отдельный обмен переменных через array destructuring и объясни, почему defaults заменяют undefined, но не null."
       ],
       "requirements": [
         "Нет ошибки при null/undefined response или profile.",
@@ -1077,7 +1156,9 @@
         "Score 0 сохраняется; отсутствующий/null score получает 0.",
         "Нет тегов даёт primaryTag general и пустой otherTags.",
         "Array rest сохраняет теги после первого в порядке источника.",
-        "Функция не мутирует ответ и описывает разницу между default destructuring и ??."
+        "Функция не мутирует ответ и описывает разницу между default destructuring и ??.",
+        "Вложенная деструктуризация выполняется только после проверки существования пути; helper не скрывает небезопасный доступ.",
+        "Helper использует деструктуризацию параметров объекта; defaults и nullish-проверка объяснены отдельно."
       ],
       "starterCode": "function summarizeProfile(response) {\n  const { profile: rawProfile } = response ?? {};\n  const profile = rawProfile ?? {};\n  const { displayName, score, tags, preferences } = profile;\n  const [primaryTag = \"general\", ...otherTags] = tags ?? [];\n\n  return {\n    displayName: displayName ?? \"Guest\",\n    score: score ?? 0,\n    primaryTag,\n    otherTags,\n    theme: preferences?.theme ?? \"system\",\n  };\n}\n\nconsole.log(summarizeProfile({ profile: { displayName: \"\", score: 0, tags: [\"ui\", \"react\"] } }));",
       "hints": [
@@ -1091,7 +1172,8 @@
         "Explicit empty displayName and numeric score 0 are preserved.",
         "At least two tags become a first primaryTag and ordered otherTags.",
         "No nested property access throws for the stated nullable shapes.",
-        "Input objects and arrays remain unchanged."
+        "Input objects and arrays remain unchanged.",
+        "Вложенный доступ к контакту и поведение defaults проверены для существующего и отсутствующего/nullable пути."
       ]
     },
     {

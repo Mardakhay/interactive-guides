@@ -1,7 +1,7 @@
 {
   "id": "js.functions-arrays-objects",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-23",
@@ -10,7 +10,7 @@
   "order": 0,
   "title": "Functions, Arrays and Objects",
   "description": "Learn to compose small functions and transform datasets predictably. Understand function declarations, expressions and arrows; choose map, filter, reduce, find, some or every by their result; and work with objects using destructuring and spread without accidental mutation.",
-  "estimatedMinutes": 105,
+  "estimatedMinutes": 110,
   "difficulty": "beginner",
   "prerequisites": [
     "js.basics-types-control-flow"
@@ -579,6 +579,83 @@
       ]
     },
     {
+      "id": "nested-destructuring-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Nested object and function-parameter destructuring"
+    },
+    {
+      "id": "nested-destructuring-intro",
+      "type": "paragraph",
+      "text": "Object patterns follow property names, including nested paths. `{ info: { contact: { email } } }` creates local bindings for the names listed in the pattern; it does not create bindings named `info` or `contact` unless you bind them separately. Functions can destructure an object in their parameter list and set defaults for individual properties. Array destructuring can also swap existing variables without a temporary variable. These patterns assume the object path exists: a missing or null nested object can still throw unless it is validated first."
+    },
+    {
+      "id": "nested-destructuring-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const user = {\n  id: 1,\n  info: {\n    name: \"John\",\n    contact: { email: \"john@example.com\", phone: \"555-1234\" },\n  },\n};\nconst { info: { name, contact: { email } } } = user;\nconsole.log(name, email); // \"John\", \"john@example.com\"\n\nconst person = { name: \"Sarah\", age: 28 };\nfunction displayUser({ name, age, city = \"Unknown\" }) {\n  return `${name}, ${age}, from ${city}`;\n}\nconsole.log(displayUser(person)); // \"Sarah, 28, from Unknown\"\n\nlet x = 1;\nlet y = 2;\n[x, y] = [y, x];\nconsole.log(x, y); // 2, 1",
+      "steps": [
+        {
+          "title": "Read a nested property path",
+          "lineStart": 1,
+          "lineEnd": 10,
+          "explanation": "The path is nested under `info.contact`, but the local bindings are `name` and `email`. The example input has the required shape."
+        },
+        {
+          "title": "Destructure function arguments",
+          "lineStart": 11,
+          "lineEnd": 16,
+          "explanation": "`displayUser` receives one object and extracts its properties in the parameter list. The `city` default applies when that property is absent or undefined, not when it is null."
+        },
+        {
+          "title": "Swap variables with an array pattern",
+          "lineStart": 17,
+          "lineEnd": 20,
+          "explanation": "The right-hand array is evaluated before assignment, so both old values are available for the swap without a temporary variable."
+        }
+      ]
+    },
+    {
+      "id": "nested-destructuring-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Given `function displayUser({ name, age, city = \"Unknown\" }) { ... }`, which call uses the expected parameter shape?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`displayUser({ name: \"Sarah\", age: 28 })`",
+          "correct": true,
+          "feedback": "The function receives one object whose properties are destructured; the missing city property uses its default."
+        },
+        {
+          "id": "b",
+          "text": "`displayUser(\"Sarah\", 28)`",
+          "correct": false,
+          "feedback": "The function expects one object argument, not separate positional name and age arguments."
+        },
+        {
+          "id": "c",
+          "text": "`displayUser({ fullName: \"Sarah\", years: 28 })`",
+          "correct": false,
+          "feedback": "The provided keys do not match the parameter names, so name and age would be undefined."
+        },
+        {
+          "id": "d",
+          "text": "`displayUser(null)`",
+          "correct": false,
+          "feedback": "Destructuring a parameter from null throws; property defaults do not make a null argument safe."
+        }
+      ],
+      "explanation": "Parameter destructuring defines the expected object shape at the function boundary. Defaults fill missing/undefined properties, but do not validate the root object or remap different property names automatically."
+    },
+    {
+      "id": "nested-destructuring-caveat",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Nested patterns still need a valid shape",
+      "text": "Destructuring is not optional chaining. If `user.info` or `contact` is null/undefined, the nested pattern throws. Validate the path first or use optional chaining where appropriate; a property default handles undefined, not null."
+    },
+    {
       "id": "spread-shallow",
       "type": "heading",
       "level": 3,
@@ -1069,7 +1146,9 @@
         "Use object destructuring for fields and array destructuring with default/rest for tags.",
         "Use ?? and optional chaining for theme/name/score so that score=0 is preserved.",
         "Return { displayName, score, primaryTag, otherTags, theme } without mutating the source response.",
-        "Check an empty response, null profile, score 0, empty name and multiple tags; explain defaults vs ??."
+        "Check an empty response, null profile, score 0, empty name and multiple tags; explain defaults vs ??.",
+        "Extract a nested contact field only after guarding the nullable object path, and add a helper with destructured object parameters and a property default.",
+        "Show a separate array-destructuring swap and explain why defaults replace undefined but not null."
       ],
       "requirements": [
         "No error for null/undefined response or profile.",
@@ -1077,7 +1156,9 @@
         "Score 0 is preserved; missing/null score becomes 0.",
         "No tags produces primaryTag general and empty otherTags.",
         "Array rest preserves later tags in source order.",
-        "Function does not mutate input and explains destructuring defaults vs ??."
+        "Function does not mutate input and explains destructuring defaults vs ??.",
+        "Nested destructuring is applied only after the path is known to exist; no unsafe access is hidden in the helper.",
+        "The helper uses object parameter destructuring; property defaults and nullish checks are explained distinctly."
       ],
       "starterCode": "function summarizeProfile(response) {\n  const { profile: rawProfile } = response ?? {};\n  const profile = rawProfile ?? {};\n  const { displayName, score, tags, preferences } = profile;\n  const [primaryTag = \"general\", ...otherTags] = tags ?? [];\n\n  return {\n    displayName: displayName ?? \"Guest\",\n    score: score ?? 0,\n    primaryTag,\n    otherTags,\n    theme: preferences?.theme ?? \"system\",\n  };\n}\n\nconsole.log(summarizeProfile({ profile: { displayName: \"\", score: 0, tags: [\"ui\", \"react\"] } }));",
       "hints": [
@@ -1091,7 +1172,8 @@
         "Explicit empty displayName and numeric score 0 are preserved.",
         "Two or more tags yield a first primaryTag and ordered otherTags.",
         "No nested access throws for the stated nullable shapes.",
-        "Input objects and arrays are unchanged."
+        "Input objects and arrays are unchanged.",
+        "Nested contact access and parameter-default behavior are tested for present and absent/nullable paths."
       ]
     },
     {

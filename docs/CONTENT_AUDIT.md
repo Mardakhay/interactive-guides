@@ -379,3 +379,7 @@ Strengthened tests around the four React-ecosystem lessons. Router tests now gua
 `browser.storage-indexeddb` v2 maps the Advanced JS Notion page's previously missing IndexedDB examples: create/read/upsert/delete, index-based range queries, cursor traversal and storage quota estimation. The lesson includes explicit schema/transaction constraints and tests for EN/RU parity and walkthrough ranges.
 
 Quota material is phrased as approximate origin-level usage/quota, not a universal 5–10 MB browser limit. The Notion page connector verification is still `unverified`, so only this content slice is marked reviewed.
+
+## Advanced JS destructuring source follow-up — 2026-10-27
+
+`js.functions-arrays-objects` v3 maps source examples for nested object destructuring, function-parameter destructuring and swapping variables with an array pattern. The lesson distinguishes destructuring from optional chaining and defaults from null checks, while keeping the nullable API-normalizer exercise as applied practice. Tests cover EN/RU parity and walkthrough ranges.

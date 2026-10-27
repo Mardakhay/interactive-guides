@@ -731,3 +731,8 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## IndexedDB exercise title fix — 2026-10-27
 
 - CI for `0d66dce` exposed a missing required `title` on `indexeddb-crud-practice`. Explicit EN/RU titles are now set; the lesson schema requires this field for every coding exercise. Recheck CI on the new exact SHA.
+
+## Destructuring source follow-up — 2026-10-27
+
+- Expanded `js.functions-arrays-objects` to v3 / 76 aligned EN/RU blocks. Added nested object destructuring, function-parameter destructuring with a default, variable swapping, a knowledge check and warning about null/missing nested paths.
+- Expanded `modern-syntax-practice` to require guarded nested access and an object-parameter helper; source parity tests check the walkthrough, localized structure and MDN reference. The Advanced JS Notion page itself remains `unverified`.
