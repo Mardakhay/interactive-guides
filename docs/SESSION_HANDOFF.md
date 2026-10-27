@@ -639,3 +639,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Expanded the Notion source-fetch ledger from nine to twelve pages by adding Parts 4–6 (React ecosystem, UI/performance/testing/workflow, architecture/professional practice) with returned text length, last-edit date, topic mapping and open parity work.
 - All 12 fetched pages still report `verification.state=unverified`; this is accurately recorded. Reading content and mapping lessons does not formally verify Notion pages or complete claim-by-claim fact checks.
 - Commit `8f8679bb2717c9025b203efeeb1409a62a9b10c2` is the current documentation checkpoint; check exact-head CI after this ledger extension.
+
+
+## Part 5 source mapping checkpoint — 2026-10-27
+
+- Expanded `FULL_SOURCE_CONTENT_AUDIT.md` with the 5.1–5.9 subsection map for Notion Part 5. Design system, performance, accessibility, testing, PR/review, CI/CD, conflict strategy, common quality errors and professional workflow are now individually mapped to canonical lessons and evidence IDs.
+- Critical distinctions are explicit: the Notion page uses Jest examples while the repo uses Vitest; CI must apply to the exact commit; continuous delivery differs from deployment; accessible semantics require behavior/focus testing. Legacy tabs/playgrounds are still not one-to-one.
+- Source metadata remains `verification.state=unverified`; this mapping is not formal Notion verification.

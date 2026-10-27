@@ -342,3 +342,10 @@ A structured fetch ledger now records nine Notion pages (course handbook, Parts 
 The source-fetch ledger now contains twelve Notion pages, including Parts 4–6 for React ecosystem, UI/performance/testing/workflow, and architecture/professional practice. It records connector last-edited metadata, returned text sizes, canonical lesson destinations and outstanding parity/fact-review work.
 
 All fetched Notion pages are marked `verification.state=unverified` by source metadata. Do not describe them as verified merely because they were readable; technical claims, version drift and exercise/UI parity need separate review.
+
+
+## Part 5 detailed map — 2026-10-27
+
+Part 5 (`5.1`–`5.9`, last edited 2026-08-29, 27,478 returned text characters) is now mapped subsection by subsection to design system, performance/a11y, testing, Git workflow/CI, deployment, architecture and capstone-review lessons. The map records concrete evidence IDs and partial UI parity instead of claiming that its legacy tabs, token playgrounds or integrated workflow UI has been recreated.
+
+The source metadata remains `verification.state=unverified`; topic mapping does not constitute formal Notion verification. Source's Jest examples are adapted to the repository's Vitest setup, and exact-commit CI and deployment verification are kept distinct.

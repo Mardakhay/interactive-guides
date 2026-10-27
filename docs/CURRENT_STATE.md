@@ -530,3 +530,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Ledger extended to 12 fetched Notion pages, adding Parts 4–6 of the course with date, returned text length, destination lessons, and open topic/example parity work.
 - Source metadata for all fetched pages remains `verification.state=unverified`; the docs intentionally distinguish read/mapped status from formal verification. Factual checks and exact source parity remain open.
 - Keep changes on `feat/learning-platform-foundation`; `main` remains unchanged.
+
+
+## Part 5 map continuation — 2026-10-27
+
+- Added a 5.1–5.9 mapping of the Notion course section to canonical design-system, performance/accessibility, test, Git/CI, deployment, architecture and capstone-review lessons, with source evidence IDs and explicit partial UI-parity gaps.
+- Notion metadata still says `verification.state=unverified`. Concept mapping is not formal verification; exact example parity and a claim-by-claim fact audit remain open.
