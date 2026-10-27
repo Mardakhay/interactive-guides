@@ -429,7 +429,7 @@ describe('React forms and validation lesson translation', () => {
     expect(englishReactForms.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianReactForms.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishReactForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
+    expect(englishReactForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
     expect(russianReactForms.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
   it('keeps form input semantics, accessible errors, and async submit states in both locales', () => {
