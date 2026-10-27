@@ -248,3 +248,42 @@ describe('hosting capacity and model trade-offs', () => {
   });
 });
 
+describe('architecture colocation and public APIs', () => {
+  it('teaches colocated files, an intentional public API, and context-aware tool choices', () => {
+    for (const lesson of [englishArchitecture, russianArchitecture]) {
+      expect(lessonTranslationSchema.safeParse(lesson).success, lesson.locale).toBe(true);
+      expect(lesson.version).toBe(3);
+      expect(lesson.blocks).toHaveLength(28);
+      expect(lesson.blocks.map(({ id, type }) => [id, type])).toEqual(
+        englishArchitecture.blocks.map(({ id, type }) => [id, type]),
+      );
+      const walk = lesson.blocks.find((block) => block.id === 'arch-colocation-public-api-walkthrough');
+      expect(walk?.type).toBe('codeWalkthrough');
+      if (walk?.type !== 'codeWalkthrough') return;
+      const lineCount = walk.code.split('\\n').length;
+      expect(walk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      expect(walk.code).toContain('index.ts');
+      expect(walk.code).toContain('export { ProductCard }');
+      const check = lesson.blocks.find((block) => block.id === 'arch-public-api-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') return;
+      expect(check.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      expect(check.explanation.trim().length).toBeGreaterThan(0);
+      const exercise = lesson.blocks.find((block) => block.id === 'arch-colocation-practice');
+      expect(exercise?.type).toBe('codingExercise');
+      if (exercise?.type !== 'codingExercise') return;
+      expect(exercise.requirements.length).toBeGreaterThanOrEqual(6);
+      expect(exercise.hints.length).toBeGreaterThanOrEqual(3);
+      expect(exercise.successCriteria.length).toBeGreaterThanOrEqual(5);
+      const ecosystem = lesson.blocks.find((block) => block.id === 'arch-ecosystem-guidance');
+      expect(ecosystem?.type).toBe('list');
+      if (ecosystem?.type === 'list') expect(ecosystem.items).toHaveLength(6);
+      const references = lesson.blocks.find((block) => block.id === 'arch-boundaries-references');
+      expect(references?.type).toBe('references');
+      if (references?.type === 'references') {
+        expect(references.items.some((item) => item.url === 'https://feature-sliced.design/docs/concepts/low-coupling')).toBe(true);
+      }
+    }
+  });
+});

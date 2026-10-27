@@ -1,7 +1,7 @@
 {
   "id": "frontend.architecture-boundaries",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Frontend Architecture: Module Boundaries and Refactoring",
   "description": "Design dependency direction, assign state ownership, refactor duplicated behavior and make errors recoverable.",
-  "estimatedMinutes": 90,
+  "estimatedMinutes": 105,
   "difficulty": "intermediate",
   "learningOutcomes": [
     "Define module boundaries around responsibilities and reasons to change.",
@@ -178,6 +178,122 @@
       ]
     },
     {
+      "id": "arch-colocation-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Colocate related files and expose a small public API"
+    },
+    {
+      "id": "arch-colocation-intro",
+      "type": "paragraph",
+      "text": "Colocation puts files that tend to change together—component, styles, tests, local Hook and domain types—near each other. A feature's `index.ts` can be its public entry point, so consumers do not depend on internal file layout. Choose folders by responsibility and change locality; not every module needs every subfolder."
+    },
+    {
+      "id": "arch-colocation-public-api-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "// Before: feature files scattered across technical folders\nsrc/components/ProductCard.tsx\nsrc/styles/ProductCard.css\nsrc/hooks/useProductCard.ts\nsrc/tests/ProductCard.test.tsx\n\n// After: colocate files that usually change together\nsrc/features/catalog/product-card/\n  ProductCard.tsx\n  ProductCard.test.tsx\n  ProductCard.css\n  useProductCard.ts\n  types.ts\n  index.ts\n\n// index.ts exposes only the intended stable API\nexport { ProductCard } from './ProductCard';\nexport type { Product } from './types';\n// Keep internal helpers private; avoid blanket export * by default.\n\n// Consumers import from the module contract\nimport { ProductCard } from '@/features/catalog/product-card';\n// A barrel is a convention, not enforcement: lint deep imports if required.\n// Avoid bypassing the public entry point with private file paths.",
+      "steps": [
+        {
+          "title": "Notice change locality",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Before refactoring, tests, styles and Hook code for one component are scattered across technical folders. This makes it harder to find the complete change surface and may leave orphan files."
+        },
+        {
+          "title": "Colocate related implementation files",
+          "lineStart": 7,
+          "lineEnd": 14,
+          "explanation": "Keep files that usually change together inside a feature-oriented folder. Internal folders are optional: use them only when they improve separation, not just to follow a template."
+        },
+        {
+          "title": "Expose an intentional public API",
+          "lineStart": 16,
+          "lineEnd": 19,
+          "explanation": "An explicit index.ts keeps the supported export surface small. A barrel does not make other files private by itself, and wildcard re-exports can accidentally expand that surface or hide cycles."
+        },
+        {
+          "title": "Use the contract from outside",
+          "lineStart": 21,
+          "lineEnd": 24,
+          "explanation": "Consumers use the public entry point. If deep imports must be prohibited, add a lint/import-boundary rule; do not assume the folder convention is enforced automatically."
+        }
+      ]
+    },
+    {
+      "id": "arch-abstraction-heuristic",
+      "type": "paragraph",
+      "text": "The source's “rule of three” is a heuristic, not a law: duplicated code can remain local while consumers differ, and extraction makes sense when repeated use reveals a stable contract. Prefer composition over a component with many unrelated boolean props. Promote code to shared only when its behavior is genuinely domain-neutral; the number of copies is evidence to inspect, not an automatic refactor trigger."
+    },
+    {
+      "id": "arch-public-api-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A feature's `index.ts` currently re-exports every internal module, and consumers import private file paths directly. Which change best improves the boundary without overengineering?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Move all feature files into shared and use export * so every consumer can reach them",
+          "correct": false,
+          "feedback": "Feature-specific rules do not become shared just because several modules import them; wildcard exports also broaden the public surface."
+        },
+        {
+          "id": "b",
+          "text": "Colocate files that change together, export only supported symbols, and enforce public-entry imports if the rule must be strict",
+          "correct": true,
+          "feedback": "A small explicit API documents the contract; colocation helps navigation, while lint rules can enforce import boundaries when needed."
+        },
+        {
+          "id": "c",
+          "text": "Create a separate package and interface for every file before changing any imports",
+          "correct": false,
+          "feedback": "Extra packages and interfaces create migration and maintenance cost without proving that each file needs an independent boundary."
+        },
+        {
+          "id": "d",
+          "text": "Keep all imports as they are because an index.ts file automatically makes other paths inaccessible",
+          "correct": false,
+          "feedback": "A TypeScript barrel is not an access-control mechanism; deep imports remain possible unless project tooling forbids them."
+        }
+      ],
+      "explanation": "Colocation describes where related files live. A public API describes which symbols other modules are expected to consume. Neither convention alone enforces private paths, so use lint boundaries when strict enforcement matters."
+    },
+    {
+      "id": "arch-colocation-practice",
+      "type": "codingExercise",
+      "title": "Refactor a feature folder and define its public API",
+      "language": "text",
+      "context": "A ProductCard feature has its component, styles, Hook and tests scattered across type-based folders. Another screen imports the component through a private implementation path. The catalog and saved-lessons cards look similar but still have different behavior.",
+      "instructions": [
+        "Draw a colocated target tree for the component, style, Hook, test and any domain types that change with ProductCard.",
+        "Write an explicit index.ts export list for the supported component and public types; keep internal helpers out unless consumers need them.",
+        "Rewrite the consumer import to use the public module entry point and explain how lint can prevent future deep imports.",
+        "Decide whether the catalog and saved-lessons cards should remain separate or share a primitive; justify the decision by behavior and contract, not file count alone.",
+        "List characterization tests and an import-cycle check to run before and after the refactor."
+      ],
+      "requirements": [
+        "Groups files by change locality without putting domain-specific logic into shared automatically.",
+        "Defines a minimal, explicit index.ts public API.",
+        "Updates consumers to import via the public entry point.",
+        "Explains that lint/import-boundary rules are needed to enforce deep-import restrictions.",
+        "Documents the trade-off behind sharing or keeping similar card components local.",
+        "Preserves visible behavior with tests and checks for circular dependencies."
+      ],
+      "starterCode": "Current layout:\n- components/ProductCard.tsx\n- styles/ProductCard.css\n- hooks/useProductCard.ts\n- tests/ProductCard.test.tsx\n\nTarget feature tree:\n\nindex.ts public exports:\n\nConsumer import:\n\nShould catalog and saved-lessons cards share code? Evidence and trade-off:\n\nBehavior tests / cycle checks:",
+      "hints": [
+        "Colocate files that normally change for the same feature, but do not create every possible subfolder in advance.",
+        "An explicit export list narrows the supported API; it does not by itself prevent consumers from importing implementation paths.",
+        "Two similar components should be shared when their behavior and contract align, not just because their markup looks alike."
+      ],
+      "successCriteria": [
+        "The target layout makes related UI, logic, tests and styles easy to locate.",
+        "Only intentional public symbols are exported from index.ts.",
+        "Consumers use the stable feature entry point.",
+        "The sharing decision explains a real trade-off and does not generalize solely by occurrence count.",
+        "The verification plan preserves behavior and identifies dependency cycles."
+      ]
+    },
+    {
       "id": "arch-dependency-boundaries",
       "type": "heading",
       "level": 2,
@@ -318,6 +434,25 @@
       ]
     },
     {
+      "id": "arch-ecosystem-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Choose ecosystem tools by the responsibility they own"
+    },
+    {
+      "id": "arch-ecosystem-guidance",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Routing: React Router maps URLs to views; follow the version already installed in the project and keep shareable navigation in the URL.",
+        "Remote data: a service/custom Hook can be enough for a small flow. Consider a query/cache library when caching, deduplication, invalidation and background refresh justify the extra dependency; remote data is not automatically global UI state.",
+        "Forms: native or controlled inputs can be enough for simple forms; a form library plus runtime schema validation may help when field state, validation and error handling become complex.",
+        "Shared client state: Context or a store such as Zustand can coordinate genuinely shared preferences and actions. Do not move server data into a global client store just because multiple components read it.",
+        "UI component systems: compare accessibility semantics, styling/customization, bundle cost and team maintenance. Avoid introducing a second UI system only because a course or article recommends it.",
+        "Testing: for a Vite project, Vitest and Testing Library can verify user-visible behavior; prefer accessible, behavior-oriented queries over selectors coupled to private markup."
+      ]
+    },
+    {
       "id": "arch-boundaries-summary",
       "type": "list",
       "ordered": false,
@@ -345,6 +480,11 @@
           "title": "Martin Fowler: Refactoring",
           "url": "https://martinfowler.com/books/refactoring.html",
           "kind": "article"
+        },
+        {
+          "title": "Feature-Sliced Design: slices, segments and public API rules",
+          "url": "https://feature-sliced.design/docs/concepts/low-coupling",
+          "kind": "official-docs"
         }
       ]
     }

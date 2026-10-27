@@ -241,3 +241,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 The complete `deployment-learning.html` source (2,267 lines) has now been reviewed. The existing bilingual `deployment.production-hosting` lesson is v3 with 30 aligned blocks per locale, including a custom-domain/DNS/HTTPS walkthrough, feedback-rich domain-verification check and applied domain-migration plan. The lesson now distinguishes provider-directed apex/subdomain DNS, preserves existing MX/TXT records during nameserver changes, and separates DNS verification from certificate issuance. See `FULL_SOURCE_CONTENT_AUDIT.md` for block-level evidence and deliberate corrections to legacy env-precedence and fixed-timing claims.
 
 This is a full source-content review, not a claim that the old interactive pipeline simulator, provider tabs, copy buttons or live checklist have been recreated. Full reads documented: 13 of 25 HTML sources; the remaining source/Notion parity gate is still open.
+
+
+## Architecture source deep-review — 2026-10-27
+
+The full `frontend-architecture-and-planning.html` source is reviewed. The bilingual `frontend.architecture-boundaries` lesson is now v3 with 28 aligned blocks, including an explicit colocation/public-API walkthrough, quiz and exercise, a qualified abstraction rule, and responsibility-based tool guidance. UI planning, wireframes, component ownership, state placement and API contracts are mapped to the existing capstone design lesson rather than duplicated. See `FULL_SOURCE_CONTENT_AUDIT.md` for block-level evidence, current official FSD reference and deliberate corrections to absolute claims.
+
+Full HTML reads documented: 14 of 25. Ten further HTML sources and a planned `html-reference.html` re-review remain; Notion source verification is not closed.
