@@ -286,6 +286,25 @@ describe('Git fundamentals lesson translation', () => {
     );
     expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    expect(englishGit.version).toBe(4);
+    expect(russianGit.version).toBe(4);
+    const remoteExample = englishGit.blocks.find((block) => block.id === 'remote-example');
+    expect(remoteExample?.type).toBe('codeWalkthrough');
+    if (remoteExample?.type !== 'codeWalkthrough') return;
+    expect(remoteExample.code.split('\n').at(-1)).toBe('git push -u origin HEAD');
+    expect(remoteExample.steps.some((step) => step.explanation.includes('pull request'))).toBe(true);
+    const practice = englishGit.blocks.find((block) => block.id === 'practice-publish-project');
+    expect(practice?.type).toBe('codingExercise');
+    if (practice?.type !== 'codingExercise') return;
+    expect(practice.starterCode).toContain('git push -u origin HEAD');
+    expect(practice.requirements.some((requirement) => requirement.includes('pull-request review'))).toBe(true);
+    for (const lesson of [englishGit, russianGit]) {
+      const hygiene = lesson.blocks.find((block) => block.id === 'git-repository-hygiene');
+      expect(hygiene?.type).toBe('list');
+      if (hygiene?.type === 'list') {
+        expect(hygiene.items.some((item) => item.toLowerCase().includes('markdown'))).toBe(true);
+      }
+    }
   });
 });
 

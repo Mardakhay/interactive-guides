@@ -262,3 +262,10 @@ Full HTML reads documented: 15 of 25; nine HTML sources plus the planned `html-r
 Completed a full review of `frontend-bootcamp-notes.html`. Its scope is a six-month, 24-week survey, not a separate canonical lesson. Both EN/RU bootcamp curricula contain 26 aligned lesson IDs across the 24 weeks; the audit matrix now enumerates the complete mapping to canonical lessons, and no duplicative 24-week JSON copy was added.
 
 Source-specific caveats and the remaining month-tab/answer-reveal UI parity gap are in `FULL_SOURCE_CONTENT_AUDIT.md`. Full HTML reads documented: 16/25; nine other HTML files remain unread, with `html-reference.html` tracked for a separate re-review. Notion source verification remains open.
+
+
+## Git reference source deep-review — 2026-10-27
+
+The complete `git-reference.html` source has been reviewed. Its broad reference material maps to `git.fundamentals` and `git.workflow-ci`; the former was upgraded to v4 in both locales to clarify README/Markdown essentials and demonstrate publishing the checked-out branch only after inspecting the current branch and team policy. A focused regression check covers the push example and pull-request guard.
+
+The audit records safer recovery semantics, configured GitHub Pages sources, tracked-secret handling, and non-equivalent search/copy UI. Full HTML reads documented: 17/25; seven other unread sources remain plus the planned `html-reference.html` re-review. Notion verification is still open.

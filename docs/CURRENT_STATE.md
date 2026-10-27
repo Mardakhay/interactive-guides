@@ -450,3 +450,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - The corresponding deployment, architecture and authentication content changes passed CI on exact code SHAs: `2c9601bc` (run `40457455188`), `2325a5b` (run `40458039711`) and `29fc1cb` (run `40458761411`). The full bootcamp handbook review is a documentation/curriculum mapping pass, not a new lesson because all 26 canonical EN/RU curriculum IDs already align across 24 weeks.
 - Full HTML review count: 16/25; nine sources remain, plus the tracked `html-reference.html` re-review. Notion parity/source verification remains unclosed. Keep legacy HTML routes intact; do not start Supabase or cut over routes until source and interaction parity gates are complete.
 - `main` SHA remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; all work remains on `feat/learning-platform-foundation`.
+
+
+## Content audit continuation — 2026-10-27
+
+- Reviewed `git-reference.html` against both existing Git lessons. `git.fundamentals` is now v4 and clarifies Markdown README basics and safe branch publication (`git push -u origin HEAD` after branch/policy checks); its EN/RU regression checks were updated. Detailed evidence and caveats are in `FULL_SOURCE_CONTENT_AUDIT.md`.
+- Full HTML source reviews: 17/25. Seven sources remain unread (`interactive-async-js.html`, `js_interactive_book.html`, `material-ui-masterclass.html`, `react-performance-a11y.html`, `sql-learning-page.html`, `test.guide.html`, `ui-design-system-learn.html`) plus the planned `html-reference.html` re-review. Notion source verification remains incomplete.
+- The latest documentation-only HEAD `962b8a88ad1b97d05962d6d22ee4f34efae21fe3` passed CI run [40459042995](https://github.com/Mardakhay/interactive-guides/actions/runs/40459042995). The new Git lesson update has not been run through CI yet. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`.

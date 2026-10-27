@@ -1,7 +1,7 @@
 {
   "id": "git.fundamentals",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-23",
@@ -10,7 +10,7 @@
   "order": 2,
   "title": "Git Fundamentals: Track, Commit, and Publish Your Work",
   "description": "Understand Git's three local areas, record focused changes as commits, connect a local repository to a remote, publish a branch, and keep generated or secret files out of version control.",
-  "estimatedMinutes": 95,
+  "estimatedMinutes": 100,
   "difficulty": "beginner",
   "prerequisites": [
     "js.basics-types-control-flow",
@@ -163,7 +163,7 @@
       "id": "remote-example",
       "type": "codeWalkthrough",
       "language": "bash",
-      "code": "git remote add origin https://github.com/USERNAME/PROJECT.git\ngit remote -v\ngit branch --show-current\ngit push -u origin main",
+      "code": "git remote add origin https://github.com/USERNAME/PROJECT.git\ngit remote -v\ngit branch --show-current\ngit push -u origin HEAD",
       "steps": [
         {
           "title": "Add the remote under a memorable name",
@@ -181,13 +181,13 @@
           "title": "Confirm the current branch",
           "lineStart": 3,
           "lineEnd": 3,
-          "explanation": "The push command names main explicitly. If the current branch has another name, either push the intended branch name or deliberately rename it first."
+          "explanation": "Check that the checked-out branch is the intended branch to publish. If the team requires review before integration, create/use a feature branch and open a pull request instead of pushing directly to a protected default branch."
         },
         {
           "title": "Publish local commits",
           "lineStart": 4,
           "lineEnd": 4,
-          "explanation": "git push transfers commits to the remote branch. The -u option sets upstream tracking for this branch after the first successful push; remote authentication and permissions must already work."
+          "explanation": "After confirming the current branch and team policy, `git push -u origin HEAD` publishes the checked-out branch under the same name on origin and sets upstream tracking. It does not mean 'push main' unless you are currently on main; do not bypass a required PR workflow."
         }
       ]
     },
@@ -267,7 +267,8 @@
         "Use a README to explain what a repository does, how to install dependencies, how to run checks, and how to contribute.",
         "GitHub Pages can publish a static site from a configured branch or a GitHub Actions workflow; verify the source and base-path settings before publishing.",
         "Review repository visibility, collaborator permissions, branch protection, and required checks deliberately; grant only the access each contributor needs.",
-        "A .gitignore rule does not remove a tracked secret or erase it from history. If a credential was exposed, rotate or revoke it; removing the file alone is not enough."
+        "A .gitignore rule does not remove a tracked secret or erase it from history. If a credential was exposed, rotate or revoke it; removing the file alone is not enough.",
+        "Write README content in Markdown: use headings to define hierarchy, fenced code blocks for commands, and links for supporting documentation. Preview the rendered file and keep instructions reproducible and free of secrets."
       ]
     },
     {
@@ -369,7 +370,7 @@
         "Stage the intended project files and inspect git diff --cached.",
         "Create a focused commit message describing the API mini-project.",
         "Check whether origin is configured; add the correct remote only if it is missing.",
-        "Confirm the current branch and push it to the remote, using upstream tracking if this is the first push.",
+        "Confirm the current branch and repository/team policy before pushing. Use a feature branch and pull request where review is required; set upstream tracking on the branch you intend to publish.",
         "Open the hosted repository and verify that the expected files and commit are visible.",
         "Write down the difference between working tree, staging area, local repository, and remote repository."
       ],
@@ -379,9 +380,10 @@
         "Generated dependencies/build output and secret files are not committed.",
         "The remote URL points to the intended repository.",
         "The push publishes the commit to the expected branch.",
-        "The learner can explain which Git area changes after each command."
+        "The learner can explain which Git area changes after each command.",
+        "Does not bypass branch protection or a required pull-request review."
       ],
-      "starterCode": "# Inspect the current state\n\ngit status\n\n# Check the staged diff before committing\n\ngit diff --cached\n\n# Example flow (replace the message and branch as appropriate):\n# git add index.html src .gitignore\n# git commit -m \"feat: add API-driven posts page\"\n# git remote -v\n# git push -u origin main",
+      "starterCode": "# Inspect the current state\n\ngit status\n\n# Check the staged diff before committing\n\ngit diff --cached\n\n# Example flow (replace the message and branch as appropriate):\n# git add index.html src .gitignore\n# git commit -m \"feat: add API-driven posts page\"\n# git remote -v\n# git push -u origin HEAD # only after checking the current branch and team policy",
       "hints": [
         "Use git status before and after staging; the output tells you what Git believes is staged and unstaged.",
         "Check git diff --cached before making a commit to avoid including unrelated changes.",
@@ -392,7 +394,8 @@
         "The commit records only the intended change.",
         "The remote and branch are the ones you intended to publish to.",
         "The hosted repository shows your commit after pushing.",
-        "No real secret is stored in a committed file or remote URL."
+        "No real secret is stored in a committed file or remote URL.",
+        "The push targets the intended branch, and a required review workflow is followed."
       ]
     },
     {
