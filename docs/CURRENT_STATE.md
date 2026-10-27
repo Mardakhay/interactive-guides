@@ -733,3 +733,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - `AppLayout.test.tsx` now exercises the actual shell and proves that a write failure reported before mounting the layout appears in its accessible alert. The component suite also covers read/write/remove copy, event updates, dismissal/reopening and Russian localization.
 - Exact-head CI passed on `d2e9fc961b01a28353d72772b8d4d95b5cd1b13b` in run [40495501752](https://github.com/Mardakhay/interactive-guides/actions/runs/40495501752) (npm ci, lint, typecheck, tests, production build).
 - Browser/device storage privacy/quota validation and `/backup` native file-picker/download smoke checks remain open acceptance gates.
+
+## Backup failure-path validation — 2026-10-27
+
+- `BackupPage.test.tsx` covers restore write failure with successful rollback (old raw keys intact; active Zustand state unchanged) and rollback failure (recovery alert shown, imported data not published into active stores).
+- Exact-head CI passed on `c3208ddac964003dd6c119e9fb41a8b78c601435`: [40497324096](https://github.com/Mardakhay/interactive-guides/actions/runs/40497324096).
+- Manual acceptance remains: actual browser/device tests of localStorage privacy/quota, native file picker/download, and restore failure recovery. `main` remains unchanged.

@@ -165,3 +165,11 @@ This is visibility/recovery guidance, not transactional persistence. Browser-spe
 The global storage-error notice is now tested both independently and through `AppLayout`. The integration test verifies that an error recorded before layout mount is visible after the real shell is rendered. Exact-head CI succeeded in run [40495501752](https://github.com/Mardakhay/interactive-guides/actions/runs/40495501752).
 
 Real browser/device permission, privacy-mode and quota validation remain required to close the remaining local-first acceptance gate.
+
+## Restore failure UI recovery coverage — 2026-10-27
+
+`BackupPage.test.tsx` now covers two failure paths at the UI boundary: a restore write fails and rollback succeeds, preserving the original raw storage values and keeping active Zustand stores unchanged; a restore write fails and rollback of an earlier written key also fails, displaying the urgent recovery alert without publishing the imported payload to active stores.
+
+These are deterministic `QuotaExceededError` simulations in jsdom, not native browser quota/privacy validation. Exact-head CI passed on `c3208ddac964003dd6c119e9fb41a8b78c601435` in [run 40497324096](https://github.com/Mardakhay/interactive-guides/actions/runs/40497324096).
+
+Remaining Phase 5 acceptance: record a real-browser/device smoke pass for localStorage denial/quota behavior, native file selection, the downloaded JSON filename and content, re-import, successful replacement, and storage-write/rollback error recovery. Include browser, OS/device, date and results; do not infer this evidence from Vitest/jsdom.

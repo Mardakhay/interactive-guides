@@ -457,3 +457,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## Local/cloud reconciliation design checkpoint — 2026-10-27
 
 A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`. It inventories current local record shapes and missing metadata (per-record revisions, mutation IDs and deletion tombstones), proposes conservative entity-by-entity conflict rules, and lists unit/RLS/integration acceptance scenarios. This is design work only: Phase 6 remains unchecked, Supabase/auth/sync remain unimplemented, and product decisions such as note opt-in and classic quiz history still require review.
+
+## Local-first recovery test checkpoint — 2026-10-27
+
+- [x] Test the `/backup` page when a restore write fails but the previous raw values roll back successfully.
+- [x] Test the `/backup` page when both a restore write and rollback of a previously written key fail, including the urgent recovery message and unchanged in-memory stores.
+- [ ] Perform native-browser/device smoke tests for storage privacy/quota, file picker, downloaded file, and restore recovery.
+- Exact-head CI passed on `c3208ddac964003dd6c119e9fb41a8b78c601435` (run [40497324096](https://github.com/Mardakhay/interactive-guides/actions/runs/40497324096)). Phase 5 remains not release-accepted until manual browser/device results are recorded.

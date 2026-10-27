@@ -850,3 +850,9 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Added `src/components/layout/AppLayout.test.tsx` so the global warning is verified through the actual layout, not only in isolation: a write failure reported before mounting becomes a visible `role=alert` in the app shell.
 - Exact-head CI passed on `d2e9fc961b01a28353d72772b8d4d95b5cd1b13b` in run [40495501752](https://github.com/Mardakhay/interactive-guides/actions/runs/40495501752) (npm ci, lint, typecheck, tests, production build).
 - Remaining Phase 5 user-environment checks are localStorage privacy/quota behavior and `/backup` file picker/download/recovery in real browsers/devices.
+
+## Backup restore failure recovery — 2026-10-27
+
+- Added page-level tests for both rollback-success and rollback-failure paths. The first preserves the previous raw values and active store state; the second verifies the urgent recovery message and ensures the imported payload is not published into Zustand after a partial storage failure.
+- Exact-head CI passed on `c3208ddac964003dd6c119e9fb41a8b78c601435`: [run 40497324096](https://github.com/Mardakhay/interactive-guides/actions/runs/40497324096). Checks: npm install, lint, typecheck, tests and production build.
+- Still open: native browser/device localStorage privacy/quota behavior, file picker/download, and restore recovery smoke checks. These cannot be claimed from jsdom tests.
