@@ -14,8 +14,8 @@ class MemoryStorage implements Storage {
 }
 
 class FailWritesStorage extends MemoryStorage {
-  override setItem(_key: string, _value: string): void {
-    throw new DOMException('Quota exceeded', 'QuotaExceededError');
+  override setItem(key: string, value: string): void {
+    throw new DOMException(`Quota exceeded while writing ${key} (${value.length} chars)`, 'QuotaExceededError');
   }
 }
 
