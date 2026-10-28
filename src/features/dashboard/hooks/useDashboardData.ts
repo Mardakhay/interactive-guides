@@ -14,14 +14,15 @@ import type { BookmarkEntry } from '@/features/bookmarks';
 import { useNoteStore } from '@/features/notes';
 import type { NoteEntry } from '@/features/notes';
 import { getLearningPaths, getLearningPathLessonIds } from '@/features/learning-paths';
-import { coursePath, learningPathDetailPath } from '@/app/router/routes';
+import { coursePath, learningPathDetailPath, lessonPath } from '@/app/router/routes';
+import { getStructuredLessonIds, getStructuredLessonMetadata, type SupportedLocale } from '@/content/repository';
 import type { ActivityItem, ContinueLearningInfo, DashboardData, RecommendedItem } from '../types';
 
 const RECENT_ACTIVITY_LIMIT = 5;
 const RECOMMENDATION_LIMIT = 3;
 const NOTE_PREVIEW_LENGTH = 80;
 
-export function useDashboardData(): DashboardData {
+export function useDashboardData(locale: SupportedLocale = 'en'): DashboardData {
   const progressLessons = useProgressStore((s) => s.lessons);
   const lastOpenedLessonId = useProgressStore((s) => s.lastOpenedLessonId);
   const bookmarkLessons = useBookmarkStore((s) => s.lessons);
@@ -30,36 +31,57 @@ export function useDashboardData(): DashboardData {
   return useMemo(() => {
     const allLessonIds = getLessons().map((l) => l.id);
     const stats = computeProgressStats(progressLessons, allLessonIds);
+    const structuredProgress = computeProgressStats(progressLessons, getStructuredLessonIds());
 
     return {
       completed: stats.completed,
       inProgress: stats.inProgress,
       total: stats.total,
       percent: stats.percent,
-      continueLearning: buildContinueLearning(lastOpenedLessonId, progressLessons),
+      structuredProgress,
+      continueLearning: buildContinueLearning(lastOpenedLessonId, progressLessons, locale),
       recentActivity: buildRecentActivity(bookmarkLessons, noteLessons),
       recommendations: buildRecommendations(progressLessons),
     };
-  }, [progressLessons, lastOpenedLessonId, bookmarkLessons, noteLessons]);
+  }, [progressLessons, lastOpenedLessonId, bookmarkLessons, noteLessons, locale]);
 }
 
 function buildContinueLearning(
   lastOpenedLessonId: string | null,
   progressLessons: Record<string, LessonProgressEntry>,
+  locale: SupportedLocale,
 ): ContinueLearningInfo | null {
-  const lesson = lastOpenedLessonId ? getLessonById(lastOpenedLessonId) : undefined;
-  if (!lesson) return null;
+  if (!lastOpenedLessonId) return null;
 
-  const category = getCategoryById(lesson.categoryId);
-  if (!category) return null;
+  const lesson = getLessonById(lastOpenedLessonId);
+  if (lesson) {
+    const category = getCategoryById(lesson.categoryId);
+    if (!category) return null;
+
+    return {
+      kind: 'classic',
+      href: lessonPath(lesson.id),
+      lessonId: lesson.id,
+      lessonTitle: lesson.title,
+      categoryId: category.id,
+      categoryName: category.name,
+      categoryIcon: category.icon,
+      status: progressLessons[lesson.id]?.status ?? 'not-started',
+    };
+  }
+
+  const structuredLesson = getStructuredLessonMetadata(lastOpenedLessonId, locale);
+  if (!structuredLesson) return null;
 
   return {
-    lessonId: lesson.id,
-    lessonTitle: lesson.title,
-    categoryId: category.id,
-    categoryName: category.name,
-    categoryIcon: category.icon,
-    status: progressLessons[lesson.id]?.status ?? 'not-started',
+    kind: 'structured',
+    href: `/${locale}/structured-lessons/${structuredLesson.id}`,
+    lessonId: structuredLesson.id,
+    lessonTitle: structuredLesson.title,
+    categoryId: 'structured-curriculum',
+    categoryName: locale === 'ru' ? 'Структурированная программа' : 'Structured curriculum',
+    categoryIcon: 'book-open',
+    status: progressLessons[structuredLesson.id]?.status ?? 'not-started',
   };
 }
 

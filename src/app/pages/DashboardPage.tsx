@@ -4,6 +4,7 @@ import {
   useDashboardData,
   ContinueLearningCard,
   ProgressSummary,
+  StructuredProgressSummary,
   RecentActivity,
   RecommendedNext,
 } from '@/features/dashboard';
@@ -12,7 +13,7 @@ import { translate, useUiLocale } from '@/features/localization';
 
 export default function DashboardPage() {
   const locale = useUiLocale();
-  const data = useDashboardData();
+  const data = useDashboardData(locale);
 
   return (
     <div className="space-y-8">
@@ -27,6 +28,8 @@ export default function DashboardPage() {
         total={data.total}
         percent={data.percent}
       />
+
+      <StructuredProgressSummary {...data.structuredProgress} />
 
       <div className="space-y-3">
         <h2 className="text-lg font-semibold text-neutral-900">{translate(locale, 'continueLearning')}</h2>
