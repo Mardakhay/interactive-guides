@@ -943,6 +943,22 @@ describe('Git workflow lesson translation', () => {
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(englishGitWorkflow.version).toBe(5);
+    expect(russianGitWorkflow.version).toBe(5);
+    for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
+      const ciExample = lesson.blocks.find((block) => block.id === 'ci-example');
+      expect(ciExample?.type).toBe('code');
+      if (ciExample?.type !== 'code') return;
+      expect(ciExample.code).toContain('node-version: 22');
+      expect(ciExample.code).toContain('npm install --global npm@11.21.1');
+      expect(ciExample.code).toContain('permissions:');
+      expect(ciExample.code).toContain('contents: read');
+      expect(ciExample.code).toContain('continue-on-error: true');
+      expect(ciExample.code).toContain('npm run lint');
+      expect(ciExample.code).toContain('npm run typecheck');
+      expect(ciExample.code).toContain('npm test');
+      expect(ciExample.code).toContain('npm run build');
+    }
     expect(englishGitWorkflow.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
         'git-cd-body',

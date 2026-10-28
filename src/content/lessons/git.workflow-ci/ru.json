@@ -1,10 +1,10 @@
 {
   "id": "git.workflow-ci",
   "locale": "ru",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-28",
   "moduleId": "month-5-week-20",
   "week": 20,
   "order": 1,
@@ -144,8 +144,8 @@
       "id": "ci-example",
       "type": "code",
       "language": "yaml",
-      "caption": "Упрощённый пример CI job",
-      "code": "name: Verify\non: [push, pull_request]\njobs:\n  verify:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 20\n          cache: npm\n      - run: npm ci\n      - run: npm run lint\n      - run: npm run typecheck\n      - run: npm test\n      - run: npm run build"
+      "caption": "Workflow, соответствующий репозиторию: Node 22, npm версии из lockfile, минимальные permissions и те же CI-проверки",
+      "code": "name: Continuous Integration\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  verify:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 22\n          cache: npm\n      - name: Use the npm version used to generate the lockfile\n        run: npm install --global npm@11.21.1\n      - run: npm ci\n      - name: Report npm audit advisories (informational)\n        if: success()\n        continue-on-error: true\n        run: |\n          npm audit --json > \"$RUNNER_TEMP/npm-audit.json\" || true\n          node scripts/summarize-npm-audit.mjs \"$RUNNER_TEMP/npm-audit.json\"\n      - run: npm run lint\n      - run: npm run typecheck\n      - run: npm test\n      - run: npm run build"
     },
     {
       "id": "workflow-security",
