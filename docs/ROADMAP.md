@@ -542,3 +542,14 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Produce a reviewable candidate map for all 25 classic catalog IDs in [LEGACY_ROUTE_CUTOVER_MATRIX.md](./LEGACY_ROUTE_CUTOVER_MATRIX.md).
 - [ ] Review every candidate against actual EN/RU target content, exercises/answers and unresolved source interactions.
 - [ ] Specify and test per-store learner-state migration or explicit legacy-record retention before redirect; do not use topic overlap as an identity mapping.
+
+
+## Structured learning-path route coverage — 2026-10-28
+
+- [x] Add separate structured Frontend Foundations and React paths using canonical lesson IDs; preserve the existing classic paths and their stored IDs.
+- [x] Resolve classic and structured lesson routes in the detail view, respecting the selected UI locale, existing progress records and bookmark store.
+- [x] Validate that each configured path step references an existing classic or structured lesson; render an explicit unavailable-step state rather than hiding unknown IDs.
+- [x] Add integration/regression tests for path progress, locale-aware links, bookmarks, localization and legacy route preservation. Exact-head CI passed on `1f186fba06e4c37f32cd522d9a256adc344019ae` in [run #40646447483](https://github.com/Mardakhay/interactive-guides/actions/runs/40646447483) (209 tests / 33 files plus production build).
+- [ ] Continue detailed source-to-lesson parity review in syllabus order. Separate IDs and successful route resolution do not establish content equivalence.
+- [ ] Complete real-browser, screen-reader and mobile acceptance; these checks are not covered by CI.
+

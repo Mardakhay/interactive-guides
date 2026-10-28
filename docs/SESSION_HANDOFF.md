@@ -5,7 +5,16 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — structured bookmarks/notes and activity links — 2026-10-28
+## Current continuation — structured learning paths — 2026-10-28
+
+- Latest verified code/test HEAD: `1f186fba06e4c37f32cd522d9a256adc344019ae`; exact-head GitHub Actions [run #40646447483](https://github.com/Mardakhay/interactive-guides/actions/runs/40646447483) passed `npm ci`, audit diagnostics, lint, typecheck, all 209 tests across 33 files, and production build/bundle budget.
+- Added two separate paths using canonical structured IDs: `structured-frontend-foundations` and `structured-react-developer`. The existing five classic paths and their old lesson IDs remain unchanged. A repository test now validates every path step resolves against either the classic catalog or the structured manifest.
+- `LearningPathDetailPage` now resolves classic and structured lessons separately, creates locale-aware structured URLs, tracks progress using each canonical ID, and retains bookmark actions. Unknown lesson IDs are shown as unavailable instead of silently disappearing; progress counts only resolvable steps. Lesson links no longer wrap the bookmark button in an anchor.
+- Added tests for structured path URLs, progress calculations, bookmarking, Russian-locale routes, preservation of classic paths, and Russian path titles. No content-equivalence or state migration is inferred from this work.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft. No local checkout/build or real-browser/screen-reader session was run.
+- Next: continue route-consumer/accessibility checks, then work through the source-parity audit in syllabus order. Keep legacy HTML routes and records until migration/retention decisions are reviewed. Native backup/PWA acceptance remains open; Supabase remains gated by approved reconciliation policy and RLS isolation tests.
+
+## Previous continuation — structured bookmarks/notes and activity links (superseded) — 2026-10-28
 
 - Latest verified HEAD: `adc65f8faa03f7b0cea24ac927b8544e5960bced`; exact-head GitHub Actions [run #40643106198](https://github.com/Mardakhay/interactive-guides/actions/runs/40643106198) passed `npm ci`, audit diagnostic, lint, typecheck, all 200 tests and production build/bundle budget.
 - Structured reader now includes the existing generic bookmark toggle and note editor. The note editor is keyed by lesson ID so navigating between structured lessons remounts its draft rather than carrying prior input.
