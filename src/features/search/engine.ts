@@ -8,12 +8,15 @@ export interface SearchableLesson {
   readonly category: string;
   readonly difficulty: string;
   readonly durationMinutes: number;
+  /** Optional route override for content outside the classic HTML catalog. */
+  readonly path?: string;
 }
 
 export interface SearchableCourse {
   readonly id: string;
   readonly name: string;
   readonly description: string;
+  readonly path?: string;
 }
 
 export interface SearchableNote {
@@ -22,6 +25,7 @@ export interface SearchableNote {
   readonly categoryId: string;
   readonly category: string;
   readonly content: string;
+  readonly path?: string;
 }
 
 export interface SearchableContent {
@@ -111,7 +115,7 @@ export function search({ content, query, filter }: SearchEngineInput): SearchRes
           id: lesson.id,
           title: lesson.title,
           snippet: snippet || lesson.description,
-          path: `/lessons/${lesson.id}`,
+          path: lesson.path ?? `/lessons/${lesson.id}`,
           matchedFields: matched,
         });
       }
@@ -130,7 +134,7 @@ export function search({ content, query, filter }: SearchEngineInput): SearchRes
           id: course.id,
           title: course.name,
           snippet: snippet || course.description,
-          path: `/courses/${course.id}`,
+          path: course.path ?? `/courses/${course.id}`,
           matchedFields: matched,
         });
       }
@@ -150,7 +154,7 @@ export function search({ content, query, filter }: SearchEngineInput): SearchRes
           id: note.lessonId,
           title: note.lessonTitle,
           snippet: snippet || note.content.slice(0, 140),
-          path: `/lessons/${note.lessonId}`,
+          path: note.path ?? `/lessons/${note.lessonId}`,
           matchedFields: matched,
         });
       }

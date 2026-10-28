@@ -17,4 +17,40 @@ describe('search', () => {
     expect(search({ content, query: 'r', filter: 'all' })).toEqual([]);
     expect(getResultCounts(search({ content, query: 'effect', filter: 'all' }))).toEqual({ lesson: 1, course: 0, note: 1 });
   });
+  it('respects locale-specific paths for structured lessons, curriculum results and notes', () => {
+    const structuredContent = {
+      lessons: [{
+        id: 'html.document-structure',
+        title: 'HTML document structure',
+        description: '',
+        categoryId: 'structured-curriculum',
+        category: 'Structured curriculum',
+        difficulty: '',
+        durationMinutes: 0,
+        path: '/ru/structured-lessons/html.document-structure',
+      }],
+      courses: [{
+        id: 'structured-curriculum',
+        name: 'Structured curriculum',
+        description: 'The bilingual structured course.',
+        path: '/ru/structured-lessons',
+      }],
+      notes: [{
+        lessonId: 'html.document-structure',
+        lessonTitle: 'HTML document structure',
+        categoryId: 'structured-curriculum',
+        category: 'Structured curriculum',
+        content: 'Review semantic regions',
+        path: '/ru/structured-lessons/html.document-structure',
+      }],
+    };
+
+    expect(search({ content: structuredContent, query: 'document structure', filter: 'lesson' })[0]?.path)
+      .toBe('/ru/structured-lessons/html.document-structure');
+    expect(search({ content: structuredContent, query: 'bilingual structured course', filter: 'course' })[0]?.path)
+      .toBe('/ru/structured-lessons');
+    expect(search({ content: structuredContent, query: 'semantic regions', filter: 'note' })[0]?.path)
+      .toBe('/ru/structured-lessons/html.document-structure');
+  });
+
 });
