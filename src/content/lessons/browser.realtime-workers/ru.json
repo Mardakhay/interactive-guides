@@ -627,7 +627,7 @@
           "kind": "official-docs"
         },
         {
-          "title": "MDN: Using Service Workers",
+          "title": "MDN: Использование Service Worker",
           "url": "https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers",
           "kind": "official-docs"
         },
@@ -644,11 +644,6 @@
         {
           "title": "MDN: Жизненный цикл Service Worker",
           "url": "https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API",
-          "kind": "official-docs"
-        },
-        {
-          "title": "MDN: Использование Service Worker",
-          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers",
           "kind": "official-docs"
         }
       ]

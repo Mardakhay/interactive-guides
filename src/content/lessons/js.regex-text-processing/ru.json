@@ -390,7 +390,7 @@
       "type": "references",
       "items": [
         {
-          "title": "MDN: Regular expressions",
+          "title": "MDN: флаги регулярных выражений",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions",
           "kind": "official-docs"
         },
@@ -407,11 +407,6 @@
         {
           "title": "MDN: конструктор RegExp и флаги",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/RegExp",
-          "kind": "official-docs"
-        },
-        {
-          "title": "MDN: флаги регулярных выражений",
-          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions",
           "kind": "official-docs"
         }
       ]

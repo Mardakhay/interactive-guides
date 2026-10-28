@@ -408,11 +408,6 @@
           "title": "MDN: RegExp constructor and flags",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/RegExp",
           "kind": "official-docs"
-        },
-        {
-          "title": "MDN: Regular expression flags",
-          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions",
-          "kind": "official-docs"
         }
       ]
     }

@@ -676,16 +676,6 @@
           "kind": "official-docs"
         },
         {
-          "title": "Vitest: Mock Functions",
-          "url": "https://vitest.dev/guide/learn/mock-functions",
-          "kind": "official-docs"
-        },
-        {
-          "title": "Testing Library: React Testing Library",
-          "url": "https://testing-library.com/docs/react-testing-library/intro/",
-          "kind": "guide"
-        },
-        {
           "title": "Vitest: mock functions и очистка",
           "url": "https://vitest.dev/guide/learn/mock-functions",
           "kind": "official-docs"

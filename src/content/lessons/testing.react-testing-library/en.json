@@ -681,16 +681,6 @@
           "kind": "official-docs"
         },
         {
-          "title": "Testing Library: React Testing Library",
-          "url": "https://testing-library.com/docs/react-testing-library/intro/",
-          "kind": "guide"
-        },
-        {
-          "title": "Vitest: Mock Functions and cleanup",
-          "url": "https://vitest.dev/guide/learn/mock-functions",
-          "kind": "official-docs"
-        },
-        {
           "title": "Vitest: Mock API",
           "url": "https://vitest.dev/api/mock",
           "kind": "official-docs"

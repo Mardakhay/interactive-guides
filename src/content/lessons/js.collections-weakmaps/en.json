@@ -420,16 +420,6 @@
           "kind": "official-docs"
         },
         {
-          "title": "MDN: Map",
-          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
-          "kind": "official-docs"
-        },
-        {
-          "title": "MDN: Set",
-          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set",
-          "kind": "official-docs"
-        },
-        {
           "title": "MDN: Symbol",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol",
           "kind": "official-docs"
