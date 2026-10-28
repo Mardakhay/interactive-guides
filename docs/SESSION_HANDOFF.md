@@ -1106,3 +1106,13 @@ The new [legacy route cutover matrix](./LEGACY_ROUTE_CUTOVER_MATRIX.md) lists al
 - This documentation commit updates the root README, adds `docs/CONTENT_AUTHORING_GUIDE.md`, indexes the guide in `docs/README.md`, and refreshes Phase 8 in the roadmap/current-state audit.
 - **CI status:** inspect the newest GitHub Actions run for the branch HEAD in [PR #1](https://github.com/Mardakhay/interactive-guides/pull/1); do not infer a green exact-head result from an earlier commit. The workflow runs on pull requests targeting `main`.
 - **Still open:** real-browser/device and screen-reader acceptance, final syllabus-outcome review, systematic source-to-block/interaction parity, README screenshots, legacy-route/learner-state cutover, and Supabase reconciliation/RLS work. No cloud sync or route cutover was introduced here.
+
+
+## Content QA and audited RU copy — 2026-10-28
+
+- Code checkpoint [`1631c1f`](https://github.com/Mardakhay/interactive-guides/commit/1631c1fc9ed8377ebb5194dc1da78b702c981716) passed exact-head CI [run #40679724796](https://github.com/Mardakhay/interactive-guides/actions/runs/40679724796): install, lint, typecheck, 219 tests / 35 files, production build and 125-chunk bundle budgets all passed; `npm audit` reported zero vulnerabilities.
+- Added `src/content/lessonQuality.test.ts` to check reference URL uniqueness for every registered structured lesson in both locales, plus regression assertions for 23 audited Russian prose fields.
+- Removed 20 repeated reference URL entries across six bilingual lesson pairs: object prototypes, browser real-time/worker APIs, HTML forms/accessibility, Map/Set collections, regular expressions, and Testing Library. Replaced repeated string-based React keys in the structured renderer with per-block index keys.
+- Localized the reviewed prose fields in Browser Capability APIs, browser rendering pipeline, IndexedDB, React custom hooks, shared context state, effect-driven lists, Testing Library, npm/Vite tooling, and TypeScript. This is not a claim that all lesson copy has completed human translation review.
+- The subsequent documentation-only checkpoint must be validated by the new exact-head CI run before claiming the branch's latest SHA is green.
+- **Still open:** broader EN/RU editorial and source-parity review; learning-outcome coverage against the full 24-week syllabus; real-browser/PWA/offline, screen-reader and mobile testing; README screenshots; legacy-route/state migration; Supabase reconciliation/conflict handling and RLS tests. Keep legacy content and routes until the documented gates are met.

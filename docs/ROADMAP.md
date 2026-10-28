@@ -101,6 +101,7 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - [ ] Review all learning outcomes against the 24-week syllabus and document any uncovered or duplicate outcomes.
 - [ ] Audit keyboard access, contrast, mobile, bundle size, broken links, and stale content.
 - [x] Update the project README and add a contributor/content authoring guide for the current JSON/manifest/schema workflow.
+- [x] Add repository-wide regression coverage for duplicate reference URLs across registered EN/RU lessons and targeted checks for 23 audited Russian prose fields; remove 20 duplicate URL entries across six lesson pairs.
 - [ ] Capture and verify current application screenshots for the README.
 - [ ] Run and record real-browser, screen-reader, and mobile acceptance; automated tests are not a substitute.
 - Acceptance: the complete path resolves in both locales, every step note is localized, a fresh-browser flow is checked, and release notes describe remaining limitations honestly.
@@ -626,3 +627,14 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - Fixed the bottom continuation link in the learning-path detail view to use the already resolved destination, preventing structured paths from linking to the classic `/lessons/:id` route.
 - README and the authoring guide now describe the bilingual structured-content workflow and clearly document that offline support and source parity still have open acceptance gates.
 - CI for the exact resulting HEAD must be checked in the current pull-request run before treating this checkpoint as verified. Real-browser/device, screen-reader, source-parity, and syllabus coverage gates remain open.
+
+
+## Content quality and Russian localization checkpoint — 2026-10-28
+
+- [x] Add `src/content/lessonQuality.test.ts`: every registered structured lesson is loaded in both locales and every `references` block is checked for duplicate URLs.
+- [x] Remove 20 duplicate reference URL entries across the EN/RU pairs for `js.object-prototypes`, `browser.realtime-workers`, `html.forms-accessibility`, `js.collections-weakmaps`, `js.regex-text-processing`, and `testing.react-testing-library`. Preserve localized reference titles where present.
+- [x] Fix repeated-value React keys in the structured content renderer so repeated prompts, criteria, list items, or reference URLs do not collide.
+- [x] Translate 23 specifically audited prose fields across nine Russian lesson files and add a regression check for those fields. This is targeted coverage, not a claim that every sentence in every Russian lesson has undergone editorial localization review.
+- [x] Exact-head CI on `1631c1fc9ed8377ebb5194dc1da78b702c981716` passed: 35 test files / 219 tests, lint, typecheck, production build and bundle budgets. `npm audit` reported zero vulnerabilities. See [run #40679724796](https://github.com/Mardakhay/interactive-guides/actions/runs/40679724796).
+- [ ] Keep the broader bilingual editorial/source-parity review open. The automated test protects the audited fields and duplicate-reference invariant; it is not a general translation-quality detector.
+- [ ] Real-browser/PWA/offline, screen-reader and mobile acceptance remain unrun and must be recorded from actual target browsers/devices.

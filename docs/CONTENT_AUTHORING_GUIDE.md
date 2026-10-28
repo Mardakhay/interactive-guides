@@ -69,6 +69,12 @@ npm run build
 
 For focused checks, run `npx vitest run src/features/learning-paths/api.test.ts src/app/pages/LearningPathDetailPage.test.tsx src/content/repository.test.ts`.
 
+The additional `src/content/lessonQuality.test.ts` checks two important content invariants:
+- all registered structured lessons in both locales have no duplicate URL within an individual `references` block;
+- a reviewed set of 23 Russian prose fields remains localized, guarding against regressions in the audited quiz prompts, feedback, explanation and lesson paragraphs.
+
+This is a targeted regression guard, not a general-purpose language detector or a substitute for a human EN/RU editorial comparison. Keep the broader source-parity and translation-review tasks open until they have evidence.
+
 CI validation does not prove full source parity or editorial approval. Before declaring a lesson migrated, review the mapped source material and record unresolved content/interaction gaps in the audit. The legacy route cutover remains blocked until a reviewed crosswalk and tested learner-state retention policy exist. Do not add Supabase authentication or sync ahead of the documented reconciliation and RLS/security gates.
 
 ## Pull-request checklist

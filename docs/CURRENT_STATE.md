@@ -850,3 +850,13 @@ The candidate mapping of all 25 classic catalog IDs to possible structured desti
 The feature branch adds `structured-capstone`, a six-step guided frontend project using the already registered capstone, testing, and deployment lesson IDs. All 46 configured learning-path notes have Russian translations keyed by path ID and lesson ID; regression tests verify that every path step has a non-empty translated note. The detail page now uses its resolved locale-aware lesson destination for the bottom continuation action as well.
 
 The root README and new `docs/CONTENT_AUTHORING_GUIDE.md` cover the present bilingual JSON/manifest workflow, test commands, local backup/restore, and the known PWA offline boundary. Confirm the latest exact-head CI run in PR #1. No real-browser/device or screen-reader execution, formal source-to-block verification, full syllabus outcome review, legacy-route cutover, or Supabase sync is claimed by these code/doc changes.
+
+
+## Content quality and localization checkpoint — 2026-10-28
+
+- CI passed on code/content HEAD `1631c1fc9ed8377ebb5194dc1da78b702c981716`: `npm ci`, lint, typecheck, 219 tests in 35 files, production build and bundle-budget checks all succeeded. The audit step reported zero npm vulnerabilities. Link: [GitHub Actions run #40679724796](https://github.com/Mardakhay/interactive-guides/actions/runs/40679724796).
+- `src/content/lessonQuality.test.ts` now checks duplicate reference URLs across every registered structured lesson in EN and RU. The test surfaced and the branch removed 20 repeated reference entries in total across six bilingual lesson pairs.
+- The structured lesson renderer now gives list/reference children non-colliding React keys even if the displayed strings repeat.
+- Nine Russian lesson files received fixes for 23 reviewed English prose fields (including the IndexedDB transaction quiz and several knowledge-check prompts). Regression coverage asserts that these exact fields contain Russian text. This is a reviewed subset only; it must not be interpreted as proof that all Russian content is fully translated or editorially approved.
+- The code checkpoint passed automated CI but still has no recorded manual browser/device or screen-reader acceptance, no complete syllabus-outcome audit, and no formal line-by-line source-to-structured-content parity approval.
+- Existing legacy routes remain in place. Supabase auth/sync remains gated on the documented local/cloud reconciliation, conflict policy and RLS/security tests. `main` was not modified; changes remain on `feat/learning-platform-foundation`.
