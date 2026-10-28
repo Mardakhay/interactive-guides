@@ -870,3 +870,13 @@ A targeted check of the 24-week core curriculum found that week 17 named UI libr
 ## Current curriculum registry counts — 2026-10-28
 
 The core/supplementary classification is now reconciled with the original syllabus: **27 core lesson IDs + 17 supplementary lesson IDs = 44 registered bilingual lesson IDs**. `ui.bootstrap-mui` is core week 17; `css.sass-scss` stays supplementary. This changes curriculum membership only; source-to-block/UI parity, learner-state migration and legacy-route cutover gates remain open.
+
+
+## Exact-head content QA — 2026-10-28
+
+GitHub Actions [run #40688503193](https://github.com/Mardakhay/interactive-guides/actions/runs/40688503193) passed on code/content SHA `cc68eaa8c28cb9e96a1f348a163fdaa44768b873`: `npm ci`, `npm run lint`, `npm run typecheck`, 221 tests across 35 files, and `npm run build`. The dependency install/audit step reported 0 vulnerabilities; bundle budgets passed across 125 JavaScript chunks.
+
+- The bilingual core curriculum mapping is now 27 core IDs + 17 supplementary IDs = 44 structured lesson IDs, each with EN/RU content. UI-library lesson `ui.bootstrap-mui` is core week 17; `css.sass-scss` remains supplementary.
+- Added a full-registry regression that checks RU title/description localization, equal EN/RU learning-outcome counts and non-English-copy outcomes across all 44 lesson pairs. It found two untranslated outcomes in `js.runtime-memory`; both were translated and the lesson pair advanced to v5.
+- Existing targeted regression coverage checks duplicate reference URLs and 23 reviewed RU prose fields. These guards cover explicit invariants, not general editorial approval of every lesson paragraph.
+- Still open: complete learning-outcome/topic review and source-to-block parity, legacy-route/state cutover, real browser/device/PWA/offline, keyboard/screen-reader and mobile acceptance. The ready Netlify preview is not a substitute for a real interactive browser test.

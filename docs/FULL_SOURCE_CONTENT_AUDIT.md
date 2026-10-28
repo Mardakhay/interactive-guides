@@ -996,3 +996,12 @@ This dated status reconciles the early inventory snapshot above with later sourc
 ## Registry counts and week-17 mapping — authoritative as of 2026-10-28
 
 The feature registry now has **27 core lesson IDs and 17 supplementary lesson IDs (44 IDs total; EN/RU locale files for each)**. `ui.bootstrap-mui` belongs to core week 17, alongside `ui.design-systems`; `css.sass-scss` is the remaining lesson in `supplement-ui-ecosystem`. The MUI masterclass remains only partially interaction-equivalent (theme toggles, copy/reset controls and component demos are not cloned). The 25/25 HTML review count is source-reading evidence, not full source-to-block/UI parity or permission to cut over legacy routes.
+
+
+## Full-registry RU outcome localization guard — 2026-10-28
+
+- Added a repository regression over all 44 registered structured lesson IDs: Russian titles/descriptions must contain Cyrillic; EN/RU learning-outcome counts must match; Russian outcomes cannot be copied verbatim from English or consist only of non-Cyrillic text.
+- The test exposed two English-only learning outcomes in `js.runtime-memory` (nested object identity and heap-snapshot/allocation profiling). Both were translated; EN/RU lesson records moved to v5 with the current updated date. Source content, block structure and exercises are otherwise unchanged by this correction.
+- The code/content SHA `cc68eaa8c28cb9e96a1f348a163fdaa44768b873` passed GitHub Actions [run #40688503193](https://github.com/Mardakhay/interactive-guides/actions/runs/40688503193): 221 tests across 35 files, lint, typecheck, production build and all 125 bundle budgets; `npm audit` reported zero vulnerabilities.
+- The current registry has 27 core lesson IDs and 17 supplementary IDs (44 total EN/RU pairs). UI-library content is mapped to core week 17.
+- This automation catches obvious untranslated outcomes and structural mismatches; it is not a complete bilingual editorial review. Source-to-block parity, non-equivalent source widgets, unverified Notion metadata, learner-state route cutover and real-browser/device acceptance remain open.

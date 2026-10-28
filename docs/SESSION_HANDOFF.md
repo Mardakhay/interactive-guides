@@ -1129,3 +1129,15 @@ The new [legacy route cutover matrix](./LEGACY_ROUTE_CUTOVER_MATRIX.md) lists al
 ## Current registry count correction — 2026-10-28
 
 The registry is now **27 core IDs and 17 supplementary IDs (44 total, bilingual EN/RU)**. `ui.bootstrap-mui` is part of core week 17 after `ui.design-systems`; `css.sass-scss` remains in `supplement-ui-ecosystem`. The earlier 26-core/18-supplement count is superseded by this mapping correction. Full outcome review, legacy source/UI parity, state-preserving route cutover and native browser acceptance remain open.
+
+
+## Exact-head QA checkpoint — 2026-10-28
+
+GitHub Actions [run #40688503193](https://github.com/Mardakhay/interactive-guides/actions/runs/40688503193) passed on code/content SHA `cc68eaa8c28cb9e96a1f348a163fdaa44768b873`: `npm ci`, `npm run lint`, `npm run typecheck`, 221 tests across 35 files, and `npm run build`. The dependency install/audit step reported 0 vulnerabilities; bundle budgets passed across 125 JavaScript chunks.
+
+- Latest validated code/content SHA: `cc68eaa8c28cb9e96a1f348a163fdaa44768b873`.
+- Core curriculum split: 27 IDs / supplementary split: 17 IDs (44 total, bilingual). `ui.bootstrap-mui` is core week 17; `css.sass-scss` remains supplementary.
+- Added a full-registry localization test for Russian lesson titles/descriptions and learning outcomes. It found two English-only outcomes in `js.runtime-memory`; the RU text is now translated and both locales are v5. The test suite checks this across all 44 registered lesson pairs.
+- Added duplicate-reference URL regression across all registered lessons and translated 23 explicitly audited prose fields across nine Russian lessons.
+- This handoff/audit update is documentation-only. Its own exact-head CI should be checked before declaring the branch HEAD green.
+- **Still open:** full source-to-block/interaction parity, remaining EN/RU editorial review beyond audited fields, review of every curriculum outcome against topic-level material, legacy learner-state/route cutover, Supabase reconciliation/conflict policy/RLS tests, and real browser/device/mobile/screen-reader/PWA acceptance.

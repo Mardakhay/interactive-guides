@@ -347,3 +347,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 The canonical week-17 syllabus explicitly includes “UI libraries such as Chakra UI or MUI”. Previously, `ui.design-systems` was mapped to core week 17, while the separate bilingual `ui.bootstrap-mui` lesson (Bootstrap grid and Material UI theming) was incorrectly categorized as supplementary. The feature branch now maps both lessons to `month-5-week-17` in both locales, in sequence: design-system thinking, then UI-library selection/theming. The supplementary UI-ecosystem track is narrowed to `css.sass-scss` (modules, mixins, compile-time tokens and CSS custom properties).
 
 A repository regression test protects this mapping. This is a focused traceability correction, not completion of the full outcome-by-outcome syllabus audit or visual-interaction parity review.
+
+
+## Full-registry learning-outcome localization guard — 2026-10-28
+
+The structured repository currently registers 44 lesson IDs with EN/RU locale files (27 core and 17 supplementary). A repository regression checks that RU titles and descriptions contain Russian text, the EN/RU learning-outcome counts match, and no Russian outcome is an exact English copy or entirely non-Cyrillic. The check surfaced two English-only outcomes in `js.runtime-memory`; these are translated in both-current v5 lesson records. This is an automated guard for obvious localization regressions, not a semantic/editorial sign-off for every sentence or a complete outcome-to-syllabus audit.
+
+The code/content SHA `cc68eaa8c28cb9e96a1f348a163fdaa44768b873` passed exact-head CI [run #40688503193](https://github.com/Mardakhay/interactive-guides/actions/runs/40688503193): install, lint, typecheck, 221 tests in 35 files, production build and 125-chunk bundle budget checks; npm audit reported zero vulnerabilities. The later documentation checkpoint must receive its own exact-head CI result.

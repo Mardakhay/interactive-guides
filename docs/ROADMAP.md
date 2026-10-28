@@ -651,3 +651,12 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 ## Registry count update — 2026-10-28
 
 Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 17 supplementary lesson IDs = 44 IDs total (EN/RU pairs). The previous 26/18 split is superseded. Keep the full learning-outcome audit and legacy route-cutover gates open; one corrected mapping is not full curriculum sign-off.
+
+
+## Full-registry localization and code verification — 2026-10-28
+
+- [x] Add a full-registry regression for RU titles/descriptions and learning outcomes: all 44 EN/RU lesson pairs must have matching learning-outcome counts, Russian visible metadata and non-identical RU outcome text.
+- [x] Translate the two English-only `js.runtime-memory` outcomes and bump both locale files to v5; update the lesson version assertion.
+- [x] Exact code/content HEAD `cc68eaa8c28cb9e96a1f348a163fdaa44768b873` passed [CI run #40688503193](https://github.com/Mardakhay/interactive-guides/actions/runs/40688503193): install, lint, typecheck, 221 tests / 35 files, production build, 125 JavaScript chunks within budgets, zero npm audit findings.
+- [ ] Keep the full outcome-by-outcome syllabus and source-to-block review open. The guard verifies metadata translation invariants; it does not judge semantic completeness, pedagogy, or every paragraph.
+- [ ] Real browser/device, offline/PWA, screen-reader, mobile and legacy-state retention acceptance remain open.

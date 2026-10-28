@@ -436,3 +436,12 @@ Before replacing legacy routes, create a reviewed crosswalk from every old ID to
 ## Legacy catalog route crosswalk — 2026-10-27
 
 A provisional 25-entry old-to-new route matrix is documented in [LEGACY_ROUTE_CUTOVER_MATRIX.md](./LEGACY_ROUTE_CUTOVER_MATRIX.md). Candidate destinations are not treated as completed parity; all routes remain blocked until each EN/RU target's examples, checks, exercises, answers and interaction decisions are reviewed. Learner-state maps remain keyed by legacy ID and need an explicit tested disposition.
+
+
+## Current bilingual registry and verification — 2026-10-28
+
+The earlier dated snapshots in this document (including 26 core / 18 supplementary) are superseded by the current mapping: **27 core lesson IDs + 17 supplementary IDs = 44 structured lesson IDs**, each with EN/RU records. `ui.bootstrap-mui` is core week 17 with `ui.design-systems`; `css.sass-scss` remains supplementary.
+
+GitHub Actions [run #40688503193](https://github.com/Mardakhay/interactive-guides/actions/runs/40688503193) passed on code/content SHA `cc68eaa8c28cb9e96a1f348a163fdaa44768b873`: `npm ci`, `npm run lint`, `npm run typecheck`, 221 tests across 35 files, and `npm run build`. The dependency install/audit step reported 0 vulnerabilities; bundle budgets passed across 125 JavaScript chunks.
+
+The all-registry test checks Russian title/description localization and translated learning outcomes; the last test-driven fix translated two English-only outcomes in `js.runtime-memory` and set both EN/RU records to v5. This confirms a narrow metadata invariant, not full prose/editorial or legacy-source parity. Keep the separate 25-file source review and route-cutover conclusions as documented: source reading is complete, parity is not, and legacy learner routes/state must not be removed before the signed-off crosswalk and retention gates.
