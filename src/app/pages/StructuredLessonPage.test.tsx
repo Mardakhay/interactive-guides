@@ -47,6 +47,18 @@ describe('StructuredLessonPage', () => {
     expect(progress.getAttribute('aria-valuenow')).toBe(String(Math.round((400 / (2000 - window.innerHeight)) * 100)));
   });
 
+  it('updates the section-read count in the lesson outline when a section is marked read', async () => {
+    renderLesson('/en/structured-lessons/html.document-structure');
+
+    const sectionReadProgress = await screen.findAllByRole('progressbar', { name: 'Sections marked read' });
+    expect(sectionReadProgress[0]?.getAttribute('aria-valuenow')).toBe('0');
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Mark section read: Why document structure matters' }));
+
+    expect(sectionReadProgress[0]?.getAttribute('aria-valuenow')).toBe('1');
+    expect(sectionReadProgress[0]?.getAttribute('aria-valuemax')).toBe('9');
+  });
+
   it('records a self-attested completion marker without claiming mastery', async () => {
     renderLesson('/en/structured-lessons/html.document-structure');
     fireEvent.click(await screen.findByRole('button', { name: 'Mark lesson complete' }));

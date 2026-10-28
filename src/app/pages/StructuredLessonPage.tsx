@@ -5,6 +5,9 @@ import { getAdjacentStructuredLessons, getBootcampCurriculum, getStructuredLesso
 import type { LessonTranslation } from '@/content/schemas/lessonContent';
 import { StructuredLessonRenderer } from '@/features/structured-lesson/StructuredLessonRenderer';
 import { useProgressStore } from '@/features/progress';
+import { useStructuredLearningStore } from '@/features/structured-lesson/store';
+
+const EMPTY_SECTION_IDS: string[] = [];
 
 function isSupportedLocale(value: string | undefined): value is SupportedLocale {
   return SUPPORTED_LOCALES.some((locale) => locale === value);
@@ -81,6 +84,9 @@ export default function StructuredLessonPage() {
   const progressStatus = useProgressStore((state) =>
     lessonId ? (state.lessons[lessonId]?.status ?? 'not-started') : 'not-started',
   );
+  const savedSectionIds = useStructuredLearningStore((state) =>
+    lessonId ? state.sectionProgress[lessonId]?.completedBlockIds : undefined,
+  );
 
   useEffect(() => {
     if (lesson) markLessonOpened(lesson.id);
@@ -103,6 +109,8 @@ export default function StructuredLessonPage() {
         outcomes: 'После урока ты сможешь',
         outline: 'Содержание урока',
         readingProgress: 'Прогресс чтения',
+        sectionsReadCount: 'Разделов отмечено прочитанными',
+        sectionsReadSummary: 'Отмечено прочитанными',
         statusNotStarted: 'Не начат',
         statusStarted: 'В процессе',
         statusCompleted: 'Отмечен завершённым',
@@ -126,6 +134,8 @@ export default function StructuredLessonPage() {
         outcomes: 'By the end of this lesson, you will be able to',
         outline: 'Lesson outline',
         readingProgress: 'Reading progress',
+        sectionsReadCount: 'Sections marked read',
+        sectionsReadSummary: 'Marked read',
         statusNotStarted: 'Not started',
         statusStarted: 'In progress',
         statusCompleted: 'Marked complete',
@@ -186,6 +196,7 @@ export default function StructuredLessonPage() {
 
   const otherLocale: SupportedLocale = locale === 'en' ? 'ru' : 'en';
   const outline = lesson.blocks.filter((block) => block.type === 'heading');
+  const completedSectionIds = savedSectionIds ?? EMPTY_SECTION_IDS;
   const statusLabel = progressStatus === 'completed' ? copy.statusCompleted : progressStatus === 'not-started' ? copy.statusNotStarted : copy.statusStarted;
 
   return (
@@ -257,13 +268,13 @@ export default function StructuredLessonPage() {
           <details className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-subtle lg:hidden">
             <summary className="cursor-pointer list-none text-sm font-semibold text-neutral-900">{copy.outline}</summary>
             <nav aria-label={copy.outline} className="mt-3">
-              <OutlineLinks outline={outline} />
+              <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} locale={locale} />
             </nav>
           </details>
           <div className="hidden rounded-2xl border border-neutral-200 bg-white p-4 shadow-subtle lg:block">
             <h2 className="text-sm font-semibold text-neutral-900">{copy.outline}</h2>
             <nav aria-label={copy.outline} className="mt-3">
-              <OutlineLinks outline={outline} />
+              <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} locale={locale} />
             </nav>
           </div>
           {week && (
@@ -329,16 +340,62 @@ export default function StructuredLessonPage() {
   );
 }
 
-function OutlineLinks({ outline }: { outline: Array<{ id: string; text: string }> }) {
+function OutlineLinks({
+  outline,
+  completedSectionIds,
+  sectionsReadLabel,
+  sectionsReadSummary,
+  locale,
+}: {
+  outline: Array<{ id: string; text: string; level: 2 | 3 | 4 }>;
+  completedSectionIds: string[];
+  sectionsReadLabel: string;
+  sectionsReadSummary: string;
+  locale: SupportedLocale;
+}) {
+  const sections = outline.filter((heading) => heading.level === 2);
+  const sectionsRead = sections.filter((heading) => completedSectionIds.includes(heading.id)).length;
+
   return (
-    <ul className="space-y-1.5">
-      {outline.map((heading) => (
-        <li key={heading.id}>
-          <a href={`#${heading.id}`} className="block rounded-lg px-2 py-1.5 text-sm leading-5 text-neutral-600 transition hover:bg-neutral-50 hover:text-primary-700">
-            {heading.text}
-          </a>
-        </li>
-      ))}
-    </ul>
+    <>
+      {sections.length > 0 && (
+        <div className="mb-3 rounded-lg bg-neutral-50 px-3 py-2">
+          <div className="mb-1.5 flex items-center justify-between gap-2 text-xs text-neutral-600">
+            <span>{sectionsReadSummary}</span>
+            <span className="font-semibold tabular-nums">{sectionsRead}/{sections.length}</span>
+          </div>
+          <div
+            role="progressbar"
+            aria-label={sectionsReadLabel}
+            aria-valuemin={0}
+            aria-valuemax={sections.length}
+            aria-valuenow={sectionsRead}
+            className="h-1.5 overflow-hidden rounded-full bg-neutral-200"
+          >
+            <div
+              aria-hidden="true"
+              className="h-full rounded-full bg-emerald-600 transition-[width] duration-150"
+              style={{ width: `${(sectionsRead / sections.length) * 100}%` }}
+            />
+          </div>
+        </div>
+      )}
+      <ul className="space-y-1.5">
+        {outline.map((heading) => {
+          const isRead = heading.level === 2 && completedSectionIds.includes(heading.id);
+          return (
+            <li key={heading.id}>
+              <a
+                href={`#${heading.id}`}
+                className={`flex items-start gap-2 rounded-lg px-2 py-1.5 text-sm leading-5 transition hover:bg-neutral-50 hover:text-primary-700 ${isRead ? 'text-emerald-800' : 'text-neutral-600'}`}
+              >
+                <span className="min-w-0 flex-1">{heading.text}</span>
+                {isRead && <Check className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </>
   );
 }
