@@ -43,6 +43,10 @@ describe('application localization', () => {
       .toBe('Мастерство JavaScript');
     expect(getLocalizedLearningPathCopy('ru', 'unknown', 'Fallback', 'Fallback description').title)
       .toBe('Fallback');
+    expect(getLocalizedLearningPathCopy('ru', 'structured-frontend-foundations', 'Fallback', 'Fallback description').title)
+      .toBe('Структурированные основы frontend');
+    expect(getLocalizedLearningPathCopy('ru', 'structured-react-developer', 'Fallback', 'Fallback description').title)
+      .toBe('Структурированный путь React-разработчика');
   });
 
   it('persists the selected UI locale', () => {

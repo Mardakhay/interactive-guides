@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { getLessons } from '@/features/content';
+import { getStructuredLessonIds } from '@/content/repository';
 import { getLearningPathLessonIds, getLearningPaths } from './api';
 
 describe('learning path progress inputs', () => {
@@ -9,4 +11,39 @@ describe('learning path progress inputs', () => {
     expect(getLearningPathLessonIds(path.id)).toHaveLength(path.lessonCount);
     expect(getLearningPathLessonIds('missing')).toEqual([]);
   });
+  it('keeps legacy paths intact and exposes separate structured-curriculum paths', () => {
+    expect(getLearningPathLessonIds('frontend-foundations')[0]).toBe('sh-001');
+    expect(getLearningPathLessonIds('structured-frontend-foundations')).toEqual([
+      'web.internet-http',
+      'html.document-structure',
+      'html.forms-accessibility',
+      'css.fundamentals',
+      'css.flexbox-grid-responsive',
+      'js.dom-events',
+    ]);
+    expect(getLearningPathLessonIds('structured-react-developer')).toEqual([
+      'react.components-jsx-state',
+      'react.effects-lists-composition',
+      'react.forms-validation',
+      'react.context-shared-state',
+      'react.router-spa',
+      'react.api-custom-hooks',
+    ]);
+  });
+
+  it('resolves every step against either the classic catalog or the structured manifest', () => {
+    const classicIds = new Set(getLessons().map((lesson) => lesson.id));
+    const structuredIds = new Set(getStructuredLessonIds());
+
+    for (const path of getLearningPaths()) {
+      expect(path.steps.length).toBeGreaterThan(0);
+      for (const step of path.steps) {
+        expect(
+          classicIds.has(step.lessonId) || structuredIds.has(step.lessonId),
+          `Unresolved lesson ID "${step.lessonId}" in path "${path.id}"`,
+        ).toBe(true);
+      }
+    }
+  });
+
 });
