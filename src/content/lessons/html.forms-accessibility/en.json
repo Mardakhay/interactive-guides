@@ -1,10 +1,10 @@
 {
   "id": "html.forms-accessibility",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-28",
   "moduleId": "month-1-week-2",
   "week": 2,
   "order": 2,
@@ -163,6 +163,66 @@
         "radio represents one choice from options sharing the same name.",
         "select chooses from a constrained list; textarea collects multiline text."
       ]
+    },
+    {
+      "id": "specialized-input-types-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Specialized input types: pick the right control"
+    },
+    {
+      "id": "specialized-input-types-body",
+      "type": "paragraph",
+      "text": "HTML offers more than text and email fields. Specialized controls can make input easier on desktop and mobile, but their exact picker UI varies by browser and operating system. Choose a type for the meaning of the value, keep a visible label, and validate important rules in the application/server rather than trusting the control."
+    },
+    {
+      "id": "specialized-input-types-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`date` and `time` can offer native pickers and standardized values, but their visual presentation depends on the browser and locale. Define meaningful min/max constraints where useful and validate business rules after submission.",
+        "`tel` signals a telephone-number field and may prompt a phone-friendly mobile keyboard. It does not provide a universal format validator; normalize and validate phone numbers according to the product's requirements.",
+        "`url` provides a URL-oriented keyboard and basic browser constraint validation, but does not establish that the destination is safe or reachable.",
+        "`search` semantically marks a search field and browsers may show a clear affordance. The application still needs to implement the actual search/filter behavior.",
+        "`range` is a slider suited to approximate choices within a bounded range. Pair it with a visible label and current value; use a number input or another control when precise entry matters.",
+        "`color` may display a native colour picker. If exact values matter, show the selected value and consider allowing text entry as an alternative.",
+        "`file` with `accept=\"image/*\"` suggests acceptable file types to the picker; it is not a security check. For traditional form submission use `enctype=\"multipart/form-data\"`, and validate file size, detected content/type, and authorization on the server.",
+        "`hidden` values are not visible in the page but are still submitted and can be modified by the user. Never trust a hidden field for permissions, price, account ID, or other security-sensitive values.",
+        "`submit` triggers form submission; `reset` restores default control values and can surprise users. Prefer explicit button types and include reset only when there is a clear user benefit."
+      ]
+    },
+    {
+      "id": "file-accept-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A form uses `<input type=\"file\" accept=\"image/*\">`. Which statement is correct?",
+      "options": [
+        {
+          "id": "filter",
+          "text": "The accept attribute is a picker hint, not a security validation boundary.",
+          "correct": true,
+          "feedback": "Users and clients can bypass the hint. The server must verify uploaded content, size, and the user's authorization."
+        },
+        {
+          "id": "guarantee",
+          "text": "The browser guarantees that only valid image files can reach the server.",
+          "correct": false,
+          "feedback": "Accept influences file-picker selection in supporting browsers; it does not guarantee trustworthy file content."
+        },
+        {
+          "id": "encrypt",
+          "text": "The browser encrypts the selected file automatically.",
+          "correct": false,
+          "feedback": "File input selection does not itself encrypt uploads; transport security and server handling are separate concerns."
+        },
+        {
+          "id": "readonly",
+          "text": "The selected file path becomes a safe authorization token.",
+          "correct": false,
+          "feedback": "A selected file path is not a trusted identity or permission token."
+        }
+      ],
+      "explanation": "Treat client-side input attributes as usability hints. Enforce file type/content, size limits, and authorization on the server."
     },
     {
       "id": "grouping",
@@ -520,6 +580,16 @@
           "title": "W3C WAI: Forms Concepts",
           "url": "https://www.w3.org/WAI/tutorials/forms/",
           "kind": "standard"
+        },
+        {
+          "title": "MDN: Input types",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Form enctype",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#enctype",
+          "kind": "official-docs"
         }
       ]
     }

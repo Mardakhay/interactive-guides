@@ -138,8 +138,35 @@ describe('HTML forms and accessibility lesson translation', () => {
     expect(englishForms.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianForms.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
     expect(russianForms.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    expect(englishForms.version).toBe(3);
+    expect(russianForms.version).toBe(3);
+    for (const lesson of [englishForms, russianForms]) {
+      expect(lesson.updatedAt).toBe('2026-10-28');
+      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+      const specialized = lesson.blocks.find((block) => block.id === 'specialized-input-types-list');
+      expect(specialized?.type).toBe('list');
+      if (specialized?.type !== 'list') return;
+      const guidance = specialized.items.join(' ').toLowerCase();
+      expect(guidance).toContain('date');
+      expect(guidance).toContain('time');
+      expect(guidance).toContain('range');
+      expect(guidance).toContain('accept=');
+      expect(guidance).toContain('hidden');
+      expect(guidance).toContain('server');
+      const check = lesson.blocks.find((block) => block.id === 'file-accept-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') return;
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['filter']);
+      expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.id === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') {
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#enctype')).toBe(true);
+      }
+    }
   });
 });
 
