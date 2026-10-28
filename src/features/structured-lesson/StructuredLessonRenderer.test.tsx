@@ -66,7 +66,7 @@ describe('StructuredLessonRenderer', () => {
     expect(screen.getByRole('button', { name: 'Hide example solution' }).getAttribute('aria-expanded')).toBe('true');
     expect(screen.getByText(/This is one possible complete solution/)).toBeTruthy();
     const solutionCode = screen.getByRole('group', { name: 'html code example: Example solution' });
-    expect(solutionCode.textContent).toContain('Welcome to my page');
+    expect(solutionCode.textContent).toContain('Alex Morgan');
   });
 
   it('gives feedback when a learner submits a knowledge-check answer', async () => {
