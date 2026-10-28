@@ -29,6 +29,14 @@ describe('learning path progress inputs', () => {
       'react.router-spa',
       'react.api-custom-hooks',
     ]);
+    expect(getLearningPathLessonIds('structured-javascript-mastery')).toEqual([
+      'js.basics-types-control-flow',
+      'js.functions-arrays-objects',
+      'js.object-prototypes',
+      'js.runtime-memory',
+      'js.async-fetch',
+      'js.dom-events',
+    ]);
   });
 
   it('resolves every step against either the classic catalog or the structured manifest', () => {

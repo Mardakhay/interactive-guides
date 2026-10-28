@@ -80,6 +80,14 @@ describe('LearningPathDetailPage', () => {
     expect(firstStep.getAttribute('href')).toBe('/ru/structured-lessons/react.components-jsx-state');
   });
 
+  it('routes the structured JavaScript path to the canonical lesson IDs', () => {
+    renderPath('structured-javascript-mastery');
+
+    expect(screen.getByRole('heading', { name: 'Structured JavaScript Mastery' })).toBeTruthy();
+    const firstStep = screen.getByRole('link', { name: 'JavaScript Basics: Values, Operators, Conditions, and Loops' });
+    expect(firstStep.getAttribute('href')).toBe('/en/structured-lessons/js.basics-types-control-flow');
+  });
+
   it('keeps the existing classic learning paths on their original lesson routes', () => {
     renderPath('frontend-foundations');
 

@@ -204,5 +204,39 @@
         "note": "Separate data access into API layers and reusable hooks."
       }
     ]
+  },
+  {
+    "id": "structured-javascript-mastery",
+    "title": "Structured JavaScript Mastery",
+    "description": "Work through the in-app bilingual JavaScript sequence from core language mechanics to object identity, memory, asynchronous requests, and browser interaction. This route uses canonical structured lesson IDs and does not replace the classic JavaScript path.",
+    "level": "intermediate",
+    "icon": "Code2",
+    "estimatedHours": 5,
+    "steps": [
+      {
+        "lessonId": "js.basics-types-control-flow",
+        "note": "Understand values, operators, branching, loops, and the core execution model."
+      },
+      {
+        "lessonId": "js.functions-arrays-objects",
+        "note": "Compose behavior with functions and model data with arrays and objects."
+      },
+      {
+        "lessonId": "js.object-prototypes",
+        "note": "Explore property lookup, prototypes, classes, and method binding."
+      },
+      {
+        "lessonId": "js.runtime-memory",
+        "note": "Reason about references, stack frames, garbage collection, and async cache behavior."
+      },
+      {
+        "lessonId": "js.async-fetch",
+        "note": "Work with Promises, async/await, request states, and failure handling."
+      },
+      {
+        "lessonId": "js.dom-events",
+        "note": "Connect language fundamentals to DOM updates and browser event handling."
+      }
+    ]
   }
 ]
