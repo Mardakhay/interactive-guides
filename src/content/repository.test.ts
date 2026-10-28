@@ -80,6 +80,44 @@ describe('structured content repository', () => {
     }
   });
 
+  it('keeps visible Russian metadata and learning outcomes localized across the full registry', async () => {
+    const issues: string[] = [];
+
+    for (const lessonId of expectedIds) {
+      const [english, russian] = await Promise.all([
+        getStructuredLesson(lessonId, 'en'),
+        getStructuredLesson(lessonId, 'ru'),
+      ]);
+      if (!english || !russian) {
+        issues.push(`${lessonId}: missing EN/RU lesson while checking localization`);
+        continue;
+      }
+
+      for (const [field, value] of [
+        ['title', russian.title],
+        ['description', russian.description],
+      ] as const) {
+        if (!/[А-Яа-яЁё]/.test(value)) issues.push(`${lessonId}: RU ${field} contains no Cyrillic text`);
+      }
+
+      if (russian.learningOutcomes.length !== english.learningOutcomes.length) {
+        issues.push(`${lessonId}: EN/RU learning outcome counts differ (${english.learningOutcomes.length} vs ${russian.learningOutcomes.length})`);
+        continue;
+      }
+
+      russian.learningOutcomes.forEach((outcome, index) => {
+        const englishOutcome = english.learningOutcomes[index];
+        if (outcome.trim() === englishOutcome?.trim()) {
+          issues.push(`${lessonId}: RU learning outcome ${index + 1} is identical to EN`);
+        } else if (!/[А-Яа-яЁё]/.test(outcome)) {
+          issues.push(`${lessonId}: RU learning outcome ${index + 1} contains no Cyrillic text`);
+        }
+      });
+    }
+
+    expect(issues).toEqual([]);
+  });
+
   it('maps all structured lessons to their canonical week', () => {
     for (const locale of ['en', 'ru'] as const) {
       const curriculum = getBootcampCurriculum(locale);
