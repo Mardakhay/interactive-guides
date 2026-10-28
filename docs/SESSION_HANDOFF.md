@@ -5,7 +5,15 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — bilingual example-solution policy — 2026-10-28
+## Current continuation — verified practice disclosure and checklist — 2026-10-28
+
+- Latest verified HEAD: `88ac1164925570c63376a55676b8e613d867b21a`; exact-head GitHub Actions [run #40640306652](https://github.com/Mardakhay/interactive-guides/actions/runs/40640306652) passed `npm ci`, lint, typecheck, all tests and production build/bundle-budget checks.
+- Coding exercises support an optional bilingual `solution` object with code and explanation. The HTML document-structure pilot is version 7 in both locales (50 aligned blocks); “About Me” solution is hidden by default, explicitly revealed/collapsed by the learner, and labelled as one valid example.
+- Regression tests cover solution default-hidden/reveal/collapse behavior, rendered explanation/code, EN/RU labels, hint reveal/collapse, and persistence/toggle of practice self-review criteria.
+- The outline's H2 read markers and section-read count are still self-attested state. Checklist ticks are also self-review only, not code validation. The solution button is UX disclosure, not a security boundary: all lesson JSON is client-accessible and must not contain secrets/private grading data.
+- Next: design an evidence summary that distinguishes read markers, quiz attempts and practice self-review without automatically asserting mastery. Keep mastery status gated on an explicit product policy and objective evidence; screen-reader/browser acceptance, source parity, legacy route state migration and device-level backup/PWA tests remain open. Supabase remains gated.
+
+## Previous continuation — bilingual example-solution policy (superseded) — 2026-10-28
 
 - Latest verified HEAD: `42739da06df15c8a23763f9f6947a3b222de84dc`; exact-head GitHub Actions [run #40640037346](https://github.com/Mardakhay/interactive-guides/actions/runs/40640037346) passed `npm ci`, lint, typecheck, all tests and the production build/bundle-budget check.
 - The coding-exercise schema now supports optional `solution: { code, explanation }`. The bilingual `html.document-structure` lesson is version 7 (50 aligned blocks); the `practice-about-me` exercise has a complete EN/RU example solution. The reader keeps it hidden by default and only reveals it after explicit action, provides an explanation, and lets the learner hide it again.

@@ -796,3 +796,11 @@ The candidate mapping of all 25 classic catalog IDs to possible structured desti
 - The renderer does not show the solution until the learner explicitly selects “Reveal example solution”. It explains that the solution is one valid example and supports hiding it again; regression tests check default-hidden state, reveal/collapse labels, the rendered code and both locale variants. Existing exercises without the optional field render as before.
 - This reveal control is a learning UX policy, not a security boundary: the bilingual lesson JSON is client-delivered content and can be inspected independently of the button. Do not put secrets or privileged grading data in lesson JSON.
 - Outstanding gates: the optional solution should be authored selectively after lesson-specific review; screen-reader/browser acceptance, the mastery evidence model, source-to-content parity, legacy learner-state retention and backup/PWA device checks remain open.
+
+
+## Practice disclosure and checklist interaction — 2026-10-28
+
+- Exact-head GitHub Actions [run #40640306652](https://github.com/Mardakhay/interactive-guides/actions/runs/40640306652) passed on `88ac1164925570c63376a55676b8e613d867b21a`: `npm ci`, audit diagnostic, lint, typecheck, complete Vitest suite and production build/bundle budget.
+- Added UI regression coverage for the optional bilingual example solution: it is hidden by default, opens only after a learner action, can be hidden again, and is rendered with its explanation and labelled code panel. The schema/content tests assert matching authored EN/RU solution structure; the lesson is version 7.
+- Added practice interaction coverage for hint reveal/collapse and for self-review criteria being written to and removed from the structured-learning v2 record. Self-review checkboxes still mean “I reviewed this criterion,” not that the application executed or validated the learner's code.
+- The UI's on-demand solution toggle is not a security boundary because lesson JSON is client-delivered. Authored solutions must remain public teaching content; no private answer keys or secrets belong in these files.
