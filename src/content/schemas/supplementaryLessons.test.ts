@@ -236,7 +236,7 @@ describe('class semantics and shared prototype methods', () => {
       expect(exercise.starterCode).toContain('updateCity');
       expect(lesson.blocks.find((block) => block.id === 'runtime-engine-callout')?.type).toBe('callout');
       expect(lesson.blocks.find((block) => block.id === 'runtime-memory-tools')?.type).toBe('paragraph');
-      expect(lesson.version).toBe(4);
+      expect(lesson.version).toBe(5);
       expect(lesson.blocks).toHaveLength(35);
       const memo = lesson.blocks.find((block) => block.id === 'runtime-memoization-walkthrough');
       expect(memo?.type).toBe('codeWalkthrough');
