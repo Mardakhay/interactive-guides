@@ -3,6 +3,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import StructuredLessonPage from './StructuredLessonPage';
 import { useProgressStore } from '@/features/progress';
+import { useBookmarkStore } from '@/features/bookmarks';
+import { useNoteStore } from '@/features/notes';
+import { STORAGE_KEYS } from '@/lib/constants';
 import { useStructuredLearningStore } from '@/features/structured-lesson/store';
 import { LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, STRUCTURED_LEARNING_STORAGE_KEY } from '@/features/structured-lesson/schemas';
 
@@ -25,6 +28,10 @@ afterEach(() => {
   });
   localStorage.removeItem(STRUCTURED_LEARNING_STORAGE_KEY);
   localStorage.removeItem(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY);
+  localStorage.removeItem(STORAGE_KEYS.BOOKMARKS);
+  localStorage.removeItem(STORAGE_KEYS.NOTES);
+  useBookmarkStore.setState({ lessons: {} });
+  useNoteStore.setState({ lessons: {} });
   useStructuredLearningStore.setState({
     quizAttempts: {},
     codeDrafts: {},
@@ -127,7 +134,8 @@ describe('StructuredLessonPage', () => {
     const bookmarkButton = await screen.findByRole('button', { name: 'Bookmark' });
     expect(screen.getByRole('textbox', { name: 'Lesson notes' })).toBeTruthy();
     fireEvent.click(bookmarkButton);
-    expect(screen.getByRole('button', { name: 'Remove bookmark' }).getAttribute('aria-pressed')).toBe('true');
+    expect(bookmarkButton.getAttribute('aria-pressed')).toBe('true');
+    expect(useBookmarkStore.getState().lessons['html.document-structure']).toBeTruthy();
   });
 
   it('records a self-attested completion marker without claiming mastery', async () => {
