@@ -5,7 +5,17 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — structured JavaScript path — 2026-10-28
+## Current continuation — targeted EN/RU content parity — 2026-10-28
+
+- Verified code HEAD: 7d07400922a0c6540c7f77e3776ce674fd5614c4. Exact-head GitHub Actions [run #40648289992](https://github.com/Mardakhay/interactive-guides/actions/runs/40648289992) passed npm ci, audit diagnostics, lint, typecheck, all 210 tests across 33 files, and production build/bundle budget.
+- Updated git.fundamentals EN/RU to v5 with a safe command quick reference (clone, branch create/list/delete, merge, diff/staged diff, fetch, pull --ff-only, push and revert) and a question distinguishing fetch from pull. The Russian workflow quiz prompt no longer contains English-only wording.
+- Updated git.workflow-ci EN/RU to v5 so its GitHub Actions YAML aligns with the actual repo workflow: Node 22, npm 11.21.1 matching the lockfile setup, permissions limited to contents read, clean install, lint/typecheck/tests/build, plus informational audit reporting. Regression tests assert these assumptions.
+- Updated html.document-structure EN/RU to v8 with an h1–h4 hierarchy walkthrough, nested section headings and aria-labelledby; updated html.forms-accessibility EN/RU to v3 with specialized input types and security caveats for accept, hidden values and server-side validation.
+- The failed interim CI runs were resolved: lesson-page tests now derive counters from authored lesson data, and the bilingual input-type assertion accepts both English and Russian wording. Latest exact-head run is green.
+- Scope remains focused, not a complete migration: legacy HTML interactions/simulators are not claimed to be replicated one-to-one. All 25 legacy route mappings remain provisional; no route cutover or learner-state migration has been performed. Notion source pages remain verification.state=unverified. Backup/PWA browser/device and screen-reader acceptance remains open.
+- main must remain b13af92576e8a73753a6e3f3d26765d9f9c44397; PR #1 stays Draft. Next: continue source-to-block review in syllabus order, then perform documented browser/device acceptance when a real test environment is available.
+
+## Previous continuation — structured JavaScript path (superseded) — 2026-10-28
 
 - Latest verified code/test HEAD: `49709e30ebc42be909e739a971d40b753fc011e5`; exact-head GitHub Actions [run #40646714866](https://github.com/Mardakhay/interactive-guides/actions/runs/40646714866) passed `npm ci`, audit diagnostics, lint, typecheck, all 209 tests / 33 files, and production build/bundle budget.
 - Added `structured-javascript-mastery` as a separate six-step route across core syntax, functions/objects, prototypes, runtime/memory, async requests, and DOM events. Locale-aware structured URLs and canonical IDs are tested. Existing `javascript-mastery` and all other classic paths remain unchanged.

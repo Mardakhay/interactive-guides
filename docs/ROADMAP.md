@@ -555,3 +555,15 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [ ] Continue detailed source-to-lesson parity review in syllabus order. Separate IDs and successful route resolution do not establish content equivalence.
 - [ ] Complete real-browser, screen-reader and mobile acceptance; these checks are not covered by CI.
 
+
+
+## Targeted source-parity batches — 2026-10-28
+
+- [x] Add a bilingual Git command reference, including branch lifecycle, fetch vs pull, explicit protected-branch caution, and regression assertions.
+- [x] Align the bilingual GitHub Actions YAML example with the actual repository workflow: Node 22, npm 11.21.1, least-privilege contents-read permission, install/lint/typecheck/test/build checks.
+- [x] Add a bilingual semantic h1–h4 hierarchy example with aria-labelledby and a test for walkthrough line ranges.
+- [x] Cover specialized HTML input types and document security limits for file accept and hidden fields; add a knowledge check and official MDN references.
+- [x] Verify exact-head CI on 7d07400922a0c6540c7f77e3776ce674fd5614c4: [run #40648289992](https://github.com/Mardakhay/interactive-guides/actions/runs/40648289992), 210 tests / 33 files plus production build.
+- [ ] Continue topic-by-topic review of remaining source gaps, interactive behavior, and EN/RU editorial equivalence. This checkpoint does not complete Phase 4 or unblock route cutover.
+- [ ] Complete recorded real-browser/device and screen-reader acceptance; automated CI is not a substitute.
+
