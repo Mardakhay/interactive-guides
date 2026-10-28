@@ -1,7 +1,7 @@
 {
   "id": "git.fundamentals",
   "locale": "ru",
-  "version": 6,
+  "version": 7,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-28",
@@ -287,6 +287,67 @@
         "Осознанно проверяй видимость репозитория, права участников, защиту веток и обязательные проверки; выдавай только необходимые права доступа.",
         "Правило .gitignore не удаляет уже отслеживаемый секрет и не стирает его историю. Если credential раскрыт, отзови или замени его; удаления файла недостаточно.",
         "Пиши README в Markdown: используй заголовки для иерархии, fenced code blocks для команд и ссылки на документацию. Проверь отображение файла и оставь инструкции воспроизводимыми, без секретов."
+      ]
+    },
+    {
+      "id": "readme-writing",
+      "type": "heading",
+      "level": 2,
+      "text": "Напиши README, по которому можно запустить проект"
+    },
+    {
+      "id": "readme-writing-body",
+      "type": "paragraph",
+      "text": "README — это входная точка проекта. Он должен объяснять назначение приложения, нужные инструменты, воспроизводимые команды запуска и проверок, порядок участия в разработке и реальные ограничения публикации. Не копируй команды и версии из другого проекта без проверки."
+    },
+    {
+      "id": "readme-example",
+      "type": "codeWalkthrough",
+      "language": "markdown",
+      "code": "# Project Name\n\nA short description of the problem this project solves and who it is for.\n\n## Features\n- Summarize the main user-facing capabilities.\n- Link to a screenshot or demo when it helps explain a feature.\n\n## Technology\nList the framework, key tools, and important version requirements.\n\n## Requirements\n- Node.js 22\n- npm 11.21.1\n\n## Install and run\n```bash\nnpm ci\nnpm run dev\n```\n\n## Checks\n```bash\nnpm run lint\nnpm run typecheck\nnpm test\nnpm run build\n```\n\n## Contributing\nDescribe the branch, pull-request, and review workflow.\n\n## Deployment\nDocument the configured host, base path, and where deployment status is reported.\n\n## License\nName the chosen license or state that licensing is not yet defined.\n\n## Credits\nLink collaborators or third-party assets when appropriate.",
+      "steps": [
+        {
+          "title": "Объясни назначение и возможности",
+          "lineStart": 1,
+          "lineEnd": 10,
+          "explanation": "Название, краткое описание, функции и стек помогают читателю понять, для чего нужен репозиторий, прежде чем запускать команды."
+        },
+        {
+          "title": "Зафиксируй требования",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "Указывай только версии инструментов и зависимости, которые действительно требуются проекту."
+        },
+        {
+          "title": "Дай воспроизводимые команды запуска",
+          "lineStart": 16,
+          "lineEnd": 20,
+          "explanation": "Команды должны соответствовать lockfile и package scripts проекта, а не быть абстрактным примером."
+        },
+        {
+          "title": "Опиши проверки перед review",
+          "lineStart": 22,
+          "lineEnd": 28,
+          "explanation": "Перечисли реальные проверки, которые команда использует перед pull request или выпуском."
+        },
+        {
+          "title": "Задокументируй участие и публикацию",
+          "lineStart": 30,
+          "lineEnd": 40,
+          "explanation": "Опиши вклад, review и фактическую конфигурацию хостинга. Указывай лицензию только после того, как она действительно выбрана; push сам по себе не подтверждает успешный deploy."
+        }
+      ]
+    },
+    {
+      "id": "readme-publishing-checklist",
+      "type": "list",
+      "items": [
+        "Укажи название, назначение, функции, технологии, требования и точные команды установки, запуска и проверок.",
+        "Добавляй скриншоты или демонстрацию, если они объясняют функции; не показывай на них секреты, приватные данные или реальные токены.",
+        "Объясни порядок участия, pull request и review; добавь ссылки на документацию и контакты проекта, где это уместно.",
+        "Указывай лицензию только если она действительно выбрана и добавлена в репозиторий; при необходимости укажи авторство сторонних материалов.",
+        "Для GitHub Pages проверь настроенный источник публикации или workflow, каталог/артефакт сборки, base path и статус deploy. Не предполагай, что любой push автоматически и успешно публикует сайт.",
+        "Никогда не включай пароли, API-токены и приватные ключи в README, примеры команд или изображения."
       ]
     },
     {
@@ -685,6 +746,11 @@
         {
           "title": "Документация Git: git-pull",
           "url": "https://git-scm.com/docs/git-pull",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: Basic writing and formatting syntax",
+          "url": "https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax",
           "kind": "official-docs"
         }
       ]

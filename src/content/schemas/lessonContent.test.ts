@@ -348,8 +348,8 @@ describe('Git fundamentals lesson translation', () => {
     );
     expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
-    expect(englishGit.version).toBe(6);
-    expect(russianGit.version).toBe(6);
+    expect(englishGit.version).toBe(7);
+    expect(russianGit.version).toBe(7);
     const remoteExample = englishGit.blocks.find((block) => block.id === 'remote-example');
     expect(remoteExample?.type).toBe('codeWalkthrough');
     if (remoteExample?.type !== 'codeWalkthrough') return;
