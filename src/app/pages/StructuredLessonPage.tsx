@@ -268,13 +268,13 @@ export default function StructuredLessonPage() {
           <details className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-subtle lg:hidden">
             <summary className="cursor-pointer list-none text-sm font-semibold text-neutral-900">{copy.outline}</summary>
             <nav aria-label={copy.outline} className="mt-3">
-              <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} locale={locale} />
+              <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} />
             </nav>
           </details>
           <div className="hidden rounded-2xl border border-neutral-200 bg-white p-4 shadow-subtle lg:block">
             <h2 className="text-sm font-semibold text-neutral-900">{copy.outline}</h2>
             <nav aria-label={copy.outline} className="mt-3">
-              <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} locale={locale} />
+              <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} />
             </nav>
           </div>
           {week && (
@@ -345,13 +345,11 @@ function OutlineLinks({
   completedSectionIds,
   sectionsReadLabel,
   sectionsReadSummary,
-  locale,
 }: {
   outline: Array<{ id: string; text: string; level: 2 | 3 | 4 }>;
   completedSectionIds: string[];
   sectionsReadLabel: string;
   sectionsReadSummary: string;
-  locale: SupportedLocale;
 }) {
   const sections = outline.filter((heading) => heading.level === 2);
   const sectionsRead = sections.filter((heading) => completedSectionIds.includes(heading.id)).length;
