@@ -37,7 +37,9 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - [x] Make code samples keyboard-focusable, labelled with their language/caption, and announce copy success/failure through an accessible status.
 - [ ] Verify reading progress and code-sample interaction with a screen reader and real desktop/mobile browsers.
 - [x] Implement knowledge-check feedback per answer for the supported question schema.
-- [ ] Implement practice task UX, attempt capture and hint/solution policies.
+- [x] Provide coding-practice scaffolding, locally persisted drafts/checklists, knowledge-check attempt history, hint toggles, and a script-disabled HTML preview; document JavaScript Worker and DOM limitations.
+- [x] Persist self-attested section-read markers separately from lesson completion; do not infer mastery from reading progress.
+- [ ] Define a consistent per-exercise hint/solution reveal policy; add solution reveal only where a solution is authored and test any disclosure/state behavior.
 - [ ] Gate “mastered” status on required practice evidence where specified.
 - Acceptance: lesson pages render without independent HTML documents; exercises remain testable and accessible.
 - Suggested commits:

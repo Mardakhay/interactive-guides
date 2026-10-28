@@ -5,7 +5,15 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — structured reader accessibility — 2026-10-28
+## Current continuation — persisted section-read practice — 2026-10-28
+
+- Latest code/test HEAD: `f578b146674ade9758f8b92b170ed736fd96309b`. Exact-head GitHub Actions [run #40639322531](https://github.com/Mardakhay/interactive-guides/actions/runs/40639322531) passed `npm ci`, lint, typecheck, all tests and production build/bundle budget.
+- Structured lesson level-2 sections now have a localized “Mark read / Mark unread” self-attestation control. It uses the existing structured-learning v2 `sectionProgress` map keyed by stable lesson and section IDs. Tests verify the accessible state toggle, persistence, EN/RU labels and store behavior. This does not mark the lesson complete or assert mastery.
+- Code-sample accessibility and reading progress remain in the same verified base: localized scroll progress, keyboard focus for horizontally overflowing code, and accessible copy-result status.
+- Implemented practice foundations include draft persistence, knowledge-check attempt history, hint toggles, a script-disabled HTML preview and self-review criteria. Per-exercise authored-solution disclosure policy and any mastery threshold remain open.
+- Next: continue structured-reader/practice UX with a clear authored solution policy and evidence model, then update the source parity audit. Keep old routes until each legacy-to-structured mapping and learner-state retention decision is tested; do not start Supabase until the reconciliation and RLS gates are approved. No real-browser or screen-reader acceptance is claimed.
+
+## Previous continuation — structured reader accessibility (superseded) — 2026-10-28
 
 - Latest verified code/test HEAD: `269b88ce3722034888e03cf11934b854a0c2a7ef`; exact-head CI [run #40638940943](https://github.com/Mardakhay/interactive-guides/actions/runs/40638940943) passed `npm ci`, lint, typecheck, all tests and production build/bundle budget.
 - Added a localized scroll-driven reading-progress bar to `StructuredLessonPage`, with ARIA progressbar semantics and updates on scroll, resize and content resizing. Tests cover progress movement and English/Russian labels.

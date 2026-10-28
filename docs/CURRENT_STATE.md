@@ -779,3 +779,11 @@ The candidate mapping of all 25 classic catalog IDs to possible structured desti
 - `StructuredLessonPage` now includes a localized scroll-driven reading-progress bar with `role="progressbar"`, keyboard/screen-reader range values, resize/scroll updates and resize-observer handling when available. EN/RU tests cover its labels and scroll state.
 - Structured code samples are keyboard-focusable so horizontally overflowing examples can be navigated without a pointer. Each sample has a language/caption accessible group label, and copy success/failure is exposed via a live status region. Regression tests cover keyboard focus and failed-copy announcements.
 - These are implementation and CI results, not assistive-technology acceptance. Real-browser/screen-reader testing, full mobile/accessibility review, source-to-content parity, legacy-route state migration and browser/device backup/PWA checks remain open. `main` remains unchanged; Supabase remains gated.
+
+
+## Section-read and practice UX checkpoint — 2026-10-28
+
+- Exact-head GitHub Actions [run #40639322531](https://github.com/Mardakhay/interactive-guides/actions/runs/40639322531) passed on code/test SHA `f578b146674ade9758f8b92b170ed736fd96309b`: `npm ci`, npm audit diagnostic, lint, typecheck, all tests and production build/bundle-budget checks.
+- Structured lesson H2 headings now have a localized self-attested read/unread control. It persists stable section IDs in the existing structured-learning v2 record; tests cover toggle behavior, saved state and Russian labels. This marker is not lesson completion and is not mastery evidence.
+- Phase 3 practice foundations include local code drafts, knowledge-check attempt history, self-review checklists, hint disclosure, sandboxed HTML preview and documented Worker/DOM constraints. A uniform authored-solution disclosure policy remains open, as does any mastery gate that requires verified practice evidence.
+- `main` remains unchanged. Manual screen-reader and browser/device checks, content/source parity and legacy-route learner-state migration remain open; Supabase stays gated.
