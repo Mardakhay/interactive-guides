@@ -1,10 +1,10 @@
 {
   "id": "git.fundamentals",
   "locale": "ru",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-28",
   "moduleId": "month-2-week-8",
   "week": 8,
   "order": 2,
@@ -329,7 +329,7 @@
       "id": "knowledge-check-3",
       "type": "knowledgeCheck",
       "questionType": "multi-select",
-      "prompt": "Which commands are part of a common workflow to prepare, record, and publish a change? Select all that apply.",
+      "prompt": "Какие команды входят в обычный workflow подготовки, фиксации и публикации изменений? Выбери все подходящие варианты.",
       "options": [
         {
           "id": "a",
@@ -545,6 +545,65 @@
       ]
     },
     {
+      "id": "git-command-reference-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Краткая справка по командам: выбирай по задаче"
+    },
+    {
+      "id": "git-command-reference-intro",
+      "type": "paragraph",
+      "text": "Используй этот список для поиска нужной команды, а не как сценарий для слепого выполнения. Замени placeholders на реальные адрес репозитория, ветку и commit. Сначала проверь status, перед отправкой проверь адрес remote и соблюдай правила pull request и защиты веток. Fetch получает ссылки на удалённые коммиты; pull также пытается интегрировать их в текущую ветку."
+    },
+    {
+      "id": "git-command-reference-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Начать с удалённого репозитория: `git clone <repository-url>` создаёт локальную копию и настраивает remote, обычно с именем `origin`.",
+        "Проверить локальное состояние: `git status -sb` кратко показывает изменения и ветку; `git branch -vv` показывает upstream; `git remote -v` выводит URL удалённых репозиториев.",
+        "Создать отдельную feature-ветку: `git switch -c feat/lesson-summary` создаёт ветку от текущего коммита и переключается на неё. Начинай с согласованной и актуальной базовой ветки.",
+        "Проверить будущий коммит: `git diff` показывает незастейдженные правки; `git diff --staged` показывает содержимое, подготовленное для следующего коммита.",
+        "Получить обновления без интеграции: `git fetch origin` обновляет remote-tracking references, не меняя текущую ветку или файлы рабочего дерева.",
+        "Интегрировать remote, только если возможен fast-forward: `git pull --ff-only` получает обновления и передвигает текущую ветку, если нет локального расхождения. Если истории разошлись, команда остановится вместо создания непредусмотренного merge.",
+        "Опубликовать текущую ветку: `git push -u origin HEAD` отправляет текущую ветку под тем же именем и настраивает upstream. Это не обязательно `main`, если только ты сам не находишься в `main`; соблюдай правила pull request и защиты веток.",
+        "Отменить уже опубликованный коммит: `git revert <commit>` создаёт новый коммит с обратным изменением и сохраняет существующую общую историю."
+      ]
+    },
+    {
+      "id": "fetch-pull-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Ты хочешь посмотреть новые удалённые коммиты, прежде чем решать, как их интегрировать, не меняя текущую ветку и рабочее дерево. Какая команда подходит?",
+      "options": [
+        {
+          "id": "fetch",
+          "text": "git fetch origin",
+          "correct": true,
+          "feedback": "Fetch обновляет remote-tracking references, но не интегрирует коммиты в текущую ветку."
+        },
+        {
+          "id": "pull",
+          "text": "git pull --ff-only",
+          "correct": false,
+          "feedback": "Pull сначала получает обновления, а затем пытается интегрировать их в текущую ветку, если возможен fast-forward."
+        },
+        {
+          "id": "reset",
+          "text": "git reset --hard origin/main",
+          "correct": false,
+          "feedback": "Эта команда меняет состояние текущей ветки и рабочего дерева и может удалить отслеживаемые правки; она не предназначена только для просмотра."
+        },
+        {
+          "id": "push",
+          "text": "git push origin HEAD",
+          "correct": false,
+          "feedback": "Push отправляет локальные коммиты в remote, а не получает новые удалённые коммиты."
+        }
+      ],
+      "explanation": "Выбирай команду с учётом того, какое состояние репозитория она меняет: fetch получает удалённые ссылки; pull также интегрирует изменения, а reset может разрушительно перемещать локальное состояние."
+    },
+    {
       "id": "references",
       "type": "references",
       "items": [
@@ -586,6 +645,26 @@
         {
           "title": "Документация GitHub: GitHub Pages",
           "url": "https://docs.github.com/en/pages",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Документация Git: git-clone",
+          "url": "https://git-scm.com/docs/git-clone",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Документация Git: git-switch",
+          "url": "https://git-scm.com/docs/git-switch",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Документация Git: git-fetch",
+          "url": "https://git-scm.com/docs/git-fetch",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Документация Git: git-pull",
+          "url": "https://git-scm.com/docs/git-pull",
           "kind": "official-docs"
         }
       ]

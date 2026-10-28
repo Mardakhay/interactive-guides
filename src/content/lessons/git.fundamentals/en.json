@@ -1,10 +1,10 @@
 {
   "id": "git.fundamentals",
   "locale": "en",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-28",
   "moduleId": "month-2-week-8",
   "week": 8,
   "order": 2,
@@ -545,6 +545,65 @@
       ]
     },
     {
+      "id": "git-command-reference-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Quick command reference: choose by intent"
+    },
+    {
+      "id": "git-command-reference-intro",
+      "type": "paragraph",
+      "text": "Use this as a lookup aid, not as a script to run blindly. Replace placeholders with real repository, branch, and commit names. Inspect status first, verify the remote destination before publishing, and follow the repository's pull-request and branch-protection rules. Fetch retrieves remote references; pull also attempts to integrate one into the current branch."
+    },
+    {
+      "id": "git-command-reference-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Start from a remote repository: `git clone <repository-url>` creates a local copy and configures the remote, commonly named `origin`.",
+        "Inspect your local state: `git status -sb` shows concise status and branch information; `git branch -vv` shows upstream tracking; `git remote -v` lists remote URLs.",
+        "Create a separate feature branch: `git switch -c feat/lesson-summary` creates and switches to a branch from the current commit. Start from the agreed, up-to-date base.",
+        "Review the proposed commit: `git diff` displays unstaged edits; `git diff --staged` displays the content selected for the next commit.",
+        "Fetch without integrating: `git fetch origin` updates remote-tracking references without changing the current branch or working-tree files.",
+        "Integrate upstream only when fast-forward is possible: `git pull --ff-only` fetches and advances the current branch if it has no local divergence. It fails instead of inventing a merge when histories have diverged.",
+        "Publish the current branch: `git push -u origin HEAD` publishes the checked-out branch under the same name and configures upstream. It does not mean `main` unless you are on `main`; follow pull-request and branch-protection rules.",
+        "Undo a commit that was already shared: `git revert <commit>` adds an inverse commit and preserves the existing shared history."
+      ]
+    },
+    {
+      "id": "fetch-pull-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You want to inspect newly published remote commits before deciding how to integrate them, without changing the current branch or working tree. Which command fits?",
+      "options": [
+        {
+          "id": "fetch",
+          "text": "git fetch origin",
+          "correct": true,
+          "feedback": "Fetch updates remote-tracking references but does not integrate their commits into the current branch."
+        },
+        {
+          "id": "pull",
+          "text": "git pull --ff-only",
+          "correct": false,
+          "feedback": "Pull fetches and then attempts to integrate changes into the current branch when a fast-forward is possible."
+        },
+        {
+          "id": "reset",
+          "text": "git reset --hard origin/main",
+          "correct": false,
+          "feedback": "This changes the current branch/worktree state and can discard tracked work; it is not an inspection-only operation."
+        },
+        {
+          "id": "push",
+          "text": "git push origin HEAD",
+          "correct": false,
+          "feedback": "Push publishes local commits to a remote; it does not retrieve newly published commits."
+        }
+      ],
+      "explanation": "Choose a command based on which repository state it changes: fetch retrieves remote references; pull also integrates them, and reset can move local state destructively."
+    },
+    {
       "id": "references",
       "type": "references",
       "items": [
@@ -586,6 +645,26 @@
         {
           "title": "GitHub Docs: GitHub Pages",
           "url": "https://docs.github.com/en/pages",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Documentation: git-clone",
+          "url": "https://git-scm.com/docs/git-clone",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Documentation: git-switch",
+          "url": "https://git-scm.com/docs/git-switch",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Documentation: git-fetch",
+          "url": "https://git-scm.com/docs/git-fetch",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Documentation: git-pull",
+          "url": "https://git-scm.com/docs/git-pull",
           "kind": "official-docs"
         }
       ]

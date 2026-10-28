@@ -294,10 +294,10 @@ describe('Git fundamentals lesson translation', () => {
     expect(englishGit.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGit.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
-    expect(englishGit.version).toBe(4);
-    expect(russianGit.version).toBe(4);
+    expect(englishGit.version).toBe(5);
+    expect(russianGit.version).toBe(5);
     const remoteExample = englishGit.blocks.find((block) => block.id === 'remote-example');
     expect(remoteExample?.type).toBe('codeWalkthrough');
     if (remoteExample?.type !== 'codeWalkthrough') return;
@@ -314,6 +314,37 @@ describe('Git fundamentals lesson translation', () => {
       if (hygiene?.type === 'list') {
         expect(hygiene.items.some((item) => item.toLowerCase().includes('markdown'))).toBe(true);
       }
+    }
+    for (const lesson of [englishGit, russianGit]) {
+      expect(lessonTranslationSchema.safeParse(lesson).success).toBe(true);
+      expect(lesson.updatedAt).toBe('2026-10-28');
+
+      const quickReference = lesson.blocks.find((block) => block.id === 'git-command-reference-list');
+      expect(quickReference?.type).toBe('list');
+      if (quickReference?.type !== 'list') return;
+      expect(quickReference.items.join(' ')).toContain('git clone <repository-url>');
+      expect(quickReference.items.join(' ')).toContain('git fetch origin');
+      expect(quickReference.items.join(' ')).toContain('git pull --ff-only');
+      expect(quickReference.items.join(' ')).toContain('git revert <commit>');
+
+      const fetchCheck = lesson.blocks.find((block) => block.id === 'fetch-pull-check');
+      expect(fetchCheck?.type).toBe('knowledgeCheck');
+      if (fetchCheck?.type !== 'knowledgeCheck') return;
+      expect(fetchCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['fetch']);
+      expect(fetchCheck.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+
+      const refs = lesson.blocks.find((block) => block.id === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') {
+        expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-fetch')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-pull')).toBe(true);
+      }
+    }
+    expect(russianGit.blocks.find((block) => block.id === 'knowledge-check-3')?.type).toBe('knowledgeCheck');
+    const russianWorkflowCheck = russianGit.blocks.find((block) => block.id === 'knowledge-check-3');
+    if (russianWorkflowCheck?.type === 'knowledgeCheck') {
+      expect(russianWorkflowCheck.prompt).toContain('Выбери');
+      expect(russianWorkflowCheck.prompt).not.toContain('Select all that apply');
     }
   });
 });
