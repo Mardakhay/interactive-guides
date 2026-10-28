@@ -92,6 +92,18 @@ describe('JavaScriptRunner', () => {
   });
   it('limits output messages in the worker even when user code logs repeatedly', async () => {
     const messages: Array<{ protocol: string; type: string; kind?: string; text?: string }> = [];
+    const outputConsole: Console = {
+      log: (...values: unknown[]) => {
+        // Exercise the same console adapter installed by the worker bootstrap.
+        messages.push({
+          protocol: 'interactive-guides-worker-v1',
+          type: 'output',
+          kind: 'log',
+          text: values.map(String).join(' '),
+        });
+      },
+      info() {}, warn() {}, error() {}, debug() {}, table() {},
+    } as unknown as Console;
     const workerScope: {
       postMessage: (message: unknown) => void;
       console: Console;
@@ -99,9 +111,7 @@ describe('JavaScriptRunner', () => {
       [key: string]: unknown;
     } = {
       postMessage: (message) => messages.push(message as { protocol: string; type: string; kind?: string; text?: string }),
-      console: {
-        log() {}, info() {}, warn() {}, error() {}, debug() {}, table() {},
-      } as unknown as Console,
+      console: outputConsole,
       onmessage: null,
     };
 
