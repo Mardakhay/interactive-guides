@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { getLessons } from '@/features/content';
 import { getStructuredLessonIds } from '@/content/repository';
+import { getLocalizedLearningPathStepNote } from '@/features/localization';
 import { getLearningPathLessonIds, getLearningPaths } from './api';
 
 describe('learning path progress inputs', () => {
@@ -37,6 +38,29 @@ describe('learning path progress inputs', () => {
       'js.async-fetch',
       'js.dom-events',
     ]);
+    expect(getLearningPathLessonIds('structured-capstone')).toEqual([
+      'capstone.requirements-discovery',
+      'capstone.design-architecture-planning',
+      'capstone.implementation',
+      'testing.react-testing-library',
+      'deployment.production-hosting',
+      'capstone.review-demo',
+    ]);
+  });
+
+  it('provides Russian step notes for every learning path without English fallback', () => {
+    const allPaths = getLearningPaths();
+    expect(allPaths.reduce((total, path) => total + path.steps.length, 0)).toBe(46);
+
+    for (const path of allPaths) {
+      for (const step of path.steps) {
+        expect(step.note).toBeTruthy();
+        const localized = getLocalizedLearningPathStepNote('ru', path.id, step.lessonId, step.note);
+        expect(localized, `Missing Russian step note for ${path.id}/${step.lessonId}`).toBeTruthy();
+        expect(localized).not.toBe(step.note);
+        expect(getLocalizedLearningPathStepNote('en', path.id, step.lessonId, step.note)).toBe(step.note);
+      }
+    }
   });
 
   it('resolves every step against either the classic catalog or the structured manifest', () => {

@@ -443,8 +443,71 @@ const learningPathTranslations: Record<string, { title: string; description: str
   "structured-javascript-mastery": {
     "title": "Структурированный путь JavaScript",
     "description": "Пройдите структурированную двуязычную последовательность JavaScript: основы языка, функции и объекты, прототипы, память, асинхронные запросы и работа с браузером. Классический маршрут JavaScript не заменяется."
+  },
+  "structured-capstone": {
+    "title": "Итоговый frontend-проект: от требований до демонстрации",
+    "description": "Пройдите полный цикл учебного frontend-проекта: определение проблемы и требований, проектирование архитектуры, реализация, автоматизированные тесты, развёртывание и итоговая демонстрация."
   }
 };
+
+const learningPathStepNoteTranslations: Readonly<Record<string, string>> = {
+  "frontend-foundations.sh-001": "Начните с общей карты frontend-разработки и разберитесь, как связаны её части.",
+  "frontend-foundations.wb-001": "Разберитесь в том, как на самом деле работают интернет и браузер.",
+  "frontend-foundations.wb-002": "Изучите структуру любой веб-страницы.",
+  "frontend-foundations.wb-003": "Научитесь оформлять страницы и управлять расположением элементов.",
+  "frontend-foundations.wb-004": "Добавьте страницам интерактивности с помощью работы с DOM.",
+  "javascript-mastery.js-001": "Заложите прочную основу синтаксиса и базовых понятий JavaScript.",
+  "javascript-mastery.js-002": "Разберитесь в объектах, цепочке прототипов и классах.",
+  "javascript-mastery.js-003": "Посмотрите, как устроены память, стек и куча.",
+  "javascript-mastery.js-004": "Освойте цикл событий, Promise и async/await.",
+  "react-developer.re-001": "Начните с одного из ключевых хуков — useState.",
+  "react-developer.re-002": "Освойте API хуков и распространённые шаблоны их использования.",
+  "react-developer.re-003": "Научитесь создавать формы и надёжно проверять введённые данные.",
+  "react-developer.re-004": "Подключайте API через собственные хуки и обрабатывайте ошибки.",
+  "react-developer.re-005": "Добавьте маршрутизацию и навигацию в SPA.",
+  "react-developer.re-006": "Оптимизируйте производительность и создавайте доступные приложения.",
+  "full-stack-tooling.tl-003": "Настройте среду разработки с нуля.",
+  "full-stack-tooling.tl-001": "Освойте Git — систему контроля версий, которую использует каждый разработчик.",
+  "full-stack-tooling.tl-002": "Изучите стратегии ветвления и CI/CD на GitHub Actions.",
+  "full-stack-tooling.tl-004": "Публикуйте приложение в production, используя хостинг и DNS.",
+  "production-ready.qa-001": "Научитесь планировать архитектуру масштабируемого frontend-приложения.",
+  "production-ready.qa-002": "Пишите тесты на всех уровнях: unit, integration и E2E.",
+  "production-ready.sec-001": "Освойте аутентификацию, JWT, OAuth и защиту маршрутов.",
+  "structured-frontend-foundations.web.internet-http": "Разберитесь в URL, HTTP-запросах и роли браузера в работе веба.",
+  "structured-frontend-foundations.html.document-structure": "Создавайте корректные страницы с осмысленной семантической структурой.",
+  "structured-frontend-foundations.html.forms-accessibility": "Проектируйте формы с подписями, встроенной проверкой и доступными сообщениями об ошибках.",
+  "structured-frontend-foundations.css.fundamentals": "Изучите селекторы, каскад и правила оформления с учётом доступности.",
+  "structured-frontend-foundations.css.flexbox-grid-responsive": "Выбирайте способы компоновки и адаптируйте интерфейсы под разные экраны.",
+  "structured-frontend-foundations.js.dom-events": "Свяжите разметку с событиями браузера и осознанным обновлением DOM.",
+  "structured-react-developer.react.components-jsx-state": "Создавайте компоненты и разбирайтесь в props, рендеринге и состоянии.",
+  "structured-react-developer.react.effects-lists-composition": "Используйте эффекты для синхронизации, компонуйте компоненты и безопасно отображайте списки.",
+  "structured-react-developer.react.forms-validation": "Создавайте формы с проверкой данных и доступной обратной связью об ошибках.",
+  "structured-react-developer.react.context-shared-state": "Определяйте, когда поднимать состояние вверх, а когда подходит Context.",
+  "structured-react-developer.react.router-spa": "Моделируйте клиентские маршруты и навигацию с помощью React Router.",
+  "structured-react-developer.react.api-custom-hooks": "Выделяйте работу с данными в API-слой и переиспользуемые хуки.",
+  "structured-javascript-mastery.js.basics-types-control-flow": "Разберитесь в значениях, операторах, ветвлении, циклах и базовой модели выполнения.",
+  "structured-javascript-mastery.js.functions-arrays-objects": "Сочетайте поведение с помощью функций и моделируйте данные массивами и объектами.",
+  "structured-javascript-mastery.js.object-prototypes": "Изучите поиск свойств, прототипы, классы и привязку методов.",
+  "structured-javascript-mastery.js.runtime-memory": "Разберитесь в ссылках, кадрах стека, сборке мусора и поведении асинхронного кэша.",
+  "structured-javascript-mastery.js.async-fetch": "Работайте с Promise, async/await, состояниями запросов и обработкой сбоев.",
+  "structured-javascript-mastery.js.dom-events": "Свяжите основы JavaScript с обновлением DOM и обработкой событий браузера.",
+  "structured-capstone.capstone.requirements-discovery": "Определите пользователей, ограничения и критерии приёмки проекта.",
+  "structured-capstone.capstone.design-architecture-planning": "На основе требований спроектируйте поддерживаемую архитектуру до начала реализации.",
+  "structured-capstone.capstone.implementation": "Реализуйте минимальный целостный сценарий и зафиксируйте ключевые архитектурные компромиссы.",
+  "structured-capstone.testing.react-testing-library": "Добавьте автоматические проверки важных сценариев и рисков регрессий.",
+  "structured-capstone.deployment.production-hosting": "Опубликуйте проект с воспроизводимой сборкой и понятным чек-листом развёртывания.",
+  "structured-capstone.capstone.review-demo": "Проверьте результат по исходным целям, покажите доказательства и обозначьте следующие шаги."
+};
+
+export function getLocalizedLearningPathStepNote(
+  locale: Locale,
+  pathId: string,
+  lessonId: string,
+  fallbackNote?: string,
+): string | undefined {
+  if (locale === 'en') return fallbackNote;
+  return learningPathStepNoteTranslations[`${pathId}.${lessonId}`] ?? fallbackNote;
+}
 
 export function getLocalizedLearningPathCopy(
   locale: Locale,

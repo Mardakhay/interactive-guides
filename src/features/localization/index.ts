@@ -7,6 +7,7 @@ export {
   getLocalizedDifficulty,
   getLocalizedCategoryCopy,
   getLocalizedLearningPathCopy,
+  getLocalizedLearningPathStepNote,
   translate,
   translations,
   type Locale,

@@ -12,7 +12,7 @@ import { EmptyState } from '@/components/feedback';
 import { ROUTE_PATHS, lessonPath } from '@/app/router/routes';
 import { DIFFICULTY_COLORS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { formatLessonCount, getLocalizedCategoryCopy, getLocalizedDifficulty, getLocalizedLearningPathCopy, translate, useUiLocale } from '@/features/localization';
+import { formatLessonCount, getLocalizedCategoryCopy, getLocalizedDifficulty, getLocalizedLearningPathCopy, getLocalizedLearningPathStepNote, translate, useUiLocale } from '@/features/localization';
 
 interface ResolvedPathLesson {
   readonly id: string;
@@ -160,7 +160,7 @@ export default function LearningPathDetailPage() {
                 <div className="min-w-0 space-y-1">
                   <h3 className="text-sm font-semibold text-neutral-900">{locale === 'ru' ? 'Урок недоступен' : 'Lesson unavailable'}</h3>
                   <p className="text-xs text-neutral-500">{step.lessonId}</p>
-                  {step.note && <p className="text-sm text-neutral-600">{step.note}</p>}
+                  {step.note && <p className="text-sm text-neutral-600">{getLocalizedLearningPathStepNote(locale, path.id, step.lessonId, step.note)}</p>}
                 </div>
               </Card>
             );
@@ -176,7 +176,7 @@ export default function LearningPathDetailPage() {
                 <h3 className="text-sm font-semibold text-neutral-900 group-hover:text-primary-700">
                   <Link to={lesson.href} className="after:absolute after:inset-0 after:content-['']">{lesson.title}</Link>
                 </h3>
-                {step.note && <p className="text-sm text-neutral-600">{step.note}</p>}
+                {step.note && <p className="text-sm text-neutral-600">{getLocalizedLearningPathStepNote(locale, path.id, step.lessonId, step.note)}</p>}
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <span className="relative z-10 flex items-center gap-1 text-xs text-neutral-500"><BookOpen className="h-3 w-3" />{lesson.categoryName}</span>
                   {lesson.difficulty ? (
@@ -205,7 +205,7 @@ export default function LearningPathDetailPage() {
         </Link>
         {nextLesson && !isComplete && (
           <Link
-            to={lessonPath(nextLesson.id)}
+            to={nextLesson.href}
             className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
           >
             {translate(locale, 'continueWith', { title: nextLesson.title })}

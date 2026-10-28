@@ -238,5 +238,39 @@
         "note": "Connect language fundamentals to DOM updates and browser event handling."
       }
     ]
+  },
+  {
+    "id": "structured-capstone",
+    "title": "Frontend Capstone: From Requirements to Demo",
+    "description": "Build a coherent frontend project from problem discovery through architecture, implementation, automated tests, deployment, and a final review/demo.",
+    "level": "intermediate",
+    "icon": "Rocket",
+    "estimatedHours": 14,
+    "steps": [
+      {
+        "lessonId": "capstone.requirements-discovery",
+        "note": "Turn the problem space into explicit users, constraints, and acceptance criteria."
+      },
+      {
+        "lessonId": "capstone.design-architecture-planning",
+        "note": "Shape the requirements into a maintainable architecture before coding."
+      },
+      {
+        "lessonId": "capstone.implementation",
+        "note": "Deliver the smallest coherent vertical slice and document key trade-offs."
+      },
+      {
+        "lessonId": "testing.react-testing-library",
+        "note": "Build automated checks around important behavior and regression risks."
+      },
+      {
+        "lessonId": "deployment.production-hosting",
+        "note": "Publish the project with a repeatable build and a clear deployment checklist."
+      },
+      {
+        "lessonId": "capstone.review-demo",
+        "note": "Review the product against its goals, present evidence, and explain next steps."
+      }
+    ]
   }
 ]

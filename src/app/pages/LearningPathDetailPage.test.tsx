@@ -88,6 +88,18 @@ describe('LearningPathDetailPage', () => {
     expect(firstStep.getAttribute('href')).toBe('/en/structured-lessons/js.basics-types-control-flow');
   });
 
+  it('localizes the capstone path and keeps all continuation links on the structured route', () => {
+    useLocaleStore.setState({ locale: 'ru' });
+
+    renderPath('structured-capstone');
+
+    expect(screen.getByRole('heading', { name: 'Итоговый frontend-проект: от требований до демонстрации' })).toBeTruthy();
+    expect(screen.getByText('Определите пользователей, ограничения и критерии приёмки проекта.')).toBeTruthy();
+
+    const firstLessonHref = '/ru/structured-lessons/capstone.requirements-discovery';
+    expect(screen.getAllByRole('link').filter((link) => link.getAttribute('href') === firstLessonHref)).toHaveLength(3);
+  });
+
   it('keeps the existing classic learning paths on their original lesson routes', () => {
     renderPath('frontend-foundations');
 
