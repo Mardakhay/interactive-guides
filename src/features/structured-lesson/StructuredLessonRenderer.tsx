@@ -96,6 +96,46 @@ function CodePanel({
   );
 }
 
+function SectionHeading({
+  block,
+  lessonId,
+  locale,
+}: {
+  block: Extract<LessonContentBlock, { type: 'heading' }>;
+  lessonId: string;
+  locale: SupportedLocale;
+}) {
+  const isRead = useStructuredLearningStore((state) =>
+    state.sectionProgress[lessonId]?.completedBlockIds.includes(block.id) ?? false,
+  );
+  const setSectionComplete = useStructuredLearningStore((state) => state.setSectionComplete);
+  const readLabel = locale === 'ru' ? 'Отметить раздел прочитанным' : 'Mark section read';
+  const unreadLabel = locale === 'ru' ? 'Снять отметку о прочтении' : 'Mark section unread';
+  const visibleLabel = isRead
+    ? (locale === 'ru' ? 'Прочитан' : 'Read')
+    : (locale === 'ru' ? 'Отметить прочитанным' : 'Mark read');
+
+  return (
+    <div className="mb-3 mt-10 flex flex-col gap-2 scroll-mt-24 sm:flex-row sm:items-start sm:justify-between">
+      <h2 id={block.id} className="min-w-0 text-2xl font-semibold tracking-tight text-neutral-950 sm:text-3xl">
+        {block.text}
+      </h2>
+      <button
+        type="button"
+        aria-pressed={isRead}
+        aria-label={`${isRead ? unreadLabel : readLabel}: ${block.text}`}
+        onClick={() => setSectionComplete(lessonId, block.id, !isRead)}
+        className={`inline-flex min-h-9 shrink-0 items-center justify-center gap-2 self-start rounded-lg border px-3 py-2 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700 sm:mt-1 ${isRead
+          ? 'border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+          : 'border-neutral-200 bg-white text-neutral-600 hover:border-primary-300 hover:text-primary-700'}`}
+      >
+        {isRead ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : null}
+        {visibleLabel}
+      </button>
+    </div>
+  );
+}
+
 function KnowledgeCheck({
   block,
   locale,
@@ -386,7 +426,7 @@ function CodingExercise({
 function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonId: string) {
   switch (block.type) {
     case 'heading':
-      if (block.level === 2) return <h2 key={block.id} id={block.id} className="mb-3 mt-10 scroll-mt-24 text-2xl font-semibold tracking-tight text-neutral-950 sm:text-3xl">{block.text}</h2>;
+      if (block.level === 2) return <SectionHeading key={block.id} block={block} lessonId={lessonId} locale={locale} />;
       if (block.level === 3) return <h3 key={block.id} id={block.id} className="mb-3 mt-7 scroll-mt-24 text-xl font-semibold tracking-tight text-neutral-950">{block.text}</h3>;
       return <h4 key={block.id} id={block.id} className="mb-2 mt-6 scroll-mt-24 text-lg font-semibold text-neutral-950">{block.text}</h4>;
     case 'paragraph':

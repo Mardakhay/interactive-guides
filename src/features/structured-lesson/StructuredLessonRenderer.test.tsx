@@ -1,9 +1,42 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { getStructuredLesson } from '@/content/repository';
+import { useStructuredLearningStore } from './store';
+import { LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, STRUCTURED_LEARNING_STORAGE_KEY } from './schemas';
 import { StructuredLessonRenderer } from './StructuredLessonRenderer';
 
 describe('StructuredLessonRenderer', () => {
+  afterEach(() => {
+    cleanup();
+    localStorage.removeItem(STRUCTURED_LEARNING_STORAGE_KEY);
+    localStorage.removeItem(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY);
+    useStructuredLearningStore.setState({
+      quizAttempts: {},
+      codeDrafts: {},
+      practiceChecklists: {},
+      sectionProgress: {},
+    });
+  });
+
+  it('persists and toggles a self-attested section-read marker', async () => {
+    const lesson = await getStructuredLesson('html.document-structure', 'en');
+    if (!lesson) throw new Error('English pilot lesson is missing');
+
+    render(<StructuredLessonRenderer lesson={lesson} />);
+
+    const markRead = screen.getByRole('button', { name: 'Mark section read: Why document structure matters' });
+    expect(markRead.getAttribute('aria-pressed')).toBe('false');
+    fireEvent.click(markRead);
+
+    const markUnread = screen.getByRole('button', { name: 'Mark section unread: Why document structure matters' });
+    expect(markUnread.getAttribute('aria-pressed')).toBe('true');
+    expect(useStructuredLearningStore.getState().sectionProgress[lesson.id]?.completedBlockIds).toContain('why-structure');
+
+    const saved = JSON.parse(localStorage.getItem(STRUCTURED_LEARNING_STORAGE_KEY) ?? '{}');
+    expect(saved.data.sectionProgress[lesson.id].completedBlockIds).toContain('why-structure');
+    expect(screen.getByRole('heading', { name: 'Build an About Me page' })).toBeTruthy();
+  });
+
   it('renders structured prose, code and an independent coding exercise', async () => {
     const lesson = await getStructuredLesson('html.document-structure', 'en');
     if (!lesson) throw new Error('English pilot lesson is missing');
@@ -42,6 +75,7 @@ describe('StructuredLessonRenderer', () => {
     expect(screen.getAllByRole('button', { name: /Копировать код/ }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole('group', { name: /пример кода/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole('heading', { name: 'Создай страницу «Обо мне»' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Отметить раздел прочитанным: Почему структура документа важна' })).toBeTruthy();
   });
 
   it('announces a failed copy attempt to assistive technology', async () => {
