@@ -1,0 +1,2430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Kit & Design System — Interactive Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050810;
+  --bg2: #080d1a;
+  --surface: rgba(12, 20, 40, 0.7);
+  --surface2: rgba(18, 30, 58, 0.5);
+  --border: rgba(99, 179, 237, 0.12);
+  --border2: rgba(99, 179, 237, 0.25);
+  --accent: #38bdf8;
+  --accent2: #818cf8;
+  --accent3: #34d399;
+  --accent4: #fb923c;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --danger: #f87171;
+  --glow: rgba(56, 189, 248, 0.15);
+  --glow2: rgba(129, 140, 248, 0.1);
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --display: 'Syne', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ── BACKGROUND ── */
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+}
+.orb1 { width: 600px; height: 600px; background: radial-gradient(circle, #1e3a5f, transparent); top: -200px; left: -100px; animation: orbFloat 20s ease-in-out infinite; }
+.orb2 { width: 500px; height: 500px; background: radial-gradient(circle, #1a1f4e, transparent); bottom: -100px; right: -150px; animation: orbFloat 25s ease-in-out infinite reverse; }
+.orb3 { width: 300px; height: 300px; background: radial-gradient(circle, #0f3d2e, transparent); top: 50%; left: 50%; animation: orbFloat 18s ease-in-out infinite 5s; }
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.05); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ── LAYOUT ── */
+.layout { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  background: rgba(5, 8, 16, 0.85);
+  backdrop-filter: blur(20px);
+  padding: 28px 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+.sidebar-logo {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-weight: 800;
+  padding: 0 24px 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+}
+.sidebar-logo span { color: var(--accent2); }
+.nav-section-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 16px 24px 6px;
+}
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 24px;
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 400;
+  transition: all 0.2s;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+}
+.nav-link:hover, .nav-link.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: var(--glow);
+}
+.nav-link .nav-icon { font-size: 0.9rem; opacity: 0.7; }
+
+/* ── MAIN CONTENT ── */
+.main { flex: 1; padding: 60px 48px; max-width: 900px; }
+
+/* ── SECTIONS ── */
+.section { margin-bottom: 80px; opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.section.visible { opacity: 1; transform: translateY(0); }
+.section, .hero { scroll-margin-top: 96px; }
+
+.section-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.section-title {
+  font-family: var(--display);
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.section-intro {
+  font-size: 1rem;
+  color: var(--text2);
+  line-height: 1.7;
+  max-width: 680px;
+  margin-bottom: 32px;
+}
+
+/* ── GLASS CARD ── */
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  backdrop-filter: blur(12px);
+  margin-bottom: 20px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.glass-card:hover {
+  border-color: var(--border2);
+  box-shadow: 0 0 30px var(--glow);
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 60px;
+  position: relative;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  width: fit-content;
+  animation: fadeInDown 0.8s ease both;
+}
+.hero-badge::before { content: '●'; font-size: 0.5rem; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes fadeInDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+
+.hero-title {
+  font-family: var(--display);
+  font-size: clamp(3rem, 6vw, 5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin-bottom: 24px;
+  animation: fadeInUp 0.8s ease 0.1s both;
+}
+.hero-title .line1 { display: block; color: #e2e8f0; }
+.hero-title .line2 { display: block; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+.hero-desc {
+  font-size: 1.1rem;
+  color: var(--text2);
+  max-width: 560px;
+  line-height: 1.75;
+  margin-bottom: 40px;
+  animation: fadeInUp 0.8s ease 0.2s both;
+}
+@keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+.hero-stats {
+  display: flex;
+  gap: 32px;
+  animation: fadeInUp 0.8s ease 0.3s both;
+  flex-wrap: wrap;
+}
+.stat-item { text-align: left; }
+.stat-num {
+  font-family: var(--display);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+.stat-label { font-size: 0.75rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+.hero-scroll {
+  position: absolute;
+  bottom: 40px;
+  left: 60px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text3);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  animation: fadeInUp 0.8s ease 0.5s both;
+}
+.scroll-line { width: 40px; height: 1px; background: var(--text3); }
+
+/* ── CODE BLOCK ── */
+.code-block {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(99,179,237,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0;
+  font-family: var(--mono);
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(99,179,237,0.08);
+}
+.code-dots { display: flex; gap: 6px; }
+.code-dots span { width: 10px; height: 10px; border-radius: 50%; }
+.code-dots .d1 { background: #ff5f57; }
+.code-dots .d2 { background: #ffbd2e; }
+.code-dots .d3 { background: #28ca41; }
+.code-filename { font-size: 0.72rem; color: var(--text3); letter-spacing: 0.05em; }
+.code-copy {
+  font-size: 0.7rem;
+  color: var(--text3);
+  cursor: pointer;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  font-family: var(--mono);
+  transition: all 0.2s;
+}
+.code-copy:hover { color: var(--accent); border-color: var(--accent); }
+.code-body { padding: 20px; overflow-x: auto; line-height: 1.65; font-size: 0.82rem; }
+.code-body .kw { color: #c792ea; }
+.code-body .str { color: #c3e88d; }
+.code-body .fn { color: #82aaff; }
+.code-body .cm { color: #546e7a; font-style: italic; }
+.code-body .ty { color: #ffcb6b; }
+.code-body .num { color: #f78c6c; }
+.code-body .prop { color: #38bdf8; }
+.code-body .tag { color: #f07178; }
+.code-body .attr { color: #c3e88d; }
+
+/* ── TABS ── */
+.tabs-wrapper { margin: 20px 0; }
+.tab-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.tab-btn {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 8px 8px 0 0;
+  transition: all 0.2s;
+  position: relative;
+  bottom: -1px;
+}
+.tab-btn.active {
+  background: var(--surface2);
+  border-color: var(--border);
+  border-bottom-color: var(--bg);
+  color: var(--accent);
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ── GRID LAYOUTS ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media(max-width: 700px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+/* ── INFO CARD ── */
+.info-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s;
+}
+.info-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+.info-card-icon { font-size: 1.8rem; margin-bottom: 10px; }
+.info-card-title { font-family: var(--display); font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.info-card-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.5; }
+
+/* ── CALLOUT ── */
+.callout {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  border-left: 3px solid;
+}
+.callout-tip { background: rgba(52, 211, 153, 0.06); border-color: var(--accent3); color: #a7f3d0; }
+.callout-info { background: rgba(56, 189, 248, 0.06); border-color: var(--accent); color: #bae6fd; }
+.callout-warn { background: rgba(251, 146, 60, 0.06); border-color: var(--accent4); color: #fed7aa; }
+.callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+/* ── ATOMIC DIAGRAM ── */
+.atomic-flow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  padding: 20px 0;
+}
+.atomic-node {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 16px 14px;
+  border-radius: 12px;
+  min-width: 110px;
+  position: relative;
+}
+.atomic-arrow {
+  flex-shrink: 0;
+  color: var(--text3);
+  font-size: 1.2rem;
+  margin: 0 4px;
+}
+.an-tokens { background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.2); }
+.an-atoms { background: rgba(129,140,248,0.08); border: 1px solid rgba(129,140,248,0.2); }
+.an-molecules { background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.2); }
+.an-organisms { background: rgba(251,146,60,0.08); border: 1px solid rgba(251,146,60,0.2); }
+.an-pages { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); }
+.atomic-node-icon { font-size: 1.5rem; margin-bottom: 6px; }
+.atomic-node-title { font-weight: 700; font-size: 0.78rem; font-family: var(--display); margin-bottom: 4px; }
+.atomic-node-ex { font-size: 0.67rem; color: var(--text3); line-height: 1.4; }
+
+/* ── TOKEN DEMO ── */
+.token-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
+.color-token {
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.color-token:hover { transform: scale(1.05); }
+.color-swatch { height: 48px; }
+.color-name { background: rgba(0,0,0,0.4); padding: 4px 6px; font-size: 0.62rem; color: var(--text2); font-family: var(--mono); }
+
+.spacing-demo { display: flex; flex-direction: column; gap: 8px; }
+.spacing-row { display: flex; align-items: center; gap: 12px; font-size: 0.8rem; color: var(--text2); }
+.spacing-bar { background: var(--accent); height: 12px; border-radius: 3px; opacity: 0.7; transition: opacity 0.2s; }
+.spacing-bar:hover { opacity: 1; }
+.spacing-label { font-family: var(--mono); font-size: 0.72rem; color: var(--text3); min-width: 60px; }
+
+/* ── UI LIBRARY CARDS ── */
+.lib-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.lib-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.lib-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+.lib-card:hover::before { opacity: 1; }
+.lib-chakra::before { background: radial-gradient(circle at top right, rgba(99,179,237,0.06), transparent 60%); }
+.lib-mui::before { background: radial-gradient(circle at top right, rgba(129,140,248,0.06), transparent 60%); }
+.lib-ant::before { background: radial-gradient(circle at top right, rgba(251,146,60,0.06), transparent 60%); }
+.lib-logo { font-size: 2rem; margin-bottom: 10px; }
+.lib-name { font-family: var(--display); font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+.lib-tag { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 12px; }
+.tag-blue { background: rgba(56,189,248,0.12); color: var(--accent); }
+.tag-purple { background: rgba(129,140,248,0.12); color: var(--accent2); }
+.tag-orange { background: rgba(251,146,60,0.12); color: var(--accent4); }
+.lib-features { list-style: none; }
+.lib-features li { font-size: 0.8rem; color: var(--text2); padding: 3px 0; display: flex; align-items: flex-start; gap: 6px; }
+.lib-features li::before { content: '→'; color: var(--accent); flex-shrink: 0; }
+
+/* ── PRINCIPLES ── */
+.principle-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.principle-card::after {
+  content: attr(data-num);
+  position: absolute;
+  top: -10px;
+  right: 16px;
+  font-family: var(--display);
+  font-size: 5rem;
+  font-weight: 800;
+  color: rgba(56,189,248,0.04);
+  line-height: 1;
+  pointer-events: none;
+}
+.principle-card:hover { border-color: var(--border2); box-shadow: 0 8px 32px var(--glow); }
+.principle-icon { font-size: 1.5rem; margin-bottom: 12px; }
+.principle-title { font-family: var(--display); font-weight: 700; font-size: 1rem; margin-bottom: 8px; color: var(--accent); }
+.principle-desc { font-size: 0.83rem; color: var(--text2); line-height: 1.6; }
+
+/* ── VARIANT DEMO ── */
+.variant-showcase {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+.variant-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+.variant-row:last-child { margin-bottom: 0; }
+.demo-btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.demo-btn:hover { transform: translateY(-1px); }
+.demo-btn:active { transform: translateY(0); }
+.btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+.btn-primary:hover { box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
+.btn-secondary { background: transparent; color: #3b82f6; border: 2px solid #3b82f6; }
+.btn-secondary:hover { background: rgba(59,130,246,0.08); }
+.btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; box-shadow: 0 4px 12px rgba(239,68,68,0.3); }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+.btn-sm { padding: 5px 12px; font-size: 0.75rem; }
+.btn-lg { padding: 12px 28px; font-size: 0.95rem; }
+.btn-loading { position: relative; color: transparent !important; }
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── QUIZ ── */
+.quiz-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 20px;
+}
+.quiz-q {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+.quiz-q .q-num {
+  display: inline-block;
+  background: rgba(56,189,248,0.1);
+  color: var(--accent);
+  border-radius: 6px;
+  padding: 1px 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-right: 8px;
+  font-family: var(--mono);
+}
+.quiz-options { display: flex; flex-direction: column; gap: 8px; }
+.quiz-option {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text2);
+  background: rgba(0,0,0,0.2);
+  transition: all 0.2s;
+  text-align: left;
+  font-family: var(--sans);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.quiz-option:hover { border-color: var(--border2); color: var(--text); background: var(--surface2); }
+.quiz-option.correct { border-color: var(--accent3); background: rgba(52,211,153,0.08); color: #a7f3d0; }
+.quiz-option.wrong { border-color: var(--danger); background: rgba(248,113,113,0.08); color: #fca5a5; }
+.quiz-option .opt-letter {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700; flex-shrink: 0;
+  font-family: var(--mono);
+}
+.quiz-feedback {
+  margin-top: 14px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.83rem;
+  line-height: 1.5;
+  display: none;
+}
+.quiz-feedback.show { display: block; }
+.quiz-feedback.success { background: rgba(52,211,153,0.08); color: #a7f3d0; border: 1px solid rgba(52,211,153,0.2); }
+.quiz-feedback.error { background: rgba(248,113,113,0.08); color: #fca5a5; border: 1px solid rgba(248,113,113,0.2); }
+.quiz-score-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 100px;
+  margin-top: 20px;
+  overflow: hidden;
+}
+.quiz-score-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent3), var(--accent));
+  border-radius: 100px;
+  transition: width 0.6s ease;
+  width: 0%;
+}
+
+/* ── COMPARISON TABLE ── */
+.comp-table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 12px; overflow: hidden; font-size: 0.83rem; }
+.comp-table th { background: rgba(56,189,248,0.05); padding: 12px 16px; text-align: left; font-weight: 600; color: var(--accent); border-bottom: 1px solid var(--border); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.07em; }
+.comp-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--text2); }
+.comp-table tr:last-child td { border-bottom: none; }
+.comp-table tr:hover td { background: rgba(56,189,248,0.02); }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-scroll .comp-table { min-width: 640px; }
+.check { color: var(--accent3); }
+.cross { color: var(--danger); }
+
+/* ── PRACTICE ── */
+.practice-zone {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.practice-header {
+  padding: 16px 20px;
+  background: rgba(56,189,248,0.04);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.practice-title { font-family: var(--display); font-weight: 700; font-size: 0.9rem; color: var(--text); }
+.practice-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 3px 10px;
+  border-radius: 100px;
+  background: rgba(52,211,153,0.1);
+  color: var(--accent3);
+  border: 1px solid rgba(52,211,153,0.2);
+}
+.practice-editor {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.editor-pane, .preview-pane { min-height: 300px; }
+.editor-pane {
+  border-right: 1px solid var(--border);
+  background: rgba(0,0,0,0.3);
+}
+.editor-label {
+  padding: 8px 16px;
+  font-size: 0.68rem;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--border);
+}
+textarea.code-input {
+  width: 100%;
+  height: 260px;
+  background: transparent;
+  border: none;
+  padding: 16px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.65;
+  resize: none;
+  outline: none;
+}
+.preview-pane { display: flex; flex-direction: column; }
+.preview-render {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+}
+.run-btn {
+  margin: 12px 16px;
+  padding: 8px 18px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  border-radius: 8px;
+  color: #000;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all 0.2s;
+  width: calc(100% - 32px);
+}
+.run-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(56,189,248,0.3); }
+
+/* ── PATTERN CARDS ── */
+.pattern-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0;
+}
+@media(max-width: 700px) { .pattern-split { grid-template-columns: 1fr; } }
+.pattern-wrong { border: 1px solid rgba(248,113,113,0.2); border-radius: 10px; overflow: hidden; }
+.pattern-right { border: 1px solid rgba(52,211,153,0.2); border-radius: 10px; overflow: hidden; }
+.pattern-label {
+  padding: 6px 14px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.label-wrong { background: rgba(248,113,113,0.1); color: var(--danger); }
+.label-right { background: rgba(52,211,153,0.1); color: var(--accent3); }
+
+/* ── PROGRESS ── */
+.progress-bar-wrap {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  z-index: 1000;
+  background: transparent;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  width: 0%;
+  transition: width 0.2s;
+  box-shadow: 0 0 8px var(--accent);
+}
+
+/* ── BADGE ── */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: var(--mono);
+}
+.badge-blue { background: rgba(56,189,248,0.1); color: var(--accent); }
+.badge-purple { background: rgba(129,140,248,0.1); color: var(--accent2); }
+.badge-green { background: rgba(52,211,153,0.1); color: var(--accent3); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(99,179,237,0.2); border-radius: 100px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(99,179,237,0.4); }
+
+/* ── RESPONSIVE ── */
+@media(max-width: 900px) {
+  .sidebar { display: none; }
+  .main { padding: 40px 24px; }
+  .hero { padding: 60px 24px; }
+  .practice-editor { grid-template-columns: 1fr; }
+}
+
+/* ── GLOW TEXT ── */
+.glow-text { text-shadow: 0 0 20px var(--accent); color: var(--accent); }
+
+/* ── SECTION DIVIDER ── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2), transparent);
+  margin: 60px 0;
+}
+
+/* ── COMPOUND DEMO ── */
+.compound-demo {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 16px 0;
+}
+.c-card { border-radius: 10px; overflow: hidden; border: 1px solid var(--border2); background: var(--surface); margin: 16px; }
+.c-header { padding: 12px 16px; background: rgba(56,189,248,0.05); border-bottom: 1px solid var(--border); font-weight: 600; font-size: 0.88rem; }
+.c-body { padding: 16px; font-size: 0.83rem; color: var(--text2); line-height: 1.6; }
+.c-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ── TOOLTIP ── */
+.tooltip-wrap { position: relative; display: inline-block; cursor: help; }
+.tooltip-wrap .tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10,20,40,0.95);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 10;
+}
+.tooltip-wrap:hover .tooltip { opacity: 1; }
+
+/* ── CHECKLIST ── */
+.checklist { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--text2);
+  line-height: 1.5;
+}
+.checklist li::before {
+  content: '✓';
+  color: var(--accent3);
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── HIDDEN MOBILE NAV ── */
+.mobile-nav {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(5,8,16,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.mobile-logo { font-family: var(--display); font-weight: 800; font-size: 0.95rem; color: var(--accent); }
+.mobile-nav-actions { display: flex; align-items: center; gap: 8px; }
+.mobile-menu-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border: 1px solid var(--border2);
+  border-radius: 999px;
+  background: rgba(56,189,248,0.08);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.mobile-menu-panel {
+  display: none;
+  position: sticky;
+  top: 61px;
+  z-index: 99;
+  max-height: calc(100vh - 61px);
+  overflow: auto;
+  background: rgba(5,8,16,0.96);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 0;
+}
+.mobile-menu-panel.open { display: block; }
+.mobile-menu-panel .nav-link {
+  display: flex;
+  width: 100%;
+  padding: 12px 24px;
+  border-left: none;
+}
+.mobile-menu-panel .nav-link:hover,
+.mobile-menu-panel .nav-link.active { background: var(--glow); }
+@media(max-width: 900px) { .mobile-nav { display: flex; } }
+@media(max-width: 900px) { .main { padding: 28px 18px 48px; } .hero { padding: 48px 18px 24px; min-height: auto; } .hero-scroll { position: static; margin-top: 24px; } }
+</style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg-canvas">
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
+  <div class="bg-orb orb3"></div>
+  <div class="grid-overlay"></div>
+</div>
+
+<!-- Progress Bar -->
+<div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
+
+<!-- Mobile Nav -->
+<div class="mobile-nav">
+  <div>
+    <div class="mobile-logo">DS Guide</div>
+    <span style="font-size:0.72rem;color:var(--text3)">UI Kit &amp; Design System</span>
+  </div>
+  <div class="mobile-nav-actions">
+    <button class="mobile-menu-toggle" type="button" id="mobileMenuToggle" aria-expanded="false" aria-controls="mobileMenu">Menu</button>
+  </div>
+</div>
+<div class="mobile-menu-panel" id="mobileMenu" aria-label="Section navigation">
+  <a class="nav-link" href="#what-is-ds" onclick="scrollToSection('what-is-ds')"><span class="nav-icon">🏛</span> What Is a Design System?</a>
+  <a class="nav-link" href="#structure" onclick="scrollToSection('structure')"><span class="nav-icon">🧬</span> DS Structure</a>
+  <a class="nav-link" href="#tokens" onclick="scrollToSection('tokens')"><span class="nav-icon">🎨</span> Design Tokens</a>
+  <a class="nav-link" href="#ui-libs" onclick="scrollToSection('ui-libs')"><span class="nav-icon">📦</span> UI Libraries</a>
+  <a class="nav-link" href="#when-to-build" onclick="scrollToSection('when-to-build')"><span class="nav-icon">🤔</span> Build vs Buy</a>
+  <a class="nav-link" href="#principles" onclick="scrollToSection('principles')"><span class="nav-icon">📐</span> Design Principles</a>
+  <a class="nav-link" href="#variants" onclick="scrollToSection('variants')"><span class="nav-icon">🔀</span> Props &amp; Variants</a>
+  <a class="nav-link" href="#button" onclick="scrollToSection('button')"><span class="nav-icon">🔘</span> Button Component</a>
+  <a class="nav-link" href="#input" onclick="scrollToSection('input')"><span class="nav-icon">✏️</span> Input Component</a>
+  <a class="nav-link" href="#card" onclick="scrollToSection('card')"><span class="nav-icon">🃏</span> Card Component</a>
+  <a class="nav-link" href="#patterns" onclick="scrollToSection('patterns')"><span class="nav-icon">⚙️</span> Advanced Patterns</a>
+  <a class="nav-link" href="#quiz" onclick="scrollToSection('quiz')"><span class="nav-icon">🧠</span> Quiz</a>
+  <a class="nav-link" href="#practice" onclick="scrollToSection('practice')"><span class="nav-icon">🛠</span> Practice</a>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">DS<span>Guide</span></div>
+    <div class="nav-section-label">Foundations</div>
+    <a class="nav-link active" href="#what-is-ds" onclick="scrollToSection('what-is-ds')"><span class="nav-icon">🏛</span> What Is a Design System?</a>
+    <a class="nav-link" href="#structure" onclick="scrollToSection('structure')"><span class="nav-icon">🧬</span> DS Structure</a>
+    <a class="nav-link" href="#tokens" onclick="scrollToSection('tokens')"><span class="nav-icon">🎨</span> Design Tokens</a>
+    <div class="nav-section-label">Libraries</div>
+    <a class="nav-link" href="#ui-libs" onclick="scrollToSection('ui-libs')"><span class="nav-icon">📦</span> UI Libraries</a>
+    <a class="nav-link" href="#when-to-build" onclick="scrollToSection('when-to-build')"><span class="nav-icon">🤔</span> Build vs Buy</a>
+    <div class="nav-section-label">Components</div>
+    <a class="nav-link" href="#principles" onclick="scrollToSection('principles')"><span class="nav-icon">📐</span> Design Principles</a>
+    <a class="nav-link" href="#variants" onclick="scrollToSection('variants')"><span class="nav-icon">🔀</span> Props & Variants</a>
+    <a class="nav-link" href="#button" onclick="scrollToSection('button')"><span class="nav-icon">🔘</span> Button Component</a>
+    <a class="nav-link" href="#input" onclick="scrollToSection('input')"><span class="nav-icon">✏️</span> Input Component</a>
+    <a class="nav-link" href="#card" onclick="scrollToSection('card')"><span class="nav-icon">🃏</span> Card Component</a>
+    <div class="nav-section-label">Advanced</div>
+    <a class="nav-link" href="#patterns" onclick="scrollToSection('patterns')"><span class="nav-icon">⚙️</span> Advanced Patterns</a>
+    <a class="nav-link" href="#quiz" onclick="scrollToSection('quiz')"><span class="nav-icon">🧠</span> Quiz</a>
+    <a class="nav-link" href="#practice" onclick="scrollToSection('practice')"><span class="nav-icon">🛠</span> Practice</a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HERO -->
+    <section class="hero section" id="hero" style="margin-bottom:0;padding-left:0;padding-right:0">
+      <div class="hero-badge">Frontend Engineering</div>
+      <h1 class="hero-title">
+        <span class="line1">UI Kit &</span>
+        <span class="line2">Design System</span>
+      </h1>
+      <p class="hero-desc">A deep dive into building scalable, consistent, and beautiful component systems — from design tokens to compound patterns.</p>
+      <div class="hero-stats">
+        <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">Topics</div></div>
+        <div class="stat-item"><div class="stat-num">30+</div><div class="stat-label">Code Examples</div></div>
+        <div class="stat-item"><div class="stat-num">8</div><div class="stat-label">Quiz Questions</div></div>
+        <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">Live Practice</div></div>
+      </div>
+      <div class="hero-scroll"><div class="scroll-line"></div>Scroll to explore</div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ① WHAT IS A DESIGN SYSTEM -->
+    <section class="section" id="what-is-ds">
+      <div class="section-eyebrow">Chapter 01</div>
+      <h2 class="section-title">What Is a Design System?</h2>
+      <p class="section-intro">A Design System is a centralized collection of reusable components, standards, and guidelines that act as the single source of truth across an entire product organization. Think of it as the architectural rulebook for your UI.</p>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">💡</div>
+        <div><strong>Analogy:</strong> A Design System is like a city's architectural code — every building is different, but there's a shared visual language. Roads are the same width, signage follows standards, and buildings speak the same design dialect.</div>
+      </div>
+
+      <div class="glass-card">
+        <div style="font-family:var(--display);font-weight:700;font-size:1rem;color:var(--accent);margin-bottom:12px;">The Core Formula</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--display);font-size:1.1rem;font-weight:700;">
+          <span style="background:rgba(56,189,248,0.1);padding:8px 16px;border-radius:8px;color:var(--accent)">Components</span>
+          <span style="color:var(--text3)">+</span>
+          <span style="background:rgba(129,140,248,0.1);padding:8px 16px;border-radius:8px;color:var(--accent2)">Rules</span>
+          <span style="color:var(--text3)">+</span>
+          <span style="background:rgba(52,211,153,0.1);padding:8px 16px;border-radius:8px;color:var(--accent3)">Styles</span>
+          <span style="color:var(--text3)">=</span>
+          <span style="background:linear-gradient(135deg,rgba(56,189,248,0.15),rgba(129,140,248,0.15));padding:8px 16px;border-radius:8px;color:var(--text)">Design System</span>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:20px;">
+        <div class="info-card">
+          <div class="info-card-icon">🔁</div>
+          <div class="info-card-title">Consistency</div>
+          <div class="info-card-desc">Every button, input, and modal looks and behaves identically across the entire product — on every screen, every platform.</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">⚡</div>
+          <div class="info-card-title">Speed</div>
+          <div class="info-card-desc">Developers grab pre-built, tested components instead of reinventing the wheel on each feature. Ship 3× faster.</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">🗣</div>
+          <div class="info-card-title">Shared Language</div>
+          <div class="info-card-desc">Designers and developers stop miscommunicating. "Primary button large" means exactly one thing to everyone on the team.</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">📈</div>
+          <div class="info-card-title">Scalability</div>
+          <div class="info-card-desc">As your product grows to dozens of teams, a DS keeps everything from diverging into chaos. Structure at any scale.</div>
+        </div>
+      </div>
+
+      <div class="glass-card" style="margin-top:20px;">
+        <div style="font-family:var(--display);font-weight:700;font-size:0.95rem;margin-bottom:16px;">🌍 Real-World Examples</div>
+        <div class="table-scroll"><table class="comp-table" style="background:transparent;">
+          <thead>
+            <tr><th>Company</th><th>Design System</th><th>Built With</th><th>Key Strength</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Google</td><td>Material Design 3</td><td>Web + Android + iOS</td><td>Motion & responsive layout</td></tr>
+            <tr><td>IBM</td><td>Carbon</td><td>React, Angular, Vue</td><td>Accessibility & enterprise</td></tr>
+            <tr><td>Atlassian</td><td>Atlassian DS</td><td>React</td><td>Complex data components</td></tr>
+            <tr><td>Shopify</td><td>Polaris</td><td>React</td><td>E-commerce specific patterns</td></tr>
+            <tr><td>Airbnb</td><td>DLS</td><td>React Native</td><td>Cross-platform consistency</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- ② STRUCTURE -->
+    <section class="section" id="structure">
+      <div class="section-eyebrow">Chapter 02</div>
+      <h2 class="section-title">Design System Structure</h2>
+      <p class="section-intro">Design systems are typically built in layers — a hierarchy inspired by chemistry. This methodology is called <strong style="color:var(--accent)">Atomic Design</strong>, coined by Brad Frost.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">⚗️</div>
+        <div><strong>Atomic Design Philosophy:</strong> Just as chemistry builds molecules from atoms and organisms from molecules, UI systems build complex screens from tiny, primitive pieces. Each level encapsulates the one below it.</div>
+      </div>
+
+      <div class="glass-card">
+        <div style="font-family:var(--display);font-weight:700;margin-bottom:16px;">The Layer Hierarchy</div>
+        <div class="atomic-flow">
+          <div class="atomic-node an-tokens">
+            <div class="atomic-node-icon">🎨</div>
+            <div class="atomic-node-title" style="color:#38bdf8">Tokens</div>
+            <div class="atomic-node-ex">Colors, spacing, fonts, shadows</div>
+          </div>
+          <div class="atomic-arrow">→</div>
+          <div class="atomic-node an-atoms">
+            <div class="atomic-node-icon">🧱</div>
+            <div class="atomic-node-title" style="color:#818cf8">Atoms</div>
+            <div class="atomic-node-ex">Button, Input, Badge, Icon</div>
+          </div>
+          <div class="atomic-arrow">→</div>
+          <div class="atomic-node an-molecules">
+            <div class="atomic-node-icon">🧩</div>
+            <div class="atomic-node-title" style="color:#34d399">Molecules</div>
+            <div class="atomic-node-ex">Card, SearchBar, Form</div>
+          </div>
+          <div class="atomic-arrow">→</div>
+          <div class="atomic-node an-organisms">
+            <div class="atomic-node-icon">🦠</div>
+            <div class="atomic-node-title" style="color:#fb923c">Organisms</div>
+            <div class="atomic-node-ex">Header, Sidebar, DataTable</div>
+          </div>
+          <div class="atomic-arrow">→</div>
+          <div class="atomic-node an-pages">
+            <div class="atomic-node-icon">📄</div>
+            <div class="atomic-node-title" style="color:#f87171">Pages</div>
+            <div class="atomic-node-ex">Dashboard, Profile, Checkout</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-top:20px;">
+        <div class="info-card">
+          <div style="font-family:var(--display);font-weight:700;color:#818cf8;margin-bottom:8px">🧱 Atoms</div>
+          <div class="info-card-desc">The smallest possible UI units. Cannot be broken down further without losing meaning. Examples: a single button, an icon, a label. Each atom has one purpose only.</div>
+        </div>
+        <div class="info-card">
+          <div style="font-family:var(--display);font-weight:700;color:#34d399;margin-bottom:8px">🧩 Molecules</div>
+          <div class="info-card-desc">Two or more atoms working together as a unit. A search bar = Input atom + Button atom. A form field = Label + Input + Error message atoms.</div>
+        </div>
+        <div class="info-card">
+          <div style="font-family:var(--display);font-weight:700;color:#fb923c;margin-bottom:8px">🦠 Organisms</div>
+          <div class="info-card-desc">Complete, standalone UI sections that combine multiple molecules. A navigation header, a product card grid, a comment thread. These are recognizable interface regions.</div>
+        </div>
+      </div>
+
+      <div class="callout callout-warn" style="margin-top:16px;">
+        <div class="callout-icon">⚠️</div>
+        <div><strong>Common mistake:</strong> Don't skip levels. If you're building a complex page component before you have stable atoms, you'll create brittle code that's hard to maintain. Build bottom-up.</div>
+      </div>
+    </section>
+
+    <!-- ③ DESIGN TOKENS -->
+    <section class="section" id="tokens">
+      <div class="section-eyebrow">Chapter 03</div>
+      <h2 class="section-title">Design Tokens</h2>
+      <p class="section-intro">Design tokens are the DNA of a design system — named variables that store every visual decision. Instead of hardcoding <code style="font-family:var(--mono);color:var(--accent4)">#3b82f6</code>, you use a named token like <code style="font-family:var(--mono);color:var(--accent)">colors.primary.500</code>.</p>
+
+      <div class="glass-card">
+        <div style="font-family:var(--display);font-weight:700;margin-bottom:6px;color:var(--accent)">Why Tokens?</div>
+        <ul class="checklist" style="margin-top:12px;">
+          <li><strong>Centralized changes</strong> — Update a color in one place, it applies everywhere automatically</li>
+          <li><strong>Dark Mode</strong> — Swap token values, not hunt through thousands of hardcoded hex values</li>
+          <li><strong>Theming</strong> — Multiple brand themes from the same component library</li>
+          <li><strong>Designer-Developer sync</strong> — Figma tokens map 1:1 to code tokens</li>
+          <li><strong>Semantic meaning</strong> — <code style="font-family:var(--mono);font-size:0.8em">color.danger</code> communicates intent; <code style="font-family:var(--mono);font-size:0.8em">#ef4444</code> does not</li>
+        </ul>
+      </div>
+
+      <div class="tabs-wrapper">
+        <div class="tab-buttons">
+          <button class="tab-btn active" onclick="switchTab(this,'tab-colors')">🎨 Colors</button>
+          <button class="tab-btn" onclick="switchTab(this,'tab-spacing')">📏 Spacing</button>
+          <button class="tab-btn" onclick="switchTab(this,'tab-code')">{ } Code</button>
+        </div>
+        <div class="glass-card" style="border-radius:0 12px 12px 12px;margin-top:0;">
+          <div class="tab-content active" id="tab-colors">
+            <div style="font-size:0.82rem;color:var(--text2);margin-bottom:16px;">Click a color token to copy its value.</div>
+            <div style="margin-bottom:16px;">
+              <div style="font-size:0.75rem;color:var(--text3);margin-bottom:8px;font-family:var(--mono)">// Primary Scale</div>
+              <div class="token-grid">
+                <div class="color-token" onclick="copyColor('#eff6ff','primary.50')"><div class="color-swatch" style="background:#eff6ff"></div><div class="color-name">50</div></div>
+                <div class="color-token" onclick="copyColor('#dbeafe','primary.100')"><div class="color-swatch" style="background:#dbeafe"></div><div class="color-name">100</div></div>
+                <div class="color-token" onclick="copyColor('#93c5fd','primary.300')"><div class="color-swatch" style="background:#93c5fd"></div><div class="color-name">300</div></div>
+                <div class="color-token" onclick="copyColor('#3b82f6','primary.500')"><div class="color-swatch" style="background:#3b82f6"></div><div class="color-name">500</div></div>
+                <div class="color-token" onclick="copyColor('#2563eb','primary.600')"><div class="color-swatch" style="background:#2563eb"></div><div class="color-name">600</div></div>
+                <div class="color-token" onclick="copyColor('#1d4ed8','primary.700')"><div class="color-swatch" style="background:#1d4ed8"></div><div class="color-name">700</div></div>
+                <div class="color-token" onclick="copyColor('#1e3a8a','primary.900')"><div class="color-swatch" style="background:#1e3a8a"></div><div class="color-name">900</div></div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:0.75rem;color:var(--text3);margin-bottom:8px;font-family:var(--mono)">// Semantic Colors</div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <div class="color-token" onclick="copyColor('#10b981','success')" style="min-width:100px"><div class="color-swatch" style="background:#10b981"></div><div class="color-name">success</div></div>
+                <div class="color-token" onclick="copyColor('#f59e0b','warning')" style="min-width:100px"><div class="color-swatch" style="background:#f59e0b"></div><div class="color-name">warning</div></div>
+                <div class="color-token" onclick="copyColor('#ef4444','error')" style="min-width:100px"><div class="color-swatch" style="background:#ef4444"></div><div class="color-name">error</div></div>
+                <div class="color-token" onclick="copyColor('#8b5cf6','info')" style="min-width:100px"><div class="color-swatch" style="background:#8b5cf6"></div><div class="color-name">info</div></div>
+              </div>
+            </div>
+            <div id="color-toast" style="display:none;margin-top:12px;padding:8px 14px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);border-radius:8px;font-size:0.8rem;color:#a7f3d0;font-family:var(--mono);"></div>
+          </div>
+
+          <div class="tab-content" id="tab-spacing">
+            <div style="font-size:0.82rem;color:var(--text2);margin-bottom:16px;">Hover to inspect spacing values.</div>
+            <div class="spacing-demo">
+              <div class="spacing-row"><div class="spacing-label">xs — 4px</div><div class="spacing-bar" style="width:4px"></div></div>
+              <div class="spacing-row"><div class="spacing-label">sm — 8px</div><div class="spacing-bar" style="width:8px"></div></div>
+              <div class="spacing-row"><div class="spacing-label">md — 16px</div><div class="spacing-bar" style="width:16px"></div></div>
+              <div class="spacing-row"><div class="spacing-label">lg — 24px</div><div class="spacing-bar" style="width:24px"></div></div>
+              <div class="spacing-row"><div class="spacing-label">xl — 32px</div><div class="spacing-bar" style="width:32px"></div></div>
+              <div class="spacing-row"><div class="spacing-label">2xl — 48px</div><div class="spacing-bar" style="width:48px"></div></div>
+              <div class="spacing-row"><div class="spacing-label">3xl — 64px</div><div class="spacing-bar" style="width:64px"></div></div>
+            </div>
+            <div class="callout callout-tip" style="margin-top:16px">
+              <div class="callout-icon">💡</div>
+              <div>Most design systems use a <strong>4px base unit</strong> (or 8px). Every spacing value is a multiple of this base. This creates visual rhythm and consistency across your layout.</div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-code">
+            <div class="code-block" style="margin:0">
+              <div class="code-header">
+                <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+                <div class="code-filename">tokens.ts</div>
+                <button class="code-copy" type="button" onclick="copyCode(this)">copy</button>
+              </div>
+              <div class="code-body"><pre><span class="kw">export const</span> <span class="prop">colors</span> = {
+  <span class="prop">primary</span>: {
+    <span class="num">50</span>:  <span class="str">'#eff6ff'</span>,
+    <span class="num">100</span>: <span class="str">'#dbeafe'</span>,
+    <span class="num">500</span>: <span class="str">'#3b82f6'</span>,  <span class="cm">// Main brand color</span>
+    <span class="num">600</span>: <span class="str">'#2563eb'</span>,  <span class="cm">// Hover state</span>
+    <span class="num">700</span>: <span class="str">'#1d4ed8'</span>,  <span class="cm">// Active / pressed</span>
+  },
+  <span class="prop">gray</span>: {
+    <span class="num">50</span>:  <span class="str">'#f9fafb'</span>,
+    <span class="num">100</span>: <span class="str">'#f3f4f6'</span>,
+    <span class="num">500</span>: <span class="str">'#6b7280'</span>,
+    <span class="num">900</span>: <span class="str">'#111827'</span>,
+  },
+  <span class="prop">success</span>: <span class="str">'#10b981'</span>,
+  <span class="prop">warning</span>: <span class="str">'#f59e0b'</span>,
+  <span class="prop">error</span>:   <span class="str">'#ef4444'</span>,
+};
+
+<span class="kw">export const</span> <span class="prop">spacing</span> = {
+  <span class="prop">xs</span>:  <span class="str">'4px'</span>,   <span class="prop">sm</span>:  <span class="str">'8px'</span>,
+  <span class="prop">md</span>:  <span class="str">'16px'</span>,  <span class="prop">lg</span>:  <span class="str">'24px'</span>,
+  <span class="prop">xl</span>:  <span class="str">'32px'</span>,  <span class="str">'2xl'</span>: <span class="str">'48px'</span>,
+};
+
+<span class="kw">export const</span> <span class="prop">radii</span> = {
+  <span class="prop">sm</span>: <span class="str">'6px'</span>,   <span class="prop">md</span>: <span class="str">'10px'</span>,
+  <span class="prop">lg</span>: <span class="str">'16px'</span>,  <span class="prop">full</span>: <span class="str">'9999px'</span>,
+};
+
+<span class="cm">// Usage:</span>
+<span class="cm">// ❌ Wrong — hardcoded value</span>
+style={{ <span class="prop">color</span>: <span class="str">'#3b82f6'</span> }}
+
+<span class="cm">// ✅ Right — named token</span>
+style={{ <span class="prop">color</span>: colors.<span class="prop">primary</span>[<span class="num">500</span>] }}
+
+<span class="cm">// ✅ Even better — CSS custom properties</span>
+<span class="prop">color</span>: <span class="fn">var</span>(--color-primary-500)</pre></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ④ UI LIBRARIES -->
+    <section class="section" id="ui-libs">
+      <div class="section-eyebrow">Chapter 04</div>
+      <h2 class="section-title">Popular UI Libraries</h2>
+      <p class="section-intro">Instead of building a design system from scratch, many teams start with a pre-built UI library — a collection of ready-made, accessible, and tested components.</p>
+
+      <div class="grid-3">
+        <div class="lib-card lib-chakra">
+          <div class="lib-logo">⚡</div>
+          <div class="lib-name">Chakra UI</div>
+          <div><span class="lib-tag tag-blue">Best for beginners</span></div>
+          <ul class="lib-features">
+            <li>Simple, intuitive API</li>
+            <li>Accessibility (a11y) built-in</li>
+            <li>Dark mode out of the box</li>
+            <li>Style props system</li>
+            <li>Great for small-medium apps</li>
+          </ul>
+        </div>
+        <div class="lib-card lib-mui">
+          <div class="lib-logo">🎨</div>
+          <div class="lib-name">Material UI (MUI)</div>
+          <div><span class="lib-tag tag-purple">Most popular</span></div>
+          <ul class="lib-features">
+            <li>Google Material Design system</li>
+            <li>Largest component ecosystem</li>
+            <li>Powerful theme override system</li>
+            <li>TypeScript first-class support</li>
+            <li>Enterprise-grade reliability</li>
+          </ul>
+        </div>
+        <div class="lib-card lib-ant">
+          <div class="lib-logo">🐜</div>
+          <div class="lib-name">Ant Design</div>
+          <div><span class="lib-tag tag-orange">Enterprise ready</span></div>
+          <ul class="lib-features">
+            <li>Rich data table components</li>
+            <li>Complex forms & DatePicker</li>
+            <li>Admin dashboard focused</li>
+            <li>Built by Alibaba</li>
+            <li>Extensive documentation</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="glass-card" style="margin-top:20px;">
+        <div style="font-family:var(--display);font-weight:700;margin-bottom:16px;">MUI Quick Start</div>
+        <div class="code-block" style="margin:0">
+          <div class="code-header">
+            <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+            <div class="code-filename">Installation & Usage</div>
+            <button class="code-copy" type="button" onclick="copyCode(this)">copy</button>
+          </div>
+          <div class="code-body"><pre><span class="cm">// Install</span>
+npm install @mui/material @emotion/react @emotion/styled
+
+<span class="cm">// Usage</span>
+<span class="kw">import</span> Button <span class="kw">from</span> <span class="str">'@mui/material/Button'</span>;
+<span class="kw">import</span> TextField <span class="kw">from</span> <span class="str">'@mui/material/TextField'</span>;
+
+<span class="kw">function</span> <span class="fn">LoginForm</span>() {
+  <span class="kw">return</span> (
+    &lt;<span class="tag">div</span>&gt;
+      &lt;<span class="tag">TextField</span>
+        <span class="attr">label</span>=<span class="str">"Email"</span>
+        <span class="attr">variant</span>=<span class="str">"outlined"</span>
+        <span class="attr">fullWidth</span>
+        <span class="attr">required</span>
+      /&gt;
+      &lt;<span class="tag">Button</span> <span class="attr">variant</span>=<span class="str">"contained"</span> <span class="attr">size</span>=<span class="str">"large"</span>&gt;
+        Sign In
+      &lt;/<span class="tag">Button</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}</pre></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑤ BUILD vs BUY -->
+    <section class="section" id="when-to-build">
+      <div class="section-eyebrow">Chapter 05</div>
+      <h2 class="section-title">Build vs Buy</h2>
+      <p class="section-intro">One of the most critical decisions in frontend architecture: should you use an existing UI library, or build your own design system from scratch?</p>
+
+      <div class="grid-2">
+        <div class="glass-card" style="border-color:rgba(52,211,153,0.2);">
+          <div style="color:var(--accent3);font-family:var(--display);font-weight:700;margin-bottom:14px;font-size:0.95rem;">✅ Use an Existing Library When...</div>
+          <ul class="checklist">
+            <li>You're building an MVP and time-to-market matters</li>
+            <li>Small team with limited design resources</li>
+            <li>Standard admin panel or dashboard</li>
+            <li>Accessibility compliance is required immediately</li>
+            <li>The library's aesthetic matches your brand closely</li>
+          </ul>
+        </div>
+        <div class="glass-card" style="border-color:rgba(56,189,248,0.2);">
+          <div style="color:var(--accent);font-family:var(--display);font-weight:700;margin-bottom:14px;font-size:0.95rem;">🛠 Build Your Own When...</div>
+          <ul class="checklist">
+            <li>You have a unique, distinctive brand identity</li>
+            <li>Bundle size is critical (libraries are heavy)</li>
+            <li>You need total control over every pixel</li>
+            <li>Your components are simple and stable</li>
+            <li>You have design system engineers on the team</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout-tip" style="margin-top:20px;">
+        <div class="callout-icon">💡</div>
+        <div><strong>Pragmatic advice:</strong> Start with a library for speed, then gradually replace components with custom ones as your brand and requirements crystallize. You don't have to choose all-or-nothing.</div>
+      </div>
+    </section>
+
+    <!-- ⑥ PRINCIPLES -->
+    <section class="section" id="principles">
+      <div class="section-eyebrow">Chapter 06</div>
+      <h2 class="section-title">Component Design Principles</h2>
+      <p class="section-intro">Every great UI component follows a set of battle-tested design principles. These rules make your components predictable, maintainable, and a joy to use.</p>
+
+      <div class="grid-3">
+        <div class="principle-card" data-num="01">
+          <div class="principle-icon">🎯</div>
+          <div class="principle-title">Single Responsibility</div>
+          <div class="principle-desc">Each component does exactly one thing well. A Button is for triggering actions. An Input is for text entry. Never combine responsibilities in one component.</div>
+        </div>
+        <div class="principle-card" data-num="02">
+          <div class="principle-icon">🔌</div>
+          <div class="principle-title">Open for Extension</div>
+          <div class="principle-desc">Components must accept <code style="font-family:var(--mono);font-size:0.85em">className</code>, <code style="font-family:var(--mono);font-size:0.85em">style</code>, and <code style="font-family:var(--mono);font-size:0.85em">...rest</code> so consumers can extend behavior without modifying the source.</div>
+        </div>
+        <div class="principle-card" data-num="03">
+          <div class="principle-icon">📐</div>
+          <div class="principle-title">Composition over Config</div>
+          <div class="principle-desc">Prefer <code style="font-family:var(--mono);font-size:0.85em">children</code> composition over a wall of props. <code style="font-family:var(--mono);font-size:0.85em">&lt;Card.Header&gt;</code> is more flexible than <code style="font-family:var(--mono);font-size:0.85em">title="..."</code>.</div>
+        </div>
+        <div class="principle-card" data-num="04">
+          <div class="principle-icon">♿</div>
+          <div class="principle-title">Accessibility First</div>
+          <div class="principle-desc">Semantic HTML, ARIA labels, keyboard navigation, and focus management should be built in — not bolted on after the fact.</div>
+        </div>
+        <div class="principle-card" data-num="05">
+          <div class="principle-icon">📖</div>
+          <div class="principle-title">Self-Documenting API</div>
+          <div class="principle-desc">Prop names should communicate intent: <code style="font-family:var(--mono);font-size:0.85em">variant="danger"</code> is immediately clear. Avoid cryptic props like <code style="font-family:var(--mono);font-size:0.85em">type={3}</code>.</div>
+        </div>
+        <div class="principle-card" data-num="06">
+          <div class="principle-icon">🔒</div>
+          <div class="principle-title">Type Safety</div>
+          <div class="principle-desc">TypeScript interfaces + union types catch errors at compile time. If it can't be misspelled or misused, your component is safer to consume.</div>
+        </div>
+      </div>
+
+      <div class="pattern-split" style="margin-top:24px;">
+        <div class="pattern-wrong">
+          <div class="pattern-label label-wrong">❌ Bad: Too many responsibilities</div>
+          <div class="code-block" style="margin:0;border:none;border-radius:0;">
+            <div class="code-body" style="padding:14px"><pre style="font-size:0.77rem"><span class="cm">// Anti-pattern: "God component"</span>
+&lt;<span class="tag">SuperComponent</span>
+  <span class="attr">type</span>=<span class="str">"button"</span>
+  <span class="attr">mode</span>=<span class="str">"fancy"</span>
+  <span class="attr">showModal</span>={<span class="kw">true</span>}
+  <span class="attr">fetchData</span>={apiCall}
+  <span class="attr">renderChart</span>={<span class="kw">true</span>}
+/&gt;</pre></div>
+          </div>
+        </div>
+        <div class="pattern-right">
+          <div class="pattern-label label-right">✅ Good: Each does one job</div>
+          <div class="code-block" style="margin:0;border:none;border-radius:0;">
+            <div class="code-body" style="padding:14px"><pre style="font-size:0.77rem"><span class="cm">// Separate components, clear purpose</span>
+&lt;<span class="tag">Button</span> <span class="attr">onClick</span>={openModal}&gt;Open&lt;/<span class="tag">Button</span>&gt;
+&lt;<span class="tag">Modal</span> <span class="attr">open</span>={isOpen}&gt;
+  &lt;<span class="tag">DataTable</span> <span class="attr">data</span>={rows} /&gt;
+  &lt;<span class="tag">Chart</span> <span class="attr">data</span>={chartData} /&gt;
+&lt;/<span class="tag">Modal</span>&gt;</pre></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑦ PROPS & VARIANTS -->
+    <section class="section" id="variants">
+      <div class="section-eyebrow">Chapter 07</div>
+      <h2 class="section-title">Props & Variants Pattern</h2>
+      <p class="section-intro">The variant pattern lets a single component have multiple visual states — same logic, different appearance. Combined with TypeScript, you get both flexibility and type safety.</p>
+
+      <div class="glass-card">
+        <div style="font-family:var(--display);font-weight:700;margin-bottom:16px;">Live Component Playground</div>
+        <div style="font-size:0.8rem;color:var(--text3);margin-bottom:16px;font-family:var(--mono)">// Variants</div>
+        <div class="variant-row">
+          <button class="demo-btn btn-primary">Primary</button>
+          <button class="demo-btn btn-secondary">Secondary</button>
+          <button class="demo-btn btn-danger">Danger</button>
+          <button class="demo-btn btn-ghost">Ghost</button>
+        </div>
+        <div style="font-size:0.8rem;color:var(--text3);margin-bottom:16px;font-family:var(--mono)">// Sizes</div>
+        <div class="variant-row">
+          <button class="demo-btn btn-primary btn-sm">Small</button>
+          <button class="demo-btn btn-primary">Medium</button>
+          <button class="demo-btn btn-primary btn-lg">Large</button>
+        </div>
+        <div style="font-size:0.8rem;color:var(--text3);margin-bottom:16px;font-family:var(--mono)">// States</div>
+        <div class="variant-row">
+          <button class="demo-btn btn-primary" disabled style="opacity:0.4;cursor:not-allowed">Disabled</button>
+          <button class="demo-btn btn-primary btn-loading">Loading</button>
+          <button class="demo-btn btn-primary">🚀 With Icon</button>
+          <button class="demo-btn btn-danger">🗑 Delete</button>
+        </div>
+      </div>
+
+      <div class="code-block" style="margin-top:20px;">
+        <div class="code-header">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <div class="code-filename">Button.types.ts</div>
+          <button class="code-copy" type="button" onclick="copyCode(this)">copy</button>
+        </div>
+        <div class="code-body"><pre><span class="cm">// TypeScript union types constrain valid values</span>
+<span class="kw">type</span> <span class="ty">ButtonVariant</span> =
+  | <span class="str">'primary'</span>
+  | <span class="str">'secondary'</span>
+  | <span class="str">'danger'</span>
+  | <span class="str">'ghost'</span>;
+
+<span class="kw">type</span> <span class="ty">ButtonSize</span> = <span class="str">'sm'</span> | <span class="str">'md'</span> | <span class="str">'lg'</span>;
+
+<span class="kw">interface</span> <span class="ty">ButtonProps</span> {
+  <span class="prop">variant</span>?: <span class="ty">ButtonVariant</span>;   <span class="cm">// default: 'primary'</span>
+  <span class="prop">size</span>?: <span class="ty">ButtonSize</span>;         <span class="cm">// default: 'md'</span>
+  <span class="prop">disabled</span>?: <span class="ty">boolean</span>;
+  <span class="prop">loading</span>?: <span class="ty">boolean</span>;
+  <span class="prop">fullWidth</span>?: <span class="ty">boolean</span>;
+  <span class="prop">leftIcon</span>?: React.<span class="ty">ReactNode</span>;
+  <span class="prop">rightIcon</span>?: React.<span class="ty">ReactNode</span>;
+  <span class="prop">children</span>: React.<span class="ty">ReactNode</span>;
+  <span class="prop">onClick</span>?: () => <span class="ty">void</span>;
+  <span class="prop">className</span>?: <span class="ty">string</span>;
+}</pre></div>
+      </div>
+    </section>
+
+    <!-- ⑧ BUTTON COMPONENT -->
+    <section class="section" id="button">
+      <div class="section-eyebrow">Chapter 08</div>
+      <h2 class="section-title">Button Component — Full Implementation</h2>
+      <p class="section-intro">Let's build a production-grade Button component from scratch — covering the TypeScript interface, class generation logic, CSS architecture, and edge cases.</p>
+
+      <div class="tabs-wrapper">
+        <div class="tab-buttons">
+          <button class="tab-btn active" onclick="switchTab(this,'btn-tsx')">Button.tsx</button>
+          <button class="tab-btn" onclick="switchTab(this,'btn-css')">Button.css</button>
+          <button class="tab-btn" onclick="switchTab(this,'btn-usage')">Usage</button>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:0 12px 12px 12px;overflow:hidden;">
+          <div class="tab-content active" id="btn-tsx">
+            <div class="code-block" style="margin:0;border:none;border-radius:0;">
+              <div class="code-header" style="border-radius:0">
+                <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+                <div class="code-filename">components/ui/Button.tsx</div>
+                <button class="code-copy" type="button" onclick="copyCode(this)">copy</button>
+              </div>
+              <div class="code-body"><pre><span class="kw">import</span> React <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> <span class="str">'./Button.css'</span>;
+
+<span class="kw">type</span> <span class="ty">ButtonVariant</span> = <span class="str">'primary'</span> | <span class="str">'secondary'</span> | <span class="str">'danger'</span> | <span class="str">'ghost'</span>;
+<span class="kw">type</span> <span class="ty">ButtonSize</span> = <span class="str">'sm'</span> | <span class="str">'md'</span> | <span class="str">'lg'</span>;
+
+<span class="kw">interface</span> <span class="ty">ButtonProps</span>
+  <span class="kw">extends</span> React.<span class="ty">ButtonHTMLAttributes</span>&lt;<span class="ty">HTMLButtonElement</span>&gt; {
+  <span class="prop">variant</span>?: <span class="ty">ButtonVariant</span>;
+  <span class="prop">size</span>?: <span class="ty">ButtonSize</span>;
+  <span class="prop">loading</span>?: <span class="ty">boolean</span>;
+  <span class="prop">fullWidth</span>?: <span class="ty">boolean</span>;
+  <span class="prop">leftIcon</span>?: React.<span class="ty">ReactNode</span>;
+  <span class="prop">rightIcon</span>?: React.<span class="ty">ReactNode</span>;
+}
+
+<span class="kw">function</span> <span class="fn">Button</span>({
+  <span class="prop">variant</span> = <span class="str">'primary'</span>,
+  <span class="prop">size</span> = <span class="str">'md'</span>,
+  <span class="prop">loading</span> = <span class="kw">false</span>,
+  <span class="prop">fullWidth</span> = <span class="kw">false</span>,
+  <span class="prop">leftIcon</span>,
+  <span class="prop">rightIcon</span>,
+  <span class="prop">children</span>,
+  <span class="prop">className</span> = <span class="str">''</span>,
+  <span class="prop">disabled</span>,
+  <span class="prop">...rest</span>
+}: <span class="ty">ButtonProps</span>) {
+  <span class="cm">// Build class string from props</span>
+  <span class="kw">const</span> classes = [
+    <span class="str">'btn'</span>,
+    <span class="str">`btn--${variant}`</span>,
+    <span class="str">`btn--${size}`</span>,
+    fullWidth ? <span class="str">'btn--full'</span> : <span class="str">''</span>,
+    loading  ? <span class="str">'btn--loading'</span> : <span class="str">''</span>,
+    className,
+  ].<span class="fn">filter</span>(Boolean).<span class="fn">join</span>(<span class="str">' '</span>);
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">button</span>
+      <span class="attr">className</span>={classes}
+      <span class="attr">disabled</span>={disabled || loading}
+      <span class="attr">aria-busy</span>={loading}
+      {...rest}
+    &gt;
+      {loading && &lt;<span class="tag">span</span> <span class="attr">className</span>=<span class="str">"btn__spinner"</span> <span class="attr">aria-hidden</span> /&gt;}
+      {leftIcon && &lt;<span class="tag">span</span> <span class="attr">className</span>=<span class="str">"btn__icon"</span>&gt;{leftIcon}&lt;/<span class="tag">span</span>&gt;}
+      &lt;<span class="tag">span</span> <span class="attr">className</span>=<span class="str">"btn__text"</span>&gt;{children}&lt;/<span class="tag">span</span>&gt;
+      {rightIcon && &lt;<span class="tag">span</span> <span class="attr">className</span>=<span class="str">"btn__icon"</span>&gt;{rightIcon}&lt;/<span class="tag">span</span>&gt;}
+    &lt;/<span class="tag">button</span>&gt;
+  );
+}
+
+<span class="kw">export default</span> Button;</pre></div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="btn-css">
+            <div class="code-block" style="margin:0;border:none;border-radius:0;">
+              <div class="code-header" style="border-radius:0">
+                <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+                <div class="code-filename">components/ui/Button.css</div>
+                <button class="code-copy" type="button" onclick="copyCode(this)">copy</button>
+              </div>
+              <div class="code-body"><pre><span class="cm">/* BEM naming: block, block--modifier, block__element */</span>
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  outline: none;
+}
+
+<span class="cm">/* -- Size Variants -- */</span>
+.btn--sm { padding: 6px 14px;  font-size: 0.8rem; }
+.btn--md { padding: 10px 20px; font-size: 0.9rem; }
+.btn--lg { padding: 14px 28px; font-size: 1rem; }
+
+<span class="cm">/* -- Visual Variants -- */</span>
+.btn--primary {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+}
+.btn--primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59,130,246,0.45);
+}
+
+.btn--secondary {
+  background: transparent;
+  color: #3b82f6;
+  border: 2px solid #3b82f6;
+}
+.btn--secondary:hover:not(:disabled) {
+  background: rgba(59,130,246,0.08);
+}
+
+.btn--danger { background: #ef4444; color: white; }
+.btn--ghost  { background: transparent; color: #6b7280; }
+
+<span class="cm">/* -- State Modifiers -- */</span>
+.btn:disabled  { opacity: 0.45; cursor: not-allowed; }
+.btn--full     { width: 100%; }
+.btn--loading .btn__text { opacity: 0; }
+
+<span class="cm">/* -- Loading Spinner -- */</span>
+.btn__spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  position: absolute;
+}
+@keyframes spin { to { transform: rotate(360deg); } }</pre></div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="btn-usage">
+            <div class="code-block" style="margin:0;border:none;border-radius:0;">
+              <div class="code-header" style="border-radius:0">
+                <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+                <div class="code-filename">App.tsx — Usage Examples</div>
+                <button class="code-copy" type="button" onclick="copyCode(this)">copy</button>
+              </div>
+              <div class="code-body"><pre><span class="kw">import</span> Button <span class="kw">from</span> <span class="str">'./components/ui/Button'</span>;
+<span class="kw">import</span> { TrashIcon, SendIcon } <span class="kw">from</span> <span class="str">'lucide-react'</span>;
+
+<span class="kw">function</span> <span class="fn">Examples</span>() {
+  <span class="kw">const</span> [loading, setLoading] = useState(<span class="kw">false</span>);
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">div</span>&gt;
+      <span class="cm">{/* Basic variants */}</span>
+      &lt;<span class="tag">Button</span>&gt;Primary&lt;/<span class="tag">Button</span>&gt;
+      &lt;<span class="tag">Button</span> <span class="attr">variant</span>=<span class="str">"secondary"</span>&gt;Secondary&lt;/<span class="tag">Button</span>&gt;
+      &lt;<span class="tag">Button</span> <span class="attr">variant</span>=<span class="str">"ghost"</span>&gt;Cancel&lt;/<span class="tag">Button</span>&gt;
+
+      <span class="cm">{/* With icons */}</span>
+      &lt;<span class="tag">Button</span> <span class="attr">leftIcon</span>={&lt;<span class="tag">SendIcon</span> /&gt;}&gt;Send Message&lt;/<span class="tag">Button</span>&gt;
+      &lt;<span class="tag">Button</span> <span class="attr">variant</span>=<span class="str">"danger"</span> <span class="attr">leftIcon</span>={&lt;<span class="tag">TrashIcon</span> /&gt;}&gt;Delete&lt;/<span class="tag">Button</span>&gt;
+
+      <span class="cm">{/* Loading state */}</span>
+      &lt;<span class="tag">Button</span> <span class="attr">loading</span>={loading} <span class="attr">onClick</span>={() => setLoading(<span class="kw">true</span>)}&gt;
+        Submit Form
+      &lt;/<span class="tag">Button</span>&gt;
+
+      <span class="cm">{/* Full width + large */}</span>
+      &lt;<span class="tag">Button</span> <span class="attr">fullWidth</span> <span class="attr">size</span>=<span class="str">"lg"</span>&gt;
+        Create Account
+      &lt;/<span class="tag">Button</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}</pre></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑨ INPUT COMPONENT -->
+    <section class="section" id="input">
+      <div class="section-eyebrow">Chapter 09</div>
+      <h2 class="section-title">Input Component</h2>
+      <p class="section-intro">A truly reusable Input wraps much more than an <code style="font-family:var(--mono);color:var(--accent4)">&lt;input&gt;</code> tag — it handles labels, error messages, helper text, icons, variants, and accessibility all in one component.</p>
+
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="glass-card">
+          <div style="font-size:0.82rem;color:var(--text3);margin-bottom:14px;font-family:var(--mono)">// Default state</div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:0.8rem;font-weight:600;color:var(--text2)">Full Name</label>
+            <div style="display:flex;align-items:center;border:2px solid rgba(99,179,237,0.2);border-radius:8px;background:rgba(0,0,0,0.3);padding:0 12px;">
+              <input type="text" placeholder="Enter your name" style="background:transparent;border:none;outline:none;padding:10px 0;color:var(--text);font-family:var(--sans);font-size:0.85rem;width:100%;">
+            </div>
+            <div style="font-size:0.75rem;color:var(--text3)">This is helper text</div>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div style="font-size:0.82rem;color:var(--text3);margin-bottom:14px;font-family:var(--mono)">// Error state</div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:0.8rem;font-weight:600;color:var(--text2)">Email Address</label>
+            <div style="display:flex;align-items:center;border:2px solid rgba(248,113,113,0.5);border-radius:8px;background:rgba(248,113,113,0.04);padding:0 12px;">
+              <input type="text" value="not-an-email" style="background:transparent;border:none;outline:none;padding:10px 0;color:var(--danger);font-family:var(--sans);font-size:0.85rem;width:100%;">
+            </div>
+            <div style="font-size:0.75rem;color:var(--danger)">⚠ Please enter a valid email address</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <div class="code-filename">components/ui/Input.tsx</div>
+          <button class="code-copy" type="button" onclick="copyCode(this)">copy</button>
+        </div>
+        <div class="code-body"><pre><span class="kw">import</span> React <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">type</span> <span class="ty">InputVariant</span> = <span class="str">'outlined'</span> | <span class="str">'filled'</span> | <span class="str">'standard'</span>;
+
+<span class="kw">interface</span> <span class="ty">InputProps</span>
+  <span class="kw">extends</span> React.<span class="ty">InputHTMLAttributes</span>&lt;<span class="ty">HTMLInputElement</span>&gt; {
+  <span class="prop">label</span>?: <span class="ty">string</span>;
+  <span class="prop">error</span>?: <span class="ty">string</span>;        <span class="cm">// Error message string</span>
+  <span class="prop">helperText</span>?: <span class="ty">string</span>;   <span class="cm">// Hint text below input</span>
+  <span class="prop">variant</span>?: <span class="ty">InputVariant</span>;
+  <span class="prop">leftIcon</span>?: React.<span class="ty">ReactNode</span>;
+  <span class="prop">fullWidth</span>?: <span class="ty">boolean</span>;
+}
+
+<span class="kw">function</span> <span class="fn">Input</span>({
+  label, error, helperText,
+  variant = <span class="str">'outlined'</span>,
+  leftIcon, fullWidth = <span class="kw">false</span>,
+  className = <span class="str">''</span>, id, ...rest
+}: <span class="ty">InputProps</span>) {
+  <span class="cm">// Auto-generate id from label for a11y</span>
+  <span class="kw">const</span> inputId = id || <span class="str">`input-${label?.toLowerCase().replace(/\s+/g, '-')}`</span>;
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">div</span> <span class="attr">className</span>={[
+      <span class="str">'input-wrapper'</span>,
+      fullWidth && <span class="str">'input--full'</span>,
+      error    && <span class="str">'input--error'</span>,
+      className
+    ].<span class="fn">filter</span>(Boolean).<span class="fn">join</span>(<span class="str">' '</span>)}&gt;
+
+      {label && (
+        &lt;<span class="tag">label</span> <span class="attr">htmlFor</span>={inputId} <span class="attr">className</span>=<span class="str">"input__label"</span>&gt;
+          {label}
+        &lt;/<span class="tag">label</span>&gt;
+      )}
+
+      &lt;<span class="tag">div</span> <span class="attr">className</span>={<span class="str">`input__field input--${variant}`</span>}&gt;
+        {leftIcon && &lt;<span class="tag">span</span> <span class="attr">className</span>=<span class="str">"input__icon"</span>&gt;{leftIcon}&lt;/<span class="tag">span</span>&gt;}
+        &lt;<span class="tag">input</span>
+          <span class="attr">id</span>={inputId}
+          <span class="attr">aria-invalid</span>={!!error}
+          <span class="attr">aria-describedby</span>={error ? <span class="str">`${inputId}-error`</span> : <span class="kw">undefined</span>}
+          {...rest}
+        /&gt;
+      &lt;/<span class="tag">div</span>&gt;
+
+      {error && (
+        &lt;<span class="tag">span</span> <span class="attr">id</span>={<span class="str">`${inputId}-error`</span>} <span class="attr">className</span>=<span class="str">"input__error"</span> <span class="attr">role</span>=<span class="str">"alert"</span>&gt;
+          ⚠ {error}
+        &lt;/<span class="tag">span</span>&gt;
+      )}
+      {helperText && !error && (
+        &lt;<span class="tag">span</span> <span class="attr">className</span>=<span class="str">"input__helper"</span>&gt;{helperText}&lt;/<span class="tag">span</span>&gt;
+      )}
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}
+
+<span class="kw">export default</span> Input;</pre></div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">♿</div>
+        <div><strong>Accessibility note:</strong> Notice <code style="font-family:var(--mono);font-size:0.85em">aria-invalid</code>, <code style="font-family:var(--mono);font-size:0.85em">aria-describedby</code>, and <code style="font-family:var(--mono);font-size:0.85em">role="alert"</code> — these ensure screen readers announce error states correctly. The <code style="font-family:var(--mono);font-size:0.85em">htmlFor</code> links the label to the input so clicking the label focuses the field.</div>
+      </div>
+    </section>
+
+    <!-- ⑩ CARD COMPONENT -->
+    <section class="section" id="card">
+      <div class="section-eyebrow">Chapter 10</div>
+      <h2 class="section-title">Card Component</h2>
+      <p class="section-intro">The Card component demonstrates the <strong style="color:var(--accent)">Compound Component Pattern</strong> — where sub-components like <code style="font-family:var(--mono);color:var(--accent4)">Card.Header</code>, <code style="font-family:var(--mono);color:var(--accent4)">Card.Body</code>, and <code style="font-family:var(--mono);color:var(--accent4)">Card.Footer</code> compose naturally.</p>
+
+      <div class="grid-3" style="margin-bottom:20px;">
+        <div class="c-card">
+          <div class="c-header">📦 Elevated Card</div>
+          <div class="c-body">Shadowed, default variant. Used for primary content areas and interactive cards.</div>
+          <div class="c-footer">
+            <button class="demo-btn btn-ghost btn-sm">Cancel</button>
+            <button class="demo-btn btn-primary btn-sm">Action</button>
+          </div>
+        </div>
+        <div class="c-card" style="background:transparent;border-color:rgba(99,179,237,0.2);">
+          <div class="c-header" style="background:transparent;">📋 Outlined Card</div>
+          <div class="c-body">Border only, no fill. Ideal for listing items with visual separation.</div>
+          <div class="c-footer">
+            <button class="demo-btn btn-secondary btn-sm">Learn More</button>
+          </div>
+        </div>
+        <div class="c-card" style="background:rgba(56,189,248,0.04);">
+          <div class="c-header" style="background:rgba(56,189,248,0.04);">🎨 Filled Card</div>
+          <div class="c-body">Subtle background tint. Useful for highlighting sections or status areas.</div>
+          <div class="c-footer">
+            <button class="demo-btn btn-ghost btn-sm">Dismiss</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <div class="code-filename">components/ui/Card.tsx — Compound Component</div>
+          <button class="code-copy" type="button" onclick="copyCode(this)">copy</button>
+        </div>
+        <div class="code-body"><pre><span class="kw">type</span> <span class="ty">CardVariant</span> = <span class="str">'elevated'</span> | <span class="str">'outlined'</span> | <span class="str">'filled'</span>;
+
+<span class="kw">interface</span> <span class="ty">CardProps</span> {
+  <span class="prop">variant</span>?: <span class="ty">CardVariant</span>;
+  <span class="prop">hoverable</span>?: <span class="ty">boolean</span>;
+  <span class="prop">clickable</span>?: <span class="ty">boolean</span>;
+  <span class="prop">padding</span>?: <span class="str">'sm'</span> | <span class="str">'md'</span> | <span class="str">'lg'</span>;
+  <span class="prop">children</span>: React.<span class="ty">ReactNode</span>;
+  <span class="prop">onClick</span>?: () => <span class="ty">void</span>;
+}
+
+<span class="kw">function</span> <span class="fn">Card</span>({ variant = <span class="str">'elevated'</span>, hoverable, clickable,
+  padding = <span class="str">'md'</span>, children, onClick }: <span class="ty">CardProps</span>) {
+  <span class="kw">return</span> (
+    &lt;<span class="tag">div</span>
+      <span class="attr">className</span>={[<span class="str">'card'</span>,<span class="str">`card--${variant}`</span>,<span class="str">`card--pad-${padding}`</span>,
+        hoverable && <span class="str">'card--hoverable'</span>,
+        clickable && <span class="str">'card--clickable'</span>
+      ].<span class="fn">filter</span>(Boolean).<span class="fn">join</span>(<span class="str">' '</span>)}
+      <span class="attr">onClick</span>={onClick}
+      <span class="attr">role</span>={clickable ? <span class="str">'button'</span> : <span class="kw">undefined</span>}
+    &gt;
+      {children}
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}
+
+<span class="cm">// Attach sub-components as static properties</span>
+Card.Header = (<span class="prop">{ children, className = '' }</span>) => (
+  &lt;<span class="tag">div</span> <span class="attr">className</span>={<span class="str">`card__header ${className}`</span>}&gt;{children}&lt;/<span class="tag">div</span>&gt;
+);
+
+Card.Body = (<span class="prop">{ children, className = '' }</span>) => (
+  &lt;<span class="tag">div</span> <span class="attr">className</span>={<span class="str">`card__body ${className}`</span>}&gt;{children}&lt;/<span class="tag">div</span>&gt;
+);
+
+Card.Footer = (<span class="prop">{ children, className = '' }</span>) => (
+  &lt;<span class="tag">div</span> <span class="attr">className</span>={<span class="str">`card__footer ${className}`</span>}&gt;{children}&lt;/<span class="tag">div</span>&gt;
+);
+
+<span class="kw">export default</span> Card;
+
+<span class="cm">// Usage — reads naturally like HTML:</span>
+&lt;<span class="tag">Card</span> <span class="attr">variant</span>=<span class="str">"elevated"</span> <span class="attr">hoverable</span>&gt;
+  &lt;<span class="tag">Card.Header</span>&gt;👤 User Profile&lt;/<span class="tag">Card.Header</span>&gt;
+  &lt;<span class="tag">Card.Body</span>&gt;
+    &lt;<span class="tag">p</span>&gt;Name: Amir Hasanov&lt;/<span class="tag">p</span>&gt;
+    &lt;<span class="tag">p</span>&gt;Role: Frontend Developer&lt;/<span class="tag">p</span>&gt;
+  &lt;/<span class="tag">Card.Body</span>&gt;
+  &lt;<span class="tag">Card.Footer</span>&gt;
+    &lt;<span class="tag">Button</span> <span class="attr">variant</span>=<span class="str">"ghost"</span>&gt;Cancel&lt;/<span class="tag">Button</span>&gt;
+    &lt;<span class="tag">Button</span>&gt;Save Profile&lt;/<span class="tag">Button</span>&gt;
+  &lt;/<span class="tag">Card.Footer</span>&gt;
+&lt;/<span class="tag">Card</span>&gt;</pre></div>
+      </div>
+    </section>
+
+    <!-- ⑪ ADVANCED PATTERNS -->
+    <section class="section" id="patterns">
+      <div class="section-eyebrow">Chapter 11</div>
+      <h2 class="section-title">Advanced Patterns</h2>
+      <p class="section-intro">Three powerful patterns every serious React component library must master: Compound Components, forwardRef, and Polymorphic components.</p>
+
+      <div class="glass-card" style="margin-bottom:20px;">
+        <div style="font-family:var(--display);font-weight:700;font-size:1rem;margin-bottom:8px;color:var(--accent)">① Compound Component Pattern</div>
+        <div style="font-size:0.85rem;color:var(--text2);line-height:1.65;margin-bottom:16px;">Think of <code style="font-family:var(--mono);color:var(--accent4)">&lt;select&gt; + &lt;option&gt;</code> — they only make sense together. This pattern lets parent and child components share implicit state without prop drilling.</div>
+        <div class="code-block" style="margin:0">
+          <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="code-filename">Accordion — Compound Pattern</div><button class="code-copy" type="button" onclick="copyCode(this)">copy</button></div>
+          <div class="code-body"><pre><span class="cm">// Context for shared state between compounds</span>
+<span class="kw">const</span> AccordionCtx = <span class="fn">createContext</span>({});
+
+<span class="kw">function</span> <span class="fn">Accordion</span>({ children }) {
+  <span class="kw">const</span> [open, setOpen] = <span class="fn">useState</span>(<span class="kw">null</span>);
+  <span class="kw">return</span> (
+    &lt;<span class="tag">AccordionCtx.Provider</span> <span class="attr">value</span>={{ open, setOpen }}&gt;
+      &lt;<span class="tag">div</span> <span class="attr">className</span>=<span class="str">"accordion"</span>&gt;{children}&lt;/<span class="tag">div</span>&gt;
+    &lt;/<span class="tag">AccordionCtx.Provider</span>&gt;
+  );
+}
+
+Accordion.Item = ({ id, title, children }) => {
+  <span class="kw">const</span> { open, setOpen } = <span class="fn">useContext</span>(AccordionCtx);
+  <span class="kw">const</span> isOpen = open === id;
+  <span class="kw">return</span> (
+    &lt;<span class="tag">div</span>&gt;
+      &lt;<span class="tag">button</span> <span class="attr">onClick</span>={() => <span class="fn">setOpen</span>(isOpen ? <span class="kw">null</span> : id)}&gt;
+        {title} {isOpen ? <span class="str">'▲'</span> : <span class="str">'▼'</span>}
+      &lt;/<span class="tag">button</span>&gt;
+      {isOpen && &lt;<span class="tag">div</span>&gt;{children}&lt;/<span class="tag">div</span>&gt;}
+    &lt;/<span class="tag">div</span>&gt;
+  );
+};
+
+<span class="cm">// Clean consumer API:</span>
+&lt;<span class="tag">Accordion</span>&gt;
+  &lt;<span class="tag">Accordion.Item</span> <span class="attr">id</span>=<span class="str">"1"</span> <span class="attr">title</span>=<span class="str">"What is React?"</span>&gt;...&lt;/<span class="tag">Accordion.Item</span>&gt;
+  &lt;<span class="tag">Accordion.Item</span> <span class="attr">id</span>=<span class="str">"2"</span> <span class="attr">title</span>=<span class="str">"What are hooks?"</span>&gt;...&lt;/<span class="tag">Accordion.Item</span>&gt;
+&lt;/<span class="tag">Accordion</span>&gt;</pre></div>
+        </div>
+      </div>
+
+      <div class="glass-card" style="margin-bottom:20px;">
+        <div style="font-family:var(--display);font-weight:700;font-size:1rem;margin-bottom:8px;color:var(--accent2)">② forwardRef Pattern</div>
+        <div style="font-size:0.85rem;color:var(--text2);line-height:1.65;margin-bottom:16px;">By default, you cannot attach a <code style="font-family:var(--mono);color:var(--accent4)">ref</code> to a custom component. <code style="font-family:var(--mono)">forwardRef</code> passes the ref through to the underlying DOM element — essential for focus management, animations, and form libraries.</div>
+        <div class="pattern-split">
+          <div class="pattern-wrong">
+            <div class="pattern-label label-wrong">❌ Without forwardRef</div>
+            <div class="code-block" style="margin:0;border:none;border-radius:0;"><div class="code-body" style="padding:14px"><pre style="font-size:0.77rem"><span class="cm">// ref is lost! React warns you.</span>
+<span class="kw">const</span> emailRef = <span class="fn">useRef</span>(<span class="kw">null</span>);
+
+<span class="cm">// This ref won't attach</span>
+&lt;<span class="tag">Input</span> <span class="attr">ref</span>={emailRef} /&gt;
+
+<span class="cm">// Warning: Function components</span>
+<span class="cm">// cannot be given refs.</span></pre></div></div>
+          </div>
+          <div class="pattern-right">
+            <div class="pattern-label label-right">✅ With forwardRef</div>
+            <div class="code-block" style="margin:0;border:none;border-radius:0;"><div class="code-body" style="padding:14px"><pre style="font-size:0.77rem"><span class="kw">const</span> Input = <span class="fn">forwardRef</span>&lt;
+  HTMLInputElement, InputProps
+&gt;((props, ref) => (
+  &lt;<span class="tag">input</span> <span class="attr">ref</span>={ref} {...props} /&gt;
+));
+
+<span class="cm">// Now this works!</span>
+emailRef.current?.<span class="fn">focus</span>();
+emailRef.current?.<span class="fn">select</span>();</pre></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div style="font-family:var(--display);font-weight:700;font-size:1rem;margin-bottom:8px;color:var(--accent3)">③ Polymorphic "as" Pattern</div>
+        <div style="font-size:0.85rem;color:var(--text2);line-height:1.65;margin-bottom:16px;">The <code style="font-family:var(--mono);color:var(--accent4)">as</code> prop lets a component render as any HTML element or React component — keeping styles while changing semantics. A Button can become an <code style="font-family:var(--mono)">&lt;a&gt;</code> tag or a React Router <code style="font-family:var(--mono)">&lt;Link&gt;</code>.</div>
+        <div class="code-block" style="margin:0">
+          <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="code-filename">Polymorphic Button</div><button class="code-copy" type="button" onclick="copyCode(this)">copy</button></div>
+          <div class="code-body"><pre><span class="kw">interface</span> <span class="ty">PolymorphicProps</span> {
+  <span class="prop">as</span>?: React.<span class="ty">ElementType</span>;  <span class="cm">// 'button' | 'a' | Link | div | ...</span>
+}
+
+<span class="kw">function</span> <span class="fn">Button</span>({
+  <span class="prop">as</span>: Component = <span class="str">'button'</span>,
+  <span class="prop">variant</span> = <span class="str">'primary'</span>,
+  <span class="prop">children</span>,
+  ...rest
+}: <span class="ty">ButtonProps</span> & <span class="ty">PolymorphicProps</span>) {
+  <span class="kw">return</span> (
+    &lt;<span class="tag">Component</span>
+      <span class="attr">className</span>={<span class="str">`btn btn--${variant}`</span>}
+      {...rest}
+    &gt;
+      {children}
+    &lt;/<span class="tag">Component</span>&gt;
+  );
+}
+
+<span class="cm">// Three ways to use the same component:</span>
+&lt;<span class="tag">Button</span> <span class="attr">onClick</span>={save}&gt;Save Changes&lt;/<span class="tag">Button</span>&gt;      <span class="cm">// &lt;button&gt;</span>
+&lt;<span class="tag">Button</span> <span class="attr">as</span>=<span class="str">"a"</span> <span class="attr">href</span>=<span class="str">"/docs"</span>&gt;Read Docs&lt;/<span class="tag">Button</span>&gt;    <span class="cm">// &lt;a href&gt;</span>
+&lt;<span class="tag">Button</span> <span class="attr">as</span>={Link} <span class="attr">to</span>=<span class="str">"/dashboard"</span>&gt;Go Home&lt;/<span class="tag">Button</span>&gt; <span class="cm">// React Router</span></pre></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑫ QUIZ -->
+    <section class="section" id="quiz">
+      <div class="section-eyebrow">Chapter 12</div>
+      <h2 class="section-title">Knowledge Check</h2>
+      <p class="section-intro">Test your understanding of everything we've covered. Each question has one correct answer.</p>
+
+      <div id="quiz-container">
+
+        <div class="quiz-card" data-q="0">
+          <div class="quiz-q"><span class="q-num">Q1</span>What is the primary purpose of Design Tokens in a design system?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answer(this,0)" data-correct="false"><span class="opt-letter">A</span>To store reusable React components</button>
+            <button class="quiz-option" onclick="answer(this,0)" data-correct="true"><span class="opt-letter">B</span>To store named visual values (colors, spacing, etc.) in a centralized place</button>
+            <button class="quiz-option" onclick="answer(this,0)" data-correct="false"><span class="opt-letter">C</span>To define API endpoints for components</button>
+            <button class="quiz-option" onclick="answer(this,0)" data-correct="false"><span class="opt-letter">D</span>To manage component state across pages</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-card" data-q="1">
+          <div class="quiz-q"><span class="q-num">Q2</span>In Atomic Design, what are "molecules"?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answer(this,1)" data-correct="false"><span class="opt-letter">A</span>The smallest indivisible UI elements (Button, Icon)</button>
+            <button class="quiz-option" onclick="answer(this,1)" data-correct="false"><span class="opt-letter">B</span>Full page templates with navigation and footer</button>
+            <button class="quiz-option" onclick="answer(this,1)" data-correct="true"><span class="opt-letter">C</span>Groups of atoms working together as a unit (SearchBar = Input + Button)</button>
+            <button class="quiz-option" onclick="answer(this,1)" data-correct="false"><span class="opt-letter">D</span>Complete interface sections like a header or sidebar</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-card" data-q="2">
+          <div class="quiz-q"><span class="q-num">Q3</span>Which component design principle does <code style="font-family:var(--mono)">Card.Header</code> / <code style="font-family:var(--mono)">Card.Body</code> / <code style="font-family:var(--mono)">Card.Footer</code> demonstrate?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answer(this,2)" data-correct="false"><span class="opt-letter">A</span>Single Responsibility Principle</button>
+            <button class="quiz-option" onclick="answer(this,2)" data-correct="true"><span class="opt-letter">B</span>Compound Component Pattern (Composition over Config)</button>
+            <button class="quiz-option" onclick="answer(this,2)" data-correct="false"><span class="opt-letter">C</span>Polymorphic "as" pattern</button>
+            <button class="quiz-option" onclick="answer(this,2)" data-correct="false"><span class="opt-letter">D</span>forwardRef pattern</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-card" data-q="3">
+          <div class="quiz-q"><span class="q-num">Q4</span>Why do we use <code style="font-family:var(--mono)">forwardRef</code> when building custom Input components?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answer(this,3)" data-correct="false"><span class="opt-letter">A</span>To improve the component's performance</button>
+            <button class="quiz-option" onclick="answer(this,3)" data-correct="false"><span class="opt-letter">B</span>To enable dark mode support</button>
+            <button class="quiz-option" onclick="answer(this,3)" data-correct="false"><span class="opt-letter">C</span>To pass variant props through the component tree</button>
+            <button class="quiz-option" onclick="answer(this,3)" data-correct="true"><span class="opt-letter">D</span>To allow parent components to attach a ref to the underlying DOM element</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-card" data-q="4">
+          <div class="quiz-q"><span class="q-num">Q5</span>Which TypeScript pattern is used to restrict <code style="font-family:var(--mono)">variant</code> props to only valid values?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answer(this,4)" data-correct="false"><span class="opt-letter">A</span><code style="font-family:var(--mono)">variant: string</code></button>
+            <button class="quiz-option" onclick="answer(this,4)" data-correct="true"><span class="opt-letter">B</span><code style="font-family:var(--mono)">variant: 'primary' | 'secondary' | 'danger'</code> (union type)</button>
+            <button class="quiz-option" onclick="answer(this,4)" data-correct="false"><span class="opt-letter">C</span><code style="font-family:var(--mono)">variant: enum</code></button>
+            <button class="quiz-option" onclick="answer(this,4)" data-correct="false"><span class="opt-letter">D</span><code style="font-family:var(--mono)">variant: Array&lt;string&gt;</code></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-card" data-q="5">
+          <div class="quiz-q"><span class="q-num">Q6</span>You're building a startup MVP with a 2-person team. Which approach makes most sense?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answer(this,5)" data-correct="false"><span class="opt-letter">A</span>Build a complete custom design system from scratch</button>
+            <button class="quiz-option" onclick="answer(this,5)" data-correct="true"><span class="opt-letter">B</span>Use an existing library (Chakra/MUI) and customize it to your brand</button>
+            <button class="quiz-option" onclick="answer(this,5)" data-correct="false"><span class="opt-letter">C</span>Use plain CSS and no component library</button>
+            <button class="quiz-option" onclick="answer(this,5)" data-correct="false"><span class="opt-letter">D</span>Copy-paste components from different libraries</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-card" data-q="6">
+          <div class="quiz-q"><span class="q-num">Q7</span>What does the polymorphic <code style="font-family:var(--mono)">as</code> prop enable?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answer(this,6)" data-correct="false"><span class="opt-letter">A</span>Changing a component's visual variant</button>
+            <button class="quiz-option" onclick="answer(this,6)" data-correct="false"><span class="opt-letter">B</span>Passing children between component levels</button>
+            <button class="quiz-option" onclick="answer(this,6)" data-correct="true"><span class="opt-letter">C</span>Rendering a component as a different HTML tag or React component</button>
+            <button class="quiz-option" onclick="answer(this,6)" data-correct="false"><span class="opt-letter">D</span>Async data loading for the component</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-card" data-q="7">
+          <div class="quiz-q"><span class="q-num">Q8</span>A component accepts <code style="font-family:var(--mono)">...rest</code> props and spreads them on the DOM element. What principle does this follow?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answer(this,7)" data-correct="false"><span class="opt-letter">A</span>Single Responsibility</button>
+            <button class="quiz-option" onclick="answer(this,7)" data-correct="false"><span class="opt-letter">B</span>Compound Component Pattern</button>
+            <button class="quiz-option" onclick="answer(this,7)" data-correct="true"><span class="opt-letter">C</span>Open for Extension — consumers can add attributes without modifying source</button>
+            <button class="quiz-option" onclick="answer(this,7)" data-correct="false"><span class="opt-letter">D</span>Atomic Design</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+      </div>
+
+      <div class="glass-card" style="text-align:center;margin-top:24px;">
+        <div style="font-family:var(--display);font-size:1.2rem;font-weight:700;margin-bottom:8px;" id="quiz-score-text">Score: 0 / 8</div>
+        <div class="quiz-score-bar"><div class="quiz-score-fill" id="quiz-score-fill"></div></div>
+        <div style="font-size:0.8rem;color:var(--text3);margin-top:8px;" id="quiz-msg">Answer all questions to see your final score.</div>
+      </div>
+    </section>
+
+    <!-- ⑬ PRACTICE -->
+    <section class="section" id="practice">
+      <div class="section-eyebrow">Chapter 13</div>
+      <h2 class="section-title">Practice Zone</h2>
+      <p class="section-intro">Apply what you've learned. Edit the CSS below and click Run to see live results. Try changing colors, border-radius, fonts, and more.</p>
+
+      <div class="practice-zone" style="margin-bottom:24px;">
+        <div class="practice-header">
+          <div class="practice-title">🔘 Challenge 1: Style a Button Variant</div>
+          <div class="practice-badge">Live Editor</div>
+        </div>
+        <div class="practice-editor">
+          <div class="editor-pane">
+            <div class="editor-label">CSS</div>
+            <textarea class="code-input" id="practice1-css">.my-button {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  
+  /* Try changing these: */
+  background: #3b82f6;
+  color: white;
+  box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+  transition: all 0.2s ease;
+}
+
+.my-button:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(59,130,246,0.4);
+}</textarea>
+          </div>
+          <div class="preview-pane">
+            <div class="editor-label">Preview</div>
+            <div class="preview-render" id="preview1">
+              <style id="preview1-style">.my-button{padding:10px 24px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;background:#3b82f6;color:white;box-shadow:0 4px 12px rgba(59,130,246,.3);transition:all .2s ease;}.my-button:hover{background:#2563eb;transform:translateY(-2px);box-shadow:0 8px 24px rgba(59,130,246,.4);}</style>
+              <button class="my-button">Click Me!</button>
+              <button class="my-button" style="background:#ef4444;box-shadow:0 4px 12px rgba(239,68,68,0.3)">Danger</button>
+            </div>
+            <button class="run-btn" onclick="runPractice1()">▶ Run CSS</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="practice-zone" style="margin-bottom:24px;">
+        <div class="practice-header">
+          <div class="practice-title">🎨 Challenge 2: Design Tokens Test</div>
+          <div class="practice-badge">Interactive</div>
+        </div>
+        <div style="padding:24px;">
+          <div style="font-size:0.85rem;color:var(--text2);margin-bottom:20px;">Drag the sliders to create your own token values and see how they affect the preview card.</div>
+          <div class="grid-2">
+            <div>
+              <div style="margin-bottom:16px;">
+                <label style="font-size:0.78rem;color:var(--text3);display:flex;justify-content:space-between;margin-bottom:6px;"><span>Primary Hue</span><span id="hue-val" style="color:var(--accent);font-family:var(--mono)">210°</span></label>
+                <input type="range" min="0" max="360" value="210" oninput="updateTokenPreview()" id="tok-hue" style="width:100%;accent-color:var(--accent);">
+              </div>
+              <div style="margin-bottom:16px;">
+                <label style="font-size:0.78rem;color:var(--text3);display:flex;justify-content:space-between;margin-bottom:6px;"><span>Border Radius</span><span id="radius-val" style="color:var(--accent);font-family:var(--mono)">8px</span></label>
+                <input type="range" min="0" max="50" value="8" oninput="updateTokenPreview()" id="tok-radius" style="width:100%;accent-color:var(--accent);">
+              </div>
+              <div style="margin-bottom:16px;">
+                <label style="font-size:0.78rem;color:var(--text3);display:flex;justify-content:space-between;margin-bottom:6px;"><span>Shadow Intensity</span><span id="shadow-val" style="color:var(--accent);font-family:var(--mono)">0.3</span></label>
+                <input type="range" min="0" max="10" value="3" oninput="updateTokenPreview()" id="tok-shadow" style="width:100%;accent-color:var(--accent);">
+              </div>
+            </div>
+            <div>
+              <div id="tok-preview" style="background:white;border-radius:8px;padding:20px;transition:all 0.3s;">
+                <div id="tok-btn" style="display:inline-block;padding:10px 22px;border-radius:8px;background:#3b82f6;color:white;font-weight:600;font-size:0.88rem;cursor:pointer;transition:all 0.3s;">Primary Button</div>
+                <div style="margin-top:12px;font-size:0.8rem;color:#374151;">Card background adapts to your token values. Try dragging the hue slider!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="practice-zone">
+        <div class="practice-header">
+          <div class="practice-title">🃏 Challenge 3: Build a Profile Card</div>
+          <div class="practice-badge">CSS Challenge</div>
+        </div>
+        <div style="padding:24px;">
+          <div style="font-size:0.85rem;color:var(--text2);margin-bottom:16px;">Style the card below using what you've learned about design tokens, spacing, and variants. Edit the CSS to make it look polished.</div>
+          <div class="practice-editor" style="grid-template-columns:1fr 1fr;">
+            <div class="editor-pane" style="border-right:1px solid var(--border)">
+              <div class="editor-label">CSS</div>
+              <textarea class="code-input" id="practice3-css">.profile-card {
+  border-radius: 16px;
+  padding: 24px;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #3b82f6;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.role {
+  font-size: 0.82rem;
+  color: #6b7280;
+  margin-top: 4px;
+}</textarea>
+            </div>
+            <div class="preview-pane">
+              <div class="editor-label">Preview</div>
+              <div class="preview-render" id="preview3">
+                <style id="preview3-style">.profile-card{border-radius:16px;padding:24px;background:white;box-shadow:0 4px 20px rgba(0,0,0,.1);text-align:center;}.avatar{width:64px;height:64px;border-radius:50%;background:#3b82f6;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;}.name{font-size:1.1rem;font-weight:700;color:#111827;}.role{font-size:.82rem;color:#6b7280;margin-top:4px;}</style>
+                <div class="profile-card">
+                  <div class="avatar">👤</div>
+                  <div class="name">Amir Hasanov</div>
+                  <div class="role">Frontend Developer</div>
+                </div>
+              </div>
+              <button class="run-btn" onclick="runPractice3()">▶ Run CSS</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <div class="section-divider"></div>
+    <div style="text-align:center;padding:40px 0;color:var(--text3);font-size:0.8rem;">
+      <div style="font-family:var(--display);font-size:1.2rem;font-weight:800;color:var(--accent);margin-bottom:8px;">UI Kit & Design System</div>
+      <div>Frontend Engineering Course · Module 7</div>
+      <div style="margin-top:16px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
+        <span class="badge badge-blue">Design Tokens</span>
+        <span class="badge badge-purple">Atomic Design</span>
+        <span class="badge badge-green">Reusable Components</span>
+        <span class="badge badge-blue">TypeScript</span>
+        <span class="badge badge-purple">Props & Variants</span>
+        <span class="badge badge-green">Advanced Patterns</span>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── PROGRESS BAR ──
+function updateProgress() {
+  const winH = window.innerHeight;
+  const docH = document.documentElement.scrollHeight;
+  const scrolled = window.scrollY;
+  const pct = docH > winH ? Math.max(0, Math.min(100, (scrolled / (docH - winH)) * 100)) : 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+window.addEventListener('scroll', updateProgress);
+
+// ── INTERSECTION OBSERVER ──
+const sections = document.querySelectorAll('.section');
+const navLinks = document.querySelectorAll('.nav-link');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      const id = entry.target.id;
+      navLinks.forEach(l => {
+        l.classList.remove('active');
+        if (l.getAttribute('href') === '#' + id) l.classList.add('active');
+      });
+    }
+  });
+}, { threshold: 0.1, rootMargin: '-60px 0px -30% 0px' });
+
+sections.forEach(s => observer.observe(s));
+
+// ── TABS ──
+function switchTab(btn, targetId) {
+  const wrapper = btn.closest('.tabs-wrapper');
+  if (!wrapper) return;
+  wrapper.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  wrapper.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+  const target = document.getElementById(targetId);
+  if (target) target.classList.add('active');
+}
+
+// ── COPY CODE ──
+function copyCode(btn) {
+  const code = btn.closest('.code-block')?.querySelector('pre')?.innerText ?? '';
+  if (!code) return;
+
+  const done = () => {
+    btn.textContent = 'copied!';
+    btn.style.color = 'var(--accent3)';
+    setTimeout(() => { btn.textContent = 'copy'; btn.style.color = ''; }, 1500);
+  };
+
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(code).then(done).catch(() => {
+      window.prompt('Copy code', code);
+      done();
+    });
+  } else {
+    window.prompt('Copy code', code);
+    done();
+  }
+}
+
+// ── COLOR COPY ──
+function copyColor(hex, name) {
+  const toast = document.getElementById('color-toast');
+  const showToast = () => {
+    if (!toast) return;
+    toast.style.display = 'block';
+    toast.textContent = `✓ Copied colors.${name}: ${hex}`;
+    clearTimeout(window._colorTimer);
+    window._colorTimer = setTimeout(() => toast.style.display = 'none', 2000);
+  };
+
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(hex).then(showToast).catch(() => {
+      window.prompt('Copy color', hex);
+      showToast();
+    });
+  } else {
+    window.prompt('Copy color', hex);
+    showToast();
+  }
+}
+
+// ── QUIZ ──
+const quizState = { answered: {}, correct: 0 };
+const feedbacks = {
+  0: { t: '✓ Correct!', m: 'Design Tokens store all visual decisions (colors, spacing, etc.) as named variables. When a value changes, you update it in one place and it propagates everywhere.' },
+  1: { t: '✓ Correct!', m: 'Molecules are groups of atoms. A SearchBar molecule = an Input atom + a Button atom. They work together as a functional unit.' },
+  2: { t: '✓ Correct!', m: 'Card.Header / Card.Body / Card.Footer is the Compound Component Pattern — related components that share state implicitly and compose naturally, giving a clean API.' },
+  3: { t: '✓ Correct!', m: 'forwardRef allows a parent component to attach a ref directly to the underlying DOM element inside a custom component. Without it, refs are silently dropped and React warns you.' },
+  4: { t: '✓ Correct!', m: 'TypeScript union types (|) restrict a prop to a finite set of literal string values. This catches typos and invalid variants at compile time, not runtime.' },
+  5: { t: '✓ Correct!', m: 'For a small team building an MVP, using Chakra UI or MUI saves enormous time. You can always replace components with custom ones as the product matures.' },
+  6: { t: '✓ Correct!', m: 'The "as" prop makes a component polymorphic — same styles and behavior, different HTML tag or React component. A Button can render as <a>, <Link>, or any other element.' },
+  7: { t: '✓ Correct!', m: 'Spreading ...rest on the DOM element is the "Open for Extension" principle. Consumers can add onClick, aria-*, data-*, or any HTML attribute without modifying the component.' }
+};
+
+function answer(btn, qNum) {
+  if (quizState.answered[qNum]) return;
+  quizState.answered[qNum] = true;
+
+  const isCorrect = btn.dataset.correct === 'true';
+  const card = btn.closest('.quiz-card');
+  const allOpts = card.querySelectorAll('.quiz-option');
+  allOpts.forEach(o => { o.disabled = true; });
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    quizState.correct++;
+  } else {
+    btn.classList.add('wrong');
+    allOpts.forEach(o => { if (o.dataset.correct === 'true') o.classList.add('correct'); });
+  }
+
+  const fb = card.querySelector('.quiz-feedback');
+  fb.classList.add('show');
+  fb.classList.add(isCorrect ? 'success' : 'error');
+  fb.innerHTML = `<strong>${isCorrect ? feedbacks[qNum].t : '✗ Not quite.'}</strong> ${feedbacks[qNum].m}`;
+
+  updateQuizScore();
+}
+
+function updateQuizScore() {
+  const total = 8;
+  const answered = Object.keys(quizState.answered).length;
+  const correct = quizState.correct;
+  document.getElementById('quiz-score-text').textContent = `Score: ${correct} / ${total}`;
+  document.getElementById('quiz-score-fill').style.width = (correct / total * 100) + '%';
+
+  if (answered === total) {
+    const pct = Math.round(correct / total * 100);
+    let msg = '';
+    if (pct === 100) msg = '🎉 Perfect score! You have mastered Design Systems.';
+    else if (pct >= 75) msg = '👏 Great job! Review the sections you missed.';
+    else if (pct >= 50) msg = '📚 Not bad! Revisit chapters 2–4 and try again.';
+    else msg = '🔄 Keep studying! Review all chapters carefully.';
+    document.getElementById('quiz-msg').textContent = msg;
+    document.getElementById('quiz-msg').style.color = pct >= 75 ? 'var(--accent3)' : 'var(--accent4)';
+  }
+}
+
+// ── PRACTICE 1 ──
+function runPractice1() {
+  const css = document.getElementById('practice1-css').value;
+  document.getElementById('preview1-style').textContent = css;
+}
+
+// ── TOKEN PREVIEW ──
+function updateTokenPreview() {
+  const hue = document.getElementById('tok-hue').value;
+  const radius = document.getElementById('tok-radius').value;
+  const shadow = document.getElementById('tok-shadow').value;
+
+  document.getElementById('hue-val').textContent = hue + '°';
+  document.getElementById('radius-val').textContent = radius + 'px';
+  document.getElementById('shadow-val').textContent = (shadow / 10).toFixed(1);
+
+  const color = `hsl(${hue}, 70%, 55%)`;
+  const colorDark = `hsl(${hue}, 70%, 45%)`;
+  const bgColor = `hsl(${hue}, 30%, 97%)`;
+  const shadowRgb = `hsl(${hue}, 70%, 30%)`;
+
+  const btn = document.getElementById('tok-btn');
+  btn.style.background = color;
+  btn.style.borderRadius = radius + 'px';
+  btn.style.boxShadow = `0 4px 16px hsla(${hue}, 70%, 40%, ${shadow/10})`;
+
+  const card = document.getElementById('tok-preview');
+  card.style.borderRadius = radius + 'px';
+  card.style.background = bgColor;
+  card.style.boxShadow = `0 8px 32px hsla(${hue}, 70%, 30%, ${shadow/10})`;
+}
+
+// ── PRACTICE 3 ──
+function runPractice3() {
+  const css = document.getElementById('practice3-css').value;
+  document.getElementById('preview3-style').textContent = css;
+}
+
+// ── SMOOTH SCROLL ──
+function scrollToSection(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const menu = document.getElementById('mobileMenu');
+  const toggle = document.getElementById('mobileMenuToggle');
+  if (menu) menu.classList.remove('open');
+  if (toggle) toggle.setAttribute('aria-expanded', 'false');
+}
+
+const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+const mobileMenu = document.getElementById('mobileMenu');
+if (mobileMenuToggle && mobileMenu) {
+  mobileMenuToggle.addEventListener('click', () => {
+    const isOpen = mobileMenu.classList.toggle('open');
+    mobileMenuToggle.setAttribute('aria-expanded', String(isOpen));
+  });
+  mobileMenu.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.remove('open');
+      mobileMenuToggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+}
+
+// Initial visibility trigger
+setTimeout(() => {
+  document.querySelector('.hero')?.classList.add('visible');
+}, 100);
+updateProgress();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,668 @@
+{
+  "id": "abb-frontend-bootcamp-core",
+  "version": 2,
+  "title": "Учебная программа ABB Frontend Development Bootcamp — основная программа",
+  "description": "Каноническая шестимесячная программа из 24 учебных недель, предоставленная для ABB Frontend Development Bootcamp. Дополнительные темы перечислены отдельно и не выдаются за исходные недели буткемпа.",
+  "targetLevel": "Младший Frontend Developer",
+  "durationMonths": 6,
+  "totalWeeks": 24,
+  "weeklyHours": {
+    "minimum": 6,
+    "maximum": 10
+  },
+  "stack": [
+    "HTML5",
+    "CSS3",
+    "JavaScript ES6+",
+    "TypeScript",
+    "React",
+    "React Router",
+    "Git",
+    "GitHub/GitLab workflow",
+    "Jest concepts",
+    "React Testing Library"
+  ],
+  "evaluation": [
+    "Weekly mini-tasks",
+    "Monthly mini-project",
+    "Final capstone project",
+    "Code review and demonstration"
+  ],
+  "months": [
+    {
+      "id": "month-1",
+      "number": 1,
+      "title": "Основы веба и вёрстка",
+      "goal": "Писать семантический HTML, понимать блочную модель CSS и системы раскладки, создавать адаптивные страницы и отлаживать их в DevTools браузера.",
+      "weeks": [
+        {
+          "id": "month-1-week-1",
+          "number": 1,
+          "title": "Основы веба и HTML",
+          "topics": [
+            "Интернет, браузер, HTTP, URL, запрос и ответ",
+            "Структура HTML-документа",
+            "Семантические элементы: header, nav, main, section, article, footer"
+          ],
+          "practice": [
+            "Создать простую страницу About Me",
+            "Изучить элементы и DOM через DevTools"
+          ],
+          "lessonIds": [
+            "web.internet-http",
+            "html.document-structure"
+          ]
+        },
+        {
+          "id": "month-1-week-2",
+          "number": 2,
+          "title": "HTML-формы и основы доступности",
+          "topics": [
+            "form, input, select, textarea и button",
+            "label, placeholder, name, value и required",
+            "Атрибут alt и программные подписи полей"
+          ],
+          "practice": [
+            "Создать макеты форм входа и регистрации",
+            "Связать подписи с полями и проверить работу с клавиатурой"
+          ],
+          "lessonIds": [
+            "html.forms-accessibility"
+          ]
+        },
+        {
+          "id": "month-1-week-3",
+          "number": 3,
+          "title": "Основы CSS",
+          "topics": [
+            "Внешний, внутренний и встроенный CSS",
+            "Селекторы и специфичность",
+            "Блочная модель, margin, padding, border и box-sizing",
+            "Типы display: block, inline и inline-block"
+          ],
+          "practice": [
+            "Создать небольшую посадочную страницу с header, основным содержимым и footer"
+          ],
+          "lessonIds": [
+            "css.fundamentals"
+          ]
+        },
+        {
+          "id": "month-1-week-4",
+          "number": 4,
+          "title": "Flexbox, Grid и адаптивный дизайн",
+          "topics": [
+            "Оси Flexbox, justify-content, align-items и gap",
+            "Строки, столбцы, fr и repeat в Grid",
+            "Медиазапросы и подход mobile-first"
+          ],
+          "practice": [
+            "Создать адаптивную посадочную страницу для desktop и mobile"
+          ],
+          "project": "Проект месяца 1: адаптивная посадочная страница",
+          "lessonIds": [
+            "css.flexbox-grid-responsive"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "month-2",
+      "number": 2,
+      "title": "Ядро JavaScript и Git",
+      "goal": "Понимать основы JavaScript, работать с DOM и событиями, использовать асинхронный код и Git для базового рабочего процесса.",
+      "weeks": [
+        {
+          "id": "month-2-week-5",
+          "number": 5,
+          "title": "Основы JavaScript",
+          "topics": [
+            "let и const",
+            "Примитивные типы",
+            "Операторы и выражения",
+            "if/else и switch",
+            "Циклы for, while и for...of"
+          ],
+          "practice": [
+            "Решить 5–10 небольших задач на массивы, условия и циклы"
+          ],
+          "lessonIds": [
+            "js.basics-types-control-flow"
+          ]
+        },
+        {
+          "id": "month-2-week-6",
+          "number": 6,
+          "title": "Функции, массивы и объекты",
+          "topics": [
+            "Function declaration, function expression и стрелочные функции",
+            "Методы map, filter, reduce, find, some и every",
+            "Объекты, деструктуризация и spread-синтаксис"
+          ],
+          "practice": [
+            "Решить задачи на преобразование наборов данных с помощью методов массивов и объектов"
+          ],
+          "lessonIds": [
+            "js.functions-arrays-objects"
+          ]
+        },
+        {
+          "id": "month-2-week-7",
+          "number": 7,
+          "title": "DOM и события",
+          "topics": [
+            "querySelector и навигация по DOM",
+            "Создание и удаление элементов",
+            "События click, input и submit",
+            "Простое поведение в стиле SPA: показать/скрыть"
+          ],
+          "practice": [
+            "Создать To-do-приложение с массивом в памяти и отображением DOM"
+          ],
+          "lessonIds": [
+            "js.dom-events"
+          ]
+        },
+        {
+          "id": "month-2-week-8",
+          "number": 8,
+          "title": "Асинхронный JavaScript и Git",
+          "topics": [
+            "Promise и async/await",
+            "fetch и публичные REST API",
+            "git init, add, commit, push и .gitignore"
+          ],
+          "practice": [
+            "Создать страницу, загружающую данные из публичного API",
+            "Опубликовать проект в личном Git-репозитории"
+          ],
+          "project": "Проект месяца 2: мини-приложение с API и историей Git",
+          "lessonIds": [
+            "js.async-fetch",
+            "git.fundamentals"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "month-3",
+      "number": 3,
+      "title": "Инструменты, TypeScript и введение в React",
+      "goal": "Настраивать JavaScript-проекты, описывать данные с помощью TypeScript и создавать React-интерфейсы на основе компонентов, props и состояния.",
+      "weeks": [
+        {
+          "id": "month-3-week-9",
+          "number": 9,
+          "title": "Node, пакетные менеджеры и настройка проекта",
+          "topics": [
+            "Для чего нужен Node.js",
+            "Основные понятия npm и yarn",
+            "Настройка проекта через Vite или Create React App",
+            "Концепции ESLint и Prettier"
+          ],
+          "practice": [
+            "Создать React-проект и настроить линтинг и форматирование"
+          ],
+          "lessonIds": [
+            "tooling.node-npm-vite"
+          ]
+        },
+        {
+          "id": "month-3-week-10",
+          "number": 10,
+          "title": "Основы TypeScript",
+          "topics": [
+            "Типы string, number, boolean, any и unknown",
+            "Псевдонимы типов и интерфейсы",
+            "Опциональные и union-типы",
+            "Простой generic, например Array<T>"
+          ],
+          "practice": [
+            "Создать модуль списка пользователей с типами"
+          ],
+          "lessonIds": [
+            "typescript.fundamentals"
+          ]
+        },
+        {
+          "id": "month-3-week-11",
+          "number": 11,
+          "title": "Основы React",
+          "topics": [
+            "React, компоненты и JSX",
+            "Props и функциональные компоненты",
+            "Состояние через useState"
+          ],
+          "practice": [
+            "Создать Counter и To-do-компоненты, переписав предыдущие задачи на React"
+          ],
+          "lessonIds": [
+            "react.components-jsx-state"
+          ]
+        },
+        {
+          "id": "month-3-week-12",
+          "number": 12,
+          "title": "Хуки React и композиция компонентов",
+          "topics": [
+            "useEffect и концепции жизненного цикла",
+            "Композиция компонентов и prop drilling",
+            "Рендеринг списков и ключи"
+          ],
+          "practice": [
+            "Создать список новостей/постов из API с состояниями загрузки и ошибки"
+          ],
+          "project": "Проект месяца 3: список новостей / постов",
+          "lessonIds": [
+            "react.effects-lists-composition"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "month-4",
+      "number": 4,
+      "title": "Экосистема React: маршрутизация, формы, состояние и API",
+      "goal": "Создавать небольшие SPA, проверять формы, делиться состоянием между компонентами и отделять работу с API от UI.",
+      "weeks": [
+        {
+          "id": "month-4-week-13",
+          "number": 13,
+          "title": "Маршрутизация",
+          "topics": [
+            "SPA и маршрутизация на клиенте",
+            "React Router: Routes, Link и useParams"
+          ],
+          "practice": [
+            "Создать SPA из 2–3 страниц: Home, About и Posts"
+          ],
+          "lessonIds": [
+            "react.router-spa"
+          ]
+        },
+        {
+          "id": "month-4-week-14",
+          "number": 14,
+          "title": "Формы и валидация",
+          "topics": [
+            "Контролируемые и неконтролируемые компоненты",
+            "Базовая проверка required и pattern",
+            "Основные концепции React Hook Form"
+          ],
+          "practice": [
+            "Создать форму регистрации/входа с сообщениями валидации"
+          ],
+          "lessonIds": [
+            "react.forms-validation"
+          ]
+        },
+        {
+          "id": "month-4-week-15",
+          "number": 15,
+          "title": "Паттерны управления состоянием",
+          "topics": [
+            "Context API: createContext и useContext",
+            "Подъём состояния выше по дереву",
+            "Сокращение prop drilling и простое глобальное состояние"
+          ],
+          "practice": [
+            "Создать переключатель темы и пример глобального состояния пользователя"
+          ],
+          "lessonIds": [
+            "react.context-shared-state"
+          ]
+        },
+        {
+          "id": "month-4-week-16",
+          "number": 16,
+          "title": "Интеграция API и пользовательские хуки",
+          "topics": [
+            "Структура API/service-слоя",
+            "Пользовательские хуки, например useUsers и usePosts",
+            "Обработка ошибок и основы стратегии повторных запросов"
+          ],
+          "practice": [
+            "Создать dashboard с несколькими API-вызовами, фильтрами и поиском"
+          ],
+          "project": "Проект месяца 4: dashboard с API",
+          "lessonIds": [
+            "react.api-custom-hooks"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "month-5",
+      "number": 5,
+      "title": "UI-системы, производительность, доступность, тестирование и рабочий процесс",
+      "goal": "Создавать повторно используемые UI-компоненты, улучшать производительность и доступность, писать компонентные тесты и понимать командный workflow.",
+      "weeks": [
+        {
+          "id": "month-5-week-17",
+          "number": 17,
+          "title": "UI-kit и мышление в категориях дизайн-системы",
+          "topics": [
+            "UI-библиотеки, например Chakra UI или MUI",
+            "Повторно используемые компоненты, props и варианты",
+            "Кнопки, поля ввода и модальные окна"
+          ],
+          "practice": [
+            "Создать небольшой UI-kit из Button, Input и Card"
+          ],
+          "lessonIds": [
+            "ui.design-systems"
+          ]
+        },
+        {
+          "id": "month-5-week-18",
+          "number": 18,
+          "title": "Производительность и доступность",
+          "topics": [
+            "Введение в React.memo, useMemo и useCallback",
+            "Динамические импорты и lazy loading",
+            "Навигация с клавиатуры и ARIA"
+          ],
+          "practice": [
+            "Оптимизировать существующий проект и изучить размер bundle или ленивую загрузку маршрутов"
+          ],
+          "lessonIds": [
+            "performance.accessibility"
+          ]
+        },
+        {
+          "id": "month-5-week-19",
+          "number": 19,
+          "title": "Тестирование: концепции Jest и React Testing Library",
+          "topics": [
+            "Зачем нужны тесты; unit-тесты и integration-тесты",
+            "Концепции test, expect и mock",
+            "render, screen и userEvent"
+          ],
+          "practice": [
+            "Написать 2–3 компонентных теста, например на клик кнопки и отправку формы"
+          ],
+          "lessonIds": [
+            "testing.react-testing-library"
+          ]
+        },
+        {
+          "id": "month-5-week-20",
+          "number": 20,
+          "title": "Git workflow и основы CI/CD",
+          "topics": [
+            "Ветки feature, hotfix и release",
+            "Pull/Merge Request и принципы code review",
+            "Этапы build и test в CI/CD"
+          ],
+          "practice": [
+            "Смоделировать процесс: задача → ветка → коммит → MR → review"
+          ],
+          "lessonIds": [
+            "git.workflow-ci"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "month-6",
+      "number": 6,
+      "title": "Итоговый проект и профессиональные навыки",
+      "goal": "Спланировать, реализовать, проверить, улучшить и представить полноценное frontend-приложение.",
+      "weeks": [
+        {
+          "id": "month-6-week-21",
+          "number": 21,
+          "title": "Требования и проектирование capstone — часть 1",
+          "topics": [
+            "Выбрать тему проекта",
+            "Описать требования и user stories",
+            "Набросать основные пользовательские сценарии"
+          ],
+          "practice": [
+            "Определить проблему, целевых пользователей, основные user stories и критерии приёмки"
+          ],
+          "lessonIds": [
+            "capstone.requirements-discovery"
+          ]
+        },
+        {
+          "id": "month-6-week-22",
+          "number": 22,
+          "title": "Требования и проектирование capstone — часть 2",
+          "topics": [
+            "Figma или простые wireframes",
+            "Endpoints, страницы и дерево компонентов",
+            "Планирование спринтов и декомпозиция работ"
+          ],
+          "practice": [
+            "Подготовить wireframes, черновик API-контракта, карту страниц и план спринтов"
+          ],
+          "lessonIds": [
+            "capstone.design-architecture-planning"
+          ]
+        },
+        {
+          "id": "month-6-week-23",
+          "number": 23,
+          "title": "Реализация capstone",
+          "topics": [
+            "Структура папок по feature-модулям",
+            "Интеграция API, маршрутизация, формы и глобальное состояние",
+            "CRUD, базовая аутентификация при необходимости и критичные тесты"
+          ],
+          "practice": [
+            "Реализовать основные пользовательские сценарии проекта целиком"
+          ],
+          "lessonIds": [
+            "capstone.implementation"
+          ]
+        },
+        {
+          "id": "month-6-week-24",
+          "number": 24,
+          "title": "Рефакторинг, тестирование и демонстрация",
+          "topics": [
+            "Code review с наставником",
+            "Рефакторинг и повторное использование логики",
+            "Финальные проверки производительности и доступности",
+            "Демонстрация и технические вопросы"
+          ],
+          "practice": [
+            "Представить приложение и объяснить архитектуру, компромиссы и качество кода"
+          ],
+          "project": "Итоговый capstone-проект и Demo Day",
+          "lessonIds": [
+            "capstone.review-demo"
+          ]
+        }
+      ]
+    }
+  ],
+  "supplementaryTracks": [
+    {
+      "id": "supplement-js-internals",
+      "title": "Внутреннее устройство JavaScript",
+      "topics": [
+        "Execution context",
+        "Call stack",
+        "Hoisting и TDZ",
+        "Scope и lexical environment",
+        "Scope chain и closures",
+        "Stack/heap и garbage collection",
+        "Iterables and iterators",
+        "Generator functions and lazy iteration",
+        "Iterator completion and cleanup",
+        "Map and Set identity, ordering, and uniqueness",
+        "Weak collections and object-associated metadata",
+        "Regular expression patterns, captures, and flags",
+        "Safe text extraction and regex validation limits",
+        "Сырые байты ArrayBuffer и представления TypedArray",
+        "Преобразования typed array, выравнивание и байтовые смещения",
+        "Поля разной ширины и endian-порядок в DataView",
+        "Передача владения ArrayBuffer и ограничения общей памяти"
+      ],
+      "note": "Дополнительная углублённая программа; согласовать с конспектами пользователя в Notion.",
+      "lessonIds": [
+        "js.runtime-memory",
+        "js.object-prototypes",
+        "js.iterators-generators",
+        "js.collections-weakmaps",
+        "js.regex-text-processing",
+        "js.typed-arrays-binary"
+      ]
+    },
+    {
+      "id": "supplement-architecture",
+      "title": "Архитектура frontend и инженерная глубина",
+      "topics": [
+        "Границы зависимостей",
+        "Организация по feature-модулям",
+        "Владение состоянием",
+        "Обработка ошибок",
+        "Рефакторинг",
+        "Технические компромиссы"
+      ],
+      "note": "Расширяет программу практическими архитектурными решениями, характерными для production.",
+      "lessonIds": [
+        "frontend.architecture-boundaries"
+      ]
+    },
+    {
+      "id": "supplement-auth",
+      "title": "Аутентификация и авторизация",
+      "topics": [
+        "Сессии и токены",
+        "OAuth и OpenID Connect",
+        "Защищённые маршруты и серверная авторизация",
+        "Безопасное хранение и распространённые браузерные угрозы"
+      ],
+      "note": "Дополнительная программа по безопасности; примеры требуют проверки по актуальным первичным источникам.",
+      "lessonIds": [
+        "frontend.auth-security"
+      ]
+    },
+    {
+      "id": "supplement-deployment",
+      "title": "Сборка, deployment и hosting",
+      "topics": [
+        "Production-сборки",
+        "Переменные окружения",
+        "DNS и TLS",
+        "Hosting и маршрутизация deep links",
+        "Deployment через CI/CD"
+      ],
+      "note": "Расширяет операционные темы заключительных недель.",
+      "lessonIds": [
+        "deployment.production-hosting"
+      ]
+    },
+    {
+      "id": "supplement-data",
+      "title": "SQL, PostgreSQL и Supabase",
+      "topics": [
+        "SQL-запросы и JOIN",
+        "Реляционное моделирование данных",
+        "Supabase Auth",
+        "Row Level Security",
+        "Безопасная интеграция frontend и синхронизация"
+      ],
+      "note": "Дополнительная программа; не входит в исходные 24 недели основной программы.",
+      "lessonIds": [
+        "data.sql-postgresql"
+      ]
+    },
+    {
+      "id": "supplement-tooling",
+      "title": "Инструменты разработки и управление пакетами",
+      "topics": [
+        "Среда выполнения Node.js",
+        "npm и yarn",
+        "package.json и lock-файлы",
+        "Сборочный pipeline Vite",
+        "ESLint, Prettier и CI"
+      ],
+      "note": "Углубляет темы инструментов из недели 9.",
+      "lessonIds": [
+        "tooling.advanced-package-workflows"
+      ]
+    },
+    {
+      "id": "supplement-network-browser",
+      "title": "Интернет, DNS и сетевые протоколы",
+      "topics": [
+        "Разрешение DNS-имён и кеширование",
+        "IP-адреса и маршрутизация пакетов",
+        "TCP, UDP и QUIC",
+        "Порты и сокеты",
+        "TLS и версии HTTP",
+        "Диагностика сети"
+      ],
+      "note": "Техническое углубление к первой неделе. Основной курс сохраняет вводную модель Интернета и HTTP.",
+      "lessonIds": [
+        "network.dns-tcp-tls"
+      ]
+    },
+    {
+      "id": "supplement-browser-architecture",
+      "title": "Архитектура браузера и рендеринг",
+      "topics": [
+        "DOM и CSSOM",
+        "Critical rendering path",
+        "Layout, paint и compositing",
+        "Загрузка скриптов и порядок исполнения",
+        "Отзывчивость главного потока",
+        "Процессы и безопасность браузера"
+      ],
+      "note": "Углублённая программа по браузеру и производительности, не меняющая последовательность 24 основных недель.",
+      "lessonIds": [
+        "browser.rendering-pipeline"
+      ]
+    },
+    {
+      "id": "supplement-ui-ecosystem",
+      "title": "Препроцессоры CSS и UI-библиотеки",
+      "topics": [
+        "Модули и mixins Sass/SCSS",
+        "Compile-time tokens и CSS custom properties",
+        "Responsive grid Bootstrap",
+        "Компоненты и темы Material UI",
+        "Компромиссы версий и доступности"
+      ],
+      "note": "Дополнительное покрытие UI-экосистемы по интерактивным HTML-источникам; не входит в ядро из 24 недель.",
+      "lessonIds": [
+        "css.sass-scss",
+        "ui.bootstrap-mui"
+      ]
+    },
+    {
+      "id": "supplement-browser-storage",
+      "title": "Хранение данных браузера и офлайн-данные",
+      "topics": [
+        "Web Storage and origin-scoped values",
+        "JSON parsing, availability and quota failures",
+        "Storage events and cross-document state",
+        "IndexedDB schema upgrades and transactions",
+        "Client persistence versus server synchronization"
+      ],
+      "note": "Дополнительная программа о хранении данных в браузере.",
+      "lessonIds": [
+        "browser.storage-indexeddb"
+      ]
+    },
+    {
+      "id": "supplement-browser-platform",
+      "title": "Сетевые API и возможности платформы браузера",
+      "topics": [
+        "Жизненный цикл XHR, WebSocket и workers",
+        "Разрешения Geolocation, Clipboard и Notifications",
+        "ResizeObserver и Page Visibility",
+        "Progressive enhancement, запасные сценарии и очистка"
+      ],
+      "note": "Дополнительные API браузера за пределами ядра программы; чувствительные возможности требуют осознанного согласия и запасных сценариев.",
+      "lessonIds": [
+        "browser.realtime-workers",
+        "browser.capability-apis"
+      ]
+    }
+  ]
+}

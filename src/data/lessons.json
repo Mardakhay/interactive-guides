@@ -1,0 +1,458 @@
+[
+  {
+    "id": "sh-001",
+    "title": "Frontend Engineering Handbook",
+    "slug": "frontend-engineering-handbook",
+    "description": "A comprehensive deep-notes handbook covering web fundamentals, JavaScript core, Git, tooling, TypeScript, React foundations, the React ecosystem, advanced topics, and capstone project skills — the perfect orientation for your frontend journey.",
+    "categoryId": "start-here",
+    "difficulty": "beginner",
+    "tags": [
+      "frontend",
+      "handbook",
+      "overview",
+      "fundamentals",
+      "career"
+    ],
+    "durationMinutes": 45,
+    "content": "",
+    "order": 0
+  },
+  {
+    "id": "wb-001",
+    "title": "Internet Fundamentals",
+    "slug": "internet-fundamentals",
+    "description": "Understand how the internet works — network protocols, IP addresses, domain names, DNS, HTTP, TLS, hosting, and how browsers render pages.",
+    "categoryId": "web-basics",
+    "difficulty": "beginner",
+    "tags": [
+      "internet",
+      "networking",
+      "dns",
+      "http",
+      "protocols",
+      "browsers"
+    ],
+    "durationMinutes": 30,
+    "content": "",
+    "order": 0
+  },
+  {
+    "id": "wb-002",
+    "title": "HTML Reference Guide",
+    "slug": "html-reference-guide",
+    "description": "A comprehensive HTML reference covering element categories, document structure, semantic tags, forms, and accessibility attributes.",
+    "categoryId": "web-basics",
+    "difficulty": "beginner",
+    "tags": [
+      "html",
+      "semantics",
+      "elements",
+      "structure",
+      "forms"
+    ],
+    "durationMinutes": 35,
+    "content": "",
+    "order": 1
+  },
+  {
+    "id": "wb-003",
+    "title": "CSS Reference Guide",
+    "slug": "css-reference-guide",
+    "description": "Master CSS syntax, selectors, the box model, display types, visual formatting, and layout properties with this interactive reference guide.",
+    "categoryId": "web-basics",
+    "difficulty": "beginner",
+    "tags": [
+      "css",
+      "selectors",
+      "box-model",
+      "layout",
+      "typography"
+    ],
+    "durationMinutes": 35,
+    "content": "",
+    "order": 2
+  },
+  {
+    "id": "wb-004",
+    "title": "DOM Masterclass",
+    "slug": "dom-masterclass",
+    "description": "An interactive deep dive into the Document Object Model — tree structure, nodes vs elements, selectors, traversal, manipulation, and events.",
+    "categoryId": "web-basics",
+    "difficulty": "intermediate",
+    "tags": [
+      "dom",
+      "javascript",
+      "browser",
+      "events",
+      "manipulation"
+    ],
+    "durationMinutes": 50,
+    "content": "",
+    "order": 3
+  },
+  {
+    "id": "js-001",
+    "title": "JavaScript Interactive Book",
+    "slug": "javascript-interactive-book",
+    "description": "A broad interactive JavaScript book covering core language fundamentals, data types, operators, control flow, functions, and practical examples.",
+    "categoryId": "javascript",
+    "difficulty": "beginner",
+    "tags": [
+      "javascript",
+      "fundamentals",
+      "syntax",
+      "functions",
+      "data-types"
+    ],
+    "durationMinutes": 40,
+    "content": "",
+    "order": 0
+  },
+  {
+    "id": "js-002",
+    "title": "JS Deep Dive: Objects, Prototypes & Classes",
+    "slug": "js-deep-dive-objects-prototypes-classes",
+    "description": "Master JavaScript objects, the prototype chain, ES6 classes, and inheritance patterns through interactive exercises.",
+    "categoryId": "javascript",
+    "difficulty": "intermediate",
+    "tags": [
+      "javascript",
+      "objects",
+      "prototypes",
+      "classes",
+      "inheritance"
+    ],
+    "durationMinutes": 45,
+    "content": "",
+    "order": 1
+  },
+  {
+    "id": "js-003",
+    "title": "JS Memory Mastery",
+    "slug": "js-memory-mastery",
+    "description": "An interactive deep dive into JavaScript memory management — the memory lifecycle, stack vs heap, the call stack, primitives vs references, and shallow vs deep copying.",
+    "categoryId": "javascript",
+    "difficulty": "intermediate",
+    "tags": [
+      "javascript",
+      "memory",
+      "stack",
+      "heap",
+      "call-stack",
+      "garbage-collection"
+    ],
+    "durationMinutes": 50,
+    "content": "",
+    "order": 2
+  },
+  {
+    "id": "js-004",
+    "title": "Async JavaScript Deep Dive",
+    "slug": "async-javascript-deep-dive",
+    "description": "Master asynchronous JavaScript — the event loop, callbacks, Promises, async/await, the Fetch API, and REST integration with a final quiz.",
+    "categoryId": "javascript",
+    "difficulty": "advanced",
+    "tags": [
+      "javascript",
+      "async",
+      "event-loop",
+      "promises",
+      "async-await",
+      "fetch-api"
+    ],
+    "durationMinutes": 45,
+    "content": "",
+    "order": 3
+  },
+  {
+    "id": "re-001",
+    "title": "React useState Deep Dive",
+    "slug": "react-usestate-deep-dive",
+    "description": "A deep dive into the useState hook — state with different data types, functional updates, batching, and forms integration.",
+    "categoryId": "react",
+    "difficulty": "beginner",
+    "tags": [
+      "react",
+      "usestate",
+      "hooks",
+      "state",
+      "forms"
+    ],
+    "durationMinutes": 35,
+    "content": "",
+    "order": 0
+  },
+  {
+    "id": "re-002",
+    "title": "React Hooks & Patterns Deep Dive",
+    "slug": "react-hooks-patterns-deep-dive",
+    "description": "Master the full React hooks API — useState, useEffect, useReducer, useContext, and common patterns for building robust components.",
+    "categoryId": "react",
+    "difficulty": "intermediate",
+    "tags": [
+      "react",
+      "hooks",
+      "useeffect",
+      "usereducer",
+      "patterns"
+    ],
+    "durationMinutes": 45,
+    "content": "",
+    "order": 1
+  },
+  {
+    "id": "re-003",
+    "title": "React Forms & Validation",
+    "slug": "react-forms-validation",
+    "description": "An interactive course on React forms — controlled and uncontrolled components, validation strategies, and handling user input effectively.",
+    "categoryId": "react",
+    "difficulty": "intermediate",
+    "tags": [
+      "react",
+      "forms",
+      "validation",
+      "controlled-components",
+      "input"
+    ],
+    "durationMinutes": 45,
+    "content": "<article>\n  <section aria-labelledby=\"forms-model\">\n    <h2 id=\"forms-model\">React forms: choose who owns the value</h2>\n    <p>A form starts with browser behavior: an input has a value, the browser can validate it, and submit attempts to send it. React adds another possible owner of that value. The key design question is not “which hook do I use?” but “which layer needs to read or change this value, and when?”</p>\n    <h3>Controlled inputs</h3>\n    <p>A controlled input receives its current value from React state and reports edits through an event. React is the source of truth. This makes conditional UI, live formatting, dependent fields, and immediate validation straightforward, but every edit causes state updates and the input must stay controlled for its whole lifetime.</p>\n    <pre><code>const [email, setEmail] = useState('');\n&lt;input\n  type=\"email\"\n  value={email}\n  onChange={(event) =&gt; setEmail(event.target.value)}\n/&gt;</code></pre>\n    <p>On each keystroke, the browser emits an input event; the handler reads the new string; the state setter schedules a render; and the next render passes that value back to the input. If you omit onChange, the displayed value cannot be edited. If the value starts as undefined and later becomes a string, React warns that the input changed from uncontrolled to controlled. Initialize text fields with an empty string, not undefined.</p>\n    <h3>Uncontrolled inputs</h3>\n    <p>With an uncontrolled input, the DOM keeps the current value. Use a ref when React needs a particular value, or FormData in the submit handler when reading the whole form. This can reduce state plumbing for a simple form, but React will not automatically re-render dependent UI as the user types.</p>\n    <pre><code>function handleSubmit(event: React.FormEvent&lt;HTMLFormElement&gt;) {\n  event.preventDefault();\n  const data = new FormData(event.currentTarget);\n  const email = String(data.get('email') ?? '');\n}</code></pre>\n    <p>Do not mix the models accidentally: an input should use either value/onChange or defaultValue/ref, not both as competing sources of truth.</p>\n  </section>\n\n  <section aria-labelledby=\"validation-layers\">\n    <h2 id=\"validation-layers\">Validation is layered, not a security boundary</h2>\n    <p>Native HTML constraints such as required, type=\"email\", min, max, and minLength provide useful browser feedback and expose validity through the Constraint Validation API. By default, an invalid form does not dispatch its submit event; the browser focuses a failing control and presents its own message. If you add noValidate, you opt out of that automatic submit blocking and must implement the equivalent checks yourself.</p>\n    <p>Client-side validation improves feedback, but it can be bypassed. The server must validate every submitted value and enforce authorization. Validation also does not prevent SQL injection or cross-site scripting: use parameterized database queries, context-appropriate output encoding, and server-side security controls.</p>\n    <h3>Custom validation and timing</h3>\n    <p>Custom rules are useful for relationships the browser cannot express, such as matching password fields or a date range. Showing an error on every keystroke can be noisy; waiting until submit can hide a fixable problem. A common pattern is to show a field error after it has been blurred once or after a submit attempt, then re-check it on later edits. This is a choice, not a universal rule: test keyboard use, screen-reader announcements, and how disruptive the feedback feels.</p>\n    <pre><code>const [email, setEmail] = useState('');\nconst [touched, setTouched] = useState(false);\nconst emailError =\n  touched &amp;&amp; !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)\n    ? 'Enter a valid email address.'\n    : '';\n\n&lt;label htmlFor=\"email\"&gt;Email&lt;/label&gt;\n&lt;input\n  id=\"email\"\n  type=\"email\"\n  value={email}\n  onChange={(event) =&gt; setEmail(event.target.value)}\n  onBlur={() =&gt; setTouched(true)}\n  aria-invalid={Boolean(emailError)}\n  aria-describedby={emailError ? 'email-error' : undefined}\n/&gt;\n{emailError &amp;&amp; &lt;p id=\"email-error\"&gt;{emailError}&lt;/p&gt;</code></pre>\n    <p>Associate each control with a visible label. Connect its error with aria-describedby and set aria-invalid only when it is invalid. On submit, focus the first invalid field or provide a summary that links to invalid controls. Do not rely on color alone.</p>\n  </section>\n\n  <section aria-labelledby=\"worked-submit\">\n    <h2 id=\"worked-submit\">Walkthrough: submit, validate, then report</h2>\n    <ol>\n      <li>The browser first applies native constraints unless the form uses noValidate.</li>\n      <li>For a valid submission, React receives the submit event. Call preventDefault to stop a page navigation when the app handles the request itself.</li>\n      <li>Run cross-field and domain rules. Keep errors next to the fields they describe.</li>\n      <li>Set a submitting state before awaiting the request; disable duplicate submission and announce progress accessibly.</li>\n      <li>Handle server field errors, network failure, and success as distinct outcomes. A client check can never guarantee that the server will accept the data.</li>\n      <li>In finally, clear the submitting state. Preserve entered values after recoverable failures so the learner does not have to retype them.</li>\n    </ol>\n    <p>Debug a form by inspecting the actual submit event and its defaultPrevented value, checking input.value and input.validity in DevTools, and looking at the Network panel. Confirm whether a request was sent, whether the server returned a validation error, and whether the UI translated that response into useful feedback.</p>\n  </section>\n\n  <section aria-labelledby=\"library-tradeoffs\">\n    <h2 id=\"library-tradeoffs\">When a form library helps</h2>\n    <p>React Hook Form can reduce rerendering and repetitive registration/error wiring, especially for larger forms. It commonly uses uncontrolled fields and refs internally; Controller adapts controlled third-party widgets. A schema resolver can share domain rules, but browser and server validation still have separate responsibilities.</p>\n    <p>A library adds concepts, bundle weight, and another API to debug. For a small form with a few fields, native constraints and a small amount of React state may be clearer. Choose based on field count, conditional sections, validation complexity, accessibility requirements, and team familiarity—not on the assumption that every form needs a library.</p>\n  </section>\n\n  <section aria-labelledby=\"practice-form\">\n    <h2 id=\"practice-form\">Practice: build a registration form</h2>\n    <p>Implement name, email, password, and confirm-password fields. Use controlled values for any field that drives live UI; choose intentionally for the rest. Keep the server response simulated, but make loading, success, and recoverable error states visible.</p>\n    <ul>\n      <li>Use semantic form markup, associated labels, appropriate input types, and autocomplete tokens.</li>\n      <li>Require a name, validate email format, and require the two passwords to match.</li>\n      <li>Do not announce untouched-field errors immediately; after blur or submit, update feedback as the learner edits.</li>\n      <li>Prevent duplicate submits, show a pending state, and preserve values on simulated network failure.</li>\n      <li>Explain in a short note which fields are controlled and why, and what validation the server must repeat.</li>\n    </ul>\n    <h3>Success criteria</h3>\n    <ul>\n      <li>A keyboard-only user can identify every field, error, and submit status.</li>\n      <li>Invalid data is blocked with actionable feedback; the first invalid field can be found without guessing.</li>\n      <li>Valid data produces one request; pending, failure, and success states are distinguishable.</li>\n      <li>Changing a value cannot leave a stale error visible after the value becomes valid.</li>\n      <li>The implementation does not claim client validation makes untrusted input safe.</li>\n    </ul>\n    <h3>Debugging challenge</h3>\n    <p>A submit handler never runs, even though its button is clicked. Inspect the form’s native validity state first: a required field or type constraint may be blocking submission before React receives the event. Then check whether noValidate was added and whether custom validation now covers the rules you still need.</p>\n  </section>\n</article>",
+    "order": 2
+  },
+  {
+    "id": "re-004",
+    "title": "React API Integration & Custom Hooks",
+    "slug": "react-api-integration-custom-hooks",
+    "description": "Learn how to build an API layer with Axios, create service files, write custom hooks for data fetching, and handle errors with retry logic.",
+    "categoryId": "react",
+    "difficulty": "intermediate",
+    "tags": [
+      "react",
+      "api",
+      "custom-hooks",
+      "axios",
+      "error-handling"
+    ],
+    "durationMinutes": 50,
+    "content": "<article>\n  <section>\n    <h2>Model a request as a state machine</h2>\n    <p>A request is not just “data or no data.” A screen may be idle, loading, successful with data, or failed. Model those states deliberately so the interface never shows an endless spinner, hides a useful error, or treats an empty result as a network failure.</p>\n    <pre><code>type LoadState&lt;T&gt; =\n  | { status: 'idle' }\n  | { status: 'loading' }\n  | { status: 'success'; data: T }\n  | { status: 'error'; message: string };</code></pre>\n    <p>Keep HTTP failure separate from transport failure. fetch rejects for network errors and aborts, but a 404 or 500 still resolves to a Response. Check response.ok before parsing the body. Also account for responses with no body, such as 204 No Content, rather than unconditionally calling response.json().</p>\n    <pre><code>async function getJson&lt;T&gt;(url: string, signal?: AbortSignal): Promise&lt;T&gt; {\n  const response = await fetch(url, { signal });\n  if (!response.ok) {\n    throw new Error(`Request failed: ${response.status}`);\n  }\n  return response.json() as Promise&lt;T&gt;;\n}</code></pre>\n  </section>\n\n  <section>\n    <h2>Separate transport, service, and view responsibilities</h2>\n    <p>A small service module can own endpoint paths, request methods, and conversion from the API shape to the app's domain types. Components should own presentation decisions such as empty states and retry buttons. A custom hook may coordinate loading/error/data state and expose a stable operation to the view.</p>\n    <p>Use HTTP semantics accurately: GET reads; POST commonly creates or triggers an operation; PUT generally replaces a resource representation; PATCH applies a partial change; DELETE requests removal. A service method called update that sends only one changed field should not silently use a full-replacement PUT unless the API defines that behavior.</p>\n    <p>Axios is an optional client library, not a project requirement. Built-in fetch is enough for many apps; whichever client you choose, keep the boundary and error contract explicit. A typed response assertion does not validate untrusted JSON at runtime—parse important API payloads with a runtime schema before relying on them.</p>\n  </section>\n\n  <section>\n    <h2>Effects, cleanup, and out-of-order responses</h2>\n    <p>Effects synchronize a component with an external system. A request started for search term “ca” may finish after a later request for “cat”; without cleanup, the stale result can overwrite the current one. Abort obsolete work when possible, and make sure completion from an old request cannot update the current view.</p>\n    <pre><code>useEffect(() =&gt; {\n  const controller = new AbortController();\n  let current = true;\n\n  async function load() {\n    setState({ status: 'loading' });\n    try {\n      const data = await getJson&lt;Post[]&gt;(\n        `/api/posts?q=${encodeURIComponent(query)}`,\n        controller.signal\n      );\n      if (current) setState({ status: 'success', data });\n    } catch (error) {\n      if (current &amp;&amp; !controller.signal.aborted) {\n        setState({ status: 'error', message: String(error) });\n      }\n    }\n  }\n\n  void load();\n  return () =&gt; {\n    current = false;\n    controller.abort();\n  };\n}, [query]);</code></pre>\n    <p>The cleanup runs before the effect re-runs and when the component unmounts. AbortController can stop a fetch, but a request may already have completed or a client may not support cancellation; the current flag still guards stale state writes. Include every reactive value used by the effect in its dependencies. Do not silence dependency warnings to keep an outdated closure alive.</p>\n    <p>Debouncing reduces how many requests are started while a user types; it does not make an individual response faster. Combine it with cancellation or stale-response protection. For substantial caching, deduplication, refetching and invalidation needs, compare a server-state library with a hand-built hook rather than growing one hook indefinitely.</p>\n  </section>\n\n  <section>\n    <h2>Retry carefully</h2>\n    <p>Retry only failures that are plausibly transient and operations that are safe to repeat. A network timeout or selected 5xx response may be retryable; validation errors, 401/403, and 404 usually are not. Repeating a non-idempotent POST can create duplicates unless the server supports an idempotency key. Cap exponential backoff, add jitter for many clients, honor Retry-After where applicable, and let the user cancel long-running work.</p>\n    <p>Keep retry state visible and bounded. A button that says “Try again” after a recoverable failure is often safer than silently retrying every request forever.</p>\n  </section>\n\n  <section>\n    <h2>Debugging checklist</h2>\n    <ol>\n      <li>In DevTools Network, inspect the URL, method, payload, status, response body, timing, and whether the request happened at all.</li>\n      <li>Distinguish CORS or network failure from an HTTP error response; inspect Console for browser policy errors.</li>\n      <li>Check the state transition at request start, success, failure, and cleanup. Does loading always settle?</li>\n      <li>Change a filter quickly and check whether an older response can replace the newest result.</li>\n      <li>Verify the runtime response shape before attributing a rendering bug to React.</li>\n    </ol>\n  </section>\n\n  <section>\n    <h2>Practice: build a searchable posts panel</h2>\n    <p>Create a service that fetches a typed list of posts, then a custom hook that exposes status, data, and retry. The component should debounce text input, cancel obsolete searches, display loading/empty/error/success states, and keep the previous results or clearly explain when they are cleared.</p>\n    <h3>Success criteria</h3>\n    <ul>\n      <li>Non-2xx responses are errors even though fetch resolved.</li>\n      <li>Malformed or empty responses do not crash the renderer.</li>\n      <li>Only the newest search result is displayed; unmounting prevents stale updates.</li>\n      <li>Retry is available for appropriate failures and is bounded.</li>\n      <li>The UI distinguishes loading, no matches, failure, and successful data.</li>\n    </ul>\n  </section>\n</article>",
+    "order": 3
+  },
+  {
+    "id": "re-005",
+    "title": "React Ecosystem: Routing & SPAs",
+    "slug": "react-ecosystem-routing-spas",
+    "description": "Explore the React ecosystem — SPA vs traditional websites, React Router setup, nested routes, dynamic params, Link vs NavLink, and controlled inputs.",
+    "categoryId": "react",
+    "difficulty": "intermediate",
+    "tags": [
+      "react",
+      "routing",
+      "react-router",
+      "spa",
+      "navigation"
+    ],
+    "durationMinutes": 40,
+    "content": "<article>\n  <section>\n    <h2>Shared state in React: put data near its owner</h2>\n    <p>React state belongs to the component that calls the state hook. A state update requests a new render; the new value flows down through props. Start by placing state in the lowest common ancestor of the components that must read or update it. This keeps dependencies visible and avoids globalizing values that only one feature needs.</p>\n    <h3>Prop drilling is a signal, not a failure</h3>\n    <p>Passing a value through several components can be noisy when intermediate components do not use it. But explicit props make dependencies easy to trace, test, and reuse. First consider composition: pass a slot or child component so a wrapper does not need to know the details of the content it positions.</p>\n    <pre><code>function Page() {\n  return &lt;Layout sidebar={&lt;UserMenu user={user} /&gt;}&gt;\n    &lt;AccountSummary user={user} /&gt;\n  &lt;/Layout&gt;;\n}</code></pre>\n    <p>Use Context when many descendants in a coherent subtree need the same value, such as theme, locale, or an authenticated-user view. Context changes can re-render every consumer of that context. Split unrelated values, keep providers near the subtree that needs them, and do not use Context as a default replacement for all props.</p>\n  </section>\n\n  <section>\n    <h2>Choose a state strategy by ownership and update pattern</h2>\n    <ul>\n      <li><strong>Local component state:</strong> a disclosure, input draft, or temporary selection used in one component.</li>\n      <li><strong>Lifted state:</strong> sibling components coordinate through their nearest common owner.</li>\n      <li><strong>Context:</strong> many nested consumers need a stable shared value and updates are not an extremely high-frequency broadcast.</li>\n      <li><strong>Reducer:</strong> several related transitions should be centralized as explicit events, often alongside local state or Context.</li>\n      <li><strong>Server/cache state:</strong> fetched records need caching, deduplication, invalidation, and synchronization; a hand-written global Context may recreate those concerns poorly.</li>\n      <li><strong>URL state:</strong> filters or tabs that should be shareable, bookmarkable, and restored by browser navigation belong in route parameters or query strings.</li>\n    </ul>\n    <p>A reducer does not make state global by itself. It centralizes transitions: an action describes what happened, and a pure reducer returns the next state. This makes complex transitions easier to test and prevents event handlers from independently implementing partial versions of the same rule.</p>\n    <pre><code>type CartAction =\n  | { type: 'item-added'; id: string }\n  | { type: 'quantity-changed'; id: string; quantity: number }\n  | { type: 'cleared' };\n\nfunction cartReducer(state: Cart, action: CartAction): Cart {\n  switch (action.type) {\n    case 'item-added':\n      return addOne(state, action.id);\n    case 'quantity-changed':\n      return setQuantity(state, action.id, action.quantity);\n    case 'cleared':\n      return emptyCart;\n  }\n}</code></pre>\n    <p>Reducers must not mutate the existing state, perform network requests, read the clock, or generate random IDs. Put effects at the boundary and dispatch the result as an action.</p>\n  </section>\n\n  <section>\n    <h2>Build a safe provider and custom hook</h2>\n    <p>A custom hook can hide the provider wiring and enforce that consumers are inside the provider. A custom hook shares logic, not a single state instance: each call to a hook that owns useState creates state for that calling component. Context is what distributes one provider-owned value to descendants.</p>\n    <pre><code>const CartContext = createContext&lt;CartApi | null&gt;(null);\n\nfunction CartProvider({ children }: PropsWithChildren) {\n  const [cart, dispatch] = useReducer(cartReducer, emptyCart);\n  const value = useMemo(\n    () =&gt; ({ cart, dispatch }),\n    [cart]\n  );\n  return (\n    &lt;CartContext.Provider value={value}&gt;\n      {children}\n    &lt;/CartContext.Provider&gt;\n  );\n}\n\nfunction useCart() {\n  const value = useContext(CartContext);\n  if (value === null) {\n    throw new Error('useCart must be used within CartProvider');\n  }\n  return value;\n}</code></pre>\n    <p>The null default makes a missing provider visible instead of silently returning fake data. Memoization can help avoid broadcasts caused only by a newly-created object identity, but measure before adding it: consumers still need updates when the cart itself changes.</p>\n  </section>\n\n  <section>\n    <h2>Render snapshots and common bugs</h2>\n    <p>Each render is a snapshot. An event handler created during that render closes over that snapshot; calling a state setter does not mutate the variable in the already-running handler. When the next value depends on the previous one, use the updater form or dispatch an action. Avoid copying derived values into state with an effect unless there is a separate source of truth—duplicated state can drift.</p>\n    <ul>\n      <li>If unrelated UI re-renders, inspect which Context value changed and whether one provider combines unrelated concerns.</li>\n      <li>If a component sees old data, inspect the render snapshot and effect dependencies before adding another global store.</li>\n      <li>If a custom hook's state appears separate in two components, that is expected unless they consume the same provider or external store.</li>\n      <li>If state does not change, look for in-place mutation that preserves object identity.</li>\n    </ul>\n  </section>\n\n  <section>\n    <h2>Practice: design a theme and cart state model</h2>\n    <p>For a small storefront, decide where theme preference, open-menu state, cart contents, a product search draft, and fetched product records belong. Draw the component tree and mark each value's owner and readers. Implement one reducer transition and one provider-backed hook; keep the search draft local and explain whether the committed search belongs in the URL.</p>\n    <h3>Success criteria</h3>\n    <ul>\n      <li>Each state value has one clear owner and a reason for that location.</li>\n      <li>Intermediate components do not receive props solely to forward them unless explicit composition is clearer.</li>\n      <li>Reducer transitions are pure, immutable, and tested for invalid quantities and clearing the cart.</li>\n      <li>Using the consumer hook outside its provider fails with a useful message.</li>\n      <li>The explanation distinguishes Context distribution, reducer transitions, custom-hook logic, and server cache state.</li>\n    </ul>\n  </section>\n</article>",
+    "order": 4
+  },
+  {
+    "id": "re-006",
+    "title": "React Performance & Accessibility",
+    "slug": "react-performance-accessibility",
+    "description": "Master React performance optimization — the re-render cascade, React.memo, useMemo, useCallback, lazy loading, bundle size, and building accessible apps.",
+    "categoryId": "react",
+    "difficulty": "advanced",
+    "tags": [
+      "react",
+      "performance",
+      "memoization",
+      "accessibility",
+      "lazy-loading"
+    ],
+    "durationMinutes": 35,
+    "content": "",
+    "order": 5
+  },
+  {
+    "id": "ui-001",
+    "title": "UI Kit & Design System",
+    "slug": "ui-kit-design-system",
+    "description": "Learn what design systems are, how they're structured with design tokens, popular UI libraries, build-vs-buy decisions, and component design principles with props and variants.",
+    "categoryId": "ui-design",
+    "difficulty": "intermediate",
+    "tags": [
+      "design-system",
+      "design-tokens",
+      "components",
+      "ui-libraries",
+      "variants"
+    ],
+    "durationMinutes": 45,
+    "content": "",
+    "order": 0
+  },
+  {
+    "id": "ui-002",
+    "title": "Material UI Masterclass",
+    "slug": "material-ui-masterclass",
+    "description": "An interactive masterclass on Material UI — setting up MUI, ThemeProvider, Button, TextField, Card components, and building a login form.",
+    "categoryId": "ui-design",
+    "difficulty": "intermediate",
+    "tags": [
+      "material-ui",
+      "react",
+      "theming",
+      "components",
+      "mui"
+    ],
+    "durationMinutes": 35,
+    "content": "",
+    "order": 1
+  },
+  {
+    "id": "tl-001",
+    "title": "Git Reference Guide",
+    "slug": "git-reference-guide",
+    "description": "A comprehensive interactive Git reference — basic commands, branching, merging, rebasing, stash, tags, and a quick reference cheat sheet.",
+    "categoryId": "tooling",
+    "difficulty": "intermediate",
+    "tags": [
+      "git",
+      "version-control",
+      "branching",
+      "merging",
+      "rebase"
+    ],
+    "durationMinutes": 40,
+    "content": "",
+    "order": 0
+  },
+  {
+    "id": "tl-002",
+    "title": "Git Workflow & CI/CD Guide",
+    "slug": "git-workflow-cicd-guide",
+    "description": "Master Git workflow and CI/CD — branching strategies, pull requests, GitHub Actions, testing pipelines, and deployment automation.",
+    "categoryId": "tooling",
+    "difficulty": "intermediate",
+    "tags": [
+      "git",
+      "ci-cd",
+      "github-actions",
+      "workflow",
+      "deployment",
+      "automation"
+    ],
+    "durationMinutes": 40,
+    "content": "",
+    "order": 1
+  },
+  {
+    "id": "tl-003",
+    "title": "intro.dev — Dev Environment Setup",
+    "slug": "intro-dev-setup",
+    "description": "A complete guide to setting up your development environment — installing Node.js, npm, editors, extensions, and configuring your first project.",
+    "categoryId": "tooling",
+    "difficulty": "beginner",
+    "tags": [
+      "dev-environment",
+      "nodejs",
+      "npm",
+      "vscode",
+      "setup"
+    ],
+    "durationMinutes": 30,
+    "content": "",
+    "order": 2
+  },
+  {
+    "id": "tl-004",
+    "title": "Deployment Learning Guide",
+    "slug": "deployment-learning-guide",
+    "description": "Learn how to deploy web applications — build outputs, environment variables, hosting platforms, DNS configuration, and CI/CD deployment pipelines.",
+    "categoryId": "tooling",
+    "difficulty": "intermediate",
+    "tags": [
+      "deployment",
+      "hosting",
+      "ci-cd",
+      "dns",
+      "environment-variables"
+    ],
+    "durationMinutes": 35,
+    "content": "",
+    "order": 3
+  },
+  {
+    "id": "qa-001",
+    "title": "Frontend Architecture & Planning",
+    "slug": "frontend-architecture-planning",
+    "description": "Learn frontend architecture fundamentals — requirements analysis, tech stack selection, project structure, component design, state management, and scalability patterns.",
+    "categoryId": "quality",
+    "difficulty": "advanced",
+    "tags": [
+      "architecture",
+      "planning",
+      "project-structure",
+      "state-management",
+      "scalability"
+    ],
+    "durationMinutes": 45,
+    "content": "",
+    "order": 0
+  },
+  {
+    "id": "qa-002",
+    "title": "Testing Guide",
+    "slug": "testing-guide",
+    "description": "A comprehensive interactive testing guide — unit tests, integration tests, E2E tests, testing frameworks, mocking, and testing best practices.",
+    "categoryId": "quality",
+    "difficulty": "intermediate",
+    "tags": [
+      "testing",
+      "unit-tests",
+      "integration-tests",
+      "e2e",
+      "mocking",
+      "frameworks"
+    ],
+    "durationMinutes": 40,
+    "content": "",
+    "order": 1
+  },
+  {
+    "id": "sec-001",
+    "title": "Frontend Authentication",
+    "slug": "frontend-authentication",
+    "description": "Master frontend authentication — session vs token-based auth, JWT, OAuth, secure token storage, route protection, and common security pitfalls.",
+    "categoryId": "security",
+    "difficulty": "advanced",
+    "tags": [
+      "security",
+      "authentication",
+      "jwt",
+      "oauth",
+      "tokens",
+      "route-protection"
+    ],
+    "durationMinutes": 40,
+    "content": "",
+    "order": 0
+  },
+  {
+    "id": "dt-001",
+    "title": "SQL Learning Page",
+    "slug": "sql-learning-page",
+    "description": "An interactive SQL tutorial — SELECT queries, filtering, joins, aggregations, subqueries, and database design fundamentals with hands-on exercises.",
+    "categoryId": "data",
+    "difficulty": "beginner",
+    "tags": [
+      "sql",
+      "databases",
+      "queries",
+      "joins",
+      "aggregations"
+    ],
+    "durationMinutes": 45,
+    "content": "",
+    "order": 0
+  }
+]

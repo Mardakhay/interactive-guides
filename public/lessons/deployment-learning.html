@@ -1,0 +1,2266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Frontend Deployment — Deep Dive</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #080810;
+    --bg2: #0d0d1a;
+    --bg3: #12121f;
+    --card: #14141f;
+    --card2: #1a1a2e;
+    --border: #1e1e35;
+    --border2: #2a2a45;
+    --text: #e8e8f0;
+    --muted: #7070a0;
+    --muted2: #9090b8;
+    --blue: #4f8ef7;
+    --blue2: #7eb3ff;
+    --purple: #9b6dff;
+    --cyan: #40d9f0;
+    --green: #3ddc97;
+    --orange: #ff8c42;
+    --red: #ff5470;
+    --yellow: #ffd166;
+    --grad1: linear-gradient(135deg, #4f8ef7, #9b6dff);
+    --grad2: linear-gradient(135deg, #40d9f0, #4f8ef7);
+    --grad3: linear-gradient(135deg, #9b6dff, #ff5470);
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+    --body: 'Inter', sans-serif;
+    --r: 10px;
+    --r2: 6px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── Background ambient ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(79,142,247,.07) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(155,109,255,.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Layout ── */
+  .shell { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+    background: rgba(8,8,16,.85);
+    backdrop-filter: blur(12px);
+    padding: 28px 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .sidebar-logo {
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .sidebar-logo .course-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--blue);
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-logo h2 {
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .sidebar-section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 20px;
+    margin: 12px 0 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 20px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all .18s;
+    color: var(--muted2);
+    font-size: 13.5px;
+    font-weight: 400;
+    text-decoration: none;
+  }
+
+  .nav-item:hover { color: var(--text); background: rgba(79,142,247,.06); }
+
+  .nav-item.active {
+    color: var(--blue2);
+    border-left-color: var(--blue);
+    background: rgba(79,142,247,.08);
+    font-weight: 500;
+  }
+
+  .nav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+    opacity: .5;
+  }
+
+  .nav-item.active .nav-dot { opacity: 1; }
+
+  /* ── Main ── */
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 48px 56px;
+    max-width: 900px;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    margin-bottom: 64px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--blue);
+    background: rgba(79,142,247,.1);
+    border: 1px solid rgba(79,142,247,.25);
+    border-radius: 100px;
+    padding: 5px 14px;
+    margin-bottom: 24px;
+  }
+
+  .hero-eyebrow::before { content: '▶'; font-size: 8px; }
+
+  .hero h1 {
+    font-family: var(--display);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff 30%, #9090b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--muted2);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+
+  .hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .tag-blue { background: rgba(79,142,247,.15); color: var(--blue2); border: 1px solid rgba(79,142,247,.3); }
+  .tag-purple { background: rgba(155,109,255,.15); color: #c49fff; border: 1px solid rgba(155,109,255,.3); }
+  .tag-cyan { background: rgba(64,217,240,.12); color: var(--cyan); border: 1px solid rgba(64,217,240,.25); }
+  .tag-green { background: rgba(61,220,151,.12); color: var(--green); border: 1px solid rgba(61,220,151,.25); }
+
+  /* ── Section ── */
+  .section { margin-bottom: 72px; scroll-margin-top: 24px; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .section-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .icon-blue { background: rgba(79,142,247,.15); border: 1px solid rgba(79,142,247,.25); }
+  .icon-purple { background: rgba(155,109,255,.15); border: 1px solid rgba(155,109,255,.25); }
+  .icon-cyan { background: rgba(64,217,240,.12); border: 1px solid rgba(64,217,240,.2); }
+  .icon-green { background: rgba(61,220,151,.12); border: 1px solid rgba(61,220,151,.2); }
+  .icon-orange { background: rgba(255,140,66,.12); border: 1px solid rgba(255,140,66,.2); }
+
+  .section-header h2 {
+    font-family: var(--display);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .section-header .section-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .1em;
+  }
+
+  p { color: var(--muted2); margin-bottom: 14px; }
+  p strong { color: var(--text); font-weight: 600; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    transition: border-color .2s;
+  }
+
+  .card:hover { border-color: var(--border2); }
+
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .card h3 {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── Code blocks ── */
+  .code-block {
+    background: #0a0a14;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+    margin: 16px 0;
+    position: relative;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,.02);
+  }
+
+  .code-filename {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--muted2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .code-filename::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border2);
+    display: inline-block;
+  }
+
+  .copy-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 3px 10px;
+    cursor: pointer;
+    transition: all .15s;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .copy-btn:hover { color: var(--text); border-color: var(--muted); }
+  .copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+  pre {
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    color: #c0caf5;
+    tab-size: 2;
+  }
+
+  pre::-webkit-scrollbar { height: 4px; }
+  pre::-webkit-scrollbar-track { background: transparent; }
+  pre::-webkit-scrollbar-thumb { background: var(--border2); }
+
+  .t-comment { color: var(--muted); }
+  .t-key { color: #bb9af7; }
+  .t-str { color: #9ece6a; }
+  .t-num { color: var(--orange); }
+  .t-kw { color: #7dcfff; }
+  .t-fn { color: #7aa2f7; }
+  .t-var { color: #e0af68; }
+  .t-op { color: var(--muted2); }
+  .t-red { color: var(--red); }
+  .t-green { color: var(--green); }
+
+  /* ── Callouts ── */
+  .callout {
+    border-radius: var(--r);
+    padding: 14px 18px;
+    margin: 16px 0;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 14px;
+  }
+
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { flex: 1; }
+  .callout-body strong { display: block; margin-bottom: 4px; font-size: 13.5px; }
+  .callout-body p { margin: 0; font-size: 13.5px; }
+
+  .callout-warn {
+    background: rgba(255,214,102,.08);
+    border: 1px solid rgba(255,214,102,.2);
+  }
+  .callout-warn strong { color: var(--yellow); }
+
+  .callout-danger {
+    background: rgba(255,84,112,.07);
+    border: 1px solid rgba(255,84,112,.2);
+  }
+  .callout-danger strong { color: var(--red); }
+
+  .callout-info {
+    background: rgba(79,142,247,.07);
+    border: 1px solid rgba(79,142,247,.2);
+  }
+  .callout-info strong { color: var(--blue2); }
+
+  .callout-tip {
+    background: rgba(61,220,151,.07);
+    border: 1px solid rgba(61,220,151,.2);
+  }
+  .callout-tip strong { color: var(--green); }
+
+  /* ── Build Pipeline ── */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 24px 0;
+    overflow-x: auto;
+    padding: 4px 0 8px;
+  }
+
+  .pipeline::-webkit-scrollbar { height: 4px; }
+  .pipeline::-webkit-scrollbar-thumb { background: var(--border2); }
+
+  .pipe-step {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 14px 18px;
+    text-align: center;
+    min-width: 130px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all .2s;
+    position: relative;
+  }
+
+  .pipe-step:hover { border-color: var(--blue); transform: translateY(-2px); }
+  .pipe-step.active { border-color: var(--blue); background: rgba(79,142,247,.1); }
+
+  .pipe-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .pipe-icon { font-size: 22px; margin-bottom: 6px; display: block; }
+
+  .pipe-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .pipe-sub {
+    font-size: 11px;
+    color: var(--muted);
+    display: block;
+  }
+
+  .pipe-arrow {
+    font-size: 18px;
+    color: var(--border2);
+    flex-shrink: 0;
+    padding: 0 6px;
+    transition: color .2s;
+  }
+
+  .pipe-detail {
+    background: rgba(79,142,247,.07);
+    border: 1px solid rgba(79,142,247,.2);
+    border-radius: var(--r);
+    padding: 16px 20px;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .pipe-detail.show { display: block; }
+  .pipe-detail h4 { font-family: var(--display); font-size: 14px; color: var(--blue2); margin-bottom: 8px; }
+  .pipe-detail ul { list-style: none; padding: 0; }
+  .pipe-detail ul li { color: var(--muted2); font-size: 13.5px; padding: 3px 0; display: flex; gap: 8px; }
+  .pipe-detail ul li::before { content: '→'; color: var(--blue); }
+
+  /* ── Comparison tabs ── */
+  .tab-container { margin: 20px 0; }
+
+  .tab-list {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+    margin-bottom: 20px;
+  }
+
+  .tab-btn {
+    font-family: var(--display);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    background: none;
+    border: none;
+    padding: 8px 18px 10px;
+    cursor: pointer;
+    position: relative;
+    transition: color .15s;
+    letter-spacing: .01em;
+  }
+
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--blue);
+    transform: scaleX(0);
+    transition: transform .2s;
+  }
+
+  .tab-btn.active { color: var(--text); }
+  .tab-btn.active::after { transform: scaleX(1); }
+  .tab-btn:hover { color: var(--muted2); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Vercel vs Netlify ── */
+  .platform-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 24px;
+    transition: all .2s;
+  }
+
+  .platform-card:hover { border-color: var(--border2); }
+
+  .platform-name {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+
+  .platform-tagline {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .feature-list { list-style: none; }
+
+  .feature-list li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 5px 0;
+    font-size: 13.5px;
+    color: var(--muted2);
+    border-bottom: 1px solid rgba(255,255,255,.04);
+  }
+
+  .feature-list li:last-child { border-bottom: none; }
+
+  .feature-list li span:first-child { flex-shrink: 0; }
+
+  .verdict-box {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: var(--r2);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* ── Env Variables ── */
+  .env-priority {
+    display: grid;
+    gap: 8px;
+    margin: 16px 0;
+  }
+
+  .env-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+
+  .env-row:hover { border-color: var(--border2); background: var(--card2); }
+  .env-row.expanded { border-color: var(--purple); }
+
+  .env-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .env-file { font-family: var(--mono); font-size: 13px; color: var(--text); flex: 1; }
+  .env-desc { font-size: 12.5px; color: var(--muted); flex: 2; }
+  .env-expand-icon { color: var(--muted); font-size: 12px; transition: transform .2s; }
+  .env-row.expanded .env-expand-icon { transform: rotate(90deg); }
+
+  .env-detail {
+    background: rgba(155,109,255,.06);
+    border: 1px solid rgba(155,109,255,.2);
+    border-radius: var(--r2);
+    padding: 12px 16px;
+    margin-top: -4px;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: var(--muted2);
+    display: none;
+  }
+
+  .env-detail.show { display: block; }
+
+  /* ── SPA Routing diagram ── */
+  .routing-diagram {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 24px;
+    margin: 20px 0;
+  }
+
+  .flow-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0;
+  }
+
+  .flow-node {
+    background: var(--card2);
+    border: 1px solid var(--border2);
+    border-radius: var(--r2);
+    padding: 8px 16px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .flow-node.bad { border-color: rgba(255,84,112,.4); color: var(--red); background: rgba(255,84,112,.08); }
+  .flow-node.good { border-color: rgba(61,220,151,.4); color: var(--green); background: rgba(61,220,151,.08); }
+  .flow-node.user { border-color: rgba(79,142,247,.4); color: var(--blue2); background: rgba(79,142,247,.1); }
+
+  .flow-arrow { color: var(--muted); font-size: 14px; }
+
+  /* ── Checklist ── */
+  .checklist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .check-group {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 18px;
+  }
+
+  .check-group-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    cursor: pointer;
+    font-size: 13.5px;
+    color: var(--muted2);
+    transition: color .15s;
+    user-select: none;
+  }
+
+  .check-item:last-child { border-bottom: none; }
+  .check-item:hover { color: var(--text); }
+  .check-item.done { color: var(--green); }
+
+  .check-box {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1px solid var(--border2);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: all .15s;
+  }
+
+  .check-item.done .check-box {
+    background: var(--green);
+    border-color: var(--green);
+    color: #000;
+  }
+
+  /* ── Accordion ── */
+  .accordion { margin: 8px 0; }
+
+  .acc-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    margin-bottom: 8px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+
+  .acc-item:hover { border-color: var(--border2); }
+
+  .acc-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .acc-trigger-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .acc-icon { font-size: 16px; }
+  .acc-chevron { color: var(--muted); transition: transform .22s; font-size: 12px; }
+  .acc-item.open .acc-chevron { transform: rotate(90deg); }
+
+  .acc-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease;
+  }
+
+  .acc-inner {
+    padding: 4px 18px 18px;
+    border-top: 1px solid var(--border);
+  }
+
+  .acc-inner p { font-size: 13.5px; color: var(--muted2); }
+
+  /* ── Mode toggle ── */
+  .mode-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 12px 18px;
+    margin-bottom: 24px;
+  }
+
+  .mode-bar-label { font-size: 13px; color: var(--muted2); }
+
+  .toggle-pill {
+    display: flex;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 3px;
+    gap: 2px;
+  }
+
+  .toggle-opt {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 16px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all .18s;
+    color: var(--muted);
+    border: none;
+    background: none;
+    letter-spacing: .05em;
+  }
+
+  .toggle-opt.on { background: var(--blue); color: #fff; }
+
+  /* ── Dist tree ── */
+  .file-tree {
+    background: #07070f;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 18px 20px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 2;
+  }
+
+  .ft-dir { color: var(--blue2); }
+  .ft-file { color: var(--text); }
+  .ft-comment { color: var(--muted); }
+  .ft-hash { color: var(--purple); }
+  .ft-indent { padding-left: 18px; border-left: 1px solid var(--border); margin-left: 8px; }
+  .ft-indent2 { padding-left: 18px; }
+
+  /* ── Steps ── */
+  .steps { position: relative; padding-left: 28px; }
+  .steps::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 12px;
+    bottom: 12px;
+    width: 1px;
+    background: var(--border2);
+  }
+
+  .step {
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .step-dot {
+    position: absolute;
+    left: -28px;
+    top: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    font-weight: 700;
+    transition: all .2s;
+  }
+
+  .step:hover .step-dot { border-color: var(--blue); color: var(--blue); }
+
+  .step h4 {
+    font-family: var(--display);
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .step p { font-size: 13.5px; color: var(--muted2); margin: 0; }
+
+  /* ── Table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+
+  th {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,.02);
+  }
+
+  td {
+    padding: 10px 14px;
+    color: var(--muted2);
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    vertical-align: top;
+  }
+
+  td:first-child { font-family: var(--mono); color: var(--text); font-size: 12.5px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+
+  /* ── Tooltip ── */
+  [data-tip] { position: relative; cursor: help; border-bottom: 1px dashed var(--muted); }
+
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card2);
+    border: 1px solid var(--border2);
+    border-radius: var(--r2);
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--text);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s;
+    z-index: 10;
+    font-family: var(--body);
+    font-style: normal;
+    font-weight: 400;
+    border-bottom: none;
+  }
+
+  [data-tip]:hover::after { opacity: 1; }
+
+  /* ── Separator ── */
+  .sep {
+    height: 1px;
+    background: var(--border);
+    margin: 40px 0;
+  }
+
+  /* ── Badge ── */
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .badge-green { background: rgba(61,220,151,.15); color: var(--green); }
+  .badge-red { background: rgba(255,84,112,.12); color: var(--red); }
+  .badge-blue { background: rgba(79,142,247,.15); color: var(--blue2); }
+  .badge-purple { background: rgba(155,109,255,.15); color: #c49fff; }
+  .badge-orange { background: rgba(255,140,66,.12); color: var(--orange); }
+
+  /* ── Security visual ── */
+  .security-flow {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: center;
+    margin: 20px 0;
+  }
+
+  .sec-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 16px;
+    text-align: center;
+  }
+
+  .sec-box.danger { border-color: rgba(255,84,112,.3); background: rgba(255,84,112,.05); }
+  .sec-box.safe { border-color: rgba(61,220,151,.3); background: rgba(61,220,151,.05); }
+
+  .sec-box .title { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 8px; display: block; }
+  .sec-box .val { font-family: var(--mono); font-size: 12px; color: var(--text); }
+  .sec-arrow { font-size: 20px; color: var(--muted); text-align: center; }
+
+  /* ── Progress bar ── */
+  .progress-bar {
+    background: var(--card2);
+    border-radius: 100px;
+    height: 6px;
+    margin: 8px 0 16px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: var(--grad1);
+    width: 0;
+    transition: width 1s ease;
+  }
+
+  /* ── Inline code ── */
+  code {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    background: rgba(255,255,255,.07);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: var(--blue2);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { padding: 28px 20px; max-width: 100%; }
+    .card-grid { grid-template-columns: 1fr; }
+    .checklist-grid { grid-template-columns: 1fr; }
+    .security-flow { grid-template-columns: 1fr; }
+    .sec-arrow { transform: rotate(90deg); }
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section { animation: fadeUp .4s ease both; }
+  .section:nth-child(2) { animation-delay: .05s; }
+  .section:nth-child(3) { animation-delay: .1s; }
+
+  /* ── Scroll indicator ── */
+  .read-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: var(--grad1);
+    z-index: 100;
+    transition: width .1s;
+  }
+</style>
+</head>
+<body>
+
+<div class="read-progress" id="readProgress"></div>
+
+<div class="shell">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <span class="course-tag">Frontend Dev</span>
+      <h2>Deployment & Environment</h2>
+    </div>
+
+    <div class="sidebar-section-label">Content</div>
+    <a class="nav-item active" href="javascript:void(0)" data-target="s-why" onclick="goToSection('s-why',this)">
+      <span class="nav-dot"></span>Why Deploy?
+    </a>
+    <a class="nav-item" href="javascript:void(0)" data-target="s-build" onclick="goToSection('s-build',this)">
+      <span class="nav-dot"></span>Build Process
+    </a>
+    <a class="nav-item" href="javascript:void(0)" data-target="s-dist" onclick="goToSection('s-dist',this)">
+      <span class="nav-dot"></span>dist/ Folder
+    </a>
+    <a class="nav-item" href="javascript:void(0)" data-target="s-env" onclick="goToSection('s-env',this)">
+      <span class="nav-dot"></span>Environment Variables
+    </a>
+    <a class="nav-item" href="javascript:void(0)" data-target="s-vite-env" onclick="goToSection('s-vite-env',this)">
+      <span class="nav-dot"></span>.env Files in Vite
+    </a>
+    <a class="nav-item" href="javascript:void(0)" data-target="s-platforms" onclick="goToSection('s-platforms',this)">
+      <span class="nav-dot"></span>Vercel vs Netlify
+    </a>
+    <a class="nav-item" href="javascript:void(0)" data-target="s-deploy-steps" onclick="goToSection('s-deploy-steps',this)">
+      <span class="nav-dot"></span>Deploy Steps
+    </a>
+    <a class="nav-item" href="javascript:void(0)" data-target="s-spa" onclick="goToSection('s-spa',this)">
+      <span class="nav-dot"></span>SPA Routing
+    </a>
+    <a class="nav-item" href="javascript:void(0)" data-target="s-cicd" onclick="goToSection('s-cicd',this)">
+      <span class="nav-dot"></span>CI/CD & Preview
+    </a>
+    <a class="nav-item" href="javascript:void(0)" data-target="s-checklist" onclick="goToSection('s-checklist',this)">
+      <span class="nav-dot"></span>Deploy Checklist
+    </a>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-eyebrow">Deployment & Environment</div>
+      <h1>Ship Your Code<br/>to the World</h1>
+      <p class="hero-sub">
+        A project that only runs on <code>localhost</code> is invisible. This page teaches you everything you need to take your frontend from your machine to a live URL — build pipelines, environment variables, Vercel, Netlify, CI/CD, and production best practices.
+      </p>
+      <div class="hero-tags">
+        <span class="tag tag-blue">▲ Vercel</span>
+        <span class="tag tag-purple">◆ Netlify</span>
+        <span class="tag tag-cyan">⚙ Environment Variables</span>
+        <span class="tag tag-green">📦 Production Build</span>
+      </div>
+    </div>
+
+    <!-- ──────────────────────────────── -->
+    <!-- S1: Why Deploy -->
+    <!-- ──────────────────────────────── -->
+    <section class="section" id="s-why">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🌍</div>
+        <div>
+          <div class="section-num">01 / Introduction</div>
+          <h2>Why Deployment Matters</h2>
+        </div>
+      </div>
+
+      <p>You can write the most beautiful React app in the world — but if it only runs on your <code>localhost:5173</code>, nobody can see it. Deployment is the bridge between your local development environment and the real internet.</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3>🎯 Portfolio & Interviews</h3>
+          <p style="margin:0;font-size:13.5px;">Recruiters and interviewers expect a <strong>live link</strong>. A GitHub repo alone is rarely enough — they want to click and see it work.</p>
+        </div>
+        <div class="card">
+          <h3>🐛 Production Bugs</h3>
+          <p style="margin:0;font-size:13.5px;">Problems like <strong>CORS errors, wrong API URLs, missing env vars</strong> only surface in production. You need to discover and fix them early.</p>
+        </div>
+        <div class="card">
+          <h3>👥 Team Collaboration</h3>
+          <p style="margin:0;font-size:13.5px;"><strong>Preview deployments</strong> let teammates, mentors, and clients review changes before they go live — no "it works on my machine."</p>
+        </div>
+        <div class="card">
+          <h3>⚡ Modern Workflow</h3>
+          <p style="margin:0;font-size:13.5px;"><strong>Push → Deploy</strong> is the industry standard. Code merges automatically trigger deployments — no manual FTP uploads.</p>
+        </div>
+      </div>
+      
+      <div class="accordion" id="acc-goals">
+        <div class="acc-item">
+          <div class="acc-trigger" onclick="toggleAcc(this)">
+            <div class="acc-trigger-left"><span class="acc-icon">🎯</span> Three goals of modern deployment</div>
+            <span class="acc-chevron">▶</span>
+          </div>
+          <div class="acc-body">
+            <div class="acc-inner">
+              <p><strong style="color:var(--blue2)">1. Auto-deploy (Push → Live)</strong> — Every push to main automatically rebuilds and deploys. No manual steps.</p>
+              <p><strong style="color:var(--purple)">2. Preview deployments</strong> — Every Pull Request gets a unique URL, so you can review changes before merging.</p>
+              <p><strong style="color:var(--green)">3. Rollback</strong> — If a bad deploy makes it to production, you can revert to a previous snapshot in 30 seconds without re-building.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────── -->
+    <!-- S2: Build Process -->
+    <!-- ──────────────────────────────── -->
+    <section class="section" id="s-build">
+      <div class="section-header">
+        <div class="section-icon icon-purple">⚙️</div>
+        <div>
+          <div class="section-num">02 / Build Process</div>
+          <h2>Development vs Production</h2>
+        </div>
+      </div>
+
+      <div class="mode-bar">
+        <span class="mode-bar-label">Toggle to compare the two modes</span>
+        <div class="toggle-pill">
+          <button class="toggle-opt on" id="modeDevBtn" onclick="switchMode('dev')">🛠 Development</button>
+          <button class="toggle-opt" id="modeProdBtn" onclick="switchMode('prod')">📦 Production</button>
+        </div>
+      </div>
+
+      <div id="modeContent">
+        <div id="modeDev">
+          <div class="card">
+            <h3>🛠 Development Mode — <code>npm run dev</code></h3>
+            <ul style="list-style:none;padding:0;">
+              <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13.5px;color:var(--muted2);">⚡ <strong style="color:var(--text)">Vite Dev Server</strong> — Extremely fast startup, serves files directly from source</li>
+              <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13.5px;color:var(--muted2);">🔄 <strong style="color:var(--text)">HMR (Hot Module Replacement)</strong> — Changes appear in browser without full reload</li>
+              <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13.5px;color:var(--muted2);">📖 <strong style="color:var(--text)">No minification</strong> — Code stays readable, easy to debug</li>
+              <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13.5px;color:var(--muted2);">🗺 <strong style="color:var(--text)">Source maps active</strong> — DevTools shows your real file names and line numbers</li>
+              <li style="padding:6px 0;font-size:13.5px;color:var(--muted2);">🐛 <strong style="color:var(--text)">Verbose errors</strong> — React dev mode, detailed warnings</li>
+            </ul>
+          </div>
+        </div>
+        <div id="modeProd" style="display:none;">
+          <div class="card">
+            <h3>📦 Production Mode — <code>npm run build</code></h3>
+            <ul style="list-style:none;padding:0;">
+              <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13.5px;color:var(--muted2);">🗜 <strong style="color:var(--text)">Minification</strong> — Whitespace removed, variable names shortened, file sizes shrink 70-80%</li>
+              <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13.5px;color:var(--muted2);">🌳 <strong style="color:var(--text)">Tree-shaking</strong> — Unused imports/functions are automatically removed</li>
+              <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13.5px;color:var(--muted2);">✂️ <strong style="color:var(--text)">Code splitting</strong> — App split into chunks, loaded on demand (lazy loading)</li>
+              <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13.5px;color:var(--muted2);">🔑 <strong style="color:var(--text)">Content hashing</strong> — File names include hash for cache busting</li>
+              <li style="padding:6px 0;font-size:13.5px;color:var(--muted2);">📁 <strong style="color:var(--text)">Output: dist/</strong> — Static files ready to serve from any CDN</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-family:var(--display);font-size:17px;font-weight:700;color:var(--text);margin:28px 0 12px;">The Build Pipeline — Click each step</h3>
+
+      <div class="pipeline" id="pipeline">
+        <div class="pipe-step active" onclick="showPipeStep(0)">
+          <span class="pipe-num">Step 01</span>
+          <span class="pipe-icon">✍️</span>
+          <span class="pipe-label">Source Code</span>
+          <span class="pipe-sub">JSX · TS · CSS</span>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step" onclick="showPipeStep(1)">
+          <span class="pipe-num">Step 02</span>
+          <span class="pipe-icon">⚙️</span>
+          <span class="pipe-label">npm run build</span>
+          <span class="pipe-sub">Vite / Rollup</span>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step" onclick="showPipeStep(2)">
+          <span class="pipe-num">Step 03</span>
+          <span class="pipe-icon">📦</span>
+          <span class="pipe-label">dist/ Output</span>
+          <span class="pipe-sub">Static files</span>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step" onclick="showPipeStep(3)">
+          <span class="pipe-num">Step 04</span>
+          <span class="pipe-icon">🌐</span>
+          <span class="pipe-label">CDN Edge</span>
+          <span class="pipe-sub">Vercel / Netlify</span>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step" onclick="showPipeStep(4)">
+          <span class="pipe-num">Step 05</span>
+          <span class="pipe-icon">👁️</span>
+          <span class="pipe-label">User Sees It</span>
+          <span class="pipe-sub">your-app.vercel.app</span>
+        </div>
+      </div>
+
+      <div class="pipe-detail show" id="pipeDetail">
+        <h4 id="pipeTitle">Step 1 — Source Code</h4>
+        <ul id="pipeList">
+          <li>You write JSX, TypeScript, CSS Modules, assets</li>
+          <li>Browser can't understand JSX or TypeScript directly</li>
+          <li>Vite watches for changes during development (HMR)</li>
+        </ul>
+      </div>
+
+    </section>
+
+    <!-- ──────────────────────────────── -->
+    <!-- S3: dist/ Folder -->
+    <!-- ──────────────────────────────── -->
+    <section class="section" id="s-dist">
+      <div class="section-header">
+        <div class="section-icon icon-cyan">📁</div>
+        <div>
+          <div class="section-num">03 / Output</div>
+          <h2>The dist/ Folder</h2>
+        </div>
+      </div>
+
+      <p>After running <code>npm run build</code>, Vite creates a <code>dist/</code> directory containing fully static, production-ready files. This is what Vercel or Netlify actually serves to your users.</p>
+
+      <div class="file-tree">
+        <div><span class="ft-dir">dist/</span></div>
+        <div class="ft-indent">
+          <div><span class="ft-file">├── index.html</span>  <span class="ft-comment">← entry point, ~2KB</span></div>
+          <div><span class="ft-dir">├── assets/</span></div>
+          <div class="ft-indent2">
+            <div><span class="ft-file">│   ├── index-</span><span class="ft-hash">[8fk2j9a]</span><span class="ft-file">.js</span>     <span class="ft-comment">← main JS bundle</span></div>
+            <div><span class="ft-file">│   ├── index-</span><span class="ft-hash">[3dc8e1f]</span><span class="ft-file">.css</span>    <span class="ft-comment">← compiled styles</span></div>
+            <div><span class="ft-file">│   ├── vendor-</span><span class="ft-hash">[9ab3c7d]</span><span class="ft-file">.js</span>    <span class="ft-comment">← third-party libs</span></div>
+            <div><span class="ft-file">│   └── logo-</span><span class="ft-hash">[5ef1b2c]</span><span class="ft-file">.svg</span>    <span class="ft-comment">← hashed static assets</span></div>
+          </div>
+          <div><span class="ft-file">└── favicon.ico</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <h3>🔑 Content Hashing — Why those weird filenames?</h3>
+        <p style="font-size:13.5px;color:var(--muted2);margin:0;">The <span data-tip="A unique fingerprint based on file contents">hash</span> in filenames (e.g. <code>index-8fk2j9a.js</code>) changes every time the file's contents change. This enables <strong>aggressive browser caching</strong>: unchanged files are served from cache, changed files get new names so users always see the latest version.</p>
+      </div>
+
+      <div class="callout callout-danger">
+        <span class="callout-icon">🚨</span>
+        <div class="callout-body">
+          <strong>Never commit dist/ to Git</strong>
+          <p>The <code>dist/</code> folder is generated output. Add it to <code>.gitignore</code>. Vercel and Netlify will build it themselves during deployment.</p>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="acc-item">
+          <div class="acc-trigger" onclick="toggleAcc(this)">
+            <div class="acc-trigger-left"><span class="acc-icon">🌳</span> What is Tree-shaking exactly?</div>
+            <span class="acc-chevron">▶</span>
+          </div>
+          <div class="acc-body">
+            <div class="acc-inner">
+              <p>Tree-shaking is a form of dead code elimination. If you <code>import {'{'} something {'}'} from 'lodash'</code> but never use <code>something</code>, the build tool removes it entirely. Your final bundle only contains code that is actually executed.</p>
+              <p>This is why modern bundlers (Vite, Rollup, Webpack) prefer ES Modules (<code>import/export</code>) over CommonJS (<code>require</code>) — static imports can be analyzed at build time.</p>
+            </div>
+          </div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-trigger" onclick="toggleAcc(this)">
+            <div class="acc-trigger-left"><span class="acc-icon">✂️</span> What is Code Splitting?</div>
+            <span class="acc-chevron">▶</span>
+          </div>
+          <div class="acc-body">
+            <div class="acc-inner">
+              <p>Instead of sending your entire app in one giant JS file, code splitting breaks it into smaller chunks. Pages or heavy components loaded with <code>React.lazy()</code> become separate files — the user only downloads them when needed.</p>
+              <div class="code-block">
+                <div class="code-header">
+                  <span class="code-filename">LazyRoute.jsx</span>
+                  <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><span class="t-comment">// This creates a separate chunk — only loaded on /dashboard</span>
+<span class="t-kw">const</span> <span class="t-var">Dashboard</span> = <span class="t-fn">React.lazy</span>(() => <span class="t-fn">import</span>(<span class="t-str">'./pages/Dashboard'</span>));
+
+<span class="t-kw">function</span> <span class="t-fn">App</span>() {
+  <span class="t-kw">return</span> (
+    &lt;<span class="t-fn">Suspense</span> fallback={&lt;<span class="t-var">Loading</span> /&gt;}&gt;
+      &lt;<span class="t-fn">Route</span> path=<span class="t-str">"/dashboard"</span> element={&lt;<span class="t-var">Dashboard</span> /&gt;} /&gt;
+    &lt;/<span class="t-fn">Suspense</span>&gt;
+  );
+}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────── -->
+    <!-- S4: Environment Variables -->
+    <!-- ──────────────────────────────── -->
+    <section class="section" id="s-env">
+      <div class="section-header">
+        <div class="section-icon icon-orange">🔐</div>
+        <div>
+          <div class="section-num">04 / Configuration</div>
+          <h2>Environment Variables</h2>
+        </div>
+      </div>
+
+      <p>Environment variables are <strong>values stored outside your code</strong> that change depending on the environment (development, staging, production). They keep sensitive information out of your codebase.</p>
+
+      <div class="card-grid" style="margin-bottom:20px;">
+        <div class="card">
+          <h3>🔑 Common Examples</h3>
+          <ul style="list-style:none;padding:0;">
+            <li style="padding:4px 0;font-size:13px;color:var(--muted2);">• <code>VITE_API_URL</code> — backend endpoint</li>
+            <li style="padding:4px 0;font-size:13px;color:var(--muted2);">• <code>VITE_STRIPE_KEY</code> — payment public key</li>
+            <li style="padding:4px 0;font-size:13px;color:var(--muted2);">• <code>VITE_FIREBASE_KEY</code> — Firebase config</li>
+            <li style="padding:4px 0;font-size:13px;color:var(--muted2);">• <code>VITE_FEATURE_DARK_MODE</code> — feature flags</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>💡 Why Not Just Hardcode?</h3>
+          <ul style="list-style:none;padding:0;">
+            <li style="padding:4px 0;font-size:13px;color:var(--muted2);">🔒 Secrets must not appear in Git</li>
+            <li style="padding:4px 0;font-size:13px;color:var(--muted2);">🌍 Different URL per environment</li>
+            <li style="padding:4px 0;font-size:13px;color:var(--muted2);">👥 Each developer has own local values</li>
+            <li style="padding:4px 0;font-size:13px;color:var(--muted2);">🔄 Change config without changing code</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Security visual -->
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body">
+          <strong>Frontend env vars are NOT secret</strong>
+          <p>Any variable exposed to the browser (prefixed with <code>VITE_</code>) gets bundled into the JavaScript file and is readable in DevTools → Sources. Never put private keys, passwords, or database URLs in <code>VITE_</code> variables. Those belong on your backend only.</p>
+        </div>
+      </div>
+
+      <div class="security-flow">
+        <div class="sec-box safe">
+          <span class="title">✅ Frontend (Public)</span>
+          <div class="val">VITE_API_URL<br/>VITE_PUBLIC_KEY<br/>VITE_APP_TITLE</div>
+        </div>
+        <div class="sec-arrow">→</div>
+        <div class="sec-box danger">
+          <span class="title">🚨 Backend Only (Secret)</span>
+          <div class="val">DATABASE_URL<br/>SECRET_KEY<br/>STRIPE_SECRET</div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">.env</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="t-comment"># ✅ Safe — VITE_ prefix exposes to browser bundle</span>
+<span class="t-var">VITE_API_URL</span>=https://api.example.com
+<span class="t-var">VITE_APP_TITLE</span>=My Dashboard
+<span class="t-var">VITE_FEATURE_DARK_MODE</span>=true
+
+<span class="t-comment"># 🚨 NEVER in frontend .env — backend only!</span>
+<span class="t-red">DATABASE_URL</span>=postgres://user:pass@host/db
+<span class="t-red">SECRET_KEY</span>=super-secret-abc123
+<span class="t-red">STRIPE_SECRET_KEY</span>=sk_live_...</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">Using env vars in your code</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="t-comment">// Read in any Vite component or utility file</span>
+<span class="t-kw">const</span> <span class="t-var">apiUrl</span>  = <span class="t-fn">import.meta.env</span>.VITE_API_URL;
+<span class="t-kw">const</span> <span class="t-var">title</span>   = <span class="t-fn">import.meta.env</span>.VITE_APP_TITLE;
+
+<span class="t-comment">// Built-in Vite booleans (no VITE_ prefix needed)</span>
+<span class="t-kw">const</span> <span class="t-var">isDev</span>   = <span class="t-fn">import.meta.env</span>.DEV;    <span class="t-comment">// true in dev</span>
+<span class="t-kw">const</span> <span class="t-var">isProd</span>  = <span class="t-fn">import.meta.env</span>.PROD;   <span class="t-comment">// true in prod</span>
+<span class="t-kw">const</span> <span class="t-var">mode</span>    = <span class="t-fn">import.meta.env</span>.MODE;   <span class="t-comment">// "development" | "production"</span>
+
+<span class="t-comment">// Usage in fetch</span>
+<span class="t-kw">const</span> <span class="t-var">res</span> = <span class="t-kw">await</span> <span class="t-fn">fetch</span>(`<span class="t-str">${import.meta.env.VITE_API_URL}/users</span>`);
+
+<span class="t-comment">// Conditional logic based on environment</span>
+<span class="t-kw">if</span> (<span class="t-fn">import.meta.env</span>.DEV) {
+  <span class="t-fn">console.log</span>(<span class="t-str">'Debug info — dev only'</span>);
+}</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">src/vite-env.d.ts — TypeScript support</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="t-comment">/// &lt;reference types="vite/client" /&gt;</span>
+
+<span class="t-kw">interface</span> <span class="t-fn">ImportMetaEnv</span> {
+  <span class="t-kw">readonly</span> <span class="t-var">VITE_API_URL</span>: <span class="t-kw">string</span>;
+  <span class="t-kw">readonly</span> <span class="t-var">VITE_APP_TITLE</span>: <span class="t-kw">string</span>;
+  <span class="t-kw">readonly</span> <span class="t-var">VITE_FEATURE_DARK_MODE</span>: <span class="t-kw">string</span>;
+}
+
+<span class="t-kw">interface</span> <span class="t-fn">ImportMeta</span> {
+  <span class="t-kw">readonly</span> <span class="t-var">env</span>: <span class="t-fn">ImportMetaEnv</span>;
+}
+
+<span class="t-comment">// Now import.meta.env.VITE_API_URL has autocomplete ✨</span></pre>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────── -->
+    <!-- S5: .env files in Vite -->
+    <!-- ──────────────────────────────── -->
+    <section class="section" id="s-vite-env">
+      <div class="section-header">
+        <div class="section-icon icon-purple">📄</div>
+        <div>
+          <div class="section-num">05 / .env Files</div>
+          <h2>.env Files & Priority</h2>
+        </div>
+      </div>
+
+      <p>Vite loads different <code>.env</code> files depending on the current mode. Understanding the priority order helps you avoid hard-to-debug issues where the wrong value is being used.</p>
+
+      <div class="env-priority" id="envPriority">
+        <div class="env-row" onclick="toggleEnvRow(this, 'env-d1')">
+          <span class="env-badge" style="background:rgba(255,84,112,.12);color:var(--red);border:1px solid rgba(255,84,112,.2);">.env.local</span>
+          <span class="env-file">.env.local</span>
+          <span class="env-desc">Highest priority · Personal, never committed to Git</span>
+          <span class="env-expand-icon">▶</span>
+        </div>
+        <div class="env-detail" id="env-d1">
+          <strong style="color:var(--text);font-size:13px;">Your personal overrides.</strong> This file is in <code>.gitignore</code> by default. Use it for your own API keys during development. It overrides everything else. Never share or commit this file.
+        </div>
+
+        <div class="env-row" onclick="toggleEnvRow(this, 'env-d2')">
+          <span class="env-badge" style="background:rgba(79,142,247,.1);color:var(--blue2);border:1px solid rgba(79,142,247,.2);">.env.development.local</span>
+          <span class="env-file">.env.development.local</span>
+          <span class="env-desc">Dev-mode personal overrides (not committed)</span>
+          <span class="env-expand-icon">▶</span>
+        </div>
+        <div class="env-detail" id="env-d2">
+          Same as <code>.env.local</code> but only loaded when running <code>npm run dev</code>. Useful if you need to override dev-specific values on your machine.
+        </div>
+
+        <div class="env-row" onclick="toggleEnvRow(this, 'env-d3')">
+          <span class="env-badge" style="background:rgba(79,142,247,.1);color:var(--blue2);border:1px solid rgba(79,142,247,.2);">.env.development</span>
+          <span class="env-file">.env.development</span>
+          <span class="env-desc">Loaded only during npm run dev · Can be committed</span>
+          <span class="env-expand-icon">▶</span>
+        </div>
+        <div class="env-detail" id="env-d3">
+          Shared dev config that your whole team uses. Safe to commit. Example: point the API URL to a staging server that all developers use.
+        </div>
+
+        <div class="env-row" onclick="toggleEnvRow(this, 'env-d4')">
+          <span class="env-badge" style="background:rgba(61,220,151,.1);color:var(--green);border:1px solid rgba(61,220,151,.2);">.env.production</span>
+          <span class="env-file">.env.production</span>
+          <span class="env-desc">Loaded during npm run build · Production values</span>
+          <span class="env-expand-icon">▶</span>
+        </div>
+        <div class="env-detail" id="env-d4">
+          Used at build time when deploying. Can be committed since it should only contain non-secret production config. Platform env vars (Vercel/Netlify) override these at build time.
+        </div>
+
+        <div class="env-row" onclick="toggleEnvRow(this, 'env-d5')">
+          <span class="env-badge" style="background:rgba(255,255,255,.06);color:var(--muted2);border:1px solid var(--border2);">.env</span>
+          <span class="env-file">.env</span>
+          <span class="env-desc">Lowest priority · Loaded in all modes · Default values</span>
+          <span class="env-expand-icon">▶</span>
+        </div>
+        <div class="env-detail" id="env-d5">
+          The base/default config file. Loaded in every mode. Put non-sensitive defaults here. All other files override these values when they define the same key.
+        </div>
+      </div>
+
+      <h3 style="font-family:var(--display);font-size:16px;font-weight:700;color:var(--text);margin:28px 0 12px;">gitignore & .env.example Pattern</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">.gitignore</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="t-comment"># Environment variables — NEVER commit these</span>
+<span class="t-red">.env</span>
+<span class="t-red">.env.local</span>
+<span class="t-red">.env.*.local</span>
+
+<span class="t-comment"># Build output</span>
+<span class="t-red">dist/</span>
+<span class="t-red">build/</span>
+
+<span class="t-comment"># Dependencies</span>
+<span class="t-red">node_modules/</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">.env.example — ✅ Commit this file</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="t-comment"># Copy this file to .env.local and fill in your values</span>
+<span class="t-comment"># cp .env.example .env.local</span>
+
+<span class="t-var">VITE_API_URL</span>=
+<span class="t-var">VITE_APP_TITLE</span>=
+<span class="t-var">VITE_FEATURE_DARK_MODE</span>=</pre>
+      </div>
+
+      <div class="callout callout-danger">
+        <span class="callout-icon">🚨</span>
+        <div class="callout-body">
+          <strong>If .env lands in Git history, treat it as compromised</strong>
+          <p>Even one accidental commit exposes your keys. Rotate all API keys immediately. Use <code>git filter-repo</code> to scrub history. Prevention is far easier than cleanup.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────── -->
+    <!-- S6: Platforms -->
+    <!-- ──────────────────────────────── -->
+    <section class="section" id="s-platforms">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🚀</div>
+        <div>
+          <div class="section-num">06 / Platforms</div>
+          <h2>Vercel vs Netlify</h2>
+        </div>
+      </div>
+
+      <p>Both platforms offer generous free tiers for frontend hosting and are industry-standard choices. Here's a practical comparison:</p>
+
+      <div class="tab-container">
+        <div class="tab-list">
+          <button class="tab-btn active" onclick="switchTab('compare')">Side by Side</button>
+          <button class="tab-btn" onclick="switchTab('vercel')">▲ Vercel Deep Dive</button>
+          <button class="tab-btn" onclick="switchTab('netlify')">◆ Netlify Deep Dive</button>
+        </div>
+
+        <div class="tab-panel active" id="tab-compare">
+          <div class="card-grid">
+            <div class="platform-card">
+              <div class="platform-name" style="color:var(--blue2);">▲ Vercel</div>
+              <div class="platform-tagline">Made by the Next.js team — React-first</div>
+              <ul class="feature-list">
+                <li><span>✅</span><span>Optimal for React & Next.js projects</span></li>
+                <li><span>✅</span><span>Deploy in ~30 seconds</span></li>
+                <li><span>✅</span><span>Preview URL for every PR automatically</span></li>
+                <li><span>✅</span><span>Serverless Functions (API routes)</span></li>
+                <li><span>✅</span><span>Global Edge Network (fast everywhere)</span></li>
+                <li><span>⚡</span><span>Free: 100 deploys/day · Bandwidth limits</span></li>
+              </ul>
+              <div class="verdict-box" style="background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);color:var(--blue2);">
+                🏆 Best for: React/Vite projects, modern stack
+              </div>
+            </div>
+            <div class="platform-card">
+              <div class="platform-name" style="color:#c49fff;">◆ Netlify</div>
+              <div class="platform-tagline">Beginner-friendly, most flexible</div>
+              <ul class="feature-list">
+                <li><span>✅</span><span>Simplest UI — great for beginners</span></li>
+                <li><span>✅</span><span>Drag & drop deploy (no Git needed)</span></li>
+                <li><span>✅</span><span>Built-in form handling (no backend)</span></li>
+                <li><span>✅</span><span>Netlify Functions (serverless)</span></li>
+                <li><span>✅</span><span>A/B split testing built in</span></li>
+                <li><span>⚡</span><span>Free: 300 build min/mo · 100GB bandwidth</span></li>
+              </ul>
+              <div class="verdict-box" style="background:rgba(155,109,255,.08);border:1px solid rgba(155,109,255,.2);color:#c49fff;">
+                🏆 Best for: quick demos, beginners, form projects
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-tip" style="margin-top:16px;">
+            <span class="callout-icon">💡</span>
+            <div class="callout-body">
+              <strong>Recommendation</strong>
+              <p>Both are excellent. For a React/Vite project, most developers choose Vercel. Pick one, commit to it, get the live URL. The choice is less important than shipping.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tab-vercel">
+          <div class="card" style="margin-bottom:16px;">
+            <h3>How Vercel handles your Vite project</h3>
+            <p style="font-size:13.5px;color:var(--muted2);">When you connect a Vite repo, Vercel auto-detects the framework and pre-configures: <code>npm run build</code> as the build command, <code>dist</code> as the output directory, and SPA rewrites so page refreshes don't 404.</p>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Environment</th><th>When?</th><th>Example API URL</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Production</td><td>Push to <code>main</code> branch</td><td>api.production.com</td></tr>
+              <tr><td>Preview</td><td>PR / feature branch push</td><td>api.staging.com</td></tr>
+              <tr><td>Development</td><td><code>vercel dev</code> locally</td><td>localhost:8080</td></tr>
+            </tbody>
+          </table>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-filename">vercel.json — SPA routing config</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre>{
+  <span class="t-key">"rewrites"</span>: [
+    { <span class="t-key">"source"</span>: <span class="t-str">"/(.*)"</span>, <span class="t-key">"destination"</span>: <span class="t-str">"/"</span> }
+  ]
+}</pre>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tab-netlify">
+          <div class="card" style="margin-bottom:16px;">
+            <h3>Two ways to deploy on Netlify</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;">
+              <div style="padding:14px;background:rgba(61,220,151,.06);border:1px solid rgba(61,220,151,.2);border-radius:8px;">
+                <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:6px;">🔗 Git Integration (Recommended)</div>
+                <div style="font-size:12.5px;color:var(--muted2);">Connect repo → auto-deploy on push → full CI/CD pipeline with preview URLs</div>
+              </div>
+              <div style="padding:14px;background:rgba(255,140,66,.06);border:1px solid rgba(255,140,66,.2);border-radius:8px;">
+                <div style="font-size:13px;font-weight:600;color:var(--orange);margin-bottom:6px;">🖱 Drag & Drop</div>
+                <div style="font-size:12.5px;color:var(--muted2);">Build locally → drag <code>dist/</code> to Netlify → instant deploy. No auto-update.</div>
+              </div>
+            </div>
+          </div>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-filename">public/_redirects — Required for SPA on Netlify</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><span class="t-comment"># Redirect all requests to index.html</span>
+<span class="t-comment"># Status 200 = "this is not an error, serve the page"</span>
+/*    /index.html   200</pre>
+          </div>
+          <div class="callout callout-warn">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-body">
+              <strong>Without _redirects, you'll get 404 on page refresh</strong>
+              <p>On Netlify, navigating to <code>/about</code> and refreshing will return 404 unless this file exists. Vercel handles this automatically for Vite projects.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────── -->
+    <!-- S7: Deploy Steps -->
+    <!-- ──────────────────────────────── -->
+    <section class="section" id="s-deploy-steps">
+      <div class="section-header">
+        <div class="section-icon icon-green">📋</div>
+        <div>
+          <div class="section-num">07 / How-To</div>
+          <h2>Deploying Step by Step</h2>
+        </div>
+      </div>
+
+      <div class="tab-container">
+        <div class="tab-list">
+          <button class="tab-btn active" onclick="switchTab2('vsteps')">▲ Vercel</button>
+          <button class="tab-btn" onclick="switchTab2('nsteps')">◆ Netlify</button>
+        </div>
+
+        <div class="tab-panel active" id="tab-vsteps">
+          <div class="steps">
+            <div class="step">
+              <div class="step-dot">1</div>
+              <h4>Sign up at vercel.com</h4>
+              <p>Use "Continue with GitHub" — this links your repositories directly to Vercel.</p>
+            </div>
+            <div class="step">
+              <div class="step-dot">2</div>
+              <h4>Import your repository</h4>
+              <p>Click "Add New Project" → select your GitHub repo → Vercel automatically detects Vite and pre-fills build settings.</p>
+            </div>
+            <div class="step">
+              <div class="step-dot">3</div>
+              <h4>Review configuration</h4>
+              <p>Framework: <strong>Vite</strong> · Build Command: <code>npm run build</code> · Output Directory: <code>dist</code>. All auto-detected. Rarely needs changes.</p>
+            </div>
+            <div class="step">
+              <div class="step-dot">4</div>
+              <h4>Add Environment Variables</h4>
+              <p>Before deploying, go to "Environment Variables" section. Add each <code>VITE_</code> variable. Set which environments they apply to (Production/Preview/Development).</p>
+            </div>
+            <div class="step">
+              <div class="step-dot">5</div>
+              <h4>Click Deploy 🚀</h4>
+              <p>~30 seconds later, your app is live at <code>your-project.vercel.app</code>. Every future push to <code>main</code> auto-deploys.</p>
+            </div>
+          </div>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">🔁</span>
+            <div class="callout-body">
+              <strong>Adding env vars after deploy?</strong>
+              <p>Go to Settings → Environment Variables → add your variable → then Deployments → find latest → "Redeploy". Environment variables are baked in at build time.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tab-nsteps">
+          <div class="steps">
+            <div class="step">
+              <div class="step-dot">1</div>
+              <h4>Sign up at netlify.com</h4>
+              <p>Use "Sign up with GitHub" for Git-based deploys, or just email for drag-and-drop.</p>
+            </div>
+            <div class="step">
+              <div class="step-dot">2</div>
+              <h4>Add new site → Import from Git</h4>
+              <p>Select GitHub → authorize → pick your repo.</p>
+            </div>
+            <div class="step">
+              <div class="step-dot">3</div>
+              <h4>Configure build</h4>
+              <p>Build command: <code>npm run build</code> · Publish directory: <code>dist</code> · Add your <code>VITE_</code> env vars in "Environment variables" section.</p>
+            </div>
+            <div class="step">
+              <div class="step-dot">4</div>
+              <h4>Add _redirects file</h4>
+              <p>Create <code>public/_redirects</code> with content <code>/* /index.html 200</code>. Without this, page refresh causes 404.</p>
+            </div>
+            <div class="step">
+              <div class="step-dot">5</div>
+              <h4>Deploy! 🚀</h4>
+              <p>Your site is live at <code>your-site.netlify.app</code>. Future pushes to main auto-deploy.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────── -->
+    <!-- S8: SPA Routing -->
+    <!-- ──────────────────────────────── -->
+    <section class="section" id="s-spa">
+      <div class="section-header">
+        <div class="section-icon icon-purple">🔀</div>
+        <div>
+          <div class="section-num">08 / Routing</div>
+          <h2>SPA Routing Problem</h2>
+        </div>
+      </div>
+
+      <p>This is one of the most common "it worked locally but broke in production" issues for React developers. Understanding it once will save you hours.</p>
+
+      <div class="routing-diagram">
+        <h3 style="font-family:var(--display);font-size:15px;color:var(--text);margin-bottom:20px;">❌ Without _redirects — What breaks</h3>
+        <div class="flow-box">
+          <div class="flow-row">
+            <div class="flow-node user">User types: /about</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">Browser requests /about from server</div>
+          </div>
+          <div class="flow-row" style="margin-left:40px;">
+            <div class="flow-arrow">↓</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-node bad">Server looks for about.html → not found</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node bad">404 Error ❌</div>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:20px 0;"></div>
+
+        <h3 style="font-family:var(--display);font-size:15px;color:var(--text);margin-bottom:20px;">✅ With _redirects — Correct behavior</h3>
+        <div class="flow-box">
+          <div class="flow-row">
+            <div class="flow-node user">User types: /about</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">Server redirects all routes → index.html</div>
+          </div>
+          <div class="flow-row" style="margin-left:40px;">
+            <div class="flow-arrow">↓</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-node good">React Router handles /about client-side</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node good">About page renders ✅</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="acc-item">
+          <div class="acc-trigger" onclick="toggleAcc(this)">
+            <div class="acc-trigger-left"><span class="acc-icon">🧠</span> Why does this happen? (the deep explanation)</div>
+            <span class="acc-chevron">▶</span>
+          </div>
+          <div class="acc-body">
+            <div class="acc-inner">
+              <p>In a traditional website, every URL corresponds to a physical file on the server — <code>/about</code> maps to <code>about.html</code>. Your server finds the file and sends it.</p>
+              <p>In a React SPA, there is only one real file: <code>index.html</code>. React Router then intercepts the URL and renders the correct component client-side. This works perfectly when navigating within the app.</p>
+              <p>The problem: if a user refreshes the page on <code>/about</code>, the browser asks the server for <code>/about</code> — the server has no such file, returns 404. The <code>_redirects</code> rule says "send index.html for every path instead" so React gets to boot up and handle routing.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────── -->
+    <!-- S9: CI/CD & Preview -->
+    <!-- ──────────────────────────────── -->
+    <section class="section" id="s-cicd">
+      <div class="section-header">
+        <div class="section-icon icon-cyan">🔄</div>
+        <div>
+          <div class="section-num">09 / CI/CD</div>
+          <h2>Auto-Deploy, Preview & Rollback</h2>
+        </div>
+      </div>
+
+      <div class="card-grid" style="margin-bottom:20px;">
+        <div class="card">
+          <h3>⚡ Auto-Deploy</h3>
+          <div class="steps" style="margin-top:12px;">
+            <div class="step" style="margin-bottom:12px;">
+              <div class="step-dot" style="left:-28px;">1</div>
+              <p style="margin:0;font-size:13px;">You push to <code>main</code> branch on GitHub</p>
+            </div>
+            <div class="step" style="margin-bottom:12px;">
+              <div class="step-dot" style="left:-28px;">2</div>
+              <p style="margin:0;font-size:13px;">GitHub webhook triggers Vercel/Netlify</p>
+            </div>
+            <div class="step" style="margin-bottom:12px;">
+              <div class="step-dot" style="left:-28px;">3</div>
+              <p style="margin:0;font-size:13px;">Platform runs <code>npm run build</code> in cloud</p>
+            </div>
+            <div class="step">
+              <div class="step-dot" style="left:-28px;">4</div>
+              <p style="margin:0;font-size:13px;">New version is live in ~30-60 seconds ✅</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>👁 Preview Deployments</h3>
+          <p style="font-size:13.5px;color:var(--muted2);margin-bottom:12px;">Every branch and Pull Request gets its own unique URL:</p>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:var(--mono);font-size:11.5px;color:var(--muted2);">
+            <div style="color:var(--muted);margin-bottom:6px;"># PR #42 — feature/dark-mode</div>
+            <div style="color:var(--blue2);">🔗 your-app-git-feature-dark-mode.vercel.app</div>
+          </div>
+          <div style="margin-top:10px;font-size:13px;color:var(--muted2);">
+            Mentors can review visually before merging. Changes don't touch production.
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>↩️ Rollback — Your Safety Net</h3>
+        <p style="font-size:13.5px;color:var(--muted2);">Every deploy is saved as a snapshot. If a bad deploy goes to production:</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;">
+          <div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:6px;">VERCEL</div>
+            <p style="font-size:13px;color:var(--muted2);margin:0;">Deployments → find the good version → "···" → "Promote to Production"</p>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:6px;">NETLIFY</div>
+            <p style="font-size:13px;color:var(--muted2);margin:0;">Deploys → find the good version → "Publish deploy"</p>
+          </div>
+        </div>
+        <div class="callout callout-tip" style="margin-top:12px;margin-bottom:0;">
+          <span class="callout-icon">⚡</span>
+          <div class="callout-body">
+            <strong>Rollback doesn't rebuild</strong>
+            <p>It activates a previously built snapshot. That's why it's nearly instant — no re-running <code>npm run build</code>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <h3 style="font-family:var(--display);font-size:17px;font-weight:700;color:var(--text);margin-bottom:16px;">Custom Domain (Bonus)</h3>
+
+      <p>Both platforms let you connect your own domain name. The free subdomain is fine for portfolios, but a custom domain looks more professional.</p>
+
+      <table>
+        <thead>
+          <tr><th>Step</th><th>What to do</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1. Buy domain</td><td>Namecheap, Google Domains, Cloudflare</td><td>~$10-15/year</td></tr>
+          <tr><td>2. Add to platform</td><td>Settings → Domains → add your domain</td><td>Vercel guides you</td></tr>
+          <tr><td>3. Update DNS</td><td>Add CNAME pointing to platform</td><td>Propagates in ~24h</td></tr>
+          <tr><td>4. HTTPS</td><td>Automatic — Let's Encrypt certificate</td><td>No extra cost</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ──────────────────────────────── -->
+    <!-- S10: Checklist -->
+    <!-- ──────────────────────────────── -->
+    <section class="section" id="s-checklist">
+      <div class="section-header">
+        <div class="section-icon icon-green">✅</div>
+        <div>
+          <div class="section-num">10 / Checklist</div>
+          <h2>Production Deploy Checklist</h2>
+        </div>
+      </div>
+
+      <p>Before considering your deployment complete, verify every item below. Click each item to mark it done.</p>
+
+      <div id="checklistProgress">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-family:var(--mono);font-size:11px;color:var(--muted);">PROGRESS</span>
+          <span id="checkCount" style="font-family:var(--mono);font-size:11px;color:var(--blue2);">0 / 12 done</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="checkFill"></div>
+        </div>
+      </div>
+
+      <div class="checklist-grid">
+        <div class="check-group">
+          <div class="check-group-title">⚙ Before Deploy</div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <span><code>npm run build</code> completes without errors</span>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <span><code>.env.example</code> file exists in repo</span>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <span><code>.env</code> & <code>.env.local</code> in <code>.gitignore</code></span>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <span><code>dist/</code> in <code>.gitignore</code></span>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <span>All <code>console.log</code> debug calls removed</span>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <span><code>_redirects</code> (Netlify) or <code>vercel.json</code> ready</span>
+          </div>
+        </div>
+        <div class="check-group">
+          <div class="check-group-title">🚀 After Deploy</div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <span>Env variables added to platform dashboard</span>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <span>Live URL opens without 404</span>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <span>Page refresh on all routes works</span>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <span>API calls reach production backend</span>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <span>Mobile layout checked (responsive)</span>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <span>HTTPS active, no mixed-content errors</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="checkDoneMsg" style="display:none;margin-top:20px;">
+        <div class="callout callout-tip">
+          <span class="callout-icon">🎉</span>
+          <div class="callout-body">
+            <strong>You're ready to ship!</strong>
+            <p>All checks passed. Your deployment is production-ready. Share that live link!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Common mistakes accordion -->
+      <div style="margin-top:32px;">
+        <h3 style="font-family:var(--display);font-size:17px;font-weight:700;color:var(--text);margin-bottom:16px;">⚠️ Most Common Deployment Mistakes</h3>
+        <div class="accordion">
+          <div class="acc-item">
+            <div class="acc-trigger" onclick="toggleAcc(this)">
+              <div class="acc-trigger-left"><span class="acc-icon">🔑</span> Forgot to add env vars to the platform</div>
+              <span class="acc-chevron">▶</span>
+            </div>
+            <div class="acc-body">
+              <div class="acc-inner">
+                <p>Your <code>.env.local</code> file is on your machine, not in Git. The platform has no idea what <code>VITE_API_URL</code> is unless you explicitly add it in Settings → Environment Variables. Always do this before your first deploy.</p>
+              </div>
+            </div>
+          </div>
+          <div class="acc-item">
+            <div class="acc-trigger" onclick="toggleAcc(this)">
+              <div class="acc-trigger-left"><span class="acc-icon">🔄</span> Changed env var but didn't redeploy</div>
+              <span class="acc-chevron">▶</span>
+            </div>
+            <div class="acc-body">
+              <div class="acc-inner">
+                <p>Environment variables are embedded in your bundle at build time, not runtime. If you update a value in the platform dashboard, you must trigger a new deployment for it to take effect. Go to Deployments → Redeploy.</p>
+              </div>
+            </div>
+          </div>
+          <div class="acc-item">
+            <div class="acc-trigger" onclick="toggleAcc(this)">
+              <div class="acc-trigger-left"><span class="acc-icon">🔀</span> Missing _redirects on Netlify</div>
+              <span class="acc-chevron">▶</span>
+            </div>
+            <div class="acc-body">
+              <div class="acc-inner">
+                <p>The most common React-on-Netlify bug. Create <code>public/_redirects</code> with the content <code>/* /index.html 200</code>. The <code>public/</code> folder is copied as-is to <code>dist/</code> during build, so the file will exist at the root of your deployment.</p>
+              </div>
+            </div>
+          </div>
+          <div class="acc-item">
+            <div class="acc-trigger" onclick="toggleAcc(this)">
+              <div class="acc-trigger-left"><span class="acc-icon">🔗</span> API URLs still pointing to localhost</div>
+              <span class="acc-chevron">▶</span>
+            </div>
+            <div class="acc-body">
+              <div class="acc-inner">
+                <p>If you hardcoded <code>http://localhost:3000</code> instead of using <code>import.meta.env.VITE_API_URL</code>, your production app will try to call localhost — which doesn't exist on a user's browser. Always use env vars for URLs.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // ── Read progress bar ──
+  window.addEventListener('scroll', () => {
+    const scrollTop = document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    document.getElementById('readProgress').style.width = pct + '%';
+  });
+
+  // ── Sidebar nav highlight ──
+  function goToSection(id, el) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  const sections = document.querySelectorAll('.section');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        navItems.forEach(n => {
+          n.classList.toggle('active', n.dataset.target === id);
+        });
+      }
+    });
+  }, { threshold: .2, rootMargin: '0px 0px -50% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // ── Mode toggle ──
+  function switchMode(mode) {
+    document.getElementById('modeDev').style.display = mode === 'dev' ? 'block' : 'none';
+    document.getElementById('modeProd').style.display = mode === 'prod' ? 'block' : 'none';
+    document.getElementById('modeDevBtn').classList.toggle('on', mode === 'dev');
+    document.getElementById('modeProdBtn').classList.toggle('on', mode === 'prod');
+  }
+
+  // ── Pipeline steps ──
+  const pipeData = [
+    {
+      title: 'Step 1 — Source Code',
+      items: [
+        'You write JSX, TypeScript, CSS Modules, and import assets',
+        'Browsers cannot understand JSX or TypeScript natively',
+        'Vite watches your files and HMRs during development'
+      ]
+    },
+    {
+      title: 'Step 2 — npm run build',
+      items: [
+        'Vite invokes Rollup under the hood to bundle your code',
+        'TypeScript is transpiled, JSX is compiled to React.createElement()',
+        'Tree-shaking, minification, and code splitting are applied'
+      ]
+    },
+    {
+      title: 'Step 3 — dist/ Output',
+      items: [
+        'A dist/ folder is created with static HTML, JS, and CSS',
+        'Each file has a content hash in its name for cache busting',
+        'This folder is what gets uploaded to the CDN'
+      ]
+    },
+    {
+      title: 'Step 4 — CDN Edge Network',
+      items: [
+        'Vercel/Netlify distributes your files to servers worldwide',
+        'A user in Tokyo gets files from an Asian server — fast!',
+        'No backend needed — all files are served as static assets'
+      ]
+    },
+    {
+      title: 'Step 5 — User Sees It',
+      items: [
+        'Browser downloads index.html, then the JS/CSS bundles',
+        'React boots up and renders your app in the browser',
+        'Your app is live at your-project.vercel.app 🎉'
+      ]
+    }
+  ];
+
+  function showPipeStep(i) {
+    const steps = document.querySelectorAll('.pipe-step');
+    steps.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    const d = pipeData[i];
+    document.getElementById('pipeTitle').textContent = d.title;
+    document.getElementById('pipeList').innerHTML = d.items.map(t => `<li>${t}</li>`).join('');
+    document.getElementById('pipeDetail').classList.add('show');
+  }
+
+  // ── Tabs (section 6) ──
+  function switchTab(key) {
+    const container = document.getElementById('s-platforms');
+    container.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    container.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    const panelMap = { compare: 'tab-compare', vercel: 'tab-vercel', netlify: 'tab-netlify' };
+    document.getElementById(panelMap[key]).classList.add('active');
+    const keys = Object.keys(panelMap);
+    container.querySelectorAll('.tab-btn').forEach((btn, i) => {
+      if (keys[i] === key) btn.classList.add('active');
+    });
+  }
+
+  // ── Tabs (section 7) ──
+  function switchTab2(key) {
+    const container = document.getElementById('s-deploy-steps');
+    container.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    container.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    const panelMap2 = { vsteps: 'tab-vsteps', nsteps: 'tab-nsteps' };
+    document.getElementById(panelMap2[key]).classList.add('active');
+    const keys = Object.keys(panelMap2);
+    container.querySelectorAll('.tab-btn').forEach((btn, i) => {
+      if (keys[i] === key) btn.classList.add('active');
+    });
+  }
+
+  // ── Accordion ──
+  function toggleAcc(trigger) {
+    const item = trigger.closest('.acc-item');
+    const body = item.querySelector('.acc-body');
+    const inner = item.querySelector('.acc-inner');
+    const isOpen = item.classList.contains('open');
+    if (isOpen) {
+      item.classList.remove('open');
+      body.style.maxHeight = '0';
+    } else {
+      item.classList.add('open');
+      body.style.maxHeight = inner.scrollHeight + 40 + 'px';
+    }
+  }
+
+  // ── Env row expand ──
+  function toggleEnvRow(row, detailId) {
+    const detail = document.getElementById(detailId);
+    const isOpen = row.classList.contains('expanded');
+    document.querySelectorAll('.env-row').forEach(r => r.classList.remove('expanded'));
+    document.querySelectorAll('.env-detail').forEach(d => d.classList.remove('show'));
+    if (!isOpen) {
+      row.classList.add('expanded');
+      detail.classList.add('show');
+    }
+  }
+
+  // ── Checklist ──
+  const TOTAL = 12;
+  let doneCount = 0;
+
+  function toggleCheck(item) {
+    const wasDone = item.classList.contains('done');
+    item.classList.toggle('done', !wasDone);
+    item.querySelector('.check-box').textContent = wasDone ? '' : '✓';
+    doneCount = document.querySelectorAll('.check-item.done').length;
+    document.getElementById('checkCount').textContent = doneCount + ' / ' + TOTAL + ' done';
+    document.getElementById('checkFill').style.width = (doneCount / TOTAL * 100) + '%';
+    document.getElementById('checkDoneMsg').style.display = doneCount === TOTAL ? 'block' : 'none';
+  }
+
+  // ── Copy button ──
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  // ── Animate progress bar on scroll into view ──
+  const fillEl = document.getElementById('checkFill');
+  const fillObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) fillEl.style.width = (doneCount / TOTAL * 100) + '%'; });
+  }, { threshold: .5 });
+  fillObserver.observe(document.getElementById('checklistProgress'));
+</script>
+</body>
+</html>

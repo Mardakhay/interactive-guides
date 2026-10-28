@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React useState — Deep Dive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b10;
+    --bg2: #0d1117;
+    --bg3: #111820;
+    --bg4: #161e28;
+    --border: #1e2d3d;
+    --border2: #243446;
+    --accent: #00d4ff;
+    --accent2: #0099bb;
+    --accent3: #00ff88;
+    --accent4: #ff6b35;
+    --accent5: #a78bfa;
+    --text: #e2eaf4;
+    --text2: #8b9ab0;
+    --text3: #4a5a6e;
+    --glow: 0 0 20px rgba(0,212,255,0.3);
+    --glow2: 0 0 40px rgba(0,212,255,0.15);
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'Syne', sans-serif;
+    --font-code: 'JetBrains Mono', monospace;
+    --font-serif: 'Instrument Serif', serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden;line-height:1.7}
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--accent2)}
+
+  /* BACKGROUND GRID */
+  body::before{
+    content:'';position:fixed;inset:0;
+    background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+    background-size:60px 60px;opacity:0.18;pointer-events:none;z-index:0;
+  }
+
+  /* NAV */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    background:rgba(8,11,16,0.85);backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border);
+    padding:0 2rem;height:60px;
+    display:flex;align-items:center;gap:1rem;
+  }
+  .nav-logo{font-family:var(--font-head);font-weight:800;font-size:1.1rem;color:var(--accent);letter-spacing:-0.02em}
+  .nav-logo span{color:var(--text2)}
+  .nav-links{display:flex;gap:0.2rem;margin-left:auto;flex-wrap:wrap}
+  .nav-links a{
+    font-size:0.72rem;font-weight:500;color:var(--text2);text-decoration:none;
+    padding:0.35rem 0.75rem;border-radius:6px;transition:all 0.2s;letter-spacing:0.03em;
+    text-transform:uppercase;
+  }
+  .nav-links a:hover{color:var(--accent);background:rgba(0,212,255,0.08)}
+  .nav-progress{position:absolute;bottom:0;left:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent3));width:0;transition:width 0.1s}
+
+  /* HERO */
+  .hero{
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;position:relative;z-index:1;padding:6rem 2rem 4rem;text-align:center;
+  }
+  .hero-badge{
+    display:inline-flex;align-items:center;gap:0.5rem;
+    background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);
+    border-radius:100px;padding:0.4rem 1rem;font-size:0.75rem;
+    color:var(--accent);font-family:var(--font-code);letter-spacing:0.05em;
+    margin-bottom:2rem;animation:fadeUp 0.6s ease both;
+  }
+  .hero-badge::before{content:'';width:6px;height:6px;background:var(--accent3);border-radius:50%;animation:pulse 2s infinite}
+  .hero h1{
+    font-family:var(--font-head);font-size:clamp(3rem,8vw,7rem);font-weight:800;
+    line-height:0.95;letter-spacing:-0.04em;margin-bottom:1.5rem;
+    animation:fadeUp 0.6s 0.1s ease both;
+  }
+  .hero h1 .line1{display:block;color:var(--text)}
+  .hero h1 .line2{display:block;color:var(--accent);text-shadow:var(--glow)}
+  .hero-sub{
+    font-size:1.1rem;color:var(--text2);max-width:520px;line-height:1.7;
+    margin-bottom:3rem;animation:fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-stats{
+    display:flex;gap:3rem;animation:fadeUp 0.6s 0.3s ease both;
+  }
+  .stat{text-align:center}
+  .stat-num{font-family:var(--font-head);font-size:2rem;font-weight:800;color:var(--accent)}
+  .stat-label{font-size:0.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em}
+  .scroll-hint{
+    position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+    color:var(--text3);font-size:0.75rem;animation:bounce 2s infinite;
+  }
+  .scroll-hint::after{content:'';width:1px;height:40px;background:linear-gradient(var(--text3),transparent)}
+
+  /* GLOW ORBS */
+  .orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;opacity:0.4}
+  .orb1{width:500px;height:500px;background:rgba(0,212,255,0.12);top:-100px;right:-100px}
+  .orb2{width:400px;height:400px;background:rgba(167,139,250,0.08);bottom:200px;left:-100px}
+
+  /* MAIN LAYOUT */
+  main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:2rem 2rem 6rem}
+
+  /* SECTION */
+  .section{margin-bottom:5rem;animation:fadeUp 0.6s ease both;animation-play-state:paused}
+  .section.visible{animation-play-state:running}
+  .section-header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem}
+  .section-num{
+    font-family:var(--font-code);font-size:0.7rem;color:var(--accent);
+    background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);
+    padding:0.2rem 0.5rem;border-radius:4px;
+  }
+  .section-tag{
+    font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.12em;
+    font-family:var(--font-code);
+  }
+  h2{font-family:var(--font-head);font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:1rem}
+  h3{font-family:var(--font-head);font-size:1.3rem;font-weight:700;margin-bottom:0.75rem;color:var(--text)}
+  p{color:var(--text2);margin-bottom:1.2rem;font-size:0.97rem}
+  strong{color:var(--text);font-weight:600}
+
+  /* CARD */
+  .card{
+    background:var(--bg2);border:1px solid var(--border);
+    border-radius:16px;padding:2rem;margin-bottom:1.5rem;
+    transition:border-color 0.3s;position:relative;overflow:hidden;
+  }
+  .card::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(135deg,rgba(0,212,255,0.02),transparent);
+    pointer-events:none;
+  }
+  .card:hover{border-color:var(--border2)}
+  .card-accent{border-left:3px solid var(--accent)}
+  .card-green{border-left:3px solid var(--accent3)}
+  .card-orange{border-left:3px solid var(--accent4)}
+  .card-purple{border-left:3px solid var(--accent5)}
+
+  /* CALLOUT */
+  .callout{
+    display:flex;gap:1rem;align-items:flex-start;
+    background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);
+    border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+  }
+  .callout-icon{font-size:1.2rem;flex-shrink:0;margin-top:0.1rem}
+  .callout-warn{background:rgba(255,107,53,0.06);border-color:rgba(255,107,53,0.2)}
+  .callout-success{background:rgba(0,255,136,0.05);border-color:rgba(0,255,136,0.2)}
+  .callout p{margin:0;font-size:0.9rem}
+
+  /* CODE BLOCK */
+  .code-wrap{position:relative;margin-bottom:1.5rem}
+  .code-label{
+    display:flex;align-items:center;gap:0.5rem;justify-content:space-between;
+    background:var(--bg3);border:1px solid var(--border);border-bottom:none;
+    border-radius:10px 10px 0 0;padding:0.6rem 1rem;
+    font-family:var(--font-code);font-size:0.72rem;color:var(--text3);
+  }
+  .code-label .file{color:var(--accent2)}
+  .code-dots{display:flex;gap:5px}
+  .code-dots span{width:10px;height:10px;border-radius:50%}
+  .code-dots span:nth-child(1){background:#ff5f57}
+  .code-dots span:nth-child(2){background:#febc2e}
+  .code-dots span:nth-child(3){background:#28c840}
+  pre{
+    background:var(--bg3);border:1px solid var(--border);
+    border-radius:0 0 10px 10px;padding:1.5rem;overflow-x:auto;
+    font-family:var(--font-code);font-size:0.85rem;line-height:1.7;
+    position:relative;
+  }
+  pre.standalone{border-radius:10px}
+  .copy-btn{
+    position:absolute;top:0.75rem;right:0.75rem;
+    background:var(--bg4);border:1px solid var(--border);
+    color:var(--text2);font-family:var(--font-code);font-size:0.7rem;
+    padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;
+    transition:all 0.2s;
+  }
+  .copy-btn:hover{color:var(--accent);border-color:var(--accent2)}
+
+  /* SYNTAX COLORS */
+  .kw{color:#ff79c6}
+  .fn{color:#8be9fd}
+  .str{color:#f1fa8c}
+  .num{color:#bd93f9}
+  .cmt{color:#4a5a6e;font-style:italic}
+  .tag{color:#ff79c6}
+  .attr{color:#8be9fd}
+  .val{color:#f1fa8c}
+  .jsx{color:#50fa7b}
+  .var2{color:#ffb86c}
+
+  /* INTERACTIVE DEMO */
+  .demo-box{
+    background:var(--bg3);border:1px solid var(--border2);
+    border-radius:16px;padding:2rem;margin-bottom:1.5rem;
+    position:relative;overflow:hidden;
+  }
+  .demo-box::before{
+    content:'LIVE DEMO';position:absolute;top:0.75rem;right:1rem;
+    font-family:var(--font-code);font-size:0.62rem;color:var(--accent3);
+    letter-spacing:0.12em;
+  }
+  .demo-title{font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:1.5rem;color:var(--text2)}
+  .demo-output{
+    background:var(--bg);border:1px solid var(--border);
+    border-radius:10px;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;align-items:center;
+  }
+  .counter-display{
+    font-family:var(--font-head);font-size:4rem;font-weight:800;
+    color:var(--accent);text-shadow:var(--glow);transition:all 0.15s;
+    line-height:1;
+  }
+  .counter-display.bump{transform:scale(1.15);color:var(--accent3)}
+  .btn-row{display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center}
+  .demo-btn{
+    background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.25);
+    color:var(--accent);font-family:var(--font-code);font-size:0.85rem;
+    padding:0.6rem 1.4rem;border-radius:8px;cursor:pointer;
+    transition:all 0.2s;font-weight:500;
+  }
+  .demo-btn:hover{background:rgba(0,212,255,0.16);box-shadow:var(--glow)}
+  .demo-btn.danger{color:var(--accent4);border-color:rgba(255,107,53,0.3);background:rgba(255,107,53,0.06)}
+  .demo-btn.danger:hover{background:rgba(255,107,53,0.12);box-shadow:0 0 20px rgba(255,107,53,0.2)}
+  .demo-btn.green{color:var(--accent3);border-color:rgba(0,255,136,0.3);background:rgba(0,255,136,0.06)}
+
+  /* TOGGLE DEMO */
+  .toggle-pill{
+    display:flex;align-items:center;gap:1rem;
+    background:var(--bg);border:1px solid var(--border);
+    border-radius:50px;padding:0.5rem 1rem;cursor:pointer;
+    transition:all 0.3s;user-select:none;
+  }
+  .toggle-pill .knob{
+    width:28px;height:28px;border-radius:50%;
+    background:var(--text3);transition:all 0.3s;
+  }
+  .toggle-pill.on .knob{background:var(--accent3);box-shadow:0 0 10px rgba(0,255,136,0.5)}
+  .toggle-pill.on{border-color:rgba(0,255,136,0.3)}
+  .toggle-label{font-family:var(--font-code);font-size:0.85rem;color:var(--text2)}
+
+  /* INPUT DEMO */
+  .demo-input{
+    background:var(--bg);border:1px solid var(--border);
+    color:var(--text);font-family:var(--font-code);font-size:0.9rem;
+    padding:0.65rem 1rem;border-radius:8px;width:100%;outline:none;
+    transition:border-color 0.2s;
+  }
+  .demo-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,0.1)}
+  .demo-preview{
+    font-family:var(--font-code);font-size:0.85rem;
+    color:var(--accent2);padding:0.5rem 0;min-height:1.5rem;
+  }
+
+  /* QUIZ */
+  .quiz-section{margin-bottom:5rem}
+  .quiz-card{
+    background:var(--bg2);border:1px solid var(--border);
+    border-radius:16px;padding:2rem;margin-bottom:1.5rem;
+  }
+  .quiz-q{
+    font-family:var(--font-head);font-size:1.1rem;font-weight:700;
+    margin-bottom:1.5rem;color:var(--text);
+  }
+  .quiz-q .q-num{color:var(--accent);font-family:var(--font-code);font-size:0.8rem;display:block;margin-bottom:0.4rem}
+  .quiz-options{display:flex;flex-direction:column;gap:0.6rem}
+  .quiz-opt{
+    display:flex;align-items:flex-start;gap:0.75rem;
+    background:var(--bg3);border:1px solid var(--border);
+    border-radius:8px;padding:0.9rem 1.1rem;cursor:pointer;
+    transition:all 0.2s;font-size:0.9rem;color:var(--text2);
+    font-family:var(--font-code);
+  }
+  .quiz-opt:hover:not(.locked){border-color:var(--border2);color:var(--text);background:var(--bg4)}
+  .quiz-opt.correct{border-color:var(--accent3)!important;background:rgba(0,255,136,0.08)!important;color:var(--accent3)!important}
+  .quiz-opt.wrong{border-color:var(--accent4)!important;background:rgba(255,107,53,0.08)!important;color:var(--accent4)!important}
+  .quiz-opt .opt-letter{
+    width:22px;height:22px;border-radius:50%;background:var(--bg4);
+    border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;
+    font-size:0.7rem;flex-shrink:0;margin-top:0.05rem;
+  }
+  .quiz-feedback{
+    margin-top:1rem;padding:1rem 1.2rem;border-radius:8px;
+    font-size:0.88rem;display:none;
+  }
+  .quiz-feedback.show{display:block}
+  .quiz-feedback.ok{background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.2);color:var(--accent3)}
+  .quiz-feedback.bad{background:rgba(255,107,53,0.08);border:1px solid rgba(255,107,53,0.2);color:var(--accent4)}
+
+  /* CODE CHALLENGE */
+  .challenge-card{
+    background:var(--bg2);border:1px solid var(--border);
+    border-radius:16px;overflow:hidden;margin-bottom:2rem;
+  }
+  .challenge-header{
+    background:var(--bg3);border-bottom:1px solid var(--border);
+    padding:1.25rem 1.75rem;display:flex;align-items:center;justify-content:space-between;
+    gap:1rem;flex-wrap:wrap;
+  }
+  .challenge-title{font-family:var(--font-head);font-size:1.1rem;font-weight:700}
+  .challenge-badge{
+    font-family:var(--font-code);font-size:0.65rem;letter-spacing:0.1em;
+    text-transform:uppercase;padding:0.25rem 0.6rem;border-radius:4px;
+  }
+  .badge-easy{background:rgba(0,255,136,0.1);color:var(--accent3);border:1px solid rgba(0,255,136,0.2)}
+  .badge-medium{background:rgba(255,183,0,0.1);color:#ffb700;border:1px solid rgba(255,183,0,0.2)}
+  .badge-hard{background:rgba(255,107,53,0.1);color:var(--accent4);border:1px solid rgba(255,107,53,0.2)}
+  .challenge-body{padding:1.75rem}
+  .task-desc{
+    background:var(--bg3);border:1px solid var(--border);
+    border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;font-size:0.9rem;
+  }
+  .task-desc h4{font-size:0.8rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);font-family:var(--font-code);margin-bottom:0.75rem}
+  .task-desc ul{padding-left:1.2rem;color:var(--text2)}
+  .task-desc ul li{margin-bottom:0.4rem;font-size:0.88rem}
+  .code-editor{
+    width:100%;min-height:180px;
+    background:var(--bg);border:1px solid var(--border);
+    color:var(--text);font-family:var(--font-code);font-size:0.85rem;
+    padding:1.25rem;border-radius:10px;outline:none;resize:vertical;
+    line-height:1.7;tab-size:2;transition:border-color 0.2s;
+    margin-bottom:1rem;
+  }
+  .code-editor:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,0.08)}
+  .challenge-actions{display:flex;gap:0.75rem;flex-wrap:wrap}
+  .submit-btn{
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:var(--bg);font-family:var(--font-head);font-weight:700;font-size:0.85rem;
+    padding:0.7rem 1.5rem;border-radius:8px;border:none;cursor:pointer;
+    transition:all 0.2s;letter-spacing:0.02em;
+  }
+  .submit-btn:hover{transform:translateY(-1px);box-shadow:var(--glow)}
+  .submit-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+  .hint-btn{
+    background:transparent;border:1px solid var(--border2);
+    color:var(--text2);font-family:var(--font-code);font-size:0.8rem;
+    padding:0.7rem 1.2rem;border-radius:8px;cursor:pointer;transition:all 0.2s;
+  }
+  .hint-btn:hover{border-color:var(--accent5);color:var(--accent5)}
+  .reset-btn{
+    background:transparent;border:1px solid var(--border);
+    color:var(--text3);font-family:var(--font-code);font-size:0.8rem;
+    padding:0.7rem 1rem;border-radius:8px;cursor:pointer;transition:all 0.2s;
+  }
+  .reset-btn:hover{color:var(--text2)}
+  .ai-feedback{
+    margin-top:1.25rem;background:var(--bg3);border:1px solid var(--border);
+    border-radius:10px;padding:1.25rem 1.5rem;display:none;
+    font-size:0.88rem;line-height:1.7;
+  }
+  .ai-feedback.show{display:block}
+  .ai-feedback.loading{color:var(--text3)}
+  .ai-feedback.pass{border-color:rgba(0,255,136,0.3)}
+  .ai-feedback.fail{border-color:rgba(255,107,53,0.3)}
+  .feedback-label{
+    font-family:var(--font-code);font-size:0.7rem;letter-spacing:0.1em;
+    text-transform:uppercase;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;
+  }
+  .feedback-label.pass{color:var(--accent3)}
+  .feedback-label.fail{color:var(--accent4)}
+  .feedback-label.loading{color:var(--text3)}
+  .hint-panel{
+    background:rgba(167,139,250,0.05);border:1px solid rgba(167,139,250,0.15);
+    border-radius:8px;padding:1rem 1.2rem;margin-bottom:1rem;
+    font-size:0.85rem;color:var(--accent5);display:none;
+  }
+  .hint-panel.show{display:block}
+
+  /* TABLE */
+  .summary-table{width:100%;border-collapse:collapse;margin-bottom:2rem}
+  .summary-table th{
+    text-align:left;padding:0.75rem 1rem;
+    background:var(--bg3);border:1px solid var(--border);
+    font-family:var(--font-code);font-size:0.75rem;text-transform:uppercase;
+    letter-spacing:0.08em;color:var(--accent);
+  }
+  .summary-table td{
+    padding:0.75rem 1rem;border:1px solid var(--border);
+    font-family:var(--font-code);font-size:0.82rem;color:var(--text2);
+    vertical-align:top;
+  }
+  .summary-table tr:hover td{background:var(--bg3)}
+  .td-op{color:var(--text);font-weight:500}
+  .td-code{color:var(--accent2)}
+
+  /* PROGRESS BAR */
+  .progress-section{
+    position:sticky;bottom:1.5rem;z-index:50;
+    display:flex;justify-content:center;pointer-events:none;
+  }
+  .progress-pill{
+    background:rgba(8,11,16,0.9);backdrop-filter:blur(20px);
+    border:1px solid var(--border2);border-radius:100px;
+    padding:0.6rem 1.5rem;display:flex;align-items:center;gap:1rem;
+    pointer-events:all;
+  }
+  .prog-label{font-family:var(--font-code);font-size:0.72rem;color:var(--text3)}
+  .prog-bar{width:120px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+  .prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));width:0;transition:width 0.5s}
+  .prog-count{font-family:var(--font-code);font-size:0.72rem;color:var(--accent)}
+
+  /* DIVIDER */
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:3rem 0}
+
+  /* ANIMATIONS */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+  @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes shimmer{0%{background-position:-200px 0}100%{background-position:200px 0}}
+
+  /* SPINNER */
+  .spinner{
+    width:16px;height:16px;border:2px solid var(--border2);
+    border-top-color:var(--accent);border-radius:50%;
+    animation:spin 0.8s linear infinite;display:inline-block;
+  }
+
+  /* CONCEPT GRID */
+  .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
+  .concept-card{
+    background:var(--bg3);border:1px solid var(--border);border-radius:12px;
+    padding:1.25rem;transition:all 0.2s;
+  }
+  .concept-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+  .concept-icon{font-size:1.5rem;margin-bottom:0.5rem}
+  .concept-card h4{font-family:var(--font-head);font-size:0.95rem;font-weight:700;margin-bottom:0.3rem}
+  .concept-card p{font-size:0.8rem;margin:0;color:var(--text3)}
+
+  /* ANALOGY BOX */
+  .analogy{
+    background:linear-gradient(135deg,rgba(167,139,250,0.06),rgba(0,212,255,0.04));
+    border:1px solid rgba(167,139,250,0.15);border-radius:16px;padding:2rem;
+    margin-bottom:1.5rem;position:relative;overflow:hidden;
+  }
+  .analogy::before{
+    content:'"';position:absolute;top:-10px;right:1.5rem;
+    font-size:8rem;color:rgba(167,139,250,0.1);font-family:var(--font-serif);
+    line-height:1;pointer-events:none;
+  }
+  .analogy-label{font-family:var(--font-code);font-size:0.7rem;color:var(--accent5);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem}
+  .analogy p{font-family:var(--font-serif);font-style:italic;font-size:1.05rem;color:var(--text);margin:0;line-height:1.7}
+
+  /* STEP LIST */
+  .steps{display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.5rem}
+  .step{
+    display:flex;align-items:flex-start;gap:1rem;
+    background:var(--bg3);border:1px solid var(--border);
+    border-radius:10px;padding:1rem 1.2rem;
+  }
+  .step-num{
+    width:28px;height:28px;border-radius:50%;
+    background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-code);font-size:0.75rem;color:var(--accent);
+    flex-shrink:0;
+  }
+  .step-text{font-size:0.9rem;color:var(--text2)}
+  .step-text strong{color:var(--text)}
+
+  /* COMPARISON */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+  .compare-col h4{font-family:var(--font-code);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem}
+  .compare-col.bad h4{color:var(--accent4)}
+  .compare-col.good h4{color:var(--accent3)}
+
+  @media(max-width:640px){
+    .compare{grid-template-columns:1fr}
+    .hero-stats{gap:1.5rem}
+    .nav-links{display:none}
+    h2{font-size:1.8rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">React <span>/</span> useState</div>
+  <div class="nav-links">
+    <a href="#what-is-state">State</a>
+    <a href="#usestate-hook">Hook</a>
+    <a href="#data-types">Types</a>
+    <a href="#rerender">Re-render</a>
+    <a href="#functional">Functional</a>
+    <a href="#forms">Forms</a>
+    <a href="#challenges">Practice</a>
+    <a href="#quiz">Quiz</a>
+  </div>
+  <div class="nav-progress" id="navProgress"></div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span></span> React Hooks — Complete Guide
+  </div>
+  <h1>
+    <span class="line1">Master</span>
+    <span class="line2">useState</span>
+  </h1>
+  <p class="hero-sub">
+    A beginner-friendly deep dive into React's most important hook — with interactive demos, coding challenges, and an AI that checks your code.
+  </p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">9</div><div class="stat-label">Sections</div></div>
+    <div class="stat"><div class="stat-num">5</div><div class="stat-label">Challenges</div></div>
+    <div class="stat"><div class="stat-num">10</div><div class="stat-label">Quiz Q's</div></div>
+  </div>
+  <div class="scroll-hint">scroll</div>
+</section>
+
+<main>
+
+<!-- ─────────────────────────── 1. WHAT IS STATE ─────────────────────────── -->
+<section class="section" id="what-is-state">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <span class="section-tag">Concept</span>
+  </div>
+  <h2>What is <span style="color:var(--accent)">State?</span></h2>
+  <p>Before we touch any code, let's understand the concept. State is the <strong>memory of a component</strong>. It's data that the component remembers, and when that data changes, the component updates what it shows on screen.</p>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="concept-icon">🧠</div>
+      <h4>Memory</h4>
+      <p>State is what a component "remembers" between renders</p>
+    </div>
+    <div class="concept-card">
+      <div class="concept-icon">🔄</div>
+      <h4>Reactivity</h4>
+      <p>When state changes, the component automatically re-renders</p>
+    </div>
+    <div class="concept-card">
+      <div class="concept-icon">📦</div>
+      <h4>Private</h4>
+      <p>Each component owns its own state — isolated and independent</p>
+    </div>
+    <div class="concept-card">
+      <div class="concept-icon">🎯</div>
+      <h4>vs Props</h4>
+      <p>Props come from outside. State lives inside the component</p>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <div class="analogy-label">💡 Real-world analogy</div>
+    <p>Think of your TV's volume. Every time you press +, the number on screen changes. That number is "state" — it's stored, it changes, and the screen updates automatically when it does.</p>
+  </div>
+
+  <div class="card card-orange">
+    <h3>⚠️ The Problem Without State</h3>
+    <p>Why can't we just use a regular variable? Let's see what happens…</p>
+  </div>
+
+  <div class="compare">
+    <div class="compare-col bad">
+      <h4>❌ broken — won't work</h4>
+      <div class="code-wrap">
+        <div class="code-label"><div class="code-dots"><span></span><span></span><span></span></div><span class="file">Counter.jsx</span></div>
+        <pre><span class="kw">function</span> <span class="fn">Counter</span>() {
+  <span class="kw">let</span> <span class="var2">count</span> = <span class="num">0</span>; <span class="cmt">// 😞 plain variable</span>
+
+  <span class="kw">function</span> <span class="fn">handleClick</span>() {
+    <span class="var2">count</span> = <span class="var2">count</span> + <span class="num">1</span>;
+    <span class="cmt">// ↑ count changes in memory</span>
+    <span class="cmt">// but React has NO idea!</span>
+    <span class="cmt">// Screen never updates 😢</span>
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="jsx">{count}</span> <span class="cmt">// stuck at 0 forever</span>
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx">{handleClick}</span><span class="tag">&gt;</span>
+        +1
+      <span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</pre>
+      </div>
+    </div>
+    <div class="compare-col good">
+      <h4>✅ correct — works perfectly</h4>
+      <div class="code-wrap">
+        <div class="code-label"><div class="code-dots"><span></span><span></span><span></span></div><span class="file">Counter.jsx</span></div>
+        <pre><span class="kw">import</span> { useState } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Counter</span>() {
+  <span class="cmt">// ✨ useState tells React to watch this!</span>
+  <span class="kw">const</span> [<span class="var2">count</span>, <span class="fn">setCount</span>] = <span class="fn">useState</span>(<span class="num">0</span>);
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="jsx">{count}</span> <span class="cmt">// updates every time!</span>
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx">{() =&gt; setCount(count + 1)}</span><span class="tag">&gt;</span>
+        +1
+      <span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</pre>
+      </div>
+    </div>
+  </div>
+  <div class="callout">
+    <span class="callout-icon">💡</span>
+    <p>React doesn't know about regular JS variables. You must use <strong>useState</strong> so React can "watch" the value and update the screen when it changes.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────────── 2. useState HOOK ─────────────────────────── -->
+<section class="section" id="usestate-hook">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <span class="section-tag">Core Hook</span>
+  </div>
+  <h2>The <span style="color:var(--accent)">useState</span> Hook</h2>
+  <p>A <strong>hook</strong> is a special React function that lets you "hook into" React features from inside your components. <code style="font-family:var(--font-code);color:var(--accent2);font-size:0.9em">useState</code> is the most important one.</p>
+
+  <div class="card card-accent">
+    <h3>🔬 Anatomy of useState</h3>
+    <div class="code-wrap">
+      <div class="code-label"><div class="code-dots"><span></span><span></span><span></span></div><span class="file">syntax.js</span></div>
+      <pre><span class="cmt">// Pattern:</span>
+<span class="kw">const</span> [<span class="var2">value</span>, <span class="fn">setValue</span>] = <span class="fn">useState</span>(<span class="var2">initialValue</span>);
+<span class="cmt">//     ↑         ↑                    ↑</span>
+<span class="cmt">//  current   function to           starting</span>
+<span class="cmt">//   value    update value           value
+
+</span>
+<span class="cmt">// Real examples:</span>
+<span class="kw">const</span> [<span class="var2">count</span>,   <span class="fn">setCount</span>]   = <span class="fn">useState</span>(<span class="num">0</span>);
+<span class="kw">const</span> [<span class="var2">name</span>,    <span class="fn">setName</span>]    = <span class="fn">useState</span>(<span class="str">''</span>);
+<span class="kw">const</span> [<span class="var2">isOpen</span>,  <span class="fn">setIsOpen</span>]  = <span class="fn">useState</span>(<span class="kw">false</span>);
+<span class="kw">const</span> [<span class="var2">items</span>,   <span class="fn">setItems</span>]   = <span class="fn">useState</span>([]);
+<span class="kw">const</span> [<span class="var2">user</span>,    <span class="fn">setUser</span>]    = <span class="fn">useState</span>(<span class="kw">null</span>);
+<span class="cmt">// Convention: setter name = "set" + variable name</span></pre>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="callout-icon">🎯</span>
+    <p>The <strong>[ ]</strong> syntax is called <em>array destructuring</em>. useState returns an array of exactly 2 things — the current value and the update function. You're just naming them when you destructure.</p>
+  </div>
+
+  <!-- INTERACTIVE COUNTER DEMO -->
+  <div class="demo-box">
+    <div class="demo-title">Interactive Counter — useState in action</div>
+    <div class="demo-output">
+      <div class="counter-display" id="counterDisplay">0</div>
+      <div class="btn-row">
+        <button class="demo-btn" onclick="counterChange(-1)">— Decrease</button>
+        <button class="demo-btn danger" onclick="counterChange(0)">Reset</button>
+        <button class="demo-btn green" onclick="counterChange(1)">Increase +</button>
+      </div>
+      <div style="font-family:var(--font-code);font-size:0.75rem;color:var(--text3)">
+        This is exactly what <code style="color:var(--accent2)">setCount(count + 1)</code> does under the hood
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────────── 3. DATA TYPES ─────────────────────────── -->
+<section class="section" id="data-types">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <span class="section-tag">Data Types</span>
+  </div>
+  <h2>State with Different <span style="color:var(--accent)">Data Types</span></h2>
+  <p>useState works with any JavaScript data type. Here's how to use each one correctly.</p>
+
+  <div class="card card-accent">
+    <h3>🔢 Number & String</h3>
+    <div class="code-wrap">
+      <div class="code-label"><div class="code-dots"><span></span><span></span><span></span></div><span class="file">types.jsx</span></div>
+      <pre><span class="cmt">// Numbers</span>
+<span class="kw">const</span> [<span class="var2">count</span>,    <span class="fn">setCount</span>]   = <span class="fn">useState</span>(<span class="num">0</span>);
+<span class="kw">const</span> [<span class="var2">price</span>,    <span class="fn">setPrice</span>]   = <span class="fn">useState</span>(<span class="num">9.99</span>);
+
+<span class="cmt">// Strings</span>
+<span class="kw">const</span> [<span class="var2">name</span>,     <span class="fn">setName</span>]    = <span class="fn">useState</span>(<span class="str">''</span>);
+<span class="kw">const</span> [<span class="var2">title</span>,    <span class="fn">setTitle</span>]   = <span class="fn">useState</span>(<span class="str">'Hello'</span>);
+
+<span class="cmt">// Updating them:</span>
+<span class="fn">setCount</span>(<span class="num">5</span>);            <span class="cmt">// set to a specific value</span>
+<span class="fn">setCount</span>(<span class="var2">count</span> + <span class="num">1</span>);    <span class="cmt">// add 1 to current value</span>
+<span class="fn">setName</span>(<span class="str">'Ali'</span>);         <span class="cmt">// change the string</span></pre>
+    </div>
+  </div>
+
+  <div class="card card-green">
+    <h3>✅ Boolean — for on/off toggles</h3>
+    <div class="code-wrap">
+      <div class="code-label"><div class="code-dots"><span></span><span></span><span></span></div><span class="file">toggle.jsx</span></div>
+      <pre><span class="kw">const</span> [<span class="var2">isOpen</span>, <span class="fn">setIsOpen</span>] = <span class="fn">useState</span>(<span class="kw">false</span>);
+<span class="kw">const</span> [<span class="var2">isDark</span>, <span class="fn">setIsDark</span>] = <span class="fn">useState</span>(<span class="kw">true</span>);
+
+<span class="cmt">// Toggle: flip true→false or false→true</span>
+<span class="fn">setIsOpen</span>(!<span class="var2">isOpen</span>);          <span class="cmt">// simple way</span>
+<span class="fn">setIsDark</span>(<span class="var2">prev</span> => !<span class="var2">prev</span>);   <span class="cmt">// ✅ safer way (more on this later)</span>
+
+<span class="cmt">// Using boolean state in JSX:</span>
+<span class="kw">return</span> (
+  <span class="tag">&lt;div&gt;</span>
+    <span class="jsx">{isOpen &&</span> <span class="tag">&lt;Modal /&gt;</span><span class="jsx">}</span>   <span class="cmt">// show if true</span>
+    <span class="jsx">{isDark ? </span><span class="str">'Dark'</span><span class="jsx"> : </span><span class="str">'Light'</span><span class="jsx">}</span>  <span class="cmt">// conditional text</span>
+  <span class="tag">&lt;/div&gt;</span>
+);</pre>
+    </div>
+    <!-- Toggle Demo -->
+    <div class="demo-output" style="margin-top:1rem">
+      <div class="toggle-pill" id="toggleDemo" onclick="togglePill()" >
+        <div class="knob" id="toggleKnob"></div>
+        <span class="toggle-label" id="toggleLabel">isOpen: false</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-purple">
+    <h3>📋 Array State — the rules</h3>
+    <p style="margin-bottom:1rem">Arrays need special attention. <strong>Never mutate (modify) the array directly!</strong> Always create a new array.</p>
+    <div class="code-wrap">
+      <div class="code-label"><div class="code-dots"><span></span><span></span><span></span></div><span class="file">arrays.jsx</span></div>
+      <pre><span class="kw">const</span> [<span class="var2">todos</span>, <span class="fn">setTodos</span>] = <span class="fn">useState</span>([]);
+
+<span class="cmt">// ❌ NEVER do this — React won't detect the change:</span>
+<span class="var2">todos</span>.<span class="fn">push</span>(<span class="var2">newItem</span>); <span class="cmt">// mutates original — React ignores it!</span>
+
+<span class="cmt">// ✅ ADD an item — spread operator creates a NEW array:</span>
+<span class="fn">setTodos</span>([...<span class="var2">todos</span>, <span class="var2">newItem</span>]);
+
+<span class="cmt">// ✅ REMOVE an item — filter creates a NEW array:</span>
+<span class="fn">setTodos</span>(<span class="var2">todos</span>.<span class="fn">filter</span>(<span class="var2">t</span> => <span class="var2">t</span>.<span class="var2">id</span> !== <span class="var2">idToRemove</span>));
+
+<span class="cmt">// ✅ UPDATE an item — map creates a NEW array:</span>
+<span class="fn">setTodos</span>(<span class="var2">todos</span>.<span class="fn">map</span>(<span class="var2">t</span> =>
+  <span class="var2">t</span>.<span class="var2">id</span> === <span class="var2">targetId</span>
+    ? { ...<span class="var2">t</span>, <span class="var2">completed</span>: <span class="kw">true</span> }  <span class="cmt">// change this one</span>
+    : <span class="var2">t</span>                              <span class="cmt">// keep others same</span>
+));</pre>
+    </div>
+  </div>
+
+  <div class="card card-orange">
+    <h3>🗂️ Object State — spread to update</h3>
+    <div class="code-wrap">
+      <div class="code-label"><div class="code-dots"><span></span><span></span><span></span></div><span class="file">objects.jsx</span></div>
+      <pre><span class="kw">const</span> [<span class="var2">user</span>, <span class="fn">setUser</span>] = <span class="fn">useState</span>({
+  <span class="var2">name</span>: <span class="str">''</span>,
+  <span class="var2">email</span>: <span class="str">''</span>,
+  <span class="var2">age</span>: <span class="num">0</span>
+});
+
+<span class="cmt">// ✅ Update ONE field — spread keeps the rest:</span>
+<span class="fn">setUser</span>({ ...<span class="var2">user</span>, <span class="var2">name</span>: <span class="str">'Ali'</span> });
+<span class="cmt">//         ↑ copies all other fields (email, age)
+//                    ↑ overrides only name</span>
+
+<span class="cmt">// ❌ NEVER do this — loses the other fields:</span>
+<span class="fn">setUser</span>({ <span class="var2">name</span>: <span class="str">'Ali'</span> }); <span class="cmt">// email & age are gone!</span></pre>
+    </div>
+  </div>
+  <div class="callout callout-warn">
+    <span class="callout-icon">⚠️</span>
+    <p><strong>Golden Rule:</strong> Never modify state directly. Always use the setter function (<code style="font-family:var(--font-code);color:var(--accent2)">setXxx</code>). React only knows about changes when you tell it through the setter.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────────── 4. RE-RENDER ─────────────────────────── -->
+<section class="section" id="rerender">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <span class="section-tag">Under the Hood</span>
+  </div>
+  <h2>What Happens on <span style="color:var(--accent)">Re-render?</span></h2>
+  <p>Every time you call a setter function, React goes through a specific process. Understanding this helps you predict how your app behaves.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">You call <strong>setState(newValue)</strong> — e.g., <code style="font-family:var(--font-code);color:var(--accent2)">setCount(5)</code></div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">React <strong>saves the new state value</strong> internally for that component</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">React <strong>re-runs your component function</strong> — all the code inside it runs again</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text">React creates a <strong>Virtual DOM</strong> (a lightweight JS copy of the real DOM)</div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-text">React <strong>compares</strong> old Virtual DOM vs new Virtual DOM (this is called "diffing")</div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-text">React <strong>updates only the parts of the real DOM that changed</strong> — nothing else is touched</div>
+    </div>
+  </div>
+
+  <div class="callout callout-success">
+    <span class="callout-icon">⚡</span>
+    <p>Re-renders are <strong>not slow</strong>! React's diffing algorithm is extremely optimized. It only updates the exact DOM nodes that need changing — not the entire page.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────────── 5. FUNCTIONAL UPDATE ─────────────────────────── -->
+<section class="section" id="functional">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <span class="section-tag">Advanced Pattern</span>
+  </div>
+  <h2>Functional <span style="color:var(--accent)">Updates</span></h2>
+  <p>Sometimes the new state depends on the old state. There's a safer way to handle this case.</p>
+
+  <div class="compare">
+    <div class="compare-col bad">
+      <h4>⚠️ can cause bugs</h4>
+      <div class="code-wrap">
+        <div class="code-label"><div class="code-dots"><span></span><span></span><span></span></div></div>
+        <pre><span class="cmt">// Uses the "count" from when</span>
+<span class="cmt">// the component last rendered.</span>
+<span class="cmt">// If React batches updates,</span>
+<span class="cmt">// this can be stale (outdated)!</span>
+
+<span class="fn">setCount</span>(<span class="var2">count</span> + <span class="num">1</span>); <span class="cmt">// ⚠️ risky</span>
+<span class="fn">setCount</span>(<span class="var2">count</span> + <span class="num">1</span>); <span class="cmt">// both see same count!</span>
+<span class="fn">setCount</span>(<span class="var2">count</span> + <span class="num">1</span>); <span class="cmt">// result: only +1 😱</span></pre>
+      </div>
+    </div>
+    <div class="compare-col good">
+      <h4>✅ always correct</h4>
+      <div class="code-wrap">
+        <div class="code-label"><div class="code-dots"><span></span><span></span><span></span></div></div>
+        <pre><span class="cmt">// "prev" is ALWAYS the latest</span>
+<span class="cmt">// value, even if multiple</span>
+<span class="cmt">// updates are queued up!</span>
+
+<span class="fn">setCount</span>(<span class="var2">prev</span> => <span class="var2">prev</span> + <span class="num">1</span>); <span class="cmt">// ✅</span>
+<span class="fn">setCount</span>(<span class="var2">prev</span> => <span class="var2">prev</span> + <span class="num">1</span>); <span class="cmt">// ✅</span>
+<span class="fn">setCount</span>(<span class="var2">prev</span> => <span class="var2">prev</span> + <span class="num">1</span>); <span class="cmt">// ✅ result: +3!</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-accent">
+    <h3>🔁 The Cleanest Toggle Pattern</h3>
+    <div class="code-wrap">
+      <div class="code-label"><div class="code-dots"><span></span><span></span><span></span></div><span class="file">toggle.jsx</span></div>
+      <pre><span class="kw">const</span> [<span class="var2">isOpen</span>, <span class="fn">setIsOpen</span>] = <span class="fn">useState</span>(<span class="kw">false</span>);
+
+<span class="cmt">// ✅ Best toggle pattern — always uses latest value:</span>
+<span class="kw">const</span> <span class="fn">toggle</span> = () => <span class="fn">setIsOpen</span>(<span class="var2">prev</span> => !<span class="var2">prev</span>);
+
+<span class="kw">return</span> (
+  <span class="tag">&lt;&gt;</span>
+    <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx">{toggle}</span><span class="tag">&gt;</span>
+      <span class="jsx">{isOpen ? </span><span class="str">'Close'</span><span class="jsx"> : </span><span class="str">'Open'</span><span class="jsx">}</span>
+    <span class="tag">&lt;/button&gt;</span>
+    <span class="jsx">{isOpen &&</span> <span class="tag">&lt;div&gt;</span>Modal content here<span class="tag">&lt;/div&gt;</span><span class="jsx">}</span>
+  <span class="tag">&lt;/&gt;</span>
+);</pre>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="callout-icon">🧠</span>
+    <p>Think of <code style="font-family:var(--font-code);color:var(--accent2)">prev => prev + 1</code> as saying: <em>"Whatever the value is right now, add 1 to it."</em> This is safer than referring to a potentially outdated variable.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────────── 6. FORMS ─────────────────────────── -->
+<section class="section" id="forms">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <span class="section-tag">Controlled Inputs</span>
+  </div>
+  <h2>Forms & <span style="color:var(--accent)">Controlled Inputs</span></h2>
+  <p>In React, form inputs should be "controlled" — meaning the input's value always comes from state, and any change updates state. This gives you a <strong>Single Source of Truth</strong>.</p>
+
+  <div class="card card-accent">
+    <h3>🔍 SearchBox Example</h3>
+    <div class="code-wrap">
+      <div class="code-label"><div class="code-dots"><span></span><span></span><span></span></div><span class="file">SearchBox.jsx</span></div>
+      <pre><span class="kw">function</span> <span class="fn">SearchBox</span>() {
+  <span class="kw">const</span> [<span class="var2">query</span>, <span class="fn">setQuery</span>] = <span class="fn">useState</span>(<span class="str">''</span>);
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;input</span>
+        <span class="attr">type</span>=<span class="val">"text"</span>
+        <span class="attr">value</span>=<span class="jsx">{query}</span>         <span class="cmt">// ← reads FROM state</span>
+        <span class="attr">onChange</span>=<span class="jsx">{(e) => setQuery(e.target.value)}</span>
+        <span class="cmt">// ↑ e.target.value = what the user typed</span>
+        <span class="attr">placeholder</span>=<span class="val">"Search..."</span>
+      <span class="tag">/&gt;</span>
+      <span class="jsx">{query &&</span> <span class="tag">&lt;p&gt;</span>You typed: <span class="jsx">"{query}"</span><span class="tag">&lt;/p&gt;</span><span class="jsx">}</span>
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx">{() => setQuery('')}</span><span class="tag">&gt;</span>
+        Clear
+      <span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</pre>
+    </div>
+  </div>
+
+  <!-- Live Input Demo -->
+  <div class="demo-box">
+    <div class="demo-title">Try it — Controlled Input Live</div>
+    <div class="demo-output" style="gap:0.75rem;align-items:stretch">
+      <input class="demo-input" id="searchInput" placeholder="Start typing something..." oninput="updateSearch(this.value)">
+      <div class="demo-preview" id="searchPreview"></div>
+      <button class="demo-btn danger" style="align-self:flex-start" onclick="clearSearch()">Clear</button>
+    </div>
+  </div>
+
+  <div class="card card-green">
+    <h3>📝 Multiple State in One Component</h3>
+    <div class="code-wrap">
+      <div class="code-label"><div class="code-dots"><span></span><span></span><span></span></div><span class="file">UserForm.jsx</span></div>
+      <pre><span class="kw">function</span> <span class="fn">UserForm</span>() {
+  <span class="cmt">// Each field gets its own state — clean and simple</span>
+  <span class="kw">const</span> [<span class="var2">name</span>,        <span class="fn">setName</span>]        = <span class="fn">useState</span>(<span class="str">''</span>);
+  <span class="kw">const</span> [<span class="var2">email</span>,       <span class="fn">setEmail</span>]       = <span class="fn">useState</span>(<span class="str">''</span>);
+  <span class="kw">const</span> [<span class="var2">age</span>,         <span class="fn">setAge</span>]         = <span class="fn">useState</span>(<span class="num">0</span>);
+  <span class="kw">const</span> [<span class="var2">isSubmitted</span>, <span class="fn">setIsSubmitted</span>] = <span class="fn">useState</span>(<span class="kw">false</span>);
+
+  <span class="kw">const</span> <span class="fn">handleSubmit</span> = () => {
+    <span class="var2">console</span>.<span class="fn">log</span>({ <span class="var2">name</span>, <span class="var2">email</span>, <span class="var2">age</span> });
+    <span class="fn">setIsSubmitted</span>(<span class="kw">true</span>);
+  };
+
+  <span class="kw">if</span> (<span class="var2">isSubmitted</span>) {
+    <span class="kw">return</span> <span class="tag">&lt;div&gt;</span>✅ Welcome, <span class="jsx">{name}</span>!<span class="tag">&lt;/div&gt;</span>;
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;input</span> <span class="attr">value</span>=<span class="jsx">{name}</span> <span class="attr">onChange</span>=<span class="jsx">{e => setName(e.target.value)}</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;input</span> <span class="attr">value</span>=<span class="jsx">{email}</span> <span class="attr">onChange</span>=<span class="jsx">{e => setEmail(e.target.value)}</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx">{handleSubmit}</span><span class="tag">&gt;</span>Submit<span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</pre>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────────── 7. TYPESCRIPT ─────────────────────────── -->
+<section class="section" id="typescript">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <span class="section-tag">TypeScript</span>
+  </div>
+  <h2>useState with <span style="color:var(--accent)">TypeScript</span></h2>
+  <p>TypeScript adds type safety to your state. Most of the time it figures out the type automatically, but sometimes you need to be explicit.</p>
+  <div class="card card-accent">
+    <div class="code-wrap">
+      <div class="code-label"><div class="code-dots"><span></span><span></span><span></span></div><span class="file">types.tsx</span></div>
+      <pre><span class="cmt">// TypeScript infers types automatically for simple values:</span>
+<span class="kw">const</span> [<span class="var2">count</span>, <span class="fn">setCount</span>] = <span class="fn">useState</span>(<span class="num">0</span>);     <span class="cmt">// type: number ✅</span>
+<span class="kw">const</span> [<span class="var2">name</span>,  <span class="fn">setName</span>]  = <span class="fn">useState</span>(<span class="str">''</span>);    <span class="cmt">// type: string ✅</span>
+
+<span class="cmt">// When it could be null or undefined, be explicit:</span>
+<span class="kw">const</span> [<span class="var2">user</span>, <span class="fn">setUser</span>] = <span class="fn">useState</span>&lt;<span class="var2">User</span> | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+
+<span class="cmt">// For arrays, tell TS what's inside:</span>
+<span class="kw">const</span> [<span class="var2">todos</span>, <span class="fn">setTodos</span>] = <span class="fn">useState</span>&lt;<span class="var2">Todo</span>[]&gt;([]);
+
+<span class="cmt">// Define your types with an interface:</span>
+<span class="kw">interface</span> <span class="var2">Todo</span> {
+  <span class="var2">id</span>: <span class="kw">number</span>;
+  <span class="var2">text</span>: <span class="kw">string</span>;
+  <span class="var2">completed</span>: <span class="kw">boolean</span>;
+}</pre>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────────── SUMMARY TABLE ─────────────────────────── -->
+<section class="section" id="summary">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <span class="section-tag">Quick Reference</span>
+  </div>
+  <h2>Summary <span style="color:var(--accent)">Cheatsheet</span></h2>
+  <table class="summary-table">
+    <thead>
+      <tr><th>Operation</th><th>Pattern</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="td-op">Create state</td><td class="td-code">const [val, setVal] = useState(init)</td><td class="td-code">useState(0)</td></tr>
+      <tr><td class="td-op">Update directly</td><td class="td-code">setVal(newValue)</td><td class="td-code">setCount(5)</td></tr>
+      <tr><td class="td-op">Functional update</td><td class="td-code">setVal(prev => prev + 1)</td><td class="td-code">setCount(p => p + 1)</td></tr>
+      <tr><td class="td-op">Toggle boolean</td><td class="td-code">setVal(prev => !prev)</td><td class="td-code">setIsOpen(p => !p)</td></tr>
+      <tr><td class="td-op">Add to array</td><td class="td-code">setArr(prev => [...prev, newItem])</td><td class="td-code">setTodos([...todos, item])</td></tr>
+      <tr><td class="td-op">Remove from array</td><td class="td-code">setArr(prev => prev.filter(...))</td><td class="td-code">setTodos(t => t.filter(...))</td></tr>
+      <tr><td class="td-op">Update array item</td><td class="td-code">setArr(prev => prev.map(...))</td><td class="td-code">setTodos(t => t.map(...))</td></tr>
+      <tr><td class="td-op">Update object field</td><td class="td-code">setObj(prev => ({...prev, key: val}))</td><td class="td-code">setUser({...user, name:'Ali'})</td></tr>
+      <tr><td class="td-op">TypeScript type</td><td class="td-code">useState&lt;Type&gt;(initial)</td><td class="td-code">useState&lt;Todo[]&gt;([])</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────────── CHALLENGES ─────────────────────────── -->
+<section class="section" id="challenges">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <span class="section-tag">Practice</span>
+  </div>
+  <h2>Coding <span style="color:var(--accent)">Challenges</span></h2>
+  <p>Write your code in the editors below. Hit <strong>Check with AI</strong> and Claude will review your solution, explain what's right, point out any issues, and suggest improvements.</p>
+
+  <!-- CHALLENGE 1 -->
+  <div class="challenge-card">
+    <div class="challenge-header">
+      <div class="challenge-title">Challenge 1 — Counter with Limits</div>
+      <span class="challenge-badge badge-easy">Easy</span>
+    </div>
+    <div class="challenge-body">
+      <div class="task-desc">
+        <h4>📋 Your Task</h4>
+        <ul>
+          <li>Create a counter that starts at <strong>0</strong></li>
+          <li>Add an "Increment" button that adds 1</li>
+          <li>Add a "Decrement" button that subtracts 1</li>
+          <li>Add a "Reset" button that sets it back to 0</li>
+          <li><strong>Bonus:</strong> Don't let the counter go below 0 or above 10</li>
+        </ul>
+      </div>
+      <div id="hint1" class="hint-panel">
+        💜 <strong>Hint:</strong> For the limit, you can use Math.min/Math.max: <code style="font-family:var(--font-code)">setCount(prev => Math.min(10, prev + 1))</code> — this makes sure the value never exceeds 10.
+      </div>
+      <textarea class="code-editor" id="editor1" placeholder="import { useState } from 'react';
+
+function Counter() {
+  // Your code here...
+}"></textarea>
+      <div class="challenge-actions">
+        <button class="submit-btn" onclick="checkCode(1)">⚡ Check with AI</button>
+        <button class="hint-btn" onclick="toggleHint(1)">💜 Hint</button>
+        <button class="reset-btn" onclick="resetEditor(1)">↺ Reset</button>
+      </div>
+      <div class="ai-feedback" id="feedback1"></div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE 2 -->
+  <div class="challenge-card">
+    <div class="challenge-header">
+      <div class="challenge-title">Challenge 2 — Dark Mode Toggle</div>
+      <span class="challenge-badge badge-easy">Easy</span>
+    </div>
+    <div class="challenge-body">
+      <div class="task-desc">
+        <h4>📋 Your Task</h4>
+        <ul>
+          <li>Create a component with a boolean state called <strong>isDark</strong> (starts as false)</li>
+          <li>Show text that says "Light Mode" or "Dark Mode" based on the state</li>
+          <li>Add a button to toggle between them</li>
+          <li>Use the <strong>functional update pattern</strong> for the toggle: <code style="font-family:var(--font-code);color:var(--accent2)">prev => !prev</code></li>
+          <li>Apply a background color conditionally using the state</li>
+        </ul>
+      </div>
+      <div id="hint2" class="hint-panel">
+        💜 <strong>Hint:</strong> For conditional style: <code style="font-family:var(--font-code)">style={{ background: isDark ? '#111' : '#fff' }}</code>. For the text: <code style="font-family:var(--font-code)">{isDark ? 'Dark Mode' : 'Light Mode'}</code>
+      </div>
+      <textarea class="code-editor" id="editor2" placeholder="import { useState } from 'react';
+
+function ThemeToggle() {
+  // Your code here...
+}"></textarea>
+      <div class="challenge-actions">
+        <button class="submit-btn" onclick="checkCode(2)">⚡ Check with AI</button>
+        <button class="hint-btn" onclick="toggleHint(2)">💜 Hint</button>
+        <button class="reset-btn" onclick="resetEditor(2)">↺ Reset</button>
+      </div>
+      <div class="ai-feedback" id="feedback2"></div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE 3 -->
+  <div class="challenge-card">
+    <div class="challenge-header">
+      <div class="challenge-title">Challenge 3 — Controlled Search Input</div>
+      <span class="challenge-badge badge-easy">Easy</span>
+    </div>
+    <div class="challenge-body">
+      <div class="task-desc">
+        <h4>📋 Your Task</h4>
+        <ul>
+          <li>Create a controlled text input with state called <strong>query</strong></li>
+          <li>Show a live preview below the input as the user types</li>
+          <li>Show a character count (e.g., "12 / 50 characters")</li>
+          <li>Add a "Clear" button</li>
+          <li><strong>Bonus:</strong> Disable input when character count reaches 50</li>
+        </ul>
+      </div>
+      <div id="hint3" class="hint-panel">
+        💜 <strong>Hint:</strong> Character count is just <code style="font-family:var(--font-code)">query.length</code>. For the limit: <code style="font-family:var(--font-code)">maxLength={50}</code> on the input, or check <code style="font-family:var(--font-code)">e.target.value.length &lt;= 50</code> in onChange.
+      </div>
+      <textarea class="code-editor" id="editor3" placeholder="import { useState } from 'react';
+
+function SearchBox() {
+  // Your code here...
+}"></textarea>
+      <div class="challenge-actions">
+        <button class="submit-btn" onclick="checkCode(3)">⚡ Check with AI</button>
+        <button class="hint-btn" onclick="toggleHint(3)">💜 Hint</button>
+        <button class="reset-btn" onclick="resetEditor(3)">↺ Reset</button>
+      </div>
+      <div class="ai-feedback" id="feedback3"></div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE 4 -->
+  <div class="challenge-card">
+    <div class="challenge-header">
+      <div class="challenge-title">Challenge 4 — Simple Todo List</div>
+      <span class="challenge-badge badge-medium">Medium</span>
+    </div>
+    <div class="challenge-body">
+      <div class="task-desc">
+        <h4>📋 Your Task</h4>
+        <ul>
+          <li>Create a todo list with an array state</li>
+          <li>Add a text input and "Add" button to add new todos</li>
+          <li>Display all todos in a list</li>
+          <li>Add a delete button on each todo that removes it</li>
+          <li><strong>Bonus:</strong> Add a checkbox to mark todos as complete (use .map to update)</li>
+        </ul>
+      </div>
+      <div id="hint4" class="hint-panel">
+        💜 <strong>Hint:</strong> Each todo should be an object: <code style="font-family:var(--font-code)">{'{ id: Date.now(), text: input, done: false }'}</code>. Use spread to add: <code style="font-family:var(--font-code)">[...todos, newTodo]</code>. Use filter to delete.
+      </div>
+      <textarea class="code-editor" id="editor4" style="min-height:220px" placeholder="import { useState } from 'react';
+
+function TodoList() {
+  // Your code here...
+}"></textarea>
+      <div class="challenge-actions">
+        <button class="submit-btn" onclick="checkCode(4)">⚡ Check with AI</button>
+        <button class="hint-btn" onclick="toggleHint(4)">💜 Hint</button>
+        <button class="reset-btn" onclick="resetEditor(4)">↺ Reset</button>
+      </div>
+      <div class="ai-feedback" id="feedback4"></div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE 5 -->
+  <div class="challenge-card">
+    <div class="challenge-header">
+      <div class="challenge-title">Challenge 5 — User Profile Form</div>
+      <span class="challenge-badge badge-medium">Medium</span>
+    </div>
+    <div class="challenge-body">
+      <div class="task-desc">
+        <h4>📋 Your Task</h4>
+        <ul>
+          <li>Create a form with 3 fields: name, email, and age (each with its own state)</li>
+          <li>Show a live preview card below the form showing the entered info</li>
+          <li>Add basic validation: name must not be empty, email must contain "@"</li>
+          <li>Show an error message if validation fails on submit</li>
+          <li>On successful submit, switch to a "success" view using <code style="font-family:var(--font-code);color:var(--accent2)">isSubmitted</code> state</li>
+        </ul>
+      </div>
+      <div id="hint5" class="hint-panel">
+        💜 <strong>Hint:</strong> Use an <code style="font-family:var(--font-code)">error</code> state (string) for messages. Check: <code style="font-family:var(--font-code)">if (!name) setError('Name required')</code>. Use <code style="font-family:var(--font-code)">email.includes('@')</code> to validate email.
+      </div>
+      <textarea class="code-editor" id="editor5" style="min-height:220px" placeholder="import { useState } from 'react';
+
+function ProfileForm() {
+  // Your code here...
+}"></textarea>
+      <div class="challenge-actions">
+        <button class="submit-btn" onclick="checkCode(5)">⚡ Check with AI</button>
+        <button class="hint-btn" onclick="toggleHint(5)">💜 Hint</button>
+        <button class="reset-btn" onclick="resetEditor(5)">↺ Reset</button>
+      </div>
+      <div class="ai-feedback" id="feedback5"></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────────── QUIZ ─────────────────────────── -->
+<section class="section quiz-section" id="quiz">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <span class="section-tag">Test Yourself</span>
+  </div>
+  <h2>Knowledge <span style="color:var(--accent)">Quiz</span></h2>
+  <p>10 questions to test your understanding. Click an answer to see immediate feedback with an explanation.</p>
+
+  <!-- Q1 -->
+  <div class="quiz-card">
+    <div class="quiz-q"><span class="q-num">Question 01</span>What does useState return?</div>
+    <div class="quiz-options" id="q1">
+      <div class="quiz-opt" onclick="answer(1,'a')"><span class="opt-letter">A</span> A single value — the current state</div>
+      <div class="quiz-opt" onclick="answer(1,'b')"><span class="opt-letter">B</span> An array with two items: the current value and the setter function</div>
+      <div class="quiz-opt" onclick="answer(1,'c')"><span class="opt-letter">C</span> An object with a value and an update method</div>
+      <div class="quiz-opt" onclick="answer(1,'d')"><span class="opt-letter">D</span> A Promise that resolves when state updates</div>
+    </div>
+    <div class="quiz-feedback" id="qf1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-card">
+    <div class="quiz-q"><span class="q-num">Question 02</span>What is wrong with this code? <code style="font-family:var(--font-code);background:var(--bg3);padding:0.1rem 0.4rem;border-radius:4px;font-size:0.85em">let count = 0; count = count + 1;</code></div>
+    <div class="quiz-options" id="q2">
+      <div class="quiz-opt" onclick="answer(2,'a')"><span class="opt-letter">A</span> The syntax is wrong — you can't use let in React</div>
+      <div class="quiz-opt" onclick="answer(2,'b')"><span class="opt-letter">B</span> React doesn't know about the change, so the screen never updates</div>
+      <div class="quiz-opt" onclick="answer(2,'c')"><span class="opt-letter">C</span> count + 1 is incorrect JavaScript</div>
+      <div class="quiz-opt" onclick="answer(2,'d')"><span class="opt-letter">D</span> Nothing is wrong, it will work fine</div>
+    </div>
+    <div class="quiz-feedback" id="qf2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-card">
+    <div class="quiz-q"><span class="q-num">Question 03</span>What is the correct way to toggle a boolean state?</div>
+    <div class="quiz-options" id="q3">
+      <div class="quiz-opt" onclick="answer(3,'a')"><span class="opt-letter">A</span> <code style="font-family:var(--font-code)">isOpen = !isOpen</code></div>
+      <div class="quiz-opt" onclick="answer(3,'b')"><span class="opt-letter">B</span> <code style="font-family:var(--font-code)">setIsOpen(!isOpen)</code></div>
+      <div class="quiz-opt" onclick="answer(3,'c')"><span class="opt-letter">C</span> <code style="font-family:var(--font-code)">setIsOpen(prev => !prev)</code></div>
+      <div class="quiz-opt" onclick="answer(3,'d')"><span class="opt-letter">D</span> Both B and C are correct, but C is the safer pattern</div>
+    </div>
+    <div class="quiz-feedback" id="qf3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="quiz-card">
+    <div class="quiz-q"><span class="q-num">Question 04</span>How do you correctly add an item to an array state?</div>
+    <div class="quiz-options" id="q4">
+      <div class="quiz-opt" onclick="answer(4,'a')"><span class="opt-letter">A</span> <code style="font-family:var(--font-code)">items.push(newItem); setItems(items);</code></div>
+      <div class="quiz-opt" onclick="answer(4,'b')"><span class="opt-letter">B</span> <code style="font-family:var(--font-code)">setItems([...items, newItem])</code></div>
+      <div class="quiz-opt" onclick="answer(4,'c')"><span class="opt-letter">C</span> <code style="font-family:var(--font-code)">setItems(items.add(newItem))</code></div>
+      <div class="quiz-opt" onclick="answer(4,'d')"><span class="opt-letter">D</span> <code style="font-family:var(--font-code)">items[items.length] = newItem</code></div>
+    </div>
+    <div class="quiz-feedback" id="qf4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="quiz-card">
+    <div class="quiz-q"><span class="q-num">Question 05</span>When does React re-render a component?</div>
+    <div class="quiz-options" id="q5">
+      <div class="quiz-opt" onclick="answer(5,'a')"><span class="opt-letter">A</span> Every second automatically</div>
+      <div class="quiz-opt" onclick="answer(5,'b')"><span class="opt-letter">B</span> When you call the setter function (e.g., setCount)</div>
+      <div class="quiz-opt" onclick="answer(5,'c')"><span class="opt-letter">C</span> When you change any JavaScript variable</div>
+      <div class="quiz-opt" onclick="answer(5,'d')"><span class="opt-letter">D</span> Only when the page is refreshed</div>
+    </div>
+    <div class="quiz-feedback" id="qf5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="quiz-card">
+    <div class="quiz-q"><span class="q-num">Question 06</span>What does <code style="font-family:var(--font-code);background:var(--bg3);padding:0.1rem 0.4rem;border-radius:4px;font-size:0.85em">e.target.value</code> give you in an onChange handler?</div>
+    <div class="quiz-options" id="q6">
+      <div class="quiz-opt" onclick="answer(6,'a')"><span class="opt-letter">A</span> The previous value of the input</div>
+      <div class="quiz-opt" onclick="answer(6,'b')"><span class="opt-letter">B</span> The current text the user typed in the input</div>
+      <div class="quiz-opt" onclick="answer(6,'c')"><span class="opt-letter">C</span> The name attribute of the input</div>
+      <div class="quiz-opt" onclick="answer(6,'d')"><span class="opt-letter">D</span> The entire input element</div>
+    </div>
+    <div class="quiz-feedback" id="qf6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="quiz-card">
+    <div class="quiz-q"><span class="q-num">Question 07</span>You call <code style="font-family:var(--font-code);background:var(--bg3);padding:0.1rem 0.4rem;border-radius:4px;font-size:0.85em">setCount(prev => prev + 1)</code> three times in a row. What happens?</div>
+    <div class="quiz-options" id="q7">
+      <div class="quiz-opt" onclick="answer(7,'a')"><span class="opt-letter">A</span> Count increases by 1 (only the last call matters)</div>
+      <div class="quiz-opt" onclick="answer(7,'b')"><span class="opt-letter">B</span> Count increases by 3 (each call sees the latest value)</div>
+      <div class="quiz-opt" onclick="answer(7,'c')"><span class="opt-letter">C</span> An error is thrown — you can't call setState multiple times</div>
+      <div class="quiz-opt" onclick="answer(7,'d')"><span class="opt-letter">D</span> Count increases by 2</div>
+    </div>
+    <div class="quiz-feedback" id="qf7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="quiz-card">
+    <div class="quiz-q"><span class="q-num">Question 08</span>What is the naming convention for the setter function?</div>
+    <div class="quiz-options" id="q8">
+      <div class="quiz-opt" onclick="answer(8,'a')"><span class="opt-letter">A</span> Any name you want — it doesn't matter</div>
+      <div class="quiz-opt" onclick="answer(8,'b')"><span class="opt-letter">B</span> <code style="font-family:var(--font-code)">update</code> + variable name (e.g., updateCount)</div>
+      <div class="quiz-opt" onclick="answer(8,'c')"><span class="opt-letter">C</span> <code style="font-family:var(--font-code)">set</code> + variable name (e.g., setCount)</div>
+      <div class="quiz-opt" onclick="answer(8,'d')"><span class="opt-letter">D</span> <code style="font-family:var(--font-code)">change</code> + variable name (e.g., changeCount)</div>
+    </div>
+    <div class="quiz-feedback" id="qf8"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="quiz-card">
+    <div class="quiz-q"><span class="q-num">Question 09</span>How do you update just ONE field of an object state without losing the other fields?</div>
+    <div class="quiz-options" id="q9">
+      <div class="quiz-opt" onclick="answer(9,'a')"><span class="opt-letter">A</span> <code style="font-family:var(--font-code)">setUser({ name: 'Ali' })</code></div>
+      <div class="quiz-opt" onclick="answer(9,'b')"><span class="opt-letter">B</span> <code style="font-family:var(--font-code)">user.name = 'Ali'</code></div>
+      <div class="quiz-opt" onclick="answer(9,'c')"><span class="opt-letter">C</span> <code style="font-family:var(--font-code)">setUser({ ...user, name: 'Ali' })</code></div>
+      <div class="quiz-opt" onclick="answer(9,'d')"><span class="opt-letter">D</span> <code style="font-family:var(--font-code)">setUser(Object.assign(user, { name: 'Ali' }))</code></div>
+    </div>
+    <div class="quiz-feedback" id="qf9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="quiz-card">
+    <div class="quiz-q"><span class="q-num">Question 10</span>What does "controlled component" mean in React forms?</div>
+    <div class="quiz-options" id="q10">
+      <div class="quiz-opt" onclick="answer(10,'a')"><span class="opt-letter">A</span> The component has strict validation rules</div>
+      <div class="quiz-opt" onclick="answer(10,'b')"><span class="opt-letter">B</span> The input's value is controlled by React state — state is the single source of truth</div>
+      <div class="quiz-opt" onclick="answer(10,'c')"><span class="opt-letter">C</span> Only admin users can change the input</div>
+      <div class="quiz-opt" onclick="answer(10,'d')"><span class="opt-letter">D</span> The component uses useEffect to control updates</div>
+    </div>
+    <div class="quiz-feedback" id="qf10"></div>
+  </div>
+
+  <!-- QUIZ SCORE -->
+  <div id="quizScore" style="display:none" class="card card-accent">
+    <h3>🏆 Your Score</h3>
+    <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+      <div style="font-family:var(--font-head);font-size:3.5rem;font-weight:800;color:var(--accent)" id="scoreDisplay">0/10</div>
+      <div id="scoreMessage" style="color:var(--text2);font-size:0.95rem;max-width:400px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRESS PILL -->
+<div class="progress-section">
+  <div class="progress-pill">
+    <span class="prog-label">Progress</span>
+    <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    <span class="prog-count" id="progCount">0%</span>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ─── PROGRESS BAR ───
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY;
+  const total = document.body.scrollHeight - window.innerHeight;
+  const pct = Math.round((scrolled / total) * 100);
+  document.getElementById('navProgress').style.width = pct + '%';
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progCount').textContent = pct + '%';
+});
+
+// ─── INTERSECTION OBSERVER ───
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.section').forEach(s => observer.observe(s));
+
+// ─── COUNTER DEMO ───
+let count = 0;
+function counterChange(dir) {
+  if(dir === 0) count = 0;
+  else count += dir;
+  const el = document.getElementById('counterDisplay');
+  el.textContent = count;
+  el.classList.add('bump');
+  setTimeout(() => el.classList.remove('bump'), 150);
+}
+
+// ─── TOGGLE DEMO ───
+let toggled = false;
+function togglePill() {
+  toggled = !toggled;
+  const pill = document.getElementById('toggleDemo');
+  const label = document.getElementById('toggleLabel');
+  pill.classList.toggle('on', toggled);
+  label.textContent = `isOpen: ${toggled}`;
+}
+
+// ─── SEARCH DEMO ───
+function updateSearch(val) {
+  const preview = document.getElementById('searchPreview');
+  preview.textContent = val ? `state: query = "${val}"` : '';
+}
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchPreview').textContent = '';
+}
+
+// ─── COPY BUTTONS ───
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const pre = btn.closest('.code-wrap')?.querySelector('pre') || btn.previousElementSibling;
+    navigator.clipboard.writeText(pre.innerText);
+    btn.textContent = '✓ Copied';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+});
+
+// ─── HINTS ───
+function toggleHint(n) {
+  const h = document.getElementById(`hint${n}`);
+  h.classList.toggle('show');
+}
+
+// ─── RESET EDITORS ───
+function resetEditor(n) {
+  document.getElementById(`editor${n}`).value = '';
+  const fb = document.getElementById(`feedback${n}`);
+  fb.className = 'ai-feedback';
+  fb.innerHTML = '';
+}
+
+// ─── AI CODE CHECKER ───
+async function checkCode(n) {
+  const code = document.getElementById(`editor${n}`).value.trim();
+  const fb = document.getElementById(`feedback${n}`);
+  const btn = document.querySelector(`.challenge-card:nth-of-type(${n}) .submit-btn`);
+
+  if (!code || code.length < 20) {
+    fb.className = 'ai-feedback fail show';
+    fb.innerHTML = `<div class="feedback-label fail">⚠ No Code</div>Write some code first, then check it!`;
+    return;
+  }
+
+  const tasks = {
+    1: "a React counter component with useState that has increment, decrement, and reset buttons. Optionally with min/max limits (0 to 10).",
+    2: "a React dark mode toggle component using boolean useState with functional update pattern (prev => !prev) and conditional rendering based on the state.",
+    3: "a React controlled input (SearchBox) with query state, live preview, character count, and a clear button.",
+    4: "a React todo list with array state, add/delete functionality using spread operator and filter. Optionally with completion toggle.",
+    5: "a React profile form with multiple state variables (name, email, age), validation, error messages, and a success view using isSubmitted state."
+  };
+
+  fb.className = 'ai-feedback loading show';
+  fb.innerHTML = `<div class="feedback-label loading"><span class="spinner"></span> Claude is reviewing your code...</div>`;
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are a friendly, encouraging React teacher reviewing beginner code. 
+The student is new to development and just learned useState.
+Review their code for: ${tasks[n]}
+
+Structure your response as plain text (no markdown headers, no asterisks for bold):
+1. Start with PASS or FAIL on the first line
+2. 2-3 sentences of warm encouragement
+3. What they did correctly (be specific)
+4. Any bugs or issues to fix (explain simply, don't be harsh)
+5. One improvement tip
+Keep it under 200 words. Be warm and supportive — this is a beginner!`,
+        messages: [{ role: 'user', content: `Here is my React code:\n\n${code}` }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data.content?.find(b => b.type === 'text')?.text || '';
+    const isPassing = text.trim().toUpperCase().startsWith('PASS');
+
+    fb.className = `ai-feedback ${isPassing ? 'pass' : 'fail'} show`;
+    fb.innerHTML = `
+      <div class="feedback-label ${isPassing ? 'pass' : 'fail'}">
+        ${isPassing ? '✅ Looks Good!' : '🔧 Needs Work'}
+      </div>
+      ${text.replace(/\n/g,'<br>')}
+    `;
+  } catch(err) {
+    fb.className = 'ai-feedback fail show';
+    fb.innerHTML = `<div class="feedback-label fail">⚠ Error</div>Could not connect to AI. Check your internet connection and try again.`;
+  }
+
+  btn.disabled = false;
+}
+
+// ─── QUIZ ───
+const quizAnswers = {
+  1: { correct: 'b', exp: 'useState returns an array of exactly 2 items. The first is the current value, and the second is the setter function. We use array destructuring: const [value, setValue] = useState(initial).' },
+  2: { correct: 'b', exp: "React only knows about changes when you use the setter function from useState. A plain variable change happens in JavaScript memory, but React has no way to detect it — so it never re-renders the component." },
+  3: { correct: 'd', exp: "Both B and C work, but C (functional update) is the safer pattern. It guarantees you're always working with the most recent value, even if multiple updates are queued. Use setIsOpen(prev => !prev) as your default toggle pattern." },
+  4: { correct: 'b', exp: "The spread operator [...items, newItem] creates a brand new array with all existing items plus the new one. Never use .push() on state arrays — it mutates the original array, and React won't detect the change." },
+  5: { correct: 'b', exp: "React only re-renders a component when its state changes (via the setter function) or when its props change. That's the entire magic — useState tells React to watch a value and re-render whenever it changes." },
+  6: { correct: 'b', exp: "In an onChange handler, e is the event object, e.target is the DOM input element, and e.target.value is the current text the user has typed. This is how you read what's in a controlled input." },
+  7: { correct: 'b', exp: "With functional updates (prev => prev + 1), each call receives the result of the previous call. So all 3 calls chain together: start → +1 → +1 → +1 = +3 total. This is the power of functional updates!" },
+  8: { correct: 'c', exp: "The React convention is to name the setter 'set' followed by the capitalized variable name. So for 'count' you use 'setCount', for 'isOpen' you use 'setIsOpen', for 'user' you use 'setUser'. It's just a convention, not a rule — but it's universally used." },
+  9: { correct: 'c', exp: "The spread operator {...user} copies all existing fields of the object. Then you override only the field you want to change. Without the spread, setUser({ name: 'Ali' }) would replace the entire object with just { name: 'Ali' } — losing email, age, etc." },
+  10: { correct: 'b', exp: "A controlled component is one where the input's value is always driven by React state. The state is the 'single source of truth'. When the user types, onChange updates state, and the state value flows back into the input via the value prop." }
+};
+
+let quizScore = 0;
+let answeredQuestions = 0;
+
+function answer(qNum, selected) {
+  const opts = document.querySelectorAll(`#q${qNum} .quiz-opt`);
+  if([...opts].some(o => o.classList.contains('locked'))) return;
+
+  const qa = quizAnswers[qNum];
+  const letters = ['a','b','c','d'];
+
+  opts.forEach((opt, i) => {
+    opt.classList.add('locked');
+    if(letters[i] === qa.correct) opt.classList.add('correct');
+    else if(letters[i] === selected) opt.classList.add('wrong');
+  });
+
+  const fb = document.getElementById(`qf${qNum}`);
+  const isCorrect = selected === qa.correct;
+  if(isCorrect) quizScore++;
+  answeredQuestions++;
+
+  fb.className = `quiz-feedback show ${isCorrect ? 'ok' : 'bad'}`;
+  fb.textContent = (isCorrect ? '✅ Correct! ' : '❌ Not quite. ') + qa.exp;
+
+  if(answeredQuestions === 10) showScore();
+}
+
+function showScore() {
+  const el = document.getElementById('quizScore');
+  el.style.display = 'block';
+  document.getElementById('scoreDisplay').textContent = `${quizScore}/10`;
+  const msgs = [
+    [0,4,'Keep going! Re-read the sections above and try the challenges — understanding will click.'],
+    [5,7,"Good progress! You've got the fundamentals. Review the sections on functional updates and arrays."],
+    [8,9,"Great job! You really understand useState. Practice the coding challenges to solidify it."],
+    [10,10,"Perfect score! 🎉 You've mastered useState. Time to learn useEffect and useContext!"]
+  ];
+  const msg = msgs.find(([min,max]) => quizScore >= min && quizScore <= max);
+  document.getElementById('scoreMessage').textContent = msg[2];
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+</script>
+</body>
+</html>

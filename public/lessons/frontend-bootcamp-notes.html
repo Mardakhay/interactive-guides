@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frontend Engineering Handbook – Deep Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@400;600;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #16161f;
+    --border: #22222e;
+    --accent: #7c6af7;
+    --accent2: #f7a26a;
+    --accent3: #6af7b8;
+    --accent4: #f76a9a;
+    --text: #e8e8f0;
+    --muted: #8888a0;
+    --code-bg: #0d0d14;
+    --month-colors: #7c6af7, #f7a26a, #6af7b8, #f76a9a, #f7e26a, #a26af7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ─────────────────────────────────── */
+  .hero {
+    padding: 80px 40px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 50%, rgba(124,106,247,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 80% 50%, rgba(247,162,106,0.10) 0%, transparent 70%);
+  }
+  .hero-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    line-height: 1.1;
+    position: relative;
+  }
+  .hero h1 em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 1rem;
+    margin-top: 16px;
+    position: relative;
+  }
+  .badge-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 28px;
+    position: relative;
+  }
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 100px;
+    border: 1px solid;
+    letter-spacing: 1px;
+  }
+  .badge-1 { border-color: #7c6af7; color: #7c6af7; }
+  .badge-2 { border-color: #f7a26a; color: #f7a26a; }
+  .badge-3 { border-color: #6af7b8; color: #6af7b8; }
+  .badge-4 { border-color: #f76a9a; color: #f76a9a; }
+  .badge-5 { border-color: #f7e26a; color: #f7e26a; }
+  .badge-6 { border-color: #a26af7; color: #a26af7; }
+
+  /* ── NAV ─────────────────────────────────────── */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-inner {
+    display: flex;
+    gap: 0;
+    white-space: nowrap;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .nav-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 14px 18px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.2s;
+    text-transform: uppercase;
+    border-bottom: 2px solid transparent;
+  }
+  .nav-btn:hover, .nav-btn.active { color: var(--text); }
+  .nav-btn[data-m="1"].active { border-color: #7c6af7; color: #7c6af7; }
+  .nav-btn[data-m="2"].active { border-color: #f7a26a; color: #f7a26a; }
+  .nav-btn[data-m="3"].active { border-color: #6af7b8; color: #6af7b8; }
+  .nav-btn[data-m="4"].active { border-color: #f76a9a; color: #f76a9a; }
+  .nav-btn[data-m="5"].active { border-color: #f7e26a; color: #f7e26a; }
+  .nav-btn[data-m="6"].active { border-color: #a26af7; color: #a26af7; }
+
+  /* ── MAIN LAYOUT ─────────────────────────────── */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 100px;
+  }
+
+  /* ── SECTION (MONTH) ─────────────────────────── */
+  .month-section {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .month-section.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+  .month-header {
+    padding: 56px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .month-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .month-num.c1 { color: #7c6af7; }
+  .month-num.c2 { color: #f7a26a; }
+  .month-num.c3 { color: #6af7b8; }
+  .month-num.c4 { color: #f76a9a; }
+  .month-num.c5 { color: #f7e26a; }
+  .month-num.c6 { color: #a26af7; }
+
+  .month-header h2 {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  .month-header p {
+    color: var(--muted);
+    margin-top: 10px;
+    font-size: 0.95rem;
+  }
+
+  /* ── WEEK BLOCK ───────────────────────────────── */
+  .week {
+    margin-bottom: 48px;
+  }
+  .week-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .week > h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── TOPIC CARD ──────────────────────────────── */
+  .topic {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .topic::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--topic-color, var(--accent));
+    border-radius: 3px 0 0 3px;
+  }
+  .topic h4 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .topic h4 .icon {
+    font-size: 1rem;
+    opacity: 0.8;
+  }
+  .topic p { color: #c0c0d4; font-size: 0.93rem; margin-bottom: 10px; }
+  .topic p:last-child { margin-bottom: 0; }
+  .topic ul {
+    padding-left: 18px;
+    color: #c0c0d4;
+    font-size: 0.93rem;
+  }
+  .topic ul li { margin-bottom: 5px; }
+
+  /* ── CODE BLOCK ──────────────────────────────── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid #1e1e2e;
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin: 14px 0;
+    overflow-x: auto;
+  }
+  .code-block pre {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.75;
+    color: #cdd6f4;
+    white-space: pre;
+  }
+  .kw { color: #cba6f7; }   /* keyword */
+  .fn { color: #89b4fa; }   /* function */
+  .str { color: #a6e3a1; }  /* string */
+  .cm { color: #585b70; }   /* comment */
+  .num { color: #fab387; }  /* number */
+  .tag { color: #f38ba8; }  /* html tag */
+  .attr { color: #89dceb; } /* attribute */
+  .val { color: #a6e3a1; }  /* value */
+  .op { color: #94e2d5; }   /* operator */
+  .type { color: #f9e2af; } /* type */
+
+  /* ── CALLOUT BOXES ───────────────────────────── */
+  .callout {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 0.9rem;
+    border-left: 3px solid;
+  }
+  .callout-info { background: rgba(124,106,247,0.08); border-color: #7c6af7; color: #b8b0f7; }
+  .callout-warn { background: rgba(247,162,106,0.08); border-color: #f7a26a; color: #f7c8a0; }
+  .callout-tip { background: rgba(106,247,184,0.08); border-color: #6af7b8; color: #a0f7d8; }
+  .callout-danger { background: rgba(247,106,154,0.08); border-color: #f76a9a; color: #f7a8c4; }
+  .callout strong { display: block; font-weight: 800; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+
+  /* ── TABLE ───────────────────────────────────── */
+  .tbl-wrap { overflow-x: auto; margin: 14px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+  th {
+    font-family: 'IBM Plex Mono', monospace;
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(34,34,46,0.5);
+    color: #c0c0d4;
+  }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* ── DIAGRAM ─────────────────────────────────── */
+  .diagram {
+    background: var(--code-bg);
+    border: 1px solid #1e1e2e;
+    border-radius: 8px;
+    padding: 18px;
+    margin: 14px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #a6adc8;
+    line-height: 1.6;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* ── QUIZ ────────────────────────────────────── */
+  .quiz {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 16px 0;
+  }
+  .quiz h5 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 8px;
+  }
+  .quiz p { color: #c0c0d4; font-size: 0.93rem; }
+  .quiz-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s;
+  }
+  .quiz-toggle:hover { background: var(--border); color: var(--text); }
+  .quiz-answer { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); color: #a6e3a1; font-size: 0.88rem; }
+  .quiz-answer.show { display: block; }
+
+  /* ── PROGRESS ────────────────────────────────── */
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 6px 0 16px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── HIGHLIGHT ───────────────────────────────── */
+  mark {
+    background: rgba(124,106,247,0.25);
+    color: #c4b8ff;
+    padding: 0 3px;
+    border-radius: 3px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .hero { padding: 50px 20px 40px; }
+    .container { padding: 0 16px 60px; }
+    .topic { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <p class="hero-label">// Engineering-Level Study Guide</p>
+  <h1>Frontend <em>Engineering</em><br>Deep Notes Handbook</h1>
+  <p>6 Months · 24 Weeks · Junior → Mid-Level · Every concept explained properly</p>
+  <div class="badge-row">
+    <span class="badge badge-1">HTML & CSS</span>
+    <span class="badge badge-2">JavaScript</span>
+    <span class="badge badge-3">TypeScript</span>
+    <span class="badge badge-4">React</span>
+    <span class="badge badge-5">Testing & Perf</span>
+    <span class="badge badge-6">Capstone</span>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="nav-btn active" data-m="1" onclick="showMonth(1)">Month 1 – HTML/CSS</button>
+    <button class="nav-btn" data-m="2" onclick="showMonth(2)">Month 2 – JavaScript</button>
+    <button class="nav-btn" data-m="3" onclick="showMonth(3)">Month 3 – TS & React</button>
+    <button class="nav-btn" data-m="4" onclick="showMonth(4)">Month 4 – React Ecosystem</button>
+    <button class="nav-btn" data-m="5" onclick="showMonth(5)">Month 5 – Advanced</button>
+    <button class="nav-btn" data-m="6" onclick="showMonth(6)">Month 6 – Capstone</button>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════════════════════
+     MONTH 1
+══════════════════════════════════════════════════════════ -->
+<section class="month-section active" id="month-1">
+  <div class="month-header">
+    <p class="month-num c1">// Month 01 · Weeks 1–4</p>
+    <h2>Web Fundamentals &amp; Layout</h2>
+    <p>How the browser works, semantic HTML, CSS architecture, Flexbox, Grid, responsive design</p>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%; background:#7c6af7;"></div></div>
+  </div>
+
+  <!-- WEEK 1 -->
+  <div class="week">
+    <p class="week-label">Week 01</p>
+    <h3>Web Basics, HTTP &amp; HTML Structure</h3>
+
+    <div class="topic" style="--topic-color:#7c6af7;">
+      <h4><span class="icon">🌐</span>What Happens When You Type a URL</h4>
+      <p>This is the most important mental model for any frontend developer. Everything the browser does is a consequence of this chain:</p>
+      <div class="diagram">User types: https://example.com/users
+
+1. DNS Lookup
+   Browser → DNS server
+   "What is the IP for example.com?"
+   DNS returns: 93.184.216.34
+
+2. TCP 3-Way Handshake
+   Client → SYN       → Server
+   Client ← SYN-ACK   ← Server
+   Client → ACK        → Server
+   Connection established.
+
+3. TLS Handshake (HTTPS only)
+   Exchange certificates, agree on encryption
+   → Secure channel created
+
+4. HTTP Request
+   GET /users HTTP/1.1
+   Host: example.com
+   Accept: text/html
+
+5. HTTP Response
+   HTTP/1.1 200 OK
+   Content-Type: text/html; charset=utf-8
+   &lt;html&gt;...&lt;/html&gt;
+
+6. Browser parses HTML
+   → Builds DOM tree
+   → Requests CSS, JS, images
+   → Renders pixels</div>
+      <div class="callout callout-info">
+        <strong>Why this matters</strong>
+        When network errors happen in your React app, you'll read the Network tab and immediately understand what went wrong: DNS failures show as no response at all; HTTP errors like 401 Unauthorized, 404 Not Found, and 500 Server Error show as failed requests with a status code.
+      </div>
+    </div>
+
+    <div class="topic" style="--topic-color:#7c6af7;">
+      <h4><span class="icon">📡</span>HTTP Deep Dive</h4>
+      <p>HTTP is the language of the web. Every API call you make in React is HTTP.</p>
+      <div class="tbl-wrap"><table>
+        <tr><th>Method</th><th>Purpose</th><th>Example</th></tr>
+        <tr><td><code>GET</code></td><td>Read data, no body</td><td>Fetch a list of users</td></tr>
+        <tr><td><code>POST</code></td><td>Create a resource</td><td>Register a new user</td></tr>
+        <tr><td><code>PUT</code></td><td>Replace a resource completely</td><td>Update entire profile</td></tr>
+        <tr><td><code>PATCH</code></td><td>Update part of a resource</td><td>Change only email field</td></tr>
+        <tr><td><code>DELETE</code></td><td>Remove a resource</td><td>Delete a post</td></tr>
+      </table></div>
+      <p style="margin-top:12px"><strong>Status codes you must memorize:</strong></p>
+      <div class="tbl-wrap"><table>
+        <tr><th>Code</th><th>Meaning</th><th>Frontend Action</th></tr>
+        <tr><td>200</td><td>OK</td><td>Show data</td></tr>
+        <tr><td>201</td><td>Created</td><td>Show success, redirect</td></tr>
+        <tr><td>400</td><td>Bad Request</td><td>Show validation errors</td></tr>
+        <tr><td>401</td><td>Unauthorized</td><td>Redirect to login</td></tr>
+        <tr><td>403</td><td>Forbidden</td><td>Show "no access" message</td></tr>
+        <tr><td>404</td><td>Not Found</td><td>Show 404 page</td></tr>
+        <tr><td>422</td><td>Unprocessable Entity</td><td>Show field-level errors from server</td></tr>
+        <tr><td>500</td><td>Server Error</td><td>Show generic error, log it</td></tr>
+      </table></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#7c6af7;">
+      <h4><span class="icon">🏗️</span>HTML Document Structure &amp; the DOM</h4>
+      <p>HTML is not just text — the browser parses it into a tree in memory called the <strong>DOM (Document Object Model)</strong>. JavaScript and React both manipulate this tree.</p>
+      <div class="code-block"><pre><span class="cm">&lt;!-- Every HTML file has this structure --&gt;</span>
+<span class="tag">&lt;!DOCTYPE html&gt;</span>              <span class="cm">&lt;!-- tells browser: HTML5 --&gt;</span>
+<span class="tag">&lt;html</span> <span class="attr">lang</span>=<span class="val">"en"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;head&gt;</span>                       <span class="cm">&lt;!-- NOT visible to user --&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">charset</span>=<span class="val">"UTF-8"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">name</span>=<span class="val">"viewport"</span> <span class="attr">content</span>=<span class="val">"width=device-width,initial-scale=1"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;title&gt;</span>My App<span class="tag">&lt;/title&gt;</span>
+    <span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="val">"stylesheet"</span> <span class="attr">href</span>=<span class="val">"style.css"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;/head&gt;</span>
+  <span class="tag">&lt;body&gt;</span>                       <span class="cm">&lt;!-- Everything visible is here --&gt;</span>
+    <span class="tag">&lt;header&gt;</span>...<span class="tag">&lt;/header&gt;</span>
+    <span class="tag">&lt;main&gt;</span>...<span class="tag">&lt;/main&gt;</span>
+    <span class="tag">&lt;footer&gt;</span>...<span class="tag">&lt;/footer&gt;</span>
+    <span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="val">"app.js"</span><span class="tag">&gt;&lt;/script&gt;</span>  <span class="cm">&lt;!-- scripts go at bottom --&gt;</span>
+  <span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></pre></div>
+      <div class="callout callout-tip">
+        <strong>Pro Tip</strong>
+        The viewport meta tag is critical for mobile. Without it, mobile browsers zoom out and your responsive design breaks. Always include it.
+      </div>
+    </div>
+
+    <div class="topic" style="--topic-color:#7c6af7;">
+      <h4><span class="icon">🏷️</span>Semantic HTML — The "Why" Most Devs Miss</h4>
+      <p>Using <code>&lt;div&gt;</code> for everything works visually but breaks accessibility, SEO, and code maintainability. Semantic elements carry <em>meaning</em>.</p>
+      <div class="tbl-wrap"><table>
+        <tr><th>Bad</th><th>Semantic</th><th>Why</th></tr>
+        <tr><td><code>&lt;div class="header"&gt;</code></td><td><code>&lt;header&gt;</code></td><td>Screen readers announce "banner landmark"</td></tr>
+        <tr><td><code>&lt;div class="nav"&gt;</code></td><td><code>&lt;nav&gt;</code></td><td>Jump-to-navigation for keyboard users</td></tr>
+        <tr><td><code>&lt;div class="post"&gt;</code></td><td><code>&lt;article&gt;</code></td><td>Signals standalone, shareable content to SEO</td></tr>
+        <tr><td><code>&lt;div class="tip"&gt;</code></td><td><code>&lt;aside&gt;</code></td><td>Signals supplementary content</td></tr>
+        <tr><td><code>&lt;div onclick&gt;</code></td><td><code>&lt;button&gt;</code></td><td>Free keyboard focus, Enter key, ARIA roles</td></tr>
+      </table></div>
+      <div class="callout callout-warn">
+        <strong>Interview Trap</strong>
+        "Why use semantic HTML?" The answer is NOT just "it looks clean". It's: accessibility for screen readers, better SEO crawling, free browser behaviors (button focus, form submission), and better code communication.
+      </div>
+    </div>
+
+    <div class="quiz">
+      <h5>✦ Check Your Understanding</h5>
+      <p>A user navigates to your page using a keyboard. They press Tab to move between elements. A <code>&lt;div onclick="..."&gt;</code> is NOT reachable — why not, and how do you fix it?</p>
+      <button class="quiz-toggle" onclick="toggleAnswer(this)">Show Answer</button>
+      <div class="quiz-answer"><code>&lt;div&gt;</code> is not focusable by default. Fix: use <code>&lt;button&gt;</code> instead. If you must use a div: add <code>tabindex="0"</code> and handle both <code>click</code> and <code>keydown</code> (Enter/Space). But just use <code>&lt;button&gt;</code>.</div>
+    </div>
+  </div>
+
+  <!-- WEEK 2 -->
+  <div class="week">
+    <p class="week-label">Week 02</p>
+    <h3>HTML Forms &amp; Accessibility</h3>
+
+    <div class="topic" style="--topic-color:#7c6af7;">
+      <h4><span class="icon">📝</span>Forms — Every Attribute Matters</h4>
+      <div class="code-block"><pre><span class="tag">&lt;form</span> <span class="attr">action</span>=<span class="val">"/login"</span> <span class="attr">method</span>=<span class="val">"post"</span><span class="tag">&gt;</span>
+
+  <span class="cm">&lt;!-- label's "for" MUST match input's "id" --&gt;</span>
+  <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="val">"email"</span><span class="tag">&gt;</span>Email<span class="tag">&lt;/label&gt;</span>
+  <span class="tag">&lt;input</span>
+    <span class="attr">id</span>=<span class="val">"email"</span>
+    <span class="attr">name</span>=<span class="val">"email"</span>        <span class="cm">&lt;!-- key sent to server --&gt;</span>
+    <span class="attr">type</span>=<span class="val">"email"</span>        <span class="cm">&lt;!-- built-in validation --&gt;</span>
+    <span class="attr">placeholder</span>=<span class="val">"you@example.com"</span>
+    <span class="attr">required</span>            <span class="cm">&lt;!-- browser enforces non-empty --&gt;</span>
+    <span class="attr">autocomplete</span>=<span class="val">"email"</span>
+  <span class="tag">&gt;</span>
+
+  <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="val">"password"</span><span class="tag">&gt;</span>Password<span class="tag">&lt;/label&gt;</span>
+  <span class="tag">&lt;input</span>
+    <span class="attr">id</span>=<span class="val">"password"</span>
+    <span class="attr">name</span>=<span class="val">"password"</span>
+    <span class="attr">type</span>=<span class="val">"password"</span>
+    <span class="attr">minlength</span>=<span class="val">"8"</span>
+    <span class="attr">required</span>
+  <span class="tag">&gt;</span>
+
+  <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="val">"submit"</span><span class="tag">&gt;</span>Log In<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/form&gt;</span></pre></div>
+      <p><strong>Critical attributes:</strong></p>
+      <ul>
+        <li><code>name</code> → what key is sent to the server. Without this, input is ignored in form submission</li>
+        <li><code>id + for</code> → clicking the label focuses the input (accessibility + usability)</li>
+        <li><code>type</code> → activates correct mobile keyboard, built-in validation</li>
+        <li><code>autocomplete</code> → browser autofill; password managers use this</li>
+      </ul>
+    </div>
+
+    <div class="topic" style="--topic-color:#7c6af7;">
+      <h4><span class="icon">♿</span>Accessibility — The Basics That Matter Most</h4>
+      <p>Accessibility (a11y) is not "extra" work — it's correct HTML. In many countries it's also a legal requirement.</p>
+      <div class="tbl-wrap"><table>
+        <tr><th>Technique</th><th>Why</th></tr>
+        <tr><td><code>alt</code> attribute on images</td><td>Screen readers read this aloud. Empty alt (<code>alt=""</code>) hides decorative images</td></tr>
+        <tr><td>Correct heading hierarchy (h1→h2→h3)</td><td>Screen reader users navigate by headings, like a table of contents</td></tr>
+        <tr><td><code>&lt;label&gt;</code> linked to every input</td><td>Screen reader reads label when input is focused</td></tr>
+        <tr><td>Sufficient color contrast (4.5:1 minimum)</td><td>Users with low vision can read text</td></tr>
+        <tr><td>Focus styles visible</td><td>Never do <code>outline: none</code> without replacing with custom focus style</td></tr>
+        <tr><td><code>aria-label</code> on icon buttons</td><td>"🔍" button is meaningless to screen readers. Add <code>aria-label="Search"</code></td></tr>
+      </table></div>
+    </div>
+
+    <div class="quiz">
+      <h5>✦ Check Your Understanding</h5>
+      <p>You have a search button that only shows a magnifying glass icon. What HTML makes it accessible?</p>
+      <button class="quiz-toggle" onclick="toggleAnswer(this)">Show Answer</button>
+      <div class="quiz-answer"><code>&lt;button aria-label="Search"&gt;&lt;svg aria-hidden="true"&gt;...&lt;/svg&gt;&lt;/button&gt;</code> — The <code>aria-label</code> is spoken, <code>aria-hidden</code> on the SVG prevents it from being read twice.</div>
+    </div>
+  </div>
+
+  <!-- WEEK 3 -->
+  <div class="week">
+    <p class="week-label">Week 03</p>
+    <h3>CSS Fundamentals — Selectors, Specificity, Box Model</h3>
+
+    <div class="topic" style="--topic-color:#7c6af7;">
+      <h4><span class="icon">📦</span>The Box Model — Most Critical CSS Concept</h4>
+      <p>Every element on screen is a rectangle. Understanding this prevents 80% of layout bugs.</p>
+      <div class="diagram">  ┌──────────────────────────────────┐
+  │            MARGIN                │  ← outside, transparent
+  │  ┌──────────────────────────┐   │
+  │  │         BORDER           │   │  ← the visible edge
+  │  │  ┌────────────────────┐  │   │
+  │  │  │      PADDING       │  │   │  ← space inside border
+  │  │  │  ┌──────────────┐  │  │   │
+  │  │  │  │   CONTENT    │  │  │   │  ← text / images
+  │  │  │  └──────────────┘  │  │   │
+  │  │  └────────────────────┘  │   │
+  │  └──────────────────────────┘   │
+  └──────────────────────────────────┘
+
+Default: box-sizing: content-box
+  width = content only
+  total = width + padding + border + margin
+
+Professional default: box-sizing: border-box  ← ALWAYS USE
+  width = content + padding + border
+  total = width + margin  (much more predictable)</div>
+      <div class="code-block"><pre><span class="cm">/* Reset – apply to every project */</span>
+<span class="fn">*</span>, <span class="fn">*::before</span>, <span class="fn">*::after</span> {
+  <span class="kw">box-sizing</span>: border-box;
+}
+
+<span class="cm">/* Example */</span>
+.<span class="fn">card</span> {
+  <span class="kw">width</span>: <span class="num">300px</span>;
+  <span class="kw">padding</span>: <span class="num">24px</span>;
+  <span class="kw">border</span>: <span class="num">2px</span> solid <span class="str">#333</span>;
+  <span class="cm">/* border-box: total width = 300px */</span>
+  <span class="cm">/* content-box: total width = 300+48+4 = 352px */</span>
+}</pre></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#7c6af7;">
+      <h4><span class="icon">🎯</span>Specificity — Why Your CSS "Doesn't Work"</h4>
+      <p>When multiple rules target the same element, specificity determines which one wins. This is the source of most "why isn't my CSS applying?" bugs.</p>
+      <div class="diagram">Specificity Score (calculated as a 3-part number):
+
+  [ID selectors, Class/attr selectors, Element selectors]
+
+  h1                    → 0-0-1
+  .title                → 0-1-0
+  #main                 → 1-0-0
+  div.card              → 0-1-1
+  #app .card h2         → 1-1-1
+  style=""              → wins over all (inline)
+  !important            → nuclear option, beats even inline styles
+
+Higher number = wins. Compare left-to-right.
+0-1-0 beats 0-0-100 (yes, 100 elements can't beat 1 class)</div>
+      <div class="callout callout-warn">
+        <strong>Professional Rule</strong>
+        Never use <code>!important</code> except as a last resort. It destroys the cascade and makes code unmaintainable. If you need it, your specificity architecture is broken.
+      </div>
+    </div>
+
+    <div class="topic" style="--topic-color:#7c6af7;">
+      <h4><span class="icon">🎨</span>CSS Variables (Custom Properties)</h4>
+      <p>CSS variables are not in your syllabus but are essential in every real project. They work natively in all modern browsers.</p>
+      <div class="code-block"><pre><span class="cm">/* Define on :root (global) */</span>
+<span class="fn">:root</span> {
+  <span class="attr">--color-primary</span>: <span class="str">#7c6af7</span>;
+  <span class="attr">--color-bg</span>: <span class="str">#0a0a0f</span>;
+  <span class="attr">--spacing-md</span>: <span class="num">16px</span>;
+  <span class="attr">--radius</span>: <span class="num">8px</span>;
+}
+
+<span class="cm">/* Use anywhere */</span>
+.<span class="fn">button</span> {
+  <span class="kw">background</span>: <span class="fn">var</span>(--color-primary);
+  <span class="kw">padding</span>: <span class="fn">var</span>(--spacing-md);
+  <span class="kw">border-radius</span>: <span class="fn">var</span>(--radius);
+}
+
+<span class="cm">/* Override for dark mode */</span>
+<span class="fn">@media</span> (prefers-color-scheme: dark) {
+  <span class="fn">:root</span> {
+    <span class="attr">--color-bg</span>: <span class="str">#000</span>;
+  }
+}</pre></div>
+    </div>
+  </div>
+
+  <!-- WEEK 4 -->
+  <div class="week">
+    <p class="week-label">Week 04</p>
+    <h3>Flexbox, CSS Grid &amp; Responsive Design</h3>
+
+    <div class="topic" style="--topic-color:#7c6af7;">
+      <h4><span class="icon">↔️</span>Flexbox — Mental Model</h4>
+      <p>Flexbox is a <em>1-dimensional</em> layout system. Think of it as: "arrange items along one axis". Perfect for navigation bars, button groups, card rows.</p>
+      <div class="diagram">Main axis (default: horizontal →):
+
+  ┌──────────────────────────────────────┐
+  │  [Item A]  [Item B]  [Item C]        │
+  │                                      │
+  └──────────────────────────────────────┘
+
+Cross axis (perpendicular ↕):
+  Controls vertical alignment of items</div>
+      <div class="code-block"><pre>.<span class="fn">container</span> {
+  <span class="kw">display</span>: flex;
+
+  <span class="cm">/* Main axis distribution */</span>
+  <span class="kw">justify-content</span>: flex-start | flex-end | center | space-between | space-around | space-evenly;
+
+  <span class="cm">/* Cross axis alignment */</span>
+  <span class="kw">align-items</span>: stretch | flex-start | flex-end | center | baseline;
+
+  <span class="cm">/* Direction */</span>
+  <span class="kw">flex-direction</span>: row | row-reverse | column | column-reverse;
+
+  <span class="cm">/* Allow wrapping */</span>
+  <span class="kw">flex-wrap</span>: nowrap | wrap;
+
+  <span class="cm">/* Spacing between items */</span>
+  <span class="kw">gap</span>: <span class="num">16px</span>;
+}
+
+<span class="cm">/* Child control */</span>
+.<span class="fn">item</span> {
+  <span class="kw">flex</span>: <span class="num">1</span>;           <span class="cm">/* grow to fill available space */</span>
+  <span class="kw">flex</span>: <span class="num">0 0 200px</span>;   <span class="cm">/* fixed 200px, don't grow/shrink */</span>
+  <span class="kw">flex</span>: <span class="num">1 1 auto</span>;   <span class="cm">/* grow AND shrink from natural size */</span>
+}</pre></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#7c6af7;">
+      <h4><span class="icon">⊞</span>CSS Grid — Mental Model</h4>
+      <p>Grid is a <em>2-dimensional</em> layout system. Rows AND columns simultaneously. Use for full-page layouts, dashboards, image galleries.</p>
+      <div class="code-block"><pre>.<span class="fn">layout</span> {
+  <span class="kw">display</span>: grid;
+
+  <span class="cm">/* Define columns */</span>
+  <span class="kw">grid-template-columns</span>: <span class="num">1fr 1fr 1fr</span>;         <span class="cm">/* 3 equal columns */</span>
+  <span class="kw">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="num">3</span>, <span class="num">1fr</span>);       <span class="cm">/* same */</span>
+  <span class="kw">grid-template-columns</span>: <span class="num">200px 1fr 200px</span>;     <span class="cm">/* sidebar | main | sidebar */</span>
+  <span class="kw">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="kw">auto-fill</span>, <span class="fn">minmax</span>(<span class="num">200px</span>, <span class="num">1fr</span>));  <span class="cm">/* responsive auto-cols */</span>
+
+  <span class="cm">/* Define rows */</span>
+  <span class="kw">grid-template-rows</span>: <span class="kw">auto</span> <span class="num">1fr</span> <span class="kw">auto</span>;   <span class="cm">/* header | main | footer */</span>
+
+  <span class="kw">gap</span>: <span class="num">24px</span>;
+}
+
+<span class="cm">/* Spanning cells */</span>
+.<span class="fn">hero</span> {
+  <span class="kw">grid-column</span>: <span class="num">1</span> / -1;    <span class="cm">/* span ALL columns */</span>
+  <span class="kw">grid-column</span>: <span class="num">1</span> / <span class="num">3</span>;     <span class="cm">/* span column 1 and 2 */</span>
+}</pre></div>
+      <div class="callout callout-tip">
+        <strong>Grid vs Flexbox — Quick Rule</strong>
+        Grid: you know the layout structure first, then place items in it. Flexbox: items determine the layout. Grid for pages, Flexbox for components.
+      </div>
+    </div>
+
+    <div class="topic" style="--topic-color:#7c6af7;">
+      <h4><span class="icon">📱</span>Responsive Design — Mobile-First Approach</h4>
+      <div class="code-block"><pre><span class="cm">/* MOBILE FIRST: start with mobile styles (no media query) */</span>
+.<span class="fn">grid</span> {
+  <span class="kw">display</span>: grid;
+  <span class="kw">grid-template-columns</span>: <span class="num">1fr</span>;    <span class="cm">/* 1 column on mobile */</span>
+  <span class="kw">gap</span>: <span class="num">16px</span>;
+}
+
+<span class="cm">/* Tablet: 768px and up */</span>
+<span class="fn">@media</span> (min-width: <span class="num">768px</span>) {
+  .<span class="fn">grid</span> {
+    <span class="kw">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="num">2</span>, <span class="num">1fr</span>);
+  }
+}
+
+<span class="cm">/* Desktop: 1024px and up */</span>
+<span class="fn">@media</span> (min-width: <span class="num">1024px</span>) {
+  .<span class="fn">grid</span> {
+    <span class="kw">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="num">3</span>, <span class="num">1fr</span>);
+  }
+}
+
+<span class="cm">/* Fully responsive grid (no media queries needed!) */</span>
+.<span class="fn">auto-grid</span> {
+  <span class="kw">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="kw">auto-fill</span>, <span class="fn">minmax</span>(<span class="num">240px</span>, <span class="num">1fr</span>));
+}</pre></div>
+      <p><strong>Why mobile-first?</strong> Forced to prioritize essential content. Easier to add complexity as screen grows. Better performance on slow mobile connections. Current industry standard.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     MONTH 2
+══════════════════════════════════════════════════════════ -->
+<section class="month-section" id="month-2">
+  <div class="month-header">
+    <p class="month-num c2">// Month 02 · Weeks 5–8</p>
+    <h2>JavaScript Core &amp; Git</h2>
+    <p>ES6+, functions, arrays, objects, DOM, async, fetch, Git workflow</p>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%; background:#f7a26a;"></div></div>
+  </div>
+
+  <!-- WEEK 5 -->
+  <div class="week">
+    <p class="week-label">Week 05</p>
+    <h3>JavaScript Fundamentals</h3>
+
+    <div class="topic" style="--topic-color:#f7a26a;">
+      <h4><span class="icon">🔤</span>Variables — let, const, and Why Not var</h4>
+      <div class="code-block"><pre><span class="cm">// var — AVOID. Function-scoped, hoisted, no block scope</span>
+<span class="kw">var</span> x = <span class="num">1</span>;  <span class="cm">// leaks out of if/for blocks</span>
+
+<span class="cm">// let — block-scoped, reassignable</span>
+<span class="kw">let</span> count = <span class="num">0</span>;
+count = <span class="num">1</span>;  <span class="cm">// ✓</span>
+
+<span class="cm">// const — block-scoped, cannot reassign (but objects ARE mutable)</span>
+<span class="kw">const</span> name = <span class="str">"Mardakhay"</span>;
+<span class="cm">// name = "Other";  ✗ TypeError</span>
+
+<span class="kw">const</span> user = { name: <span class="str">"Mardakhay"</span> };
+user.name = <span class="str">"Other"</span>;  <span class="cm">// ✓ object properties ARE mutable</span>
+
+<span class="cm">// Rule: use const by default, let when you need to reassign</span>
+<span class="cm">// Never use var.</span></pre></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#f7a26a;">
+      <h4><span class="icon">🏷️</span>Type System &amp; Coercion — The Trap</h4>
+      <div class="code-block"><pre><span class="cm">// JavaScript has 7 primitive types:</span>
+<span class="kw">typeof</span> <span class="str">"hello"</span>      <span class="cm">// "string"</span>
+<span class="kw">typeof</span> <span class="num">42</span>           <span class="cm">// "number"</span>
+<span class="kw">typeof</span> <span class="kw">true</span>         <span class="cm">// "boolean"</span>
+<span class="kw">typeof</span> <span class="kw">undefined</span>    <span class="cm">// "undefined"</span>
+<span class="kw">typeof</span> <span class="kw">null</span>         <span class="cm">// "object"  ← famous bug in JS</span>
+<span class="kw">typeof</span> Symbol()     <span class="cm">// "symbol"</span>
+<span class="kw">typeof</span> <span class="num">9007n</span>        <span class="cm">// "bigint"</span>
+<span class="kw">typeof</span> {}           <span class="cm">// "object"</span>
+<span class="kw">typeof</span> []           <span class="cm">// "object" (arrays are objects!)</span>
+
+<span class="cm">// == vs === — ALWAYS use ===</span>
+<span class="num">1</span> == <span class="str">"1"</span>    <span class="cm">// true  (loose, coerces)</span>
+<span class="num">1</span> === <span class="str">"1"</span>   <span class="cm">// false (strict, no coercion)</span>
+<span class="kw">null</span> == <span class="kw">undefined</span>   <span class="cm">// true  (one common exception where == is acceptable)</span>
+<span class="kw">null</span> === <span class="kw">undefined</span>  <span class="cm">// false</span>
+
+<span class="cm">// Falsy values (act as false in if())</span>
+<span class="cm">// false, 0, "", null, undefined, NaN</span>
+<span class="cm">// Everything else is truthy, including [] and {}</span>
+<span class="kw">if</span> ([]) console.<span class="fn">log</span>(<span class="str">"runs!"</span>);  <span class="cm">// ← yes, [] is truthy</span></pre></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#f7a26a;">
+      <h4><span class="icon">🔁</span>Loops — Know When to Use Each</h4>
+      <div class="code-block"><pre><span class="kw">const</span> arr = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+
+<span class="cm">// for — traditional, full control</span>
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; arr.length; i++) { ... }
+
+<span class="cm">// for...of — iterate VALUES of any iterable</span>
+<span class="kw">for</span> (<span class="kw">const</span> item <span class="kw">of</span> arr) { ... }
+
+<span class="cm">// for...in — iterate KEYS of an object</span>
+<span class="kw">const</span> obj = { a: <span class="num">1</span>, b: <span class="num">2</span> };
+<span class="kw">for</span> (<span class="kw">const</span> key <span class="kw">in</span> obj) { ... }
+
+<span class="cm">// forEach — array method, can't break out of it</span>
+arr.<span class="fn">forEach</span>((item) => { ... });
+
+<span class="cm">// while — when condition-based (not count-based)</span>
+<span class="kw">while</span> (queue.length > <span class="num">0</span>) {
+  queue.<span class="fn">pop</span>();
+}</pre></div>
+    </div>
+  </div>
+
+  <!-- WEEK 6 -->
+  <div class="week">
+    <p class="week-label">Week 06</p>
+    <h3>Functions, Array Methods, Objects</h3>
+
+    <div class="topic" style="--topic-color:#f7a26a;">
+      <h4><span class="icon">⚡</span>Arrow Functions vs Regular Functions — The Key Difference</h4>
+      <div class="code-block"><pre><span class="cm">// Function declaration — hoisted, has own 'this'</span>
+<span class="kw">function</span> <span class="fn">add</span>(a, b) { <span class="kw">return</span> a + b; }
+
+<span class="cm">// Function expression — not hoisted</span>
+<span class="kw">const</span> add = <span class="kw">function</span>(a, b) { <span class="kw">return</span> a + b; };
+
+<span class="cm">// Arrow function — inherits 'this' from surrounding scope</span>
+<span class="kw">const</span> add = (a, b) => a + b;  <span class="cm">// implicit return</span>
+
+<span class="cm">// Arrow returning an object (wrap in parens!)</span>
+<span class="kw">const</span> getUser = (id) => ({ id, name: <span class="str">"test"</span> });
+
+<span class="cm">// THIS difference — the most important one</span>
+<span class="kw">const</span> timer = {
+  seconds: <span class="num">0</span>,
+  <span class="fn">start</span>() {
+    <span class="cm">// regular function in setInterval: 'this' is NOT timer</span>
+    <span class="fn">setInterval</span>(() => {
+      <span class="cm">// arrow function: 'this' IS timer ← why we use arrows in callbacks</span>
+      <span class="kw">this</span>.seconds++;
+    }, <span class="num">1000</span>);
+  }
+};</pre></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#f7a26a;">
+      <h4><span class="icon">🔧</span>Array Methods — The Big 5 (Critical for React)</h4>
+      <p>These methods don't mutate the original array — they return a new one. This is the foundation of React state management.</p>
+      <div class="code-block"><pre><span class="kw">const</span> users = [
+  { id: <span class="num">1</span>, name: <span class="str">"Alice"</span>, age: <span class="num">25</span>, active: <span class="kw">true</span> },
+  { id: <span class="num">2</span>, name: <span class="str">"Bob"</span>,   age: <span class="num">17</span>, active: <span class="kw">false</span> },
+  { id: <span class="num">3</span>, name: <span class="str">"Carol"</span>, age: <span class="num">30</span>, active: <span class="kw">true</span> },
+];
+
+<span class="cm">// map() — transform each item, returns same-length array</span>
+<span class="kw">const</span> names = users.<span class="fn">map</span>(u => u.name);
+<span class="cm">// ["Alice", "Bob", "Carol"]</span>
+
+<span class="cm">// filter() — keep items matching condition</span>
+<span class="kw">const</span> adults = users.<span class="fn">filter</span>(u => u.age >= <span class="num">18</span>);
+<span class="cm">// [Alice, Carol]</span>
+
+<span class="cm">// reduce() — accumulate into single value</span>
+<span class="kw">const</span> totalAge = users.<span class="fn">reduce</span>((sum, u) => sum + u.age, <span class="num">0</span>);
+<span class="cm">// 72</span>
+
+<span class="cm">// find() — first match (or undefined)</span>
+<span class="kw">const</span> bob = users.<span class="fn">find</span>(u => u.id === <span class="num">2</span>);
+
+<span class="cm">// some() / every() — boolean checks</span>
+<span class="kw">const</span> hasMinors = users.<span class="fn">some</span>(u => u.age &lt; <span class="num">18</span>);   <span class="cm">// true</span>
+<span class="kw">const</span> allActive = users.<span class="fn">every</span>(u => u.active);       <span class="cm">// false</span>
+
+<span class="cm">// Chain them! (React pattern)</span>
+<span class="kw">const</span> activeNames = users
+  .<span class="fn">filter</span>(u => u.active)
+  .<span class="fn">map</span>(u => u.name);
+<span class="cm">// ["Alice", "Carol"]</span></pre></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#f7a26a;">
+      <h4><span class="icon">🗂️</span>Objects, Destructuring &amp; Spread</h4>
+      <div class="code-block"><pre><span class="cm">// Object basics</span>
+<span class="kw">const</span> user = { id: <span class="num">1</span>, name: <span class="str">"Alice"</span>, role: <span class="str">"admin"</span> };
+
+<span class="cm">// Destructuring — extract properties into variables</span>
+<span class="kw">const</span> { name, role } = user;
+<span class="cm">// rename during destructuring:</span>
+<span class="kw">const</span> { name: userName, role: userRole } = user;
+<span class="cm">// default values:</span>
+<span class="kw">const</span> { name, avatar = <span class="str">"/default.png"</span> } = user;
+
+<span class="cm">// Nested destructuring</span>
+<span class="kw">const</span> { address: { city } } = { address: { city: <span class="str">"Baku"</span> } };
+
+<span class="cm">// Array destructuring</span>
+<span class="kw">const</span> [first, second, ...rest] = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>];
+<span class="cm">// first=1, second=2, rest=[3,4]</span>
+
+<span class="cm">// Spread — IMMUTABLE updates (critical for React state)</span>
+<span class="kw">const</span> updated = { ...user, name: <span class="str">"Bob"</span> };   <span class="cm">// new object, user unchanged</span>
+<span class="kw">const</span> newArr = [...arr, <span class="num">4</span>];                  <span class="cm">// add to array immutably</span>
+<span class="kw">const</span> filtered = arr.<span class="fn">filter</span>(id => id !== <span class="num">2</span>); <span class="cm">// remove immutably</span>
+
+<span class="cm">// Optional chaining (ES2020) — avoid "Cannot read property of undefined"</span>
+<span class="kw">const</span> city = user?.address?.city;   <span class="cm">// undefined instead of error</span>
+<span class="kw">const</span> val = arr?.[<span class="num">0</span>]?.name;
+
+<span class="cm">// Nullish coalescing — default when null/undefined</span>
+<span class="kw">const</span> name = user.name ?? <span class="str">"Anonymous"</span>;  <span class="cm">// 0 and "" are NOT default</span></pre></div>
+    </div>
+
+    <div class="quiz">
+      <h5>✦ Check Your Understanding</h5>
+      <p>Given <code>const users = [...]</code>, write a single expression that: filters to active users, maps to their names, and sorts alphabetically.</p>
+      <button class="quiz-toggle" onclick="toggleAnswer(this)">Show Answer</button>
+      <div class="quiz-answer"><code>users.filter(u => u.active).map(u => u.name).sort()</code></div>
+    </div>
+  </div>
+
+  <!-- WEEK 7 -->
+  <div class="week">
+    <p class="week-label">Week 07</p>
+    <h3>DOM Manipulation &amp; Events</h3>
+
+    <div class="topic" style="--topic-color:#f7a26a;">
+      <h4><span class="icon">🌳</span>DOM Manipulation — What React Replaces</h4>
+      <p>Understanding vanilla DOM manipulation is essential — it makes you understand <em>what React is doing for you</em>.</p>
+      <div class="code-block"><pre><span class="cm">// Selecting elements</span>
+<span class="kw">const</span> el = document.<span class="fn">querySelector</span>(<span class="str">'.card'</span>);       <span class="cm">// first match</span>
+<span class="kw">const</span> all = document.<span class="fn">querySelectorAll</span>(<span class="str">'.card'</span>);    <span class="cm">// NodeList (array-like)</span>
+<span class="kw">const</span> byId = document.<span class="fn">getElementById</span>(<span class="str">'app'</span>);
+
+<span class="cm">// Reading/writing content</span>
+el.textContent = <span class="str">"Hello"</span>;     <span class="cm">// safe (no HTML parsing)</span>
+el.innerHTML = <span class="str">"&lt;b&gt;Hello&lt;/b&gt;"</span>; <span class="cm">// parses HTML — XSS risk if user input</span>
+
+<span class="cm">// Classes</span>
+el.classList.<span class="fn">add</span>(<span class="str">'active'</span>);
+el.classList.<span class="fn">remove</span>(<span class="str">'active'</span>);
+el.classList.<span class="fn">toggle</span>(<span class="str">'dark'</span>);
+
+<span class="cm">// Attributes</span>
+el.<span class="fn">setAttribute</span>(<span class="str">'disabled'</span>, <span class="str">''</span>);
+el.<span class="fn">removeAttribute</span>(<span class="str">'disabled'</span>);
+
+<span class="cm">// Creating and inserting elements</span>
+<span class="kw">const</span> li = document.<span class="fn">createElement</span>(<span class="str">'li'</span>);
+li.textContent = <span class="str">"New item"</span>;
+document.<span class="fn">querySelector</span>(<span class="str">'ul'</span>).<span class="fn">appendChild</span>(li);  <span class="cm">// or prepend(), insertBefore()</span>
+
+<span class="cm">// Removing</span>
+el.<span class="fn">remove</span>();</pre></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#f7a26a;">
+      <h4><span class="icon">🖱️</span>Events — Delegation Pattern</h4>
+      <div class="code-block"><pre><span class="cm">// Basic event listener</span>
+button.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, (event) => {
+  event.<span class="fn">preventDefault</span>();   <span class="cm">// stop form submit, link navigation, etc.</span>
+  event.<span class="fn">stopPropagation</span>(); <span class="cm">// stop bubbling up to parent elements</span>
+  console.<span class="fn">log</span>(event.target); <span class="cm">// what was actually clicked</span>
+});
+
+<span class="cm">// Event delegation — ONE listener for many children</span>
+<span class="cm">// Instead of attaching to each li separately:</span>
+document.<span class="fn">querySelector</span>(<span class="str">'ul'</span>).<span class="fn">addEventListener</span>(<span class="str">'click'</span>, (e) => {
+  <span class="kw">if</span> (e.target.tagName === <span class="str">'LI'</span>) {
+    e.target.classList.<span class="fn">toggle</span>(<span class="str">'done'</span>);
+  }
+});
+<span class="cm">// Works even for dynamically added list items!</span>
+
+<span class="cm">// Useful events</span>
+input.<span class="fn">addEventListener</span>(<span class="str">'input'</span>, (e) => console.<span class="fn">log</span>(e.target.value));
+form.<span class="fn">addEventListener</span>(<span class="str">'submit'</span>, (e) => { e.<span class="fn">preventDefault</span>(); ... });
+window.<span class="fn">addEventListener</span>(<span class="str">'resize'</span>, () => { ... });
+document.<span class="fn">addEventListener</span>(<span class="str">'DOMContentLoaded'</span>, () => { ... });</pre></div>
+    </div>
+  </div>
+
+  <!-- WEEK 8 -->
+  <div class="week">
+    <p class="week-label">Week 08</p>
+    <h3>Async JavaScript &amp; Git</h3>
+
+    <div class="topic" style="--topic-color:#f7a26a;">
+      <h4><span class="icon">⏳</span>Async JavaScript — The Full Picture</h4>
+      <p>JavaScript is single-threaded. Async code lets you wait for I/O without blocking the UI thread.</p>
+      <div class="diagram">JS Runtime:
+  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+  │  Call Stack  │     │   Web APIs   │     │  Task Queue  │
+  │              │────▶│  fetch()     │────▶│  callbacks   │
+  │  main()      │     │  setTimeout  │     │  waiting...  │
+  └──────────────┘     └──────────────┘     └──────────────┘
+         ↑_______________________Event Loop picks up tasks_____|</div>
+      <div class="code-block"><pre><span class="cm">// 1. Callback era (messy, "callback hell")</span>
+<span class="fn">fetchUser</span>(id, (err, user) => {
+  <span class="fn">fetchPosts</span>(user.id, (err, posts) => {  <span class="cm">// nested...</span>
+    <span class="fn">fetchComments</span>(posts[<span class="num">0</span>].id, (err, comments) => { ... });
+  });
+});
+
+<span class="cm">// 2. Promises (chainable)</span>
+<span class="fn">fetch</span>(<span class="str">'/api/user'</span>)
+  .<span class="fn">then</span>(res => res.<span class="fn">json</span>())
+  .<span class="fn">then</span>(user => console.<span class="fn">log</span>(user))
+  .<span class="fn">catch</span>(err => console.<span class="fn">error</span>(err))
+  .<span class="fn">finally</span>(() => <span class="fn">setLoading</span>(<span class="kw">false</span>));
+
+<span class="cm">// 3. async/await (modern, readable)</span>
+<span class="kw">async function</span> <span class="fn">loadUser</span>(id) {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> response = <span class="kw">await</span> <span class="fn">fetch</span>(`/api/users/${id}`);
+    <span class="kw">if</span> (!response.ok) <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">`HTTP ${response.status}`</span>);
+    <span class="kw">const</span> user = <span class="kw">await</span> response.<span class="fn">json</span>();
+    <span class="kw">return</span> user;
+  } <span class="kw">catch</span> (err) {
+    console.<span class="fn">error</span>(<span class="str">'Failed to load user:'</span>, err);
+    <span class="kw">throw</span> err;  <span class="cm">// re-throw so caller knows it failed</span>
+  }
+}
+
+<span class="cm">// Parallel requests (don't await inside loop!)</span>
+<span class="kw">const</span> [users, posts] = <span class="kw">await</span> Promise.<span class="fn">all</span>([
+  <span class="fn">fetch</span>(<span class="str">'/api/users'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>()),
+  <span class="fn">fetch</span>(<span class="str">'/api/posts'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>()),
+]);</pre></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#f7a26a;">
+      <h4><span class="icon">🗂️</span>Git — Professional Workflow</h4>
+      <div class="code-block"><pre><span class="cm"># Initial setup</span>
+git config --global user.name <span class="str">"Your Name"</span>
+git config --global user.email <span class="str">"you@email.com"</span>
+
+<span class="cm"># Daily workflow</span>
+git status                  <span class="cm"># always check first</span>
+git add .                   <span class="cm"># or: git add src/components/Button.tsx</span>
+git commit -m <span class="str">"feat: add user login form"</span>
+git push origin main
+
+<span class="cm"># Branching (industry standard)</span>
+git checkout -b feature/login-form   <span class="cm"># create + switch</span>
+git checkout main                    <span class="cm"># switch back</span>
+git merge feature/login-form         <span class="cm"># merge</span>
+git branch -d feature/login-form     <span class="cm"># delete after merge</span>
+
+<span class="cm"># Undo mistakes</span>
+git restore file.txt          <span class="cm"># discard unstaged changes</span>
+git restore --staged file.txt <span class="cm"># unstage a file</span>
+git revert HEAD               <span class="cm"># undo last commit (safe)</span>
+git reset --soft HEAD~1       <span class="cm"># undo commit, keep changes staged</span>
+
+<span class="cm"># Inspecting</span>
+git log --oneline --graph     <span class="cm"># pretty commit history</span>
+git diff                      <span class="cm"># see unstaged changes</span></pre></div>
+      <div class="callout callout-tip">
+        <strong>Commit Message Convention</strong>
+        Use Conventional Commits: <code>feat:</code>, <code>fix:</code>, <code>refactor:</code>, <code>docs:</code>, <code>style:</code>, <code>test:</code>. This makes your Git history readable and enables automated changelogs.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     MONTH 3
+══════════════════════════════════════════════════════════ -->
+<section class="month-section" id="month-3">
+  <div class="month-header">
+    <p class="month-num c3">// Month 03 · Weeks 9–12</p>
+    <h2>Tooling, TypeScript &amp; React Foundations</h2>
+    <p>Node/npm, Vite, TypeScript type system, React components, hooks, and component design</p>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%; background:#6af7b8;"></div></div>
+  </div>
+
+  <!-- WEEK 9 -->
+  <div class="week">
+    <p class="week-label">Week 09</p>
+    <h3>Node.js, npm &amp; Project Setup</h3>
+
+    <div class="topic" style="--topic-color:#6af7b8;">
+      <h4><span class="icon">⚙️</span>Node.js &amp; npm — What They Actually Are</h4>
+      <p>Node.js lets JavaScript run outside the browser (on your machine). npm is its package manager — you use it to install libraries. You won't build backend apps with Node in this course, but you use it for tooling every single day.</p>
+      <div class="code-block"><pre><span class="cm"># Check versions</span>
+node --version    <span class="cm"># should be 18+ (LTS)</span>
+npm --version
+
+<span class="cm"># Create React project with Vite (preferred over CRA)</span>
+npm create vite@latest my-app -- --template react-ts
+cd my-app
+npm install
+npm run dev       <span class="cm"># starts dev server at localhost:5173</span>
+
+<span class="cm"># Understanding package.json</span></pre></div>
+      <div class="code-block"><pre>{
+  <span class="str">"name"</span>: <span class="str">"my-app"</span>,
+  <span class="str">"scripts"</span>: {
+    <span class="str">"dev"</span>:   <span class="str">"vite"</span>,          <span class="cm">// npm run dev</span>
+    <span class="str">"build"</span>: <span class="str">"tsc && vite build"</span>, <span class="cm">// npm run build</span>
+    <span class="str">"preview"</span>: <span class="str">"vite preview"</span>  <span class="cm">// preview production build</span>
+  },
+  <span class="str">"dependencies"</span>: {          <span class="cm">// shipped to users</span>
+    <span class="str">"react"</span>: <span class="str">"^18.2.0"</span>
+  },
+  <span class="str">"devDependencies"</span>: {       <span class="cm">// only for development</span>
+    <span class="str">"typescript"</span>: <span class="str">"^5.0.0"</span>,
+    <span class="str">"vite"</span>: <span class="str">"^5.0.0"</span>
+  }
+}</pre></div>
+      <div class="callout callout-warn">
+        <strong>Why Vite over Create React App?</strong>
+        Vite uses native ES modules + esbuild. Dev server starts in &lt;300ms. CRA uses Webpack — can take 30+ seconds. CRA is basically abandoned. Always use Vite.
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 10 -->
+  <div class="week">
+    <p class="week-label">Week 10</p>
+    <h3>TypeScript — Type System Deep Dive</h3>
+
+    <div class="topic" style="--topic-color:#6af7b8;">
+      <h4><span class="icon">🔒</span>Why TypeScript — The Real Reason</h4>
+      <p>TypeScript doesn't change what JavaScript does at runtime. It adds a <em>compile-time layer</em> that catches bugs before you run code. In teams, it's the difference between "I refactored this and nothing broke" vs. "I refactored and discovered 40 bugs in production".</p>
+      <div class="code-block"><pre><span class="cm">// JavaScript — no errors until runtime</span>
+<span class="kw">function</span> <span class="fn">getFullName</span>(user) {
+  <span class="kw">return</span> user.firstName + <span class="str">' '</span> + user.lastName;
+}
+<span class="fn">getFullName</span>(<span class="kw">null</span>);  <span class="cm">// ← crashes at runtime</span>
+
+<span class="cm">// TypeScript — caught at compile time</span>
+<span class="kw">interface</span> <span class="type">User</span> {
+  firstName: <span class="type">string</span>;
+  lastName: <span class="type">string</span>;
+}
+<span class="kw">function</span> <span class="fn">getFullName</span>(user: <span class="type">User</span>): <span class="type">string</span> {
+  <span class="kw">return</span> user.firstName + <span class="str">' '</span> + user.lastName;
+}
+<span class="fn">getFullName</span>(<span class="kw">null</span>);  <span class="cm">// ← TS Error: Argument of type 'null' is not assignable</span></pre></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#6af7b8;">
+      <h4><span class="icon">🏷️</span>Type Annotations — Every Pattern You'll Need</h4>
+      <div class="code-block"><pre><span class="cm">// Primitives</span>
+<span class="kw">const</span> name: <span class="type">string</span> = <span class="str">"Alice"</span>;
+<span class="kw">const</span> age: <span class="type">number</span> = <span class="num">25</span>;
+<span class="kw">const</span> active: <span class="type">boolean</span> = <span class="kw">true</span>;
+<span class="kw">const</span> nothing: <span class="type">null</span> = <span class="kw">null</span>;
+<span class="kw">const</span> missing: <span class="type">undefined</span> = <span class="kw">undefined</span>;
+
+<span class="cm">// Arrays</span>
+<span class="kw">const</span> ids: <span class="type">number</span>[] = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+<span class="kw">const</span> names: <span class="type">Array</span>&lt;<span class="type">string</span>&gt; = [<span class="str">"Alice"</span>, <span class="str">"Bob"</span>];
+
+<span class="cm">// Union types (can be one of several)</span>
+<span class="kw">let</span> id: <span class="type">string</span> | <span class="type">number</span>;
+id = <span class="str">"abc"</span>;  <span class="cm">// ✓</span>
+id = <span class="num">123</span>;    <span class="cm">// ✓</span>
+
+<span class="cm">// Literal types (only specific values)</span>
+<span class="kw">type</span> <span class="type">Status</span> = <span class="str">"loading"</span> | <span class="str">"success"</span> | <span class="str">"error"</span>;
+<span class="kw">type</span> <span class="type">Direction</span> = <span class="str">"left"</span> | <span class="str">"right"</span> | <span class="str">"up"</span> | <span class="str">"down"</span>;
+
+<span class="cm">// Optional properties</span>
+<span class="kw">interface</span> <span class="type">User</span> {
+  id: <span class="type">number</span>;
+  name: <span class="type">string</span>;
+  email?: <span class="type">string</span>;   <span class="cm">// optional</span>
+  readonly createdAt: <span class="type">Date</span>;  <span class="cm">// can't be reassigned</span>
+}
+
+<span class="cm">// Function types</span>
+<span class="kw">type</span> <span class="type">OnClick</span> = (event: <span class="type">MouseEvent</span>) => <span class="type">void</span>;
+<span class="kw">type</span> <span class="type">Formatter</span> = (value: <span class="type">string</span>) => <span class="type">string</span>;
+
+<span class="cm">// Generics — parameterized types</span>
+<span class="kw">function</span> <span class="fn">first</span>&lt;<span class="type">T</span>&gt;(arr: <span class="type">T</span>[]): <span class="type">T</span> | <span class="type">undefined</span> {
+  <span class="kw">return</span> arr[<span class="num">0</span>];
+}
+<span class="kw">const</span> n = <span class="fn">first</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]);  <span class="cm">// T inferred as number</span>
+
+<span class="cm">// Utility types (built-in)</span>
+<span class="kw">type</span> <span class="type">PartialUser</span> = Partial&lt;<span class="type">User</span>&gt;;          <span class="cm">// all fields optional</span>
+<span class="kw">type</span> <span class="type">RequiredUser</span> = Required&lt;<span class="type">User</span>&gt;;        <span class="cm">// all fields required</span>
+<span class="kw">type</span> <span class="type">ReadonlyUser</span> = Readonly&lt;<span class="type">User</span>&gt;;        <span class="cm">// all fields readonly</span>
+<span class="kw">type</span> <span class="type">UserName</span> = Pick&lt;<span class="type">User</span>, <span class="str">"id"</span> | <span class="str">"name"</span>&gt;; <span class="cm">// only these fields</span>
+<span class="kw">type</span> <span class="type">NoId</span> = Omit&lt;<span class="type">User</span>, <span class="str">"id"</span>&gt;;             <span class="cm">// everything except id</span></pre></div>
+    </div>
+  </div>
+
+  <!-- WEEK 11 -->
+  <div class="week">
+    <p class="week-label">Week 11</p>
+    <h3>React Fundamentals — Components, JSX, State</h3>
+
+    <div class="topic" style="--topic-color:#6af7b8;">
+      <h4><span class="icon">⚛️</span>React's Core Mental Model</h4>
+      <p>React has one job: keep the UI in sync with data. You describe <em>what</em> the UI should look like for a given state; React figures out the minimum DOM changes needed.</p>
+      <div class="diagram">Your Data (state) → React → Virtual DOM diff → Real DOM update
+
+When state changes:
+  1. React calls your component function again
+  2. You return new JSX describing new UI
+  3. React diffs old vs new Virtual DOM
+  4. Only changed nodes update in real DOM
+
+→ You NEVER touch the DOM directly in React.</div>
+      <div class="code-block"><pre><span class="cm">// Functional component — a function that returns JSX</span>
+<span class="kw">import</span> { useState } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">interface</span> <span class="type">ButtonProps</span> {
+  label: <span class="type">string</span>;
+  onClick?: () => <span class="type">void</span>;
+  variant?: <span class="str">'primary'</span> | <span class="str">'secondary'</span>;
+}
+
+<span class="cm">// Props come in as an object, destructure them</span>
+<span class="kw">function</span> <span class="fn">Button</span>({ label, onClick, variant = <span class="str">'primary'</span> }: <span class="type">ButtonProps</span>) {
+  <span class="kw">return</span> (
+    &lt;button
+      className={`btn btn-${variant}`}
+      onClick={onClick}
+    &gt;
+      {label}
+    &lt;/button&gt;
+  );
+}
+
+<span class="cm">// useState — the most important hook</span>
+<span class="kw">function</span> <span class="fn">Counter</span>() {
+  <span class="kw">const</span> [count, setCount] = useState&lt;<span class="type">number</span>&gt;(<span class="num">0</span>);
+  <span class="cm">//      ^state  ^setter    ^hook      ^initial</span>
+
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
+      <span class="cm">{/* NEVER do: count++ — always use setter */}</span>
+      &lt;button onClick={() => setCount(count + <span class="num">1</span>)}&gt;+&lt;/button&gt;
+      &lt;button onClick={() => setCount(prev => prev - <span class="num">1</span>)}&gt;-&lt;/button&gt;
+      <span class="cm">{/* Functional update: when new state depends on old */}</span>
+    &lt;/div&gt;
+  );
+}</pre></div>
+      <div class="callout callout-danger">
+        <strong>Critical Rule</strong>
+        Never mutate state directly. <code>state.name = "Bob"</code> won't trigger a re-render. Always call the setter: <code>setState({ ...state, name: "Bob" })</code>.
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 12 -->
+  <div class="week">
+    <p class="week-label">Week 12</p>
+    <h3>React Hooks &amp; Component Composition</h3>
+
+    <div class="topic" style="--topic-color:#6af7b8;">
+      <h4><span class="icon">🪝</span>useEffect — Side Effects in React</h4>
+      <p>useEffect runs code <em>after</em> the component renders. Use it for: fetching data, subscriptions, timers, DOM manipulation.</p>
+      <div class="code-block"><pre><span class="kw">import</span> { useState, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">UserProfile</span>({ userId }: { userId: <span class="type">number</span> }) {
+  <span class="kw">const</span> [user, setUser] = useState&lt;<span class="type">User</span> | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+  <span class="kw">const</span> [loading, setLoading] = useState(<span class="kw">true</span>);
+  <span class="kw">const</span> [error, setError] = useState&lt;<span class="type">string</span> | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+
+  useEffect(() => {
+    <span class="cm">// Run after every render where userId changed</span>
+    <span class="kw">let</span> cancelled = <span class="kw">false</span>;  <span class="cm">// prevent race conditions</span>
+
+    <span class="kw">async function</span> <span class="fn">load</span>() {
+      <span class="kw">try</span> {
+        setLoading(<span class="kw">true</span>);
+        <span class="kw">const</span> data = <span class="kw">await</span> <span class="fn">fetchUser</span>(userId);
+        <span class="kw">if</span> (!cancelled) <span class="fn">setUser</span>(data);
+      } <span class="kw">catch</span> (e) {
+        <span class="kw">if</span> (!cancelled) <span class="fn">setError</span>(<span class="str">'Failed to load user'</span>);
+      } <span class="kw">finally</span> {
+        <span class="kw">if</span> (!cancelled) <span class="fn">setLoading</span>(<span class="kw">false</span>);
+      }
+    }
+
+    <span class="fn">load</span>();
+
+    <span class="cm">// Cleanup function — runs before next effect or unmount</span>
+    <span class="kw">return</span> () => { cancelled = <span class="kw">true</span>; };
+
+  }, [userId]);  <span class="cm">// ← dependency array: re-run when userId changes</span>
+  <span class="cm">//   []        — run once on mount only</span>
+  <span class="cm">//   no array  — run on every render (usually a bug)</span>
+
+  <span class="kw">if</span> (loading) <span class="kw">return</span> &lt;p&gt;Loading...&lt;/p&gt;;
+  <span class="kw">if</span> (error) <span class="kw">return</span> &lt;p&gt;{error}&lt;/p&gt;;
+  <span class="kw">return</span> &lt;p&gt;{user?.name}&lt;/p&gt;;
+}</pre></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#6af7b8;">
+      <h4><span class="icon">🔑</span>List Rendering &amp; Keys — Why Keys Matter</h4>
+      <div class="code-block"><pre><span class="cm">// ✓ Correct — stable, unique key from data</span>
+<span class="kw">const</span> list = users.<span class="fn">map</span>(user => (
+  &lt;UserCard key={user.id} user={user} /&gt;
+));
+
+<span class="cm">// ✗ Wrong — index as key causes bugs on reorder/delete</span>
+<span class="kw">const</span> list = users.<span class="fn">map</span>((user, i) => (
+  &lt;UserCard key={i} user={user} /&gt;
+));
+
+<span class="cm">// Why? React uses keys to identify which items changed.
+// Index keys: reorder 3 items → React thinks items 0,1,2
+// are the same items (just with different props) → wrong</span></pre></div>
+    </div>
+
+    <div class="quiz">
+      <h5>✦ Check Your Understanding</h5>
+      <p>Your component fetches data inside <code>useEffect</code> with dependency <code>[userId]</code>. The user changes userId rapidly. What bug can occur and how do you fix it?</p>
+      <button class="quiz-toggle" onclick="toggleAnswer(this)">Show Answer</button>
+      <div class="quiz-answer">Race condition: multiple fetches are in-flight, and the first one might resolve after the second. Fix: use a <code>cancelled</code> flag in the cleanup function (as shown above), or use AbortController: <code>const ac = new AbortController(); fetch(url, {signal: ac.signal}); return () => ac.abort();</code></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     MONTH 4
+══════════════════════════════════════════════════════════ -->
+<section class="month-section" id="month-4">
+  <div class="month-header">
+    <p class="month-num c4">// Month 04 · Weeks 13–16</p>
+    <h2>React Ecosystem</h2>
+    <p>React Router, Forms &amp; Validation, Context API, Custom Hooks, API Architecture</p>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%; background:#f76a9a;"></div></div>
+  </div>
+
+  <!-- WEEK 13 -->
+  <div class="week">
+    <p class="week-label">Week 13</p>
+    <h3>Routing with React Router</h3>
+
+    <div class="topic" style="--topic-color:#f76a9a;">
+      <h4><span class="icon">🗺️</span>SPA Routing — How It Works</h4>
+      <p>Traditional sites: every URL change = new HTTP request = full page reload. SPAs intercept URL changes and swap components without reloading — the server always serves the same HTML file.</p>
+      <div class="code-block"><pre><span class="cm">// main.tsx</span>
+<span class="kw">import</span> { BrowserRouter } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+
+<span class="cm">// App.tsx</span>
+<span class="kw">import</span> { Routes, Route, Link, Navigate, Outlet } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    &lt;Routes&gt;
+      &lt;Route path=<span class="str">"/"</span> element={&lt;Home /&gt;} /&gt;
+      &lt;Route path=<span class="str">"/users"</span> element={&lt;UserList /&gt;} /&gt;
+      &lt;Route path=<span class="str">"/users/:id"</span> element={&lt;UserDetail /&gt;} /&gt;
+
+      <span class="cm">{/* Nested routes */}</span>
+      &lt;Route path=<span class="str">"/dashboard"</span> element={&lt;DashboardLayout /&gt;}&gt;
+        &lt;Route index element={&lt;DashboardHome /&gt;} /&gt;
+        &lt;Route path=<span class="str">"settings"</span> element={&lt;Settings /&gt;} /&gt;
+      &lt;/Route&gt;
+
+      &lt;Route path=<span class="str">"*"</span> element={&lt;NotFound /&gt;} /&gt;
+    &lt;/Routes&gt;
+  );
+}
+
+<span class="cm">// DashboardLayout.tsx — must render &lt;Outlet /&gt; for children</span>
+<span class="kw">function</span> <span class="fn">DashboardLayout</span>() {
+  <span class="kw">return</span> &lt;div&gt;&lt;Sidebar /&gt;&lt;main&gt;&lt;Outlet /&gt;&lt;/main&gt;&lt;/div&gt;;
+}
+
+<span class="cm">// Reading route params</span>
+<span class="kw">import</span> { useParams, useNavigate, useSearchParams } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+
+<span class="kw">function</span> <span class="fn">UserDetail</span>() {
+  <span class="kw">const</span> { id } = useParams&lt;{ id: <span class="type">string</span> }&gt;();
+  <span class="kw">const</span> navigate = useNavigate();
+  <span class="kw">const</span> [searchParams] = useSearchParams();
+  <span class="kw">const</span> tab = searchParams.get(<span class="str">'tab'</span>) ?? <span class="str">'overview'</span>;
+
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      &lt;p&gt;User ID: {id}&lt;/p&gt;
+      &lt;button onClick={() => navigate(<span class="str">'/users'</span>)}&gt;Back&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</pre></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#f76a9a;">
+      <h4><span class="icon">🔐</span>Protected Routes — Authentication Guard</h4>
+      <div class="code-block"><pre><span class="cm">// ProtectedRoute component — reusable auth guard</span>
+<span class="kw">function</span> <span class="fn">ProtectedRoute</span>({ children }: { children: <span class="type">ReactNode</span> }) {
+  <span class="kw">const</span> { isAuthenticated } = useAuth();
+  <span class="kw">if</span> (!isAuthenticated) {
+    <span class="kw">return</span> &lt;Navigate to=<span class="str">"/login"</span> replace /&gt;;
+  }
+  <span class="kw">return</span> &lt;&gt;{children}&lt;/&gt;;
+}
+
+<span class="cm">// Usage in routes</span>
+&lt;Route
+  path=<span class="str">"/dashboard"</span>
+  element={
+    &lt;ProtectedRoute&gt;
+      &lt;Dashboard /&gt;
+    &lt;/ProtectedRoute&gt;
+  }
+/&gt;</pre></div>
+    </div>
+  </div>
+
+  <!-- WEEK 14 -->
+  <div class="week">
+    <p class="week-label">Week 14</p>
+    <h3>Forms &amp; Validation</h3>
+
+    <div class="topic" style="--topic-color:#f76a9a;">
+      <h4><span class="icon">📋</span>React Hook Form — Why and How</h4>
+      <p>Controlled form state with useState gets messy fast. React Hook Form uses uncontrolled inputs + refs under the hood — far better performance and less code.</p>
+      <div class="code-block"><pre><span class="kw">import</span> { useForm } <span class="kw">from</span> <span class="str">'react-hook-form'</span>;
+<span class="kw">import</span> { z } <span class="kw">from</span> <span class="str">'zod'</span>;
+<span class="kw">import</span> { zodResolver } <span class="kw">from</span> <span class="str">'@hookform/resolvers/zod'</span>;
+
+<span class="cm">// 1. Define schema (validation rules)</span>
+<span class="kw">const</span> schema = z.object({
+  email: z.string().email(<span class="str">"Invalid email"</span>),
+  password: z.string().min(<span class="num">8</span>, <span class="str">"Min 8 characters"</span>),
+  age: z.number().min(<span class="num">18</span>, <span class="str">"Must be 18+"</span>),
+});
+
+<span class="kw">type</span> <span class="type">FormData</span> = z.infer&lt;<span class="kw">typeof</span> schema&gt;;
+
+<span class="kw">function</span> <span class="fn">LoginForm</span>() {
+  <span class="kw">const</span> {
+    register,         <span class="cm">// connect inputs to form</span>
+    handleSubmit,     <span class="cm">// wrap your submit handler</span>
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm&lt;<span class="type">FormData</span>&gt;({ resolver: zodResolver(schema) });
+
+  <span class="kw">const</span> <span class="fn">onSubmit</span> = <span class="kw">async</span> (data: <span class="type">FormData</span>) => {
+    <span class="kw">await</span> <span class="fn">loginUser</span>(data);  <span class="cm">// data is typed and validated</span>
+  };
+
+  <span class="kw">return</span> (
+    &lt;form onSubmit={handleSubmit(onSubmit)}&gt;
+      &lt;input {...register(<span class="str">"email"</span>)} placeholder=<span class="str">"Email"</span> /&gt;
+      {errors.email &amp;&amp; &lt;p&gt;{errors.email.message}&lt;/p&gt;}
+
+      &lt;input {...register(<span class="str">"password"</span>)} type=<span class="str">"password"</span> /&gt;
+      {errors.password &amp;&amp; &lt;p&gt;{errors.password.message}&lt;/p&gt;}
+
+      &lt;button disabled={isSubmitting}&gt;
+        {isSubmitting ? <span class="str">"Logging in..."</span> : <span class="str">"Log In"</span>}
+      &lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</pre></div>
+    </div>
+  </div>
+
+  <!-- WEEK 15 -->
+  <div class="week">
+    <p class="week-label">Week 15</p>
+    <h3>State Management — Context API</h3>
+
+    <div class="topic" style="--topic-color:#f76a9a;">
+      <h4><span class="icon">🌊</span>Context API — When and How to Use It</h4>
+      <p>Context solves "prop drilling" — passing data through many component layers. But it's not a replacement for all state management. Use it for: auth user, theme, language, cart.</p>
+      <div class="code-block"><pre><span class="cm">// 1. Create context with type</span>
+<span class="kw">interface</span> <span class="type">AuthContext</span> {
+  user: <span class="type">User</span> | <span class="kw">null</span>;
+  login: (credentials: <span class="type">Credentials</span>) => Promise&lt;<span class="type">void</span>&gt;;
+  logout: () => <span class="type">void</span>;
+}
+
+<span class="kw">const</span> AuthContext = createContext&lt;<span class="type">AuthContext</span> | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+
+<span class="cm">// 2. Provider — wraps components that need access</span>
+<span class="kw">export function</span> <span class="fn">AuthProvider</span>({ children }: { children: <span class="type">ReactNode</span> }) {
+  <span class="kw">const</span> [user, setUser] = useState&lt;<span class="type">User</span> | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+
+  <span class="kw">const</span> login = <span class="kw">async</span> (credentials: <span class="type">Credentials</span>) => {
+    <span class="kw">const</span> user = <span class="kw">await</span> <span class="fn">authService</span>.login(credentials);
+    <span class="fn">setUser</span>(user);
+  };
+
+  <span class="kw">const</span> logout = () => <span class="fn">setUser</span>(<span class="kw">null</span>);
+
+  <span class="kw">return</span> (
+    &lt;AuthContext.Provider value={{ user, login, logout }}&gt;
+      {children}
+    &lt;/AuthContext.Provider&gt;
+  );
+}
+
+<span class="cm">// 3. Custom hook — clean access + null safety</span>
+<span class="kw">export function</span> <span class="fn">useAuth</span>() {
+  <span class="kw">const</span> ctx = useContext(AuthContext);
+  <span class="kw">if</span> (!ctx) <span class="kw">throw new</span> Error(<span class="str">'useAuth must be inside AuthProvider'</span>);
+  <span class="kw">return</span> ctx;
+}
+
+<span class="cm">// 4. Consume anywhere in the tree</span>
+<span class="kw">function</span> <span class="fn">NavBar</span>() {
+  <span class="kw">const</span> { user, logout } = <span class="fn">useAuth</span>();
+  <span class="kw">return</span> &lt;button onClick={logout}&gt;{user?.name}&lt;/button&gt;;
+}</pre></div>
+      <div class="callout callout-warn">
+        <strong>Context Performance Warning</strong>
+        Every component consuming context re-renders when ANY context value changes. For high-frequency updates (search input, scroll position), don't use Context. Use Zustand or separate contexts.
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 16 -->
+  <div class="week">
+    <p class="week-label">Week 16</p>
+    <h3>API Architecture &amp; Custom Hooks</h3>
+
+    <div class="topic" style="--topic-color:#f76a9a;">
+      <h4><span class="icon">🏛️</span>API Service Layer — Professional Structure</h4>
+      <div class="code-block"><pre><span class="cm">// src/services/api.ts — Base configuration</span>
+<span class="kw">const</span> BASE_URL = import.meta.env.VITE_API_URL;
+
+<span class="kw">async function</span> <span class="fn">request</span>&lt;<span class="type">T</span>&gt;(endpoint: <span class="type">string</span>, options?: RequestInit): Promise&lt;<span class="type">T</span>&gt; {
+  <span class="kw">const</span> token = localStorage.getItem(<span class="str">'token'</span>);
+
+  <span class="kw">const</span> response = <span class="kw">await</span> <span class="fn">fetch</span>(`${BASE_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>,
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...options?.headers,
+    },
+  });
+
+  <span class="kw">if</span> (!response.ok) {
+    <span class="kw">const</span> error = <span class="kw">await</span> response.json().catch(() => ({}));
+    <span class="kw">throw new</span> Error(error.message ?? `HTTP ${response.status}`);
+  }
+
+  <span class="kw">return</span> response.json() <span class="kw">as</span> Promise&lt;<span class="type">T</span>&gt;;
+}
+
+<span class="cm">// src/services/users.ts — Resource-specific layer</span>
+<span class="kw">export const</span> usersService = {
+  <span class="fn">getAll</span>: () => <span class="fn">request</span>&lt;<span class="type">User</span>[]&gt;(<span class="str">'/users'</span>),
+  <span class="fn">getById</span>: (id: <span class="type">number</span>) => <span class="fn">request</span>&lt;<span class="type">User</span>&gt;(`/users/${id}`),
+  <span class="fn">create</span>: (data: CreateUserDTO) =>
+    <span class="fn">request</span>&lt;<span class="type">User</span>&gt;(<span class="str">'/users'</span>, { method: <span class="str">'POST'</span>, body: JSON.<span class="fn">stringify</span>(data) }),
+};</pre></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#f76a9a;">
+      <h4><span class="icon">🪝</span>Custom Hooks — Extract &amp; Reuse Logic</h4>
+      <div class="code-block"><pre><span class="cm">// useUsers.ts — reusable data fetching hook</span>
+<span class="kw">interface</span> <span class="type">UseUsersReturn</span> {
+  users: <span class="type">User</span>[];
+  loading: <span class="type">boolean</span>;
+  error: <span class="type">string</span> | <span class="kw">null</span>;
+  refetch: () => <span class="type">void</span>;
+}
+
+<span class="kw">export function</span> <span class="fn">useUsers</span>(): <span class="type">UseUsersReturn</span> {
+  <span class="kw">const</span> [users, setUsers] = useState&lt;<span class="type">User</span>[]&gt;([]);
+  <span class="kw">const</span> [loading, setLoading] = useState(<span class="kw">true</span>);
+  <span class="kw">const</span> [error, setError] = useState&lt;<span class="type">string</span> | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+  <span class="kw">const</span> [trigger, setTrigger] = useState(<span class="num">0</span>);
+
+  useEffect(() => {
+    <span class="kw">let</span> cancelled = <span class="kw">false</span>;
+    setLoading(<span class="kw">true</span>);
+    setError(<span class="kw">null</span>);
+
+    usersService.<span class="fn">getAll</span>()
+      .<span class="fn">then</span>(data => { <span class="kw">if</span> (!cancelled) <span class="fn">setUsers</span>(data); })
+      .<span class="fn">catch</span>(e => { <span class="kw">if</span> (!cancelled) <span class="fn">setError</span>(e.message); })
+      .<span class="fn">finally</span>(() => { <span class="kw">if</span> (!cancelled) <span class="fn">setLoading</span>(<span class="kw">false</span>); });
+
+    <span class="kw">return</span> () => { cancelled = <span class="kw">true</span>; };
+  }, [trigger]);
+
+  <span class="kw">return</span> { users, loading, error, refetch: () => setTrigger(t => t + <span class="num">1</span>) };
+}
+
+<span class="cm">// Usage — clean and reusable</span>
+<span class="kw">function</span> <span class="fn">UserPage</span>() {
+  <span class="kw">const</span> { users, loading, error, refetch } = <span class="fn">useUsers</span>();
+  <span class="kw">if</span> (loading) <span class="kw">return</span> &lt;Spinner /&gt;;
+  <span class="kw">if</span> (error) <span class="kw">return</span> &lt;ErrorMessage message={error} onRetry={refetch} /&gt;;
+  <span class="kw">return</span> &lt;UserList users={users} /&gt;;
+}</pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     MONTH 5
+══════════════════════════════════════════════════════════ -->
+<section class="month-section" id="month-5">
+  <div class="month-header">
+    <p class="month-num c5">// Month 05 · Weeks 17–20</p>
+    <h2>Advanced Topics</h2>
+    <p>UI libraries, Performance optimization, Testing (Jest + RTL), Git workflow &amp; CI/CD</p>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%; background:#f7e26a;"></div></div>
+  </div>
+
+  <!-- WEEK 17 -->
+  <div class="week">
+    <p class="week-label">Week 17</p>
+    <h3>UI Libraries &amp; Design Systems</h3>
+
+    <div class="topic" style="--topic-color:#f7e26a;">
+      <h4><span class="icon">🎨</span>Component Design Principles</h4>
+      <p>Before reaching for a UI library, understand <em>what makes a component reusable</em>. A well-designed component is like a good function: one responsibility, configurable via props, predictable output.</p>
+      <div class="code-block"><pre><span class="cm">// ✗ Bad — hardcoded, not reusable</span>
+<span class="kw">function</span> <span class="fn">LoginButton</span>() {
+  <span class="kw">return</span> &lt;button style={{ background: <span class="str">'blue'</span> }}&gt;Log In&lt;/button&gt;;
+}
+
+<span class="cm">// ✓ Good — composable, variant-based</span>
+<span class="kw">type</span> <span class="type">ButtonVariant</span> = <span class="str">'primary'</span> | <span class="str">'secondary'</span> | <span class="str">'ghost'</span> | <span class="str">'danger'</span>;
+<span class="kw">type</span> <span class="type">ButtonSize</span> = <span class="str">'sm'</span> | <span class="str">'md'</span> | <span class="str">'lg'</span>;
+
+<span class="kw">interface</span> <span class="type">ButtonProps</span> <span class="kw">extends</span> React.ButtonHTMLAttributes&lt;HTMLButtonElement&gt; {
+  variant?: <span class="type">ButtonVariant</span>;
+  size?: <span class="type">ButtonSize</span>;
+  loading?: <span class="type">boolean</span>;
+  leftIcon?: <span class="type">ReactNode</span>;
+}
+
+<span class="kw">function</span> <span class="fn">Button</span>({
+  variant = <span class="str">'primary'</span>,
+  size = <span class="str">'md'</span>,
+  loading = <span class="kw">false</span>,
+  leftIcon,
+  children,
+  disabled,
+  className,
+  ...rest  <span class="cm">// pass through all native button props</span>
+}: <span class="type">ButtonProps</span>) {
+  <span class="kw">return</span> (
+    &lt;button
+      className={`btn btn-${variant} btn-${size} ${className}`}
+      disabled={disabled || loading}
+      {...rest}
+    &gt;
+      {loading &amp;&amp; &lt;Spinner size=<span class="str">"sm"</span> /&gt;}
+      {leftIcon &amp;&amp; &lt;span className=<span class="str">"btn-icon"</span>&gt;{leftIcon}&lt;/span&gt;}
+      {children}
+    &lt;/button&gt;
+  );
+}</pre></div>
+      <div class="callout callout-tip">
+        <strong>Extends HTMLAttributes Pattern</strong>
+        By extending <code>React.ButtonHTMLAttributes&lt;HTMLButtonElement&gt;</code>, your component inherits ALL native button props (onClick, type, form, aria-*). Users can use it exactly like a native button.
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 18 -->
+  <div class="week">
+    <p class="week-label">Week 18</p>
+    <h3>Performance &amp; Accessibility</h3>
+
+    <div class="topic" style="--topic-color:#f7e26a;">
+      <h4><span class="icon">⚡</span>React Performance — When to Optimize</h4>
+      <p><strong>First rule: don't optimize prematurely.</strong> Measure first with React DevTools Profiler. Then apply these tools only where the profiler shows actual slowdowns.</p>
+      <div class="code-block"><pre><span class="kw">import</span> { memo, useMemo, useCallback } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="cm">// React.memo — prevents re-render if props haven't changed</span>
+<span class="kw">const</span> ExpensiveList = memo(<span class="kw">function</span> <span class="fn">ExpensiveList</span>({ items }: { items: <span class="type">Item</span>[] }) {
+  <span class="kw">return</span> &lt;&gt;{items.<span class="fn">map</span>(item => &lt;Row key={item.id} item={item} /&gt;)}&lt;/&gt;;
+});
+<span class="cm">// Only re-renders if items array reference changes</span>
+
+<span class="cm">// useMemo — memoize expensive computation</span>
+<span class="kw">function</span> <span class="fn">Dashboard</span>({ transactions }: Props) {
+  <span class="cm">// Without useMemo: recalculated on every render</span>
+  <span class="kw">const</span> totals = useMemo(
+    () => transactions.<span class="fn">reduce</span>((acc, t) => acc + t.amount, <span class="num">0</span>),
+    [transactions]  <span class="cm">// only recalculate when transactions change</span>
+  );
+}
+
+<span class="cm">// useCallback — stable function reference for child props</span>
+<span class="kw">function</span> <span class="fn">Parent</span>() {
+  <span class="kw">const</span> [data, setData] = useState([]);
+
+  <span class="cm">// Without useCallback: new function on every render</span>
+  <span class="cm">// → child always re-renders even with React.memo</span>
+  <span class="kw">const</span> handleDelete = useCallback((id: <span class="type">number</span>) => {
+    <span class="fn">setData</span>(prev => prev.<span class="fn">filter</span>(item => item.id !== id));
+  }, []);  <span class="cm">// stable reference, no deps needed</span>
+
+  <span class="kw">return</span> &lt;ExpensiveList items={data} onDelete={handleDelete} /&gt;;
+}
+
+<span class="cm">// Lazy loading — split bundle, load on demand</span>
+<span class="kw">import</span> { lazy, Suspense } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">const</span> HeavyPage = lazy(() => <span class="kw">import</span>(<span class="str">'./HeavyPage'</span>));
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    &lt;Suspense fallback={&lt;PageSkeleton /&gt;}&gt;
+      &lt;Routes&gt;
+        &lt;Route path=<span class="str">"/heavy"</span> element={&lt;HeavyPage /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/Suspense&gt;
+  );
+}</pre></div>
+    </div>
+  </div>
+
+  <!-- WEEK 19 -->
+  <div class="week">
+    <p class="week-label">Week 19</p>
+    <h3>Testing — Jest &amp; React Testing Library</h3>
+
+    <div class="topic" style="--topic-color:#f7e26a;">
+      <h4><span class="icon">🧪</span>Testing Philosophy — What to Test</h4>
+      <p>The goal of React Testing Library is: test your app the way a <em>user</em> uses it, not the way it's implemented. Avoid testing implementation details (state values, method calls). Test behavior.</p>
+      <div class="diagram">Testing Pyramid:
+                    /\
+                   /E2E\      ← few, slow, expensive (Playwright)
+                  /──────\
+                 /  Integ  \  ← some, medium (RTL)
+                /────────────\
+               /    Unit      \ ← many, fast, cheap (Jest)
+              /──────────────────\</div>
+      <div class="code-block"><pre><span class="kw">import</span> { render, screen, fireEvent, waitFor } <span class="kw">from</span> <span class="str">'@testing-library/react'</span>;
+<span class="kw">import</span> userEvent <span class="kw">from</span> <span class="str">'@testing-library/user-event'</span>;
+<span class="kw">import</span> { LoginForm } <span class="kw">from</span> <span class="str">'./LoginForm'</span>;
+
+<span class="fn">describe</span>(<span class="str">'LoginForm'</span>, () => {
+
+  <span class="fn">it</span>(<span class="str">'submits credentials when form is filled and submitted'</span>, <span class="kw">async</span> () => {
+    <span class="kw">const</span> onSubmit = jest.<span class="fn">fn</span>();
+    <span class="kw">const</span> user = userEvent.<span class="fn">setup</span>();
+
+    <span class="fn">render</span>(&lt;LoginForm onSubmit={onSubmit} /&gt;);
+
+    <span class="cm">// Query by accessible text — like a screen reader</span>
+    <span class="kw">await</span> user.<span class="fn">type</span>(screen.<span class="fn">getByLabelText</span>(<span class="str">/email/i</span>), <span class="str">'user@test.com'</span>);
+    <span class="kw">await</span> user.<span class="fn">type</span>(screen.<span class="fn">getByLabelText</span>(<span class="str">/password/i</span>), <span class="str">'password123'</span>);
+    <span class="kw">await</span> user.<span class="fn">click</span>(screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">/log in/i</span> }));
+
+    <span class="fn">expect</span>(onSubmit).<span class="fn">toHaveBeenCalledWith</span>({
+      email: <span class="str">'user@test.com'</span>,
+      password: <span class="str">'password123'</span>,
+    });
+  });
+
+  <span class="fn">it</span>(<span class="str">'shows error when email is invalid'</span>, <span class="kw">async</span> () => {
+    <span class="kw">const</span> user = userEvent.<span class="fn">setup</span>();
+    <span class="fn">render</span>(&lt;LoginForm /&gt;);
+
+    <span class="kw">await</span> user.<span class="fn">type</span>(screen.<span class="fn">getByLabelText</span>(<span class="str">/email/i</span>), <span class="str">'notanemail'</span>);
+    <span class="kw">await</span> user.<span class="fn">click</span>(screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">/log in/i</span> }));
+
+    <span class="kw">await</span> waitFor(() => {
+      <span class="fn">expect</span>(screen.<span class="fn">getByText</span>(<span class="str">/invalid email/i</span>)).<span class="fn">toBeInTheDocument</span>();
+    });
+  });
+
+  <span class="fn">it</span>(<span class="str">'disables button while submitting'</span>, <span class="kw">async</span> () => {
+    <span class="kw">const</span> onSubmit = jest.<span class="fn">fn</span>().mockResolvedValue(<span class="kw">undefined</span>); <span class="cm">// async mock</span>
+    <span class="kw">const</span> user = userEvent.<span class="fn">setup</span>();
+    <span class="fn">render</span>(&lt;LoginForm onSubmit={onSubmit} /&gt;);
+
+    <span class="cm">/* fill and submit, then check button state */</span>
+    <span class="kw">await</span> user.<span class="fn">click</span>(screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>));
+    <span class="fn">expect</span>(screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>)).<span class="fn">toBeDisabled</span>();
+  });
+
+});</pre></div>
+      <div class="callout callout-tip">
+        <strong>Query Priority (RTL Best Practice)</strong>
+        1. <code>getByRole</code> — most accessible. 2. <code>getByLabelText</code>. 3. <code>getByPlaceholderText</code>. 4. <code>getByText</code>. 5. <code>getByTestId</code> — last resort only.
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 20 -->
+  <div class="week">
+    <p class="week-label">Week 20</p>
+    <h3>Git Workflow &amp; CI/CD</h3>
+
+    <div class="topic" style="--topic-color:#f7e26a;">
+      <h4><span class="icon">🌿</span>Branch Strategy — GitFlow Simplified</h4>
+      <div class="diagram">main          ●─────────────────────────────────●  production
+               ↑ merge                              ↑ merge
+develop       ●──────────────────────────────────●
+               ↑ merge          ↑ merge
+feature/xxx    ●──────●         ●──────────────────●
+hotfix/yyy              ●──────●</div>
+      <div class="code-block"><pre><span class="cm"># Full feature workflow</span>
+git checkout develop
+git pull origin develop              <span class="cm"># always start from latest</span>
+git checkout -b feature/user-avatar  <span class="cm"># descriptive branch name</span>
+
+<span class="cm"># ... do work, make commits ...</span>
+git add .
+git commit -m <span class="str">"feat(avatar): add upload and crop functionality"</span>
+git push origin feature/user-avatar
+
+<span class="cm"># Open Pull Request on GitHub/GitLab</span>
+<span class="cm"># → CI runs: lint, type-check, tests</span>
+<span class="cm"># → Reviewer approves</span>
+<span class="cm"># → Merge into develop</span>
+
+<span class="cm"># Rebase to keep clean history (alternative to merge)</span>
+git fetch origin
+git rebase origin/develop            <span class="cm"># replay your commits on top of latest develop</span></pre></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#f7e26a;">
+      <h4><span class="icon">🚀</span>CI/CD with GitHub Actions</h4>
+      <div class="code-block"><pre><span class="cm"># .github/workflows/ci.yml</span>
+name: CI
+
+<span class="kw">on</span>:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+<span class="kw">jobs</span>:
+  <span class="kw">ci</span>:
+    runs-on: ubuntu-latest
+
+    <span class="kw">steps</span>:
+      - <span class="kw">uses</span>: actions/checkout@v4
+
+      - <span class="kw">name</span>: Setup Node
+        <span class="kw">uses</span>: actions/setup-node@v4
+        <span class="kw">with</span>:
+          node-version: <span class="str">'20'</span>
+          cache: <span class="str">'npm'</span>
+
+      - <span class="kw">run</span>: npm ci                   <span class="cm"># clean install (uses package-lock)</span>
+      - <span class="kw">run</span>: npm run lint             <span class="cm"># ESLint</span>
+      - <span class="kw">run</span>: npm run type-check       <span class="cm"># TypeScript compiler</span>
+      - <span class="kw">run</span>: npm test -- --coverage   <span class="cm"># Jest</span>
+      - <span class="kw">run</span>: npm run build            <span class="cm"># production build</span></pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     MONTH 6
+══════════════════════════════════════════════════════════ -->
+<section class="month-section" id="month-6">
+  <div class="month-header">
+    <p class="month-num c6">// Month 06 · Weeks 21–24</p>
+    <h2>Capstone Project &amp; Professional Skills</h2>
+    <p>Architecture planning, feature-based structure, implementation, code review, demo day</p>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%; background:#a26af7;"></div></div>
+  </div>
+
+  <!-- WEEKS 21-22 -->
+  <div class="week">
+    <p class="week-label">Weeks 21–22</p>
+    <h3>Project Architecture &amp; Planning</h3>
+
+    <div class="topic" style="--topic-color:#a26af7;">
+      <h4><span class="icon">🏗️</span>Feature-Based Folder Structure</h4>
+      <p>Organize code by <em>feature</em>, not by file type. This scales to large codebases and makes navigation intuitive.</p>
+      <div class="diagram">src/
+├── features/                    ← business features
+│   ├── auth/
+│   │   ├── components/
+│   │   │   ├── LoginForm.tsx
+│   │   │   └── RegisterForm.tsx
+│   │   ├── hooks/
+│   │   │   └── useAuth.ts
+│   │   ├── services/
+│   │   │   └── auth.service.ts
+│   │   ├── types.ts
+│   │   └── index.ts             ← public API (barrel file)
+│   ├── users/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   └── index.ts
+│   └── posts/
+│       └── ...
+├── shared/                      ← cross-feature shared code
+│   ├── components/
+│   │   ├── Button/
+│   │   ├── Input/
+│   │   └── Modal/
+│   ├── hooks/
+│   │   ├── useDebounce.ts
+│   │   └── useLocalStorage.ts
+│   ├── types/
+│   │   └── api.types.ts
+│   └── utils/
+│       └── formatters.ts
+├── pages/                       ← route-level components
+│   ├── HomePage.tsx
+│   └── DashboardPage.tsx
+├── router/
+│   └── index.tsx
+├── App.tsx
+└── main.tsx</div>
+    </div>
+
+    <div class="topic" style="--topic-color:#a26af7;">
+      <h4><span class="icon">📋</span>User Stories → Tasks → Sprints</h4>
+      <div class="code-block"><pre><span class="cm">// User Story format:</span>
+<span class="cm">// As a [role], I want [feature], so that [benefit]</span>
+
+<span class="str">"As a user, I want to log in with email and password,</span>
+<span class="str"> so that I can access my personal dashboard."</span>
+
+<span class="cm">// Breaking into tasks (1–3 hours each):</span>
+<span class="cm">// [ ] Create LoginForm component with email + password fields</span>
+<span class="cm">// [ ] Add form validation (required, email format, min 8 chars)</span>
+<span class="cm">// [ ] Create auth.service.ts with login() method</span>
+<span class="cm">// [ ] Handle API errors and show error message</span>
+<span class="cm">// [ ] On success: store token, redirect to dashboard</span>
+<span class="cm">// [ ] Write tests for LoginForm</span></pre></div>
+    </div>
+  </div>
+
+  <!-- WEEK 23 -->
+  <div class="week">
+    <p class="week-label">Week 23</p>
+    <h3>Implementation — End-to-End Frontend of a Feature</h3>
+
+    <div class="topic" style="--topic-color:#a26af7;">
+      <h4><span class="icon">✅</span>CRUD Feature — Complete Implementation Pattern</h4>
+      <div class="code-block"><pre><span class="cm">// A complete CRUD feature: Tasks</span>
+
+<span class="cm">// 1. Types</span>
+<span class="kw">interface</span> <span class="type">Task</span> {
+  id: <span class="type">number</span>;
+  title: <span class="type">string</span>;
+  completed: <span class="type">boolean</span>;
+  createdAt: <span class="type">string</span>;
+}
+<span class="kw">type</span> <span class="type">CreateTaskDTO</span> = Pick&lt;<span class="type">Task</span>, <span class="str">'title'</span>&gt;;
+<span class="kw">type</span> <span class="type">UpdateTaskDTO</span> = Partial&lt;Pick&lt;<span class="type">Task</span>, <span class="str">'title'</span> | <span class="str">'completed'</span>&gt;&gt;;
+
+<span class="cm">// 2. Service</span>
+<span class="kw">const</span> tasksService = {
+  <span class="fn">getAll</span>: () => <span class="fn">api</span>.get&lt;<span class="type">Task</span>[]&gt;(<span class="str">'/tasks'</span>),
+  <span class="fn">create</span>: (data: <span class="type">CreateTaskDTO</span>) => <span class="fn">api</span>.post&lt;<span class="type">Task</span>&gt;(<span class="str">'/tasks'</span>, data),
+  <span class="fn">update</span>: (id: <span class="type">number</span>, data: <span class="type">UpdateTaskDTO</span>) => <span class="fn">api</span>.patch&lt;<span class="type">Task</span>&gt;(`/tasks/${id}`, data),
+  <span class="fn">delete</span>: (id: <span class="type">number</span>) => <span class="fn">api</span>.delete(`/tasks/${id}`),
+};
+
+<span class="cm">// 3. Hook with optimistic updates</span>
+<span class="kw">function</span> <span class="fn">useTasks</span>() {
+  <span class="kw">const</span> [tasks, setTasks] = useState&lt;<span class="type">Task</span>[]&gt;([]);
+
+  <span class="kw">const</span> deleteTask = <span class="kw">async</span> (id: <span class="type">number</span>) => {
+    <span class="cm">// Optimistic update: remove from UI immediately</span>
+    <span class="kw">const</span> backup = tasks;
+    <span class="fn">setTasks</span>(prev => prev.<span class="fn">filter</span>(t => t.id !== id));
+    <span class="kw">try</span> {
+      <span class="kw">await</span> tasksService.<span class="fn">delete</span>(id);
+    } <span class="kw">catch</span> {
+      <span class="fn">setTasks</span>(backup);  <span class="cm">// rollback on error</span>
+    }
+  };
+
+  <span class="kw">return</span> { tasks, deleteTask };
+}</pre></div>
+    </div>
+  </div>
+
+  <!-- WEEK 24 -->
+  <div class="week">
+    <p class="week-label">Week 24</p>
+    <h3>Code Review, Refactoring &amp; Demo Day</h3>
+
+    <div class="topic" style="--topic-color:#a26af7;">
+      <h4><span class="icon">🔍</span>Code Review Checklist</h4>
+      <p>As a reviewer, check these things in order. As a submitter, self-review against this list before opening a PR.</p>
+      <div class="tbl-wrap"><table>
+        <tr><th>Category</th><th>What to Check</th></tr>
+        <tr><td><strong>Correctness</strong></td><td>Does it work? Edge cases handled? Error states?</td></tr>
+        <tr><td><strong>Types</strong></td><td>No <code>any</code>? Proper interfaces? API types match response?</td></tr>
+        <tr><td><strong>Components</strong></td><td>Single responsibility? Props typed? No prop drilling beyond 2 levels?</td></tr>
+        <tr><td><strong>State</strong></td><td>Minimal state? No redundant state (derived state computed)?</td></tr>
+        <tr><td><strong>Side Effects</strong></td><td>Cleanup in useEffect? No missing deps? No stale closures?</td></tr>
+        <tr><td><strong>Performance</strong></td><td>Heavy computations memoized? No unnecessary re-renders?</td></tr>
+        <tr><td><strong>Accessibility</strong></td><td>Keyboard navigable? Proper labels? Color contrast?</td></tr>
+        <tr><td><strong>Tests</strong></td><td>Happy path? Error path? Edge cases?</td></tr>
+        <tr><td><strong>Security</strong></td><td>No sensitive data in code? XSS risk from innerHTML?</td></tr>
+      </table></div>
+    </div>
+
+    <div class="topic" style="--topic-color:#a26af7;">
+      <h4><span class="icon">🎤</span>Technical Demo — What Evaluators Look For</h4>
+      <div class="tbl-wrap"><table>
+        <tr><th>Dimension</th><th>What Strong Looks Like</th></tr>
+        <tr><td>Code Quality</td><td>Consistent naming, TypeScript throughout, no commented-out code, clear component structure</td></tr>
+        <tr><td>Git History</td><td>Meaningful commit messages, feature branches, no "fix fix fix" commits</td></tr>
+        <tr><td>Functionality</td><td>Core flows work: create, read, update, delete, routing, auth</td></tr>
+        <tr><td>Error Handling</td><td>Loading states, error messages, empty states — the full lifecycle</td></tr>
+        <tr><td>Communication</td><td>Can explain decisions ("I chose Context over Redux because...")</td></tr>
+      </table></div>
+      <div class="callout callout-tip">
+        <strong>The Best Demo Strategy</strong>
+        Show the user journey, not the code. Open the app as a user would. Login → find something → create → edit → delete. Then open DevTools, show the Network tab, explain an API call. Then open one well-written component and explain the decision.
+      </div>
+    </div>
+
+    <div class="topic" style="--topic-color:#a26af7;">
+      <h4><span class="icon">💼</span>What to Add Beyond the Bootcamp (2026 Market)</h4>
+      <p>Your syllabus is excellent, but these additions will significantly improve your job prospects:</p>
+      <div class="tbl-wrap"><table>
+        <tr><th>Technology</th><th>Why</th><th>Priority</th></tr>
+        <tr><td>Next.js 14+</td><td>Most React jobs require it. App Router, SSR, RSC</td><td>🔴 High</td></tr>
+        <tr><td>TanStack Query</td><td>Replaces manual useEffect data fetching. Industry standard</td><td>🔴 High</td></tr>
+        <tr><td>Zustand</td><td>Simple global state, replaces Redux for most apps</td><td>🟡 Medium</td></tr>
+        <tr><td>Tailwind CSS</td><td>Used in majority of new projects</td><td>🟡 Medium</td></tr>
+        <tr><td>Playwright</td><td>E2E testing, increasingly required</td><td>🟡 Medium</td></tr>
+        <tr><td>Storybook</td><td>Component documentation, used in design systems</td><td>🟢 Nice</td></tr>
+      </table></div>
+    </div>
+
+    <div class="quiz">
+      <h5>✦ Final Reflection</h5>
+      <p>An interviewer asks: "Tell me about a technical decision you made in your capstone project that you'd change in hindsight." How do you answer this?</p>
+      <button class="quiz-toggle" onclick="toggleAnswer(this)">Show Answer</button>
+      <div class="quiz-answer">This is a growth mindset question. Good answer structure: (1) Name a real decision — "I stored all state in Context" or "I wrote fetch logic directly in components". (2) Explain what you learned — "I later realized this caused unnecessary re-renders / made testing harder". (3) State what you'd do instead — "I'd extract it into a custom hook / use TanStack Query". Shows self-awareness, learning ability, and technical growth — exactly what juniors need to demonstrate.</div>
+    </div>
+  </div>
+</section>
+
+</div><!-- end .container -->
+
+<script>
+function showMonth(n) {
+  document.querySelectorAll('.month-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('month-' + n).classList.add('active');
+  document.querySelector(`[data-m="${n}"]`).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleAnswer(btn) {
+  const answer = btn.nextElementSibling;
+  const isShown = answer.classList.contains('show');
+  answer.classList.toggle('show', !isShown);
+  btn.textContent = isShown ? 'Show Answer' : 'Hide Answer';
+}
+</script>
+</body>
+</html>

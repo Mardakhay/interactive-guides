@@ -1,0 +1,657 @@
+{
+  "id": "browser.realtime-workers",
+  "locale": "en",
+  "version": 2,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-26",
+  "moduleId": "supplement-browser-platform",
+  "supplementaryTrackId": "supplement-browser-platform",
+  "order": 1,
+  "title": "Browser Messaging and Workers",
+  "description": "XHR, WebSocket, Web Worker, and Service Worker communication models and lifecycles.",
+  "estimatedMinutes": 110,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "js.async-fetch",
+    "js.dom-events",
+    "browser.storage-indexeddb"
+  ],
+  "learningOutcomes": [
+    "Distinguish HTTP request/response, WebSocket, and worker use cases.",
+    "Handle XHR HTTP status separately from transport errors.",
+    "Manage WebSocket open/message/close, validation, cleanup, and reconnect policy.",
+    "Move computation to a Web Worker and assess structured-clone cost.",
+    "Explain Service Worker scope/lifecycle and limit caching safely.",
+    "Explain XHR progress and readyState without assuming a percentage is always computable.",
+    "Design bounded WebSocket reconnection with backoff, send guards, and disposal.",
+    "Manage versioned Service Worker caches without deleting unrelated origin caches."
+  ],
+  "tags": [
+    "browser APIs",
+    "WebSocket",
+    "Web Workers",
+    "Service Workers",
+    "XHR",
+    "concurrency",
+    "xhr-progress",
+    "websocket-lifecycle",
+    "service-worker-updates"
+  ],
+  "blocks": [
+    {
+      "id": "messaging-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Realtime connections and background workers"
+    },
+    {
+      "id": "messaging-model",
+      "type": "paragraph",
+      "text": "Choose an API for its communication model. Fetch/XHR make an HTTP request and receive a response; WebSocket keeps a bidirectional message channel; a Web Worker moves computation off the main thread but has no DOM; a Service Worker intercepts eligible origin requests and manages cache/offline behavior. These solve different problems and have different lifecycles."
+    },
+    {
+      "id": "messaging-choice",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "For new request/response work, prefer Fetch + AbortController; XHR remains useful for legacy code and specific upload/download progress events.",
+        "For repeated low-latency server messages, use WebSocket when the server supports it; the channel does not replace ordinary HTTP APIs.",
+        "For heavy synchronous CPU work, consider a Web Worker; it does not automatically make networking faster and cannot change the DOM.",
+        "A Service Worker lives separately from a tab and manages event-driven request/cache strategies, not UI components."
+      ]
+    },
+    {
+      "id": "xhr-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "XHR: a legacy API with explicit HTTP status and failures"
+    },
+    {
+      "id": "xhr-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const request = new XMLHttpRequest();\nrequest.open(\"GET\", \"/api/updates\");\nrequest.responseType = \"json\";\nrequest.timeout = 5000;\n\nrequest.addEventListener(\"load\", () => {\n  if (request.status >= 200 && request.status < 300) {\n    console.log(request.response);\n  } else {\n    console.error(\"HTTP status\", request.status);\n  }\n});\nrequest.addEventListener(\"error\", () => console.error(\"network failure\"));\nrequest.addEventListener(\"timeout\", () => console.error(\"timed out\"));\nrequest.send();",
+      "steps": [
+        {
+          "title": "Configure before sending",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Create XHR, call open, then set responseType/timeout before send. A GET has no body; POST requests set a method and headers."
+        },
+        {
+          "title": "Separate HTTP failure from network failure",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "explanation": "load fires for HTTP 404/500 too; inspect status. error indicates a network-level failure, while timeout indicates the configured time limit elapsed."
+        },
+        {
+          "title": "Handle completion",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "Attach listeners before send so a quick event is not missed. Keep the request if UI needs to call abort() on cancellation/navigation."
+        },
+        {
+          "title": "Send the request",
+          "lineStart": 15,
+          "lineEnd": 15,
+          "explanation": "send runs after listeners are attached. To cancel, retain request and call abort from explicit cancellation/cleanup."
+        }
+      ]
+    },
+    {
+      "id": "xhr-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "XHR fires load and status is 404. What does that mean?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The network necessarily failed before a response arrived.",
+          "correct": false,
+          "feedback": "A network failure is generally reported as error; 404 is an HTTP response."
+        },
+        {
+          "id": "b",
+          "text": "The request completed with HTTP 404; the app must inspect status.",
+          "correct": true,
+          "feedback": "Correct. load by itself does not mean the HTTP status was successful."
+        },
+        {
+          "id": "c",
+          "text": "XHR never reached send().",
+          "correct": false,
+          "feedback": "If a status was received and load fired, the request was sent and completed with a response."
+        },
+        {
+          "id": "d",
+          "text": "A timer will automatically retry the request.",
+          "correct": false,
+          "feedback": "XHR does not retry automatically; retry policy belongs to the application."
+        }
+      ],
+      "explanation": "Transport outcome and HTTP status are separate layers. Inspect status in load and handle error/timeout/abort separately."
+    },
+    {
+      "id": "ws-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "WebSocket: connection and message lifecycle"
+    },
+    {
+      "id": "ws-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const socket = new WebSocket(\"wss://example.test/events\");\n\nsocket.addEventListener(\"open\", () => {\n  if (socket.readyState === WebSocket.OPEN) {\n    socket.send(JSON.stringify({ type: \"subscribe\", topic: \"news\" }));\n  }\n});\nsocket.addEventListener(\"message\", (event) => {\n  if (typeof event.data !== \"string\") return;\n  try {\n    const message = JSON.parse(event.data);\n    console.log(message.type, message.payload);\n  } catch {\n    console.warn(\"unexpected non-JSON message\");\n  }\n});\nsocket.addEventListener(\"close\", (event) => console.log(\"closed\", event.code));\nsocket.addEventListener(\"error\", () => console.error(\"socket error\"));",
+      "steps": [
+        {
+          "title": "Open a secure channel",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "For an HTTPS app, generally use wss:. The connection passes through states; send only after open."
+        },
+        {
+          "title": "Send and validate messages",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "explanation": "Check OPEN before send and define a message protocol. The server may send unexpected data; do not assume every message is JSON."
+        },
+        {
+          "title": "Keep parse and transport errors distinct",
+          "lineStart": 7,
+          "lineEnd": 14,
+          "explanation": "message data can be a string, Blob, or ArrayBuffer. try/catch handles malformed JSON; close/error are separate events."
+        },
+        {
+          "title": "Close the lifecycle loop",
+          "lineStart": 15,
+          "lineEnd": 18,
+          "explanation": "close includes a code/reason, while error signals a channel issue. Reconcile both with retry policy and do not reconnect after dispose."
+        }
+      ]
+    },
+    {
+      "id": "ws-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "WebSocket does not provide application backpressure",
+      "text": "A high message rate can accumulate work and memory; monitor bufferedAmount and define a cap, coalescing, or drop policy. On reconnect, use bounded exponential backoff with jitter, stop after dispose, and resubscribe; do not blindly replay non-idempotent commands."
+    },
+    {
+      "id": "ws-cleanup",
+      "type": "paragraph",
+      "text": "WebSocket does not reconnect by itself. Keep the connection reference, close it when its owner goes away (for example, in a React effect cleanup), distinguish intentional close from transient failure, and define recovery semantics. Close/retry must account for idempotency and resubscription."
+    },
+    {
+      "id": "worker-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Web Worker: heavy computation away from the UI thread"
+    },
+    {
+      "id": "worker-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "// main.js\nconst worker = new Worker(new URL(\"./sum.worker.js\", import.meta.url), { type: \"module\" });\n\nworker.addEventListener(\"message\", ({ data }) => {\n  console.log(\"sum:\", data.total);\n  worker.terminate();\n});\nworker.addEventListener(\"error\", (event) => console.error(event.message));\nworker.postMessage({ numbers: [1, 2, 3, 4] });\n\n// sum.worker.js\nself.addEventListener(\"message\", ({ data }) => {\n  const total = data.numbers.reduce((sum, value) => sum + value, 0);\n  self.postMessage({ total });\n});",
+      "steps": [
+        {
+          "title": "Create a worker and send cloneable data",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "In the main module, create a worker with a URL and send data rather than DOM references."
+        },
+        {
+          "title": "Compute in the worker scope",
+          "lineStart": 4,
+          "lineEnd": 9,
+          "explanation": "The main thread receives result/error and sends the request. A one-shot worker terminates after responding; repeated work needs explicit disposal."
+        },
+        {
+          "title": "Render and release the worker",
+          "lineStart": 11,
+          "lineEnd": 15,
+          "explanation": "The worker scope uses self rather than window/document and returns the result through a message."
+        }
+      ]
+    },
+    {
+      "id": "worker-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What limits a dedicated Web Worker?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It cannot access the document DOM/window.",
+          "correct": true,
+          "feedback": "Correct. A worker has its own global scope and communicates through messages."
+        },
+        {
+          "id": "b",
+          "text": "It cannot run JavaScript.",
+          "correct": false,
+          "feedback": "A worker runs JavaScript separately from the main UI thread."
+        },
+        {
+          "id": "c",
+          "text": "It can only style DOM elements.",
+          "correct": false,
+          "feedback": "It has no DOM; computation and messaging are common uses."
+        },
+        {
+          "id": "d",
+          "text": "It always blocks the main thread synchronously.",
+          "correct": false,
+          "feedback": "The purpose is to move work off the main thread; sending large data still has a cost."
+        }
+      ],
+      "explanation": "A dedicated Web Worker cannot access window/document DOM. Communication with the document uses postMessage and structured data."
+    },
+    {
+      "id": "worker-transfer",
+      "type": "paragraph",
+      "text": "A worker helps with CPU-bound work when the time saved is worth serialization/copy overhead. structured clone copies supported values; Transferables such as ArrayBuffer can move ownership, detaching the sender's buffer. Tiny tasks or huge payloads may be slower in a worker."
+    },
+    {
+      "id": "service-worker-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Service Worker: install, activate, and fetch"
+    },
+    {
+      "id": "service-worker-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "// Register from the page (secure context, or localhost in development).\nnavigator.serviceWorker.register(\"/sw.js\").catch(console.error);\n\n// In sw.js: pre-cache selected static assets during install.\nself.addEventListener(\"install\", (event) => {\n  event.waitUntil(\n    caches.open(\"static-v1\").then((cache) => cache.addAll([\"/\", \"/index.html\"])),\n  );\n});\n\n// Intercept only same-origin GET requests; serve cache first, then network.\nself.addEventListener(\"fetch\", (event) => {\n  const url = new URL(event.request.url);\n  if (event.request.method !== \"GET\" || url.origin !== self.location.origin) return;\n  event.respondWith(caches.match(event.request).then((cached) => cached ?? fetch(event.request)));\n});",
+      "steps": [
+        {
+          "title": "Register the service worker",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Registration attaches the worker to a scope. Production usually needs a secure context; localhost is allowed for development."
+        },
+        {
+          "title": "Prepare cache during install",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "explanation": "event.waitUntil keeps the event alive until the operation settles. Cache explicitly chosen static assets and version the cache deliberately."
+        },
+        {
+          "title": "Intercept only eligible requests",
+          "lineStart": 11,
+          "lineEnd": 16,
+          "explanation": "A fetch handler must call respondWith for an intercepted request. This cache-first example is limited to same-origin GET; do not apply it blindly to personal/API responses. The cache-first response is limited to same-origin GET; do not apply it to personal/API responses without a privacy policy."
+        }
+      ]
+    },
+    {
+      "id": "worker-boundaries",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "A dedicated Web Worker belongs to an application/document, computes and exchanges messages, and can be terminated by the app; it has no DOM.",
+        "A Service Worker is not tied to one open tab, starts for events, has a scope and can mediate network/cache requests; its lifecycle and updates need versioning.",
+        "Both use separate global scopes; do not confuse self with window or send DOM nodes through messages.",
+        "XHR is mostly for legacy/progress needs; prefer Fetch with explicit cancellation and HTTP-status handling for new request/response work."
+      ]
+    },
+    {
+      "id": "messaging-practice",
+      "type": "codingExercise",
+      "title": "Move sorting off the main thread",
+      "language": "javascript",
+      "context": "A page sorts a large set of numbers and starts dropping frames. Design a module worker that sorts a copy, returns a typed result, and is cleaned up when the page leaves.",
+      "instructions": [
+        "Implement createSorter(onResult, onError), creating a Worker with new URL(..., import.meta.url) and type: module.",
+        "Define a request/response message with type and payload; ignore invalid type/data.",
+        "In the worker, sort a copied numeric array without mutating the input, then post a result.",
+        "Deliver the result through a main-thread callback, handle message/error, and return dispose() that calls terminate().",
+        "Explain structured-clone cost and when an ArrayBuffer transfer list is useful; do not promise a speedup for tiny arrays."
+      ],
+      "requirements": [
+        "Worker code does not access document/window DOM.",
+        "Both incoming and outgoing messages are validated by type/shape.",
+        "Sorting copies before mutation and returns deterministic order.",
+        "UI callback runs only for a valid result; worker errors reach the handler.",
+        "dispose stops the worker and leaves no application listeners behind.",
+        "Trade-off between CPU benefit, worker startup, and data copy is explained."
+      ],
+      "starterCode": "// main.js\nfunction createSorter(onResult, onError) {\n  const worker = new Worker(new URL(\"./sort.worker.js\", import.meta.url), { type: \"module\" });\n\n  worker.addEventListener(\"message\", ({ data }) => {\n    // TODO: validate the result message, then call onResult.\n  });\n  worker.addEventListener(\"error\", (event) => onError(event.message));\n\n  return {\n    sort(values) {\n      // TODO: send a typed request message.\n    },\n    dispose() {\n      // TODO: call worker.terminate().\n    },\n  };\n}\n\n// sort.worker.js\nself.addEventListener(\"message\", ({ data }) => {\n  // TODO: validate message, sort a copy of numeric values, and post a result.\n});",
+      "hints": [
+        "Define a small protocol such as { type: 'sort', values } and { type: 'sorted', values }; validate both boundaries.",
+        "Use [...values].sort((a, b) => a - b) to avoid mutating the received logical input.",
+        "Only the main thread should update DOM or component state.",
+        "Call terminate from dispose; if the worker is reusable, decide whether to keep it alive or terminate after one result."
+      ],
+      "successCriteria": [
+        "Sorting runs in the worker and output is deterministic numeric order.",
+        "Original input is unchanged.",
+        "Invalid message shapes do not crash the page or invoke onResult.",
+        "Error events reach onError and dispose stops the worker.",
+        "Explanation weighs CPU benefit against startup and structured-clone cost."
+      ]
+    },
+    {
+      "id": "xhr-progress-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Track XHR progress and request states"
+    },
+    {
+      "id": "xhr-progress-model",
+      "type": "paragraph",
+      "text": "XHR exposes upload progress on `xhr.upload` and download progress on the `XMLHttpRequest` object. A `ProgressEvent` only supports a useful percentage when `lengthComputable` is true; never divide by an unknown or zero total. Inspect HTTP status separately from `error`/`timeout`/`abort`. Upload listeners can trigger CORS preflight on cross-origin requests."
+    },
+    {
+      "id": "xhr-progress-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const xhr = new XMLHttpRequest();\nconst file = fileInput.files?.[0];\nif (!file) throw new Error('Choose a file first');\n\nxhr.upload.addEventListener('progress', (event) => {\n  const fraction = event.lengthComputable ? event.loaded / event.total : null;\n  onUploadProgress(fraction);\n});\nxhr.addEventListener('progress', (event) => {\n  onDownloadProgress(event.lengthComputable ? event.loaded / event.total : null);\n});\n\nxhr.addEventListener('readystatechange', () => {\n  const states = ['UNSENT', 'OPENED', 'HEADERS_RECEIVED', 'LOADING', 'DONE'];\n  onRequestState(states[xhr.readyState] ?? 'UNKNOWN', xhr.status);\n});\nxhr.addEventListener('load', () => {\n  if (xhr.status >= 200 && xhr.status < 300) onSuccess(xhr.responseText);\n  else onFailure(new Error(`HTTP ${xhr.status}`));\n});\nxhr.addEventListener('error', () => onFailure(new Error('Network error')));\nxhr.addEventListener('timeout', () => onFailure(new Error('Timed out')));\nxhr.addEventListener('abort', () => onFailure(new DOMException('Aborted', 'AbortError')));\n\nxhr.open('POST', '/api/uploads');\nxhr.timeout = 30_000;\nconst body = new FormData();\nbody.append('file', file);\nxhr.send(body);",
+      "steps": [
+        {
+          "title": "Track upload progress safely",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "Upload events come from `xhr.upload`. The total may be unknown, so use a nullable fraction instead of inventing a percentage."
+        },
+        {
+          "title": "Track download and request state",
+          "lineStart": 9,
+          "lineEnd": 16,
+          "explanation": "Download progress comes from XHR itself. `readyState` describes request progress, not whether the final HTTP status is successful."
+        },
+        {
+          "title": "Separate status from transport failure",
+          "lineStart": 17,
+          "lineEnd": 23,
+          "explanation": "`load` can fire for HTTP errors such as 404. Inspect status; `error`, `timeout`, and `abort` are different outcomes."
+        },
+        {
+          "title": "Configure and send last",
+          "lineStart": 25,
+          "lineEnd": 29,
+          "explanation": "Attach listeners before `send()`, set the timeout and send FormData. An upload event does not prove that the server accepted the file."
+        }
+      ]
+    },
+    {
+      "id": "xhr-progress-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "An XHR upload progress event fires with `lengthComputable === false`. What should the UI do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Show 100% because an event fired",
+          "correct": false,
+          "feedback": "A progress event means an update occurred; it does not indicate completion."
+        },
+        {
+          "id": "b",
+          "text": "Show indeterminate progress instead of a percentage",
+          "correct": true,
+          "feedback": "When total length cannot be computed, it cannot support a reliable percentage; do not display a fabricated number."
+        },
+        {
+          "id": "c",
+          "text": "Divide loaded by zero and clamp the result",
+          "correct": false,
+          "feedback": "An unknown or zero total cannot produce a meaningful fraction."
+        },
+        {
+          "id": "d",
+          "text": "Treat it as a network error",
+          "correct": false,
+          "feedback": "Unknown total length is not a network failure; `error`, `timeout`, and `abort` are different outcomes."
+        }
+      ],
+      "explanation": "Use indeterminate progress when total length cannot be computed. Upload events come from `xhr.upload`; download progress comes from XHR. Check HTTP status separately from transport errors."
+    },
+    {
+      "id": "ws-reconnect-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Reconnect a WebSocket without leaking timers"
+    },
+    {
+      "id": "ws-reconnect-model",
+      "type": "paragraph",
+      "text": "A WebSocket does not reconnect automatically and has no built-in message backpressure. Use bounded backoff with jitter, stop at a limit, send only in `OPEN`, and clear timers/close the socket when its owner is disposed. This example treats close code `1000` as intentional; production code should classify retryable close codes explicitly."
+    },
+    {
+      "id": "ws-reconnect-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const MAX_RETRIES = 5;\nlet attempts = 0;\nlet retryTimer;\nlet stableTimer;\nlet socket;\nlet disposed = false;\n\nfunction connect(url) {\n  if (disposed) return;\n  socket = new WebSocket(url);\n  socket.addEventListener('open', () => {\n    setStatus('online');\n    stableTimer = window.setTimeout(() => { attempts = 0; }, 30_000);\n  });\n  socket.addEventListener('error', () => setStatus('error'));\n  socket.addEventListener('close', (event) => {\n    setStatus('offline');\n    clearTimeout(stableTimer);\n    if (disposed || event.code === 1000 || attempts >= MAX_RETRIES) return;\n    const delay = Math.min(500 * 2 ** attempts, 15_000);\n    attempts += 1;\n    retryTimer = window.setTimeout(() => connect(url), delay + Math.random() * 250);\n  });\n}\n\nfunction send(message) {\n  if (socket?.readyState !== WebSocket.OPEN) return false;\n  socket.send(JSON.stringify(message));\n  return true;\n}\n\nfunction dispose() {\n  disposed = true;\n  clearTimeout(retryTimer);\n  clearTimeout(stableTimer);\n  socket?.close(1000, 'client disposed');\n}\n\nconnect('wss://example.test/events');",
+      "steps": [
+        {
+          "title": "Set a retry budget",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "A retry limit and capped delay prevent an unbounded rapid reconnect loop."
+        },
+        {
+          "title": "Reset only after a stable session",
+          "lineStart": 8,
+          "lineEnd": 14,
+          "explanation": "A brief open connection should not erase prior failures. Here the counter resets only after 30 seconds connected."
+        },
+        {
+          "title": "Schedule retry in one handler",
+          "lineStart": 15,
+          "lineEnd": 24,
+          "explanation": "Use `close` as the single retry path so `error` and `close` do not schedule duplicate timers. Do not retry after intentional close or when the budget is exhausted."
+        },
+        {
+          "title": "Guard sends and dispose",
+          "lineStart": 26,
+          "lineEnd": 37,
+          "explanation": "Only send in `WebSocket.OPEN`. Disposal sets a flag, clears timers and closes the socket, preventing a late `close` from reconnecting."
+        }
+      ]
+    },
+    {
+      "id": "ws-reconnect-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A WebSocket emits `error`, then `close`. Your code schedules retries from both handlers. What is the main problem?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The browser cannot close a socket after an error",
+          "correct": false,
+          "feedback": "A failing WebSocket can emit both error and close; the application must handle that lifecycle."
+        },
+        {
+          "id": "b",
+          "text": "Two timers may start duplicate connections",
+          "correct": true,
+          "feedback": "Use one retry-scheduling path and clear its timer during disposal."
+        },
+        {
+          "id": "c",
+          "text": "Backoff is incompatible with WebSockets",
+          "correct": false,
+          "feedback": "Backoff is application policy that helps avoid rapid retry loops."
+        },
+        {
+          "id": "d",
+          "text": "The browser automatically replays all old messages",
+          "correct": false,
+          "feedback": "The WebSocket API does not automatically replay application messages or define their idempotency."
+        }
+      ],
+      "explanation": "Use one retry path, bound attempts and clear timers at dispose. Policy must consider close codes, authentication, idempotency, resubscription and offline UX."
+    },
+    {
+      "id": "ws-reconnect-practice",
+      "type": "codingExercise",
+      "title": "Design a resilient WebSocket client lifecycle",
+      "language": "javascript",
+      "context": "A chat panel reconnects every three seconds after every close, sends while the socket is connecting, and leaves a retry timer after unmount. Incoming messages are parsed as JSON without validation.",
+      "instructions": [
+        "Keep one current socket and send only when `readyState === WebSocket.OPEN`.",
+        "Implement capped exponential backoff with jitter and explicit policy for intentional close codes.",
+        "Ensure `error` does not schedule a second retry if `close` owns retry scheduling.",
+        "Parse JSON in `try/catch`, then validate message shape before passing it to the UI.",
+        "Return `dispose()` to clear timers, mark the client disposed, and close the socket without reconnecting."
+      ],
+      "requirements": [
+        "Messages are sent only while the current socket is OPEN.",
+        "Retries use a bounded delay and finite retry budget.",
+        "Only one handler schedules retries; intentional close and disposed clients do not reconnect.",
+        "Malformed JSON or invalid protocol messages do not crash UI code.",
+        "dispose clears timers and closes the connection; a late close cannot schedule another retry."
+      ],
+      "starterCode": "const MAX_RETRIES = 5;\nlet socket;\nlet retries = 0;\nlet retryTimer;\nlet disposed = false;\n\nfunction connect(url, onMessage, onStatus) {\n  // TODO: create socket and register open/message/error/close handlers.\n  // TODO: schedule one bounded retry path for retryable close codes.\n  // TODO: validate parsed messages before calling onMessage.\n  return {\n    send(message) {\n      // TODO: send only when the socket is OPEN.\n    },\n    dispose() {\n      // TODO: prevent retries, clear timers and close the socket.\n    },\n  };\n}",
+      "hints": [
+        "Treat error and close as related events; use one retry path instead of both.",
+        "Cap exponential delay and total attempts; jitter helps avoid synchronized reconnect bursts.",
+        "Set `disposed = true` before closing the socket, then clear timers so close knows not to reconnect."
+      ],
+      "successCriteria": [
+        "The client does not send before OPEN.",
+        "Retry delay and budget are bounded, with explicit retryable close codes.",
+        "Message JSON and shape are validated before the UI receives data.",
+        "dispose is idempotent and leaves no retry timer behind.",
+        "The design discusses intentional close, resubscription and message idempotency."
+      ]
+    },
+    {
+      "id": "service-worker-lifecycle-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Version Service Worker caches and clean up safely"
+    },
+    {
+      "id": "service-worker-lifecycle-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const CACHE_PREFIX = 'study-shell-';\nconst CURRENT_CACHE = `${CACHE_PREFIX}v2`;\n\nself.addEventListener('install', (event) => {\n  event.waitUntil(\n    caches.open(CURRENT_CACHE).then((cache) =>\n      cache.addAll(['/', '/index.html', '/assets/app.css']),\n    ),\n  );\n});\n\nself.addEventListener('activate', (event) => {\n  event.waitUntil((async () => {\n    const names = await caches.keys();\n    const outdated = names.filter(\n      (name) => name.startsWith(CACHE_PREFIX) && name !== CURRENT_CACHE,\n    );\n    await Promise.all(outdated.map((name) => caches.delete(name)));\n  })());\n});\n\n// Keep fetch handling scoped to eligible requests.\nself.addEventListener('fetch', (event) => {\n  const url = new URL(event.request.url);\n  if (event.request.method !== 'GET' || url.origin !== self.location.origin) return;\n  event.respondWith(caches.match(event.request).then((cached) => cached ?? fetch(event.request)));\n});",
+      "steps": [
+        {
+          "title": "Version the app-owned cache",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "A prefix and version distinguish this app's caches from other features sharing the origin."
+        },
+        {
+          "title": "Pre-cache at installation",
+          "lineStart": 4,
+          "lineEnd": 10,
+          "explanation": "`waitUntil` keeps the install event alive until selected assets are cached. A failed `addAll` rejects installation rather than silently installing a partial shell."
+        },
+        {
+          "title": "Delete only outdated app caches",
+          "lineStart": 12,
+          "lineEnd": 20,
+          "explanation": "Filter by the application's prefix before deleting. Cache names owned by other features are preserved."
+        },
+        {
+          "title": "Keep takeover deliberate",
+          "lineStart": 22,
+          "lineEnd": 27,
+          "explanation": "This snippet does not force `skipWaiting()` or call `clients.claim()`. Coordinate takeover timing with already-open clients."
+        }
+      ]
+    },
+    {
+      "id": "service-worker-update-caveat",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Do not force activation without checking client compatibility",
+      "text": "A new Service Worker can install while an older worker still controls open pages. Use `install`/`activate` with `event.waitUntil()`, version cache names, and delete only outdated caches under your application's prefix. Do not delete every Cache Storage entry for the origin. `skipWaiting()` and `clients.claim()` change control timing, so coordinate them with asset/version compatibility."
+    },
+    {
+      "id": "service-worker-lifecycle-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "During Service Worker activation, which cache-cleanup rule is safest on a multi-feature site?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Delete every cache from `caches.keys()`",
+          "correct": false,
+          "feedback": "The origin can contain caches owned by unrelated features; deleting all can break those features."
+        },
+        {
+          "id": "b",
+          "text": "Delete only old cache names under this app's prefix",
+          "correct": true,
+          "feedback": "Scoped, versioned cleanup removes this feature's old assets without crossing ownership boundaries."
+        },
+        {
+          "id": "c",
+          "text": "Never delete any cache version",
+          "correct": false,
+          "feedback": "Old versions can accumulate; clean only caches the app owns and no longer needs."
+        },
+        {
+          "id": "d",
+          "text": "Call `skipWaiting()` before checking caches",
+          "correct": false,
+          "feedback": "Activation policy and cache cleanup are separate; skipWaiting does not determine which caches are safe to delete."
+        }
+      ],
+      "explanation": "Use `event.waitUntil` and versioned cache names; delete only caches owned by this app. Forcing activation/takeover requires a compatibility decision."
+    },
+    {
+      "id": "messaging-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "XHR is an event-driven legacy HTTP API; inspect HTTP status separately from network/timeout/abort events.",
+        "WebSocket is a persistent full-duplex channel with explicit lifecycle, message validation, cleanup, and app-owned retry/backpressure policy.",
+        "Dedicated workers move CPU work off the UI thread but have no DOM; structured clone/transfer has cost.",
+        "Service workers are event-driven, origin-scoped proxies for network/cache and offline strategies, not background UI threads.",
+        "Use secure contexts, same-origin/scope rules, conservative caching, and lifecycle cleanup deliberately."
+      ]
+    },
+    {
+      "id": "messaging-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: XMLHttpRequest",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: WebSocket",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/WebSocket",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using Web Workers",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using Service Workers",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: XMLHttpRequest upload progress",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/upload",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: XMLHttpRequest progress events",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequestEventTarget/progress_event",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Service Worker API lifecycle",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using Service Workers",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

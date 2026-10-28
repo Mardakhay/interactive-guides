@@ -1,0 +1,701 @@
+{
+  "id": "testing.react-testing-library",
+  "locale": "ru",
+  "version": 4,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-26",
+  "moduleId": "month-5-week-19",
+  "week": 19,
+  "order": 1,
+  "title": "Тестирование React-компонентов с Testing Library",
+  "description": "Пиши тесты поведения компонентов, выбирай элементы интерфейса через доступные роли и имена, проверяй асинхронные обновления и учитывай реально настроенный тестовый runner.",
+  "estimatedMinutes": 120,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "react.components-jsx-state",
+    "react.effects-lists-composition",
+    "react.forms-validation",
+    "typescript.fundamentals"
+  ],
+  "learningOutcomes": [
+    "Объяснять цели и ограничения unit-, component-, integration- и end-to-end-тестов.",
+    "Проверять видимое пользователю поведение, а не детали реализации или внутреннее состояние компонента.",
+    "Выбирать запросы Testing Library по роли, доступному имени, label и требуемой семантике поиска.",
+    "Использовать userEvent и асинхронные запросы для реалистичного взаимодействия и обновлений UI.",
+    "Делать тестовые данные, сетевые границы и проверки детерминированными.",
+    "Писать осмысленные тесты в связке Vitest + React Testing Library и понимать, что изменится при использовании Jest.",
+    "Управлять успехом и ошибками API с изолированными Vitest mocks, проверяя видимые пользователю результаты.",
+    "Различать очистку истории mock, сброс реализации и восстановление метода spy в Vitest."
+  ],
+  "tags": [
+    "testing",
+    "react-testing-library",
+    "vitest",
+    "jest",
+    "user-event",
+    "accessibility",
+    "testing-library",
+    "mocking",
+    "mock-cleanup",
+    "test-isolation"
+  ],
+  "blocks": [
+    {
+      "id": "test-purpose",
+      "type": "heading",
+      "level": 2,
+      "text": "Тесты быстро сообщают о поведении программы"
+    },
+    {
+      "id": "test-purpose-body",
+      "type": "paragraph",
+      "text": "Тест фиксирует ожидание от поведения ПО. Unit-тест изолирует небольшую функцию, component-тест рендерит UI-компонент и взаимодействует с ним, integration-тест проверяет несколько связанных частей, а end-to-end — полный пользовательский сценарий в работающем приложении. Границы пересекаются; важно проверять нужное поведение на самом низком уровне, который надёжно доказывает его. Много хрупких тестов не обязательно лучше небольшого набора, обнаруживающего значимые регрессии."
+    },
+    {
+      "id": "behavior-not-internals",
+      "type": "heading",
+      "level": 2,
+      "text": "Проверяй то, что может наблюдать пользователь"
+    },
+    {
+      "id": "behavior-not-internals-body",
+      "type": "paragraph",
+      "text": "React Testing Library поощряет тесты, основанные на отображаемом интерфейсе. Предпочитай проверки вроде «кнопка Save отключена во время сохранения» или «ошибка объявляется» вместо проверки приватной переменной состояния, внутренних вызовов Hook или конкретной реализации. Тесты пользовательского контракта позволяют рефакторить компонент без переписывания всех тестов и всё равно ловят значимые изменения поведения."
+    },
+    {
+      "id": "test-queries",
+      "type": "heading",
+      "level": 2,
+      "text": "Выбирай query, соответствующий использованию интерфейса"
+    },
+    {
+      "id": "test-queries-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "getByRole — хороший вариант по умолчанию для интерактивных элементов и landmark; добавляй доступное имя, если оно помогает определить нужный контрол.",
+        "getByLabelText подходит для полей формы с программной label.",
+        "getByText можно использовать для видимого неинтерактивного текста, когда лучшего семантического запроса нет.",
+        "Запросы getBy... сразу падают при нуле или нескольких совпадениях, показывая неоднозначность.",
+        "queryBy... возвращает null, если совпадения нет, и подходит для проверки отсутствия контента.",
+        "findBy... ждёт появления элемента и завершается ошибкой по таймауту, если элемент не появляется."
+      ]
+    },
+    {
+      "id": "component-test",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { render, screen } from \"@testing-library/react\";\nimport userEvent from \"@testing-library/user-event\";\nimport { describe, expect, it } from \"vitest\";\nimport { Counter } from \"./Counter\";\n\ndescribe(\"Counter\", () => {\n  it(\"увеличивается после нажатия кнопки\", async () => {\n    const user = userEvent.setup();\n    render(<Counter />);\n\n    expect(screen.getByText(\"Счёт: 0\")).toBeTruthy();\n    await user.click(screen.getByRole(\"button\", { name: \"Увеличить\" }));\n    expect(screen.getByText(\"Счёт: 1\")).toBeTruthy();\n  });\n});",
+      "steps": [
+        {
+          "title": "Отрендери компонент так, как его видит пользователь",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "Render монтирует компонент в тестовом DOM. Проверяется вывод UI, а не приватная переменная состояния."
+        },
+        {
+          "title": "Подготовь пользовательское взаимодействие",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "UserEvent имитирует более реалистичную последовательность пользовательских действий, чем прямой вызов обработчика компонента."
+        },
+        {
+          "title": "Найди контрол по роли и доступному имени",
+          "lineStart": 12,
+          "lineEnd": 12,
+          "explanation": "Запрос выражает семантическую цель кнопки и поощряет интерфейс с корректной доступной семантикой."
+        },
+        {
+          "title": "Дождись действия и проверь результат",
+          "lineStart": 12,
+          "lineEnd": 13,
+          "explanation": "Клик асинхронен, поэтому его ожидают через await. Проверяется видимое состояние, а не способ хранения внутреннего state."
+        }
+      ]
+    },
+    {
+      "id": "arrange-act-assert",
+      "type": "heading",
+      "level": 2,
+      "text": "Use arrange, act, and assert as a reasoning structure"
+    },
+    {
+      "id": "arrange-act-assert-body",
+      "type": "paragraph",
+      "text": "Arrange prepares data and the test environment, act triggers the behavior, and assert checks the resulting contract. This is a reasoning aid, not a rule that every test must contain exactly three lines. Keep each test focused on one meaningful scenario, use descriptive names, and avoid coupling tests through shared mutable state."
+    },
+    {
+      "id": "async-tests",
+      "type": "heading",
+      "level": 2,
+      "text": "Test asynchronous interfaces deliberately"
+    },
+    {
+      "id": "async-tests-body",
+      "type": "paragraph",
+      "text": "An interface that fetches data may render loading, success, empty, and error states at different times. Use findBy... for an element that should appear later and waitFor when you need to wait for a specific assertion to become true. Do not use arbitrary sleep timers: they slow the suite and make tests flaky. Mock the network boundary or inject the service so the test controls the response and does not depend on an external API being available."
+    },
+    {
+      "id": "async-test-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Дождись видимого результата асинхронного действия",
+      "code": "render(<PostsPage />);\n\nexpect(screen.getByText(/loading posts/i)).toBeTruthy();\nexpect(await screen.findByRole(\"heading\", { name: \"A sample post\" })).toBeTruthy();\nexpect(screen.queryByText(/could not load/i)).toBeNull();"
+    },
+    {
+      "id": "mocking-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Управляй внешними зависимостями через Vitest mocks"
+    },
+    {
+      "id": "mocking-explanation",
+      "type": "paragraph",
+      "text": "Mock заменяет одну границу зависимости предсказуемой функцией: тест может проверить вызовы и выбрать успешный или неуспешный ответ без обращения к живому API. В этом проекте используй `vi.fn()` из Vitest, а не копируй Jest-only настройку из старого руководства. Предпочитай передавать сервис в компонент или подменять узкую API-границу; не подменяй внутренние механизмы React. Mock без реализации возвращает `undefined`, поэтому задай результат явно. `mockResolvedValue` и `mockRejectedValue` моделируют разные исходы Promise. Изолируй mocks: очистка истории вызовов не обязательно сбрасывает реализацию, а глобальные stubs надо восстановить, если конфигурация теста не делает этого автоматически."
+    },
+    {
+      "id": "mocking-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { expect, it, vi } from \"vitest\";\nimport { render, screen } from \"@testing-library/react\";\n\ntype Post = { id: string; title: string };\ntype LoadPosts = () => Promise<Post[]>;\n\nit(\"renders posts from a controlled service\", async () => {\n  const loadPosts = vi.fn<LoadPosts>().mockResolvedValue([\n    { id: \"1\", title: \"A sample post\" },\n  ]);\n\n  render(<PostsPage loadPosts={loadPosts} />);\n\n  expect(await screen.findByRole(\"heading\", { name: \"A sample post\" }))\n    .toBeInTheDocument();\n  expect(loadPosts).toHaveBeenCalledTimes(1);\n});",
+      "steps": [
+        {
+          "title": "Подмени узкую границу зависимостей подходящим runner",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "В проекте настроены Vitest и Testing Library. `vi.fn<LoadPosts>()` создаёт типизированную mock-функцию; внедряй сервис, не привязывая тест к внутренностям компонента."
+        },
+        {
+          "title": "Выбери предсказуемый асинхронный результат",
+          "lineStart": 8,
+          "lineEnd": 10,
+          "explanation": "`mockResolvedValue` возвращает Promise с контролируемыми данными. Для проверки ошибки создай отдельный mock с `mockRejectedValue(new Error(...))`; не дели изменяемое поведение между тестами."
+        },
+        {
+          "title": "Проверь UI-контракт и вызов границы",
+          "lineStart": 12,
+          "lineEnd": 17,
+          "explanation": "Отрендери настоящий компонент, дождись асинхронного содержимого через `findByRole`, затем проверь вызов внедрённого сервиса. Так тест проверяет видимое пользователю поведение и обращение к границе."
+        }
+      ]
+    },
+    {
+      "id": "mocking-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Нужно надёжно проверить показ сетевой ошибки в тесте React-страницы. Какой способ подходит настроенному стеку проекта?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Использовать Vitest `vi.fn()` на API/service-границе, настроить rejection и проверить видимую ошибку",
+          "correct": true,
+          "feedback": "Контролируемый rejection делает проверку предсказуемой, а assertion остаётся сосредоточенным на том, что видит пользователь."
+        },
+        {
+          "id": "b",
+          "text": "Вызвать production API и надеяться, что он будет недоступен",
+          "correct": false,
+          "feedback": "Тест не должен зависеть от доступности внешнего сервиса и тайминга, чтобы дойти до ошибки."
+        },
+        {
+          "id": "c",
+          "text": "Замокать приватный React state Hook и проверить его внутреннее значение",
+          "correct": false,
+          "feedback": "Это связывает тест с деталями реализации и не доказывает, что ошибка появилась в интерфейсе."
+        },
+        {
+          "id": "d",
+          "text": "Использовать Jest globals и разделять один изменяемый mock между тестами",
+          "correct": false,
+          "feedback": "В проекте используется Vitest, а общее изменяемое поведение может сделать результаты зависимыми от порядка тестов."
+        }
+      ],
+      "explanation": "Подмени одну внешнюю границу настроенным runner и проверь видимую пользователю ошибку."
+    },
+    {
+      "id": "mocking-practice",
+      "type": "codingExercise",
+      "title": "Проверь успех и ошибку без живого API",
+      "language": "tsx",
+      "context": "Доработай тест компонента, которому передаётся сервис `loadPosts`; он показывает загрузку, список статей, пустое состояние или ошибку.",
+      "instructions": [
+        "Создай типизированный Vitest mock сервиса и настрой успешный ответ со статьями.",
+        "Отрендери страницу, дождись заголовка статьи через `findByRole` и проверь вызов сервиса.",
+        "Добавь успешный ответ без статей и проверь отдельное сообщение пустого состояния.",
+        "Добавь тест с отклонённым Promise и проверь доступное сообщение или alert с ошибкой.",
+        "Создавай локальный mock для каждого теста и не обращайся к реальной сети."
+      ],
+      "requirements": [
+        "В mock используется Vitest `vi.fn()` и правильно задан результат Promise.",
+        "Успех, пустой успешный ответ и rejection проверяются отдельно.",
+        "Assertions проверяют видимый DOM, а не внутреннее состояние компонента.",
+        "Асинхронные результаты ожидаются через Testing Library, а не фиксированные задержки.",
+        "Тесты не обращаются к живому API и могут выполняться в любом порядке."
+      ],
+      "starterCode": "import { expect, it, vi } from \"vitest\";\nimport { render, screen } from \"@testing-library/react\";\nimport type { Post } from \"./types\";\n\nit(\"renders the success response\", async () => {\n  const loadPosts = vi.fn<() => Promise<Post[]>>();\n  // TODO: настрой ответ, отрендери <PostsPage loadPosts={loadPosts} />,\n  // дождись видимого результата и проверь вызов сервиса.\n});\n\nit(\"renders empty and error states\", async () => {\n  // TODO: создай отдельные mocks для [] и отклонённого Promise.\n});",
+      "hints": [
+        "Пустой `vi.fn()` возвращает undefined, пока ты не настроишь возвращаемое значение или Promise.",
+        "Для успешного пустого ответа используй `mockResolvedValue([])`, для отказа — `mockRejectedValue(new Error(...))`.",
+        "Используй `findByRole` для содержимого после async-операции и проверяй доступное сообщение об ошибке или пустом состоянии."
+      ],
+      "successCriteria": [
+        "Тест успеха отображает полученные данные.",
+        "Для пустого результата есть отдельное видимое состояние.",
+        "Отклонённый запрос приводит к доступному сообщению об ошибке.",
+        "Каждый сценарий использует отдельный mock и ожидает UI-результат.",
+        "Нет внешнего сетевого запроса и произвольных задержек."
+      ]
+    },
+    {
+      "id": "test-mock-lifecycle-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Изолируй mock между тестами"
+    },
+    {
+      "id": "test-mock-lifecycle-model",
+      "type": "paragraph",
+      "text": "У mock есть история вызовов и поведение. `vi.clearAllMocks()` очищает историю, но сохраняет реализации. `vi.resetAllMocks()` очищает историю и сбрасывает поведение mock. `vi.restoreAllMocks()` восстанавливает исходные методы, подменённые через `vi.spyOn`. У глобального stub, созданного через `vi.stubGlobal`, отдельная очистка — `vi.unstubAllGlobals`. Используй API версии Vitest, установленной в проекте, и проверь `vitest.config`; не полагайся на defaults другой major-версии и не копируй Jest-only настройку."
+    },
+    {
+      "id": "test-mock-lifecycle-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { afterEach, expect, it, vi } from \"vitest\";\n\nconst auditLog = { save: (id: number) => `saved:${id}` };\n\nafterEach(() => {\n  vi.restoreAllMocks();\n});\n\nit(\"controls one scenario and restores the method\", () => {\n  const spy = vi.spyOn(auditLog, \"save\").mockReturnValue(\"mocked\");\n  expect(auditLog.save(7)).toBe(\"mocked\");\n  expect(spy).toHaveBeenCalledWith(7);\n});\n\n// clearAllMocks: clear calls, keep implementation.\n// resetAllMocks: clear calls and reset implementation.\n// restoreAllMocks: restore original methods for spies.\n// vi.stubGlobal needs its own cleanup: vi.unstubAllGlobals().",
+      "steps": [
+        {
+          "title": "Подмени один метод объекта",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "`vi.spyOn` заменяет выбранный метод на время сценария, чтобы управлять результатом и проверять аргументы. Держи mock на узкой границе зависимости."
+        },
+        {
+          "title": "Восстанови реальный метод после теста",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "`afterEach` восстанавливает spy, созданные через `vi.spyOn`, чтобы подмена не попадала в последующие тесты."
+        },
+        {
+          "title": "Выбери очистку под изменённое состояние",
+          "lineStart": 9,
+          "lineEnd": 13,
+          "explanation": "Тест подменяет `save`, проверяет видимый результат и аргумент, затем полагается на cleanup для восстановления исходного метода."
+        },
+        {
+          "title": "Различай области действия API сброса",
+          "lineStart": 15,
+          "lineEnd": 18,
+          "explanation": "История вызовов, реализация и исходный метод объекта — разные вещи. Для глобальных stub есть отдельная очистка."
+        }
+      ]
+    },
+    {
+      "id": "test-mock-lifecycle-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Тест использует `vi.spyOn(service, \"save\").mockResolvedValue(...)`. Следующий тест должен вызвать настоящий `service.save`. Какая очистка подходит лучше?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`vi.clearAllMocks()`; она всегда восстанавливает исходный метод",
+          "correct": false,
+          "feedback": "Clear удаляет записи о вызовах, но сохраняет реализацию mock, поэтому метод может остаться подменённым."
+        },
+        {
+          "id": "b",
+          "text": "`vi.restoreAllMocks()` после теста",
+          "correct": true,
+          "feedback": "Restore возвращает исходные реализации/дескрипторы методов, заменённых через `vi.spyOn`."
+        },
+        {
+          "id": "c",
+          "text": "`screen.cleanup()`; она восстанавливает все методы сервисов",
+          "correct": false,
+          "feedback": "Очистка DOM и mock — разные задачи; размонтирование компонента не восстанавливает spy объекта."
+        },
+        {
+          "id": "d",
+          "text": "Сбрасывать все mock без проверки потребностей следующего теста",
+          "correct": false,
+          "feedback": "Reset и restore различаются; выбирай операцию под состояние зависимости, которое изменял тест."
+        }
+      ],
+      "explanation": "Если следующий тест должен вызвать настоящий метод объекта, восстанови spy. Очистка истории и сброс поведения решают другие задачи."
+    },
+    {
+      "id": "test-mock-lifecycle-practice",
+      "type": "codingExercise",
+      "title": "Сделай тест с mock детерминированным и изолированным",
+      "language": "tsx",
+      "context": "Тест компонента иногда падает в зависимости от порядка запуска, потому что реализация spy или ответ API остаётся подменённым для следующих тестов.",
+      "instructions": [
+        "Создавай каждый `vi.fn()` в нужной области теста или локальной настройки и явно определяй ответ.",
+        "Выбирай clear, reset или restore исходя из того, нужно ли очистить историю, поведение или вернуть настоящий метод объекта.",
+        "Добавь `afterEach` для восстановления spy и возвращай глобальные значения, подменённые через `vi.stubGlobal`.",
+        "Проверяй видимый результат, используя mock только для контроля внешней границы сервиса.",
+        "Объясни, почему тест не должен зависеть от порядка запуска, live API или фиксированного таймера сна."
+      ],
+      "requirements": [
+        "У mock явно настроен результат или resolved/rejected behavior, если он нужен тесту.",
+        "История вызовов и реализация считаются разными состояниями.",
+        "Spy объекта восстанавливаются, чтобы следующие тесты вызывали исходный метод.",
+        "Глобальные stub явно восстанавливаются там, где используются.",
+        "Проверка направлена на видимое поведение и не зависит от порядка тестов или времени сети."
+      ],
+      "starterCode": "import { afterEach, expect, it, vi } from \"vitest\";\n\nconst service = { load: async () => [\"real value\"] };\nafterEach(() => {\n  // TODO: выбери очистку spy/global.\n});\n\nit(\"показывает mock-результат\", async () => {\n  const loadSpy = vi.spyOn(service, \"load\");\n  // TODO: задай детерминированный resolved value.\n  // TODO: отрендери и дождись видимого результата.\n  // TODO: проверь вызов сервиса, не читая private state компонента.\n});",
+      "hints": [
+        "`clearAllMocks` очищает наблюдения, но не возвращает исходную реализацию.",
+        "`resetAllMocks` также сбрасывает настроенное поведение; обычный `vi.fn()` после этого может вернуть `undefined`.",
+        "`restoreAllMocks` восстанавливает spy; для `vi.stubGlobal` используй `vi.unstubAllGlobals`."
+      ],
+      "successCriteria": [
+        "Результат теста не зависит от порядка запуска.",
+        "Очистка mock соответствует состоянию, которое нужно очистить или восстановить.",
+        "Видимый результат проверяется доступным запросом и корректным async ожиданием.",
+        "Ответы контролируются в тесте, а не реальным сервисом.",
+        "Каждый глобальный stub или spy восстанавливается после сценария."
+      ]
+    },
+    {
+      "id": "test-runner",
+      "type": "heading",
+      "level": 2,
+      "text": "Знай, какой runner настроен в проекте"
+    },
+    {
+      "id": "test-runner-body",
+      "type": "paragraph",
+      "text": "Jest и Vitest имеют много общих концепций и API, но отличаются конфигурацией, окружением, mock-ами и globals. Этот репозиторий использует Vitest с React Testing Library, поэтому новые примеры должны соответствовать его настройке и импорту. Не добавляй Jest лишь потому, что его упоминает курс: сначала изучи существующий runner, скрипты и setup. Локальные и CI-проверки должны использовать согласованную конфигурацию."
+    },
+    {
+      "id": "test-isolation",
+      "type": "callout",
+      "tone": "important",
+      "title": "Делай тесты детерминированными и независимыми",
+      "text": "Контролируй часы, случайные значения, ответы API и глобальное состояние, если они влияют на проверку. Очищай окружение и не полагайся на порядок тестов. Тест должен падать из-за изменения поведения, а не из-за медленного внешнего сервиса или состояния, оставленного предыдущим тестом."
+    },
+    {
+      "id": "testing-quiz-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Какой query обычно лучше использовать первым для интерактивной кнопки?",
+      "options": [
+        {
+          "id": "a",
+          "text": "getByRole(\"button\", { name: \"Save\" })",
+          "correct": true,
+          "feedback": "Роль и доступное имя отражают семантический контракт элемента."
+        },
+        {
+          "id": "b",
+          "text": "container.querySelector(\"div:nth-child(3)\")",
+          "correct": false,
+          "feedback": "Позиционный селектор зависит от структуры, а не от того, как пользователь воспринимает интерфейс."
+        },
+        {
+          "id": "c",
+          "text": "Прочитать приватную переменную useState",
+          "correct": false,
+          "feedback": "Проверка внутреннего state хрупка и не доказывает, что кнопка отображается и работает."
+        },
+        {
+          "id": "d",
+          "text": "Подождать две секунды перед поиском кнопки",
+          "correct": false,
+          "feedback": "Произвольные задержки замедляют тесты и делают их нестабильными."
+        }
+      ],
+      "explanation": "Запросы по роли и доступному имени помогают тестировать реальные пользовательские взаимодействия."
+    },
+    {
+      "id": "testing-quiz-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "findByRole полезен, когда элемент должен появиться после асинхронного обновления.",
+      "options": [
+        {
+          "id": "true",
+          "text": "Верно",
+          "correct": true,
+          "feedback": "FindBy ждёт появления элемента и завершится ошибкой, если элемент не появится до таймаута."
+        },
+        {
+          "id": "false",
+          "text": "Неверно",
+          "correct": false,
+          "feedback": "GetByRole выполняется сразу, а findByRole предназначен для асинхронного появления элемента."
+        }
+      ],
+      "explanation": "Используй async query вместо фиксированной задержки, чтобы отражать реальное время обновления UI."
+    },
+    {
+      "id": "testing-quiz-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Какие решения повышают надёжность компонентных тестов? Выбери все подходящие варианты.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Проверять видимое поведение и доступную семантику",
+          "correct": true,
+          "feedback": "Это стабильные контракты, важные пользователю."
+        },
+        {
+          "id": "b",
+          "text": "Контролировать API-ответ в тесте",
+          "correct": true,
+          "feedback": "Контролируемая граница делает сценарий детерминированным и независимым от внешнего сервиса."
+        },
+        {
+          "id": "c",
+          "text": "Разделять изменяемое состояние между тестами и зависеть от их порядка",
+          "correct": false,
+          "feedback": "Зависимость от порядка скрывает связанность и вызывает нестабильные ошибки."
+        },
+        {
+          "id": "d",
+          "text": "Добавлять фиксированные задержки после каждого взаимодействия",
+          "correct": false,
+          "feedback": "Ожидай нужное поведение через async queries или waitFor."
+        }
+      ],
+      "explanation": "Детерминированные границы, изолированные тесты, семантические запросы и пользовательские взаимодействия повышают надёжность."
+    },
+    {
+      "id": "testing-practice",
+      "type": "codingExercise",
+      "title": "Протестируй форму и асинхронный список",
+      "language": "tsx",
+      "context": "Пиши тесты в настроенной связке Vitest + React Testing Library. Редактор урока сохраняет код, но не выполняет и не компилирует тесты.",
+      "instructions": [
+        "Напиши тест, который рендерит форму и находит поле email по доступной label.",
+        "Используй userEvent, чтобы ввести значение и отправить форму.",
+        "Проверь значимый видимый результат, например сообщение об успехе или ошибку конкретного поля.",
+        "Напиши отдельный тест для списка, который сначала находится в loading, а затем успешно отображает данные.",
+        "Контролируй ответ API/service внутри теста, а не вызывай live API.",
+        "Добавь проверку error-ветки и убедись, что ошибка видна или объявляется.",
+        "Используй findBy... или waitFor для асинхронного результата вместо фиксированных задержек.",
+        "Проверь запуск тестов скриптами текущего Vitest-проекта и не завись от порядка выполнения."
+      ],
+      "requirements": [
+        "Запросы используют role, доступное имя или label по ситуации.",
+        "Взаимодействия выполняются через userEvent, асинхронные действия ожидаются.",
+        "Проверяется видимое поведение UI, а не приватное состояние Hook.",
+        "Граница API контролируется для детерминированных результатов.",
+        "Loading, success и failure различаются.",
+        "Тесты изолированы и совместимы с реальным runner проекта."
+      ],
+      "starterCode": "import { render, screen } from \"@testing-library/react\";\nimport userEvent from \"@testing-library/user-event\";\nimport { describe, expect, it } from \"vitest\";\n\n// TODO: импортируй компонент и настрой границу API/service.\n\ndescribe(\"RegistrationForm\", () => {\n  it(\"показывает понятный результат после отправки\", async () => {\n    const user = userEvent.setup();\n    render(<RegistrationForm />);\n\n    // TODO: найди поля по доступной label, введи значения, отправь форму,\n    // затем проверь сообщение успеха или видимую пользователю ошибку.\n  });\n});",
+      "hints": [
+        "Начни с query по роли/label и проверяй то, что видно пользователю, а не приватную переменную.",
+        "Используй userEvent.setup() и await для методов взаимодействия.",
+        "Mock-ируй ответ сервиса, чтобы случаи успеха и ошибки были предсказуемыми."
+      ],
+      "successCriteria": [
+        "Поля найдены по доступным именам или labels.",
+        "Взаимодействие выполняется через userEvent и ожидается через await.",
+        "Проверки описывают значимый видимый успех или ошибку.",
+        "Тест списка не зависит от живого внешнего API.",
+        "Не нужны произвольные задержки и общее изменяемое состояние между тестами.",
+        "Тесты запускаются текущим настроенным runner проекта."
+      ]
+    },
+    {
+      "id": "testing-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Выбирай уровень теста, который надёжно проверяет поведение.",
+        "Проверяй отображаемое поведение и доступную семантику, а не детали реализации.",
+        "Предпочитай запросы по роли/имени и label; используй findBy... для асинхронного появления.",
+        "Контролируй внешние границы и общее состояние, чтобы тесты были детерминированными.",
+        "Используй runner, который уже настроен в проекте, и запускай те же проверки в CI."
+      ]
+    },
+    {
+      "id": "deep-testing-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Глубокое погружение: проверка поведения интерфейса и выбор query"
+    },
+    {
+      "id": "deep-testing-model",
+      "type": "paragraph",
+      "text": "Полезный UI-тест защищает поведение, от которого зависит пользователь или другая часть приложения, а не внутреннюю реализацию компонента. Testing Library рекомендует запросы, похожие на то, как люди находят элементы: сначала role и accessible name. Тип query описывает ожидание по времени: `getBy` ожидает немедленное совпадение, `queryBy` удобен для проверки отсутствия, а `findBy` ждёт асинхронного появления. В этом репозитории используй настройку Vitest, а не копируй команды установки только для Jest из старых справочников."
+    },
+    {
+      "id": "deep-testing-trace",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "it('shows the loaded profile', async () => {\n  render(<ProfilePage userId=\"42\" />);\n\n  expect(screen.getByRole('status')).toHaveTextContent(/loading/i);\n\n  expect(\n    await screen.findByRole('heading', { name: 'Ada Lovelace' })\n  ).toBeInTheDocument();\n\n  expect(screen.queryByRole('alert')).not.toBeInTheDocument();\n});",
+      "steps": [
+        {
+          "title": "Проверь наблюдаемое состояние загрузки",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Тест рендерит публичный компонент и проверяет видимый/доступный статус, а не значение внутренней state-переменной."
+        },
+        {
+          "title": "Дождись асинхронного UI через findBy",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "Заголовок появляется только после завершения запроса, поэтому findByRole ждёт его. Немедленный getByRole здесь зависел бы от тайминга."
+        },
+        {
+          "title": "Используй queryBy для проверки отсутствия",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "explanation": "queryBy возвращает null, если совпадений нет, поэтому подходит для проверки отсутствия. getBy выбросил бы исключение до самой проверки."
+        }
+      ]
+    },
+    {
+      "id": "deep-testing-query-guide",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`getByRole` — хороший вариант по умолчанию для доступных контролов; добавляй accessible name, если несколько элементов имеют одну роль.",
+        "`getBy...` бросает исключение, если элемента сейчас нет; `queryBy...` возвращает null и подходит для проверки отсутствия; `findBy...` повторяет поиск, ожидая асинхронного появления.",
+        "Используй `userEvent.setup()` и ожидай пользовательские действия через await, когда они могут запускать асинхронное поведение.",
+        "Проверяй результат — текст ошибки, disabled-контрол, навигацию или отправленный контент — а не вызовы внутренних Hooks и детали реализации.",
+        "Мокируй внешние границы осознанно. Тестируй loading, success, empty и error без зависимости от live сторонних сервисов."
+      ]
+    },
+    {
+      "id": "deep-testing-warning",
+      "type": "callout",
+      "tone": "important",
+      "title": "В async-тесте нужно ожидать условие, а не спать",
+      "text": "Не используй фиксированную паузу вроде `await new Promise(resolve => setTimeout(resolve, 1000))` как универсальное решение. Дождись ожидаемого элемента/состояния правильным async query или waitFor — тест будет быстрее и меньше зависеть от тайминга."
+    },
+    {
+      "id": "deep-testing-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Заголовок появляется только после завершения mock API-запроса. Какой query Testing Library лучше использовать для ожидания?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Сразу getByRole",
+          "correct": false,
+          "feedback": "getBy-запросы синхронны и выбросят исключение, если заголовка нет в момент вызова."
+        },
+        {
+          "id": "b",
+          "text": "findByRole",
+          "correct": true,
+          "feedback": "findBy повторяет поиск, ожидая, пока элемент появится асинхронно."
+        },
+        {
+          "id": "c",
+          "text": "Только queryByRole",
+          "correct": false,
+          "feedback": "queryBy удобен для проверки отсутствия без исключения, но не ждёт появления элемента."
+        },
+        {
+          "id": "d",
+          "text": "document.querySelector внутри фиксированной задержки в секунду",
+          "correct": false,
+          "feedback": "Прямые DOM-запросы и фиксированные ожидания часто хрупки и обходят пользовательскую стратегию Testing Library."
+        }
+      ],
+      "explanation": "Выбирай query по ожидаемому наличию и таймингу, затем проверяй поведение, видимое пользователю."
+    },
+    {
+      "id": "deep-testing-practice",
+      "type": "codingExercise",
+      "title": "Проверь состояния loading, success, empty и error",
+      "language": "tsx",
+      "context": "Используй настройку Vitest и React Testing Library проекта. Мокируй сеть, чтобы suite был детерминированным.",
+      "instructions": [
+        "Напиши тест, который проверяет статус loading, пока запрос ожидает ответ.",
+        "Заверши mock-запрос и дождись пользовательского заголовка/списка через findByRole.",
+        "Добавь сценарий успешного пустого массива и проверь сообщение empty-state.",
+        "Добавь сценарий ошибки и проверь понятное сообщение или alert.",
+        "Используй доступные query, ожидай userEvent и избегай фиксированных пауз и проверок внутренних вызовов Hook."
+      ],
+      "requirements": [
+        "Тесты не вызывают реальный внешний API.",
+        "Асинхронные проверки ожидают фактическое условие.",
+        "Успешный empty отличается от loading и error.",
+        "По возможности запросы используют семантические role и accessible name.",
+        "Тесты проверяют наблюдаемое пользователем поведение."
+      ],
+      "starterCode": "it('shows a loaded profile', async () => {\n  render(<ProfilePage userId=\"42\" />);\n  // TODO: проверь loading; дождись результата через findByRole.\n});\n\nit('shows an empty state', async () => {\n  // TODO: замокируй успешный пустой ответ и проверь видимый текст.\n});\n\nit('shows an error', async () => {\n  // TODO: замокируй отклонённый запрос и проверь доступную обратную связь.\n});",
+      "hints": [
+        "Используй getByRole для немедленно присутствующего статуса, findByRole для асинхронного появления, queryByRole для отсутствия.",
+        "Мокируй API-границу, чтобы тесты не зависели от доступности стороннего сервиса.",
+        "До проверки ошибок и empty state сделай обратную связь видимой и доступной."
+      ],
+      "successCriteria": [
+        "Loading проверяется, пока запрос ожидает ответ.",
+        "Успех, empty и error покрыты отдельно.",
+        "Асинхронные проверки ожидаются без фиксированных задержек.",
+        "Селекторы используют семантические роли/имена где возможно.",
+        "Тесты проверяют видимый пользователю результат."
+      ]
+    },
+    {
+      "id": "deep-testing-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Проверяй публичное поведение, от которого зависит пользователь, а не внутреннюю реализацию компонента.",
+        "Выбирай getBy/queryBy/findBy по тому, должен ли элемент быть сейчас, отсутствовать или появиться асинхронно.",
+        "Мокируй внешние границы и различай loading, success, empty и error."
+      ]
+    },
+    {
+      "id": "testing-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "React Testing Library: Introduction",
+          "url": "https://testing-library.com/docs/react-testing-library/intro/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Testing Library: About Queries",
+          "url": "https://testing-library.com/docs/queries/about/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Testing Library: user-event",
+          "url": "https://testing-library.com/docs/user-event/intro/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vitest: Getting Started",
+          "url": "https://vitest.dev/guide/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Jest: Getting Started",
+          "url": "https://jestjs.io/docs/getting-started",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vitest: Mock Functions",
+          "url": "https://vitest.dev/guide/learn/mock-functions",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Testing Library: React Testing Library",
+          "url": "https://testing-library.com/docs/react-testing-library/intro/",
+          "kind": "guide"
+        },
+        {
+          "title": "Vitest: mock functions и очистка",
+          "url": "https://vitest.dev/guide/learn/mock-functions",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vitest: Mock API",
+          "url": "https://vitest.dev/api/mock",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

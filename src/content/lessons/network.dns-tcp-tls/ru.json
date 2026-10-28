@@ -1,0 +1,396 @@
+{
+  "id": "network.dns-tcp-tls",
+  "locale": "ru",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-26",
+  "moduleId": "supplement-network-browser",
+  "supplementaryTrackId": "supplement-network-browser",
+  "order": 1,
+  "title": "DNS, IP, TCP/UDP, порты и TLS",
+  "description": "Проследи DNS-запрос, сравни транспортные протоколы и разберись в портах, TLS и версиях HTTP.",
+  "estimatedMinutes": 85,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "web.internet-http"
+  ],
+  "learningOutcomes": [
+    "Различать сетевую инфраструктуру Интернета и Web на базе HTTP.",
+    "Объяснять рекурсивный DNS, авторитетные nameserver и кеширование с TTL.",
+    "Сравнивать TCP, UDP и QUIC и объяснять транспорт HTTP/3.",
+    "Описывать роли IP-адресов, портов и сокетов.",
+    "Объяснять проверку TLS-сертификата и защиту данных при передаче.",
+    "Диагностировать сетевые сбои по данным DevTools.",
+    "Различать multiplexing HTTP/2 поверх TCP и streams HTTP/3 поверх QUIC при потерях пакетов."
+  ],
+  "tags": [
+    "network",
+    "dns",
+    "tcp",
+    "udp",
+    "tls",
+    "http",
+    "devtools"
+  ],
+  "blocks": [
+    {
+      "id": "overview",
+      "type": "heading",
+      "level": 2,
+      "text": "Интернет и Web — разные уровни"
+    },
+    {
+      "id": "overview-text",
+      "type": "paragraph",
+      "text": "Интернет связывает сети и переносит пакеты по общим протоколам. Web — прикладная система поверх этой инфраструктуры, обычно использующая HTTP. DNS, IP, транспорт, TLS и HTTP решают разные задачи; сбой на одном этапе нельзя диагностировать по правилам другого."
+    },
+    {
+      "id": "layer-model",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Модель уровней",
+      "text": "DNS разрешает имена; IP и маршрутизаторы направляют пакеты; TCP или QUIC передают данные; TLS защищает трафик; HTTP задаёт семантику запросов и ответов. Кеши и повторное использование соединений означают, что браузер не повторяет каждый этап при каждом визите."
+    },
+    {
+      "id": "dns",
+      "type": "heading",
+      "level": 2,
+      "text": "DNS: поиск и кеширование"
+    },
+    {
+      "id": "dns-text",
+      "type": "paragraph",
+      "text": "DNS — распределённая иерархия записей. Если у браузера и рекурсивного resolver нет пригодного кеша, resolver может идти по цепочке root → TLD → авторитетный nameserver. Реальный путь зависит от делегирования, DNSSEC и кеширования. TTL ограничивает срок повторного использования записи; изменение DNS не становится видимым всем клиентам мгновенно."
+    },
+    {
+      "id": "dns-flow",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Browser / OS cache\n  ↓ cache miss\nRecursive resolver\n  ↓ no usable answer\nRoot → TLD → authoritative server\n  ↓ answer returned and cached\nBrowser attempts a connection",
+      "steps": [
+        {
+          "title": "Сначала проверь кеш",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Браузер или ОС могут уже знать адрес. Пригодный кеш исключает внешний поиск."
+        },
+        {
+          "title": "Разреши имя через DNS",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "Рекурсивный resolver выполняет поиск за клиента и при необходимости обращается к иерархии DNS."
+        },
+        {
+          "title": "Попробуй соединиться",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "Успешный DNS возвращает адрес, но не доказывает доступность сервера или успешность HTTP-запроса."
+        }
+      ]
+    },
+    {
+      "id": "transport",
+      "type": "heading",
+      "level": 2,
+      "text": "TCP, UDP и QUIC"
+    },
+    {
+      "id": "transport-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "TCP обеспечивает надёжный упорядоченный поток байтов и управляет повторной отправкой и перегрузкой.",
+        "UDP передаёт датаграммы, но сам по себе не гарантирует доставку, порядок или повторы.",
+        "QUIC работает поверх UDP, поддерживает потоки и интегрирует TLS 1.3; HTTP/3 использует QUIC.",
+        "HTTP/1.1 и HTTP/2 обычно работают через TCP; не утверждай, что весь HTTP использует TCP."
+      ]
+    },
+    {
+      "id": "tls",
+      "type": "heading",
+      "level": 2,
+      "text": "Порты, TLS и границы безопасности"
+    },
+    {
+      "id": "tls-text",
+      "type": "paragraph",
+      "text": "Порт помогает доставить трафик приложению на хосте; сам номер порта не идентифицирует сервер во всём мире. HTTPS — HTTP поверх TLS. Клиент проверяет цепочку сертификатов и соответствие hostname, затем использует ключи трафика. TLS защищает конфиденциальность и целостность при передаче и помогает аутентифицировать сервер, но не гарантирует безопасность приложения и не заменяет авторизацию пользователя."
+    },
+    {
+      "id": "http-transport-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "HTTP/2 multiplexing всё ещё работает поверх упорядоченного TCP-потока"
+    },
+    {
+      "id": "http-transport-explanation",
+      "type": "paragraph",
+      "text": "HTTP/1.1 часто повторно использует TCP-соединения; то, как именно запросы разделяют соединения, зависит от браузера и сервера. HTTP/2 добавляет streams и чередует frames параллельных обменов в одном соединении, уменьшая прикладные очереди и накладные расходы на соединения. Но это соединение остаётся одним упорядоченным TCP byte stream: если потерян более ранний TCP segment, TCP не передаст последующие байты приложению до восстановления пропуска. Поэтому чередующиеся данные нескольких HTTP/2 streams могут одновременно остановиться. Это transport-level head-of-line blocking; multiplexing в HTTP/2 не устраняет его. HTTP/3 переносит семантику HTTP на QUIC поверх UDP. У QUIC есть независимо упорядочиваемые streams, поэтому потеря, затрагивающая один stream, обычно не мешает продвигаться несвязанным streams. Однако все streams, чьи данные оказались в одном потерянном пакете, могут ждать; также остаются congestion control и ограничения соединения."
+    },
+    {
+      "id": "http-transport-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "HTTP/1.1  -> запросы используют и повторно используют TCP-соединения\nHTTP/2    -> stream A + stream B -> перемешанные frames -> один TCP byte stream\nTCP loss  -> байты после пропущенной sequence gap ждут retransmission\nHTTP/2    -> parser не прочитает следующие frames, пока gap не восстановится\nHTTP/3    -> stream A + stream B -> QUIC streams поверх UDP\nQUIC loss -> данные затронутого stream ждут восстановления\nДругие независимые streams могут продолжаться; congestion control всё ещё влияет на соединение",
+      "steps": [
+        {
+          "title": "Отдели HTTP streams от транспортной доставки",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "HTTP/2 multiplexes прикладные обмены через чередование frames, но TCP доставляет всё соединение как один упорядоченный поток байтов."
+        },
+        {
+          "title": "Проследи влияние потери на TCP-соединение",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "TCP должен восстановить пропущенные байты, прежде чем передать более поздние. Поскольку frames разных HTTP/2 streams делят этот порядок байтов, HTTP/2 может пока не получить последующие frames."
+        },
+        {
+          "title": "Сравни восстановление QUIC streams",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "HTTP/3 использует QUIC streams. Потеря блокирует данные, которым нужны отсутствующие байты затронутого stream, а не обязательно все несвязанные streams; один пакет может содержать данные нескольких streams, а congestion control общий."
+        }
+      ]
+    },
+    {
+      "id": "http-transport-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Как точнее всего описать потерю пакета при HTTP/2 поверх TCP?",
+      "options": [
+        {
+          "id": "a",
+          "text": "HTTP/2 устраняет любое head-of-line blocking, потому что для каждого запроса создаётся отдельное TCP-соединение",
+          "correct": false,
+          "feedback": "HTTP/2 обычно multiplexes несколько streams через одно соединение, а не создаёт TCP для каждого запроса."
+        },
+        {
+          "id": "b",
+          "text": "Frames нескольких HTTP/2 streams находятся в одном упорядоченном TCP byte stream, поэтому потеря раннего сегмента может задержать последующие байты разных streams",
+          "correct": true,
+          "feedback": "Multiplexing уменьшает прикладные очереди, но in-order delivery TCP может остановить более поздние байты общего соединения."
+        },
+        {
+          "id": "c",
+          "text": "TCP сразу передаёт более поздние байты, а HTTP/2 сортирует их по запросам",
+          "correct": false,
+          "feedback": "TCP отдаёт приложению упорядоченный поток байтов; multiplexing HTTP/2 не обходит пропуск."
+        },
+        {
+          "id": "d",
+          "text": "HTTP/3 меняет HTTP status codes, чтобы повторно отправлять пакеты",
+          "correct": false,
+          "feedback": "Семантика HTTP и status codes не отвечают за транспортное восстановление; HTTP/3 отображает HTTP semantics на QUIC."
+        }
+      ],
+      "explanation": "Определи уровень каждой функции: HTTP streams, упорядоченная доставка TCP или восстановление QUIC streams."
+    },
+    {
+      "id": "http-transport-practice",
+      "type": "codingExercise",
+      "title": "Объясни остановку HTTP/2 и подбери полезные данные",
+      "language": "text",
+      "context": "Страница загружается через одно HTTP/2-соединение. Во время потерь в сети несколько ресурсов перестают продвигаться одновременно, хотя DNS разрешается, а сервер остаётся доступен.",
+      "instructions": [
+        "Нарисуй путь от multiplexing browser requests через HTTP/2 frames к TCP-соединению.",
+        "Объясни, почему пропуск в TCP sequence может задержать более поздние байты, относящиеся к нескольким HTTP/2 streams.",
+        "Сравни поведение HTTP/3/QUIC, не утверждая, что QUIC отменяет потери и congestion.",
+        "Перечисли данные DevTools Network (protocol, reuse соединения, timing, stalled requests) и метрики сервера/сети, с которыми их нужно сопоставить.",
+        "Объясни, почему один медленный запрос не доказывает transport head-of-line blocking."
+      ],
+      "requirements": [
+        "Различает прикладной multiplexing и ordered byte-stream delivery TCP.",
+        "Точно объясняет механизм общей остановки соединения.",
+        "Описывает HTTP/3 как HTTP semantics поверх QUIC и указывает независимость streams с оговорками о пакетах/congestion.",
+        "Опирается на измеримые данные браузера и сети, а не только на предположение по UI.",
+        "Не рекомендует менять HTTP-версию без измерения поддержки и влияния на пользователей."
+      ],
+      "starterCode": "Модель browser requests:\\n\\nHTTP/2 streams → framing → TCP:\\n\\nНаблюдаемая потеря / остановленные ресурсы:\\n\\nЧто видно в DevTools Network:\\n\\nЧто подтвердит telemetry сервера/сети:\\n\\nКак HTTP/3 меняет границу сбоя:\\n\\nЧто остаётся общим или ограниченным:",
+      "hints": [
+        "TCP in-order delivery может задержать все последующие байты, даже если они кодируют другой HTTP/2 stream.",
+        "QUIC поддерживает независимые упорядоченные streams, но в одном потерянном пакете могут быть данные нескольких streams; congestion control соединения остаётся общим.",
+        "Сопоставь timing и protocol/connection в браузере с серверной и транспортной telemetry; у медленного ресурса может быть много причин."
+      ],
+      "successCriteria": [
+        "Показан механизм и граница сбоя по уровням.",
+        "Точно объяснены ограничение HTTP/2 и отличие HTTP/3.",
+        "Используются наблюдения для отличия транспортной потери от DNS, сервера или приложения.",
+        "Указаны ограничения QUIC на уровне пакета и congestion."
+      ]
+    },
+    {
+      "id": "debug",
+      "type": "heading",
+      "level": 2,
+      "text": "Диагностируй по этапам"
+    },
+    {
+      "id": "debug-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Нет HTTP-статуса при ошибке имени: проверь hostname, DNS, VPN/proxy и сеть.",
+        "Connection refused или timeout: проверь порт, firewall, маршрут и listener сервера.",
+        "Ошибка TLS: проверь hostname, цепочку и срок сертификата, системные часы; не обходи проверку.",
+        "HTTP 404 означает, что ответ получен, но ресурс/маршрут не найден; 401/403 связаны с доступом, 5xx — с сервером.",
+        "CORS — браузерная политика чтения ответа, а не универсальное объяснение любой сетевой ошибки."
+      ]
+    },
+    {
+      "id": "check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Чем рекурсивный DNS-resolver отличается от авторитетного nameserver?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Resolver ищет записи для клиента; authoritative-сервер отдаёт записи своей зоны",
+          "correct": true,
+          "feedback": "Resolver выполняет поиск от имени клиента; авторитетный сервер обслуживает DNS-данные зоны."
+        },
+        {
+          "id": "b",
+          "text": "Resolver шифрует HTTP, а authoritative-сервер расшифровывает",
+          "correct": false,
+          "feedback": "DNS и TLS выполняют разные задачи."
+        },
+        {
+          "id": "c",
+          "text": "Это два названия маршрутизатора",
+          "correct": false,
+          "feedback": "Маршрутизатор пересылает пакеты, DNS-серверы отвечают за поиск DNS-записей."
+        }
+      ],
+      "explanation": "Различай поиск от имени клиента и публикацию авторитетных данных зоны."
+    },
+    {
+      "id": "check-2",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Какие утверждения верны? Выбери все подходящие варианты.",
+      "options": [
+        {
+          "id": "a",
+          "text": "HTTP/3 использует QUIC поверх UDP",
+          "correct": true,
+          "feedback": "HTTP/3 передаёт HTTP через QUIC поверх UDP."
+        },
+        {
+          "id": "b",
+          "text": "Кеш DNS может привести к разному времени наблюдения обновления",
+          "correct": true,
+          "feedback": "Кешированные ответы остаются пригодными в пределах TTL."
+        },
+        {
+          "id": "c",
+          "text": "HTTPS доказывает безопасность приложения и авторизацию пользователей",
+          "correct": false,
+          "feedback": "TLS не доказывает безопасность приложения и не применяет правила авторизации."
+        },
+        {
+          "id": "d",
+          "text": "Номер порта сам по себе уникален во всём мире",
+          "correct": false,
+          "feedback": "Порт имеет смысл в сочетании с адресом и транспортом."
+        }
+      ],
+      "explanation": "DNS, транспорт, TLS и безопасность приложения дополняют друг друга, но не заменяют."
+    },
+    {
+      "id": "practice",
+      "type": "codingExercise",
+      "title": "Составь чек-лист диагностики запроса",
+      "language": "text",
+      "context": "Используй DevTools Network/Console на реальной странице. Редактор сохраняет шаги, но не инспектирует живую сеть.",
+      "instructions": [
+        "Запиши URL, метод, статус или точную ошибку, инициатор и время.",
+        "Запиши request header и response header и объясни их назначение.",
+        "Определи, есть ли HTTP-статус; классифицируй ошибку как DNS, соединение, TLS, HTTP или CORS.",
+        "Объясни роль TTL и почему не все клиенты видят изменение DNS одновременно.",
+        "Объясни, чем транспорт HTTP/3 отличается от типичных HTTP/1.1 и HTTP/2."
+      ],
+      "requirements": [
+        "Классификация основана на фактах DevTools, а не только на симптоме.",
+        "DNS/TTL и TCP/UDP/QUIC описаны корректно.",
+        "Не предлагай отключать TLS-проверку или безопасность браузера."
+      ],
+      "starterCode": "URL:\nМетод:\nHTTP-статус или точная ошибка:\nИнициатор / timing:\nRequest header:\nResponse header:\nКлассификация: DNS / connection / TLS / HTTP / CORS\nФакты:\nСледующий безопасный шаг:",
+      "hints": [
+        "Сначала выясни, получил ли браузер HTTP-статус.",
+        "Различай hostname, IP, порт, TLS, HTTP-статус и авторизацию."
+      ],
+      "successCriteria": [
+        "Отчёт содержит воспроизводимые факты и следующий шаг.",
+        "Сбой отнесён к правильному этапу.",
+        "Не отключаются проверки безопасности."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Интернет передаёт пакеты; Web — прикладная система поверх него.",
+        "DNS использует кеши или иерархию root/TLD/authoritative; TTL управляет повторным использованием.",
+        "TCP даёт надёжный поток, UDP — датаграммы, HTTP/3 — QUIC/UDP.",
+        "Порт не идентифицирует глобальный сервер сам по себе.",
+        "TLS защищает трафик при передаче, но не заменяет авторизацию приложения.",
+        "DevTools помогает отличать DNS, соединение, TLS, HTTP и браузерные политики.",
+        "HTTP/2 multiplexes обмены, но использует общий упорядоченный TCP-поток; HTTP/3 использует независимые QUIC streams с оговорками о пакетах и congestion."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: What is DNS?",
+          "url": "https://developer.mozilla.org/en-US/docs/Glossary/DNS",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Cloudflare: What is DNS?",
+          "url": "https://www.cloudflare.com/learning/dns/what-is-dns/",
+          "kind": "guide"
+        },
+        {
+          "title": "RFC 9114: HTTP/3",
+          "url": "https://www.rfc-editor.org/rfc/rfc9114.html",
+          "kind": "standard"
+        },
+        {
+          "title": "MDN: Transport Layer Security (TLS)",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Transport_Layer_Security",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Chrome DevTools: Network panel",
+          "url": "https://developer.chrome.com/docs/devtools/network/overview",
+          "kind": "official-docs"
+        },
+        {
+          "title": "RFC 9113: HTTP/2",
+          "url": "https://www.rfc-editor.org/rfc/rfc9113.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "RFC 9000: QUIC Transport Protocol",
+          "url": "https://www.rfc-editor.org/rfc/rfc9000.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "RFC 9846: TLS 1.3 (current revision)",
+          "url": "https://www.rfc-editor.org/rfc/rfc9846.html",
+          "kind": "standard"
+        },
+        {
+          "title": "RFC 9110: HTTP Semantics",
+          "url": "https://www.rfc-editor.org/rfc/rfc9110.html",
+          "kind": "standard"
+        }
+      ]
+    }
+  ]
+}

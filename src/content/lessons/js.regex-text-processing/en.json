@@ -1,0 +1,420 @@
+{
+  "id": "js.regex-text-processing",
+  "locale": "en",
+  "version": 2,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-27",
+  "moduleId": "supplement-js-internals",
+  "supplementaryTrackId": "supplement-js-internals",
+  "order": 5,
+  "title": "Regular Expressions: Search and Parse Text",
+  "description": "Patterns, captures, flags, and safer text extraction.",
+  "estimatedMinutes": 75,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "js.basics-types-control-flow",
+    "js.functions-arrays-objects"
+  ],
+  "learningOutcomes": [
+    "Build patterns with groups, character classes, quantifiers, and anchors.",
+    "Distinguish substring search from whole-string checks.",
+    "Extract multiple results safely and explain how g/y affect lastIndex.",
+    "Assess regex validation limits and avoid excessively costly patterns.",
+    "Escape literal dynamic search text and explain why common format regexes have limited scope."
+  ],
+  "tags": [
+    "javascript",
+    "regex",
+    "regular expressions",
+    "text processing",
+    "validation",
+    "dynamic-regexp",
+    "pattern-limits"
+  ],
+  "blocks": [
+    {
+      "id": "regex-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Regular expressions for searching and processing text"
+    },
+    {
+      "id": "regex-purpose",
+      "type": "paragraph",
+      "text": "A regular expression describes a pattern in a string; it is not a full grammar or a finished validator. It is useful for extracting, searching, splitting, and checking local formats. First state the rule in words, then decide whether you need a substring search or a whole-string check, and test boundary cases."
+    },
+    {
+      "id": "regex-pattern-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Patterns: characters, classes, quantifiers, and groups"
+    },
+    {
+      "id": "regex-pattern-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const logLine = \"WARN user=42 action=cache-miss\";\nconst pattern = /^(INFO|WARN|ERROR)\\s+user=(\\d+)\\s+action=([a-z-]+)$/;\nconst match = pattern.exec(logLine);\n\nconsole.log(match[0]);\nconsole.log(match[1], match[2], match[3]);\nconsole.log(pattern.test(\"prefix \" + logLine));",
+      "steps": [
+        {
+          "title": "Turn a requirement into a format",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "The ^ and $ anchors require the whole string to match. \\s+ separates fields; \\d+ requires one or more digits; groups capture level, ID, and action."
+        },
+        {
+          "title": "Read the match and captures",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "exec returns null on failure or an array: [0] is the full match and [1..] are captured groups. For a complex grammar, a dedicated parser may be clearer."
+        },
+        {
+          "title": "Check that extra text is rejected",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "The added prefix does not match because of the start anchor. Without anchors, a search might find a valid-looking fragment inside an invalid string."
+        }
+      ]
+    },
+    {
+      "id": "regex-flags",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "g searches for all matches but makes test/exec stateful through lastIndex.",
+        "i ignores case; m changes how ^ and $ work on strings containing line breaks.",
+        "s lets . match line breaks; u enables Unicode mode. Flags change pattern meaning and should be deliberate.",
+        "A /pattern/ literal is convenient for a fixed pattern; new RegExp(text) is useful for dynamic patterns, but dynamic input must be escaped correctly.",
+        "`d` adds start/end indices for captured substrings to the match result; it does not change which text matches.",
+        "`g` searches repeatedly and advances `lastIndex`; `y` (sticky) only tries to match at `lastIndex` rather than searching forward. Both need deliberate state handling.",
+        "`i` ignores case; `m` makes `^`/`$` operate per line; `s` lets `.` match line breaks.",
+        "`u` enables Unicode code-point mode. `v` adds Unicode set features and cannot be combined with `u`; use it when the target runtime supports it and its extra class syntax is needed."
+      ]
+    },
+    {
+      "id": "regex-global-pitfall",
+      "type": "callout",
+      "tone": "warning",
+      "title": "A global RegExp is not a pure predicate",
+      "text": "With /pattern/g, calls to test() and exec() advance lastIndex. Rechecking the same string can alternate between true and false. Remove g for a boolean check; use matchAll with a global pattern to extract every result, or explicitly reset lastIndex."
+    },
+    {
+      "id": "regex-state-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Substring or whole string? Search, extract, replace"
+    },
+    {
+      "id": "regex-state-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const globalDigits = /\\d+/g;\nconst text = \"room 7\";\nconsole.log(globalDigits.test(text), globalDigits.lastIndex);\nconsole.log(globalDigits.test(text), globalDigits.lastIndex);\n\nconst issuePattern = /#(\\d+)/g;\nconst refs = [...\"Fix #12; compare #34\".matchAll(issuePattern)];\nconsole.log(refs.map((item) => item[1]));",
+      "steps": [
+        {
+          "title": "Notice the retained state",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The first test finds 7 and leaves lastIndex after the match; the second search starts there, fails, and resets it. That makes a global pattern dangerous in a repeatedly called predicate."
+        },
+        {
+          "title": "Extract every match and its group",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "matchAll yields matches and captured values, preserving match indexes. It requires a global pattern and avoids manually changing the original regex's lastIndex."
+        }
+      ]
+    },
+    {
+      "id": "regex-replace-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Replace using captured data, not only a fixed string"
+    },
+    {
+      "id": "regex-replace-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const prices = \"Items: $10.00, $2.50\";\nconst adjusted = prices.replace(\n  /\\$(\\d+(?:\\.\\d{1,2})?)/g,\n  (fullMatch, amount) => \"$\" + (Number(amount) * 1.1).toFixed(2),\n);\n\nconsole.log(adjusted);",
+      "steps": [
+        {
+          "title": "Capture only the numeric portion",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "The outer group captures the amount; ?: makes the decimal part a non-capturing group so the callback receives only the values it needs."
+        },
+        {
+          "title": "Process each match",
+          "lineStart": 4,
+          "lineEnd": 5,
+          "explanation": "The global flag applies the replacement to both prices; the callback receives the full match and captured amount. Here it converts, multiplies, and formats the value."
+        },
+        {
+          "title": "Inspect the result",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "The result is `Items: $11.00, $2.75`; replace returns a new string and leaves the original unchanged."
+        }
+      ]
+    },
+    {
+      "id": "regex-practical-patterns-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Practical patterns: extract candidates and state the limits"
+    },
+    {
+      "id": "regex-practical-patterns-body",
+      "type": "paragraph",
+      "text": "Common examples include a local phone-number shape, a password policy, URL candidates, hashtags, and whitespace normalization. These patterns implement only the policy written into them: phone formats differ by region, password requirements differ by product, and a URL-matching regex is not a complete URL parser. Explain what a pattern accepts before calling it validation."
+    },
+    {
+      "id": "regex-practical-patterns-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const phonePattern = /^\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4}$/;\nconst passwordPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$/;\n\nconst note = \"Call (555) 123-4567; visit https://example.com, #WebDev   #JS\";\n\nconsole.log(phonePattern.test(\"(555) 123-4567\"));\nconsole.log(passwordPolicy.test(\"Strong123!\"));\nconsole.log(note.match(/https?:\\/\\/[^\\s,]+/g) ?? []);\nconsole.log(note.match(/#\\w+/g) ?? []);\nconsole.log(note.replace(/\\s+/g, \" \").trim());",
+      "steps": [
+        {
+          "title": "Write the exact policy in the pattern",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "The phone pattern recognizes one illustrative 10-digit arrangement; the password pattern encodes one explicit character/length policy. Neither is a universal international rule, and neither should be the only security boundary."
+        },
+        {
+          "title": "Separate the input from the operations",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "The sample contains a phone number, URL, hashtags, and repeated spaces so each example has a concrete input."
+        },
+        {
+          "title": "Test local formats without overclaiming",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "test() answers only whether a string matches the chosen expression. It does not confirm a phone number is assigned or a password is secure against every threat."
+        },
+        {
+          "title": "Extract and normalize with explicit limits",
+          "lineStart": 8,
+          "lineEnd": 10,
+          "explanation": "These expressions demonstrate simple URL-candidate extraction, hashtag extraction, and whitespace normalization. The URL example intentionally skips a comma delimiter; it is not a standards-complete URL parser."
+        }
+      ]
+    },
+    {
+      "id": "regex-dynamic-constructor-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Build a RegExp from text without treating text as syntax"
+    },
+    {
+      "id": "regex-dynamic-constructor-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function escapeRegExp(value) {\n  return value.replace(/[.*+?^${}()|[\\]\\\\]/g, \"\\\\$&\");\n}\n\nconst userText = \"C++\";\nconst literalPattern = new RegExp(escapeRegExp(userText), \"i\");\n\nconsole.log(literalPattern.test(\"Learn C++ today\")); // true\nconsole.log(literalPattern.test(\"Learn C today\"));   // false",
+      "steps": [
+        {
+          "title": "Escape regex metacharacters in literal input",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "If a search phrase comes from a user and should match literally, escape characters such as +, ., *, ?, (, and [ before passing the text to RegExp. Otherwise the input changes the pattern's meaning."
+        },
+        {
+          "title": "Construct the pattern only after escaping",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "The constructor receives a string, so the pattern's escaping rules are different from writing a regex literal directly in source code. Keep flags intentional and validate the constructed pattern where input or configuration can vary."
+        },
+        {
+          "title": "Verify literal matching with a metacharacter",
+          "lineStart": 8,
+          "lineEnd": 9,
+          "explanation": "The phrase C++ matches the literal text C++, not a different string such as C. This helper is for literal searches; it does not make arbitrary complex patterns safe from ReDoS."
+        }
+      ]
+    },
+    {
+      "id": "regex-constructor-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A search box accepts text that should be treated literally, such as `C++`. What is the safest approach before using `new RegExp(text, 'i')`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Escape regex metacharacters in the user text before constructing the pattern",
+          "correct": true,
+          "feedback": "Escaping makes characters such as + or . literal instead of allowing user text to change the regex operators."
+        },
+        {
+          "id": "b",
+          "text": "Add the global flag so every character becomes literal",
+          "correct": false,
+          "feedback": "The g flag controls repeated matching and lastIndex; it does not escape metacharacters."
+        },
+        {
+          "id": "c",
+          "text": "Wrap the input in ^ and $ without escaping it",
+          "correct": false,
+          "feedback": "Anchors require a whole-string match, but unescaped metacharacters still change the constructed pattern."
+        },
+        {
+          "id": "d",
+          "text": "Use eval to parse the user's expression as JavaScript",
+          "correct": false,
+          "feedback": "Eval executes JavaScript and is not needed to construct a RegExp; it increases risk instead of escaping the input."
+        }
+      ],
+      "explanation": "The RegExp constructor treats its first argument as pattern syntax. Escape user-provided literal text before constructing a regex; separate regex syntax from a literal search string."
+    },
+    {
+      "id": "regex-validation-limits",
+      "type": "paragraph",
+      "text": "A /^...$/ check answers a question about one specific format. A primitive email pattern cannot establish that an address exists and may reject valid addresses; for ordinary forms, use input type=email and server-side checks based on product requirements. Complex or adversarial patterns with nested ambiguous quantifiers can cause catastrophic backtracking and a hang (ReDoS)."
+    },
+    {
+      "id": "regex-practice",
+      "type": "codingExercise",
+      "title": "Extract ticket references from a note",
+      "language": "javascript",
+      "context": "Support notes contain references like #123. Return the numeric IDs in order, reject matches inside words such as ticket#123abc, and avoid leaking lastIndex state across calls.",
+      "instructions": [
+        "Implement extractTicketIds(text), returning an array of IDs as strings.",
+        "A match must start at the string boundary or after whitespace/punctuation, and end at a boundary rather than inside an alphanumeric token.",
+        "Handle multiple references and no matches; explain the global search choice and how repeated calls avoid lastIndex leakage.",
+        "Add checks for '#7', 'Fix (#12), then #34', 'ticket#123abc', empty text, and two consecutive calls with different results.",
+        "Do not use regex as a substitute for authorization checks or server-side validation.",
+        "Add a helper that escapes regex metacharacters before constructing a RegExp from literal search text, and explain why a URL or password pattern is only as strong as its stated requirements."
+      ],
+      "requirements": [
+        "Returns all IDs in source order and excludes the # character.",
+        "Does not extract #123 from ticket#123abc.",
+        "Returns an empty array when there are no matches.",
+        "Repeated calls do not depend on lastIndex left by an earlier call.",
+        "Input text is not mutated; explanation distinguishes substring extraction from whole-string validation.",
+        "Dynamic literal search text is escaped before RegExp construction; practical-format patterns are described as limited examples rather than universal validators."
+      ],
+      "starterCode": "function extractTicketIds(text) {\n  const pattern = /(?<![\\p{L}\\p{N}_])#(\\d+)(?![\\p{L}\\p{N}_])/gu;\n  const matches = text.matchAll(pattern);\n  const ids = [];\n\n  for (const match of matches) {\n    // TODO: add the captured numeric ID, not the full match.\n  }\n\n  return ids;\n}\n\nconsole.log(extractTicketIds(\"Fix (#12), then #34\"));\n// Expected: [\"12\", \"34\"]\nconsole.log(extractTicketIds(\"ticket#123abc\"));\n// Expected: []",
+      "hints": [
+        "Consider lookbehind or capture the allowed separator; do not include that separator in the returned ID.",
+        "Choose a token boundary so a letter/digit cannot appear before # or continue after the digits.",
+        "matchAll is convenient for global capture extraction; create the pattern locally per call or account for lastIndex.",
+        "Test the empty result and repeated calls to the same function.",
+        "Test a query containing `+`, `.`, or `(`, because these characters have meaning in regex syntax."
+      ],
+      "successCriteria": [
+        "Returns [\"12\", \"34\"] for 'Fix (#12), then #34' in order.",
+        "Returns [] for 'ticket#123abc'.",
+        "Two consecutive calls with different strings return independent correct results.",
+        "Implementation excludes #/separators and does not modify the input.",
+        "Explains why test with /g may depend on lastIndex.",
+        "A dynamic phrase such as `C++` is matched literally; the explanation identifies limits of phone, URL, and password patterns."
+      ]
+    },
+    {
+      "id": "regex-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A function repeatedly calls pattern.test(value), where pattern is /\\d+/g. Why can results change for the same value?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The g flag stores lastIndex between calls, and test advances it.",
+          "correct": true,
+          "feedback": "Correct. Regex state changes; remove g for a predicate or manage lastIndex explicitly."
+        },
+        {
+          "id": "b",
+          "text": "The g flag makes digits case-insensitive.",
+          "correct": false,
+          "feedback": "The i flag controls case; g means global matching and affects lastIndex."
+        },
+        {
+          "id": "c",
+          "text": "test returns random results.",
+          "correct": false,
+          "feedback": "The behavior is deterministic and depends on the current lastIndex."
+        },
+        {
+          "id": "d",
+          "text": "JavaScript copies value between calls.",
+          "correct": false,
+          "feedback": "The input string is not mutated; state lives on the RegExp object."
+        }
+      ],
+      "explanation": "A regex with g or y stores a continuation position in lastIndex. test() uses and updates it, so the same instance does not always begin at the start of the string."
+    },
+    {
+      "id": "regex-check-validation",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why does matching a simple /^...$/ email pattern not prove that an address is deliverable?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Regex can only check digits.",
+          "correct": false,
+          "feedback": "Regex can check many string formats, but it cannot prove deliverability."
+        },
+        {
+          "id": "b",
+          "text": "A match checks the chosen string shape, not whether the address exists or every valid address rule.",
+          "correct": true,
+          "feedback": "Correct. Use appropriate client-side format checks and a server-side validation/confirmation process."
+        },
+        {
+          "id": "c",
+          "text": "Anchors are always forbidden in email checks.",
+          "correct": false,
+          "feedback": "Anchors are useful for whole-string checks; the problem is overclaiming what a simplified pattern proves."
+        },
+        {
+          "id": "d",
+          "text": "The i flag guarantees the mail server accepts the address.",
+          "correct": false,
+          "feedback": "i changes case matching, not address existence or delivery."
+        }
+      ],
+      "explanation": "A regular expression is a local pattern matcher. It cannot confirm an inbox exists and should not present a rough approximation as a complete grammar."
+    },
+    {
+      "id": "regex-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Anchors check a whole string; without them a search may find a matching fragment inside an invalid value.",
+        "Groups capture values; matchAll suits multiple matches, while a replace callback can calculate replacements.",
+        "g/y change lastIndex; do not reuse such an instance as a simple test predicate without controlling its state.",
+        "Regex is not a substitute for native/server validation; bound pattern complexity to reduce ReDoS risk."
+      ]
+    },
+    {
+      "id": "regex-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Regular expressions",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: RegExp.prototype.test()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: String.prototype.matchAll()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: RegExp constructor and flags",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/RegExp",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Regular expression flags",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

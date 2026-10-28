@@ -1,0 +1,54 @@
+# Legacy Route Cutover Matrix
+
+**Status:** provisional mapping only — **no legacy route is cutover-ready**  
+**Updated:** 2026-10-27  
+**Scope:** 25-entry classic catalog at `/lessons/:lessonId` versus the 44-ID bilingual structured curriculum at `/:locale/structured-lessons` and `/:locale/structured-lessons/:lessonId`.
+
+## Why the route gate remains closed
+
+The legacy catalog IDs (`wb-002`, `re-005`, etc.) and structured lesson IDs (`html.document-structure`, `react.router-spa`, etc.) are different identity namespaces. They are not aliases. The classic reader uses embedded lesson content if present and otherwise falls back to an HTML file. The structured reader loads a separate, validated EN/RU JSON body.
+
+At least progress, bookmarks, and notes are stored in records keyed by lesson ID. The classic quiz-result model must be inspected separately before deciding how its keys migrate. A one-to-many topic mapping is not itself a safe data-migration rule: completing one broad legacy page must not silently complete every destination, and a note must not be cloned into several unrelated notes without an explicit product decision.
+
+The regression guard in `src/features/lesson-renderer/lessonLoader.test.ts` checks that every catalog entry resolves to non-empty embedded content or an existing `public/lessons/*.html` fallback. This protects renderability only; it does not prove lesson equivalence, localization quality, quiz/answer parity, or preservation of learner state.
+
+## Candidate mapping by legacy catalog ID
+
+The destinations below are **provisional candidates**, based on the source-review matrix in `FULL_SOURCE_CONTENT_AUDIT.md`. They are not redirects and do not certify full parity.
+
+| Legacy ID | Classic lesson / HTML source | Candidate structured destinations | Known parity caveat | Cutover decision |
+|---|---|---|---|---|
+| `sh-001` | Frontend Engineering Handbook · `frontend-bootcamp-notes.html` | curriculum index | Survey with month tabs and answer reveals; no one-to-one lesson body. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `wb-001` | Internet Fundamentals · `internet-fundamentals.html` | `web.internet-http`, `network.dns-tcp-tls`, `browser.rendering-pipeline`, `deployment.production-hosting`, `frontend.auth-security` | Spans networking, browser rendering, hosting and privacy; sidebar and animated sequences are partial. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `wb-002` | HTML Reference Guide · `html-reference.html` | `html.document-structure`, `html.forms-accessibility` | Core topics mapped; searchable reference, preview tabs and copy controls are not one-for-one. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `wb-003` | CSS Reference Guide · `css-reference.html` | `css.fundamentals`, `css.flexbox-grid-responsive` | Core concepts across two lessons; live Flexbox/Grid/transition playgrounds and reference search differ. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `wb-004` | DOM Masterclass · `dom-masterclass.html` | `js.dom-events` | Traversal/event concepts are mapped; live tree/theme/collection demos and editors are partial. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `js-001` | JavaScript Interactive Book · `js_interactive_book.html` | `js.basics-types-control-flow`, `js.functions-arrays-objects`, `js.dom-events`, `js.async-fetch` | Broad survey maps to several lessons; 20 editors, quiz widgets and progress/navigation UI are not fully reproduced. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `js-002` | JS Deep Dive: Objects, Prototypes & Classes · `js-deep-dive.html` | `js.object-prototypes; related identity concepts: js.runtime-memory` | Example- and exercise-level source parity remains partial. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `js-003` | JS Memory Mastery · `js-memory-mastery.html` | `js.runtime-memory` | Copy/identity and diagnostic workflows map; simulators and quiz readouts differ. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `js-004` | Async JavaScript Deep Dive · `interactive-async-js.html` | `js.async-fetch`, `web.internet-http` | Core async and request patterns map; animated loop/concurrency and live API demos differ. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `re-001` | React useState Deep Dive · `react-usestate-guide.html` | `react.components-jsx-state; related controlled-form cases: react.forms-validation` | Remote AI grading and interactive quiz/reveal behavior are not equivalent structured practice. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `re-002` | React Hooks & Patterns Deep Dive · `react-hooks-guide.html` | `react.effects-lists-composition`, `react.context-shared-state`, `react.api-custom-hooks` | Responsibilities span several topics; example and widget parity remains incomplete. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `re-003` | React Forms & Validation · `react-forms-tutorial.html` | `react.forms-validation` | 52 aligned EN/RU blocks; accordion, answer reveal, quiz score and sidebar progress UI remain partial. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `re-004` | React API Integration & Custom Hooks · `react-api-hooks-lesson.html` | `react.api-custom-hooks`, `js.async-fetch`, `web.internet-http` | Error/loading/retry and service boundaries map across lessons; tabs/simulators are partial. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `re-005` | React Ecosystem: Routing & SPAs · `react-ecosystem-course.html` | `react.router-spa`, `react.context-shared-state`, `react.forms-validation` | Router version is aligned to v7.18.0; BookClub capstone and reveal interactions are not one-to-one. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `re-006` | React Performance & Accessibility · `react-performance-a11y.html` | `performance.accessibility; related fields: ui.design-systems` | Core topics map; render/bundle simulators and focus-style playground remain partial. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `ui-001` | UI Kit & Design System · `ui-design-system-learn.html` | `ui.design-systems`, `ui.bootstrap-mui`, `performance.accessibility` | Accessible field contract and version-aware refs added; live token/Button/CSS playgrounds and quiz differ. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `ui-002` | Material UI Masterclass · `material-ui-masterclass.html` | `ui.bootstrap-mui`, `ui.design-systems`, `react.forms-validation`, `performance.accessibility` | Version and accessibility guidance maps; theme toggles, copy/reset buttons and component demos are partial. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `tl-001` | Git Reference Guide · `git-reference.html` | `git.fundamentals`, `git.workflow-ci` | Recovery and workflow concepts map; searchable command catalogue, copy buttons and expandable reference UI differ. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `tl-002` | Git Workflow & CI/CD Guide · `git-workflow-cicd-guide.html` | `git.workflow-ci`, `deployment.production-hosting` | Branch/PR/CI and deployment overlap; animated branch canvas and failure-injection simulator are not cloned. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `tl-003` | Development Environment Setup · `intro.dev.html` | `tooling.node-npm-vite`, `tooling.advanced-package-workflows; TypeScript where evidenced: typescript.fundamentals` | OS/package-version-sensitive setup steps require command-by-command verification. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `tl-004` | Deployment Learning Guide · `deployment-learning.html` | `deployment.production-hosting; related background: web.internet-http`, `network.dns-tcp-tls` | Build/env/deep-link/rollback and domains map; provider tabs and pipeline/checklist are conceptual equivalents. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `qa-001` | Frontend Architecture & Planning · `frontend-architecture-and-planning.html` | `frontend.architecture-boundaries`, `capstone.requirements-discovery`, `capstone.design-architecture-planning`, `capstone.implementation`, `capstone.review-demo` | Tasks span multiple destinations; source tabs/accordions are not cloned. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `qa-002` | Testing Guide · `test.guide.html` | `testing.react-testing-library` | Vitest mock lifecycle is covered; tabs, FAQs and exact five-question quiz remain partial. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `sec-001` | Frontend Authentication · `frontend-auth.html` | `frontend.auth-security` | AuthN/AuthZ, token boundaries, PKCE and refresh coordination map; JWT decoder/tabs remain partial. | **Blocked** — target parity and learner-state disposition not signed off. |
+| `dt-001` | SQL Learning Page · `sql-learning-page.html` | `data.sql-postgresql` | SQL v2 covers dialect and safe DML; seven legacy editors return canned data and are not recreated as a fake SQL engine. | **Blocked** — target parity and learner-state disposition not signed off. |
+
+## Evidence and cutover rule
+
+- The source table in `FULL_SOURCE_CONTENT_AUDIT.md` is the evidence source for these candidates. Each destination still needs its actual EN/RU body checked for section/example/exercise/answer/reference coverage.
+- **No row is cutover-ready from a candidate mapping or green CI alone.** Exact interactive-widget parity is partial; Notion pages fetched so far report `verification.state=unverified`.
+- The loader guard confirms only that each current classic catalog entry can render. It does not certify that its candidate JSON target is equivalent.
+- A reviewed disposition is required for every legacy ID: one-to-many mapping, a dedicated new structured lesson, retain-legacy, or explicitly deferred source interaction.
+- Before redirecting a legacy URL, test how progress, bookmarks, notes, last-opened pointers and classic quiz-result keys retain their meaning. Never mark every child lesson complete because a legacy umbrella page was completed; do not duplicate one note across unrelated destinations by default.
+- Keep all 25 legacy HTML files and `/lessons/:lessonId` until the content, state-migration and browser-acceptance gates have explicit evidence.
