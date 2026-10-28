@@ -47,6 +47,7 @@ describe('SearchPage structured content integration', () => {
     });
 
     const input = renderSearch();
+    useSearchStore.setState({ filter: 'note' });
     fireEvent.change(input, { target: { value: 'semantic landmarks' } });
 
     const noteLink = await screen.findByRole('link', { name: /HTML document structure and semantic page regions/i });
@@ -56,6 +57,7 @@ describe('SearchPage structured content integration', () => {
 
   it('includes the structured curriculum as a searchable course result', async () => {
     const input = renderSearch();
+    useSearchStore.setState({ filter: 'course' });
     fireEvent.change(input, { target: { value: 'canonical structured learning curriculum' } });
 
     const courseLink = await screen.findByRole('link', { name: /Structured curriculum/i });
