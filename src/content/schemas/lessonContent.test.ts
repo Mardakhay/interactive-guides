@@ -178,8 +178,8 @@ describe('HTML document content and media', () => {
     expect(englishLesson.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianLesson.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishLesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
-    expect(englishLesson.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(7);
+    expect(englishLesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
+    expect(englishLesson.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(8);
     expect(englishLesson.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(englishLesson.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
@@ -1468,8 +1468,8 @@ describe('HTML reference source coverage', () => {
   it('covers text semantics, links, metadata, and global attributes in both locales', () => {
     expect(lessonTranslationSchema.safeParse(englishLesson).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianLesson).success).toBe(true);
-    expect(englishLesson.version).toBe(7);
-    expect(englishLesson.blocks).toHaveLength(50);
+    expect(englishLesson.version).toBe(8);
+    expect(englishLesson.blocks).toHaveLength(54);
     expect(englishLesson.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianLesson.blocks.map(({ id, type }) => ({ id, type })),
     );
@@ -1493,6 +1493,20 @@ describe('HTML reference source coverage', () => {
       expect(linksWalk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= linksLines)).toBe(true);
       expect(linksWalk.code).toContain('rel="noopener"');
       expect(linksWalk.code).toContain('property="og:title"');
+      const headingWalkthrough = lesson.blocks.find((block) => block.id === 'html-heading-hierarchy-walkthrough');
+      expect(headingWalkthrough?.type).toBe('codeWalkthrough');
+      if (headingWalkthrough?.type !== 'codeWalkthrough') return;
+      expect(headingWalkthrough.code).toContain('<h1>Account settings</h1>');
+      expect(headingWalkthrough.code).toContain('<h2 id="contact-heading">');
+      expect(headingWalkthrough.code).toContain('<h3 id="verification-heading">');
+      expect(headingWalkthrough.code).toContain('<h4>Before you continue</h4>');
+      const headingLineCount = headingWalkthrough.code.split('\n').length;
+      expect(headingWalkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= headingLineCount)).toBe(true);
+      const headingCheck = lesson.blocks.find((block) => block.id === 'html-heading-hierarchy-check');
+      expect(headingCheck?.type).toBe('knowledgeCheck');
+      if (headingCheck?.type !== 'knowledgeCheck') return;
+      expect(headingCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['structure']);
+
       const globals = lesson.blocks.find((block) => block.id === 'html-global-attributes');
       expect(globals?.type).toBe('list');
       if (globals?.type === 'list') {

@@ -1,7 +1,7 @@
 {
   "id": "html.document-structure",
   "locale": "en",
-  "version": 7,
+  "version": 8,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-28",
@@ -767,6 +767,76 @@
         "Use native HTML controls before building custom widgets. Buttons, links, headings, forms and tables already provide behavior and semantics that custom div-based controls would need to recreate.",
         "HTML parsing can repair malformed markup in ways different from the source author's intent; use valid nesting and inspect the resulting DOM in DevTools when rendered structure surprises you."
       ]
+    },
+    {
+      "id": "html-heading-hierarchy-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Heading levels express document hierarchy"
+    },
+    {
+      "id": "html-heading-hierarchy-body",
+      "type": "paragraph",
+      "text": "Choose a heading level based on how the topic fits into the document outline, not on the font size that the browser happens to render. A page title is commonly an h1; a major section may use h2, a subsection inside it h3, and a narrower topic h4. Use CSS to change appearance, and don't skip levels just to get smaller text."
+    },
+    {
+      "id": "html-heading-hierarchy-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<main>\n  <h1>Account settings</h1>\n  <section aria-labelledby=\"contact-heading\">\n    <h2 id=\"contact-heading\">Contact details</h2>\n    <p>Keep your account email up to date.</p>\n    <section aria-labelledby=\"verification-heading\">\n      <h3 id=\"verification-heading\">Verification</h3>\n      <p><strong>Required:</strong> confirm your address.</p>\n      <h4>Before you continue</h4>\n      <p>Make sure you can access the inbox.</p>\n    </section>\n  </section>\n</main>",
+      "steps": [
+        {
+          "title": "Identify the page-level heading",
+          "lineStart": 2,
+          "lineEnd": 2,
+          "explanation": "The h1 names the page. It is selected for its role in the outline, not because it is the largest default style."
+        },
+        {
+          "title": "Name the major section",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "The section is associated with a visible h2 through aria-labelledby, while the heading describes the section's topic."
+        },
+        {
+          "title": "Nest the next levels in order",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "explanation": "The h3 introduces a subsection inside the Contact details region; h4 introduces a narrower topic under Verification. CSS can change the visual size without changing this structure."
+        }
+      ]
+    },
+    {
+      "id": "html-heading-hierarchy-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A subsection heading looks too small. What should you change first?",
+      "options": [
+        {
+          "id": "smallest",
+          "text": "Use h4 because its default font size is smaller",
+          "correct": false,
+          "feedback": "Heading level describes hierarchy, not a presentational size."
+        },
+        {
+          "id": "structure",
+          "text": "Choose the level that fits the document outline and use CSS for its appearance",
+          "correct": true,
+          "feedback": "Semantic level reflects the section structure; CSS handles visual typography."
+        },
+        {
+          "id": "paragraph",
+          "text": "Replace it with a paragraph and make it bold",
+          "correct": false,
+          "feedback": "A real section heading should remain a heading so assistive technology can navigate the outline."
+        },
+        {
+          "id": "many-h1",
+          "text": "Use h1 for every heading so all sections look consistent",
+          "correct": false,
+          "feedback": "Repeated page-level headings do not express the parent/subsection relationship."
+        }
+      ],
+      "explanation": "Keep the document outline meaningful and control font size, weight, and spacing with CSS."
     },
     {
       "id": "deep-html-check",

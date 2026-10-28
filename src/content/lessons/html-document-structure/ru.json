@@ -1,7 +1,7 @@
 {
   "id": "html.document-structure",
   "locale": "ru",
-  "version": 7,
+  "version": 8,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-28",
@@ -767,6 +767,76 @@
         "Сначала используй нативные HTML-контролы. Кнопки, ссылки, заголовки, формы и таблицы уже имеют поведение и семантику, которые пришлось бы заново реализовывать для div-контролов.",
         "HTML-парсер может исправлять невалидную разметку не так, как предполагал автор; используй правильную вложенность и проверяй DOM в DevTools, если структура отличается от ожидаемой."
       ]
+    },
+    {
+      "id": "html-heading-hierarchy-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Уровни заголовков выражают структуру документа"
+    },
+    {
+      "id": "html-heading-hierarchy-body",
+      "type": "paragraph",
+      "text": "Выбирай уровень заголовка по его месту в структуре документа, а не по размеру шрифта, который браузер показывает по умолчанию. Заголовок страницы обычно оформляют как h1; крупный раздел — как h2, подраздел внутри него — как h3, а более узкую тему — как h4. Внешний вид меняй через CSS и не пропускай уровни только ради меньшего текста."
+    },
+    {
+      "id": "html-heading-hierarchy-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<main>\n  <h1>Account settings</h1>\n  <section aria-labelledby=\"contact-heading\">\n    <h2 id=\"contact-heading\">Contact details</h2>\n    <p>Keep your account email up to date.</p>\n    <section aria-labelledby=\"verification-heading\">\n      <h3 id=\"verification-heading\">Verification</h3>\n      <p><strong>Required:</strong> confirm your address.</p>\n      <h4>Before you continue</h4>\n      <p>Make sure you can access the inbox.</p>\n    </section>\n  </section>\n</main>",
+      "steps": [
+        {
+          "title": "Определи заголовок уровня страницы",
+          "lineStart": 2,
+          "lineEnd": 2,
+          "explanation": "h1 задаёт название страницы. Выбирай его по роли в структуре, а не потому, что у него самый крупный стандартный шрифт."
+        },
+        {
+          "title": "Обозначь основной раздел",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "Секция связана с видимым h2 через aria-labelledby, а текст заголовка описывает её тему."
+        },
+        {
+          "title": "Вкладывай следующие уровни по порядку",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "explanation": "h3 вводит подраздел внутри Contact details, а h4 — более узкую тему внутри Verification. CSS позволяет менять визуальный размер, не меняя структуру."
+        }
+      ]
+    },
+    {
+      "id": "html-heading-hierarchy-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Подзаголовок визуально кажется слишком маленьким. Что следует сделать прежде всего?",
+      "options": [
+        {
+          "id": "smallest",
+          "text": "Использовать h4, потому что у него меньше стандартный размер шрифта",
+          "correct": false,
+          "feedback": "Уровень заголовка описывает структуру, а не оформление."
+        },
+        {
+          "id": "structure",
+          "text": "Выбрать уровень по структуре документа, а внешний вид настроить через CSS",
+          "correct": true,
+          "feedback": "Семантический уровень отражает структуру разделов; CSS отвечает за визуальную типографику."
+        },
+        {
+          "id": "paragraph",
+          "text": "Заменить заголовок абзацем и выделить его жирным",
+          "correct": false,
+          "feedback": "Настоящий заголовок раздела должен оставаться заголовком, чтобы вспомогательные технологии могли по нему перемещаться."
+        },
+        {
+          "id": "many-h1",
+          "text": "Использовать h1 для всех заголовков, чтобы они выглядели одинаково",
+          "correct": false,
+          "feedback": "Повторение заголовков уровня страницы не выражает отношения между разделом и подразделами."
+        }
+      ],
+      "explanation": "Сохраняй осмысленную структуру документа, а размер, насыщенность и интервалы задавай через CSS."
     },
     {
       "id": "deep-html-check",
