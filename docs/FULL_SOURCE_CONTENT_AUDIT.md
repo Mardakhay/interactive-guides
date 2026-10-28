@@ -963,3 +963,13 @@ This dated status reconciles the early inventory snapshot above with later sourc
 - Exact-head CI [run #40649649155](https://github.com/Mardakhay/interactive-guides/actions/runs/40649649155) passed install, audit diagnostics, lint, typecheck, tests and production build on `ecb1c8e5546ec543428af241a4f7eb59fe00d4cb`.
 - This is a targeted topic migration. Legacy interactive Flexbox/Grid/transition playgrounds remain unmatched one-to-one; responsive/accessibility acceptance still requires browser/device testing.
 
+
+
+## Git README and ignore-pattern source-parity follow-up — 2026-10-28
+
+- `git.fundamentals` EN/RU v6 explains the `.gitignore` syntax shown in the legacy quick reference: leading comments, `*` path-component behavior, bracket ranges, directory-only patterns, `!` re-inclusion and the last-match rule. It also clarifies that a child cannot be re-included when Git cannot traverse an excluded parent directory.
+- v7 adds a 40-line bilingual `README.md` walkthrough (purpose, features, tech stack, requirements, setup, checks, contributing, deployment, license and credits) and a checklist for reproducible commands, sensitive content, appropriate licensing and GitHub Pages source/build/base-path/status verification.
+- Regression tests require EN/RU block structures and versions to remain aligned, validate the README step line ranges, and assert key `.gitignore` semantics plus the official GitHub Markdown reference.
+- Exact-head CI [run #40653287307](https://github.com/Mardakhay/interactive-guides/actions/runs/40653287307) passed on `b920e1ef34bf292bde155bc18d203dc03db7827a`: 215 tests across 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
+- The legacy HTML's live search, copy buttons and accordion presentation still differ from the structured reader. This is targeted source parity, not permission to redirect legacy IDs or discard their progress, notes or bookmarks.
+

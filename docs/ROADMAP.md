@@ -594,3 +594,14 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Verify exact-head CI on `ecb1c8e5546ec543428af241a4f7eb59fe00d4cb`: [run #40649649155](https://github.com/Mardakhay/interactive-guides/actions/runs/40649649155) passed all tests and production build.
 - [ ] Continue reviewing remaining source gaps and interactive behavior; this does not complete the CSS source migration or replace real-browser responsive/accessibility acceptance.
 
+
+
+
+## Git README and ignore-pattern parity batch — 2026-10-28
+
+- [x] Upgrade `git.fundamentals` EN/RU to v6 with precise `.gitignore` comments, glob/range patterns, directory patterns, negation/re-inclusion limits and last-match precedence.
+- [x] Upgrade the same lesson to v7 with a bilingual 40-line README walkthrough and an actionable README/GitHub Pages checklist.
+- [x] Add bilingual regression checks for schema-valid block shape, locale structure, key syntax rules, README line ranges, deployment/base-path guidance and the official GitHub Markdown reference.
+- [x] Verify exact-head CI on `b920e1ef34bf292bde155bc18d203dc03db7827a`: [run #40653287307](https://github.com/Mardakhay/interactive-guides/actions/runs/40653287307) passed 215 tests / 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
+- [ ] Continue reviewing remaining source sections and interactive behavior. The classic searchable/copyable reference UI is still not a one-to-one replica; the legacy route and learner-state cutover remain blocked.
+

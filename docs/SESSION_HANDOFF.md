@@ -5,7 +5,17 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — CSS positioning parity — 2026-10-28
+## Current continuation — Git README and ignore-pattern parity — 2026-10-28
+
+- Latest verified code/test HEAD: `b920e1ef34bf292bde155bc18d203dc03db7827a`; exact-head GitHub Actions [run #40653287307](https://github.com/Mardakhay/interactive-guides/actions/runs/40653287307) passed install, audit diagnostics, lint, typecheck, all 215 tests across 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
+- Updated `git.fundamentals` EN/RU to v7 without changing its canonical lesson ID or route. The new `.gitignore` reference explains leading comments, glob and bracket-range patterns, directory suffixes, negation/re-inclusion limits and last-match precedence.
+- Added a bilingual 40-line README walkthrough covering purpose, features, technology, requirements, reproducible setup/check commands, contributing, deployment, license and credits. The publishing checklist qualifies GitHub Pages behavior and asks learners to verify the configured source/workflow, build output, base path and deployment status.
+- Regression tests verify EN/RU block parity, `.gitignore` semantics, README line ranges, deployment guidance and the official GitHub Markdown documentation reference. The earlier v6 schema/version correction separately passed [run #40652795308](https://github.com/Mardakhay/interactive-guides/actions/runs/40652795308).
+- Remaining on this source: the classic reference's searchable command catalogue, copy buttons and accordion presentation are not reproduced one-to-one. The legacy route/state cutover stays blocked; no saved learner data has been migrated or discarded.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft. No local checkout/test, real-browser/device, or screen-reader acceptance is claimed.
+- Next: continue targeted source-to-block review in syllabus order and address the highest-value content/interaction gaps. Keep legacy routes and records until equivalence and per-store retention decisions are reviewed. Supabase remains gated by approved reconciliation and RLS isolation tests.
+
+## Previous continuation — CSS positioning parity (superseded) — 2026-10-28
 
 - Latest verified code HEAD: `ecb1c8e5546ec543428af241a4f7eb59fe00d4cb`; exact-head GitHub Actions [run #40649649155](https://github.com/Mardakhay/interactive-guides/actions/runs/40649649155) passed npm ci, audit diagnostics, lint, typecheck, tests and production build.
 - Updated `css.fundamentals` EN/RU to v5. The positioning section explains static, relative, absolute, fixed and sticky, containing-block selection and stacking-context limits; its walkthrough shows an absolute badge anchored to a relative card and a sticky banner. Tests check line ranges, the correct answer and official MDN references.
