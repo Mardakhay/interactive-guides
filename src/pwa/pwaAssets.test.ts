@@ -82,13 +82,16 @@ describe('PWA asset contract', () => {
 
   it('keeps service-worker caches versioned and scoped away from private APIs', () => {
     const worker = readPublicText('sw.js');
-    expect(worker).toContain("const VERSION = 'v5';");
+    expect(worker).toContain("const VERSION = 'v6';");
     for (const path of ['/favicon.svg', '/pwa-icon.svg', '/pwa-180.png', '/pwa-192.png', '/pwa-512.png']) {
       expect(worker).toContain(path);
     }
     expect(worker).toContain("request.method !== 'GET' || url.origin !== self.location.origin");
     expect(worker).toContain("request.headers.has('authorization') || url.pathname.startsWith('/api/')");
-    expect(worker).toContain('test(url.pathname)');
+    const assetScopeGuard = worker.indexOf("if (!url.pathname.startsWith('/assets/')) return;");
+    const extensionGuard = worker.indexOf('test(url.pathname)');
+    expect(assetScopeGuard).toBeGreaterThan(-1);
+    expect(extensionGuard).toBeGreaterThan(assetScopeGuard);
     expect(worker).toContain("event.data?.type === 'SKIP_WAITING'");
     expect(worker).not.toContain(".then(() => self.skipWaiting())");
     const updatePrompt = readRootText('src/pwa/ServiceWorkerUpdatePrompt.tsx');
