@@ -294,13 +294,13 @@ function CodingExercise({
         <div>
           <h4 className="text-sm font-semibold text-neutral-900">{locale === 'ru' ? 'Задание' : 'Your task'}</h4>
           <ol className="mt-2 list-decimal space-y-2 pl-5 text-sm leading-6 text-neutral-700">
-            {block.instructions.map((instruction) => <li key={instruction}>{instruction}</li>)}
+            {block.instructions.map((instruction, index) => <li key={`${block.id}-instruction-${index}`}>{instruction}</li>)}
           </ol>
         </div>
         <div>
           <h4 className="text-sm font-semibold text-neutral-900">{locale === 'ru' ? 'Требования' : 'Requirements'}</h4>
           <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-6 text-neutral-700">
-            {block.requirements.map((requirement) => <li key={requirement}>{requirement}</li>)}
+            {block.requirements.map((requirement, index) => <li key={`${block.id}-requirement-${index}`}>{requirement}</li>)}
           </ul>
         </div>
         <div>
@@ -426,7 +426,7 @@ function CodingExercise({
             </button>
             {hintsOpen && (
               <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-neutral-700">
-                {block.hints.map((hint) => <li key={hint}>{hint}</li>)}
+                {block.hints.map((hint, index) => <li key={`${block.id}-hint-${index}`}>{hint}</li>)}
               </ul>
             )}
           </div>
@@ -435,7 +435,7 @@ function CodingExercise({
           <h4 className="text-sm font-semibold text-neutral-900">{locale === 'ru' ? 'Критерии самопроверки' : 'Self-review criteria'}</h4>
           <ul className="mt-2 space-y-2 text-sm leading-6 text-neutral-700">
             {block.successCriteria.map((criterion, index) => (
-              <li key={criterion}>
+              <li key={`${block.id}-criterion-${index}`}>
                 <label className="flex cursor-pointer items-start gap-2">
                   <input
                     type="checkbox"
@@ -471,7 +471,7 @@ function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonI
       const ListTag = block.ordered ? 'ol' : 'ul';
       return (
         <ListTag key={block.id} className={`my-4 space-y-2 pl-6 text-[15px] leading-7 text-neutral-700 marker:text-primary-600 sm:text-base ${block.ordered ? 'list-decimal' : 'list-disc'}`}>
-          {block.items.map((item) => <li key={item}><InlineText text={item} /></li>)}
+          {block.items.map((item, index) => <li key={`${block.id}-item-${index}`}><InlineText text={item} /></li>)}
         </ListTag>
       );
     }
@@ -523,7 +523,7 @@ function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonI
           <h2 className="text-xl font-semibold text-neutral-950">{locale === 'ru' ? 'Источники и дополнительное чтение' : 'References and further reading'}</h2>
           <ul className="mt-4 space-y-3">
             {block.items.map((item) => (
-              <li key={item.url}>
+              <li key={`${block.id}-reference-${index}`}>
                 <a href={item.url} target="_blank" rel="noreferrer" className="inline-flex items-start gap-2 text-sm font-medium text-primary-700 underline decoration-primary-300 underline-offset-4 hover:text-primary-900">
                   <span>{item.title}</span>
                   <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
