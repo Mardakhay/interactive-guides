@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { getStructuredLesson } from '@/content/repository';
 import { StructuredLessonRenderer } from './StructuredLessonRenderer';
@@ -14,6 +14,9 @@ describe('StructuredLessonRenderer', () => {
     expect(screen.getByText(/A useful mental model/)).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Build an About Me page' })).toBeTruthy();
     expect(screen.getAllByLabelText('Your code').length).toBeGreaterThan(0);
+    const codeExamples = screen.getAllByRole('group', { name: /code example/i });
+    expect(codeExamples.length).toBeGreaterThan(0);
+    expect(codeExamples[0]?.getAttribute('tabindex')).toBe('0');
   });
 
   it('gives feedback when a learner submits a knowledge-check answer', async () => {
@@ -37,7 +40,25 @@ describe('StructuredLessonRenderer', () => {
 
     expect(screen.getByRole('heading', { name: 'Почему структура документа важна' })).toBeTruthy();
     expect(screen.getAllByRole('button', { name: /Копировать код/ }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('group', { name: /пример кода/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole('heading', { name: 'Создай страницу «Обо мне»' })).toBeTruthy();
+  });
+
+  it('announces a failed copy attempt to assistive technology', async () => {
+    const lesson = await getStructuredLesson('html.document-structure', 'en');
+    if (!lesson) throw new Error('English pilot lesson is missing');
+    const clipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+
+    try {
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
+      render(<StructuredLessonRenderer lesson={lesson} />);
+      fireEvent.click(screen.getAllByRole('button', { name: 'Copy code' })[0]!);
+      expect(await screen.findByRole('status', { name: 'Code copy status' })).toHaveTextContent('Copy failed');
+    } finally {
+      cleanup();
+      if (clipboardDescriptor) Object.defineProperty(navigator, 'clipboard', clipboardDescriptor);
+      else Reflect.deleteProperty(navigator, 'clipboard');
+    }
   });
 });
 

@@ -78,8 +78,18 @@ function CodePanel({
           {copyState === 'copied' ? <Check className="h-3.5 w-3.5" /> : <Clipboard className="h-3.5 w-3.5" />}
           {copyState === 'copied' ? copiedLabel : copyState === 'failed' ? failedLabel : copyLabel}
         </button>
+        <span className="sr-only" role="status" aria-label={locale === 'ru' ? 'Статус копирования кода' : 'Code copy status'}>
+          {copyState === 'idle' ? '' : copyState === 'copied' ? copiedLabel : failedLabel}
+        </span>
       </figcaption>
-      <pre className="max-w-full overflow-x-auto p-4 text-[13px] leading-6 sm:text-sm">
+      <pre
+        role="group"
+        aria-label={locale === 'ru'
+          ? `${language}: пример кода${caption ? ` — ${caption}` : ''}`
+          : `${language} code example${caption ? `: ${caption}` : ''}`}
+        tabIndex={0}
+        className="max-w-full overflow-x-auto p-4 text-[13px] leading-6 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-300 sm:text-sm"
+      >
         <code className="font-mono">{code}</code>
       </pre>
     </figure>
