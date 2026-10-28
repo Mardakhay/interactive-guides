@@ -5,6 +5,15 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
+## Current continuation — structured JavaScript path — 2026-10-28
+
+- Latest verified code/test HEAD: `49709e30ebc42be909e739a971d40b753fc011e5`; exact-head GitHub Actions [run #40646714866](https://github.com/Mardakhay/interactive-guides/actions/runs/40646714866) passed `npm ci`, audit diagnostics, lint, typecheck, all 209 tests / 33 files, and production build/bundle budget.
+- Added `structured-javascript-mastery` as a separate six-step route across core syntax, functions/objects, prototypes, runtime/memory, async requests, and DOM events. Locale-aware structured URLs and canonical IDs are tested. Existing `javascript-mastery` and all other classic paths remain unchanged.
+- Current route coverage now includes structured Frontend Foundations, React Developer, and JavaScript Mastery tracks. The detail page resolves either classic catalog IDs or structured manifest IDs, tracks each ID independently, keeps bookmark controls outside links, and displays an explicit unavailable state for invalid configured steps.
+- No legacy source-to-lesson equivalence is inferred from route availability. Git Reference / Git Workflow source-to-block parity, old-to-new learner-state retention, and full EN/RU editorial review remain open. Legacy route cutover remains blocked.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft. No local checkout or real-browser/screen-reader/device session was run.
+- Next: review the classic Git Reference source against `git.fundamentals` EN/RU, identify concrete coverage gaps, and add a small bilingual content batch with regression checks. Preserve all existing classic lesson routes/state until the crosswalk review explicitly approves a disposition. Supabase remains gated by an approved reconciliation policy and direct RLS isolation tests.
+
 ## Current continuation — structured learning paths — 2026-10-28
 
 - Latest verified code/test HEAD: `1f186fba06e4c37f32cd522d9a256adc344019ae`; exact-head GitHub Actions [run #40646447483](https://github.com/Mardakhay/interactive-guides/actions/runs/40646447483) passed `npm ci`, audit diagnostics, lint, typecheck, all 209 tests across 33 files, and production build/bundle budget.

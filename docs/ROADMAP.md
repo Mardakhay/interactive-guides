@@ -545,6 +545,8 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 
 
 ## Structured learning-path route coverage — 2026-10-28
+- [x] Add `structured-javascript-mastery` (core syntax, functions/objects, prototypes, runtime/memory, async requests, DOM events) with a Russian translation and exact-step integration tests. Classic `javascript-mastery` stays untouched.
+- [x] Verify exact-head CI on `49709e30ebc42be909e739a971d40b753fc011e5`: [run #40646714866](https://github.com/Mardakhay/interactive-guides/actions/runs/40646714866) passed install, lint, typecheck, 209 tests / 33 files and production build.
 
 - [x] Add separate structured Frontend Foundations and React paths using canonical lesson IDs; preserve the existing classic paths and their stored IDs.
 - [x] Resolve classic and structured lesson routes in the detail view, respecting the selected UI locale, existing progress records and bookmark store.
