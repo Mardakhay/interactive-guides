@@ -522,7 +522,7 @@ function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonI
         <section key={block.id} className="mt-10 border-t border-neutral-200 pt-6">
           <h2 className="text-xl font-semibold text-neutral-950">{locale === 'ru' ? 'Источники и дополнительное чтение' : 'References and further reading'}</h2>
           <ul className="mt-4 space-y-3">
-            {block.items.map((item) => (
+            {block.items.map((item, index) => (
               <li key={`${block.id}-reference-${index}`}>
                 <a href={item.url} target="_blank" rel="noreferrer" className="inline-flex items-start gap-2 text-sm font-medium text-primary-700 underline decoration-primary-300 underline-offset-4 hover:text-primary-900">
                   <span>{item.title}</span>
