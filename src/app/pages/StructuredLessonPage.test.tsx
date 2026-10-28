@@ -33,20 +33,17 @@ describe('StructuredLessonPage', () => {
   });
 
   it('updates the accessible reading-progress indicator as the learner scrolls', async () => {
-    const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
     renderLesson('/en/structured-lessons/html.document-structure');
 
     const progress = await screen.findByRole('progressbar', { name: 'Reading progress' });
     expect(progress.getAttribute('aria-valuenow')).toBe('0');
 
-    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
-      if (this.hasAttribute('data-structured-lesson-page')) {
-        return new DOMRect(0, -400, 1200, 2000);
-      }
-      return originalGetBoundingClientRect.call(this);
-    });
+    const pageRoot = progress.parentElement;
+    if (!pageRoot) throw new Error('Reading progress root is missing');
+    vi.spyOn(pageRoot, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, -400, 1200, 2000));
 
     fireEvent.scroll(window);
+    fireEvent.resize(window);
     expect(progress.getAttribute('aria-valuenow')).toBe(String(Math.round((400 / (2000 - window.innerHeight)) * 100)));
   });
 
