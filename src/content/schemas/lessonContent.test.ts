@@ -323,6 +323,8 @@ describe('Git fundamentals lesson translation', () => {
       expect(quickReference?.type).toBe('list');
       if (quickReference?.type !== 'list') return;
       expect(quickReference.items.join(' ')).toContain('git clone <repository-url>');
+      expect(quickReference.items.join(' ')).toContain('git branch -d <branch>');
+      expect(quickReference.items.join(' ')).toContain('git merge <branch>');
       expect(quickReference.items.join(' ')).toContain('git fetch origin');
       expect(quickReference.items.join(' ')).toContain('git pull --ff-only');
       expect(quickReference.items.join(' ')).toContain('git revert <commit>');

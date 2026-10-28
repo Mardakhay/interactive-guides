@@ -563,6 +563,8 @@
         "Start from a remote repository: `git clone <repository-url>` creates a local copy and configures the remote, commonly named `origin`.",
         "Inspect your local state: `git status -sb` shows concise status and branch information; `git branch -vv` shows upstream tracking; `git remote -v` lists remote URLs.",
         "Create a separate feature branch: `git switch -c feat/lesson-summary` creates and switches to a branch from the current commit. Start from the agreed, up-to-date base.",
+        "List and remove local branches: `git branch` lists them; after a branch has been merged, `git branch -d <branch>` removes it locally. Git refuses to delete an unmerged branch by default; do not use `-D` casually.",
+        "Merge a feature branch into the current target: `git merge <branch>` integrates the named branch into the checked-out branch. In a shared repository, follow the pull-request policy instead of merging directly into a protected branch.",
         "Review the proposed commit: `git diff` displays unstaged edits; `git diff --staged` displays the content selected for the next commit.",
         "Fetch without integrating: `git fetch origin` updates remote-tracking references without changing the current branch or working-tree files.",
         "Integrate upstream only when fast-forward is possible: `git pull --ff-only` fetches and advances the current branch if it has no local divergence. It fails instead of inventing a merge when histories have diverged.",
