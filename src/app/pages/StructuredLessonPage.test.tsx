@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import StructuredLessonPage from './StructuredLessonPage';
 import { useProgressStore } from '@/features/progress';
@@ -22,6 +22,7 @@ afterEach(() => {
     lastOpenedAt: null,
   });
   document.documentElement.lang = 'en';
+  vi.restoreAllMocks();
 });
 
 describe('StructuredLessonPage', () => {
@@ -29,6 +30,24 @@ describe('StructuredLessonPage', () => {
     renderLesson('/en/structured-lessons/html.document-structure');
     expect(document.documentElement.lang).toBe('en');
     expect(await screen.findByRole('link', { name: /Next lesson HTML Forms and Accessibility Basics/ })).toBeTruthy();
+  });
+
+  it('updates the accessible reading-progress indicator as the learner scrolls', async () => {
+    const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
+    renderLesson('/en/structured-lessons/html.document-structure');
+
+    const progress = await screen.findByRole('progressbar', { name: 'Reading progress' });
+    expect(progress.getAttribute('aria-valuenow')).toBe('0');
+
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      if (this.hasAttribute('data-structured-lesson-page')) {
+        return new DOMRect(0, -400, 1200, 2000);
+      }
+      return originalGetBoundingClientRect.call(this);
+    });
+
+    fireEvent.scroll(window);
+    expect(progress.getAttribute('aria-valuenow')).toBe(String(Math.round((400 / (2000 - window.innerHeight)) * 100)));
   });
 
   it('records a self-attested completion marker without claiming mastery', async () => {
@@ -42,6 +61,7 @@ describe('StructuredLessonPage', () => {
   it('exposes previous lesson navigation and changes the document language when switching locale', async () => {
     renderLesson('/ru/structured-lessons/html.forms-accessibility');
     expect(document.documentElement.lang).toBe('ru');
+    expect(await screen.findByRole('progressbar', { name: 'Прогресс чтения' })).toBeTruthy();
     expect(await screen.findByRole('link', { name: /Предыдущий урок Структура HTML-документа и семантические области страницы/ })).toBeTruthy();
     fireEvent.click(screen.getByRole('link', { name: /English/ }));
     expect(await screen.findByRole('heading', { name: 'HTML Forms and Accessibility Basics' })).toBeTruthy();

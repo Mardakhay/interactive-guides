@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Clock3, Languages, RotateCcw } from 'lucide-react';
 import { getAdjacentStructuredLessons, getBootcampCurriculum, getStructuredLesson, getWeekForLesson, getSupplementaryTrackForLesson, SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
@@ -12,6 +12,8 @@ function isSupportedLocale(value: string | undefined): value is SupportedLocale 
 
 export default function StructuredLessonPage() {
   const { locale: localeParam, lessonId } = useParams<{ locale: string; lessonId: string }>();
+  const readingProgressRoot = useRef<HTMLDivElement | null>(null);
+  const [readingProgress, setReadingProgress] = useState(0);
   const isLocaleSupported = isSupportedLocale(localeParam);
   const locale: SupportedLocale = isLocaleSupported ? localeParam : 'en';
   const requestKey = `${localeParam ?? ''}:${lessonId ?? ''}`;
@@ -40,6 +42,32 @@ export default function StructuredLessonPage() {
       });
     return () => { active = false; };
   }, [isLocaleSupported, lessonId, locale, requestKey]);
+
+  useEffect(() => {
+    const root = readingProgressRoot.current;
+    if (!root) return;
+
+    const updateProgress = () => {
+      const { top, height } = root.getBoundingClientRect();
+      const scrollableDistance = height - window.innerHeight;
+      const nextProgress = scrollableDistance <= 0
+        ? 100
+        : Math.round((Math.min(scrollableDistance, Math.max(0, -top)) / scrollableDistance) * 100);
+      setReadingProgress((current) => current === nextProgress ? current : nextProgress);
+    };
+
+    updateProgress();
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    window.addEventListener('resize', updateProgress);
+    const resizeObserver = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(updateProgress);
+    resizeObserver?.observe(root);
+
+    return () => {
+      window.removeEventListener('scroll', updateProgress);
+      window.removeEventListener('resize', updateProgress);
+      resizeObserver?.disconnect();
+    };
+  }, [lesson?.id]);
 
   const week = lesson ? getWeekForLesson(lesson.id, locale) : undefined;
   const supplementaryTrack = lesson && !week ? getSupplementaryTrackForLesson(lesson.id, locale) : undefined;
@@ -74,6 +102,7 @@ export default function StructuredLessonPage() {
         review: 'Пилотный материал · проходит проверку',
         outcomes: 'После урока ты сможешь',
         outline: 'Содержание урока',
+        readingProgress: 'Прогресс чтения',
         statusNotStarted: 'Не начат',
         statusStarted: 'В процессе',
         statusCompleted: 'Отмечен завершённым',
@@ -96,6 +125,7 @@ export default function StructuredLessonPage() {
         review: 'Pilot content · under review',
         outcomes: 'By the end of this lesson, you will be able to',
         outline: 'Lesson outline',
+        readingProgress: 'Reading progress',
         statusNotStarted: 'Not started',
         statusStarted: 'In progress',
         statusCompleted: 'Marked complete',
@@ -159,7 +189,10 @@ export default function StructuredLessonPage() {
   const statusLabel = progressStatus === 'completed' ? copy.statusCompleted : progressStatus === 'not-started' ? copy.statusNotStarted : copy.statusStarted;
 
   return (
-    <div className="mx-auto w-full max-w-[1500px] px-4 pb-16 pt-6 sm:px-6 lg:px-8">
+    <div ref={readingProgressRoot} data-structured-lesson-page className="mx-auto w-full max-w-[1500px] px-4 pb-16 pt-6 sm:px-6 lg:px-8">
+      <div role="progressbar" aria-label={copy.readingProgress} aria-valuemin={0} aria-valuemax={100} aria-valuenow={readingProgress} className="pointer-events-none fixed inset-x-0 top-16 z-10 h-1 bg-neutral-200/80">
+        <div aria-hidden="true" className="h-full bg-primary-600 transition-[width] duration-100" style={{ width: `${readingProgress}%` }} />
+      </div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <Link to="/courses" className="inline-flex min-h-10 items-center gap-2 rounded-xl px-2 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-950">
           <ArrowLeft className="h-4 w-4" />
