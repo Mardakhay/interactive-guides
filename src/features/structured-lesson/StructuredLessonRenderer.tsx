@@ -277,6 +277,7 @@ function CodingExercise({
   const setPracticeCriterion = useStructuredLearningStore((state) => state.setPracticeCriterion);
   const [hintsOpen, setHintsOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [solutionOpen, setSolutionOpen] = useState(false);
   const code = savedCode ?? block.starterCode;
   const checked = checkedCriteria ?? [];
 
@@ -375,6 +376,41 @@ function CodingExercise({
             </div>
           )}
         </div>
+        {block.solution && (
+          <section className="rounded-xl border border-primary-200 bg-primary-50/60 p-3 sm:p-4">
+            <p className="text-xs leading-5 text-neutral-600">
+              {locale === 'ru'
+                ? 'Пример решения раскрывается только по запросу. Сравни его с требованиями; корректные реализации могут отличаться.'
+                : 'The example solution is revealed only on request. Compare it with the requirements; other correct implementations may differ.'}
+            </p>
+            <button
+              type="button"
+              aria-expanded={solutionOpen}
+              onClick={() => setSolutionOpen((open) => !open)}
+              className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-xl border border-primary-200 bg-white px-3 py-2 text-sm font-semibold text-primary-800 transition hover:bg-primary-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+            >
+              {solutionOpen
+                ? (locale === 'ru' ? 'Скрыть пример решения' : 'Hide example solution')
+                : (locale === 'ru' ? 'Показать пример решения' : 'Reveal example solution')}
+            </button>
+            {solutionOpen && (
+              <div className="mt-4" >
+                <h4 className="text-sm font-semibold text-neutral-900">
+                  {locale === 'ru' ? 'Пример решения' : 'Example solution'}
+                </h4>
+                <p className="mt-2 text-sm leading-6 text-neutral-700">{block.solution.explanation}</p>
+                <div className="mt-3">
+                  <CodePanel
+                    language={block.language}
+                    code={block.solution.code}
+                    caption={locale === 'ru' ? 'Пример решения' : 'Example solution'}
+                    locale={locale}
+                  />
+                </div>
+              </div>
+            )}
+          </section>
+        )}
         {block.hints.length > 0 && (
           <div>
             <button

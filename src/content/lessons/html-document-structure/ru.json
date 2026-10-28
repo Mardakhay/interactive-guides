@@ -1,10 +1,10 @@
 {
   "id": "html.document-structure",
   "locale": "ru",
-  "version": 6,
+  "version": 7,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-28",
   "moduleId": "month-1-week-1",
   "week": 1,
   "order": 1,
@@ -264,7 +264,11 @@
         "Структура HTML корректна, а отступы используются последовательно.",
         "Ученик может объяснить выбор семантического элемента для каждой крупной области одним предложением.",
         "Ученик может найти header, nav, main, секции, article и footer в панели Elements."
-      ]
+      ],
+      "solution": {
+        "code": "<!doctype html>\n<html lang=\"ru\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <meta name=\"description\" content=\"Кратко об учебных фронтенд-проектах Анны.\">\n    <title>Анна Иванова — начинающий frontend-разработчик</title>\n  </head>\n  <body>\n    <header>\n      <p>Анна Иванова</p>\n      <nav aria-label=\"Основная навигация\">\n        <a href=\"#about\">Обо мне</a>\n        <a href=\"#projects\">Проекты</a>\n      </nav>\n    </header>\n    <main>\n      <h1>Обо мне</h1>\n      <section id=\"about\" aria-labelledby=\"about-heading\">\n        <h2 id=\"about-heading\">Коротко обо мне</h2>\n        <p>Я изучаю frontend-разработку и создаю доступные интерфейсы.</p>\n      </section>\n      <section id=\"projects\" aria-labelledby=\"projects-heading\">\n        <h2 id=\"projects-heading\">Избранные проекты</h2>\n        <article aria-labelledby=\"project-one-title\">\n          <h3 id=\"project-one-title\">Доступный список задач</h3>\n          <p>Небольшое приложение для планирования повседневных задач.</p>\n        </article>\n      </section>\n    </main>\n    <footer>\n      <p>Учебная страница по семантическому HTML.</p>\n    </footer>\n  </body>\n</html>",
+        "explanation": "Это один из возможных полных вариантов: оболочка документа и метаданные находятся в head, ссылки ведут к существующим ID, в main есть один основной заголовок, а описание проекта оформлено как самостоятельная article внутри тематической секции. Другой текст и layout тоже могут соответствовать требованиям."
+      }
     },
     {
       "id": "html-text-markup-heading",

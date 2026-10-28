@@ -52,6 +52,23 @@ describe('StructuredLessonRenderer', () => {
     expect(codeExamples[0]?.getAttribute('tabindex')).toBe('0');
   });
 
+  it('reveals an authored example solution only after an explicit learner action', async () => {
+    const lesson = await getStructuredLesson('html.document-structure', 'en');
+    if (!lesson) throw new Error('English pilot lesson is missing');
+
+    render(<StructuredLessonRenderer lesson={lesson} />);
+
+    const reveal = screen.getByRole('button', { name: 'Reveal example solution' });
+    expect(reveal.getAttribute('aria-expanded')).toBe('false');
+    expect(screen.queryByText(/This is one possible complete solution/)).toBeNull();
+    fireEvent.click(reveal);
+
+    expect(screen.getByRole('button', { name: 'Hide example solution' }).getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByText(/This is one possible complete solution/)).toBeTruthy();
+    const solutionCode = screen.getByRole('group', { name: 'html code example: Example solution' });
+    expect(solutionCode.textContent).toContain('Welcome to my page');
+  });
+
   it('gives feedback when a learner submits a knowledge-check answer', async () => {
     const lesson = await getStructuredLesson('html.document-structure', 'en');
     if (!lesson) throw new Error('English pilot lesson is missing');
@@ -76,6 +93,10 @@ describe('StructuredLessonRenderer', () => {
     expect(screen.getAllByRole('group', { name: /пример кода/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole('heading', { name: 'Создай страницу «Обо мне»' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Отметить раздел прочитанным: Почему структура документа важна' })).toBeTruthy();
+    const reveal = screen.getByRole('button', { name: 'Показать пример решения' });
+    fireEvent.click(reveal);
+    expect(screen.getByText(/Это один из возможных полных вариантов/)).toBeTruthy();
+    expect(screen.getByRole('group', { name: 'html: пример кода — Пример решения' })).toBeTruthy();
   });
 
   it('announces a failed copy attempt to assistive technology', async () => {

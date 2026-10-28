@@ -92,6 +92,16 @@ describe('structured lesson content', () => {
     );
     expect(englishLesson.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     expect(russianLesson.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    const englishPractice = englishLesson.blocks.find((block) => block.id === 'practice-about-me');
+    const russianPractice = russianLesson.blocks.find((block) => block.id === 'practice-about-me');
+    expect(englishPractice).toMatchObject({
+      type: 'codingExercise',
+      solution: { code: expect.stringContaining('<header>'), explanation: expect.stringContaining('one possible complete solution') },
+    });
+    expect(russianPractice).toMatchObject({
+      type: 'codingExercise',
+      solution: { code: expect.stringContaining('<header>'), explanation: expect.stringContaining('один из возможных полных вариантов') },
+    });
   });
 
   it('rejects a single-choice question with two correct answers', () => {

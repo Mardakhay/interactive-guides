@@ -1,10 +1,10 @@
 {
   "id": "html.document-structure",
   "locale": "en",
-  "version": 6,
+  "version": 7,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-28",
   "moduleId": "month-1-week-1",
   "week": 1,
   "order": 1,
@@ -264,7 +264,11 @@
         "The HTML structure is valid and consistently indented.",
         "The semantic choice for each major region can be explained in one sentence.",
         "The learner can find header, nav, main, sections, article and footer in the Elements panel."
-      ]
+      ],
+      "solution": {
+        "code": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <meta name=\"description\" content=\"A short introduction to Alex's frontend projects.\">\n    <title>Alex Morgan — Frontend Learner</title>\n  </head>\n  <body>\n    <header>\n      <p>Alex Morgan</p>\n      <nav aria-label=\"Main navigation\">\n        <a href=\"#about\">About</a>\n        <a href=\"#projects\">Projects</a>\n      </nav>\n    </header>\n    <main>\n      <h1>About Me</h1>\n      <section id=\"about\" aria-labelledby=\"about-heading\">\n        <h2 id=\"about-heading\">A little about me</h2>\n        <p>I am learning frontend engineering and building accessible interfaces.</p>\n      </section>\n      <section id=\"projects\" aria-labelledby=\"projects-heading\">\n        <h2 id=\"projects-heading\">Selected projects</h2>\n        <article aria-labelledby=\"project-one-title\">\n          <h3 id=\"project-one-title\">Accessible task list</h3>\n          <p>A small app for keeping track of daily tasks.</p>\n        </article>\n      </section>\n    </main>\n    <footer>\n      <p>Practice page for semantic HTML.</p>\n    </footer>\n  </body>\n</html>",
+        "explanation": "This is one possible complete solution: the document shell and metadata live in head, navigation targets real section IDs, main contains one primary heading, and the project is a self-contained article inside its thematic section. Other wording and layouts can also meet the requirements."
+      }
     },
     {
       "id": "html-text-markup-heading",

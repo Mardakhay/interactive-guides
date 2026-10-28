@@ -144,6 +144,10 @@ const codingExerciseBlockSchema = z.object({
   starterCode: z.string(),
   hints: z.array(z.string().min(1)).default([]),
   successCriteria: z.array(z.string().min(1)).min(1),
+  solution: z.object({
+    code: z.string().min(1),
+    explanation: z.string().min(1),
+  }).optional(),
 });
 
 const referencesBlockSchema = z.object({
