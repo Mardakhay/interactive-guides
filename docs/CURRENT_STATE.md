@@ -812,3 +812,10 @@ The candidate mapping of all 25 classic catalog IDs to possible structured desti
 - `StructuredLessonPage` now summarizes three independent signals for the current lesson: submitted knowledge checks / available checks, self-reviewed practice criteria / total criteria, and exercise drafts saved / available coding exercises. Tests exercise the counters from zero through a knowledge-check submission, self-review toggle, and draft edit.
 - These are intentionally activity indicators, not an aggregate score: quiz history can include retries, self-review is learner-reported, and a saved draft is not automatically evaluated. The section-read count and lesson-completion marker remain separate and are not conflated with these metrics or called mastery.
 - This implementation is covered by CI but has not been evaluated with a real screen reader/browser. Remaining Phase 3 gates: explicit mastery policy/objective evidence, selective editorial review for additional answer solutions, and manual accessible interaction acceptance. Legacy content/source parity, learner-state-safe route cutover, and real-browser backup/PWA acceptance remain open; `main` is unchanged.
+
+
+## Per-lesson signal isolation — 2026-10-28
+
+- Exact-head GitHub Actions [run #40640900763](https://github.com/Mardakhay/interactive-guides/actions/runs/40640900763) passed on `ec09333be356acd4d7a69d4781aeb8494d061b5a`: `npm ci`, audit diagnostic, lint, typecheck, all tests and production build/bundle-budget checks.
+- `StructuredLessonPage.test.tsx` now covers a real client-side navigation flow: submit a knowledge check, self-review a criterion and save a draft on the HTML document lesson, then navigate to HTML forms and confirm all three counts reflect only the new lesson. Test teardown now resets structured-learning v2 keys/state as well as progress state to prevent cross-test leakage.
+- Signals are still activity indicators, not mastery or objective code grading. Browser/screen-reader acceptance and product-level mastery rules remain open.

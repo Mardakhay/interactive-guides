@@ -5,7 +5,14 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — learning signals separated from mastery — 2026-10-28
+## Current continuation — per-lesson learning-signal isolation — 2026-10-28
+
+- Latest verified code/test HEAD: `ec09333be356acd4d7a69d4781aeb8494d061b5a`; exact-head GitHub Actions [run #40640900763](https://github.com/Mardakhay/interactive-guides/actions/runs/40640900763) passed install, audit diagnostic, lint, typecheck, all tests and production build/bundle budget.
+- Added a route-transition regression test: on the HTML document lesson it submits a knowledge check, self-reviews a practice criterion and saves a draft, then navigates to HTML Forms and confirms the counts are scoped to that new lesson. Structured-learning `localStorage` and Zustand state are also cleaned between page tests.
+- Updated `docs/FULL_SOURCE_CONTENT_AUDIT.md` with an authoritative source-review reconciliation: 25/25 legacy HTML sources have a documented full review, but that is not a claim of 100% source-to-lesson or interactive-widget parity. Notion's 21 fetched pages remain `verification.state=unverified`.
+- Keep quiz attempts, practice self-review, drafts, section-read marks and lesson-completion markers as separate signals. No aggregate mastery result is implemented. Manual screen-reader/browser/device acceptance and objective mastery policy remain open; `main` is unchanged and Supabase remains gated.
+
+## Previous continuation — learning signals separated from mastery (superseded) — 2026-10-28
 
 - Latest code/test HEAD: `c34bc9715fc0830745e59b07f60b1e0b1a850d8c`; exact-head GitHub Actions [run #40640504400](https://github.com/Mardakhay/interactive-guides/actions/runs/40640504400) passed `npm ci`, lint, typecheck, all tests and production build/bundle budget.
 - Added a localized lesson-level “Learning signals” summary with independent counters for knowledge checks submitted, practice criteria self-reviewed and exercise drafts saved. The test starts at zero, submits a knowledge check, toggles one self-review criterion and edits a draft to prove the three measures update separately.
