@@ -154,7 +154,7 @@ describe('HTML forms and accessibility lesson translation', () => {
       expect(guidance).toContain('range');
       expect(guidance).toContain('accept=');
       expect(guidance).toContain('hidden');
-      expect(guidance).toContain('server');
+      expect(guidance).toMatch(/server|сервер/);
       const check = lesson.blocks.find((block) => block.id === 'file-accept-check');
       expect(check?.type).toBe('knowledgeCheck');
       if (check?.type !== 'knowledgeCheck') return;
