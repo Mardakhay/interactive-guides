@@ -68,7 +68,7 @@ The source remains **partial**: its visual mock tabs, live examples, FAQ accordi
 
 ## Continuation checkpoint — 2026-10-26
 
-Current structural inventory is 44 EN/RU lesson pairs (26 core + 18 supplementary; 88 locale JSON files). The HTML content/code/interaction review checklist is documented as complete for 25/25 source files, while exact source-to-block, claim-by-claim factual review, and app-side interaction parity remain incomplete. All 21 fetched Notion pages remain connector-unverified. Recent depth additions include `frontend.architecture-boundaries` v4 (34 blocks with explicit SOLID coverage), `html.document-structure` v6 (50 blocks), and `ui.design-systems` v3 (32 blocks). Do not treat block count as a depth score.
+Current structural inventory is 44 EN/RU lesson pairs (27 core + 17 supplementary; 88 locale JSON files). The HTML content/code/interaction review checklist is documented as complete for 25/25 source files, while exact source-to-block, claim-by-claim factual review, and app-side interaction parity remain incomplete. All 21 fetched Notion pages remain connector-unverified. Recent depth additions include `frontend.architecture-boundaries` v4 (34 blocks with explicit SOLID coverage), `html.document-structure` v6 (50 blocks), and `ui.design-systems` v3 (32 blocks). Do not treat block count as a depth score.
 
 The current app still serves legacy lesson HTML in its old catalog/routes. Cutover is gated on finishing source-level coverage and reviewing all core/supplement content. Supabase has not been implemented. Latest commit CI status should be checked against the exact feature SHA before treating any checkpoint as verified.
 
@@ -367,7 +367,7 @@ All 21 pages return `verification.state=unverified`. The ledger distinguishes in
 
 ## Current status reconciliation — 2026-10-27
 
-The earlier 37-pair/74-file count and incomplete HTML-read counts are historical snapshots, superseded by the current tree: 44 EN/RU lesson pairs (26 core + 18 supplementary; 88 lesson JSON files). Content/code/interaction reviews for all 25 HTML sources are documented 25/25; source-to-block fidelity and equivalent UI-interaction parity remain partial. The Notion ledger documents 21 fetched pages, all marked `verification.state=unverified` by source metadata.
+The earlier 37-pair/74-file count and incomplete HTML-read counts are historical snapshots, superseded by the current tree: 44 EN/RU lesson pairs (27 core + 17 supplementary; 88 lesson JSON files). Content/code/interaction reviews for all 25 HTML sources are documented 25/25; source-to-block fidelity and equivalent UI-interaction parity remain partial. The Notion ledger documents 21 fetched pages, all marked `verification.state=unverified` by source metadata.
 
 
 ## Part 4 test-coverage continuation — 2026-10-27
