@@ -318,17 +318,17 @@
       ],
       "starterCode": "// main.js\nfunction createSorter(onResult, onError) {\n  const worker = new Worker(new URL(\"./sort.worker.js\", import.meta.url), { type: \"module\" });\n\n  worker.addEventListener(\"message\", ({ data }) => {\n    // TODO: validate the result message, then call onResult.\n  });\n  worker.addEventListener(\"error\", (event) => onError(event.message));\n\n  return {\n    sort(values) {\n      // TODO: send a typed request message.\n    },\n    dispose() {\n      // TODO: call worker.terminate().\n    },\n  };\n}\n\n// sort.worker.js\nself.addEventListener(\"message\", ({ data }) => {\n  // TODO: validate message, sort a copy of numeric values, and post a result.\n});",
       "hints": [
-        "Define a small protocol such as { type: 'sort', values } and { type: 'sorted', values }; validate both boundaries.",
-        "Use [...values].sort((a, b) => a - b) to avoid mutating the received logical input.",
-        "Only the main thread should update DOM or component state.",
-        "Call terminate from dispose; if the worker is reusable, decide whether to keep it alive or terminate after one result."
+        "Задай небольшой протокол, например `{ type: 'sort', values }` и `{ type: 'sorted', values }`; проверяй сообщения на обеих границах.",
+        "Используй `[...values].sort((a, b) => a - b)`, чтобы не мутировать полученный массив.",
+        "Только главный поток должен обновлять DOM или состояние компонента.",
+        "Вызывай `terminate` из `dispose`; если worker используется повторно, реши, оставить ли его работающим или завершать после одного результата."
       ],
       "successCriteria": [
         "Sorting work occurs in the worker and output is deterministic numeric order.",
         "Original input is unchanged.",
-        "Invalid message shapes do not crash the page or invoke onResult.",
-        "Error events reach onError and dispose stops the worker.",
-        "Explanation weighs CPU benefit against startup and structured-clone cost."
+        "Неверная форма сообщения не должна приводить к падению страницы или вызову `onResult`.",
+        "События ошибок должны передаваться в `onError`, а `dispose` — останавливать worker.",
+        "В объяснении нужно сопоставить пользу переноса CPU-нагрузки с затратами на запуск и structured clone."
       ]
     },
     {
@@ -600,9 +600,9 @@
       "type": "list",
       "ordered": false,
       "items": [
-        "XHR is an event-driven legacy HTTP API; inspect HTTP status separately from network/timeout/abort events.",
-        "WebSocket is a persistent full-duplex channel with explicit lifecycle, message validation, cleanup, and app-owned retry/backpressure policy.",
-        "Dedicated workers move CPU work off the UI thread but have no DOM; structured clone/transfer has cost.",
+        "XHR — событийный legacy HTTP API; проверяй HTTP-статус отдельно от сетевых ошибок, тайм-аута и отмены.",
+        "WebSocket — постоянный двусторонний канал; нужно явно управлять жизненным циклом, проверкой сообщений, очисткой и политикой повторов/backpressure в приложении.",
+        "Dedicated workers переносят CPU-нагрузку с UI-потока, но не имеют доступа к DOM; structured clone/transfer требует затрат.",
         "Service workers are event-driven origin-scoped proxies for network/cache and offline strategies, not background UI threads.",
         "Use secure contexts, same-origin/scope rules, conservative caching, and lifecycle cleanup intentionally."
       ]

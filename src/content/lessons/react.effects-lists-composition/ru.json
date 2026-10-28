@@ -162,34 +162,34 @@
       "code": "import { useEffect, useState } from \"react\";\n\ntype Post = { id: number; title: string };\n\ntype LoadState =\n  | { status: \"loading\" }\n  | { status: \"success\"; posts: Post[] }\n  | { status: \"error\"; message: string };\n\nfunction PostsPage() {\n  const [state, setState] = useState<LoadState>({ status: \"loading\" });\n\n  useEffect(() => {\n    const controller = new AbortController();\n    setState({ status: \"loading\" });\n\n    async function load() {\n      try {\n        const response = await fetch(\"https://jsonplaceholder.typicode.com/posts\", {\n          signal: controller.signal,\n        });\n        if (!response.ok) throw new Error(`HTTP ${response.status}`);\n        const posts = (await response.json()) as Post[];\n        setState({ status: \"success\", posts: posts.slice(0, 10) });\n      } catch (error) {\n        if (controller.signal.aborted) return;\n        setState({ status: \"error\", message: \"Не удалось загрузить посты\" });\n      }\n    }\n\n    void load();\n    return () => controller.abort();\n  }, []);\n\n  if (state.status === \"loading\") return <p>Загрузка постов…</p>;\n  if (state.status === \"error\") return <p role=\"alert\">{state.message}</p>;\n  if (state.posts.length === 0) return <p>Пока нет постов.</p>;\n  return <PostList posts={state.posts} />;\n}",
       "steps": [
         {
-          "title": "Model request states as distinct alternatives",
+          "title": "Моделирование состояний запроса как отдельных вариантов",
           "lineStart": 5,
           "lineEnd": 8,
-          "explanation": "The discriminated union makes loading, success, and error separate states. TypeScript can narrow state by checking status and prevent using posts before success."
+          "explanation": "Discriminated union разделяет загрузку, успех и ошибку на самостоятельные состояния. TypeScript может сужать тип по полю `status` и не позволяет использовать `posts` до успешной загрузки."
         },
         {
-          "title": "Start the request and prepare cancellation",
+          "title": "Запуск запроса и подготовка к отмене",
           "lineStart": 13,
           "lineEnd": 15,
-          "explanation": "The effect owns an AbortController for this request. It sets loading when setup runs and passes the signal to fetch."
+          "explanation": "Effect создаёт `AbortController` для этого запроса. При выполнении setup он устанавливает `loading` и передаёт `signal` в `fetch`."
         },
         {
           "title": "Check HTTP and parse the body",
           "lineStart": 19,
           "lineEnd": 24,
-          "explanation": "The response status is checked before JSON parsing. A type assertion indicates what the example expects, but it does not validate an untrusted response body at runtime."
+          "explanation": "Перед разбором JSON проверяется статус ответа. Type assertion показывает, какой ответ ожидает пример, но не проверяет недоверенное тело ответа во время выполнения."
         },
         {
-          "title": "Ignore an intentional abort and handle other failures",
+          "title": "Игнорирование намеренной отмены и обработка остальных ошибок",
           "lineStart": 25,
           "lineEnd": 28,
-          "explanation": "Cleanup aborts the request. The catch handler avoids replacing state with an error after that abort; other failures move the UI to its error state."
+          "explanation": "Cleanup отменяет запрос. Обработчик `catch` не должен записывать ошибку в состояние после такой отмены; другие сбои переводят UI в состояние ошибки."
         },
         {
           "title": "Cleanup and render by state",
           "lineStart": 31,
           "lineEnd": 37,
-          "explanation": "The effect returns the abort cleanup. The component renders loading, error, empty, or success explicitly, and successful results render a list with stable keys."
+          "explanation": "Effect возвращает cleanup с отменой запроса. Компонент явно отображает состояния `loading`, `error`, `empty` или `success`, а успешные результаты выводит списком со стабильными `key`."
         }
       ]
     },

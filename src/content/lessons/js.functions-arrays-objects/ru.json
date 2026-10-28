@@ -1165,11 +1165,11 @@
         "Fallback a nullable root object before destructuring it; a default in the binding pattern only handles undefined, not null.",
         "Use ?? when 0 or an empty string is a valid value; use || only if every falsy value should mean missing.",
         "Array rest belongs at the end and returns a new array of the remaining elements.",
-        "Optional-chain each nested field that may independently be nullish."
+        "Применяй optional chaining к каждому вложенному полю, которое может независимо иметь значение null или undefined."
       ],
       "successCriteria": [
         "Null and missing input return Guest, score 0, general tag, no remaining tags, and system theme.",
-        "Explicit empty displayName and numeric score 0 are preserved.",
+        "Явное пустое `displayName` и числовой `score` со значением `0` должны сохраняться.",
         "At least two tags become a first primaryTag and ordered otherTags.",
         "No nested property access throws for the stated nullable shapes.",
         "Input objects and arrays remain unchanged.",
@@ -1181,10 +1181,10 @@
       "type": "list",
       "ordered": false,
       "items": [
-        "Array destructuring consumes an iterable by position; holes skip, defaults replace only undefined, and rest collects the remainder.",
-        "Rest gathers values at a binding/parameter site; spread expands them at a call or literal site.",
-        "Optional chaining short-circuits null/undefined access; nullish coalescing preserves valid falsy values such as 0 and ''.",
-        "Treat external data as untrusted and choose fallback semantics deliberately."
+        "Деструктуризация массива берёт значения iterable по позициям; пропуски пропускаются, значения по умолчанию заменяют только `undefined`, а rest собирает остаток.",
+        "Rest собирает значения в месте объявления binding/параметра; spread раскрывает их при вызове или создании литерала.",
+        "Optional chaining прекращает доступ при `null`/`undefined`; nullish coalescing сохраняет допустимые falsy-значения, например `0` и `''`.",
+        "Считай внешние данные недоверенными и осознанно выбирай поведение fallback."
       ]
     },
     {

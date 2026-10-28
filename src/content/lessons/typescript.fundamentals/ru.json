@@ -300,7 +300,7 @@
       "id": "knowledge-check-3",
       "type": "knowledgeCheck",
       "questionType": "multi-select",
-      "prompt": "Which statements about TypeScript types are correct? Select all that apply.",
+      "prompt": "Какие утверждения о типах TypeScript верны? Выбери все подходящие варианты.",
       "options": [
         {
           "id": "a",

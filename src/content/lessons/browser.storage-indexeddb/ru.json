@@ -438,17 +438,17 @@
       "starterCode": "function saveDraft(db, draft) {\n  if (!draft || typeof draft.id !== \"string\" || draft.id.length === 0) {\n    return Promise.reject(new TypeError(\"draft.id is required\"));\n  }\n\n  return new Promise((resolve, reject) => {\n    const transaction = db.transaction(\"drafts\", \"readwrite\");\n    transaction.objectStore(\"drafts\").put(draft);\n\n    transaction.oncomplete = () => {\n      // TODO: resolve with the saved draft id.\n    };\n    transaction.onabort = () => {\n      // TODO: reject with the transaction error.\n    };\n    transaction.onerror = () => {\n      // TODO: reject, but do not report a commit here.\n    };\n  });\n}",
       "hints": [
         "Request success means that request succeeded inside the transaction; only transaction complete means the whole transaction committed.",
-        "Prevent double settlement if both error and abort notifications occur; Promise ignores later settlements, but keep the intended error source clear.",
+        "Не допускай повторного завершения Promise, если приходят события error и abort; последующие resolve/reject будут проигнорированы Promise, но источник ошибки должен оставаться понятным.",
         "Use put for insert-or-update keyed by id; add has different duplicate-key behavior.",
-        "Create object stores and indexes inside onupgradeneeded, checking objectStoreNames/indexNames first."
+        "Создавай object stores и индексы внутри `onupgradeneeded`, предварительно проверяя `objectStoreNames` и `indexNames`."
       ],
       "successCriteria": [
-        "Invalid or missing id is rejected before a transaction is opened.",
+        "При отсутствии или неверном id функция отклоняет запрос до открытия транзакции.",
         "Valid draft uses drafts/readwrite and put.",
         "Promise resolves with draft.id only after transaction complete.",
         "Abort/error rejects and never resolves as a saved draft.",
-        "Migration can run again without throwing because the store/index already exists.",
-        "Explanation distinguishes local persistence from server-authoritative user progress."
+        "Миграцию можно выполнять повторно без исключения, если store/index уже существуют.",
+        "В объяснении нужно отличать локальное сохранение данных от прогресса пользователя, подтверждённого сервером."
       ]
     },
     {

@@ -270,7 +270,7 @@
       "id": "knowledge-check-3",
       "type": "knowledgeCheck",
       "questionType": "multi-select",
-      "prompt": "Which statements about project tooling are accurate? Select all that apply.",
+      "prompt": "Какие утверждения об инструментах проекта верны? Выбери все подходящие варианты.",
       "options": [
         {
           "id": "a",

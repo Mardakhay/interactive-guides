@@ -105,6 +105,17 @@ describe('cross-locale user-facing prose quality', () => {
       const key = path.length > 0 ? path[path.length - 1] : undefined;
       if (typeof key === 'string' && ignoredKeys.has(key)) return;
 
+      // These fields are code-shaped examples or API-name references, not prose.
+      const codeLikeField =
+        (lessonId === 'css.fundamentals' && blockId === 'css-quick-reference-list' && path[0] === 'items') ||
+        (lessonId === 'js.async-fetch' && blockId === 'deep-async-check' && path[0] === 'options' && path[2] === 'text') ||
+        (lessonId === 'js.functions-arrays-objects' &&
+          ['nested-destructuring-check', 'quiz-destructure'].includes(blockId) &&
+          path[0] === 'options' && path[2] === 'text') ||
+        (lessonId === 'testing.react-testing-library' && blockId === 'testing-quiz-1' && path[0] === 'options' && path[2] === 'text') ||
+        (lessonId === 'js.runtime-memory' && blockId === 'runtime-copy-practice' && path[0] === 'successCriteria' && path[1] === 2);
+      if (codeLikeField) return;
+
       if (typeof english === 'string' && typeof russian === 'string') {
         const text = russian.trim();
         if (

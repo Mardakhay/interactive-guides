@@ -730,16 +730,16 @@
       "starterCode": "function formatInvoice(currency, taxRate) {\n  // TODO: use this.customer and this.subtotal.\n}\n\nconst order = { customer: \"Ayla\", subtotal: 20 };\nconst byCall = formatInvoice.call(order, \"$\", 0.1);\nconst byApply = formatInvoice.apply(order, [\"$\", 0.1]);\nconst later = formatInvoice.bind(order, \"$\");\nconst byBind = later(0.1);\n\nconsole.log(byCall, byApply, byBind);\n// Expected: \"Ayla: $22.00\" three times",
       "hints": [
         "Inside a normal function, this comes from the call expression. Pass order explicitly to call/apply/bind.",
-        "Apply receives one array-like argument list; call receives each argument separately.",
+        "`apply` получает список аргументов в array-like формате, тогда как `call` принимает каждый аргумент по отдельности.",
         "Bind fixes order and currency now, but you still supply taxRate when you call later.",
-        "Format the numeric result with toFixed(2); do not mutate order.subtotal."
+        "Форматируй числовой результат через `toFixed(2)`; не изменяй `order.subtotal`."
       ],
       "successCriteria": [
-        "All three outputs equal Ayla: $22.00.",
-        "call and apply invoke immediately with the intended receiver.",
-        "The bound function delays execution until later(0.1).",
+        "Все три результата должны иметь вид `Ayla: $22.00`.",
+        "`call` и `apply` немедленно вызывают функцию с нужным receiver.",
+        "Связанная (bound) функция откладывает выполнение до `later(0.1)`.",
         "Order remains unchanged and the original function is reusable with another receiver.",
-        "Explanation distinguishes this binding from copying or mutating an object."
+        "Объяснение должно отличать привязку `this` от копирования или изменения объекта."
       ]
     },
     {
@@ -748,7 +748,7 @@
       "ordered": false,
       "items": [
         "Ordinary function this follows its call-site; arrow this is lexical.",
-        "call/apply invoke immediately; call takes separate arguments and apply takes an array-like list.",
+        "`call`/`apply` вызывают функцию немедленно; `call` принимает аргументы отдельно, а `apply` — список аргументов в array-like формате.",
         "bind returns a new function and may pre-fill receiver/arguments; keep its identity when adding/removing listeners.",
         "Strict mode makes an unbound ordinary this undefined and surfaces some silent failures; modules/classes are strict automatically."
       ]
