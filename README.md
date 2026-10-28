@@ -41,9 +41,10 @@ npm run lint
 npm run typecheck
 npm test
 npm run build
+npm run smoke:preview
 ```
 
-The build includes TypeScript project checks, the production Vite build, and JavaScript bundle-budget enforcement. GitHub Actions runs on pull requests targeting `main` and pushes to `main`. A green automated run is necessary but does not certify source parity, screen-reader behavior, mobile layouts, deployment behavior, or offline acceptance.
+The build includes TypeScript project checks, the production Vite build, and JavaScript bundle-budget enforcement. `npm run smoke:preview` starts the production preview and checks HTTP deep-route fallback, the built entry bundle, manifest, service worker, and PWA icon assets. It does not execute JavaScript in a real browser or verify native install/offline behavior. GitHub Actions runs on pull requests targeting `main` and pushes to `main`. A green automated run is necessary but does not certify source parity, screen-reader behavior, mobile layouts, deployment behavior, or offline acceptance.
 
 ## Documentation
 
