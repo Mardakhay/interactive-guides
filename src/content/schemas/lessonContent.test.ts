@@ -962,14 +962,14 @@ describe('Git workflow lesson translation', () => {
     expect(englishGitWorkflow.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGitWorkflow.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
-    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
-    expect(englishGitWorkflow.version).toBe(5);
-    expect(russianGitWorkflow.version).toBe(5);
+    expect(englishGitWorkflow.version).toBe(6);
+    expect(russianGitWorkflow.version).toBe(6);
     for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
       const ciExample = lesson.blocks.find((block) => block.id === 'ci-example');
       expect(ciExample?.type).toBe('code');
@@ -992,6 +992,20 @@ describe('Git workflow lesson translation', () => {
         'git-pipeline-simulation',
       ]),
     );
+    expect(englishGitWorkflow.blocks.map((block) => block.id)).toEqual(
+      expect.arrayContaining(['ci-failure-diagnosis-heading', 'ci-failure-diagnosis']),
+    );
+    const diagnosisByLocale = [englishGitWorkflow, russianGitWorkflow].map((lesson) => {
+      const block = lesson.blocks.find((candidate) => candidate.id === 'ci-failure-diagnosis');
+      expect(block?.type).toBe('knowledgeCheck');
+      if (block?.type !== 'knowledgeCheck') throw new Error('CI diagnosis check is missing');
+      expect(block.questionType).toBe('single-choice');
+      expect(block.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['build-log']);
+      expect(block.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      return block;
+    });
+    expect(diagnosisByLocale[0]?.prompt).toContain('npm run build');
+    expect(diagnosisByLocale[1]?.prompt).toContain('npm run build');
     const pipelineSimulation = englishGitWorkflow.blocks.find(
       (block) => block.id === 'git-pipeline-simulation',
     );

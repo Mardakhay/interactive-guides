@@ -1,7 +1,7 @@
 {
   "id": "git.workflow-ci",
   "locale": "en",
-  "version": 5,
+  "version": 6,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-28",
@@ -524,6 +524,57 @@
           "explanation": "Continuous delivery keeps a release ready but can require approval. Continuous deployment automatically releases qualifying changes after gates. Keep the artifact and release process explicit so the same tested build is promoted."
         }
       ]
+    },
+    {
+      "id": "ci-failure-diagnosis-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Diagnose a failed stage from its logs"
+    },
+    {
+      "id": "ci-failure-diagnosis",
+      "type": "list",
+      "items": [
+        "If `npm ci` fails, inspect the lockfile, Node/npm versions, `engines` constraints and registry error. Do not replace `npm ci` with `npm install` merely to hide a lockfile mismatch.",
+        "If lint or typecheck fails, locate the first relevant file and line, fix the cause, and run the corresponding command locally when the environment is available.",
+        "If a test fails, compare expected and actual behavior and decide whether it conflicts with the intended change or exposed a regression. Do not delete a test just to turn the status green.",
+        "If the production build fails, inspect compile errors, imports, environment variables, or the bundle budget. Passing tests does not prove that a release build can be produced.",
+        "If code checks are green but a Deploy Preview or production deployment is red, inspect its separate deploy job: build command, publish directory, environment, base path, redirects, and host-platform errors.",
+        "After fixing the cause, create a new commit and verify the new run against its exact SHA. An older green run does not validate code pushed later."
+      ]
+    },
+    {
+      "id": "ci-failure-diagnosis",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "CI fails at `npm run build` even though install, lint, typecheck and tests passed. What should you do first?",
+      "options": [
+        {
+          "id": "build-log",
+          "text": "Open the failed build-step log for the current SHA and fix the specific compilation, configuration or environment error.",
+          "correct": true,
+          "feedback": "Diagnose the stage that actually failed. After the fix, verify the new commit and its CI run."
+        },
+        {
+          "id": "force-merge",
+          "text": "Force-merge the PR because the tests passed.",
+          "correct": false,
+          "feedback": "The production build is a separate check. Its failure may mean the application cannot be built for release."
+        },
+        {
+          "id": "upgrade-all",
+          "text": "Upgrade all dependencies without inspecting the log.",
+          "correct": false,
+          "feedback": "A blind broad upgrade does not identify the root cause and may introduce additional incompatibilities."
+        },
+        {
+          "id": "old-green-run",
+          "text": "Repeat an older green run and treat it as proof for the latest commit.",
+          "correct": false,
+          "feedback": "CI is tied to a specific SHA. Fix the cause first, then obtain a result for the new commit."
+        }
+      ],
+      "explanation": "Read the failing step's logs, fix the observed cause, and verify the new SHA."
     },
     {
       "id": "git-cd-check",
