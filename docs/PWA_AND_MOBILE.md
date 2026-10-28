@@ -170,10 +170,10 @@ GitHub Actions [run #40689939570](https://github.com/Mardakhay/interactive-guide
 The additional localization regression does not change the PWA acceptance status: real-browser/device installation, offline revisit vs. unvisited lesson, localized deep-link reload, waiting-worker update with unsaved input, mobile reflow, keyboard/screen-reader behavior and backup-file interactions remain **Not run** in the browser/device checklist.
 
 
-## Automated production preview smoke — 2026-10-28
+## Automated production preview smoke and latest verification — 2026-10-28
 
-The feature branch now runs `npm run smoke:preview` after the production build in CI. It verifies HTTP status and app-shell fallback for four deep routes, loads the built JavaScript entry, validates manifest metadata, checks service-worker cache-scope/private API guard patterns, compares SVG favicon/PWA artwork, and checks PNG signatures/dimensions for the 180/192/512px icons.
+The feature branch runs `npm run smoke:preview` after the production build in CI. It verifies HTTP status and app-shell fallback for four deep routes, loads the built JavaScript entry, validates manifest metadata, checks service-worker cache-scope/private API guard patterns, compares SVG favicon/PWA artwork, and checks PNG signatures/dimensions for the 180/192/512px icons.
 
-Exact code/content SHA `28b5c53afd967d2a2488840b494b197398fe467d` passed [run #40691049972](https://github.com/Mardakhay/interactive-guides/actions/runs/40691049972): 223 tests / 35 files, lint, typecheck, build, all 125 bundle budgets, smoke stage, and zero npm audit findings.
+The code/content checkpoint `28b5c53afd967d2a2488840b494b197398fe467d` passed [run #40691049972](https://github.com/Mardakhay/interactive-guides/actions/runs/40691049972): 223 tests / 35 files, lint, typecheck, build, all 125 bundle budgets, smoke stage and zero npm audit findings. The subsequent pre-sync docs-only HEAD `e16011e634d02a04296ec2a8763c2d505809fb9b` passed exact-head CI [run #40691420125](https://github.com/Mardakhay/interactive-guides/actions/runs/40691420125).
 
-This automated smoke is not native browser/device acceptance. The install prompt, localized deep link in browser, online-loaded versus never-visited offline lesson, update deferral during unsaved work, mobile reflow/focus, screen-reader behavior and backup file picker/download/restore must still be run and recorded in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
+This automated smoke is not native browser/device acceptance. Install prompts, localized deep-link behavior in a browser, online-loaded versus never-visited offline lessons, update deferral during unsaved work, mobile reflow/focus, screen-reader/keyboard behavior and backup file picker/download/restore must still be run and recorded in `BROWSER_SMOKE_TEST_CHECKLIST.md`. The current Netlify URL is a deploy preview, not proof of a production release.

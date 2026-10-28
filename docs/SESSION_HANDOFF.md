@@ -5,7 +5,29 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — CI failure diagnosis in the structured Git workflow lesson — 2026-10-28
+## Authoritative handoff — current state and next work — 2026-10-28
+
+This section supersedes the older "current continuation" labels below when they conflict. The remaining sections are a chronological implementation log; prior code/content checkpoint SHAs are historical.
+
+- Current feature branch: `feat/learning-platform-foundation`; [PR #1](https://github.com/Mardakhay/interactive-guides/pull/1) remains open as Draft against `main`. Before this documentation refresh, HEAD was `e16011e634d02a04296ec2a8763c2d505809fb9b`.
+- Exact-head CI before this documentation refresh: [run #40691420125](https://github.com/Mardakhay/interactive-guides/actions/runs/40691420125) passed on `e16011e`: install, lint, typecheck, 223 tests / 35 files, production build, all 125 JS bundle budgets, production-preview HTTP smoke and npm audit (0 vulnerabilities). The smoke stage is not browser acceptance.
+- Registry: **27 core + 17 supplementary = 44 structured lesson IDs**, each with English and Russian records. `ui.bootstrap-mui` is core week 17; `css.sass-scss` remains supplementary.
+- All 25 legacy HTML sources have a documented full content/code/interaction review, but all 25 crosswalk rows remain **Blocked** pending destination parity, explicit treatment of non-equivalent interactions, and learner-state migration/retention decisions. Keep `/lessons/:lessonId` and all source HTML in place.
+- 21 Notion pages were fetched/mapped, but their verification metadata remains `unverified`. CI guards copied English prose and selected structural/localization contracts; it does not prove semantic translation quality or curriculum completeness.
+- Deploy preview: https://deploy-preview-1--interactive-guides.netlify.app. The CI smoke confirms HTTP routing/assets only. No real-browser/device, screen-reader or mobile acceptance is claimed.
+
+### Recommended continuation order
+
+1. Work through `docs/LEGACY_ROUTE_CUTOVER_MATRIX.md` topic-by-topic. For each legacy ID, verify actual EN and RU destinations against source sections, examples, code, quizzes, answer feedback, references and interactive behavior; record gaps and a reviewed disposition. Do not mark a row ready from ID overlap or green CI alone.
+2. Inventory and test record semantics for progress, bookmarks, notes, last-opened pointers and classic quiz-result keys. Decide what remains on the classic route and only migrate/redirect where mapping is unambiguous and tested.
+3. Run `docs/BROWSER_SMOKE_TEST_CHECKLIST.md` on a clean feature-branch checkout with synthetic data; record exact SHA, browser/version, OS/device, network mode and evidence. Exercise backup/export/import, storage restrictions, deep links, offline-loaded versus never-visited lessons, service-worker update deferral with unsaved input, mobile focus/reflow and screen-reader/keyboard flows.
+4. Complete the 24-week learning-outcome audit and remaining EN/RU semantic editorial/accessibility review; update screenshots and deployment evidence.
+5. Treat Supabase as a separate gated stream: do not begin sync implementation until its scope is confirmed and local/cloud reconciliation, migrations/RLS, no-cloud mode and cross-user isolation/account cleanup are specified.
+
+The next change should close one specific, evidence-backed parity or acceptance gap, not add generic tests that merely restate already-covered invariants. After this documentation-only change, check the Actions run for the new resulting SHA before reporting the refresh as exact-head CI-verified. No local test or native browser/device run is claimed here.
+
+
+## Previous continuation — CI failure diagnosis in the structured Git workflow lesson (superseded) — 2026-10-28
 
 - Latest verified code/test HEAD: `ccf839c806369d9e151e4f24b430ac24f3c4c936`; exact-head GitHub Actions [run #40653842673](https://github.com/Mardakhay/interactive-guides/actions/runs/40653842673) passed install, audit diagnostics, lint, typecheck, all 215 tests across 34 files, production build, and bundle-budget checks across 125 JavaScript chunks.
 - Updated `git.workflow-ci` EN/RU to v6 with a diagnosis matrix distinguishing install/lockfile, lint/typecheck, test, production build and deploy-stage failures. Added a localized knowledge check that requires inspecting the failed build log, fixing the concrete cause and validating the new SHA rather than bypassing a failed gate.

@@ -72,8 +72,9 @@ For focused checks, run `npx vitest run src/features/learning-paths/api.test.ts 
 
 The additional `src/content/lessonQuality.test.ts` checks three content invariants:
 - every registered structured lesson in both locales has no duplicate URL within an individual `references` block;
+- all 44 EN/RU lesson pairs keep visible Russian titles/descriptions and aligned learning-outcome counts, with outcomes not copied verbatim from English;
 - a reviewed set of 23 Russian prose fields stays localized, guarding against regressions in audited prompts, feedback, explanations and paragraphs;
-- long user-facing prose is compared by matching EN/RU block and field path, rejecting verbatim English copied into Russian.
+- long user-facing prose is compared by matching EN/RU block and field path, rejecting verbatim English copied into Russian. This pass found and corrected 52 copied-English strings across eight RU lesson files.
 
 The copy scan deliberately excludes code blocks/reference blocks, starter code, CSS property quick-reference lists, event-loop traces, and explicitly identified code-shaped answer options. Keep code examples and technical identifiers intact. The scan is designed to catch obvious omissions; it is not a general language detector, semantic translator, or replacement for human editorial review. Continue to record unresolved source-parity gaps until a claim-by-claim review is complete.
 ## Pull-request checklist

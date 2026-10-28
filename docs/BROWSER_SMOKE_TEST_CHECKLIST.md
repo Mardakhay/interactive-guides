@@ -1,6 +1,6 @@
 # Browser and device smoke-test checklist
 
-**Status as of 2026-10-27: procedure prepared; no real-browser/device results are claimed here.** Fill in the execution record after running the checklist against a known feature-branch SHA. CI/jsdom tests and this written procedure do not by themselves constitute browser acceptance.
+**Status as of 2026-10-28: automated preview HTTP smoke passes; native browser/device acceptance has not been run.** Exact-head CI on pre-sync SHA `e16011e` passed [run #40691420125](https://github.com/Mardakhay/interactive-guides/actions/runs/40691420125), including 223 tests / 35 files, production build, bundle budgets, `smoke:preview` and npm audit (0 vulnerabilities). The preview smoke checks HTTP routes/assets only; do not use it to mark install, offline, storage, accessibility or mobile cases as passed. Fill in the execution record only after running the procedure against a known feature-branch SHA.
 
 ## Safe setup and evidence
 
@@ -33,7 +33,7 @@ These cases are partly exercised with deterministic Storage API mocks in Vitest;
 | R-01 | Repeat P-05 with a backup that has fewer records than the current profile. | Restore is replacement, so stale learner records are removed after successful restore. | Not run |
 | R-02 | After restore, inspect progress/bookmarks/notes/classic quiz records and structured-learning records in the disposable profile's Application/Storage panel. | Classic stores use the current versioned envelope and structured learning uses its current v2 envelope; legacy structured-learning key is removed only after a successful write path. | Not run |
 | R-03 | If a browser/device permits a safe test of denied storage access, attempt restore while access is denied. | The error is visible; no success state is announced. If the browser will not allow controlled simulation of a write failure, record “not reproducible safely” and refer to the automated failure-path tests below. | Not run |
-| R-04 | Verify the recorded CI includes restore snapshot-read failure, write failure with successful rollback, legacy-key removal failure, and rollback-failure alert tests. | The corresponding exact-head CI run is green. These tests are supplemental evidence; they do not replace P-03 through P-09. | See latest exact-head CI in [Session Handoff](./SESSION_HANDOFF.md) |
+| R-04 | Verify the recorded CI includes restore snapshot-read failure, write failure with successful rollback, legacy-key removal failure, and rollback-failure alert tests. | The corresponding exact-head CI run is green. These tests are supplemental evidence; they do not replace P-03 through P-09. | Pass in CI on pre-sync HEAD `e16011e` — [run #40691420125](https://github.com/Mardakhay/interactive-guides/actions/runs/40691420125); native-browser cases remain not run |
 
 ## C. PWA, navigation and mobile acceptance
 

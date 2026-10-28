@@ -2,6 +2,26 @@
 
 Follow this sequence. Each phase should land as a small reviewed change; avoid one giant rewrite.
 
+## Authoritative current status — 2026-10-28
+
+This is the current implementation and release-gate summary. The many dated checkpoint sections below are a work log. Repeated historical checkboxes are not a count of unique remaining tasks.
+
+- Current registry: **27 core + 17 supplementary lesson IDs = 44 bilingual lesson pairs**.
+- Latest exact-head CI before this documentation refresh: [run #40691420125](https://github.com/Mardakhay/interactive-guides/actions/runs/40691420125) on `e16011e` passed install, lint, typecheck, 223 tests across 35 files, production build, 125 JS chunk budgets, preview HTTP smoke and npm audit (0 vulnerabilities).
+- Full review of HTML source content/code/interaction is documented for 25/25 files. Exact source-to-block/widget parity and Notion claim verification are not complete; 21 Notion pages remain unverified.
+- The cutover matrix lists 25 legacy catalog IDs; **all 25 are Blocked**. Preserve the classic route and source files until each target/disposition and learner-state retention rule has been reviewed and tested.
+- Automated preview smoke is complete, but native browser/device, screen-reader and mobile acceptance is not. The ready deploy preview is not evidence of real-browser behavior.
+
+### Remaining work, ordered by dependency
+
+1. **Legacy source parity and cutover decisions:** audit each of the 25 matrix rows against actual EN/RU body content, examples, exercises, answer feedback, references and interaction behavior; record a keep-legacy or explicit-defer decision where needed. Notion material requires formal verification separately.
+2. **Learner-state safety:** inspect progress, bookmarks, notes, last-opened pointers and classic quiz-result keys. Specify and test retention/migration before any legacy redirect or HTML removal.
+3. **Native acceptance:** execute the browser/device checklist using a fresh build and synthetic learner data. Record browser/version, OS/device, exact SHA and evidence for backup/download/import, storage restrictions, install/deep link, offline behavior, service-worker update deferral, mobile reflow/focus and keyboard/screen-reader flows.
+4. **Curriculum and UX sign-off:** map every learning outcome across the 24-week syllabus; review semantic EN/RU quality, uncommon UI copy, accessibility/contrast/responsive behavior, solution disclosures and any mastery policy.
+5. **Release/cloud scope:** verify actual production deployment and capture current screenshots. Supabase remains unimplemented and gated behind explicit scope, approved local/cloud reconciliation, RLS and cross-user isolation/account cleanup.
+
+The exact number of unchecked items throughout this long roadmap is not a reliable unique-task estimate because chronological sections intentionally retain prior gate reminders.
+
 ## Phase 0 — Baseline and safeguards
 - [x] Create working branch `feat/learning-platform-foundation`.
 - [ ] Run the commands in a local checkout and record the local result. The remote exact-head CI run is green; do not describe it as a local test run.
@@ -53,18 +73,15 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
   - `feat(progress): separate completion from demonstrated mastery`
 
 ## Phase 4 — Content migration
-- [x] Build a first-pass inventory and structural survey of all 25 current HTML files; detailed parity review is still pending.
-- [ ] Extract and rewrite one pilot topic; validate the translation and content depth.
-- [ ] Run source/technical review and update the pilot in both locales.
-- [ ] Migrate the remaining lessons in small topic batches in syllabus order.
-- [ ] Keep all legacy HTML until replacements are reviewed and regression checked.
-- Acceptance: no lesson is labelled migrated until both locales, exercises and source links pass review.
-- Suggested commits:
-  - `content(html): migrate semantic HTML and forms lessons`
-  - `content(css): migrate layout and responsive design lessons`
-  - `content(javascript): migrate core language lesson series`
-  - `content(react): migrate component and hooks lessons`
-  - `content(tooling): migrate Git, package and deployment lessons`
+
+- [x] Inventory all 25 legacy HTML sources and document a full content/code/interaction review for each in `FULL_SOURCE_CONTENT_AUDIT.md`.
+- [x] Build the bilingual structured content repository and migrate substantial topic-specific material in reviewed batches; add schema, lesson-shape, curriculum, localization and source-specific regression tests.
+- [ ] Complete source-to-block equivalence review for each candidate destination: sections, technical claims, code/examples, quizzes, answer feedback, references, and EN/RU semantic parity.
+- [ ] Formally verify relevant Notion source claims; 21 pages are currently fetched/mapped but still marked `verification.state=unverified`.
+- [ ] Review every row in `LEGACY_ROUTE_CUTOVER_MATRIX.md` and assign a reviewed disposition: cutover-ready destination, keep classic, or explicitly defer non-equivalent behavior. All 25 rows are currently **Blocked**.
+- [ ] Specify and test learner-state retention/migration for progress, bookmarks, notes, last-opened pointers and classic quiz-result keys before redirects.
+- [x] Keep all classic `/lessons/:lessonId` routes and the 25 legacy HTML files available during migration; do not remove them until the per-row content and state gates are signed off.
+- Acceptance: no legacy ID is cut over because a candidate ID exists or because CI is green; both locales, interaction dispositions and learner-data behavior require evidence.
 
 ## Phase 5 — Local-first data foundations
 - [x] Add a versioned JSON backup format and explicit export/restore for current learning datasets; validation, preview, replace confirmation and best-effort multi-key rollback are implemented.
@@ -92,7 +109,8 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - [x] Add PNG app icons and the web app manifest.
 - [x] Add a service worker with scoped static-asset caching, an app-shell fallback and an explicit user-approved update lifecycle.
 - [x] Add a host-side SPA rewrite for client-side deep-link reloads (`public/_redirects`).
-- [ ] Configure/review the actual production deployment and add post-deploy smoke checks.
+- [x] Add an automated production-preview HTTP smoke stage after the production build; it validates four deep-route app-shell responses, the entry bundle, manifest/service-worker markers and PWA assets.
+- [ ] Review actual production deployment and record post-deploy behavior; a successful Netlify Deploy Preview and CI HTTP smoke are not production or real-browser acceptance.
 - [ ] Test clean install, deep-link refresh, offline revisit, update activation and external-font fallback in supported desktop/mobile browsers; record browser/OS versions using [the browser/device checklist](./BROWSER_SMOKE_TEST_CHECKLIST.md).
 - **Status:** technical foundation implemented; not release-accepted until real-browser/device checks are recorded.
 
@@ -101,7 +119,7 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - [ ] Review all learning outcomes against the 24-week syllabus and document any uncovered or duplicate outcomes.
 - [ ] Audit keyboard access, contrast, mobile, bundle size, broken links, and stale content.
 - [x] Update the project README and add a contributor/content authoring guide for the current JSON/manifest/schema workflow.
-- [x] Add repository-wide regression coverage for duplicate reference URLs across registered EN/RU lessons and targeted checks for 23 audited Russian prose fields; remove 20 duplicate URL entries across six lesson pairs.
+- [x] Add full-registry localization guards for EN/RU metadata and outcome shape, duplicate reference URLs, selected audited Russian prose, and long user-facing prose copied verbatim from EN into RU; remove 20 duplicate URL entries and translate 52 copied-English strings across eight RU lesson files.
 - [ ] Capture and verify current application screenshots for the README.
 - [ ] Run and record real-browser, screen-reader, and mobile acceptance; automated tests are not a substitute.
 - Acceptance: the complete path resolves in both locales, every step note is localized, a fresh-browser flow is checked, and release notes describe remaining limitations honestly.
