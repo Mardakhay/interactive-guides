@@ -118,6 +118,22 @@ describe('structured content repository', () => {
     expect(issues).toEqual([]);
   });
 
+  it('keeps core and supplementary lesson IDs unique and disjoint in both locales', () => {
+    for (const locale of ['en', 'ru'] as const) {
+      const curriculum = getBootcampCurriculum(locale);
+      const coreIds = curriculum.months.flatMap((month) =>
+        month.weeks.flatMap((week) => week.lessonIds),
+      );
+      const supplementaryIds = curriculum.supplementaryTracks.flatMap((track) => track.lessonIds);
+
+      expect(coreIds).toHaveLength(27);
+      expect(new Set(coreIds).size).toBe(coreIds.length);
+      expect(supplementaryIds).toHaveLength(17);
+      expect(new Set(supplementaryIds).size).toBe(supplementaryIds.length);
+      expect(coreIds.filter((id) => supplementaryIds.includes(id))).toEqual([]);
+    }
+  });
+
   it('maps all structured lessons to their canonical week', () => {
     for (const locale of ['en', 'ru'] as const) {
       const curriculum = getBootcampCurriculum(locale);
