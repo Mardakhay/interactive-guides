@@ -53,7 +53,8 @@ describe('StructuredLessonRenderer', () => {
       Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
       render(<StructuredLessonRenderer lesson={lesson} />);
       fireEvent.click(screen.getAllByRole('button', { name: 'Copy code' })[0]!);
-      expect(await screen.findByRole('status', { name: 'Code copy status' })).toHaveTextContent('Copy failed');
+      const copyStatuses = await screen.findAllByRole('status', { name: 'Code copy status' });
+      expect(copyStatuses.some((status) => status.textContent?.trim() === 'Copy failed')).toBe(true);
     } finally {
       cleanup();
       if (clipboardDescriptor) Object.defineProperty(navigator, 'clipboard', clipboardDescriptor);
