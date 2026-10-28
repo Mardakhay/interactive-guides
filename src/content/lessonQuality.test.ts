@@ -84,3 +84,82 @@ describe('Russian structured lesson localization quality', () => {
     expect(issues).toEqual([]);
   });
 });
+
+describe('cross-locale user-facing prose quality', () => {
+  it('does not leave long English prose copied verbatim into Russian structured blocks', async () => {
+    const ignoredKeys = new Set([
+      'id', 'locale', 'version', 'updatedAt', 'moduleId', 'week',
+      'supplementaryTrackId', 'order', 'estimatedMinutes', 'difficulty',
+      'prerequisites', 'tags', 'language', 'kind', 'correct',
+      'lineStart', 'lineEnd', 'code', 'url',
+    ]);
+    const issues: string[] = [];
+
+    const compare = (
+      lessonId: string,
+      blockId: string,
+      english: unknown,
+      russian: unknown,
+      path: readonly (string | number)[] = [],
+    ): void => {
+      const key = path.length > 0 ? path[path.length - 1] : undefined;
+      if (typeof key === 'string' && ignoredKeys.has(key)) return;
+
+      if (typeof english === 'string' && typeof russian === 'string') {
+        const text = russian.trim();
+        if (
+          text.length >= 35 &&
+          english.trim() === text &&
+          !/[А-Яа-яЁё]/.test(text) &&
+          !/^https?:\/\//i.test(text)
+        ) {
+          issues.push(`${lessonId}/${blockId}/${path.join('.')}`);
+        }
+        return;
+      }
+
+      if (Array.isArray(english) && Array.isArray(russian)) {
+        for (let index = 0; index < Math.min(english.length, russian.length); index += 1) {
+          compare(lessonId, blockId, english[index], russian[index], [...path, index]);
+        }
+        return;
+      }
+
+      if (
+        english && russian &&
+        typeof english === 'object' && typeof russian === 'object' &&
+        !Array.isArray(english) && !Array.isArray(russian)
+      ) {
+        const ruRecord = russian as Record<string, unknown>;
+        for (const [key, value] of Object.entries(english as Record<string, unknown>)) {
+          if (key === 'code' || key === 'url') continue;
+          if (key === 'type' && value === 'references') return;
+          compare(lessonId, blockId, value, ruRecord[key], [...path, key]);
+        }
+      }
+    };
+
+    for (const lessonId of getStructuredLessonIds()) {
+      const [english, russian] = await Promise.all([
+        getStructuredLesson(lessonId, 'en'),
+        getStructuredLesson(lessonId, 'ru'),
+      ]);
+      if (!english || !russian) {
+        issues.push(`${lessonId}: missing EN/RU body for prose comparison`);
+        continue;
+      }
+
+      for (const russianBlock of russian.blocks) {
+        if (russianBlock.type === 'code' || russianBlock.type === 'references') continue;
+        const englishBlock = english.blocks.find((block) => block.id === russianBlock.id);
+        if (!englishBlock) {
+          issues.push(`${lessonId}/${russianBlock.id}: missing EN counterpart`);
+          continue;
+        }
+        compare(lessonId, russianBlock.id, englishBlock, russianBlock);
+      }
+    }
+
+    expect(issues.sort()).toEqual([]);
+  });
+});
