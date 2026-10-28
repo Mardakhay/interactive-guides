@@ -3,6 +3,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import StructuredLessonPage from './StructuredLessonPage';
 import { useProgressStore } from '@/features/progress';
+import { useStructuredLearningStore } from '@/features/structured-lesson/store';
+import { LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, STRUCTURED_LEARNING_STORAGE_KEY } from '@/features/structured-lesson/schemas';
 
 function renderLesson(path: string) {
   return render(
@@ -20,6 +22,14 @@ afterEach(() => {
     lessons: {},
     lastOpenedLessonId: null,
     lastOpenedAt: null,
+  });
+  localStorage.removeItem(STRUCTURED_LEARNING_STORAGE_KEY);
+  localStorage.removeItem(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY);
+  useStructuredLearningStore.setState({
+    quizAttempts: {},
+    codeDrafts: {},
+    practiceChecklists: {},
+    sectionProgress: {},
   });
   document.documentElement.lang = 'en';
   vi.restoreAllMocks();
@@ -84,6 +94,31 @@ describe('StructuredLessonPage', () => {
       target: { value: '<!doctype html>\n<html lang="en"></html>' },
     });
     expect(within(draftsGroup).getByText('1 / 5')).toBeTruthy();
+  });
+
+  it('does not carry learning signals from the previous lesson after route navigation', async () => {
+    renderLesson('/en/structured-lessons/html.document-structure');
+
+    fireEvent.click(await screen.findByRole('button', { name: /In a title element inside head/ }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Check answer' })[0]!);
+    const htmlExerciseHeading = screen.getByRole('heading', { name: 'Build an About Me page' });
+    const htmlExercise = htmlExerciseHeading.closest('section');
+    if (!htmlExercise) throw new Error('About Me practice section is missing');
+    fireEvent.click(within(htmlExercise).getByLabelText('The page loads without a visible error in the browser.'));
+    fireEvent.change(within(htmlExercise).getByLabelText('Your code'), {
+      target: { value: '<!doctype html>\n<html lang="en"></html>' },
+    });
+
+    expect(within(screen.getByRole('group', { name: 'Knowledge checks submitted' })).getByText('1 / 7')).toBeTruthy();
+    expect(within(screen.getByRole('group', { name: 'Exercise drafts saved' })).getByText('1 / 5')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('link', { name: /Next lesson HTML Forms and Accessibility Basics/ }));
+    expect(await screen.findByRole('heading', { name: 'HTML Forms and Accessibility Basics' })).toBeTruthy();
+
+    expect(within(screen.getByRole('group', { name: 'Knowledge checks submitted' })).getByText('0 / 4')).toBeTruthy();
+    expect(within(screen.getByRole('group', { name: 'Practice criteria self-reviewed' })).getByText('0 / 11')).toBeTruthy();
+    expect(within(screen.getByRole('group', { name: 'Exercise drafts saved' })).getByText('0 / 2')).toBeTruthy();
+    expect(screen.getByText(/These counts describe activity, not mastery/)).toBeTruthy();
   });
 
   it('records a self-attested completion marker without claiming mastery', async () => {
