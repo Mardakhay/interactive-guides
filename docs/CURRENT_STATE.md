@@ -880,3 +880,13 @@ GitHub Actions [run #40688503193](https://github.com/Mardakhay/interactive-guide
 - Added a full-registry regression that checks RU title/description localization, equal EN/RU learning-outcome counts and non-English-copy outcomes across all 44 lesson pairs. It found two untranslated outcomes in `js.runtime-memory`; both were translated and the lesson pair advanced to v5.
 - Existing targeted regression coverage checks duplicate reference URLs and 23 reviewed RU prose fields. These guards cover explicit invariants, not general editorial approval of every lesson paragraph.
 - Still open: complete learning-outcome/topic review and source-to-block parity, legacy-route/state cutover, real browser/device/PWA/offline, keyboard/screen-reader and mobile acceptance. The ready Netlify preview is not a substitute for a real interactive browser test.
+
+
+## Cross-locale user-facing prose regression — 2026-10-28
+
+GitHub Actions [run #40689939570](https://github.com/Mardakhay/interactive-guides/actions/runs/40689939570) passed on exact code/content SHA `12059fd51069df3f3126db470cd2f4744cc157ff`: `npm ci`, lint, typecheck, **222 tests across 35 files**, production build, and bundle budgets across 125 JavaScript chunks. `npm audit` reported zero vulnerabilities.
+
+- Added a full-registry cross-locale guard in `src/content/lessonQuality.test.ts` for long user-facing text that is copied verbatim from EN into RU lesson blocks. The scan excludes code/reference blocks, starter code, CSS property quick references, event-loop traces, and explicit code-shaped quiz answers.
+- It found and corrected **52 English-only user-facing strings across eight Russian lesson files**, covering worker/IndexedDB practice guidance, auth/security instructions and requirements, JavaScript practice tips/summaries, a React effect walkthrough, and Node/npm/TypeScript knowledge-check prompts. English code examples and technical identifiers remain intentionally unchanged.
+- The guard supplements checks for all 44 RU titles/descriptions/outcome lists and the 23 explicitly audited prose fields. It detects obvious copied prose, not subtle mistranslation, missing concepts, or whether the lesson fully meets the source curriculum.
+- Full content parity and editorial review remain open alongside real-browser/device/PWA/offline, screen-reader/mobile and legacy-state route-cutover acceptance.

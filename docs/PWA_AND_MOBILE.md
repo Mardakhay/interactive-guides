@@ -161,3 +161,10 @@ The PWA foundation is present in `feat/learning-platform-foundation`; the histor
 The code/content checkpoint at `cc68eaa8c28cb9e96a1f348a163fdaa44768b873` passed GitHub Actions [run #40688503193](https://github.com/Mardakhay/interactive-guides/actions/runs/40688503193): `npm ci`, lint, typecheck, 221 tests in 35 files, production Vite build, and JavaScript bundle budgets across 125 chunks. The audit step reported zero npm vulnerabilities.
 
 This is CI evidence only. It does not count as a native browser/device execution: installation prompts, fresh-profile install, offline revisit of an opened lesson, behavior for a never-visited lesson, deep-link reload, worker update deferral with unsaved input, mobile reflow, keyboard/screen-reader behavior, and downloaded backup-file interactions remain marked **Not run** in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
+
+
+## Latest exact-head code/content CI — 2026-10-28
+
+GitHub Actions [run #40689939570](https://github.com/Mardakhay/interactive-guides/actions/runs/40689939570) passed on exact code/content SHA `12059fd51069df3f3126db470cd2f4744cc157ff`: `npm ci`, lint, typecheck, **222 tests across 35 files**, production build, and bundle budgets across 125 JavaScript chunks. `npm audit` reported zero vulnerabilities.
+
+The additional localization regression does not change the PWA acceptance status: real-browser/device installation, offline revisit vs. unvisited lesson, localized deep-link reload, waiting-worker update with unsaved input, mobile reflow, keyboard/screen-reader behavior and backup-file interactions remain **Not run** in the browser/device checklist.

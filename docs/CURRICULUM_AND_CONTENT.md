@@ -354,3 +354,12 @@ A repository regression test protects this mapping. This is a focused traceabili
 The structured repository currently registers 44 lesson IDs with EN/RU locale files (27 core and 17 supplementary). A repository regression checks that RU titles and descriptions contain Russian text, the EN/RU learning-outcome counts match, and no Russian outcome is an exact English copy or entirely non-Cyrillic. The check surfaced two English-only outcomes in `js.runtime-memory`; these are translated in both-current v5 lesson records. This is an automated guard for obvious localization regressions, not a semantic/editorial sign-off for every sentence or a complete outcome-to-syllabus audit.
 
 The code/content SHA `cc68eaa8c28cb9e96a1f348a163fdaa44768b873` passed exact-head CI [run #40688503193](https://github.com/Mardakhay/interactive-guides/actions/runs/40688503193): install, lint, typecheck, 221 tests in 35 files, production build and 125-chunk bundle budget checks; npm audit reported zero vulnerabilities. The later documentation checkpoint must receive its own exact-head CI result.
+
+
+## Cross-locale instructional-copy guard — 2026-10-28
+
+The repository now checks for long user-facing English strings copied verbatim into Russian within matching lesson blocks. The check leaves code/reference blocks, starter code, CSS property quick references, event-loop traces and code-shaped answer options untouched. It prompted corrections to 52 instructional strings across eight RU lesson files in worker/IndexedDB practice, auth/security, JavaScript practice summaries, call/apply, React effects, and tooling/TypeScript quiz prompts.
+
+GitHub Actions [run #40689939570](https://github.com/Mardakhay/interactive-guides/actions/runs/40689939570) passed on exact code/content SHA `12059fd51069df3f3126db470cd2f4744cc157ff`: `npm ci`, lint, typecheck, **222 tests across 35 files**, production build, and bundle budgets across 125 JavaScript chunks. `npm audit` reported zero vulnerabilities.
+
+This is a regression guard against obvious copy/paste omissions, not proof that every topic is completely or semantically equivalently taught. Review of the whole 24-week outcome map and legacy-source coverage remains a separate task.

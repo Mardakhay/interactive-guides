@@ -1005,3 +1005,11 @@ The feature registry now has **27 core lesson IDs and 17 supplementary lesson ID
 - The code/content SHA `cc68eaa8c28cb9e96a1f348a163fdaa44768b873` passed GitHub Actions [run #40688503193](https://github.com/Mardakhay/interactive-guides/actions/runs/40688503193): 221 tests across 35 files, lint, typecheck, production build and all 125 bundle budgets; `npm audit` reported zero vulnerabilities.
 - The current registry has 27 core lesson IDs and 17 supplementary IDs (44 total EN/RU pairs). UI-library content is mapped to core week 17.
 - This automation catches obvious untranslated outcomes and structural mismatches; it is not a complete bilingual editorial review. Source-to-block parity, non-equivalent source widgets, unverified Notion metadata, learner-state route cutover and real-browser/device acceptance remain open.
+
+
+## Cross-locale exact-copy scan of structured prose — 2026-10-28
+
+- Added a regression in `src/content/lessonQuality.test.ts` that compares long user-facing prose by stable block/path between each registered EN/RU lesson pair and reports text that remains verbatim English in Russian. It deliberately excludes code/reference blocks, starter code, CSS property quick-reference entries, event-loop traces and code-shaped options.
+- The scan led to corrections for 52 copied-English instructional strings across eight Russian lessons: worker practice hints/criteria/summaries; IndexedDB hints/criteria; auth/security instructions/requirements; JavaScript modern-syntax hints/criteria/summary; call/apply practice hints/criteria/summary; React effects walkthrough; and Node/npm/TypeScript quiz prompts. Two more English-only learning outcomes in `js.runtime-memory` had already been translated and are covered by the all-registry outcome guard.
+- Exact code/content SHA `12059fd51069df3f3126db470cd2f4744cc157ff` passed GitHub Actions [run #40689939570](https://github.com/Mardakhay/interactive-guides/actions/runs/40689939570): 222 tests in 35 files, lint, typecheck, production build, all 125 JS chunk budgets and zero npm audit findings.
+- This is stronger evidence against verbatim copy, not full EN/RU semantic approval. The 25/25 legacy HTML content/code/interaction reading count remains distinct from complete source-to-block and widget-parity sign-off; Notion source metadata remains unverified.

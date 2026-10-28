@@ -445,3 +445,12 @@ The earlier dated snapshots in this document (including 26 core / 18 supplementa
 GitHub Actions [run #40688503193](https://github.com/Mardakhay/interactive-guides/actions/runs/40688503193) passed on code/content SHA `cc68eaa8c28cb9e96a1f348a163fdaa44768b873`: `npm ci`, `npm run lint`, `npm run typecheck`, 221 tests across 35 files, and `npm run build`. The dependency install/audit step reported 0 vulnerabilities; bundle budgets passed across 125 JavaScript chunks.
 
 The all-registry test checks Russian title/description localization and translated learning outcomes; the last test-driven fix translated two English-only outcomes in `js.runtime-memory` and set both EN/RU records to v5. This confirms a narrow metadata invariant, not full prose/editorial or legacy-source parity. Keep the separate 25-file source review and route-cutover conclusions as documented: source reading is complete, parity is not, and legacy learner routes/state must not be removed before the signed-off crosswalk and retention gates.
+
+
+## Exact-copy prose localization check — 2026-10-28
+
+The current quality suite goes beyond schema/structure parity: it compares long user-facing strings in corresponding EN/RU structured lesson blocks and rejects content that remains verbatim English in Russian. It excludes starter code, code/reference blocks, CSS-property quick references, event-loop traces and code-shaped quiz examples so those are not incorrectly translated. This check led to translation corrections for 52 prose strings across eight RU lesson files, in addition to earlier fixes for learning-path notes, selected quiz prompts, and the two English-only `js.runtime-memory` learning outcomes.
+
+GitHub Actions [run #40689939570](https://github.com/Mardakhay/interactive-guides/actions/runs/40689939570) passed on exact code/content SHA `12059fd51069df3f3126db470cd2f4744cc157ff`: `npm ci`, lint, typecheck, **222 tests across 35 files**, production build, and bundle budgets across 125 JavaScript chunks. `npm audit` reported zero vulnerabilities.
+
+The new check is a detector for obvious untranslated copy, not a human translation review or proof of semantic source parity. That broader audit stays open.

@@ -69,14 +69,12 @@ npm run build
 
 For focused checks, run `npx vitest run src/features/learning-paths/api.test.ts src/app/pages/LearningPathDetailPage.test.tsx src/content/repository.test.ts`.
 
-The additional `src/content/lessonQuality.test.ts` checks two important content invariants:
-- all registered structured lessons in both locales have no duplicate URL within an individual `references` block;
-- a reviewed set of 23 Russian prose fields remains localized, guarding against regressions in the audited quiz prompts, feedback, explanation and lesson paragraphs.
+The additional `src/content/lessonQuality.test.ts` checks three content invariants:
+- every registered structured lesson in both locales has no duplicate URL within an individual `references` block;
+- a reviewed set of 23 Russian prose fields stays localized, guarding against regressions in audited prompts, feedback, explanations and paragraphs;
+- long user-facing prose is compared by matching EN/RU block and field path, rejecting verbatim English copied into Russian.
 
-This is a targeted regression guard, not a general-purpose language detector or a substitute for a human EN/RU editorial comparison. Keep the broader source-parity and translation-review tasks open until they have evidence.
-
-CI validation does not prove full source parity or editorial approval. Before declaring a lesson migrated, review the mapped source material and record unresolved content/interaction gaps in the audit. The legacy route cutover remains blocked until a reviewed crosswalk and tested learner-state retention policy exist. Do not add Supabase authentication or sync ahead of the documented reconciliation and RLS/security gates.
-
+The copy scan deliberately excludes code blocks/reference blocks, starter code, CSS property quick-reference lists, event-loop traces, and explicitly identified code-shaped answer options. Keep code examples and technical identifiers intact. The scan is designed to catch obvious omissions; it is not a general language detector, semantic translator, or replacement for human editorial review. Continue to record unresolved source-parity gaps until a claim-by-claim review is complete.
 ## Pull-request checklist
 
 - [ ] English and Russian records validate and communicate the same learning outcomes.

@@ -660,3 +660,12 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 - [x] Exact code/content HEAD `cc68eaa8c28cb9e96a1f348a163fdaa44768b873` passed [CI run #40688503193](https://github.com/Mardakhay/interactive-guides/actions/runs/40688503193): install, lint, typecheck, 221 tests / 35 files, production build, 125 JavaScript chunks within budgets, zero npm audit findings.
 - [ ] Keep the full outcome-by-outcome syllabus and source-to-block review open. The guard verifies metadata translation invariants; it does not judge semantic completeness, pedagogy, or every paragraph.
 - [ ] Real browser/device, offline/PWA, screen-reader, mobile and legacy-state retention acceptance remain open.
+
+
+## Cross-locale prose QA follow-up — 2026-10-28
+
+- [x] Add a full-registry regression that compares long user-facing prose in corresponding EN/RU lesson blocks and catches verbatim English left in Russian. Code blocks/references, starter code, CSS property-list references, event-loop traces and code-shaped quiz answers are excluded by design.
+- [x] Translate 52 exact-copy English prose strings across eight RU lesson files (workers, IndexedDB, auth/security, modern JS practice/summaries, object invocation, React effects walkthrough, npm/Vite and TypeScript quiz prompts).
+- [x] Exact code/content SHA `12059fd51069df3f3126db470cd2f4744cc157ff` passes [CI run #40689939570](https://github.com/Mardakhay/interactive-guides/actions/runs/40689939570): 222 tests / 35 files, lint, typecheck, production build, 125 JS chunk budgets, zero npm audit findings.
+- [ ] Keep semantic/editorial RU review and source-to-block parity open: exact-copy detection is not a translation-quality oracle.
+- [ ] Real browser/device, offline/PWA, screen-reader, mobile and learner-state cutover acceptance remains open.

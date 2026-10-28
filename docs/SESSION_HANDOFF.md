@@ -1141,3 +1141,14 @@ GitHub Actions [run #40688503193](https://github.com/Mardakhay/interactive-guide
 - Added duplicate-reference URL regression across all registered lessons and translated 23 explicitly audited prose fields across nine Russian lessons.
 - This handoff/audit update is documentation-only. Its own exact-head CI should be checked before declaring the branch HEAD green.
 - **Still open:** full source-to-block/interaction parity, remaining EN/RU editorial review beyond audited fields, review of every curriculum outcome against topic-level material, legacy learner-state/route cutover, Supabase reconciliation/conflict policy/RLS tests, and real browser/device/mobile/screen-reader/PWA acceptance.
+
+
+## Cross-locale prose audit and current verified HEAD — 2026-10-28
+
+GitHub Actions [run #40689939570](https://github.com/Mardakhay/interactive-guides/actions/runs/40689939570) passed on exact code/content SHA `12059fd51069df3f3126db470cd2f4744cc157ff`: `npm ci`, lint, typecheck, **222 tests across 35 files**, production build, and bundle budgets across 125 JavaScript chunks. `npm audit` reported zero vulnerabilities.
+
+- Latest code/content HEAD validated: `12059fd51069df3f3126db470cd2f4744cc157ff`.
+- The new `cross-locale user-facing prose quality` test scans every registered lesson pair for long text copied verbatim from EN into RU. It intentionally excludes code blocks/references, starter code, CSS quick-reference property lists, event-loop execution traces and code-shaped quiz answers.
+- The scan identified and we translated 52 user-facing strings across eight RU lesson files: Browser Workers, IndexedDB, auth/security, modern JavaScript summaries/practice, object invocation, React effects walkthrough, and Node/npm/TypeScript quiz prompts. The English code examples and API identifiers remain as code/technical vocabulary.
+- The combined suite now passes 222 tests across 35 files; lint, typecheck, production build, all 125 JS bundle budgets and npm audit (0 vulnerabilities) pass on this exact SHA.
+- **Not release-approved yet:** a matching string is an obvious failure, but the scan cannot judge nuanced translations or source parity. Full syllabus outcome review, legacy HTML→structured interaction equivalence, Notion-source verification, learner-state route cutover and real browser/device/PWA/screen-reader/mobile checks remain open.
