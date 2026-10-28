@@ -248,7 +248,7 @@ describe('structured content repository', () => {
       const references = lesson.blocks.find((block) => block.id === 'references');
       expect(references?.type).toBe('references');
       if (references?.type !== 'references') throw new Error('Git references block is missing');
-      expect(references.items.some((item) => item.url.includes('basic-writing-and-formatting-on-github'))).toBe(true);
+      expect(references.items.some((item) => item.url.includes('basic-writing-and-formatting-syntax'))).toBe(true);
     }
   });
 
