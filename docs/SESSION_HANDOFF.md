@@ -5,7 +5,15 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — persisted section-read practice — 2026-10-28
+## Current continuation — bilingual example-solution policy — 2026-10-28
+
+- Latest verified HEAD: `42739da06df15c8a23763f9f6947a3b222de84dc`; exact-head GitHub Actions [run #40640037346](https://github.com/Mardakhay/interactive-guides/actions/runs/40640037346) passed `npm ci`, lint, typecheck, all tests and the production build/bundle-budget check.
+- The coding-exercise schema now supports optional `solution: { code, explanation }`. The bilingual `html.document-structure` lesson is version 7 (50 aligned blocks); the `practice-about-me` exercise has a complete EN/RU example solution. The reader keeps it hidden by default and only reveals it after explicit action, provides an explanation, and lets the learner hide it again.
+- Policy: authored solutions are optional and should be added selectively after lesson review. UI disclosure is not a security boundary because lesson JSON is shipped to the client; never put secrets or privileged answer/grading data in lesson JSON.
+- Recent verified reader work in this branch also includes accessible scroll progress, keyboard-focusable code samples and clipboard status, persistent self-attested H2 read markers, and a section-read count/check in the mobile/desktop outline.
+- Next: selectively review additional exercise blocks before authoring solutions, then continue mastery-evidence design. Keep “read”, “lesson complete”, “practice self-review” and “mastery” as separate claims. Actual screen-reader/browser testing, content-source parity and legacy-state migration remain open; do not start Supabase before approved reconciliation and RLS checks.
+
+## Previous continuation — persisted section-read practice (superseded) — 2026-10-28
 
 - Latest code/test HEAD: `f578b146674ade9758f8b92b170ed736fd96309b`. Exact-head GitHub Actions [run #40639322531](https://github.com/Mardakhay/interactive-guides/actions/runs/40639322531) passed `npm ci`, lint, typecheck, all tests and production build/bundle budget.
 - Structured lesson level-2 sections now have a localized “Mark read / Mark unread” self-attestation control. It uses the existing structured-learning v2 `sectionProgress` map keyed by stable lesson and section IDs. Tests verify the accessible state toggle, persistence, EN/RU labels and store behavior. This does not mark the lesson complete or assert mastery.
