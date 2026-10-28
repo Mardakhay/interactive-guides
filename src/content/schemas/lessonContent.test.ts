@@ -1435,7 +1435,7 @@ describe('HTML reference source coverage', () => {
   it('covers text semantics, links, metadata, and global attributes in both locales', () => {
     expect(lessonTranslationSchema.safeParse(englishLesson).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianLesson).success).toBe(true);
-    expect(englishLesson.version).toBe(6);
+    expect(englishLesson.version).toBe(7);
     expect(englishLesson.blocks).toHaveLength(50);
     expect(englishLesson.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianLesson.blocks.map(({ id, type }) => ({ id, type })),
