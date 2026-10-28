@@ -39,6 +39,7 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - [x] Implement knowledge-check feedback per answer for the supported question schema.
 - [x] Provide coding-practice scaffolding, locally persisted drafts/checklists, knowledge-check attempt history, hint toggles, and a script-disabled HTML preview; document JavaScript Worker and DOM limitations.
 - [x] Persist self-attested section-read markers separately from lesson completion; do not infer mastery from reading progress.
+- [x] Summarize quiz attempts, self-review criteria and saved exercise drafts as separate activity signals; explicitly state that these are not a mastery score.
 - [x] Add an optional authored-example-solution field and explicit reveal/collapse UI. Solutions stay hidden until requested and are labelled as examples, not the only valid implementation; the HTML “About Me” pilot has bilingual authored solutions.
 - [ ] Extend optional solutions selectively after lesson-specific editorial review and verify disclosure behavior with assistive technology.
 - [ ] Gate “mastered” status on required practice evidence where specified.

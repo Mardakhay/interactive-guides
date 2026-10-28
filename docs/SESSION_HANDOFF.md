@@ -5,7 +5,15 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — verified practice disclosure and checklist — 2026-10-28
+## Current continuation — learning signals separated from mastery — 2026-10-28
+
+- Latest code/test HEAD: `c34bc9715fc0830745e59b07f60b1e0b1a850d8c`; exact-head GitHub Actions [run #40640504400](https://github.com/Mardakhay/interactive-guides/actions/runs/40640504400) passed `npm ci`, lint, typecheck, all tests and production build/bundle budget.
+- Added a localized lesson-level “Learning signals” summary with independent counters for knowledge checks submitted, practice criteria self-reviewed and exercise drafts saved. The test starts at zero, submits a knowledge check, toggles one self-review criterion and edits a draft to prove the three measures update separately.
+- The UI explicitly says these are activity counts, not mastery: knowledge checks may be retried, checklist ticks are self-reported, and saving code does not execute or grade it. H2 read markers and the self-attested lesson-completion state remain separate from the evidence counters.
+- The bilingual optional authored solution remains version 7 of `html.document-structure`, revealed only on request; the control is UX disclosure, not a security boundary.
+- Next: keep activity signals separate and avoid an automated mastery label until a product rule and objective verification evidence exist. Real screen-reader/browser acceptance, source parity and legacy learner-state migration remain open; `main` remains unchanged, and Supabase stays gated.
+
+## Previous continuation — verified practice disclosure and checklist (superseded) — 2026-10-28
 
 - Latest verified HEAD: `88ac1164925570c63376a55676b8e613d867b21a`; exact-head GitHub Actions [run #40640306652](https://github.com/Mardakhay/interactive-guides/actions/runs/40640306652) passed `npm ci`, lint, typecheck, all tests and production build/bundle-budget checks.
 - Coding exercises support an optional bilingual `solution` object with code and explanation. The HTML document-structure pilot is version 7 in both locales (50 aligned blocks); “About Me” solution is hidden by default, explicitly revealed/collapsed by the learner, and labelled as one valid example.

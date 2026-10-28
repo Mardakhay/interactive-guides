@@ -804,3 +804,11 @@ The candidate mapping of all 25 classic catalog IDs to possible structured desti
 - Added UI regression coverage for the optional bilingual example solution: it is hidden by default, opens only after a learner action, can be hidden again, and is rendered with its explanation and labelled code panel. The schema/content tests assert matching authored EN/RU solution structure; the lesson is version 7.
 - Added practice interaction coverage for hint reveal/collapse and for self-review criteria being written to and removed from the structured-learning v2 record. Self-review checkboxes still mean “I reviewed this criterion,” not that the application executed or validated the learner's code.
 - The UI's on-demand solution toggle is not a security boundary because lesson JSON is client-delivered. Authored solutions must remain public teaching content; no private answer keys or secrets belong in these files.
+
+
+## Learning-signal summary — 2026-10-28
+
+- Latest code/test HEAD at this checkpoint: `c34bc9715fc0830745e59b07f60b1e0b1a850d8c`; exact-head GitHub Actions [run #40640504400](https://github.com/Mardakhay/interactive-guides/actions/runs/40640504400) passed `npm ci`, audit diagnostic, lint, typecheck, all tests and production build/bundle-budget checks.
+- `StructuredLessonPage` now summarizes three independent signals for the current lesson: submitted knowledge checks / available checks, self-reviewed practice criteria / total criteria, and exercise drafts saved / available coding exercises. Tests exercise the counters from zero through a knowledge-check submission, self-review toggle, and draft edit.
+- These are intentionally activity indicators, not an aggregate score: quiz history can include retries, self-review is learner-reported, and a saved draft is not automatically evaluated. The section-read count and lesson-completion marker remain separate and are not conflated with these metrics or called mastery.
+- This implementation is covered by CI but has not been evaluated with a real screen reader/browser. Remaining Phase 3 gates: explicit mastery policy/objective evidence, selective editorial review for additional answer solutions, and manual accessible interaction acceptance. Legacy content/source parity, learner-state-safe route cutover, and real-browser backup/PWA acceptance remain open; `main` is unchanged.
