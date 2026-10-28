@@ -90,6 +90,40 @@ describe('JavaScriptRunner', () => {
     expect(source).not.toContain('</script>');
     expect(source).not.toContain('window.location');
   });
+  it('limits output messages in the worker even when user code logs repeatedly', async () => {
+    const messages: Array<{ protocol: string; type: string; kind?: string; text?: string }> = [];
+    const workerScope: {
+      postMessage: (message: unknown) => void;
+      console: Console;
+      onmessage: ((event: MessageEvent) => void) | null;
+      [key: string]: unknown;
+    } = {
+      postMessage: (message) => messages.push(message as { protocol: string; type: string; kind?: string; text?: string }),
+      console: {
+        log() {}, info() {}, warn() {}, error() {}, debug() {}, table() {},
+      } as unknown as Console,
+      onmessage: null,
+    };
+
+    const executeBootstrap = new Function('self', buildWorkerSource()) as (scope: typeof workerScope) => void;
+    executeBootstrap(workerScope);
+    workerScope.onmessage?.({
+      data: { type: 'run', code: 'for (let index = 0; index < 100; index += 1) console.log(index);' },
+    } as MessageEvent);
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const outputMessages = messages.filter((message) => message.type === 'output');
+    expect(outputMessages).toHaveLength(41);
+    expect(outputMessages.slice(0, 40).every((message) => message.kind === 'log')).toBe(true);
+    expect(outputMessages[40]).toMatchObject({
+      protocol: 'interactive-guides-worker-v1',
+      kind: 'system',
+      text: '[Further output omitted to keep the console readable.]',
+    });
+    expect(messages.filter((message) => message.type === 'finished')).toHaveLength(1);
+  });
+
   it('executes an async snippet and reports its returned value', async () => {
     const messages: Array<{ protocol: string; type: string; kind?: string; text?: string }> = [];
     const workerScope: {
