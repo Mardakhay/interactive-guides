@@ -1,10 +1,10 @@
 {
   "id": "css.fundamentals",
   "locale": "en",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-28",
   "moduleId": "month-1-week-3",
   "week": 3,
   "order": 3,
@@ -300,6 +300,89 @@
         "inline-block: flows inline with surrounding content but accepts width and height like a block-level box.",
         "Changing display changes layout behavior, not the semantic meaning of the HTML element. Do not pick a semantic element only because its default display looks convenient."
       ]
+    },
+    {
+      "id": "css-positioning",
+      "type": "heading",
+      "level": 2,
+      "text": "Positioning: choose the relationship you need"
+    },
+    {
+      "id": "css-positioning-body",
+      "type": "paragraph",
+      "text": "The position property changes how a box relates to normal document flow. Prefer Flexbox or Grid for the main page layout; use positioning for overlays, badges, sticky headers, and other deliberate relationships. A positioned element can also establish the containing block used by absolutely positioned descendants. Remember that a child cannot escape its ancestor's stacking context just by receiving a very large z-index."
+    },
+    {
+      "id": "css-positioning-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`static` is the default. The element stays in normal flow and inset properties such as top/right/bottom/left do not offset it.",
+        "`relative` keeps the element's original space in flow but lets you offset its visual position. A positioned ancestor is also the usual way to create a containing block for an absolutely positioned child.",
+        "`absolute` removes the element from normal flow and positions it against the nearest ancestor that establishes its containing block, often an ancestor with position other than static. Without the intended ancestor, a badge or menu may be positioned relative to a much larger page area.",
+        "`fixed` is usually anchored to the viewport and does not reserve normal-flow space; some ancestors, such as ones with transform, can establish a different containing block.",
+        "`sticky` keeps its normal-flow space and sticks after an inset threshold such as top: 0 is reached within its scrolling container. It needs a threshold and a scrolling situation where sticking can occur.",
+        "`z-index` controls painting order within the applicable stacking context. A high child value cannot jump above a sibling stacking context whose parent is painted below it."
+      ]
+    },
+    {
+      "id": "css-positioning-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": ".card {\n  position: relative;\n  border: 1px solid #cbd5e1;\n  padding: 2.5rem 1rem 1rem;\n}\n\n.card__badge {\n  position: absolute;\n  inset-block-start: 0.5rem;\n  inset-inline-end: 0.5rem;\n  z-index: 1;\n}\n\n.site-banner {\n  position: sticky;\n  inset-block-start: 0;\n  z-index: 10;\n}",
+      "steps": [
+        {
+          "title": "Create the badge's containing block",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "The card remains in normal flow, but position: relative makes it the containing block for its absolutely positioned badge. Padding reserves content space below the badge."
+        },
+        {
+          "title": "Place the badge relative to the card",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "explanation": "The badge is removed from normal flow and uses logical inset properties for the top/end edges. Its z-index only orders it within the applicable stacking context."
+        },
+        {
+          "title": "Make the banner sticky without taking it out of flow",
+          "lineStart": 14,
+          "lineEnd": 18,
+          "explanation": "Sticky preserves the banner's flow space and sticks at the block-start inset while scrolling. z-index helps paint it above nearby content, subject to stacking-context rules."
+        }
+      ]
+    },
+    {
+      "id": "css-positioning-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A badge should stay at the top-right inside a card as the card changes size. Which approach best expresses this relationship?",
+      "options": [
+        {
+          "id": "container",
+          "text": "Set position: relative on the card and position: absolute with logical insets on the badge",
+          "correct": true,
+          "feedback": "The card becomes the badge's containing block, so placement follows the card instead of a fixed viewport or guessed offset."
+        },
+        {
+          "id": "fixed",
+          "text": "Set position: fixed on the badge so it follows the card",
+          "correct": false,
+          "feedback": "Fixed positioning is usually tied to the viewport, not to the card's changing dimensions."
+        },
+        {
+          "id": "margin",
+          "text": "Use a large margin-left value and top: 0 without a positioned ancestor",
+          "correct": false,
+          "feedback": "A guessed margin is fragile when content, translation, or viewport changes; top also does not offset a static element."
+        },
+        {
+          "id": "zindex",
+          "text": "Set z-index: 99999 without changing position or containing block",
+          "correct": false,
+          "feedback": "z-index controls painting order only. It does not choose where the badge is positioned."
+        }
+      ],
+      "explanation": "Use normal-flow layout for the card collection, a positioned card as the local containing block, and a positioned badge for the deliberate overlay."
     },
     {
       "id": "knowledge-check-1",
@@ -862,6 +945,16 @@
           "title": "W3C: Web Content Accessibility Guidelines (WCAG) 2.2",
           "url": "https://www.w3.org/TR/WCAG22/",
           "kind": "standard"
+        },
+        {
+          "title": "MDN: position",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/position",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: z-index",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/z-index",
+          "kind": "official-docs"
         }
       ]
     }
