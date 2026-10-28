@@ -5,6 +5,14 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
+## Current continuation — worker output cap — 2026-10-28
+
+- Current code change is present on `feat/learning-platform-foundation`: `src/features/structured-lesson/JavaScriptWorkerProgram.ts` caps console/result messages at 40 and sends at most one output-truncation notice. The regression test runs 100 `console.log` calls and expects 40 log messages, one notice and one finished message.
+- The feature branch contains this change in the diff against prior validated HEAD `c2a9aeafffe67d0f8bdfe10f1c148ae75ca3f541`; it does not update `main`. The correct final patch was confirmed with compare output: only these two source/test files differ from the prior HEAD.
+- Exact-head GitHub Actions run [#40637511313](https://github.com/Mardakhay/interactive-guides/actions/runs/40637511313) was queued/running at the time of this note on HEAD `ddc3f6c49a63dcc633842629ed354f946a98af92`. Wait for its result before calling the patch CI-verified. No local `npm ci`, lint, typecheck, test or build was run during this session.
+- Release gates remain unchanged: legacy catalog routes stay in place until content equivalency and learner-state migration/retention are explicitly reviewed; fetched Notion source pages remain `verification.state=unverified`; browser/device backup and PWA checks are manual and not recorded. Supabase/auth/sync must remain gated on approved reconciliation policy and direct RLS isolation tests.
+- Next priority after CI: continue source-parity migration in syllabus order or deliver section table of contents/reading progress/accessibility, while preserving the legacy routes and local-first data contracts.
+
 ## Authoritative checkpoint — dependency migration — 2026-10-27
 
 - Dependency versions were refreshed on the feature branch: `react-router-dom@7.18.0`, `vite@8.3.5`, `@vitejs/plugin-react@6.1.2`, `vitest@4.1.12`; `zod@4.6.7` remains. CI uses Node 22 and npm `11.21.1` for lockfile consistency.
