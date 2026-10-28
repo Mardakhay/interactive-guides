@@ -1,7 +1,11 @@
+/* global fetch, AbortSignal */
 import assert from 'node:assert/strict';
+import { Buffer } from 'node:buffer';
 import { once } from 'node:events';
 import { spawn } from 'node:child_process';
+import process from 'node:process';
 import { resolve } from 'node:path';
+import { URL } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 
 const host = '127.0.0.1';
