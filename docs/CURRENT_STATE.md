@@ -890,3 +890,10 @@ GitHub Actions [run #40689939570](https://github.com/Mardakhay/interactive-guide
 - It found and corrected **52 English-only user-facing strings across eight Russian lesson files**, covering worker/IndexedDB practice guidance, auth/security instructions and requirements, JavaScript practice tips/summaries, a React effect walkthrough, and Node/npm/TypeScript knowledge-check prompts. English code examples and technical identifiers remain intentionally unchanged.
 - The guard supplements checks for all 44 RU titles/descriptions/outcome lists and the 23 explicitly audited prose fields. It detects obvious copied prose, not subtle mistranslation, missing concepts, or whether the lesson fully meets the source curriculum.
 - Full content parity and editorial review remain open alongside real-browser/device/PWA/offline, screen-reader/mobile and legacy-state route-cutover acceptance.
+
+
+## Production preview HTTP smoke — 2026-10-28
+
+GitHub Actions [run #40691049972](https://github.com/Mardakhay/interactive-guides/actions/runs/40691049972) passed on code/content SHA `28b5c53afd967d2a2488840b494b197398fe467d`: install, lint, typecheck, **223 tests / 35 files**, production build, 125 JavaScript chunk budgets, and a new `npm run smoke:preview` stage. The audit step reported zero npm vulnerabilities.
+
+The CI smoke script starts the built Vite preview and checks four deep routes return the app shell, the built entry JavaScript is served, and the manifest, service worker, SVG/PWA icon parity and 180/192/512px PNG assets are correct. The worker source is checked for its v6 cache scope and private/API request exclusions. This is HTTP and build-artifact coverage; it does not execute the application in a real browser or verify install prompts, offline interaction, screen readers, or mobile behavior.

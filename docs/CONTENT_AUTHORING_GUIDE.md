@@ -65,9 +65,10 @@ npm run lint
 npm run typecheck
 npm test
 npm run build
+npm run smoke:preview
 ```
 
-For focused checks, run `npx vitest run src/features/learning-paths/api.test.ts src/app/pages/LearningPathDetailPage.test.tsx src/content/repository.test.ts`.
+For focused checks, run `npx vitest run src/features/learning-paths/api.test.ts src/app/pages/LearningPathDetailPage.test.tsx src/content/repository.test.ts`. `npm run smoke:preview` builds no files itself: it starts the existing production `dist/` preview, checks app-shell HTTP fallback and PWA static assets, and stops the preview server. Run `npm run build` first. It does not replace native browser/device acceptance.
 
 The additional `src/content/lessonQuality.test.ts` checks three content invariants:
 - every registered structured lesson in both locales has no duplicate URL within an individual `references` block;

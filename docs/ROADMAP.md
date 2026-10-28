@@ -669,3 +669,11 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 - [x] Exact code/content SHA `12059fd51069df3f3126db470cd2f4744cc157ff` passes [CI run #40689939570](https://github.com/Mardakhay/interactive-guides/actions/runs/40689939570): 222 tests / 35 files, lint, typecheck, production build, 125 JS chunk budgets, zero npm audit findings.
 - [ ] Keep semantic/editorial RU review and source-to-block parity open: exact-copy detection is not a translation-quality oracle.
 - [ ] Real browser/device, offline/PWA, screen-reader, mobile and learner-state cutover acceptance remains open.
+
+
+## Production preview smoke coverage — 2026-10-28
+
+- [x] Add `npm run smoke:preview` to start the production Vite preview and assert HTTP fallback for four deep routes, built entry JavaScript, manifest/service-worker behavior markers, SVG icon consistency and 180/192/512px PNG asset headers/dimensions.
+- [x] Add the smoke stage after `npm run build` in GitHub Actions. Exact code/content SHA `28b5c53afd967d2a2488840b494b197398fe467d` passed [CI run #40691049972](https://github.com/Mardakhay/interactive-guides/actions/runs/40691049972): 223 tests across 35 files, lint, typecheck, production build, 125-chunk bundle budgets, smoke stage, and zero npm audit findings.
+- [ ] Keep real-browser/device acceptance open: this check only makes HTTP requests and inspects built artifacts; it does not execute React in a browser, verify real installability, exercise offline caches or confirm assistive-technology/mobile behavior.
+- [ ] Review production deployment behavior and record browser/device evidence before release.

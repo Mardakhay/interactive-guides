@@ -1152,3 +1152,13 @@ GitHub Actions [run #40689939570](https://github.com/Mardakhay/interactive-guide
 - The scan identified and we translated 52 user-facing strings across eight RU lesson files: Browser Workers, IndexedDB, auth/security, modern JavaScript summaries/practice, object invocation, React effects walkthrough, and Node/npm/TypeScript quiz prompts. The English code examples and API identifiers remain as code/technical vocabulary.
 - The combined suite now passes 222 tests across 35 files; lint, typecheck, production build, all 125 JS bundle budgets and npm audit (0 vulnerabilities) pass on this exact SHA.
 - **Not release-approved yet:** a matching string is an obvious failure, but the scan cannot judge nuanced translations or source parity. Full syllabus outcome review, legacy HTML→structured interaction equivalence, Notion-source verification, learner-state route cutover and real browser/device/PWA/screen-reader/mobile checks remain open.
+
+
+## Production preview smoke added to CI — 2026-10-28
+
+GitHub Actions [run #40691049972](https://github.com/Mardakhay/interactive-guides/actions/runs/40691049972) passed on code/content SHA `28b5c53afd967d2a2488840b494b197398fe467d`: install, lint, typecheck, **223 tests / 35 files**, production build, 125 JavaScript chunk budgets, and a new `npm run smoke:preview` stage. The audit step reported zero npm vulnerabilities.
+
+- Added `scripts/check-preview-smoke.mjs` and `npm run smoke:preview`; GitHub Actions runs it after the production build.
+- The script starts Vite preview and verifies the app shell at four deep routes (including EN/RU structured lesson routes and the capstone path), the built entry JavaScript, the manifest fields, service-worker v6 scope/private-request guard, exact SVG favicon/PWA artwork match, and PNG signature/dimensions for the 180/192/512px icons.
+- This prevents common deployment-path and missing-artifact regressions earlier. It is not a browser: JavaScript event execution, layout, console errors, installability prompts, actual offline behavior, screen reader, and mobile acceptance remain open.
+- New docs-only commit after this SHA must be checked by its own exact-head CI before calling the branch HEAD green.

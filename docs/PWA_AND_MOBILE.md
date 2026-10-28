@@ -168,3 +168,12 @@ This is CI evidence only. It does not count as a native browser/device execution
 GitHub Actions [run #40689939570](https://github.com/Mardakhay/interactive-guides/actions/runs/40689939570) passed on exact code/content SHA `12059fd51069df3f3126db470cd2f4744cc157ff`: `npm ci`, lint, typecheck, **222 tests across 35 files**, production build, and bundle budgets across 125 JavaScript chunks. `npm audit` reported zero vulnerabilities.
 
 The additional localization regression does not change the PWA acceptance status: real-browser/device installation, offline revisit vs. unvisited lesson, localized deep-link reload, waiting-worker update with unsaved input, mobile reflow, keyboard/screen-reader behavior and backup-file interactions remain **Not run** in the browser/device checklist.
+
+
+## Automated production preview smoke — 2026-10-28
+
+The feature branch now runs `npm run smoke:preview` after the production build in CI. It verifies HTTP status and app-shell fallback for four deep routes, loads the built JavaScript entry, validates manifest metadata, checks service-worker cache-scope/private API guard patterns, compares SVG favicon/PWA artwork, and checks PNG signatures/dimensions for the 180/192/512px icons.
+
+Exact code/content SHA `28b5c53afd967d2a2488840b494b197398fe467d` passed [run #40691049972](https://github.com/Mardakhay/interactive-guides/actions/runs/40691049972): 223 tests / 35 files, lint, typecheck, build, all 125 bundle budgets, smoke stage, and zero npm audit findings.
+
+This automated smoke is not native browser/device acceptance. The install prompt, localized deep link in browser, online-loaded versus never-visited offline lesson, update deferral during unsaved work, mobile reflow/focus, screen-reader behavior and backup file picker/download/restore must still be run and recorded in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
