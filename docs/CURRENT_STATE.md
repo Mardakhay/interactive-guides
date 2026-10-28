@@ -819,3 +819,12 @@ The candidate mapping of all 25 classic catalog IDs to possible structured desti
 - Exact-head GitHub Actions [run #40640900763](https://github.com/Mardakhay/interactive-guides/actions/runs/40640900763) passed on `ec09333be356acd4d7a69d4781aeb8494d061b5a`: `npm ci`, audit diagnostic, lint, typecheck, all tests and production build/bundle-budget checks.
 - `StructuredLessonPage.test.tsx` now covers a real client-side navigation flow: submit a knowledge check, self-review a criterion and save a draft on the HTML document lesson, then navigate to HTML forms and confirm all three counts reflect only the new lesson. Test teardown now resets structured-learning v2 keys/state as well as progress state to prevent cross-test leakage.
 - Signals are still activity indicators, not mastery or objective code grading. Browser/screen-reader acceptance and product-level mastery rules remain open.
+
+
+## Dashboard structured-curriculum integration — 2026-10-28
+
+- Exact-head GitHub Actions [run #40641890399](https://github.com/Mardakhay/interactive-guides/actions/runs/40641890399) passed on `bd0c11fdf7880bb45afaf37b3bc37f91bcb6666c`: `npm ci`, audit diagnostic, lint, typecheck, full test suite and production build/bundle-budget checks.
+- Dashboard now displays two explicitly separate progress summaries: classic HTML catalog records and all registered structured lesson IDs (core plus supplementary). This avoids pretending the old/new ID namespaces form a vetted one-to-one migration mapping.
+- `ContinueLearningCard` now supports both legacy `/lessons/:lessonId` routes and locale-specific `/:locale/structured-lessons/:lessonId` routes. The active UI locale determines the structured resume URL and title.
+- Tests verify the structured total comes from the manifest, structured completion doesn't inflate classic catalog stats, structured continue routes work in Russian, and classic routes remain unchanged. Descriptions derive counts from the registry rather than hardcoding the current count of 44.
+- Open: bookmarks/notes/recent activity still need end-to-end review for structured lesson IDs; no legacy route cutover is authorized. Real-browser/device acceptance and source parity remain separate release gates. `main` remains unchanged.

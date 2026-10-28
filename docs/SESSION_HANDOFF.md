@@ -5,7 +5,15 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — per-lesson learning-signal isolation — 2026-10-28
+## Current continuation — dashboard structured-curriculum integration — 2026-10-28
+
+- Latest verified code/test HEAD: `bd0c11fdf7880bb45afaf37b3bc37f91bcb6666c`; exact-head GitHub Actions [run #40641890399](https://github.com/Mardakhay/interactive-guides/actions/runs/40641890399) passed `npm ci`, audit diagnostic, lint, typecheck, all tests and production build/bundle budget.
+- Dashboard now reports classic catalog and structured-curriculum progress independently. Structured stats derive from `getStructuredLessonIds()` and include the supplementary track; old/new IDs are not collapsed or remapped while content parity is incomplete.
+- Continue Learning now detects the last-opened ID in either namespace: classic lessons use `/lessons/:id`; structured lessons use the current UI locale route `/:locale/structured-lessons/:id`. Unit tests cover both routes and prove a structured completion does not increment classic stats.
+- Progress description says 'all registered structured lessons' instead of hardcoding the current count, so future manifest changes won't make the copy stale.
+- Next integration gap: review bookmark/note/recent-activity paths for structured lesson IDs before exposing those actions in the structured reader. Legacy state migration, real browser/screen-reader checks and PWA/backup acceptance remain open; `main` remains unchanged.
+
+## Previous continuation — per-lesson learning-signal isolation (superseded) — 2026-10-28
 
 - Latest verified code/test HEAD: `ec09333be356acd4d7a69d4781aeb8494d061b5a`; exact-head GitHub Actions [run #40640900763](https://github.com/Mardakhay/interactive-guides/actions/runs/40640900763) passed install, audit diagnostic, lint, typecheck, all tests and production build/bundle budget.
 - Added a route-transition regression test: on the HTML document lesson it submits a knowledge check, self-reviews a practice criterion and saves a draft, then navigates to HTML Forms and confirms the counts are scoped to that new lesson. Structured-learning `localStorage` and Zustand state are also cleaned between page tests.
