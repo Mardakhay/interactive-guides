@@ -97,15 +97,17 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - **Status:** technical foundation implemented; not release-accepted until real-browser/device checks are recorded.
 
 ## Phase 8 — Capstone and release readiness
-- [ ] Build capstone-like guided project path with requirements, user stories, architecture, implementation, tests and deployment.
-- [ ] Review all learning outcomes against syllabus.
-- [ ] Audit keyboard access, contrast, mobile, bundle size, broken links and stale content.
-- [ ] Update project README, screenshots and contributor/content authoring guide.
-- Acceptance: complete learning path is usable from a fresh browser, bilingual coverage is measured, and release notes describe limitations honestly.
-- Suggested commits:
-  - `feat(curriculum): add frontend capstone learning path`
-  - `test(e2e): cover core learning and account flows`
-  - `docs: document authoring deployment and learner data portability`
+- [x] Build a bilingual capstone-like guided project path with requirements discovery, architecture, implementation, automated tests, deployment, and final review/demo. Automated tests protect lesson resolution, route locale, and the six-step sequence.
+- [ ] Review all learning outcomes against the 24-week syllabus and document any uncovered or duplicate outcomes.
+- [ ] Audit keyboard access, contrast, mobile, bundle size, broken links, and stale content.
+- [x] Update the project README and add a contributor/content authoring guide for the current JSON/manifest/schema workflow.
+- [ ] Capture and verify current application screenshots for the README.
+- [ ] Run and record real-browser, screen-reader, and mobile acceptance; automated tests are not a substitute.
+- Acceptance: the complete path resolves in both locales, every step note is localized, a fresh-browser flow is checked, and release notes describe remaining limitations honestly.
+- Remaining suggested work:
+  - `test(e2e): cover core learner flows in a real browser`
+  - `docs: record source parity and release acceptance evidence`
+
 
 ## Commit style
 
@@ -615,3 +617,12 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Verify exact-head CI on `ccf839c806369d9e151e4f24b430ac24f3c4c936`: [run #40653842673](https://github.com/Mardakhay/interactive-guides/actions/runs/40653842673) passed 215 tests / 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
 - [ ] Review the remaining legacy animated branch canvas and failure-injection simulator; this educational diagnosis matrix is not a one-to-one interaction replica.
 
+
+
+## Bilingual capstone and learning-path localization — 2026-10-28
+
+- Added `structured-capstone` as a six-step path over registered lessons: requirements discovery, architecture planning, implementation, Testing Library checks, production deployment, and review/demo. Existing lesson IDs and classic paths are unchanged.
+- Localized all 46 configured step notes into Russian using the composite `<path-id>.<lesson-id>` key, so the same lesson can carry a path-specific explanation. Regression tests iterate every configured step and reject English-note fallback.
+- Fixed the bottom continuation link in the learning-path detail view to use the already resolved destination, preventing structured paths from linking to the classic `/lessons/:id` route.
+- README and the authoring guide now describe the bilingual structured-content workflow and clearly document that offline support and source parity still have open acceptance gates.
+- CI for the exact resulting HEAD must be checked in the current pull-request run before treating this checkpoint as verified. Real-browser/device, screen-reader, source-parity, and syllabus coverage gates remain open.

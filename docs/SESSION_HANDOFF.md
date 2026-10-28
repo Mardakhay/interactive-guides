@@ -1096,3 +1096,13 @@ The lockfile-writing migration run was successful, but workflow changes and the 
 ## Legacy-route cutover matrix — 2026-10-27
 
 The new [legacy route cutover matrix](./LEGACY_ROUTE_CUTOVER_MATRIX.md) lists all 25 legacy IDs, HTML sources, provisional structured destinations and known parity gaps. It is intentionally a candidate map, not authorization to redirect any route. Progress/bookmark/note records are keyed by old lesson ID; mapping decisions and store migration tests remain open.
+
+
+## Bilingual capstone path and localized learning-path notes — 2026-10-28
+
+- Code commit [`2d02c25`](https://github.com/Mardakhay/interactive-guides/commit/2d02c25668a04597ace23992cf5a7d5afe75e2ad) adds the `structured-capstone` learning path with six existing structured lessons in order: requirements, architecture, implementation, testing, deployment, and review/demo. Existing classic paths and lesson IDs are preserved.
+- The same commit adds Russian translations for every configured path-step note (46 total), keyed by path ID plus lesson ID. Regression coverage asserts that every step has a Russian variant and EN retains the canonical note.
+- The learning-path detail view's bottom Continue action now uses the resolved destination, so structured paths stay on `/:locale/structured-lessons/:lessonId` instead of falling through to `/lessons/:lessonId`.
+- This documentation commit updates the root README, adds `docs/CONTENT_AUTHORING_GUIDE.md`, indexes the guide in `docs/README.md`, and refreshes Phase 8 in the roadmap/current-state audit.
+- **CI status:** inspect the newest GitHub Actions run for the branch HEAD in [PR #1](https://github.com/Mardakhay/interactive-guides/pull/1); do not infer a green exact-head result from an earlier commit. The workflow runs on pull requests targeting `main`.
+- **Still open:** real-browser/device and screen-reader acceptance, final syllabus-outcome review, systematic source-to-block/interaction parity, README screenshots, legacy-route/learner-state cutover, and Supabase reconciliation/RLS work. No cloud sync or route cutover was introduced here.

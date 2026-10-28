@@ -1,12 +1,18 @@
 # Current-State Audit
 
-**Audit date:** 2026-10-27  
+**Audit date:** 2026-10-28  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Default branch observed:** `main`
 
 This audit combines remote source inspection with exact-head GitHub Actions evidence. It is not a local checkout or browser/device acceptance run; those results are not claimed.
 
-## Authoritative implementation snapshot — 2026-10-27
+## Authoritative implementation snapshot — 2026-10-28
+
+- **Bilingual learning paths and capstone:** the feature branch now includes a six-step structured capstone path from requirements discovery through review/demo. It reuses registered lesson IDs and keeps classic paths and their learner records intact.
+- **Learning-path note localization:** English step notes remain canonical path data; Russian copy is resolved by path ID plus lesson ID. Automated tests cover every configured step (46 notes across the current paths) and protect structured continuation links from falling back to classic lesson routes.
+- **Contributor documentation:** the root README reflects the bilingual curriculum, backup/restore, PWA limitations, and current validation commands. `docs/CONTENT_AUTHORING_GUIDE.md` documents the lesson schema, paired EN/RU edits, manifest registration, learning-path localization, and quality checks.
+- **Verification boundary for this checkpoint:** check the newest PR CI run for the exact HEAD. This documentation does not claim real-browser/device, screen-reader, full source-parity, or syllabus-outcome acceptance.
+
 
 - **Dependency-refresh validation:** controlled CI [run #40536336285](https://github.com/Mardakhay/interactive-guides/actions/runs/40536336285) passed install, lint, typecheck, 182 tests across 30 files, production build and bundle budget while using the regenerated lockfile. It reported zero npm audit findings and committed that lockfile as `59432ad63d24d2ab0e37267091ce4de2f59a0d69`. The least-privilege cleanup passed ordinary exact-head CI [run #40537074543](https://github.com/Mardakhay/interactive-guides/actions/runs/40537074543) on `56f5786cb68395936c6ac0b29b5703b85f708b73`; the new cutover-guard test/doc commit needs its own exact-head run.
 - **Branch safety:** PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) remains open Draft, base `main`, head `feat/learning-platform-foundation`. `main` remains unchanged at `b13af92576e8a73753a6e3f3d26765d9f9c44397`.
@@ -837,3 +843,10 @@ The candidate mapping of all 25 classic catalog IDs to possible structured desti
 - Bookmarks and Notes pages now resolve either classic catalog IDs or structured manifest IDs. Structured entries use `/:locale/structured-lessons/:id`, have an explicit “Structured curriculum” label, and structured notes can be filtered separately. Store shapes and stable IDs are unchanged.
 - Dashboard recent activity includes structured bookmark/note events and their locale-specific URLs; classic activity continues to use `/lessons/:id`. Tests cover structured bookmark visibility/removal, structured note filtering/deletion, reader controls and recent-activity links.
 - These changes preserve both ID namespaces; they do not migrate records or authorize legacy-route cutover. Search/index coverage, real-browser/screen-reader acceptance, source parity and backup/PWA device checks remain open. `main` is unchanged; Supabase remains gated.
+
+
+## Bilingual capstone and path-note localization — 2026-10-28
+
+The feature branch adds `structured-capstone`, a six-step guided frontend project using the already registered capstone, testing, and deployment lesson IDs. All 46 configured learning-path notes have Russian translations keyed by path ID and lesson ID; regression tests verify that every path step has a non-empty translated note. The detail page now uses its resolved locale-aware lesson destination for the bottom continuation action as well.
+
+The root README and new `docs/CONTENT_AUTHORING_GUIDE.md` cover the present bilingual JSON/manifest workflow, test commands, local backup/restore, and the known PWA offline boundary. Confirm the latest exact-head CI run in PR #1. No real-browser/device or screen-reader execution, formal source-to-block verification, full syllabus outcome review, legacy-route cutover, or Supabase sync is claimed by these code/doc changes.
