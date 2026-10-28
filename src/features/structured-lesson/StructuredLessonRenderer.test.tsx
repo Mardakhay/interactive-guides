@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { getStructuredLesson } from '@/content/repository';
 import { useStructuredLearningStore } from './store';
@@ -67,6 +67,40 @@ describe('StructuredLessonRenderer', () => {
     expect(screen.getByText(/This is one possible complete solution/)).toBeTruthy();
     const solutionCode = screen.getByRole('group', { name: 'html code example: Example solution' });
     expect(solutionCode.textContent).toContain('Alex Morgan');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Hide example solution' }));
+    expect(screen.queryByRole('group', { name: 'html code example: Example solution' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Reveal example solution' }).getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('toggles hints and persists learner self-review checklists', async () => {
+    const lesson = await getStructuredLesson('html.document-structure', 'en');
+    if (!lesson) throw new Error('English pilot lesson is missing');
+
+    render(<StructuredLessonRenderer lesson={lesson} />);
+
+    const exerciseHeading = screen.getByRole('heading', { name: 'Build an About Me page' });
+    const exercise = exerciseHeading.closest('section');
+    if (!exercise) throw new Error('About Me practice section is missing');
+
+    const hintText = 'Write the document shell before adding visible content.';
+    expect(within(exercise).queryByText(hintText)).toBeNull();
+    fireEvent.click(within(exercise).getByRole('button', { name: 'Reveal hints' }));
+    expect(within(exercise).getByText(hintText)).toBeTruthy();
+    fireEvent.click(within(exercise).getByRole('button', { name: 'Hide hints' }));
+    expect(within(exercise).queryByText(hintText)).toBeNull();
+
+    const criterion = within(exercise).getByLabelText('The page loads without a visible error in the browser.');
+    fireEvent.click(criterion);
+    expect(useStructuredLearningStore.getState().practiceChecklists['html.document-structure::practice-about-me']?.checkedCriteria).toContain(0);
+
+    let saved = JSON.parse(localStorage.getItem(STRUCTURED_LEARNING_STORAGE_KEY) ?? '{}');
+    expect(saved.data.practiceChecklists['html.document-structure::practice-about-me'].checkedCriteria).toContain(0);
+
+    fireEvent.click(criterion);
+    expect(useStructuredLearningStore.getState().practiceChecklists['html.document-structure::practice-about-me']?.checkedCriteria).not.toContain(0);
+    saved = JSON.parse(localStorage.getItem(STRUCTURED_LEARNING_STORAGE_KEY) ?? '{}');
+    expect(saved.data.practiceChecklists['html.document-structure::practice-about-me'].checkedCriteria).toEqual([]);
   });
 
   it('gives feedback when a learner submits a knowledge-check answer', async () => {
