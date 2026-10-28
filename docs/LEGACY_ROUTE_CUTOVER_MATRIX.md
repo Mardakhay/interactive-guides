@@ -3,7 +3,8 @@
 **Status:** provisional mapping only — **no legacy route is cutover-ready**  
 **Updated:** 2026-10-28  
 
-**Latest verification boundary (2026-10-28):** exact-head CI on the pre-sync documentation HEAD `e16011e634d02a04296ec2a8763c2d505809fb9b` passed [run #40691420125](https://github.com/Mardakhay/interactive-guides/actions/runs/40691420125), including 223 tests / 35 files, build budgets, preview HTTP smoke and zero npm audit findings. This does **not** change any cutover decision: all 25 rows below remain **Blocked** because source parity and learner-state handling are not signed off.
+**Latest verification boundary (2026-10-28):** exact-head CI on the previous documentation-sync HEAD `d248b2e4168d0e7bdf4bf70e108684020be371f2` passed [run #40700770769](https://github.com/Mardakhay/interactive-guides/actions/runs/40700770769), including 223 tests / 35 files, build budgets, preview HTTP smoke and zero npm audit findings. This does **not** change any cutover decision: all 25 rows below remain **Blocked** because source parity and learner-state handling are not signed off.
+
 **Scope:** 25-entry classic catalog at `/lessons/:lessonId` versus the 44-ID bilingual structured curriculum (27 core + 17 supplementary lesson IDs) at `/:locale/structured-lessons` and `/:locale/structured-lessons/:lessonId`.
 
 ## Why the route gate remains closed
