@@ -92,18 +92,6 @@ describe('JavaScriptRunner', () => {
   });
   it('limits output messages in the worker even when user code logs repeatedly', async () => {
     const messages: Array<{ protocol: string; type: string; kind?: string; text?: string }> = [];
-    const outputConsole: Console = {
-      log: (...values: unknown[]) => {
-        // Exercise the same console adapter installed by the worker bootstrap.
-        messages.push({
-          protocol: 'interactive-guides-worker-v1',
-          type: 'output',
-          kind: 'log',
-          text: values.map(String).join(' '),
-        });
-      },
-      info() {}, warn() {}, error() {}, debug() {}, table() {},
-    } as unknown as Console;
     const workerScope: {
       postMessage: (message: unknown) => void;
       console: Console;
@@ -111,16 +99,18 @@ describe('JavaScriptRunner', () => {
       [key: string]: unknown;
     } = {
       postMessage: (message) => messages.push(message as { protocol: string; type: string; kind?: string; text?: string }),
-      console: outputConsole,
+      console: {
+        log() {}, info() {}, warn() {}, error() {}, debug() {}, table() {},
+      } as unknown as Console,
       onmessage: null,
     };
 
     const executeBootstrap = new Function('self', buildWorkerSource()) as (scope: typeof workerScope) => void;
     executeBootstrap(workerScope);
-    workerScope.onmessage?.({
-      data: { type: 'run', code: 'for (let index = 0; index < 100; index += 1) console.log(index);' },
-    } as MessageEvent);
 
+    // In a browser Worker, this same adapter is the global console used by learner code.
+    for (let index = 0; index < 100; index += 1) workerScope.console.log(String(index));
+    workerScope.onmessage?.({ data: { type: 'run', code: 'return 1;' } } as MessageEvent);
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const outputMessages = messages.filter((message) => message.type === 'output');
