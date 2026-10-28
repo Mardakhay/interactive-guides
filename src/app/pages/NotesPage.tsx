@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { StickyNote, Trash2, Compass } from 'lucide-react';
 import { getLessonById, getCategoryById, getCategories } from '@/features/content';
+import { getStructuredLessonMetadata } from '@/content/repository';
 import { useNoteStore } from '@/features/notes';
 import { Card, Badge, Button, Input } from '@/components/ui';
 import { EmptyState } from '@/components/feedback';
@@ -10,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { formatNoteCount, getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
 
 const ALL_CATEGORIES = 'all';
+const STRUCTURED_CATEGORY = 'structured-curriculum';
 
 export default function NotesPage() {
   const locale = useUiLocale();
@@ -24,19 +26,43 @@ export default function NotesPage() {
   const notes = useMemo(() => {
     return Object.entries(noteLessons)
       .map(([lessonId, entry]) => {
-        const lesson = getLessonById(lessonId);
-        if (!lesson) return null;
-        const category = getCategoryById(lesson.categoryId);
-        return { lesson, category, content: entry.content, updatedAt: entry.updatedAt };
+        const classicLesson = getLessonById(lessonId);
+        if (classicLesson) {
+          const category = getCategoryById(classicLesson.categoryId);
+          return {
+            kind: 'classic' as const,
+            id: classicLesson.id,
+            title: classicLesson.title,
+            href: lessonPath(classicLesson.id),
+            category,
+            categoryId: classicLesson.categoryId,
+            categoryName: category?.name ?? (locale === 'ru' ? 'Классический каталог' : 'Classic catalog'),
+            content: entry.content,
+            updatedAt: entry.updatedAt,
+          };
+        }
+        const structuredLesson = getStructuredLessonMetadata(lessonId, locale);
+        if (!structuredLesson) return null;
+        return {
+          kind: 'structured' as const,
+          id: structuredLesson.id,
+          title: structuredLesson.title,
+          href: `/${locale}/structured-lessons/${structuredLesson.id}`,
+          category: undefined,
+          categoryId: STRUCTURED_CATEGORY,
+          categoryName: locale === 'ru' ? 'Структурированная программа' : 'Structured curriculum',
+          content: entry.content,
+          updatedAt: entry.updatedAt,
+        };
       })
       .filter((item): item is NonNullable<typeof item> => item !== null)
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-  }, [noteLessons]);
+  }, [noteLessons, locale]);
 
   const filteredNotes = useMemo(() => {
     const q = query.trim().toLowerCase();
     return notes.filter((note) => {
-      const matchesCategory = categoryFilter === ALL_CATEGORIES || note.lesson.categoryId === categoryFilter;
+      const matchesCategory = categoryFilter === ALL_CATEGORIES || note.categoryId === categoryFilter;
       const matchesQuery =
         q.length === 0 ||
         note.content.toLowerCase().includes(q) ||
@@ -90,6 +116,7 @@ export default function NotesPage() {
               )}
             >
               <option value={ALL_CATEGORIES}>{translate(locale, 'allCourses')}</option>
+              <option value={STRUCTURED_CATEGORY}>{locale === 'ru' ? 'Структурированная программа' : 'Structured curriculum'}</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {getLocalizedCategoryCopy(locale, category.id, category.name, category.description).name}
@@ -106,25 +133,25 @@ export default function NotesPage() {
             />
           ) : (
             <div className="space-y-3">
-              {filteredNotes.map(({ lesson, category, content, updatedAt }) => (
+              {filteredNotes.map((lesson) => (
                 <Card key={lesson.id} className="p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <Link
-                        to={lessonPath(lesson.id)}
+                        to={lesson.href}
                         className="text-sm font-semibold text-neutral-900 hover:text-primary-700"
                       >
                         {lesson.title}
                       </Link>
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-neutral-500">
-                        {category && (
-                          <Link to={coursePath(category.id)} className="hover:text-primary-600">
-                            <Badge variant="neutral">{getLocalizedCategoryCopy(locale, category.id, category.name, category.description).name}</Badge>
+                        {lesson.kind === 'classic' && lesson.category ? (
+                          <Link to={coursePath(lesson.category.id)} className="hover:text-primary-600">
+                            <Badge variant="neutral">{getLocalizedCategoryCopy(locale, lesson.category.id, lesson.category.name, lesson.category.description).name}</Badge>
                           </Link>
-                        )}
+                        ) : <Badge variant="neutral">{lesson.categoryName}</Badge>}
                         <span>
                           {translate(locale, 'updated')}{' '}
-                          {new Date(updatedAt).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US', {
+                          {new Date(lesson.updatedAt).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US', {
                             dateStyle: 'medium',
                             timeStyle: 'short',
                           })}

@@ -81,4 +81,35 @@ describe('useDashboardData structured curriculum integration', () => {
       status: 'completed',
     });
   });
+
+  it('includes structured lesson bookmarks and notes in recent activity with locale-correct links', () => {
+    useBookmarkStore.setState({
+      lessons: {
+        'html.document-structure': { createdAt: '2026-10-28T10:00:00.000Z' },
+      },
+    });
+    useNoteStore.setState({
+      lessons: {
+        'html.document-structure': { content: 'Review semantic regions', updatedAt: '2026-10-28T11:00:00.000Z' },
+      },
+    });
+
+    const { result } = renderHook(() => useDashboardData('ru'));
+    expect(result.current.recentActivity).toHaveLength(2);
+    expect(result.current.recentActivity).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'bookmark',
+        lessonId: 'html.document-structure',
+        lessonTitle: 'Структура HTML-документа и семантические области страницы',
+        href: '/ru/structured-lessons/html.document-structure',
+        categoryId: 'structured-curriculum',
+      }),
+      expect.objectContaining({
+        kind: 'note',
+        lessonId: 'html.document-structure',
+        href: '/ru/structured-lessons/html.document-structure',
+        notePreview: 'Review semantic regions',
+      }),
+    ]));
+  });
 });

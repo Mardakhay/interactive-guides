@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, Check, Clock, Compass } from 'lucide-react';
+import { Bookmark, BookOpen, Check, Clock, Compass } from 'lucide-react';
 import { getLessonById, getCategoryById, getCategoryIcon } from '@/features/content';
+import { getStructuredLessonMetadata } from '@/content/repository';
 import { useProgressStore, STATUS_BADGE_VARIANTS } from '@/features/progress';
 import { useBookmarkStore, BookmarkButton } from '@/features/bookmarks';
 import { Card, Badge, Button } from '@/components/ui';
@@ -19,14 +20,42 @@ export default function BookmarksPage() {
   const bookmarks = useMemo(() => {
     return Object.entries(bookmarkedLessons)
       .map(([lessonId, entry]) => {
-        const lesson = getLessonById(lessonId);
-        if (!lesson) return null;
-        const category = getCategoryById(lesson.categoryId);
-        return { lesson, category, createdAt: entry.createdAt };
+        const classicLesson = getLessonById(lessonId);
+        if (classicLesson) {
+          const category = getCategoryById(classicLesson.categoryId);
+          return {
+            kind: 'classic' as const,
+            id: classicLesson.id,
+            title: classicLesson.title,
+            href: lessonPath(classicLesson.id),
+            description: classicLesson.description,
+            difficulty: classicLesson.difficulty,
+            durationMinutes: classicLesson.durationMinutes,
+            category,
+            categoryId: classicLesson.categoryId,
+            categoryName: category?.name ?? (locale === 'ru' ? 'Классический каталог' : 'Classic catalog'),
+            createdAt: entry.createdAt,
+          };
+        }
+        const structuredLesson = getStructuredLessonMetadata(lessonId, locale);
+        if (!structuredLesson) return null;
+        return {
+          kind: 'structured' as const,
+          id: structuredLesson.id,
+          title: structuredLesson.title,
+          href: `/${locale}/structured-lessons/${structuredLesson.id}`,
+          description: undefined,
+          difficulty: undefined,
+          durationMinutes: undefined,
+          category: undefined,
+          categoryId: 'structured-curriculum',
+          categoryName: locale === 'ru' ? 'Структурированная программа' : 'Structured curriculum',
+          createdAt: entry.createdAt,
+        };
       })
       .filter((item): item is NonNullable<typeof item> => item !== null)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  }, [bookmarkedLessons]);
+  }, [bookmarkedLessons, locale]);
 
   return (
     <div className="space-y-6">
@@ -55,9 +84,9 @@ export default function BookmarksPage() {
         />
       ) : (
         <div className="space-y-2">
-          {bookmarks.map(({ lesson, category }) => {
+          {bookmarks.map((lesson) => {
             const status = progressLessons[lesson.id]?.status ?? 'not-started';
-            const Icon = category ? getCategoryIcon(category.icon) : Compass;
+            const Icon = lesson.kind === 'structured' ? BookOpen : lesson.category ? getCategoryIcon(lesson.category.icon) : Compass;
 
             return (
               // No outer <Link> here: wrapping the whole Card in an <a> while the
@@ -81,18 +110,17 @@ export default function BookmarksPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="text-sm font-semibold text-neutral-900 group-hover:text-primary-700">
-                    <Link to={lessonPath(lesson.id)} className="after:absolute after:inset-0 after:content-['']">
+                    <Link to={lesson.href} className="after:absolute after:inset-0 after:content-['']">
                       {lesson.title}
                     </Link>
                   </h3>
-                  <p className="mt-0.5 line-clamp-1 text-sm text-neutral-600">{lesson.description}</p>
-                  {category && (
-                    <Link
-                      to={coursePath(category.id)}
-                      className="relative z-10 mt-1 inline-block text-xs text-neutral-500 hover:text-primary-600"
-                    >
-                      {getLocalizedCategoryCopy(locale, category.id, category.name, category.description).name}
+                  {lesson.description && <p className="mt-0.5 line-clamp-1 text-sm text-neutral-600">{lesson.description}</p>}
+                  {lesson.kind === 'classic' && lesson.category ? (
+                    <Link to={coursePath(lesson.category.id)} className="relative z-10 mt-1 inline-block text-xs text-neutral-500 hover:text-primary-600">
+                      {getLocalizedCategoryCopy(locale, lesson.category.id, lesson.category.name, lesson.category.description).name}
                     </Link>
+                  ) : (
+                    <span className="relative z-10 mt-1 inline-block text-xs text-neutral-500">{lesson.categoryName}</span>
                   )}
                 </div>
                 <div className="relative z-10 flex shrink-0 items-center gap-3">
@@ -104,14 +132,14 @@ export default function BookmarksPage() {
                   <span
                     className={cn(
                       'hidden rounded-full px-2.5 py-0.5 text-xs font-medium sm:inline-flex',
-                      DIFFICULTY_COLORS[lesson.difficulty] ?? DIFFICULTY_COLORS.beginner,
+                      DIFFICULTY_COLORS[lesson.difficulty ?? 'beginner'] ?? DIFFICULTY_COLORS.beginner,
                     )}
                   >
-                    {getLocalizedDifficulty(locale, lesson.difficulty)}
+                    {lesson.difficulty ? getLocalizedDifficulty(locale, lesson.difficulty) : (locale === 'ru' ? 'Структурированный урок' : 'Structured lesson')}
                   </span>
                   <span className="hidden items-center gap-1 text-xs text-neutral-500 sm:flex">
                     <Clock className="h-3.5 w-3.5" />
-                    {lesson.durationMinutes}m
+                    {lesson.durationMinutes !== undefined ? `${lesson.durationMinutes}m` : ''}
                   </span>
                   <BookmarkButton lessonId={lesson.id} variant="icon" />
                 </div>

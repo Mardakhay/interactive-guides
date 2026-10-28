@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { Bookmark, StickyNote } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { EmptyState } from '@/components/feedback';
-import { lessonPath } from '@/app/router/routes';
 import { getCategoryById } from '@/features/content';
 import { getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
 import type { ActivityItem } from '../types';
@@ -28,7 +27,7 @@ export function RecentActivity({ items }: RecentActivityProps) {
     <ul className="space-y-2">
       {items.map((item) => (
         <li key={`${item.kind}-${item.lessonId}`}>
-          <Link to={lessonPath(item.lessonId)}>
+          <Link to={item.href}>
             <Card interactive className="group flex items-start gap-3 p-4">
               <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500">
                 {item.kind === 'bookmark' ? (
@@ -38,7 +37,7 @@ export function RecentActivity({ items }: RecentActivityProps) {
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-neutral-500">{getLocalizedCategoryCopy(locale, item.categoryId, getCategoryById(item.categoryId)?.name ?? item.categoryName, getCategoryById(item.categoryId)?.description ?? '').name}</p>
+                <p className="text-xs text-neutral-500">{item.categoryId === 'structured-curriculum' ? item.categoryName : getLocalizedCategoryCopy(locale, item.categoryId, getCategoryById(item.categoryId)?.name ?? item.categoryName, getCategoryById(item.categoryId)?.description ?? '').name}</p>
                 <h4 className="truncate text-sm font-semibold text-neutral-900 group-hover:text-primary-700">
                   {item.lessonTitle}
                 </h4>

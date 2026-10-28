@@ -40,7 +40,7 @@ export function useDashboardData(locale: SupportedLocale = 'en'): DashboardData 
       percent: stats.percent,
       structuredProgress,
       continueLearning: buildContinueLearning(lastOpenedLessonId, progressLessons, locale),
-      recentActivity: buildRecentActivity(bookmarkLessons, noteLessons),
+      recentActivity: buildRecentActivity(bookmarkLessons, noteLessons, locale),
       recommendations: buildRecommendations(progressLessons),
     };
   }, [progressLessons, lastOpenedLessonId, bookmarkLessons, noteLessons, locale]);
@@ -88,36 +88,65 @@ function buildContinueLearning(
 function buildRecentActivity(
   bookmarkLessons: Record<string, BookmarkEntry>,
   noteLessons: Record<string, NoteEntry>,
+  locale: SupportedLocale,
 ): ActivityItem[] {
   const items: ActivityItem[] = [];
 
   for (const [lessonId, entry] of Object.entries(bookmarkLessons)) {
     const lesson = getLessonById(lessonId);
-    if (!lesson) continue;
-    items.push({
+    if (lesson) {
+      items.push({
+        kind: 'bookmark',
+        lessonId,
+        lessonTitle: lesson.title,
+        href: lessonPath(lessonId),
+        categoryName: getCategoryById(lesson.categoryId)?.name ?? '',
+        categoryId: lesson.categoryId,
+        timestamp: entry.createdAt,
+      });
+      continue;
+    }
+    const structured = getStructuredLessonMetadata(lessonId, locale);
+    if (structured) items.push({
       kind: 'bookmark',
       lessonId,
-      lessonTitle: lesson.title,
-      categoryName: getCategoryById(lesson.categoryId)?.name ?? '',
-      categoryId: lesson.categoryId,
+      lessonTitle: structured.title,
+      href: `/${locale}/structured-lessons/${structured.id}`,
+      categoryName: locale === 'ru' ? 'Структурированная программа' : 'Structured curriculum',
+      categoryId: 'structured-curriculum',
       timestamp: entry.createdAt,
     });
   }
 
   for (const [lessonId, entry] of Object.entries(noteLessons)) {
     const lesson = getLessonById(lessonId);
-    if (!lesson) continue;
-    items.push({
-      kind: 'note',
-      lessonId,
-      lessonTitle: lesson.title,
-      categoryName: getCategoryById(lesson.categoryId)?.name ?? '',
-      categoryId: lesson.categoryId,
-      timestamp: entry.updatedAt,
-      notePreview:
-        entry.content.length > NOTE_PREVIEW_LENGTH
+    if (lesson) {
+      items.push({
+        kind: 'note',
+        lessonId,
+        lessonTitle: lesson.title,
+        href: lessonPath(lessonId),
+        categoryName: getCategoryById(lesson.categoryId)?.name ?? '',
+        categoryId: lesson.categoryId,
+        timestamp: entry.updatedAt,
+        notePreview: entry.content.length > NOTE_PREVIEW_LENGTH
           ? `${entry.content.slice(0, NOTE_PREVIEW_LENGTH)}…`
           : entry.content,
+      });
+      continue;
+    }
+    const structured = getStructuredLessonMetadata(lessonId, locale);
+    if (structured) items.push({
+      kind: 'note',
+      lessonId,
+      lessonTitle: structured.title,
+      href: `/${locale}/structured-lessons/${structured.id}`,
+      categoryName: locale === 'ru' ? 'Структурированная программа' : 'Structured curriculum',
+      categoryId: 'structured-curriculum',
+      timestamp: entry.updatedAt,
+      notePreview: entry.content.length > NOTE_PREVIEW_LENGTH
+        ? `${entry.content.slice(0, NOTE_PREVIEW_LENGTH)}…`
+        : entry.content,
     });
   }
 

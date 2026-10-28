@@ -4,6 +4,8 @@ import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Clock3, Languages
 import { getAdjacentStructuredLessons, getBootcampCurriculum, getStructuredLesson, getWeekForLesson, getSupplementaryTrackForLesson, SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
 import type { LessonTranslation } from '@/content/schemas/lessonContent';
 import { StructuredLessonRenderer } from '@/features/structured-lesson/StructuredLessonRenderer';
+import { BookmarkButton } from '@/features/bookmarks';
+import { NoteEditor } from '@/features/notes';
 import { useProgressStore } from '@/features/progress';
 import { useStructuredLearningStore } from '@/features/structured-lesson/store';
 
@@ -256,6 +258,9 @@ export default function StructuredLessonPage() {
           <span className="inline-flex items-center gap-2"><BookOpen className="h-4 w-4" />{copy.difficulty}</span>
           <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-600" />{statusLabel}</span>
         </div>
+        <div className="mt-4">
+          <BookmarkButton lessonId={lesson.id} />
+        </div>
       </header>
 
       <section className="mt-6 rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6" aria-labelledby="learning-outcomes">
@@ -329,6 +334,10 @@ export default function StructuredLessonPage() {
           )}
         </aside>
       </div>
+
+      <section className="mt-6" aria-label={locale === 'ru' ? 'Заметки к уроку' : 'Lesson notes'}>
+        <NoteEditor lessonId={lesson.id} />
+      </section>
 
       <section className="mt-6 rounded-2xl border border-neutral-200 bg-white p-5 shadow-subtle sm:p-6" aria-labelledby="lesson-completion-heading">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

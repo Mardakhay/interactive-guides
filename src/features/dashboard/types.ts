@@ -7,6 +7,7 @@ export interface ActivityItem {
   readonly kind: ActivityKind;
   readonly lessonId: string;
   readonly lessonTitle: string;
+  readonly href: string;
   readonly categoryName: string;
   readonly categoryId: string;
   readonly timestamp: string;
