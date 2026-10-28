@@ -120,3 +120,13 @@ Use [`BROWSER_SMOKE_TEST_CHECKLIST.md`](./BROWSER_SMOKE_TEST_CHECKLIST.md#-pwa-n
 Structured lesson JSON bodies are now emitted as separate dynamic JavaScript chunks. The application eagerly loads only a small bilingual metadata manifest for lesson titles and syllabus navigation; the body is fetched when its lesson route opens. This reduces the repository chunk from 2,363.77 kB minified / 784.88 kB gzip to 54.26 kB / 17.15 kB gzip in the latest measured production build.
 
 The existing service worker runtime-caches successful same-origin JavaScript assets after their first successful request. Lesson bodies are not precached: an opened-online lesson should be available on a later offline revisit while its chunk remains cached, but a never-visited lesson is not guaranteed offline. The route displays a load-failure message when a required chunk cannot be fetched. Verify both cases in browser acceptance checklist W-03 before treating this as device-tested behavior.
+
+
+## Runtime-cache scope hardening — 2026-10-28
+
+- Narrowed service-worker runtime caching to same-origin Vite build assets under `/assets/`; an arbitrary same-origin path is no longer cached just because it ends in `.json`, `.js`, `.png` or a similar extension.
+- Bumped the shell/asset cache namespace from `v5` to `v6`. On activation the existing cleanup removes previous cache versions, including entries that might have been stored by the older, extension-only runtime guard.
+- Updated `src/pwa/pwaAssets.test.ts` to assert the v6 cache and ensure the asset-directory guard runs before the extension allowlist.
+- Exact-head GitHub Actions [run #40648789939](https://github.com/Mardakhay/interactive-guides/actions/runs/40648789939) passed install, audit diagnostics, lint, typecheck, tests and production build on `b5a0f8fbcac903eaea3d415b1698eadc659521d0`.
+- This is source-level privacy/cache hardening only. No install, offline revisit, deep-link refresh or update-lifecycle test was run in a real browser/device; those acceptance gates remain open.
+

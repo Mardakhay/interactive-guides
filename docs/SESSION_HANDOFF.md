@@ -5,7 +5,16 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — targeted EN/RU content parity — 2026-10-28
+## Current continuation — PWA runtime-cache hardening — 2026-10-28
+
+- Latest verified code HEAD: `b5a0f8fbcac903eaea3d415b1698eadc659521d0`; exact-head GitHub Actions [run #40648789939](https://github.com/Mardakhay/interactive-guides/actions/runs/40648789939) passed `npm ci`, audit diagnostics, lint, typecheck, all tests, and production build.
+- Fixed an over-broad service-worker runtime cache rule: non-navigation requests must now be under `/assets/` before the extension allowlist is considered. This prevents arbitrary same-origin paths that happen to end in `.json`, `.js`, `.png` and similar extensions from being runtime-cached. Cache namespace bumped v5 → v6 so older entries are cleared during activation.
+- Added test protection for cache v6 and for path-scope check ordering. The existing offline model remains unchanged: app shell is precached, Vite chunks are cached after a successful online load, and an unvisited lesson is not guaranteed offline.
+- No real-browser/device acceptance has been performed; W-01 through W-05 remain manual release gates. Do not describe the application as device-tested or PWA release-ready based on CI.
+- Recent targeted content parity improvements remain recorded below/in the source audit. Legacy route mappings are still provisional; no lesson route cutover or learner-state migration has been performed. Notion pages remain `verification.state=unverified`, and Supabase is still gated by approved reconciliation policy and RLS isolation tests.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft. Next: continue review of runtime/offline edge cases and content parity, then run the browser/device checklist in a real supported environment.
+
+## Previous continuation — targeted EN/RU content parity (superseded) — 2026-10-28
 
 - Verified code HEAD: 7d07400922a0c6540c7f77e3776ce674fd5614c4. Exact-head GitHub Actions [run #40648289992](https://github.com/Mardakhay/interactive-guides/actions/runs/40648289992) passed npm ci, audit diagnostics, lint, typecheck, all 210 tests across 33 files, and production build/bundle budget.
 - Updated git.fundamentals EN/RU to v5 with a safe command quick reference (clone, branch create/list/delete, merge, diff/staged diff, fetch, pull --ff-only, push and revert) and a question distinguishing fetch from pull. The Russian workflow quiz prompt no longer contains English-only wording.

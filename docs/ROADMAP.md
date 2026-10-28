@@ -567,3 +567,12 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [ ] Continue topic-by-topic review of remaining source gaps, interactive behavior, and EN/RU editorial equivalence. This checkpoint does not complete Phase 4 or unblock route cutover.
 - [ ] Complete recorded real-browser/device and screen-reader acceptance; automated CI is not a substitute.
 
+
+
+## PWA runtime-cache scope hardening — 2026-10-28
+
+- [x] Restrict service-worker runtime caching to same-origin Vite assets under `/assets/`; extension-looking root routes are no longer runtime-cached.
+- [x] Bump the cache namespace to v6 and add a regression assertion that the path guard precedes extension matching.
+- [x] Verify exact-head CI on `b5a0f8fbcac903eaea3d415b1698eadc659521d0`: [run #40648789939](https://github.com/Mardakhay/interactive-guides/actions/runs/40648789939) passed install, lint, typecheck, tests and production build.
+- [ ] Verify install, offline revisit, never-visited lesson, deep-link reload and update acceptance in real supported browsers/devices and record the results.
+
