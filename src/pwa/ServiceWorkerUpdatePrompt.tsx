@@ -47,6 +47,7 @@ export function ServiceWorkerUpdatePrompt() {
 
     const onVisibilityChange = () => {
       if (document.visibilityState === 'visible' && registration) {
+        checkWaitingWorker();
         void registration.update().catch(() => {
           // Background update checks are best-effort and must not interrupt learning.
         });
@@ -96,6 +97,12 @@ export function ServiceWorkerUpdatePrompt() {
     waitingWorker.postMessage({ type: 'SKIP_WAITING' });
   }
 
+  function deferUpdate() {
+    // Leave the new worker waiting. It will be offered again when the learner
+    // returns to the app or reloads into a page that checks registration.waiting.
+    setUpdateReady(false);
+  }
+
   if (!updateReady) return null;
 
   return (
@@ -115,13 +122,22 @@ export function ServiceWorkerUpdatePrompt() {
           <p className="mt-1 text-sm text-neutral-600">
             {translate(locale, 'updatePromptMessage')}
           </p>
-          <button
-            type="button"
-            onClick={applyUpdate}
-            className="mt-3 inline-flex min-h-10 items-center justify-center rounded-lg bg-primary-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
-          >
-            {translate(locale, 'updateNow')}
-          </button>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={applyUpdate}
+              className="inline-flex min-h-10 items-center justify-center rounded-lg bg-primary-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+            >
+              {translate(locale, 'updateNow')}
+            </button>
+            <button
+              type="button"
+              onClick={deferUpdate}
+              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-neutral-300 px-3 py-2 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+            >
+              {translate(locale, 'updateLater')}
+            </button>
+          </div>
         </div>
       </div>
     </aside>

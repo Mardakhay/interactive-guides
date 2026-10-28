@@ -22,6 +22,8 @@ describe('application localization', () => {
     expect(formatNoteCount('en', 2)).toBe('2 notes');
     expect(getLocalizedDifficulty('ru', 'advanced')).toBe('Продвинутый');
     expect(translate('ru', 'markComplete')).toBe('Отметить завершённым');
+    expect(translate('en', 'updateLater')).toBe('Later');
+    expect(translate('ru', 'updateLater')).toBe('Позже');
     expect(translate('en', 'dashboardClassicCatalogProgress', { completed: 3, total: 25 })).toBe('Classic catalog progress — 3 of 25 lessons');
     expect(translate('ru', 'dashboardClassicCatalogProgress', { completed: 3, total: 25 })).toBe('Прогресс классического каталога — 3 из 25 уроков');
     expect(translate('ru', 'lessonNotesAria')).toBe('Заметки к уроку');

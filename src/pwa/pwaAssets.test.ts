@@ -96,6 +96,8 @@ describe('PWA asset contract', () => {
     expect(worker).not.toContain(".then(() => self.skipWaiting())");
     const updatePrompt = readRootText('src/pwa/ServiceWorkerUpdatePrompt.tsx');
     expect(updatePrompt).toContain("postMessage({ type: 'SKIP_WAITING' })");
+    expect(updatePrompt).toContain("translate(locale, 'updateLater')");
+    expect(updatePrompt).toContain('function deferUpdate()');
     expect(updatePrompt).toContain("window.location.reload()");
   });
 });
