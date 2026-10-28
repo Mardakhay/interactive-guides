@@ -87,6 +87,9 @@ export default function StructuredLessonPage() {
   const savedSectionIds = useStructuredLearningStore((state) =>
     lessonId ? state.sectionProgress[lessonId]?.completedBlockIds : undefined,
   );
+  const allQuizAttempts = useStructuredLearningStore((state) => state.quizAttempts);
+  const allCodeDrafts = useStructuredLearningStore((state) => state.codeDrafts);
+  const allPracticeChecklists = useStructuredLearningStore((state) => state.practiceChecklists);
 
   useEffect(() => {
     if (lesson) markLessonOpened(lesson.id);
@@ -111,6 +114,11 @@ export default function StructuredLessonPage() {
         readingProgress: 'Прогресс чтения',
         sectionsReadCount: 'Разделов отмечено прочитанными',
         sectionsReadSummary: 'Отмечено прочитанными',
+        evidenceTitle: 'Учебные отметки',
+        evidenceNote: 'Эти счётчики отражают действия, а не освоение темы. Ответы можно отправлять повторно; критерии практики отмечаются самим учеником, а черновики автоматически не проверяются.',
+        checksSubmitted: 'Отправлено проверок знаний',
+        practiceReviewed: 'Критерии практики отмечены',
+        draftsSaved: 'Сохранено черновиков',
         statusNotStarted: 'Не начат',
         statusStarted: 'В процессе',
         statusCompleted: 'Отмечен завершённым',
@@ -136,6 +144,11 @@ export default function StructuredLessonPage() {
         readingProgress: 'Reading progress',
         sectionsReadCount: 'Sections marked read',
         sectionsReadSummary: 'Marked read',
+        evidenceTitle: 'Learning signals',
+        evidenceNote: 'These counts describe activity, not mastery. Knowledge checks can be retried; practice criteria are self-reported, and saved drafts are not automatically graded.',
+        checksSubmitted: 'Knowledge checks submitted',
+        practiceReviewed: 'Practice criteria self-reviewed',
+        draftsSaved: 'Exercise drafts saved',
         statusNotStarted: 'Not started',
         statusStarted: 'In progress',
         statusCompleted: 'Marked complete',
@@ -194,6 +207,17 @@ export default function StructuredLessonPage() {
     );
   }
 
+  const knowledgeChecks = lesson.blocks.filter((block) => block.type === 'knowledgeCheck');
+  const codingExercises = lesson.blocks.filter((block) => block.type === 'codingExercise');
+  const knowledgeChecksSubmitted = knowledgeChecks.filter((block) =>
+    (allQuizAttempts[`${lesson.id}::${block.id}`]?.length ?? 0) > 0,
+  ).length;
+  const practiceCriteriaTotal = codingExercises.reduce((total, block) => total + block.successCriteria.length, 0);
+  const practiceCriteriaReviewed = codingExercises.reduce((total, block) => {
+    const checked = allPracticeChecklists[`${lesson.id}::${block.id}`]?.checkedCriteria ?? [];
+    return total + new Set(checked.filter((index) => Number.isInteger(index) && index >= 0 && index < block.successCriteria.length)).size;
+  }, 0);
+  const draftsSaved = codingExercises.filter((block) => allCodeDrafts[`${lesson.id}::${block.id}`] !== undefined).length;
   const otherLocale: SupportedLocale = locale === 'en' ? 'ru' : 'en';
   const outline = lesson.blocks.filter((block) => block.type === 'heading');
   const completedSectionIds = savedSectionIds ?? EMPTY_SECTION_IDS;
@@ -244,6 +268,25 @@ export default function StructuredLessonPage() {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-neutral-200 bg-white p-5 shadow-subtle sm:p-6" aria-labelledby="learning-signals-heading">
+        <h2 id="learning-signals-heading" className="text-lg font-semibold text-neutral-950">{copy.evidenceTitle}</h2>
+        <p className="mt-2 max-w-4xl text-sm leading-6 text-neutral-600">{copy.evidenceNote}</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div role="group" aria-label={copy.checksSubmitted} className="rounded-xl bg-neutral-50 p-3">
+            <p className="text-xs leading-5 text-neutral-600">{copy.checksSubmitted}</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-neutral-950">{knowledgeChecksSubmitted} / {knowledgeChecks.length}</p>
+          </div>
+          <div role="group" aria-label={copy.practiceReviewed} className="rounded-xl bg-neutral-50 p-3">
+            <p className="text-xs leading-5 text-neutral-600">{copy.practiceReviewed}</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-neutral-950">{practiceCriteriaReviewed} / {practiceCriteriaTotal}</p>
+          </div>
+          <div role="group" aria-label={copy.draftsSaved} className="rounded-xl bg-neutral-50 p-3">
+            <p className="text-xs leading-5 text-neutral-600">{copy.draftsSaved}</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-neutral-950">{draftsSaved} / {codingExercises.length}</p>
+          </div>
+        </div>
       </section>
 
       <div className="mt-8 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_15rem]">
