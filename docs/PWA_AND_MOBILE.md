@@ -32,16 +32,18 @@ A responsive application that can be installed on supported phones/desktops and 
 - Test cold load online, revisit offline, first visit offline (clearly explain if content was not yet cached), update lifecycle, offline route reload and sign-in/sync failure.
 - Validate Android Chrome and iOS Safari behavior; installation capabilities differ by browser and must not be described as identical.
 
-## Implementation status check — 2026-10-23
+## Historical implementation status check — 2026-10-23 (superseded)
 
-The requirements above remain valid, but source-tree verification of feat/learning-platform-foundation found that the PWA foundation described in earlier handoffs is not present in the current implementation:
-- public/manifest.webmanifest is absent.
-- public/sw.js is absent.
-- index.html does not link a web manifest.
-- src/main.tsx does not register a service worker.
-- Install/update/offline UI and real-browser installability results must not be assumed.
+Historical note: during the early 2026-10-23 audit, the PWA files described in earlier handoffs were not present at the reviewed revision. The following implementation sections document the subsequent addition and hardening of those files. **This is a historical snapshot, not the current branch status.**
 
-Treat PWA as an implementation and acceptance-testing phase, not a completed feature. Before caching content, specify cache lifecycle, offline route fallback and update UX, and explicitly exclude private/authenticated responses. Then test installability and offline reload behavior on supported browsers/devices. Structured React routes alone do not make the content available offline.
+At that early checkpoint:
+- `public/manifest.webmanifest` was absent.
+- `public/sw.js` was absent.
+- `index.html` did not link a web manifest.
+- No service-worker registration path had been verified.
+- Install/update/offline UI and real-browser installability results could not be assumed.
+
+The current state is summarized in the final “Current branch implementation and acceptance status” section below. The real-browser/device acceptance gate remains open even though the implementation is present.
 
 
 ## Initial implementation — 2026-10-23
@@ -139,3 +141,16 @@ The existing service worker runtime-caches successful same-origin JavaScript ass
 - Exact-head CI [run #40649159828](https://github.com/Mardakhay/interactive-guides/actions/runs/40649159828) passed on `caaea3fdff52a420ebd64f3e4c1ff55eea58b36e`: npm ci, audit diagnostics, lint, typecheck, tests and production build.
 - Real-browser/device acceptance is still open. Verify defer while a note or coding exercise has unsaved data, reappearance after returning to the app, and activation/reload only after controllerchange.
 
+
+
+## Current branch implementation and acceptance status — 2026-10-28
+
+The PWA foundation is present in `feat/learning-platform-foundation`; the historical early-audit note above must not be read as a current inventory.
+
+- `index.html` links `/manifest.webmanifest`, the favicon, and the 180px Apple touch icon. `public/manifest.webmanifest` declares the standalone app identity and SVG/192px/512px icons; matching 180/192/512px raster assets and `public/pwa-icon.svg` are in `public/`.
+- `public/sw.js` precaches the app shell, uses network-first navigation with a cached `/index.html` fallback, and runtime-caches successful same-origin Vite assets under `/assets/`. It skips cross-origin requests, requests with Authorization headers, `/api/` endpoints, and arbitrary same-origin paths outside the asset directory.
+- The current service-worker cache namespace is `v6`. `src/pwa/ServiceWorkerUpdatePrompt.tsx` registers `/sw.js` in production and offers localized **Update now** / **Later** choices; the worker waits for an explicit `SKIP_WAITING` message rather than activating itself automatically.
+- `public/_redirects` contains the Netlify-compatible `/* /index.html 200` SPA fallback for deep routes.
+- Latest code/content CI before this documentation follow-up passed on `1631c1fc9ed8377ebb5194dc1da78b702c981716`: `npm ci`, lint, typecheck, 219 tests in 35 files, production build, 125 JavaScript chunks within the configured budgets, and zero npm audit findings. See [run #40679724796](https://github.com/Mardakhay/interactive-guides/actions/runs/40679724796).
+- Structured lesson chunks are fetched on demand and cached only after a successful first online load. A never-visited lesson is not guaranteed offline. Google Fonts are external and may not load offline.
+- **Not yet accepted in a real browser/device:** install prompts, icon behavior, fresh-profile install, localized deep-link reload, offline revisit vs. unvisited lesson, update deferral with unsaved learner input, mobile reflow/focus, and screen-reader behavior. The procedure and all “Not run” execution cells remain in `BROWSER_SMOKE_TEST_CHECKLIST.md`. A green CI run or a ready deploy preview does not close these manual acceptance gates.
