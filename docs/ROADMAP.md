@@ -7,7 +7,7 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 This is the current implementation and release-gate summary. The many dated checkpoint sections below are a work log. Repeated historical checkboxes are not a count of unique remaining tasks.
 
 - Current registry: **27 core + 17 supplementary lesson IDs = 44 bilingual lesson pairs**.
-- Latest exact-head CI before this documentation refresh: [run #40700770769](https://github.com/Mardakhay/interactive-guides/actions/runs/40700770769) on `d248b2e` passed install, lint, typecheck, 223 tests across 35 files, production build, 125 JS chunk budgets, preview HTTP smoke and npm audit (0 vulnerabilities).
+- Latest exact-head CI before this documentation refresh: [run #40701225217](https://github.com/Mardakhay/interactive-guides/actions/runs/40701225217) on `283305d` passed install, lint, typecheck, 223 tests across 35 files, production build, 125 JS chunk budgets, preview HTTP smoke and npm audit (0 vulnerabilities).
 - Full review of HTML source content/code/interaction is documented for 25/25 files. Exact source-to-block/widget parity and Notion claim verification are not complete; 21 Notion pages remain unverified.
 - The cutover matrix lists 25 legacy catalog IDs; **all 25 are Blocked**. Preserve the classic route and source files until each target/disposition and learner-state retention rule has been reviewed and tested.
 - Automated preview smoke is complete, but native browser/device, screen-reader and mobile acceptance is not. The ready deploy preview is not evidence of real-browser behavior.
