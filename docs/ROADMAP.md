@@ -605,3 +605,13 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Verify exact-head CI on `b920e1ef34bf292bde155bc18d203dc03db7827a`: [run #40653287307](https://github.com/Mardakhay/interactive-guides/actions/runs/40653287307) passed 215 tests / 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
 - [ ] Continue reviewing remaining source sections and interactive behavior. The classic searchable/copyable reference UI is still not a one-to-one replica; the legacy route and learner-state cutover remain blocked.
 
+
+
+## Git CI failure-diagnosis parity batch — 2026-10-28
+
+- [x] Upgrade `git.workflow-ci` EN/RU to v6 with a localized matrix for diagnosing install, lint/typecheck, tests, production build and deployment-stage failures.
+- [x] Add a bilingual single-choice knowledge check that rejects force-merging a failed build or relying on a green run from an older commit.
+- [x] Add regression assertions for schema validity, EN/RU block parity, unique IDs, the expected answer and feedback quality.
+- [x] Verify exact-head CI on `ccf839c806369d9e151e4f24b430ac24f3c4c936`: [run #40653842673](https://github.com/Mardakhay/interactive-guides/actions/runs/40653842673) passed 215 tests / 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
+- [ ] Review the remaining legacy animated branch canvas and failure-injection simulator; this educational diagnosis matrix is not a one-to-one interaction replica.
+

@@ -973,3 +973,12 @@ This dated status reconciles the early inventory snapshot above with later sourc
 - Exact-head CI [run #40653287307](https://github.com/Mardakhay/interactive-guides/actions/runs/40653287307) passed on `b920e1ef34bf292bde155bc18d203dc03db7827a`: 215 tests across 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
 - The legacy HTML's live search, copy buttons and accordion presentation still differ from the structured reader. This is targeted source parity, not permission to redirect legacy IDs or discard their progress, notes or bookmarks.
 
+
+
+## Git CI failure-diagnosis source-parity follow-up — 2026-10-28
+
+- `git.workflow-ci` EN/RU v6 adds a diagnosis matrix for common CI stage failures: lockfile/installation, lint and typecheck, tests, production build, and deployment. It stresses reading the failing stage's log, fixing the observed cause, retaining meaningful tests, and verifying the new SHA after a fix.
+- Added a bilingual single-choice knowledge check for a build failure after otherwise green checks; the correct action is to inspect the current build log and address the concrete cause. Force merge, blind dependency upgrades, and reusing old green status are explicitly incorrect.
+- Exact-head CI [run #40653842673](https://github.com/Mardakhay/interactive-guides/actions/runs/40653842673) passed on `ccf839c806369d9e151e4f24b430ac24f3c4c936`: 215 tests across 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
+- This narrows the explanation gap but does not reproduce the legacy animated branch canvas or failure-injection UI. The classic route and stored learner state remain untouched; equivalence and route cutover remain unapproved.
+

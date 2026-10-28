@@ -5,7 +5,16 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — Git README and ignore-pattern parity — 2026-10-28
+## Current continuation — CI failure diagnosis in the structured Git workflow lesson — 2026-10-28
+
+- Latest verified code/test HEAD: `ccf839c806369d9e151e4f24b430ac24f3c4c936`; exact-head GitHub Actions [run #40653842673](https://github.com/Mardakhay/interactive-guides/actions/runs/40653842673) passed install, audit diagnostics, lint, typecheck, all 215 tests across 34 files, production build, and bundle-budget checks across 125 JavaScript chunks.
+- Updated `git.workflow-ci` EN/RU to v6 with a diagnosis matrix distinguishing install/lockfile, lint/typecheck, test, production build and deploy-stage failures. Added a localized knowledge check that requires inspecting the failed build log, fixing the concrete cause and validating the new SHA rather than bypassing a failed gate.
+- Kept the legacy Git route, stored user data and lesson identity unchanged. The exercise is structured explanatory content, not a replica of the legacy canvas/failure-injection simulator.
+- The Git Reference README and `.gitignore` work remains documented in the previous continuation. Exact-head CI for it passed on [run #40653287307](https://github.com/Mardakhay/interactive-guides/actions/runs/40653287307).
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft. No local checkout/test or real-browser/device/screen-reader acceptance is claimed.
+- Next: continue source-parity batches and route/accessibility checks; do not redirect old lesson IDs or discard learner state until equivalence and per-store retention have been reviewed. Supabase remains gated by approved reconciliation and RLS isolation tests.
+
+## Previous continuation — Git README and ignore-pattern parity (superseded) — 2026-10-28
 
 - Latest verified code/test HEAD: `b920e1ef34bf292bde155bc18d203dc03db7827a`; exact-head GitHub Actions [run #40653287307](https://github.com/Mardakhay/interactive-guides/actions/runs/40653287307) passed install, audit diagnostics, lint, typecheck, all 215 tests across 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
 - Updated `git.fundamentals` EN/RU to v7 without changing its canonical lesson ID or route. The new `.gitignore` reference explains leading comments, glob and bracket-range patterns, directory suffixes, negation/re-inclusion limits and last-match precedence.
