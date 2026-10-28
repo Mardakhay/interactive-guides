@@ -532,7 +532,7 @@
       "text": "Diagnose a failed stage from its logs"
     },
     {
-      "id": "ci-failure-diagnosis",
+      "id": "ci-failure-diagnosis-matrix",
       "type": "list",
       "items": [
         "If `npm ci` fails, inspect the lockfile, Node/npm versions, `engines` constraints and registry error. Do not replace `npm ci` with `npm install` merely to hide a lockfile mismatch.",
@@ -544,7 +544,7 @@
       ]
     },
     {
-      "id": "ci-failure-diagnosis",
+      "id": "ci-failure-diagnosis-check",
       "type": "knowledgeCheck",
       "questionType": "single-choice",
       "prompt": "CI fails at `npm run build` even though install, lint, typecheck and tests passed. What should you do first?",

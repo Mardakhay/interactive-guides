@@ -532,7 +532,7 @@
       "text": "Диагностируй упавший этап по его логам"
     },
     {
-      "id": "ci-failure-diagnosis",
+      "id": "ci-failure-diagnosis-matrix",
       "type": "list",
       "items": [
         "Если падает `npm ci`, сначала проверь lockfile, версию Node/npm, ограничения `engines` и сообщение реестра. Не заменяй `npm ci` на `npm install` только ради скрытия рассинхронизации lockfile.",
@@ -544,7 +544,7 @@
       ]
     },
     {
-      "id": "ci-failure-diagnosis",
+      "id": "ci-failure-diagnosis-check",
       "type": "knowledgeCheck",
       "questionType": "single-choice",
       "prompt": "CI падает на `npm run build`, хотя install, lint, typecheck и тесты прошли. Что делать в первую очередь?",

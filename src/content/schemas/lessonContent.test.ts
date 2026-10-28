@@ -993,10 +993,14 @@ describe('Git workflow lesson translation', () => {
       ]),
     );
     expect(englishGitWorkflow.blocks.map((block) => block.id)).toEqual(
-      expect.arrayContaining(['ci-failure-diagnosis-heading', 'ci-failure-diagnosis']),
+      expect.arrayContaining(['ci-failure-diagnosis-heading', 'ci-failure-diagnosis-matrix', 'ci-failure-diagnosis-check']),
     );
     const diagnosisByLocale = [englishGitWorkflow, russianGitWorkflow].map((lesson) => {
-      const block = lesson.blocks.find((candidate) => candidate.id === 'ci-failure-diagnosis');
+      const matrix = lesson.blocks.find((candidate) => candidate.id === 'ci-failure-diagnosis-matrix');
+      expect(matrix?.type).toBe('list');
+      if (matrix?.type !== 'list') throw new Error('CI diagnostic matrix is missing');
+      expect(matrix.items.length).toBeGreaterThanOrEqual(5);
+      const block = lesson.blocks.find((candidate) => candidate.id === 'ci-failure-diagnosis-check');
       expect(block?.type).toBe('knowledgeCheck');
       if (block?.type !== 'knowledgeCheck') throw new Error('CI diagnosis check is missing');
       expect(block.questionType).toBe('single-choice');
