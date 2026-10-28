@@ -665,12 +665,17 @@ describe('React API and custom hooks lesson translation', () => {
   });
 });
 
-describe('supplementary UI ecosystem lesson', () => {
-  it('preserves bilingual Bootstrap and MUI explanations, checks, and practice', () => {
+describe('core UI library lesson', () => {
+  it('preserves bilingual Bootstrap and MUI explanations, checks, and practice in week 17', () => {
     expect(lessonTranslationSchema.safeParse(englishUiEcosystem).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianUiEcosystem).success).toBe(true);
     expect(englishUiEcosystem.id).toBe('ui.bootstrap-mui');
-    expect(englishUiEcosystem.supplementaryTrackId).toBe('supplement-ui-ecosystem');
+    expect(englishUiEcosystem.week).toBe(17);
+    expect(englishUiEcosystem.moduleId).toBe('month-5-week-17');
+    expect(englishUiEcosystem.supplementaryTrackId).toBeUndefined();
+    expect(russianUiEcosystem.week).toBe(17);
+    expect(russianUiEcosystem.moduleId).toBe('month-5-week-17');
+    expect(russianUiEcosystem.supplementaryTrackId).toBeUndefined();
     expect(englishUiEcosystem.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianUiEcosystem.blocks.map(({ id, type }) => ({ id, type })),
     );
