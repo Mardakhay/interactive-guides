@@ -66,7 +66,7 @@ export default function NotesPage() {
       const matchesQuery =
         q.length === 0 ||
         note.content.toLowerCase().includes(q) ||
-        note.lesson.title.toLowerCase().includes(q);
+        note.title.toLowerCase().includes(q);
       return matchesCategory && matchesQuery;
     });
   }, [notes, query, categoryFilter]);
@@ -163,7 +163,7 @@ export default function NotesPage() {
                       {translate(locale, 'delete')}
                     </Button>
                   </div>
-                  <p className="mt-3 whitespace-pre-wrap text-sm text-neutral-700">{content}</p>
+                  <p className="mt-3 whitespace-pre-wrap text-sm text-neutral-700">{lesson.content}</p>
                 </Card>
               ))}
             </div>

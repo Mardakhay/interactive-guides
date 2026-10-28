@@ -336,7 +336,7 @@ export default function StructuredLessonPage() {
       </div>
 
       <section className="mt-6" aria-label={locale === 'ru' ? 'Заметки к уроку' : 'Lesson notes'}>
-        <NoteEditor lessonId={lesson.id} />
+        <NoteEditor key={lesson.id} lessonId={lesson.id} />
       </section>
 
       <section className="mt-6 rounded-2xl border border-neutral-200 bg-white p-5 shadow-subtle sm:p-6" aria-labelledby="lesson-completion-heading">

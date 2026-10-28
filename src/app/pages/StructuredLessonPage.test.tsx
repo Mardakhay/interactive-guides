@@ -121,6 +121,15 @@ describe('StructuredLessonPage', () => {
     expect(screen.getByText(/These counts describe activity, not mastery/)).toBeTruthy();
   });
 
+  it('allows bookmarking a structured lesson and exposes its notes editor', async () => {
+    renderLesson('/en/structured-lessons/html.document-structure');
+
+    const bookmarkButton = await screen.findByRole('button', { name: 'Bookmark' });
+    expect(screen.getByRole('textbox', { name: 'Lesson notes' })).toBeTruthy();
+    fireEvent.click(bookmarkButton);
+    expect(screen.getByRole('button', { name: 'Remove bookmark' }).getAttribute('aria-pressed')).toBe('true');
+  });
+
   it('records a self-attested completion marker without claiming mastery', async () => {
     renderLesson('/en/structured-lessons/html.document-structure');
     fireEvent.click(await screen.findByRole('button', { name: 'Mark lesson complete' }));
