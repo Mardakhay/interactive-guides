@@ -576,3 +576,12 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Verify exact-head CI on `b5a0f8fbcac903eaea3d415b1698eadc659521d0`: [run #40648789939](https://github.com/Mardakhay/interactive-guides/actions/runs/40648789939) passed install, lint, typecheck, tests and production build.
 - [ ] Verify install, offline revisit, never-visited lesson, deep-link reload and update acceptance in real supported browsers/devices and record the results.
 
+
+
+## Learner-controlled PWA update deferral — 2026-10-28
+
+- [x] Add localized Update now / Later controls to the service-worker update prompt.
+- [x] Keep the new worker waiting when the learner defers; re-check the waiting registration when the tab becomes visible.
+- [x] Add regression tests for deferral, non-activation, re-prompt, explicit SKIP_WAITING and Russian copy. Exact-head CI passed on `caaea3fdff52a420ebd64f3e4c1ff55eea58b36e` in [run #40649159828](https://github.com/Mardakhay/interactive-guides/actions/runs/40649159828).
+- [ ] Validate update deferral and activation in a real browser while a note or coding exercise contains unsaved work; record browser/OS and tested SHA.
+

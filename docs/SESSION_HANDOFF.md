@@ -5,7 +5,15 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — PWA runtime-cache hardening — 2026-10-28
+## Current continuation — learner-controlled PWA update deferral — 2026-10-28
+
+- Latest verified code HEAD: `caaea3fdff52a420ebd64f3e4c1ff55eea58b36e`; exact-head GitHub Actions [run #40649159828](https://github.com/Mardakhay/interactive-guides/actions/runs/40649159828) passed npm ci, audit diagnostics, lint, typecheck, tests and production build.
+- The service-worker prompt now offers localized `Update now` and `Later`. Later hides the prompt without sending `SKIP_WAITING`, activating the waiting worker or reloading; when the tab becomes visible later, the component rechecks the waiting registration and presents the choice again. Added tests for defer, non-activation, re-prompt, explicit activation messaging and Russian copy.
+- Runtime caching is restricted to Vite assets under `/assets/`; cache namespace v6 clears older v5 entries on activation. These code contracts have CI coverage but have not been checked in a real browser/device.
+- Still open: perform W-01 through W-05 on supported desktop/mobile browsers, including online-to-offline revisit, unvisited-lesson offline behavior, deferral while a note/draft is unsaved, and reload only after controllerchange. No browser/device evidence is recorded.
+- Content parity remains focused, not complete; all 25 legacy mappings are provisional, learner-state migration decisions remain open, Notion pages remain `verification.state=unverified`, and Supabase is gated on approved reconciliation and RLS testing. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
+
+## Previous continuation — PWA runtime-cache hardening (superseded) — 2026-10-28
 
 - Latest verified code HEAD: `b5a0f8fbcac903eaea3d415b1698eadc659521d0`; exact-head GitHub Actions [run #40648789939](https://github.com/Mardakhay/interactive-guides/actions/runs/40648789939) passed `npm ci`, audit diagnostics, lint, typecheck, all tests, and production build.
 - Fixed an over-broad service-worker runtime cache rule: non-navigation requests must now be under `/assets/` before the extension allowlist is considered. This prevents arbitrary same-origin paths that happen to end in `.json`, `.js`, `.png` and similar extensions from being runtime-cached. Cache namespace bumped v5 → v6 so older entries are cleared during activation.

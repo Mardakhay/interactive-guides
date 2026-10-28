@@ -130,3 +130,12 @@ The existing service worker runtime-caches successful same-origin JavaScript ass
 - Exact-head GitHub Actions [run #40648789939](https://github.com/Mardakhay/interactive-guides/actions/runs/40648789939) passed install, audit diagnostics, lint, typecheck, tests and production build on `b5a0f8fbcac903eaea3d415b1698eadc659521d0`.
 - This is source-level privacy/cache hardening only. No install, offline revisit, deep-link refresh or update-lifecycle test was run in a real browser/device; those acceptance gates remain open.
 
+
+
+## Learner-controlled update deferral — 2026-10-28
+
+- The localized service-worker prompt now offers **Update now** and **Later** in English and Russian. Later hides the prompt for the current foreground period without sending `SKIP_WAITING`, activating the waiting worker or reloading. When the tab next becomes visible, the component re-checks `registration.waiting` and offers the choice again.
+- Component tests cover defer without activation, re-prompt on visibility change, explicit activation messaging and Russian copy. The PWA contract test also checks the defer action.
+- Exact-head CI [run #40649159828](https://github.com/Mardakhay/interactive-guides/actions/runs/40649159828) passed on `caaea3fdff52a420ebd64f3e4c1ff55eea58b36e`: npm ci, audit diagnostics, lint, typecheck, tests and production build.
+- Real-browser/device acceptance is still open. Verify defer while a note or coding exercise has unsaved data, reappearance after returning to the app, and activation/reload only after controllerchange.
+
