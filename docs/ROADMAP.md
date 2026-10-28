@@ -27,6 +27,7 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - [x] Add a persistent EN/RU preference, a switch in the shared top bar, and route-aware locale selection for structured lessons.
 - [x] Localize the common shell/navigation, dashboard widgets, catalog/category views, learning paths, bookmarks, notes, lesson controls/metadata/navigation, quiz controls, search and common empty/error states.
 - [x] Keep dashboard progress separate for classic HTML catalog IDs and canonical structured lesson IDs; resume the last-opened lesson through its matching route.
+- [x] Preserve structured lesson bookmarks and notes in their list pages; add bookmark/note controls to the structured reader and resolve structured IDs in dashboard recent activity.
 - [ ] Audit remaining uncommon strings and edge states across every route; verify the browser document language and accessible announcements.
 - [ ] Review and translate legacy lesson bodies where equivalent Russian source content exists; preserve the route-specific language of structured lessons.
 - [ ] Complete the responsive, keyboard and touch-target review across the entire app.

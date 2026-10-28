@@ -5,7 +5,15 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — dashboard structured-curriculum integration — 2026-10-28
+## Current continuation — structured bookmarks/notes and activity links — 2026-10-28
+
+- Latest verified HEAD: `adc65f8faa03f7b0cea24ac927b8544e5960bced`; exact-head GitHub Actions [run #40643106198](https://github.com/Mardakhay/interactive-guides/actions/runs/40643106198) passed `npm ci`, audit diagnostic, lint, typecheck, all 200 tests and production build/bundle budget.
+- Structured reader now includes the existing generic bookmark toggle and note editor. The note editor is keyed by lesson ID so navigating between structured lessons remounts its draft rather than carrying prior input.
+- Bookmarks and Notes pages now resolve both classic catalog IDs and structured lesson IDs, render the appropriate locale-specific route, and label structured records separately. Notes include a dedicated structured-curriculum filter. Existing persisted ID keys are preserved without migration.
+- Dashboard Recent Activity now links structured bookmarks/notes to `/:locale/structured-lessons/:id`; classic activity continues to link to `/lessons/:id`. New tests cover list visibility, URL resolution, deletion/toggle and structured activity records.
+- Next: audit search and learning paths for structured coverage; avoid collapsing old/new ID namespaces until content parity and data retention are reviewed. Real-browser/screen-reader acceptance and backup/PWA checks remain manual. `main` unchanged and Supabase gated.
+
+## Previous continuation — dashboard structured-curriculum integration (superseded) — 2026-10-28
 
 - Latest verified code/test HEAD: `bd0c11fdf7880bb45afaf37b3bc37f91bcb6666c`; exact-head GitHub Actions [run #40641890399](https://github.com/Mardakhay/interactive-guides/actions/runs/40641890399) passed `npm ci`, audit diagnostic, lint, typecheck, all tests and production build/bundle budget.
 - Dashboard now reports classic catalog and structured-curriculum progress independently. Structured stats derive from `getStructuredLessonIds()` and include the supplementary track; old/new IDs are not collapsed or remapped while content parity is incomplete.

@@ -828,3 +828,12 @@ The candidate mapping of all 25 classic catalog IDs to possible structured desti
 - `ContinueLearningCard` now supports both legacy `/lessons/:lessonId` routes and locale-specific `/:locale/structured-lessons/:lessonId` routes. The active UI locale determines the structured resume URL and title.
 - Tests verify the structured total comes from the manifest, structured completion doesn't inflate classic catalog stats, structured continue routes work in Russian, and classic routes remain unchanged. Descriptions derive counts from the registry rather than hardcoding the current count of 44.
 - Open: bookmarks/notes/recent activity still need end-to-end review for structured lesson IDs; no legacy route cutover is authorized. Real-browser/device acceptance and source parity remain separate release gates. `main` remains unchanged.
+
+
+## Structured bookmarks and notes integration — 2026-10-28
+
+- Exact-head GitHub Actions [run #40643106198](https://github.com/Mardakhay/interactive-guides/actions/runs/40643106198) passed on `adc65f8faa03f7b0cea24ac927b8544e5960bced`: `npm ci`, npm audit diagnostic, lint, typecheck, 200 tests and production build/bundle-budget checks.
+- Structured lesson pages now expose the existing generic bookmark toggle and lesson note editor, with the note editor keyed by lesson ID so the local draft remounts when the user navigates to another lesson.
+- Bookmarks and Notes pages now resolve either classic catalog IDs or structured manifest IDs. Structured entries use `/:locale/structured-lessons/:id`, have an explicit “Structured curriculum” label, and structured notes can be filtered separately. Store shapes and stable IDs are unchanged.
+- Dashboard recent activity includes structured bookmark/note events and their locale-specific URLs; classic activity continues to use `/lessons/:id`. Tests cover structured bookmark visibility/removal, structured note filtering/deletion, reader controls and recent-activity links.
+- These changes preserve both ID namespaces; they do not migrate records or authorize legacy-route cutover. Search/index coverage, real-browser/screen-reader acceptance, source parity and backup/PWA device checks remain open. `main` is unchanged; Supabase remains gated.
