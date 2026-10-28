@@ -585,3 +585,12 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Add regression tests for deferral, non-activation, re-prompt, explicit SKIP_WAITING and Russian copy. Exact-head CI passed on `caaea3fdff52a420ebd64f3e4c1ff55eea58b36e` in [run #40649159828](https://github.com/Mardakhay/interactive-guides/actions/runs/40649159828).
 - [ ] Validate update deferral and activation in a real browser while a note or coding exercise contains unsaved work; record browser/OS and tested SHA.
 
+
+
+## CSS positioning parity batch — 2026-10-28
+
+- [x] Add EN/RU explanations of static/relative/absolute/fixed/sticky positioning, containing blocks and stacking contexts.
+- [x] Add a worked badge/card and sticky-banner walkthrough, plus a knowledge check and MDN position/z-index references.
+- [x] Verify exact-head CI on `ecb1c8e5546ec543428af241a4f7eb59fe00d4cb`: [run #40649649155](https://github.com/Mardakhay/interactive-guides/actions/runs/40649649155) passed all tests and production build.
+- [ ] Continue reviewing remaining source gaps and interactive behavior; this does not complete the CSS source migration or replace real-browser responsive/accessibility acceptance.
+

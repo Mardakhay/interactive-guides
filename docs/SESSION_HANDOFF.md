@@ -5,7 +5,15 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — learner-controlled PWA update deferral — 2026-10-28
+## Current continuation — CSS positioning parity — 2026-10-28
+
+- Latest verified code HEAD: `ecb1c8e5546ec543428af241a4f7eb59fe00d4cb`; exact-head GitHub Actions [run #40649649155](https://github.com/Mardakhay/interactive-guides/actions/runs/40649649155) passed npm ci, audit diagnostics, lint, typecheck, tests and production build.
+- Updated `css.fundamentals` EN/RU to v5. The positioning section explains static, relative, absolute, fixed and sticky, containing-block selection and stacking-context limits; its walkthrough shows an absolute badge anchored to a relative card and a sticky banner. Tests check line ranges, the correct answer and official MDN references.
+- PWA work is also code-verified: runtime cache restricted to `/assets/` under cache v6; the service-worker update prompt offers localized Later without activating/reloading and re-prompts when the tab becomes visible. Exact-head CI for that defer flow passed in [run #40649159828](https://github.com/Mardakhay/interactive-guides/actions/runs/40649159828).
+- Still open: legacy CSS interactive Flexbox/Grid/transition demos are not reproduced one-to-one; responsive layout and service-worker lifecycle require real-browser/device acceptance, which has not been executed or recorded.
+- Legacy route mappings remain provisional, learner-state migration policy remains open, Notion pages remain `verification.state=unverified`, and Supabase is gated on approved reconciliation and RLS testing. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
+
+## Previous continuation — learner-controlled PWA update deferral (superseded) — 2026-10-28
 
 - Latest verified code HEAD: `caaea3fdff52a420ebd64f3e4c1ff55eea58b36e`; exact-head GitHub Actions [run #40649159828](https://github.com/Mardakhay/interactive-guides/actions/runs/40649159828) passed npm ci, audit diagnostics, lint, typecheck, tests and production build.
 - The service-worker prompt now offers localized `Update now` and `Later`. Later hides the prompt without sending `SKIP_WAITING`, activating the waiting worker or reloading; when the tab becomes visible later, the component rechecks the waiting registration and presents the choice again. Added tests for defer, non-activation, re-prompt, explicit activation messaging and Russian copy.

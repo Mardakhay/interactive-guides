@@ -953,3 +953,13 @@ This dated status reconciles the early inventory snapshot above with later sourc
 - **Exact-head verification:** the Git command reference was verified by [run #40647176416](https://github.com/Mardakhay/interactive-guides/actions/runs/40647176416). The combined current code head 7d07400922a0c6540c7f77e3776ce674fd5614c4 passed [run #40648289992](https://github.com/Mardakhay/interactive-guides/actions/runs/40648289992): npm ci, audit diagnostics, lint, typecheck, 210 tests across 33 files, and production build.
 - **Limitations:** these are focused content-parity batches, not a complete equivalence claim. Legacy HTML still contains UI behaviors, examples and interactions that are not reproduced one-to-one. The 25-route crosswalk remains provisional, state-retention decisions remain open, and legacy routes/files must not be removed or redirected on the basis of these additions. Real-browser/device and screen-reader checks remain unrecorded.
 
+
+
+## CSS positioning source-parity follow-up — 2026-10-28
+
+- `css.fundamentals` EN/RU moved to v5. The legacy CSS reference includes a detailed Display & Position section; before this batch, the structured lesson listed positioning properties in its quick-reference list but did not explain the relationship in a worked example.
+- Added bilingual guidance for static, relative, absolute, fixed and sticky, plus containing blocks and stacking contexts. The walkthrough places a badge relative to its card and shows a sticky banner. A knowledge check distinguishes local absolute positioning from fixed positioning, guessed offsets and z-index-only fixes.
+- Added regression assertions for EN/RU shape, v5 versions, walkthrough line ranges, the unique correct answer, and MDN references to position and z-index.
+- Exact-head CI [run #40649649155](https://github.com/Mardakhay/interactive-guides/actions/runs/40649649155) passed install, audit diagnostics, lint, typecheck, tests and production build on `ecb1c8e5546ec543428af241a4f7eb59fe00d4cb`.
+- This is a targeted topic migration. Legacy interactive Flexbox/Grid/transition playgrounds remain unmatched one-to-one; responsive/accessibility acceptance still requires browser/device testing.
+
