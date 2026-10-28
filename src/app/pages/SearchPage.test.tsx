@@ -52,7 +52,7 @@ describe('SearchPage structured content integration', () => {
 
     const noteLink = await screen.findByRole('link', { name: /HTML document structure and semantic page regions/i });
     expect(noteLink.getAttribute('href')).toBe('/en/structured-lessons/html.document-structure');
-    expect(screen.getByText(/Review semantic landmarks/)).toBeTruthy();
+    expect(noteLink.textContent).toContain('Review semantic landmarks');
   });
 
   it('includes the structured curriculum as a searchable course result', async () => {
