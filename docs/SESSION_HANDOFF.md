@@ -1124,3 +1124,8 @@ The new [legacy route cutover matrix](./LEGACY_ROUTE_CUTOVER_MATRIX.md) lists al
 - Change: `ui.bootstrap-mui` EN/RU now have `week: 17` and `moduleId: month-5-week-17`; both core curriculum files list it after `ui.design-systems`. The supplementary track now includes only `css.sass-scss`, whose scope remains optional CSS-preprocessor/design-token depth.
 - Added regression coverage that week 17 resolves to both lessons in order, the UI-library lesson no longer resolves as supplementary, and Sass/SCSS remains supplementary in both locales.
 - Broader lesson-outcome coverage review remains open; this change closes only the verified week-17 mapping mismatch.
+
+
+## Current registry count correction — 2026-10-28
+
+The registry is now **27 core IDs and 17 supplementary IDs (44 total, bilingual EN/RU)**. `ui.bootstrap-mui` is part of core week 17 after `ui.design-systems`; `css.sass-scss` remains in `supplement-ui-ecosystem`. The earlier 26-core/18-supplement count is superseded by this mapping correction. Full outcome review, legacy source/UI parity, state-preserving route cutover and native browser acceptance remain open.

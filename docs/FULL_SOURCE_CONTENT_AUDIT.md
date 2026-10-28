@@ -123,9 +123,9 @@ The HTML source content/code/interaction review checklist is documented as compl
 | Web/HTML/CSS | `web.internet-http`, `html.document-structure`, `html.forms-accessibility`, `css.fundamentals`, `css.flexbox-grid-responsive` | Registered EN/RU, learner-accessible |
 | JavaScript / DOM / Git | `js.basics-types-control-flow`, `js.functions-arrays-objects`, `js.dom-events`, `js.async-fetch`, `git.fundamentals` | Registered EN/RU, learner-accessible |
 | Tooling / TypeScript | `tooling.node-npm-vite`, `typescript.fundamentals` | Registered EN/RU, learner-accessible |
-| React / UI / quality / workflow | `react.components-jsx-state`, `react.effects-lists-composition`, `react.router-spa`, `react.forms-validation`, `react.context-shared-state`, `react.api-custom-hooks`, `ui.design-systems`, `performance.accessibility`, `testing.react-testing-library`, `git.workflow-ci` | Registered EN/RU, learner-accessible |
+| React / UI / quality / workflow | `react.components-jsx-state`, `react.effects-lists-composition`, `react.router-spa`, `react.forms-validation`, `react.context-shared-state`, `react.api-custom-hooks`, `ui.design-systems`, `ui.bootstrap-mui`, `performance.accessibility`, `testing.react-testing-library`, `git.workflow-ci` | Registered EN/RU core lessons, learner-accessible |
 | Capstone | `capstone.requirements-discovery`, `capstone.design-architecture-planning`, `capstone.implementation`, `capstone.review-demo` | Registered EN/RU, learner-accessible |
-| Supplementary | `network.dns-tcp-tls`, `browser.rendering-pipeline`, `js.runtime-memory`, `js.object-prototypes`, `frontend.auth-security`, `deployment.production-hosting`, `data.sql-postgresql`, `css.sass-scss`, `ui.bootstrap-mui`, `frontend.architecture-boundaries`, `tooling.advanced-package-workflows` | Registered EN/RU separately from the core |
+| Supplementary | `network.dns-tcp-tls`, `browser.rendering-pipeline`, `js.runtime-memory`, `js.object-prototypes`, `frontend.auth-security`, `deployment.production-hosting`, `data.sql-postgresql`, `css.sass-scss`, `frontend.architecture-boundaries`, `tooling.advanced-package-workflows`, `js.iterators-generators`, `js.collections-weakmaps`, `js.regex-text-processing`, `js.typed-arrays-binary`, `browser.storage-indexeddb`, `browser.realtime-workers`, `browser.capability-apis` | 17 registered EN/RU lesson IDs, kept outside the canonical 24-week core |
 
 “Learner-accessible” confirms application registration/routing only; it does not imply full source parity or editorial approval. Track validation and next source reviews in this document and `docs/SESSION_HANDOFF.md` on each implementation checkpoint.
 
@@ -991,3 +991,8 @@ This dated status reconciles the early inventory snapshot above with later sourc
 - Correction on the feature branch: both EN/RU `ui.bootstrap-mui` records now belong to `week: 17` / `month-5-week-17`; each canonical week lists the lesson after `ui.design-systems`. The supplementary track is now limited to `css.sass-scss`.
 - Regression test verifies EN/RU week mapping, route metadata, and that the UI-library lesson no longer appears in the supplementary track.
 - This closes one explicit mapping gap only. Learning-outcome coverage for all lessons, line-by-line source parity, browser/device acceptance, and release readiness remain open.
+
+
+## Registry counts and week-17 mapping — authoritative as of 2026-10-28
+
+The feature registry now has **27 core lesson IDs and 17 supplementary lesson IDs (44 IDs total; EN/RU locale files for each)**. `ui.bootstrap-mui` belongs to core week 17, alongside `ui.design-systems`; `css.sass-scss` is the remaining lesson in `supplement-ui-ecosystem`. The MUI masterclass remains only partially interaction-equivalent (theme toggles, copy/reset controls and component demos are not cloned). The 25/25 HTML review count is source-reading evidence, not full source-to-block/UI parity or permission to cut over legacy routes.

@@ -26,7 +26,7 @@
 | `react-ecosystem-course.html` | SPA, React Router and ecosystem | Month 4 / Week 13 | Match route concepts to current installed major version |
 | `react-performance-a11y.html` | Rendering performance, lazy loading, accessibility | Month 5 / Week 18 | Teach profiling/measurement before memoization |
 | `ui-design-system-learn.html` | UI systems, tokens, components | Month 5 / Week 17 | Use one coherent system in examples |
-| `material-ui-masterclass.html` | MUI library practice | Month 5 / Week 17 extension | Keep library-specific material supplementary |
+| `material-ui-masterclass.html` | MUI library practice | Month 5 / Week 17 core | `ui.bootstrap-mui` now maps to core week 17; preserve the legacy demos as source evidence until interaction parity is reviewed |
 | `frontend-architecture-and-planning.html` | Requirements, architecture and project planning | Months 6 / Weeks 21–23 + extension | Connect to the capstone |
 | `test.guide.html` | Unit, integration and component testing | Month 5 / Week 19 | Align examples with selected test stack |
 | `frontend-auth.html` | Authentication and authorization | Month 6 / Week 23 extension | Security review required; distinguish UI guards from data authorization |
@@ -267,3 +267,8 @@ Completed a full-content and interaction review of `public/lessons/js-memory-mas
 - CSS fundamentals and Flexbox/Grid lessons already cover the substantive topics in both locales, with deeper cascade, box sizing, margin collapse, overflow/intrinsic sizing, reduced motion, accessibility and responsive diagnosis than the reference source. Matrix records exact block evidence; no duplicate lesson was created.
 - UI parity is partial because the reference copy/property playground is not recreated as a visual simulator; practice, feedback and debugging move to structured blocks.
 - Full HTML source reviews: 11/25; 14 remain. Docs HEAD `e3997b2232158f5433ab6e3ffa78ee8dfb6b57f6` passed CI [40290564642](https://github.com/Mardakhay/interactive-guides/actions/runs/40290564642).
+
+
+## Core curriculum mapping correction — 2026-10-28
+
+The current structured registry contains **27 core lesson IDs and 17 supplementary lesson IDs (44 total, each with EN/RU records)**. `material-ui-masterclass.html` is mapped to the core UI-library lesson `ui.bootstrap-mui` in week 17 rather than treating MUI as supplementary-only. The supplementary UI-ecosystem track now contains `css.sass-scss` only. This updates curriculum placement, not source-interaction parity: legacy theme toggles, copy/reset controls, and component demos are still not reproduced one-to-one.

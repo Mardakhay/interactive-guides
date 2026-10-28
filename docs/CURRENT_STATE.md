@@ -865,3 +865,8 @@ The root README and new `docs/CONTENT_AUTHORING_GUIDE.md` cover the present bili
 ## Core syllabus mapping correction — 2026-10-28
 
 A targeted check of the 24-week core curriculum found that week 17 named UI libraries (for example MUI), but the bilingual `ui.bootstrap-mui` lesson was classified only as supplementary. This is corrected on `feat/learning-platform-foundation`: the lesson maps to `month-5-week-17` in both locales, follows `ui.design-systems` in the core sequence, and is removed from the supplementary list. The CSS-preprocessor lesson `css.sass-scss` remains supplementary. A repository test protects both EN/RU metadata and this distinction. The broader learning-outcome audit remains open.
+
+
+## Current curriculum registry counts — 2026-10-28
+
+The core/supplementary classification is now reconciled with the original syllabus: **27 core lesson IDs + 17 supplementary lesson IDs = 44 registered bilingual lesson IDs**. `ui.bootstrap-mui` is core week 17; `css.sass-scss` stays supplementary. This changes curriculum membership only; source-to-block/UI parity, learner-state migration and legacy-route cutover gates remain open.

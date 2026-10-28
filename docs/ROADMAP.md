@@ -646,3 +646,8 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Kept `css.sass-scss` supplementary. The bilingual supplementary metadata no longer claims Bootstrap/MUI as optional-only core topics; core and supplementary lesson references remain unique.
 - [x] Added repository regression coverage: both locales include design-system and UI-library lessons in week 17 in order, UI-library content resolves as core week 17, and Sass/SCSS remains supplementary.
 - [ ] The full outcome-by-outcome syllabus review remains open. This change closes one verified mapping gap; it does not certify complete objective coverage, editorial quality, source parity, or browser/device acceptance.
+
+
+## Registry count update — 2026-10-28
+
+Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 17 supplementary lesson IDs = 44 IDs total (EN/RU pairs). The previous 26/18 split is superseded. Keep the full learning-outcome audit and legacy route-cutover gates open; one corrected mapping is not full curriculum sign-off.
