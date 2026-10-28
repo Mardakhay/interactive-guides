@@ -183,4 +183,31 @@ describe('structured content repository', () => {
     expect(getSupplementaryTrackForLesson('browser.realtime-workers', 'ru')?.lessonIds).toContain('browser.realtime-workers');
     expect(getWeekForLesson('browser.realtime-workers', 'ru')).toBeUndefined();
   });
+  it('explains the .gitignore syntax used in the bilingual Git fundamentals lesson', async () => {
+    const [english, russian] = await Promise.all([
+      getStructuredLesson('git.fundamentals', 'en'),
+      getStructuredLesson('git.fundamentals', 'ru'),
+    ]);
+    expect(english).toBeDefined();
+    expect(russian).toBeDefined();
+    if (!english || !russian) throw new Error('Bilingual Git fundamentals lesson is missing');
+
+    const getPatternList = (lesson: NonNullable<typeof english>) => {
+      const block = lesson.blocks.find((candidate) => candidate.id === 'gitignore-pattern-reference');
+      expect(block?.type).toBe('list');
+      if (block?.type !== 'list') throw new Error('The .gitignore pattern reference must be a list');
+      return block.items.join('\n');
+    };
+
+    expect(english.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russian.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(getPatternList(english)).toContain('one `*` does not cross a `/`');
+    expect(getPatternList(english)).toContain('the last matching pattern');
+    expect(getPatternList(english)).toContain('`!.env.example`');
+    expect(getPatternList(russian)).toContain('не пересекает `/`');
+    expect(getPatternList(russian)).toContain('последнее совпавшее правило');
+    expect(getPatternList(russian)).toContain('`!.env.example`');
+  });
+
 });

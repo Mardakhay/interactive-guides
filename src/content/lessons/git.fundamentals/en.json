@@ -1,7 +1,7 @@
 {
   "id": "git.fundamentals",
   "locale": "en",
-  "version": 5,
+  "version": 6,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-28",
@@ -147,6 +147,23 @@
       "language": "gitignore",
       "caption": "A starter ignore file",
       "code": "node_modules/\ndist/\ncoverage/\n.env\n.env.*\n!.env.example\n.DS_Store\n.vscode/"
+    },
+    {
+      "type": "heading",
+      "id": "gitignore-patterns",
+      "title": "Read .gitignore patterns precisely"
+    },
+    {
+      "type": "list",
+      "id": "gitignore-pattern-reference",
+      "items": [
+        "A line starting with `#` is a comment. To match a filename that starts with `#`, escape the leading character as `\\#`.",
+        "`*.log` matches names ending in `.log`; one `*` does not cross a `/`. A pattern without a slash can match at any directory depth.",
+        "`build-[0-9].log` uses a character range: the bracket expression matches one character.",
+        "`folder/` matches a directory named `folder` and its contents; the trailing slash makes the pattern directory-specific.",
+        "`!` negates an earlier pattern. `.env.*` followed by `!.env.example` ignores environment variants while keeping the example file. However, Git cannot re-include a child if an excluded parent directory prevents Git from traversing it.",
+        "When several patterns match the same path, the last matching pattern decides whether it is ignored. Keep exceptions near the broader rule."
+      ]
     },
     {
       "id": "remote",
