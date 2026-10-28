@@ -771,3 +771,11 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## Legacy route crosswalk — 2026-10-27
 
 The candidate mapping of all 25 classic catalog IDs to possible structured destinations is documented in [LEGACY_ROUTE_CUTOVER_MATRIX.md](./LEGACY_ROUTE_CUTOVER_MATRIX.md). All entries remain blocked for cutover; this matrix distinguishes candidates from verified content equivalence and learner-state migration. The loader regression test verifies renderability, not semantic parity.
+
+
+## Structured reader accessibility checkpoint — 2026-10-28
+
+- Code/test HEAD `269b88ce3722034888e03cf11934b854a0c2a7ef` passed exact-head GitHub Actions [run #40638940943](https://github.com/Mardakhay/interactive-guides/actions/runs/40638940943): `npm ci`, lint, typecheck, the full Vitest suite and production build/bundle-budget check.
+- `StructuredLessonPage` now includes a localized scroll-driven reading-progress bar with `role="progressbar"`, keyboard/screen-reader range values, resize/scroll updates and resize-observer handling when available. EN/RU tests cover its labels and scroll state.
+- Structured code samples are keyboard-focusable so horizontally overflowing examples can be navigated without a pointer. Each sample has a language/caption accessible group label, and copy success/failure is exposed via a live status region. Regression tests cover keyboard focus and failed-copy announcements.
+- These are implementation and CI results, not assistive-technology acceptance. Real-browser/screen-reader testing, full mobile/accessibility review, source-to-content parity, legacy-route state migration and browser/device backup/PWA checks remain open. `main` remains unchanged; Supabase remains gated.

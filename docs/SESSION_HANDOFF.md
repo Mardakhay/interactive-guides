@@ -1,11 +1,20 @@
 # Session Handoff
 
-**Last updated:** 2026-10-27  
+**Last updated:** 2026-10-28  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — worker output cap — 2026-10-28
+## Current continuation — structured reader accessibility — 2026-10-28
+
+- Latest verified code/test HEAD: `269b88ce3722034888e03cf11934b854a0c2a7ef`; exact-head CI [run #40638940943](https://github.com/Mardakhay/interactive-guides/actions/runs/40638940943) passed `npm ci`, lint, typecheck, all tests and production build/bundle budget.
+- Added a localized scroll-driven reading-progress bar to `StructuredLessonPage`, with ARIA progressbar semantics and updates on scroll, resize and content resizing. Tests cover progress movement and English/Russian labels.
+- Improved `StructuredLessonRenderer` code samples: keyboard focus for horizontal scrolling, accessible group labels derived from language/caption, and a live status announcement for clipboard failure/success. Regression tests cover focusability, language labels and failed-copy feedback.
+- The prior Worker output cap remains included in this verified branch head; the lesson runner limits output to 40 messages plus one truncation notice.
+- No local checkout, actual browser/device or screen-reader session was run. Manual accessibility/viewport checks and the documented backup/PWA acceptance remain open.
+- Next priorities: continue practice UX and mastery evidence, then source-section parity in syllabus order. Keep legacy HTML routes until the old-to-new ID crosswalk and progress/bookmark/note/quiz disposition are reviewed and tested. Do not start Supabase auth/sync before reconciliation and RLS gates are cleared.
+
+## Previous continuation — worker output cap (superseded) — 2026-10-28
 
 - Current code change is present on `feat/learning-platform-foundation`: `src/features/structured-lesson/JavaScriptWorkerProgram.ts` caps console/result messages at 40 and sends at most one output-truncation notice. The regression test runs 100 `console.log` calls and expects 40 log messages, one notice and one finished message.
 - The feature branch contains this change in the diff against prior validated HEAD `c2a9aeafffe67d0f8bdfe10f1c148ae75ca3f541`; it does not update `main`. The correct final patch was confirmed with compare output: only these two source/test files differ from the prior HEAD.

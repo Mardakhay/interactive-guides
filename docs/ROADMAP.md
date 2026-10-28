@@ -33,7 +33,9 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 
 ## Phase 3 — Structured lesson reader
 - [x] Build typed React renderers for the supported structured content-block schema.
-- [ ] Add section table of contents, reading progress and accessible code blocks.
+- [x] Provide lesson-outline navigation and a localized, scroll-driven reading-progress indicator with accessible progressbar semantics.
+- [x] Make code samples keyboard-focusable, labelled with their language/caption, and announce copy success/failure through an accessible status.
+- [ ] Verify reading progress and code-sample interaction with a screen reader and real desktop/mobile browsers.
 - [x] Implement knowledge-check feedback per answer for the supported question schema.
 - [ ] Implement practice task UX, attempt capture and hint/solution policies.
 - [ ] Gate “mastered” status on required practice evidence where specified.
