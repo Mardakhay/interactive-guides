@@ -178,7 +178,7 @@
           "id": "a",
           "text": "defer запускается после parsing и сохраняет порядок; async запускается по готовности без гарантии порядка",
           "correct": true,
-          "feedback": "defer preserves document order after parsing; async runs when available."
+          "feedback": "defer сохраняет порядок выполнения скриптов после разбора HTML; async запускает скрипт, когда он готов, без гарантии порядка."
         },
         {
           "id": "b",

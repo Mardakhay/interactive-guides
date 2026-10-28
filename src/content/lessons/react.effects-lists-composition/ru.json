@@ -258,7 +258,7 @@
       "id": "knowledge-check-3",
       "type": "knowledgeCheck",
       "questionType": "multi-select",
-      "prompt": "Which practices are appropriate for an API-driven React list? Select all that apply.",
+      "prompt": "Какие практики подходят для списка React, данные для которого поступают из API? Выбери все верные варианты.",
       "options": [
         {
           "id": "a",

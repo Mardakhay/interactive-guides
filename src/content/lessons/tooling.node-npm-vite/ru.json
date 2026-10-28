@@ -216,7 +216,7 @@
       "id": "knowledge-check-1",
       "type": "knowledgeCheck",
       "questionType": "single-choice",
-      "prompt": "Какова главная роль package-lock.json в обычном npm-проекте?",
+      "prompt": "Какова основная роль файла package-lock.json в обычном npm-приложении?",
       "options": [
         {
           "id": "a",

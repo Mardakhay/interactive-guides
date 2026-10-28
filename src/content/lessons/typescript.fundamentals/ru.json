@@ -246,7 +246,7 @@
       "id": "knowledge-check-1",
       "type": "knowledgeCheck",
       "questionType": "single-choice",
-      "prompt": "В чём ключевая разница по безопасности между unknown и any?",
+      "prompt": "В чём ключевое различие между unknown и any с точки зрения безопасности?",
       "options": [
         {
           "id": "a",

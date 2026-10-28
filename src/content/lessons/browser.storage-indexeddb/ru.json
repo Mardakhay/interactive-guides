@@ -455,34 +455,34 @@
       "id": "indexeddb-quiz",
       "type": "knowledgeCheck",
       "questionType": "single-choice",
-      "prompt": "An IndexedDB put request fires success, but its transaction later aborts. What should the UI report?",
+      "prompt": "Запрос put в IndexedDB завершается событием success, но позднее транзакция прерывается. Что должен сообщить интерфейс?",
       "options": [
         {
           "id": "a",
-          "text": "Saved: the request success is the commit boundary.",
+          "text": "Данные сохранены: успешного запроса достаточно для фиксации.",
           "correct": false,
-          "feedback": "A request can succeed before the surrounding transaction aborts."
+          "feedback": "Запрос может завершиться успешно до того, как окружающая его транзакция будет отменена."
         },
         {
           "id": "b",
-          "text": "Saved only after transaction complete; handle abort/error as failure.",
+          "text": "Считать данные сохранёнными только после transaction complete; abort/error обрабатывать как неудачу.",
           "correct": true,
-          "feedback": "Correct. The transaction is atomic; request success alone does not guarantee the overall commit."
+          "feedback": "Верно. Транзакция атомарна: успешный запрос сам по себе не гарантирует фиксацию всей транзакции."
         },
         {
           "id": "c",
-          "text": "Retry forever until complete fires.",
+          "text": "Повторять бесконечно, пока не сработает complete.",
           "correct": false,
-          "feedback": "The transaction has aborted and cannot later complete; retry must be deliberate and bounded."
+          "feedback": "Транзакция уже прервана и не может завершиться позже; повторную попытку нужно запускать осознанно и с ограничением."
         },
         {
           "id": "d",
-          "text": "The data is now synced to the user's other devices.",
+          "text": "Данные уже синхронизированы с устройствами пользователя.",
           "correct": false,
-          "feedback": "IndexedDB is local to the origin/device context, not a remote account sync service."
+          "feedback": "IndexedDB хранит данные локально в контексте origin/устройства и не является сервисом удалённой синхронизации аккаунта."
         }
       ],
-      "explanation": "IndexedDB request and transaction events represent different levels. A transaction may abort after a request succeeds, so app-level persistence success should follow transaction complete."
+      "explanation": "События запроса и транзакции в IndexedDB относятся к разным уровням. Транзакция может быть отменена после успешного запроса, поэтому интерфейс должен сообщать об успешном сохранении только после события transaction complete."
     },
     {
       "id": "storage-summary",

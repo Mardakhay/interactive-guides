@@ -45,7 +45,7 @@
     {
       "id": "capabilities-model",
       "type": "paragraph",
-      "text": "A browser API is a request to use a capability under several gates: the API may be absent, the page may not be a secure context, the user may deny permission, an embedding policy may block it, or the operation may fail at runtime. Treat each gate as a normal branch in the interface—not as an exceptional browser quirk. Ask only when the user understands the benefit, provide a useful fallback, and never make a sensitive capability the only way to complete a task."
+      "text": "Browser API — это запрос на использование возможностей, доступ к которым зависит от нескольких условий: API может отсутствовать, страница может не находиться в защищённом контексте, пользователь может отказать в разрешении, политика встраивания может заблокировать доступ или операция может завершиться ошибкой во время выполнения. Рассматривайте каждое такое условие как обычную ветку интерфейса, а не как странность браузера. Запрашивайте разрешение только тогда, когда пользователь понимает пользу; предусмотрите полезный запасной сценарий и никогда не делайте чувствительную возможность единственным способом выполнить задачу."
     },
     {
       "id": "capability-gates",

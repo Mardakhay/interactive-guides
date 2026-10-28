@@ -118,23 +118,23 @@
       "id": "arrange-act-assert",
       "type": "heading",
       "level": 2,
-      "text": "Use arrange, act, and assert as a reasoning structure"
+      "text": "Используйте arrange, act и assert как структуру рассуждения"
     },
     {
       "id": "arrange-act-assert-body",
       "type": "paragraph",
-      "text": "Arrange prepares data and the test environment, act triggers the behavior, and assert checks the resulting contract. This is a reasoning aid, not a rule that every test must contain exactly three lines. Keep each test focused on one meaningful scenario, use descriptive names, and avoid coupling tests through shared mutable state."
+      "text": "Arrange подготавливает данные и тестовую среду, act запускает проверяемое поведение, а assert проверяет получившийся контракт. Это удобная модель рассуждения, а не требование, чтобы каждый тест состоял ровно из трёх строк. Сосредотачивайте каждый тест на одном значимом сценарии, давайте ему понятное имя и не связывайте тесты общим изменяемым состоянием."
     },
     {
       "id": "async-tests",
       "type": "heading",
       "level": 2,
-      "text": "Test asynchronous interfaces deliberately"
+      "text": "Осознанно тестируйте асинхронные интерфейсы"
     },
     {
       "id": "async-tests-body",
       "type": "paragraph",
-      "text": "An interface that fetches data may render loading, success, empty, and error states at different times. Use findBy... for an element that should appear later and waitFor when you need to wait for a specific assertion to become true. Do not use arbitrary sleep timers: they slow the suite and make tests flaky. Mock the network boundary or inject the service so the test controls the response and does not depend on an external API being available."
+      "text": "Интерфейс, который загружает данные, может в разные моменты отображать состояния загрузки, успеха, пустого результата и ошибки. Используйте findBy... для элемента, который должен появиться позднее, и waitFor, когда нужно дождаться выполнения конкретного утверждения. Не применяйте произвольные таймеры ожидания: они замедляют набор тестов и делают его нестабильным. Мокируйте сетевую границу или передавайте сервис через зависимость, чтобы тест контролировал ответ и не зависел от доступности внешнего API."
     },
     {
       "id": "async-test-example",
