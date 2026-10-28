@@ -151,7 +151,8 @@
     {
       "type": "heading",
       "id": "gitignore-patterns",
-      "title": "Точно разбирай шаблоны .gitignore"
+      "level": 2,
+      "text": "Точно разбирай шаблоны .gitignore"
     },
     {
       "type": "list",
