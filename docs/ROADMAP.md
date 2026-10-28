@@ -638,3 +638,11 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Exact-head CI on `1631c1fc9ed8377ebb5194dc1da78b702c981716` passed: 35 test files / 219 tests, lint, typecheck, production build and bundle budgets. `npm audit` reported zero vulnerabilities. See [run #40679724796](https://github.com/Mardakhay/interactive-guides/actions/runs/40679724796).
 - [ ] Keep the broader bilingual editorial/source-parity review open. The automated test protects the audited fields and duplicate-reference invariant; it is not a general translation-quality detector.
 - [ ] Real-browser/PWA/offline, screen-reader and mobile acceptance remain unrun and must be recorded from actual target browsers/devices.
+
+
+## Canonical week-17 UI-library coverage correction — 2026-10-28
+
+- [x] Reconciled the core syllabus with its lesson registry: `ui.bootstrap-mui` covers the week-17 requirement for UI libraries (Bootstrap's responsive grid and Material UI component theming), and its EN/RU lesson records now belong to `month-5-week-17`.
+- [x] Kept `css.sass-scss` supplementary. The bilingual supplementary metadata no longer claims Bootstrap/MUI as optional-only core topics; core and supplementary lesson references remain unique.
+- [x] Added repository regression coverage: both locales include design-system and UI-library lessons in week 17 in order, UI-library content resolves as core week 17, and Sass/SCSS remains supplementary.
+- [ ] The full outcome-by-outcome syllabus review remains open. This change closes one verified mapping gap; it does not certify complete objective coverage, editorial quality, source parity, or browser/device acceptance.

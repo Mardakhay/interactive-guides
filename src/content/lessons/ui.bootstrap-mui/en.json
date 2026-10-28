@@ -5,9 +5,8 @@
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-26",
-  "moduleId": "supplement-ui-ecosystem",
-  "supplementaryTrackId": "supplement-ui-ecosystem",
-  "order": 1,
+  "moduleId": "month-5-week-17",
+  "order": 2,
   "title": "UI Libraries: Bootstrap Grid, Material UI, and Build-versus-Buy",
   "description": "Compare a CSS framework with a React component library, understand their APIs, and choose based on product constraints rather than popularity.",
   "estimatedMinutes": 95,
@@ -494,5 +493,6 @@
         }
       ]
     }
-  ]
+  ],
+  "week": 17
 }

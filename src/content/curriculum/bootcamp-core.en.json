@@ -350,7 +350,8 @@
             "Build a small UI kit with Button, Input and Card components"
           ],
           "lessonIds": [
-            "ui.design-systems"
+            "ui.design-systems",
+            "ui.bootstrap-mui"
           ]
         },
         {
@@ -620,18 +621,14 @@
     },
     {
       "id": "supplement-ui-ecosystem",
-      "title": "CSS Preprocessing and UI Libraries",
+      "title": "CSS Preprocessing and Token Strategies",
       "topics": [
         "Sass/SCSS modules and mixins",
-        "Compile-time tokens vs CSS custom properties",
-        "Bootstrap responsive grid",
-        "Material UI components and theming",
-        "Version and accessibility trade-offs"
+        "Compile-time tokens vs CSS custom properties"
       ],
-      "note": "Optional UI ecosystem coverage for topics from the interactive HTML sources; separate from the 24-week core.",
+      "note": "Optional CSS-preprocessor coverage. UI-library foundations are covered in core week 17; supplementary topics must stay separate from the original 24-week sequence.",
       "lessonIds": [
-        "css.sass-scss",
-        "ui.bootstrap-mui"
+        "css.sass-scss"
       ]
     },
     {

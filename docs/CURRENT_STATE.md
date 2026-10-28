@@ -860,3 +860,8 @@ The root README and new `docs/CONTENT_AUTHORING_GUIDE.md` cover the present bili
 - Nine Russian lesson files received fixes for 23 reviewed English prose fields (including the IndexedDB transaction quiz and several knowledge-check prompts). Regression coverage asserts that these exact fields contain Russian text. This is a reviewed subset only; it must not be interpreted as proof that all Russian content is fully translated or editorially approved.
 - The code checkpoint passed automated CI but still has no recorded manual browser/device or screen-reader acceptance, no complete syllabus-outcome audit, and no formal line-by-line source-to-structured-content parity approval.
 - Existing legacy routes remain in place. Supabase auth/sync remains gated on the documented local/cloud reconciliation, conflict policy and RLS/security tests. `main` was not modified; changes remain on `feat/learning-platform-foundation`.
+
+
+## Core syllabus mapping correction — 2026-10-28
+
+A targeted check of the 24-week core curriculum found that week 17 named UI libraries (for example MUI), but the bilingual `ui.bootstrap-mui` lesson was classified only as supplementary. This is corrected on `feat/learning-platform-foundation`: the lesson maps to `month-5-week-17` in both locales, follows `ui.design-systems` in the core sequence, and is removed from the supplementary list. The CSS-preprocessor lesson `css.sass-scss` remains supplementary. A repository test protects both EN/RU metadata and this distinction. The broader learning-outcome audit remains open.

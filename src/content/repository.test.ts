@@ -60,6 +60,26 @@ describe('structured content repository', () => {
     expect(getBootcampCurriculum('en').months[0]?.title).not.toBe(getBootcampCurriculum('ru').months[0]?.title);
   });
 
+  it('keeps UI-library foundations in canonical week 17 while CSS preprocessing stays supplementary', async () => {
+    for (const locale of ['en', 'ru'] as const) {
+      expect(getCurriculumWeek('month-5-week-17', locale)?.lessonIds).toEqual([
+        'ui.design-systems',
+        'ui.bootstrap-mui',
+      ]);
+      expect(getWeekForLesson('ui.bootstrap-mui', locale)?.id).toBe('month-5-week-17');
+      expect(getSupplementaryTrackForLesson('ui.bootstrap-mui', locale)).toBeUndefined();
+      expect(getSupplementaryTrackById('supplement-ui-ecosystem', locale)?.lessonIds).toEqual([
+        'css.sass-scss',
+      ]);
+      expect(getSupplementaryTrackForLesson('css.sass-scss', locale)?.id).toBe('supplement-ui-ecosystem');
+
+      const lesson = await getStructuredLesson('ui.bootstrap-mui', locale);
+      expect(lesson?.week).toBe(17);
+      expect(lesson?.moduleId).toBe('month-5-week-17');
+      expect(lesson?.supplementaryTrackId).toBeUndefined();
+    }
+  });
+
   it('maps all structured lessons to their canonical week', () => {
     for (const locale of ['en', 'ru'] as const) {
       const curriculum = getBootcampCurriculum(locale);

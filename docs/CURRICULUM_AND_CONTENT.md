@@ -340,3 +340,10 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 ## DOM throttle continuation — 2026-10-27
 
 `js.dom-events` v5 now provides a worked leading-edge throttle for scroll signals, documents the dropped-intermediate-call behavior, demonstrates a passive listener and same-reference teardown, and assesses the cleanup contract. The existing async/API-hook lesson continues to own debounced search and request cancellation; the legacy interaction widgets are not claimed as fully duplicated.
+
+
+## Week-17 UI-library alignment — 2026-10-28
+
+The canonical week-17 syllabus explicitly includes “UI libraries such as Chakra UI or MUI”. Previously, `ui.design-systems` was mapped to core week 17, while the separate bilingual `ui.bootstrap-mui` lesson (Bootstrap grid and Material UI theming) was incorrectly categorized as supplementary. The feature branch now maps both lessons to `month-5-week-17` in both locales, in sequence: design-system thinking, then UI-library selection/theming. The supplementary UI-ecosystem track is narrowed to `css.sass-scss` (modules, mixins, compile-time tokens and CSS custom properties).
+
+A repository regression test protects this mapping. This is a focused traceability correction, not completion of the full outcome-by-outcome syllabus audit or visual-interaction parity review.

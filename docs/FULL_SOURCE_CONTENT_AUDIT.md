@@ -982,3 +982,12 @@ This dated status reconciles the early inventory snapshot above with later sourc
 - Exact-head CI [run #40653842673](https://github.com/Mardakhay/interactive-guides/actions/runs/40653842673) passed on `ccf839c806369d9e151e4f24b430ac24f3c4c936`: 215 tests across 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
 - This narrows the explanation gap but does not reproduce the legacy animated branch canvas or failure-injection UI. The classic route and stored learner state remain untouched; equivalence and route cutover remain unapproved.
 
+
+
+## Core curriculum mapping correction — UI libraries, week 17 — 2026-10-28
+
+- Evidence: `src/content/curriculum/bootcamp-core.en.json` and `bootcamp-core.ru.json`, week 17, explicitly require UI libraries such as Chakra UI or MUI.
+- Previous gap: only `ui.design-systems` was assigned to the week; `ui.bootstrap-mui` (which covers Bootstrap responsive grid and Material UI theming) was only in supplementary track `supplement-ui-ecosystem`.
+- Correction on the feature branch: both EN/RU `ui.bootstrap-mui` records now belong to `week: 17` / `month-5-week-17`; each canonical week lists the lesson after `ui.design-systems`. The supplementary track is now limited to `css.sass-scss`.
+- Regression test verifies EN/RU week mapping, route metadata, and that the UI-library lesson no longer appears in the supplementary track.
+- This closes one explicit mapping gap only. Learning-outcome coverage for all lessons, line-by-line source parity, browser/device acceptance, and release readiness remain open.

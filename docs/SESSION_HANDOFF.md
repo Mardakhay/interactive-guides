@@ -1116,3 +1116,11 @@ The new [legacy route cutover matrix](./LEGACY_ROUTE_CUTOVER_MATRIX.md) lists al
 - Localized the reviewed prose fields in Browser Capability APIs, browser rendering pipeline, IndexedDB, React custom hooks, shared context state, effect-driven lists, Testing Library, npm/Vite tooling, and TypeScript. This is not a claim that all lesson copy has completed human translation review.
 - The subsequent documentation-only checkpoint must be validated by the new exact-head CI run before claiming the branch's latest SHA is green.
 - **Still open:** broader EN/RU editorial and source-parity review; learning-outcome coverage against the full 24-week syllabus; real-browser/PWA/offline, screen-reader and mobile testing; README screenshots; legacy-route/state migration; Supabase reconciliation/conflict handling and RLS tests. Keep legacy content and routes until the documented gates are met.
+
+
+## Core week-17 UI-library mapping correction — 2026-10-28
+
+- Audit finding: the canonical 24-week curriculum's week 17 includes UI libraries such as MUI, but `ui.bootstrap-mui` was previously registered only under `supplement-ui-ecosystem`.
+- Change: `ui.bootstrap-mui` EN/RU now have `week: 17` and `moduleId: month-5-week-17`; both core curriculum files list it after `ui.design-systems`. The supplementary track now includes only `css.sass-scss`, whose scope remains optional CSS-preprocessor/design-token depth.
+- Added regression coverage that week 17 resolves to both lessons in order, the UI-library lesson no longer resolves as supplementary, and Sass/SCSS remains supplementary in both locales.
+- Broader lesson-outcome coverage review remains open; this change closes only the verified week-17 mapping mismatch.
