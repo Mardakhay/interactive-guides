@@ -91,7 +91,7 @@ describe('cross-locale user-facing prose quality', () => {
       'id', 'locale', 'version', 'updatedAt', 'moduleId', 'week',
       'supplementaryTrackId', 'order', 'estimatedMinutes', 'difficulty',
       'prerequisites', 'tags', 'language', 'kind', 'correct',
-      'lineStart', 'lineEnd', 'code', 'url',
+      'lineStart', 'lineEnd', 'code', 'url', 'starterCode',
     ]);
     const issues: string[] = [];
 
