@@ -1409,7 +1409,7 @@ describe('deployment and production hosting lesson translation', () => {
       const rollbackFlow = lesson.blocks.find((block) => block.id === 'deploy-rollback-walkthrough');
       expect(rollbackFlow?.type).toBe('codeWalkthrough');
       if (rollbackFlow?.type !== 'codeWalkthrough') throw new Error('Deployment rollback walkthrough is missing');
-      const rollbackLineCount = rollbackFlow.code.split('\\n').length;
+      const rollbackLineCount = rollbackFlow.code.split('\n').length;
       expect(rollbackFlow.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= rollbackLineCount)).toBe(true);
       const rollbackCheck = lesson.blocks.find((block) => block.id === 'deploy-rollback-check');
       expect(rollbackCheck?.type).toBe('knowledgeCheck');
