@@ -386,7 +386,9 @@
     {
       "id": "effect-cleanup-memory-leak-note",
       "type": "callout",
-      "text": "Do not equate every state update that happens after unmount with a memory leak. React 18 removed the old development warning because a Promise that settles later is not necessarily a leak. Cleanup is still important: unsubscribe from external sources and timers, abort requests when appropriate, and prevent an obsolete response from overwriting current data. Use cancellation or freshness control for the concrete resource or race you need to handle—not a generic isMounted flag just to silence a warning."
+      "text": "Do not equate every state update that happens after unmount with a memory leak. React 18 removed the old development warning because a Promise that settles later is not necessarily a leak. Cleanup is still important: unsubscribe from external sources and timers, abort requests when appropriate, and prevent an obsolete response from overwriting current data. Use cancellation or freshness control for the concrete resource or race you need to handle—not a generic isMounted flag just to silence a warning.",
+      "title": "Cleanup is not just about unmount warnings",
+      "tone": "note"
     },
     {
       "id": "deep-effects-trace",
