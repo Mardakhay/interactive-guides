@@ -906,7 +906,7 @@ footer {
   <h2>The Event Loop</h2>
   <p class="intro">The Event Loop coordinates queued callbacks on the main thread, where ordinary JavaScript tasks run one at a time. Browser APIs and Web Workers have separate execution behavior; asynchronous waiting should not be confused with CPU-parallel work.</p>
 
-  <h3 class="sub">The Five Components</h3>
+  <h3 class="sub">The Six Runtime Components in This Model</h3>
   <p class="prose">JavaScript runtime has several distinct areas. Each plays a specific role:</p>
 
   <div class="el-grid">
@@ -918,7 +918,7 @@ footer {
     <div class="el-cell">
       <div class="ec-icon">🧠</div>
       <div class="ec-name">Heap</div>
-      <div class="ec-desc">Unstructured memory where objects and variables are stored. The stack holds references to objects living here.</div>
+      <div class="ec-desc">A runtime-managed area commonly used for dynamically allocated objects. This diagram is a model; JavaScript does not specify that every variable/object is physically stored in the heap or that the stack must hold a numeric object address.</div>
     </div>
     <div class="el-cell highlight">
       <div class="ec-icon">🔄</div>
@@ -1518,7 +1518,7 @@ myPromise
       <div class="timing-lbl">Parallel</div>
       <div class="timing-track"><div class="timing-fill par">~1 second</div></div>
     </div>
-    <p class="timing-note">Rule: if requests don't depend on each other → always use <code>Promise.all()</code>. Can be 3–10× faster depending on your API latency.</p>
+    <p class="timing-note">Rule: if operations are independent and all results are required, start them together and await <code>Promise.all()</code>. Total waiting may move closer to the slowest operation instead of the sum of durations, but the gain depends on request durations, network/server limits, and concurrency controls. For high-volume work, consider bounded concurrency.</p>
   </div>
 
   <div class="callout warn">

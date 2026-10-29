@@ -22,6 +22,9 @@ describe('legacy async JavaScript source accuracy and live Fetch demos', () => {
   it('distinguishes main-thread async concurrency from Worker parallelism', () => {
     expect(legacyAsyncHtml).toContain('On the main thread, ordinary JavaScript tasks run to completion one at a time.');
     expect(legacyAsyncHtml).toContain('Web Workers</a> run JavaScript in separate threads');
+    expect(legacyAsyncHtml).toContain('The Six Runtime Components in This Model');
+    expect(legacyAsyncHtml).not.toContain('The Five Components');
+    expect(legacyAsyncHtml).toContain('JavaScript does not specify that every variable/object is physically stored in the heap');
     expect(legacyAsyncHtml).not.toContain('without multi-threading');
     expect(legacyAsyncHtml).not.toContain('JavaScript itself never truly runs in parallel.');
   });
@@ -36,6 +39,11 @@ describe('legacy async JavaScript source accuracy and live Fetch demos', () => {
     expect(card).toContain('not because Promise.all schedules synchronous JavaScript in parallel');
     expect(card).toContain('other operations continue unless separately cancelled');
     expect(card).not.toContain('Runs ALL promises in parallel.');
+    const noteStart = legacyAsyncHtml.indexOf('<p class="timing-note">');
+    const noteEnd = legacyAsyncHtml.indexOf('</p>', noteStart);
+    const timingNote = legacyAsyncHtml.slice(noteStart, noteEnd);
+    expect(timingNote).toContain('the gain depends on request durations, network/server limits, and concurrency controls');
+    expect(timingNote).not.toContain('3–10× faster');
   });
 
   it('explains that Promise.race does not cancel the losing operation', () => {
