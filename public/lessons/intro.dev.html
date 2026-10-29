@@ -2347,12 +2347,12 @@ Done. Now run:</span>
       <div class="quiz-card" id="q16">
         <div class="quiz-header">
           <span class="quiz-num">Q16</span>
-          <div class="quiz-question">Where should TypeScript interfaces for your data models typically be stored in a React project?</div>
+          <div class="quiz-question">Where is a reasonable place for a TypeScript type shared across several unrelated features?</div>
         </div>
         <div class="quiz-options">
           <button class="quiz-option" onclick="checkAnswer(this, 'q16', false, 'node_modules is for external packages only — never put your own code there.')">In node_modules/</button>
           <button class="quiz-option" onclick="checkAnswer(this, 'q16', false, 'package.json stores metadata and scripts, not TypeScript types.')">In package.json</button>
-          <button class="quiz-option" onclick="checkAnswer(this, 'q16', true, 'Correct! A src/types/ folder (or types/index.ts) is the standard place to centralize shared TypeScript interfaces.')">In a src/types/ folder</button>
+          <button class="quiz-option" onclick="checkAnswer(this, 'q16', true, 'Correct! A src/types/ module can be useful for types shared across unrelated features. Types owned by one feature can stay with that feature; no single folder convention is universal.')">In a src/types/ folder</button>
           <button class="quiz-option" onclick="checkAnswer(this, 'q16', false, 'tsconfig.json is a configuration file for the compiler, not a place to store type definitions.')">In tsconfig.json</button>
         </div>
         <div class="quiz-feedback" id="q16-feedback"></div>
@@ -2379,12 +2379,12 @@ Done. Now run:</span>
       <div class="section-title">Vite — Next Generation Build Tool</div>
       <div class="card">
         <h3>Why Vite is so fast</h3>
-        <p>Traditional bundlers like Webpack bundle your entire application before serving it. Vite leverages native browser <span data-tip="ES Modules are natively supported by all modern browsers">ES Modules</span> during development, serving files on demand. This makes the dev server start nearly instantly regardless of project size.</p>
+        <p>During development, Vite serves application modules on demand through native browser <span data-tip="ES Modules are natively supported by modern browsers">ES Modules</span> and pre-bundles dependencies where needed. This can reduce startup work compared with bundling the entire application first, but actual startup and update times depend on the dependency graph, plugins, and configuration.</p>
         <ul style="margin-top:12px;">
-          <li><strong style="color:var(--blue)">Dev server</strong> starts in milliseconds (no bundling required)</li>
-          <li><strong style="color:var(--blue)">HMR</strong> (Hot Module Replacement) updates only changed files</li>
-          <li><strong style="color:var(--blue)">Production builds</strong> use Rollup for optimized output</li>
-          <li><strong style="color:var(--blue)">Plugin system</strong> compatible with Rollup plugins</li>
+          <li><strong style="color:var(--blue)">Dev server</strong> serves source modules on demand; dependencies may be pre-bundled</li>
+          <li><strong style="color:var(--blue)">HMR</strong> applies eligible module updates; some changes still require a full reload</li>
+          <li><strong style="color:var(--blue)">Production builds</strong> use a version-dependent bundler (Vite 5: Rollup; Vite 8: Rolldown)</li>
+          <li><strong style="color:var(--blue)">Plugin system</strong> supports Rollup-style plugins; check compatibility with the installed Vite major</li>
         </ul>
       </div>
 
@@ -2470,7 +2470,7 @@ Done. Now run:</span>
 
       <!-- Testing -->
       <div class="section-title purple">Testing with Vitest</div>
-      <p class="section-intro">Vitest is a Vite-native testing framework compatible with the Jest API. It's extremely fast because it shares Vite's transformation pipeline.</p>
+      <p class="section-intro">Vitest integrates with Vite's configuration and transformation pipeline and offers APIs similar to Jest. Many APIs overlap, but runner and setup behavior are not identical; use Vitest's own documentation for differences.</p>
 
       <div class="code-block">
         <div class="code-block-header">
