@@ -1,10 +1,10 @@
 {
   "id": "frontend.architecture-boundaries",
   "locale": "en",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-29",
   "moduleId": "supplement-architecture",
   "supplementaryTrackId": "supplement-architecture",
   "order": 1,
@@ -18,7 +18,8 @@
     "Assign URL, server, shared and local UI state to suitable owners.",
     "Refactor duplication behind a stable contract without building unnecessary abstractions.",
     "Design consistent error states and repeatable verification.",
-    "Apply SOLID principles when they reduce a concrete coupling or change-cost problem without overengineering."
+    "Apply SOLID principles when they reduce a concrete coupling or change-cost problem without overengineering.",
+    "Choose a maintainable home for domain types based on ownership and reuse rather than assuming one universal src/types folder."
   ],
   "blocks": [
     {
@@ -188,6 +189,39 @@
       "id": "arch-colocation-intro",
       "type": "paragraph",
       "text": "Colocation puts files that tend to change together—component, styles, tests, local Hook and domain types—near each other. A feature's `index.ts` can be its public entry point, so consumers do not depend on internal file layout. Choose folders by responsibility and change locality; not every module needs every subfolder."
+    },
+    {
+      "id": "arch-type-colocation-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Where should a feature-specific TypeScript interface usually live in a well-organized frontend project?",
+      "options": [
+        {
+          "id": "colocate",
+          "text": "Near the feature or domain that owns the model; truly shared types can live at a shared boundary.",
+          "correct": true,
+          "feedback": "Correct. Colocation makes ownership and change locality clear. A shared types folder can help for genuinely shared contracts, but one central `src/types` directory is not a universal rule."
+        },
+        {
+          "id": "central",
+          "text": "Always in a single top-level `src/types` folder, regardless of which feature owns it.",
+          "correct": false,
+          "feedback": "A central folder can become a dumping ground and obscure ownership. Keep feature-specific types close to their feature unless they are genuinely shared."
+        },
+        {
+          "id": "everywhere",
+          "text": "Copy the interface into each component that uses the model.",
+          "correct": false,
+          "feedback": "Duplicated declarations drift and become harder to maintain. Share the contract from a clear owner or an intentional shared module."
+        },
+        {
+          "id": "runtime",
+          "text": "Only in the backend, because TypeScript cannot describe frontend models.",
+          "correct": false,
+          "feedback": "Frontend TypeScript can describe client-side contracts. External API data still needs runtime validation when it crosses a trust boundary."
+        }
+      ],
+      "explanation": "Store a model where its ownership and change boundary are clearest. Colocate feature-specific types; promote them to a shared module when multiple features truly depend on the same contract."
     },
     {
       "id": "arch-colocation-public-api-walkthrough",
@@ -602,6 +636,11 @@
         {
           "title": "Feature-Sliced Design: slices, segments and public API rules",
           "url": "https://feature-sliced.design/docs/concepts/low-coupling",
+          "kind": "official-docs"
+        },
+        {
+          "title": "TypeScript Handbook: Object Types",
+          "url": "https://www.typescriptlang.org/docs/handbook/2/objects.html",
           "kind": "official-docs"
         }
       ]
