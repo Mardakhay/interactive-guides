@@ -1172,3 +1172,8 @@ The targeted crosswalk and exact factual corrections are documented in [TL004_SO
 ## Focused sec-001 authentication source review — 2026-10-29
 
 See [SEC001_SOURCE_PARITY.md](SEC001_SOURCE_PARITY.md) for the section crosswalk and security corrections. The legacy page no longer claims that HttpOnly prevents an XSS payload from acting as the user, and SameSite behavior is described with narrower, testable language. The JWT demo now warns against live credentials and does not label a future unverified `exp` claim as token validity; its expiry helper returns an indeterminate result for malformed or absent claims. EN/RU `frontend.auth-security` is now v4 with matching JWT guidance and RFC 7519. Regression coverage is in `src/content/legacyAuth.test.ts`; `sec-001` remains **Blocked** pending interaction parity, learner-state disposition, and native browser/security acceptance.
+
+
+## Focused qa-002 testing source review — 2026-10-29
+
+The crosswalk and remaining interaction gaps are recorded in [QA002_SOURCE_PARITY.md](QA002_SOURCE_PARITY.md). The legacy guide keeps its Jest material for learning, but clearly distinguishes it from this repository's Vitest stack, corrects `toBe` semantics to `Object.is`, upgrades the primary form example to `userEvent.setup()`, and removes a hard-coded async-query timeout claim. `src/content/legacyTestingGuide.test.ts` protects those claims and the original control inventory; `qa-002` remains **Blocked** until interaction parity, learner-state disposition and native acceptance are evidenced.
