@@ -1365,13 +1365,15 @@ describe('deployment and production hosting lesson translation', () => {
     expect(englishDeployment.id).toBe('deployment.production-hosting');
     expect(englishDeployment.id).toBe(russianDeployment.id);
     expect(englishDeployment.moduleId).toBe(russianDeployment.moduleId);
-    expect(englishDeployment.version).toBe(3);
+    expect(englishDeployment.version).toBe(4);
     expect(englishDeployment.blocks.map(({ id, type }) => ({ id, type }))).toEqual(russianDeployment.blocks.map(({ id, type }) => ({ id, type })));
-    expect(englishDeployment.blocks).toHaveLength(30);
-    expect(englishDeployment.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(4);
-    expect(englishDeployment.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishDeployment.blocks).toHaveLength(34);
+    expect(englishDeployment.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(russianDeployment.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(englishDeployment.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(russianDeployment.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
     expect(englishDeployment.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
-    expect(englishDeployment.blocks.map((block) => block.id)).toEqual(expect.arrayContaining(['deploy-domain-heading', 'deploy-domain-walkthrough', 'deploy-domain-check', 'deploy-domain-practice']));
+    expect(englishDeployment.blocks.map((block) => block.id)).toEqual(expect.arrayContaining(['deploy-domain-heading', 'deploy-domain-walkthrough', 'deploy-domain-check', 'deploy-domain-practice', 'deploy-rollback-heading', 'deploy-rollback-body', 'deploy-rollback-walkthrough', 'deploy-rollback-check']));
     for (const walkthrough of englishDeployment.blocks.filter((block) => block.type === 'codeWalkthrough')) {
       const lineCount = walkthrough.code.split('\n').length;
       expect(walkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
@@ -1394,6 +1396,33 @@ describe('deployment and production hosting lesson translation', () => {
     if (references?.type !== 'references') return;
     expect(references.items.some((item) => item.url === 'https://vercel.com/docs/domains/set-up-custom-domain')).toBe(true);
     expect(references.items.some((item) => item.url === 'https://docs.netlify.com/domains-https/custom-domains/')).toBe(true);
+
+    for (const lesson of [englishDeployment, russianDeployment]) {
+      expect(lesson.version).toBe(4);
+      expect(lesson.updatedAt).toBe('2026-10-29');
+      expect(lesson.learningOutcomes).toHaveLength(8);
+      const rollbackBody = lesson.blocks.find((block) => block.id === 'deploy-rollback-body');
+      expect(rollbackBody?.type).toBe('paragraph');
+      if (rollbackBody?.type !== 'paragraph') throw new Error('Deployment rollback explanation is missing');
+      expect(rollbackBody.text).toMatch(/git revert/);
+      expect(rollbackBody.text.toLowerCase()).toMatch(/rollback/);
+      const rollbackFlow = lesson.blocks.find((block) => block.id === 'deploy-rollback-walkthrough');
+      expect(rollbackFlow?.type).toBe('codeWalkthrough');
+      if (rollbackFlow?.type !== 'codeWalkthrough') throw new Error('Deployment rollback walkthrough is missing');
+      const rollbackLineCount = rollbackFlow.code.split('\\n').length;
+      expect(rollbackFlow.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= rollbackLineCount)).toBe(true);
+      const rollbackCheck = lesson.blocks.find((block) => block.id === 'deploy-rollback-check');
+      expect(rollbackCheck?.type).toBe('knowledgeCheck');
+      if (rollbackCheck?.type !== 'knowledgeCheck') throw new Error('Deployment rollback check is missing');
+      expect(rollbackCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['restore-known-good']);
+      expect(rollbackCheck.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      expect(rollbackCheck.explanation.trim().length).toBeGreaterThan(0);
+      const refs = lesson.blocks.find((block) => block.id === 'deploy-references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type !== 'references') throw new Error('Deployment references are missing');
+      expect(refs.items.some((item) => item.url === 'https://vercel.com/docs/deployments/rollback-production-deployment')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://docs.netlify.com/deploy/manage-deploys/manage-deploys-overview/')).toBe(true);
+    }
   });
 });
 describe('Capstone requirements discovery lesson translation', () => {
