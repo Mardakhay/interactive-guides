@@ -599,8 +599,23 @@ describe('React effects and lists lesson translation', () => {
     expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
     expect(russianReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
     for (const lesson of [englishReactEffects, russianReactEffects]) {
-      expect(lesson.version).toBe(5);
+      expect(lesson.version).toBe(6);
       expect(lesson.updatedAt).toBe('2026-10-29');
+      const cleanupAccuracyNote = lesson.blocks.find((block) => block.id === 'effect-cleanup-memory-leak-note');
+      expect(cleanupAccuracyNote?.type).toBe('callout');
+      if (cleanupAccuracyNote?.type !== 'callout') throw new Error('Cleanup accuracy note is missing');
+      expect(cleanupAccuracyNote.text).toMatch(lesson.locale === 'en' ? /not necessarily a leak|not.*memory leak/ : /не означает утечку/);
+      expect(cleanupAccuracyNote.text).toMatch(lesson.locale === 'en' ? /stale|obsolete response/ : /устаревш.*ответ/);
+
+      const requestTrace = lesson.blocks.find((block) => block.id === 'deep-effects-trace');
+      expect(requestTrace?.type).toBe('codeWalkthrough');
+      if (requestTrace?.type !== 'codeWalkthrough') throw new Error('Request race walkthrough is missing');
+      expect(requestTrace.code).toContain('new AbortController()');
+      expect(requestTrace.code).toContain('let ignore = false');
+      expect(requestTrace.code).toContain('controller.abort()');
+      expect(requestTrace.code).toContain('if (!ignore)');
+      expect(requestTrace.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= requestTrace.code.split('\\n').length)).toBe(true);
+
       const dependencyCheck = lesson.blocks.find((block) => block.id === 'effect-dependency-array-check');
       expect(dependencyCheck?.type).toBe('knowledgeCheck');
       if (dependencyCheck?.type !== 'knowledgeCheck') throw new Error('Effect dependency check is missing');
@@ -610,6 +625,7 @@ describe('React effects and lists lesson translation', () => {
       expect(refs?.type).toBe('references');
       if (refs?.type !== 'references') throw new Error('Effect references are missing');
       expect(refs.items.some((item) => item.url === 'https://react.dev/reference/react/useEffect')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://react.dev/blog/2022/03/08/react-18-upgrade-guide')).toBe(true);
     }
     expect(englishReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
     expect(russianReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
