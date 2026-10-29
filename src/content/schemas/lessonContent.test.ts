@@ -1192,16 +1192,16 @@ describe('Git workflow lesson translation', () => {
     expect(englishGitWorkflow.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGitWorkflow.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
-    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(19);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(19);
     expect(englishGitWorkflow.learningOutcomes).toHaveLength(10);
     expect(russianGitWorkflow.learningOutcomes).toHaveLength(10);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
-    expect(englishGitWorkflow.version).toBe(9);
-    expect(russianGitWorkflow.version).toBe(9);
+    expect(englishGitWorkflow.version).toBe(10);
+    expect(russianGitWorkflow.version).toBe(10);
     for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
       expect(lesson.updatedAt).toBe('2026-10-29');
       const ciExample = lesson.blocks.find((block) => block.id === 'ci-example');
@@ -1255,7 +1255,11 @@ describe('Git workflow lesson translation', () => {
       const matrix = lesson.blocks.find((candidate) => candidate.id === 'ci-failure-diagnosis-matrix');
       expect(matrix?.type).toBe('list');
       if (matrix?.type !== 'list') throw new Error('CI diagnostic matrix is missing');
-      expect(matrix.items.length).toBeGreaterThanOrEqual(5);
+      expect(matrix.items.length).toBeGreaterThanOrEqual(8);
+      const stageCoverage = matrix.items.join(' ').toLowerCase();
+      for (const stageSignal of ['checkout', 'npm ci', 'lint', 'typecheck', 'test', 'build', 'security', 'audit', 'deploy', 'sha']) {
+        expect(stageCoverage).toContain(stageSignal);
+      }
       const block = lesson.blocks.find((candidate) => candidate.id === 'ci-failure-diagnosis-check');
       expect(block?.type).toBe('knowledgeCheck');
       if (block?.type !== 'knowledgeCheck') throw new Error('CI diagnosis check is missing');
@@ -1349,6 +1353,30 @@ describe('Git workflow lesson translation', () => {
       if (backMergeCheck?.type !== 'knowledgeCheck') throw new Error('Hotfix back-merge check is missing');
       expect(backMergeCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['back-merge']);
       expect(backMergeCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
+      const sourceQuizAnswers: Record<string, string> = {
+        'hotfix-origin-check': 'hotfix-from-production',
+        'branch-protection-check': 'branch-rules-enforce',
+        'git-flow-feature-target-check': 'feature-to-develop',
+        'ci-basics-check': 'automated-checks-on-change',
+        'review-comment-specificity-check': 'specific-actionable',
+        'git-semver-minor-check': 'minor-1-5-0',
+        'continuous-deployment-check': 'automatic-production',
+        'small-pr-review-check': 'focused-review',
+        'npm-ci-lockfile-check': 'clean-lockfile-install',
+      };
+      expect(lesson.blocks.map((block) => block.id)).toEqual(
+        expect.arrayContaining(['source-quiz-parity-heading', ...Object.keys(sourceQuizAnswers)]),
+      );
+      for (const [questionId, answerId] of Object.entries(sourceQuizAnswers)) {
+        const question = lesson.blocks.find((block) => block.id === questionId);
+        expect(question?.type).toBe('knowledgeCheck');
+        if (question?.type !== 'knowledgeCheck') throw new Error(`Missing source quiz question: ${questionId}`);
+        expect(question.questionType).toBe('single-choice');
+        expect(question.options.filter((option) => option.correct).map((option) => option.id)).toEqual([answerId]);
+        expect(question.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+        expect(question.explanation.trim().length).toBeGreaterThan(40);
+      }
 
       const references = lesson.blocks.find((block) => block.id === 'git-workflow-references');
       expect(references?.type).toBe('references');

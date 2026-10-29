@@ -1,7 +1,7 @@
 {
   "id": "git.workflow-ci",
   "locale": "en",
-  "version": 9,
+  "version": 10,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -809,11 +809,13 @@
       "id": "ci-failure-diagnosis-matrix",
       "type": "list",
       "items": [
-        "If `npm ci` fails, inspect the lockfile, Node/npm versions, `engines` constraints and registry error. Do not replace `npm ci` with `npm install` merely to hide a lockfile mismatch.",
+        "If the `checkout`/clone stage fails, verify the repository URL, requested ref, token or SSH configuration, and permissions. Do not print or paste credentials into logs.",
+        "If `npm ci` fails, inspect the lockfile, Node/npm versions, `engines`, peer-dependency constraints, and registry error. Do not replace it with `npm install` just to hide a lockfile mismatch.",
         "If lint or typecheck fails, locate the first relevant file and line, fix the cause, and run the corresponding command locally when the environment is available.",
-        "If a test fails, compare expected and actual behavior and decide whether it conflicts with the intended change or exposed a regression. Do not delete a test just to turn the status green.",
+        "If tests fail, compare expected and actual behavior and decide whether the assertion conflicts with the intended change or exposed a regression. Do not delete a test just to turn the status green.",
         "If the production build fails, inspect compile errors, imports, environment variables, or the bundle budget. Passing tests does not prove that a release build can be produced.",
-        "If code checks are green but a Deploy Preview or production deployment is red, inspect its separate deploy job: build command, publish directory, environment, base path, redirects, and host-platform errors.",
+        "If the `security`/audit stage reports findings, inspect the package, affected range, severity, and repository policy. Distinguish informational `npm audit` reporting from explicitly required fail-fast controls; do not suppress findings without triage.",
+        "If Deploy Preview or production deployment fails after code checks pass, inspect the separate deploy job: build command, publish directory, environment, base path, redirects, health checks, and host-platform errors.",
         "After fixing the cause, create a new commit and verify the new run against its exact SHA. An older green run does not validate code pushed later."
       ]
     },
@@ -917,6 +919,309 @@
         "Selects and explains a production trigger without conflating delivery and deployment.",
         "Defines artifact tracking and rollback responsibility."
       ]
+    },
+    {
+      "id": "source-quiz-parity-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Additional checks from the original Git Workflow Guide"
+    },
+    {
+      "id": "hotfix-origin-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A critical production bug must be patched now, but `develop` contains unfinished features. In Git Flow, where should the hotfix branch start?",
+      "options": [
+        {
+          "id": "hotfix-from-production",
+          "text": "From the production branch (`main`/`master`), then merge the fix into maintained branches",
+          "correct": true,
+          "feedback": "Correct. Start from the shipped code so unfinished work in `develop` is not accidentally released with the emergency fix."
+        },
+        {
+          "id": "feature-from-develop",
+          "text": "From `develop` so the hotfix includes all in-progress features",
+          "correct": false,
+          "feedback": "That can bring unfinished work into a production fix. Git Flow normally starts a hotfix from the production branch."
+        },
+        {
+          "id": "release-from-staging",
+          "text": "From any staging branch even when it does not represent the current production version",
+          "correct": false,
+          "feedback": "The source branch must match the version that needs the urgent fix, not an unrelated staging snapshot."
+        },
+        {
+          "id": "edit-main-directly",
+          "text": "Edit `main` directly and bypass review and required checks",
+          "correct": false,
+          "feedback": "A hotfix is a controlled branch-and-review workflow, not a reason to bypass the repository's safety gates."
+        }
+      ],
+      "explanation": "In Git Flow, create the hotfix from the production branch, then merge the fix back into `develop` and any maintained release branch that needs it."
+    },
+    {
+      "id": "branch-protection-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which statement correctly separates CI reporting from branch-protection enforcement?",
+      "options": [
+        {
+          "id": "branch-rules-enforce",
+          "text": "CI reports check statuses; branch-protection rules or rulesets can require passing checks and review before merge",
+          "correct": true,
+          "feedback": "Correct. CI supplies evidence, while repository rules enforce which statuses and approvals are required at the merge boundary."
+        },
+        {
+          "id": "ci-always-blocks",
+          "text": "Any green CI run blocks direct pushes even when no repository rule is configured",
+          "correct": false,
+          "feedback": "A status report does not by itself prevent a push or merge; enforcement depends on repository settings and permissions."
+        },
+        {
+          "id": "review-replaces-checks",
+          "text": "A reviewer approval makes failing required checks irrelevant",
+          "correct": false,
+          "feedback": "Review and required automated checks protect against different risks and may both be mandatory."
+        },
+        {
+          "id": "branch-name-is-gate",
+          "text": "Using a branch name that starts with `feat/` automatically protects `main`",
+          "correct": false,
+          "feedback": "Branch naming is a convention; it does not configure required reviews or status checks."
+        }
+      ],
+      "explanation": "CI status and branch protection are different mechanisms: verify which checks and approvals the repository actually requires."
+    },
+    {
+      "id": "git-flow-feature-target-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "In the classic Git Flow model, where does a completed feature branch normally merge?",
+      "options": [
+        {
+          "id": "feature-to-develop",
+          "text": "Into `develop`, the integration branch for the next release",
+          "correct": true,
+          "feedback": "Correct. In Git Flow, feature branches usually integrate into `develop`; release and hotfix branches have different sources and targets."
+        },
+        {
+          "id": "feature-to-main",
+          "text": "Directly into `main` even when the feature is not ready for production",
+          "correct": false,
+          "feedback": "That bypasses the integration/release process normally used by Git Flow."
+        },
+        {
+          "id": "feature-to-release",
+          "text": "Always into an arbitrary `release/*` branch",
+          "correct": false,
+          "feedback": "Release branches stabilize a chosen release candidate; they are not the default destination for every completed feature."
+        },
+        {
+          "id": "feature-to-staging",
+          "text": "Only into a server named `staging`, regardless of the branch policy",
+          "correct": false,
+          "feedback": "A deployment environment name is not a universal Git Flow branch target."
+        }
+      ],
+      "explanation": "Git Flow normally merges feature branches into `develop`, while `main` represents production-ready releases. Follow the project's documented model if it differs."
+    },
+    {
+      "id": "ci-basics-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What is the practical purpose of Continuous Integration when code is pushed or proposed in a pull request?",
+      "options": [
+        {
+          "id": "automatic-production-every-day",
+          "text": "Automatically deploy production every day regardless of check results",
+          "correct": false,
+          "feedback": "That describes neither the essential purpose of CI nor a safe response to a failed check."
+        },
+        {
+          "id": "weekly-merge-window",
+          "text": "Wait until the end of the week and merge every branch together",
+          "correct": false,
+          "feedback": "Infrequent batch integration lets conflicts and regressions accumulate instead of identifying them early."
+        },
+        {
+          "id": "automated-checks-on-change",
+          "text": "Run the configured build and quality checks against the proposed commit in a repeatable environment",
+          "correct": true,
+          "feedback": "Correct. CI makes regressions visible near the change that introduced them, and the result applies to the SHA that was tested."
+        },
+        {
+          "id": "manual-release-testing-only",
+          "text": "Replace automated checks with one manual test after a release",
+          "correct": false,
+          "feedback": "Manual acceptance remains valuable, but it does not replace repeatable automated feedback during integration."
+        }
+      ],
+      "explanation": "CI repeatedly integrates proposed changes and runs configured checks. Its result is commit-specific and does not replace review or all manual testing."
+    },
+    {
+      "id": "review-comment-specificity-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A reviewer writes only “Fix this.” Which response best turns that into useful code-review feedback?",
+      "options": [
+        {
+          "id": "specific-actionable",
+          "text": "Describe the observed behavior, explain its impact, and propose a concrete next step or ask a genuine question",
+          "correct": true,
+          "feedback": "Correct. Actionable review feedback connects evidence to impact and a fix, without making the comment personal."
+        },
+        {
+          "id": "stronger-command",
+          "text": "Rewrite it as “This is obviously wrong; fix it immediately”",
+          "correct": false,
+          "feedback": "A harsher tone still gives no technical context or actionable explanation."
+        },
+        {
+          "id": "style-blocker",
+          "text": "Mark every formatting preference as blocking so nobody can disagree",
+          "correct": false,
+          "feedback": "Style preferences should follow team conventions and should not be presented as correctness defects without a reason."
+        },
+        {
+          "id": "line-count-rule",
+          "text": "Reject the change solely because it crosses a universal changed-line threshold",
+          "correct": false,
+          "feedback": "Diff size is useful context, but there is no universal line-count rule that replaces reasoning about risk and reviewability."
+        }
+      ],
+      "explanation": "A strong review comment names the behavior, explains the impact, and gives an actionable suggestion or a genuine question. Keep style preferences separate from blockers."
+    },
+    {
+      "id": "git-semver-minor-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A library is at version `1.4.2` and adds a backwards-compatible public feature. Under Semantic Versioning, what is the expected next version?",
+      "options": [
+        {
+          "id": "major-2-0-0",
+          "text": "`2.0.0`",
+          "correct": false,
+          "feedback": "A MAJOR bump signals an incompatible public API change, which the scenario explicitly excludes."
+        },
+        {
+          "id": "minor-1-5-0",
+          "text": "`1.5.0`",
+          "correct": true,
+          "feedback": "Correct. A new backwards-compatible public feature increments MINOR and resets PATCH to zero."
+        },
+        {
+          "id": "patch-1-4-3",
+          "text": "`1.4.3`",
+          "correct": false,
+          "feedback": "PATCH is normally for backwards-compatible bug fixes, not the addition of public functionality."
+        },
+        {
+          "id": "prerelease-1-4-2-rc",
+          "text": "`1.4.2-rc.1`",
+          "correct": false,
+          "feedback": "A release-candidate suffix denotes a pre-release and does not communicate the next stable MINOR release described here."
+        }
+      ],
+      "explanation": "For a stable public API, MAJOR is for breaking changes, MINOR for backwards-compatible functionality, and PATCH for backwards-compatible fixes."
+    },
+    {
+      "id": "continuous-deployment-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which pipeline behavior best describes continuous deployment rather than continuous delivery?",
+      "options": [
+        {
+          "id": "manual-approval",
+          "text": "A verified release waits for an authorized person to click the production-release approval",
+          "correct": false,
+          "feedback": "That is consistent with continuous delivery, where the candidate is deployable but release can still require approval."
+        },
+        {
+          "id": "automatic-production",
+          "text": "Every change that passes all required gates is automatically released to production without a separate per-release approval",
+          "correct": true,
+          "feedback": "Correct. Continuous deployment automates the production release after its gates; it also requires adequate monitoring and recovery plans."
+        },
+        {
+          "id": "ci-only",
+          "text": "The pipeline runs lint and tests but does not prepare or release a production artifact",
+          "correct": false,
+          "feedback": "That is CI evidence, not by itself a description of the production release trigger."
+        },
+        {
+          "id": "review-before-tests",
+          "text": "Review is requested only after code has already been deployed to production",
+          "correct": false,
+          "feedback": "That reverses the safety sequence and does not define continuous deployment."
+        }
+      ],
+      "explanation": "The defining difference is the production trigger: delivery may pause for an approval, while deployment releases automatically after the required gates pass."
+    },
+    {
+      "id": "small-pr-review-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why does a focused, relatively small pull request usually make review safer?",
+      "options": [
+        {
+          "id": "faster-git-storage",
+          "text": "Git necessarily stores each commit faster when the diff is below about 200 lines",
+          "correct": false,
+          "feedback": "The main benefit is human reviewability, not a guaranteed storage or runtime optimization."
+        },
+        {
+          "id": "focused-review",
+          "text": "Reviewers can understand the intent, inspect behavior and edge cases, and identify unintended changes more thoroughly",
+          "correct": true,
+          "feedback": "Correct. A focused diff makes scope and risk easier to reason about; a line-count target is only a heuristic, not a universal gate."
+        },
+        {
+          "id": "shorter-branch-name",
+          "text": "Small pull requests automatically create shorter branch names",
+          "correct": false,
+          "feedback": "Branch-name length is unrelated to whether a reviewer can validate the change."
+        },
+        {
+          "id": "skip-tests",
+          "text": "Small pull requests do not need tests because reviewers can read every line",
+          "correct": false,
+          "feedback": "Even a small diff can introduce regressions. Tests and required checks remain important."
+        }
+      ],
+      "explanation": "Small, focused changes reduce review fatigue and make scope clearer. Treat any line-count guidance as a heuristic and follow the repository's review policy."
+    },
+    {
+      "id": "npm-ci-lockfile-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "In a project with a committed `package-lock.json`, what is the main reason CI commonly uses `npm ci`?",
+      "options": [
+        {
+          "id": "global-only",
+          "text": "It installs only global command-line tools",
+          "correct": false,
+          "feedback": "`npm ci` installs the project's locked dependency tree; it is not a global-only installation command."
+        },
+        {
+          "id": "skip-development",
+          "text": "It always skips development dependencies",
+          "correct": false,
+          "feedback": "Development dependencies are normally installed unless the install is configured for production-only dependencies."
+        },
+        {
+          "id": "clean-lockfile-install",
+          "text": "It performs a clean install based on the lockfile and fails when the lockfile is out of sync with `package.json`",
+          "correct": true,
+          "feedback": "Correct. This makes CI installation more reproducible and exposes a package/lockfile mismatch instead of silently rewriting the lockfile."
+        },
+        {
+          "id": "upgrade-all",
+          "text": "It upgrades every dependency to the newest available compatible version",
+          "correct": false,
+          "feedback": "`npm ci` is intended to reproduce the committed dependency resolution, not to refresh dependencies."
+        }
+      ],
+      "explanation": "`npm ci` is suited to automated clean installs from a committed lockfile. Use `npm install` during dependency changes when the lockfile may need to be updated, then review and commit that change."
     },
     {
       "id": "deep-workflow-summary",
