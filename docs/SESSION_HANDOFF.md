@@ -39,6 +39,14 @@ Repository metadata comparison shows `feat/learning-platform-foundation` is **69
 
 PR #1 status text was refreshed on 2026-10-29 to record the verified code checkpoint and the new Git source-parity work. It remains Draft and all cutover rows remain blocked.
 
+## Focused tl-003 source-parity checkpoint — 2026-10-29
+
+- Detailed source-to-block evidence is maintained in [`docs/TL003_SOURCE_PARITY.md`](TL003_SOURCE_PARITY.md); `docs/LEGACY_ROUTE_CUTOVER_MATRIX.md` has been updated, but `tl-003` deliberately remains **Blocked**.
+- The legacy `public/lessons/intro.dev.html` is preserved with all 20 quiz cards and 10 solution-reveal sections. A new `src/content/legacyIntroDev.test.ts` guards that inventory, factual claims, locale alignment, and the ESM-safe Vite alias.
+- Structured EN/RU content now includes the missing source examples: `typescript.fundamentals` v5 (48 blocks) adds `Product` and generic filtering walkthroughs; `react.components-jsx-state` v5 (35 blocks) adds accessible Toggle, typed-list and controlled-search walkthroughs; `react.api-custom-hooks` v6 (42 blocks) adds defensive `useLocalStorage` walkthrough/practice.
+- The legacy page's Effect-cleanup explanation, Vite speed/bundler version notes, Vitest `vi.fn()` vs Jest `jest.fn()`, shared-type-folder convention and ESM `__dirname` example were corrected. Existing schema tests were updated for the intentionally changed lesson versions and walkthrough/exercise counts.
+- Before reporting verification, inspect GitHub Actions for the **current feature-branch HEAD**, not an intermediate commit. `npm run lint`, `npm run typecheck`, the complete test suite, build and production-preview smoke must all pass on the final head. Never infer browser/device or screen-reader acceptance from CI.
+
 ## Recommended next work, in dependency order
 
 1. Select one source row and perform a bounded, evidence-backed source-to-block review in both locales. Inspect source and destination body, interactive affordances, answers/feedback, references and lesson state. Record specific parity gaps; do not mark a row cutover-ready without a reviewed disposition.

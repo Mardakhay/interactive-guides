@@ -33,6 +33,14 @@ This section replaces older status summaries below when they disagree. Historica
 - `tooling.node-npm-vite` EN/RU v4: 44 aligned blocks, 7 knowledge checks and 8 outcomes per locale. Added the `react-ts` Vite template command, HMR explanation/full-reload fallback and official Vite docs; regression tests cover bilingual parity, answers, wording, line ranges and references.
 - The exact-head regression checkpoint `2d2548bc770ad1a235465db6f4814f02febe4bfe` is green at [CI #40839614446](https://github.com/Mardakhay/interactive-guides/actions/runs/40839614446). The cutover/UI/state and manual-acceptance gates remain open.
 
+## Focused tl-003 source-parity checkpoint — 2026-10-29
+
+- `docs/TL003_SOURCE_PARITY.md` records the legacy 20-question / 10-exercise crosswalk and the factual caveats. The cutover matrix now points to that evidence.
+- The source remains in `public/lessons/intro.dev.html`; automated regression coverage checks all 20 quiz IDs, all 10 reveal IDs, corrected source wording, ESM alias guidance and EN/RU block equivalence.
+- EN/RU `typescript.fundamentals` v5 has 48 blocks and adds the Product interface and generic filter walkthroughs. EN/RU `react.components-jsx-state` v5 has 35 blocks and adds Toggle, typed-list and controlled-search walkthroughs. EN/RU `react.api-custom-hooks` v6 has 42 blocks and adds a defensive localStorage walkthrough plus a scaffolded coding exercise.
+- Corrected source claims cover Effect cleanup versus memory leaks, native ESM and version-specific Vite bundling, Vitest versus Jest mock APIs, type-module placement as a convention rather than a law, and ESM-safe alias resolution. The existing schema tests now expect the updated lesson versions and correct walkthrough/exercise counts.
+- `tl-003` remains **Blocked** until legacy interaction parity, learner-state retention/migration rules and real-browser/device/keyboard/screen-reader acceptance have explicit evidence. Check exact-head GitHub Actions for CI; do not treat a previous commit's status as current.
+
 ## Highest-priority remaining work
 
 1. Review actual EN/RU destination content against one legacy source at a time and record sections, claims, examples, practice, answer feedback, references and interaction gaps.
