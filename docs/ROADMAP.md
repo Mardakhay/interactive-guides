@@ -697,3 +697,10 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 - [x] Add the smoke stage after `npm run build` in GitHub Actions. Exact code/content SHA `28b5c53afd967d2a2488840b494b197398fe467d` passed [CI run #40691049972](https://github.com/Mardakhay/interactive-guides/actions/runs/40691049972): 223 tests across 35 files, lint, typecheck, production build, 125-chunk bundle budgets, smoke stage, and zero npm audit findings.
 - [ ] Keep real-browser/device acceptance open: this check only makes HTTP requests and inspects built artifacts; it does not execute React in a browser, verify real installability, exercise offline caches or confirm assistive-technology/mobile behavior.
 - [ ] Review production deployment behavior and record browser/device evidence before release.
+
+## intro.dev focused parity continuation — 2026-10-29
+
+- [x] In `tooling.node-npm-vite` EN/RU v4, add the exact npm 7+ React + TypeScript Vite command (`npm create vite@latest my-app -- --template react-ts`) and a scored question for the `react-ts` template. Add the HMR behavior and valid full-reload fallback with official Vite references.
+- [x] Update tooling tests to validate both locale schemas and identical block ordering, version/date, seven knowledge checks, the CLI walkthrough line ranges, correct `react-ts` and HMR answers, and npm/Vite reference URLs.
+- [x] Exact code/content SHA `0b20e7cf499c21d8ca3a879a104e11c11d1882f5` passed [CI #40832351304](https://github.com/Mardakhay/interactive-guides/actions/runs/40832351304): 36 test files / 226 tests, lint, typecheck, production build, 125 JS chunk budgets, zero npm audit advisories and preview smoke over four routes and five PWA assets.
+- [ ] `tl-003` remains blocked on full bilingual source/interaction parity; the legacy 20-question / 10-exercise interaction set is not recreated one-for-one. Preserve the source and classic route pending content, state-migration and browser/device acceptance.
