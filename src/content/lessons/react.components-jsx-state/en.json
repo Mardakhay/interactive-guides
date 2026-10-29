@@ -1,7 +1,7 @@
 {
   "id": "react.components-jsx-state",
   "locale": "en",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -160,6 +160,26 @@
       "code": "type LessonCardProps = {\n  title: string;\n  durationMinutes: number;\n  onOpen: () => void;\n};\n\nfunction LessonCard({ title, durationMinutes, onOpen }: LessonCardProps) {\n  return (\n    <article>\n      <h2>{title}</h2>\n      <p>{durationMinutes} min</p>\n      <button onClick={onOpen}>Open lesson</button>\n    </article>\n  );\n}"
     },
     {
+      "id": "legacy-typed-list-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type Task = { id: string; title: string; completed: boolean };\n\ntype TaskListProps = { items: Task[] };\n\nfunction TaskList({ items }: TaskListProps) {\n  if (items.length === 0) return <p>No tasks yet.</p>;\n\n  return (\n    <ul>\n      {items.map((item) => (\n        <li key={item.id}>\n          <span>{item.title}</span>\n          {item.completed && <span> (completed)</span>}\n        </li>\n      ))}\n    </ul>\n  );\n}",
+      "steps": [
+        {
+          "title": "Describe task data and component props",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "A named Task type makes fields explicit, and TaskListProps describes the array accepted by the component."
+        },
+        {
+          "title": "Render empty and populated states",
+          "lineStart": 5,
+          "lineEnd": 18,
+          "explanation": "The component handles an empty list and uses each task's stable id as the key, preserving identity when the list changes."
+        }
+      ]
+    },
+    {
       "id": "state",
       "type": "heading",
       "level": 2,
@@ -226,6 +246,46 @@
           "lineStart": 7,
           "lineEnd": 7,
           "explanation": "The setter schedules a state update. React coordinates the next render and DOM changes; this is not a direct DOM mutation."
+        }
+      ]
+    },
+    {
+      "id": "legacy-toggle-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState } from \"react\";\n\nfunction Toggle() {\n  const [isOn, setIsOn] = useState(false);\n\n  return (\n    <button\n      type=\"button\"\n      aria-pressed={isOn}\n      onClick={() => setIsOn((current) => !current)}\n    >\n      {isOn ? \"On\" : \"Off\"}\n    </button>\n  );\n}",
+      "steps": [
+        {
+          "title": "Keep the toggle value in React state",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The boolean is the single source of truth for the visible label and pressed state."
+        },
+        {
+          "title": "Expose the state accessibly",
+          "lineStart": 6,
+          "lineEnd": 15,
+          "explanation": "A native button supports keyboard activation, aria-pressed communicates the state, and the functional updater flips the latest value."
+        }
+      ]
+    },
+    {
+      "id": "legacy-searchable-list-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type Item = { id: string; name: string };\n\ntype SearchableListProps = { items: Item[] };\n\nfunction SearchableList({ items }: SearchableListProps) {\n  const [query, setQuery] = useState(\"\");\n  const normalizedQuery = query.trim().toLocaleLowerCase();\n  const visibleItems = items.filter((item) =>\n    item.name.toLocaleLowerCase().includes(normalizedQuery),\n  );\n\n  return (\n    <section>\n      <label>\n        Search items\n        <input\n          value={query}\n          onChange={(event) => setQuery(event.currentTarget.value)}\n        />\n      </label>\n      <ul>\n        {visibleItems.map((item) => (\n          <li key={item.id}>{item.name}</li>\n        ))}\n      </ul>\n    </section>\n  );\n}",
+      "steps": [
+        {
+          "title": "Keep the input controlled by state",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "Items have stable IDs, while the query is the only changing state. The search string is normalized before filtering."
+        },
+        {
+          "title": "Derive the visible list and render stable keys",
+          "lineStart": 8,
+          "lineEnd": 28,
+          "explanation": "The visible list is derived during render rather than duplicated in state. Matching is case-insensitive and each row uses its item ID."
         }
       ]
     },
