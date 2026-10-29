@@ -359,7 +359,7 @@
     {
       "id": "repository-access-body",
       "type": "paragraph",
-      "text": "Repository access and branch protections are configured on the hosting platform, not with local Git commands. Personal repositories have a simpler owner/collaborator model; organization repositories can use granular roles and teams. Give each person only the access required: Read for viewing/discussion, Triage for managing issues and pull requests without pushing code, Write for contributors who need to push, and Maintain/Admin only when their additional responsibilities justify it. Review team membership periodically, remove access that is no longer needed, and keep administrator/owner privileges limited. Branch protection or rulesets are a separate control that can require reviews and checks; a role alone is not proof that those rules are configured."
+      "text": "Repository access and branch protections are configured on the hosting platform, not with local Git commands. Personal repositories have a simpler owner/collaborator model; organization repositories can use granular roles and teams. Apply the principle of least privilege: give each person only the access required: Read for viewing/discussion, Triage for managing issues and pull requests without pushing code, Write for contributors who need to push, and Maintain/Admin only when their additional responsibilities justify it. Review team membership periodically, remove access that is no longer needed, and keep administrator/owner privileges limited. Branch protection or rulesets are a separate control that can require reviews and checks; a role alone is not proof that those rules are configured."
     },
     {
       "id": "repository-access-role-check",
