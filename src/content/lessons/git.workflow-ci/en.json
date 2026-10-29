@@ -1,7 +1,7 @@
 {
   "id": "git.workflow-ci",
   "locale": "en",
-  "version": 7,
+  "version": 8,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -24,7 +24,8 @@
     "Resolve merge conflicts deliberately and understand merge versus rebase at a high level.",
     "Explain how CI runs automated checks and why a green check is not a substitute for review.",
     "Compare common branch strategies and apply Semantic Versioning to compatible and breaking changes.",
-    "Resolve an active merge or rebase conflict by staging the intended result and continuing or aborting the correct operation."
+    "Resolve an active merge or rebase conflict by staging the intended result and continuing or aborting the correct operation.",
+    "Write actionable code-review comments and distinguish blocking defects from suggestions, questions, and nitpicks."
   ],
   "tags": [
     "git",
@@ -107,6 +108,96 @@
       "id": "code-review-body",
       "type": "paragraph",
       "text": "A review should look for incorrect behavior, edge cases, unsafe data handling, inaccessible interactions, missing tests, confusing abstractions, and maintainability risks. Distinguish must-fix defects from optional suggestions and explain the impact. Use the project's formatter and lint rules to resolve style debates mechanically. The author remains responsible for understanding the final code; a reviewer should not approve code they do not understand just to move the queue along."
+    },
+    {
+      "id": "review-comment-taxonomy",
+      "type": "heading",
+      "level": 3,
+      "text": "Write review comments that are specific, actionable, and kind"
+    },
+    {
+      "id": "review-comment-taxonomy-body",
+      "type": "paragraph",
+      "text": "A useful review comment names the observable problem, explains its impact, and offers a concrete next step or a genuine question. Avoid statements such as “Fix this,” “This is wrong,” or “I wouldn't do it this way”: they do not explain the risk and can sound personal. For example, “Add `userId` to this effect's dependencies; otherwise changing accounts can leave the UI showing stale data” identifies a defect and its consequence. “Is server-side validation also enforced? Client-side validation can be bypassed” asks about an important boundary without assuming the answer. Keep style preferences separate from behavior and security defects."
+    },
+    {
+      "id": "review-comment-labels",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`BLOCKING` — a correctness, security, data-loss, accessibility or acceptance defect that must be addressed before approval. State the impact and the condition that makes it blocking.",
+        "`SUGGESTION` — a useful but non-blocking improvement. Explain the benefit and leave room for the author to accept or decline it.",
+        "`QUESTION` — a request for context or understanding when the design intent is unclear. Do not disguise a question as an unexplained command.",
+        "`NITPICK` — a minor style or wording issue that does not affect behavior. Label it as non-blocking and prefer automated formatting or lint rules when possible.",
+        "These labels communicate priority; they do not replace the repository's formal approval rules. Do not treat arbitrary changed-line thresholds as a universal merge rule: review scope and risk matter more than a fixed number."
+      ]
+    },
+    {
+      "id": "review-comment-label-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A pull request adds client-side validation for a privileged action, but there is no server-side authorization check. Which review label is appropriate?",
+      "options": [
+        {
+          "id": "blocking",
+          "text": "BLOCKING — the server-side authorization gap can permit unauthorized access",
+          "correct": true,
+          "feedback": "Correct. Client-side checks can be bypassed, so missing server-side authorization is a security defect that must be resolved before approval."
+        },
+        {
+          "id": "suggestion",
+          "text": "SUGGESTION — an optional readability improvement",
+          "correct": false,
+          "feedback": "Authorization is not a cosmetic preference; the server must enforce access control."
+        },
+        {
+          "id": "question",
+          "text": "QUESTION — ask why the button looks different",
+          "correct": false,
+          "feedback": "A design question does not address the concrete security gap described in the scenario."
+        },
+        {
+          "id": "nitpick",
+          "text": "NITPICK — a small naming or formatting issue",
+          "correct": false,
+          "feedback": "The risk is unauthorized access, not style. Label the impact and require a security fix."
+        }
+      ],
+      "explanation": "Review priority follows impact. Authorization must be enforced at the server/API boundary because the browser is controlled by the user."
+    },
+    {
+      "id": "review-comment-practice",
+      "type": "codingExercise",
+      "title": "Rewrite vague code-review feedback",
+      "language": "text",
+      "context": "You are reviewing a React change that uses `userId` inside an effect but leaves it out of the dependency array. When the signed-in account changes, the effect may continue using the previous value. The current review comment says only: “This is wrong.”",
+      "instructions": [
+        "Write a comment that identifies the missing dependency and explains the stale-data risk when the account changes.",
+        "Select a label (`BLOCKING`, `SUGGESTION`, `QUESTION`, or `NITPICK`) and justify it from impact rather than personal preference.",
+        "Write a separate genuine question for any product requirement that remains unclear; do not phrase it as a demand without context.",
+        "Identify one minor formatting issue that should be left to tooling or explicitly labelled as a non-blocking nitpick."
+      ],
+      "requirements": [
+        "The comment names a specific behavior or code path instead of criticising the author.",
+        "The impact on correctness, security, accessibility, or maintainability is explained.",
+        "A concrete fix or answerable question is included.",
+        "The priority label matches the impact and is distinct from an optional suggestion.",
+        "Style-only concerns are not presented as blockers and universal line-count thresholds are not used as policy."
+      ],
+      "starterCode": "Weak comment:\n“This is wrong.”\n\nRewritten comment:\n[Describe the behavior, impact, and actionable next step.]\n\nLabel and rationale:\n[BLOCKING / SUGGESTION / QUESTION / NITPICK]\n\nClarifying question (if needed):\n[Ask for the missing context without assuming intent.]\n\nNon-blocking style note (if useful):\n[Keep this separate from behavior defects.]",
+      "hints": [
+        "Describe what the code does today and the observable consequence for the user.",
+        "A good blocking comment explains why approval should wait; a suggestion makes clear that it is optional.",
+        "Do not ask a question as a disguised order. Say what context would let you assess the design.",
+        "Let formatters and linters settle mechanical style preferences when the project has rules for them."
+      ],
+      "successCriteria": [
+        "Replaces the vague comment with a specific, respectful description of the defect.",
+        "Explains the stale-data consequence and proposes an actionable fix.",
+        "Uses a priority label justified by risk.",
+        "Separates genuine questions and optional style observations from blocking behavior issues.",
+        "Avoids personal language and treats changed-line counts as context rather than universal law."
+      ]
     },
     {
       "id": "merge-rebase",
