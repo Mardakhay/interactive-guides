@@ -779,3 +779,12 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 - [x] Explain that TypeScript may require an equivalent `compilerOptions.paths` entry and that Vite `server.proxy` does not configure production-host routing. Add a scored knowledge check and official Vite config/server-options references.
 - [x] Upgrade `tooling.node-npm-vite` to v6 (52 aligned blocks, 12 checks and 5 walkthroughs per locale); exact checkpoint `ea9ec62fd7bb9d5895c4969ace95779ce93ac6d0` passed [CI #40850154495](https://github.com/Mardakhay/interactive-guides/actions/runs/40850154495): 37 test files / 240 tests, lint, typecheck, build, 125-chunk budgets, zero npm audit advisories and production-preview smoke.
 - [ ] Keep `tl-003` **Blocked**: the original 20-question/10-exercise UI and full source interaction parity remain incomplete. Review remaining legacy exercise examples/version-specific commands; preserve the classic route and learner data until formal cutover gates pass.
+
+
+## tl-003 source fidelity follow-up — 2026-10-29
+
+- [ ] Map all 20 legacy quiz concepts and 10 coding exercises to actual structured EN/RU blocks, with evidence and caveats in `docs/TL003_SOURCE_PARITY.md`.
+- [ ] Correct outdated React Effect cleanup, Vite development/production bundling, Vitest versus Jest mock API, and ESM Vite alias examples in `public/lessons/intro.dev.html`.
+- [ ] Add bilingual Product/generic-filter, accessible Toggle, typed/searchable list and defensive localStorage Hook examples where missing.
+- [ ] Add a regression test for legacy inventory, source claims and EN/RU lesson alignment.
+- [ ] Keep `tl-003` **Blocked** until the original navigation/quiz/solution UI, learner-state disposition and browser/device/screen-reader acceptance are evidenced.
