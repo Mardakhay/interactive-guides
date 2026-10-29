@@ -209,7 +209,7 @@ describe('HTML document content and media', () => {
     expect(englishLesson.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianLesson.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishLesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
+    expect(englishLesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(9);
     expect(englishLesson.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(8);
     expect(englishLesson.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(englishLesson.blocks.map((block) => block.id)).toEqual(
@@ -2070,11 +2070,12 @@ describe('HTML reference source coverage', () => {
   it('covers text semantics, links, metadata, and global attributes in both locales', () => {
     expect(lessonTranslationSchema.safeParse(englishLesson).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianLesson).success).toBe(true);
-    expect(englishLesson.version).toBe(8);
-    expect(englishLesson.blocks).toHaveLength(54);
+    expect(englishLesson.version).toBe(9);
+    expect(englishLesson.blocks).toHaveLength(55);
     expect(englishLesson.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianLesson.blocks.map(({ id, type }) => ({ id, type })),
     );
+    expect(englishLesson.blocks.map(({ id }) => id)).toContain('html-role-keyboard-check');
     for (const lesson of [englishLesson, russianLesson]) {
       const textWalk = lesson.blocks.find((block) => block.id === 'html-text-markup-walkthrough');
       expect(textWalk?.type).toBe('codeWalkthrough');
