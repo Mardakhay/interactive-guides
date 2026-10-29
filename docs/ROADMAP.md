@@ -783,8 +783,8 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 
 ## tl-003 source fidelity follow-up — 2026-10-29
 
-- [ ] Map all 20 legacy quiz concepts and 10 coding exercises to actual structured EN/RU blocks, with evidence and caveats in `docs/TL003_SOURCE_PARITY.md`.
-- [ ] Correct outdated React Effect cleanup, Vite development/production bundling, Vitest versus Jest mock API, and ESM Vite alias examples in `public/lessons/intro.dev.html`.
-- [ ] Add bilingual Product/generic-filter, accessible Toggle, typed/searchable list and defensive localStorage Hook examples where missing.
-- [ ] Add a regression test for legacy inventory, source claims and EN/RU lesson alignment.
+- [x] Map all 20 legacy quiz concepts and 10 coding exercises to actual structured EN/RU blocks, with evidence and caveats in `docs/TL003_SOURCE_PARITY.md`.
+- [x] Correct outdated React Effect cleanup, Vite development/production bundling, Vitest versus Jest mock API, shared type-location advice, and ESM Vite alias examples in `public/lessons/intro.dev.html`.
+- [x] Add bilingual Product/generic-filter, accessible Toggle, typed/searchable list and defensive localStorage Hook examples where missing.
+- [x] Add a regression test for legacy inventory, source claims and EN/RU lesson alignment; update the existing lesson-version assertions to the extended content.
 - [ ] Keep `tl-003` **Blocked** until the original navigation/quiz/solution UI, learner-state disposition and browser/device/screen-reader acceptance are evidenced.
