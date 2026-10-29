@@ -1182,3 +1182,8 @@ The crosswalk and remaining interaction gaps are recorded in [QA002_SOURCE_PARIT
 ## Focused wb-004 DOM source review — 2026-10-29
 
 See [WB004_SOURCE_PARITY.md](WB004_SOURCE_PARITY.md) for the crosswalk and source-level corrections. The legacy DOM masterclass now describes `innerHTML` script insertion accurately, scopes `textContent` safety to plain-text contexts, removes unsupported classList/DocumentFragment performance guarantees, and uses passive wheel listeners only with explicit non-cancellation intent. A source regression suite preserves key interactive sections and the 25 quiz options. `wb-004` remains **Blocked** because live demos/editors, learner-state disposition and native acceptance do not yet have parity evidence.
+
+
+## Focused wb-003 CSS source review — 2026-10-29
+
+See [WB003_SOURCE_PARITY.md](WB003_SOURCE_PARITY.md) for the mapping and factual corrections. The classic CSS guide now treats specificity as one component of the cascade, removes universal font-size/line-height and reset prescriptions, defines CSS pixels accurately, qualifies mobile-first and `clamp()` claims, corrects Grid fraction percentages, preserves focus indication, includes `prefers-reduced-motion`, and clarifies large-text WCAG thresholds. Regression coverage is in `src/content/legacyCssReference.test.ts`; `wb-003` remains **Blocked** until interactive parity, state disposition, and real-browser acceptance are evidenced.
