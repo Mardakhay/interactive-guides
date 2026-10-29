@@ -614,7 +614,7 @@ describe('React effects and lists lesson translation', () => {
       expect(requestTrace.code).toContain('let ignore = false');
       expect(requestTrace.code).toContain('controller.abort()');
       expect(requestTrace.code).toContain('if (!ignore)');
-      expect(requestTrace.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= requestTrace.code.split('\\n').length)).toBe(true);
+      expect(requestTrace.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= requestTrace.code.split('\n').length)).toBe(true);
 
       const dependencyCheck = lesson.blocks.find((block) => block.id === 'effect-dependency-array-check');
       expect(dependencyCheck?.type).toBe('knowledgeCheck');
