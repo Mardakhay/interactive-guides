@@ -1,7 +1,7 @@
 {
   "id": "typescript.fundamentals",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -626,6 +626,39 @@
         }
       ],
       "explanation": "Utility types express compile-time transformations only. They neither mutate values nor validate network payloads."
+    },
+    {
+      "id": "partial-utility-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which TypeScript utility type makes every property of an existing object type optional?",
+      "options": [
+        {
+          "id": "partial",
+          "text": "`Partial<T>` makes each property of T optional in the resulting type.",
+          "correct": true,
+          "feedback": "Correct. Partial is a compile-time mapped utility type. It does not change the object or add runtime validation."
+        },
+        {
+          "id": "omit",
+          "text": "`Omit<T, K>` makes every property optional and keeps all keys.",
+          "correct": false,
+          "feedback": "Omit removes selected keys K from the resulting type; it does not make remaining properties optional."
+        },
+        {
+          "id": "pick",
+          "text": "`Pick<T, K>` makes each property optional and keeps the whole type.",
+          "correct": false,
+          "feedback": "Pick selects a subset of keys K from a type; the optional modifier is what Partial adds."
+        },
+        {
+          "id": "record",
+          "text": "`Record<K, V>` marks all properties from an existing type as optional.",
+          "correct": false,
+          "feedback": "Record constructs a type with keys K and values V. It does not transform an existing type's properties to optional."
+        }
+      ],
+      "explanation": "`Partial<T>` makes every property in T optional at the type level. It does not modify runtime values or validate external data."
     },
     {
       "id": "utility-types-practice",
