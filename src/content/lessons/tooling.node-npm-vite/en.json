@@ -1,10 +1,10 @@
 {
   "id": "tooling.node-npm-vite",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-3-week-9",
   "week": 9,
   "order": 1,
@@ -22,7 +22,8 @@
     "Choose npm install or npm ci for the appropriate workflow.",
     "Use npm scripts to start, test, lint, typecheck, and build a project.",
     "Explain the roles of Vite, ESLint, and Prettier without treating them as interchangeable.",
-    "Create a reproducible project setup and verify it using package scripts."
+    "Create a reproducible project setup and verify it using package scripts.",
+    "Distinguish installing a dependency, running a package CLI with npx/npm exec, and scaffolding with npm create."
   ],
   "tags": [
     "nodejs",
@@ -150,6 +151,76 @@
       "id": "scripts-body",
       "type": "paragraph",
       "text": "npm run invokes a script defined by the project. Typical scripts start the development server, build production assets, run tests, lint files, check types, and format source. The exact scripts are project-specific. A README should document the main commands and their expected use so a new developer can reproduce the workflow."
+    },
+    {
+      "id": "npm-command-vs-exec-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "npm install, npx/npm exec, and npm create do different jobs"
+    },
+    {
+      "id": "npm-command-vs-exec-body",
+      "type": "paragraph",
+      "text": "In normal project use, `npm install <package>` adds a dependency to the project manifest and updates the lockfile; use `-D` for a development dependency. `npx <command>` is implemented by modern npm through `npm exec`: it runs a package CLI, using a locally installed executable when available. If the package is missing locally, npm may fetch it into its cache and ask for permission; invoking it does not automatically add it as a lasting project dependency. `npm create` / `npm init` runs a package initializer to scaffold a project. For repeatable team scripts and CI, declare the required tool and run it through `package.json` scripts rather than depending on an unpinned, on-demand CLI. Treat an unfamiliar CLI package as code you are about to execute."
+    },
+    {
+      "id": "npm-command-vs-exec-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "# Inspect scripts configured for this repository\nnpm run\n\n# Run a project CLI when Vite is declared as a dependency\nnpm exec -- vite --version\n\n# Scaffold a new project in a new directory\nnpm create vite@latest my-app",
+      "steps": [
+        {
+          "title": "Inspect the project scripts",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Running `npm run` without a script name lists the scripts declared in package.json. Read that contract and the chosen lockfile before copying commands from a tutorial."
+        },
+        {
+          "title": "Run a CLI through npm exec",
+          "lineStart": 4,
+          "lineEnd": 5,
+          "explanation": "When Vite is installed in the current project, npm exec can invoke its local binary. The `--` separates npm's own options from the command's arguments. If a package is not installed locally, npm may fetch it into its cache and prompt; verify the package and version before approving execution."
+        },
+        {
+          "title": "Scaffold with npm create",
+          "lineStart": 7,
+          "lineEnd": 8,
+          "explanation": "The create alias runs a package initializer that can generate project files and may ask interactive questions. Review the requested package/version and target directory first; do not run a scaffolder blindly over an existing project."
+        }
+      ]
+    },
+    {
+      "id": "npm-command-vs-exec-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which statement accurately describes `npx` / `npm exec` in modern npm?",
+      "options": [
+        {
+          "id": "cli",
+          "text": "It runs a package's CLI; a missing package may be fetched into npm's cache, but invoking it does not automatically add a permanent dependency entry.",
+          "correct": true,
+          "feedback": "Correct. npm exec uses a suitable local executable when available and can fetch a missing CLI for execution. That does not mean the package is now declared in package.json."
+        },
+        {
+          "id": "dependency",
+          "text": "It always adds the package to dependencies and updates package-lock.json like npm install.",
+          "correct": false,
+          "feedback": "Running a CLI through npm exec does not by itself declare a lasting project dependency; use npm install when that is the intention."
+        },
+        {
+          "id": "global",
+          "text": "It installs every CLI globally and keeps the executable available to all projects.",
+          "correct": false,
+          "feedback": "npx/npm exec is not a synonym for a global install. Global installation changes the machine environment and is not needed for every CLI invocation."
+        },
+        {
+          "id": "create",
+          "text": "It is the same as npm create and always generates a new project directory.",
+          "correct": false,
+          "feedback": "npm create runs an initializer to scaffold a project; npm exec runs a selected package executable. They serve related but different tasks."
+        }
+      ],
+      "explanation": "Use install to declare dependencies, exec/npx to run a CLI, and create/init to run a scaffolder. For reproducible team workflows, keep required tools and versions declared in the project."
     },
     {
       "id": "vite",
