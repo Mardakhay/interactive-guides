@@ -143,7 +143,7 @@ describe('HTML forms and accessibility lesson translation', () => {
     expect(englishForms.version).toBe(3);
     expect(russianForms.version).toBe(3);
     for (const lesson of [englishForms, russianForms]) {
-      expect(lesson.updatedAt).toBe('2026-10-28');
+      expect(lesson.updatedAt).toBe('2026-10-29');
       expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
       const specialized = lesson.blocks.find((block) => block.id === 'specialized-input-types-list');
       expect(specialized?.type).toBe('list');
@@ -346,10 +346,10 @@ describe('Git fundamentals lesson translation', () => {
     expect(englishGit.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGit.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
-    expect(englishGit.version).toBe(7);
-    expect(russianGit.version).toBe(7);
+    expect(englishGit.version).toBe(8);
+    expect(russianGit.version).toBe(8);
     const remoteExample = englishGit.blocks.find((block) => block.id === 'remote-example');
     expect(remoteExample?.type).toBe('codeWalkthrough');
     if (remoteExample?.type !== 'codeWalkthrough') return;
