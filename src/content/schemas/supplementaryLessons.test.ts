@@ -326,8 +326,10 @@ describe('architecture colocation and public APIs', () => {
   it('teaches architecture boundaries, SOLID trade-offs, and context-aware tool choices', () => {
     for (const lesson of [englishArchitecture, russianArchitecture]) {
       expect(lessonTranslationSchema.safeParse(lesson).success, lesson.locale).toBe(true);
-      expect(lesson.version).toBe(4);
-      expect(lesson.blocks).toHaveLength(34);
+      expect(lesson.version).toBe(5);
+      expect(lesson.updatedAt).toBe('2026-10-29');
+      expect(lesson.blocks).toHaveLength(35);
+      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
       expect(lesson.blocks.map(({ id, type }) => [id, type])).toEqual(
         englishArchitecture.blocks.map(({ id, type }) => [id, type]),
       );
@@ -344,6 +346,11 @@ describe('architecture colocation and public APIs', () => {
       expect(check.options.filter((option) => option.correct)).toHaveLength(1);
       expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
       expect(check.explanation.trim().length).toBeGreaterThan(0);
+      const typeLocationCheck = lesson.blocks.find((block) => block.id === 'arch-type-colocation-check');
+      expect(typeLocationCheck?.type).toBe('knowledgeCheck');
+      if (typeLocationCheck?.type !== 'knowledgeCheck') throw new Error('Type-colocation assessment is missing');
+      expect(typeLocationCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['colocate']);
+      expect(typeLocationCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
       const exercise = lesson.blocks.find((block) => block.id === 'arch-colocation-practice');
       expect(exercise?.type).toBe('codingExercise');
       if (exercise?.type !== 'codingExercise') return;
