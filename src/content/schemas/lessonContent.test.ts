@@ -590,7 +590,7 @@ describe('TypeScript fundamentals lesson translation', () => {
     expect(englishTypeScript.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
     expect(russianTypeScript.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     for (const lesson of [englishTypeScript, russianTypeScript]) {
-      expect(lesson.version).toBe(4);
+      expect(lesson.version).toBe(5);
       expect(lesson.updatedAt).toBe('2026-10-29');
       const strictCheck = lesson.blocks.find((block) => block.id === 'strict-mode-check');
       expect(strictCheck?.type).toBe('knowledgeCheck');
@@ -830,7 +830,7 @@ describe('React API and custom hooks lesson translation', () => {
     expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
     expect(russianApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
     for (const lesson of [englishApiHooks, russianApiHooks]) {
-      expect(lesson.version).toBe(5);
+      expect(lesson.version).toBe(6);
       expect(lesson.updatedAt).toBe('2026-10-29');
       const cleanupCheck = lesson.blocks.find((block) => block.id === 'api-fetch-cleanup-check');
       expect(cleanupCheck?.type).toBe('knowledgeCheck');
@@ -1105,7 +1105,7 @@ describe('React fundamentals lesson translation', () => {
     expect(englishReactBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
     expect(russianReactBasics.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     for (const lesson of [englishReactBasics, russianReactBasics]) {
-      expect(lesson.version).toBe(4);
+      expect(lesson.version).toBe(5);
       expect(lesson.updatedAt).toBe('2026-10-29');
       const propsCheck = lesson.blocks.find((block) => block.id === 'react-props-contract-check');
       expect(propsCheck?.type).toBe('knowledgeCheck');
