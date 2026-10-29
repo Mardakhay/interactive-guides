@@ -342,6 +342,47 @@ describe('structured content repository', () => {
     }
   });
 
+  it('assesses npm update separately from a frozen CI install in both locales', async () => {
+    const [english, russian] = await Promise.all([
+      getStructuredLesson('tooling.advanced-package-workflows', 'en'),
+      getStructuredLesson('tooling.advanced-package-workflows', 'ru'),
+    ]);
+    expect(english).toBeDefined();
+    expect(russian).toBeDefined();
+    if (!english || !russian) throw new Error('Bilingual advanced package workflow lesson is missing');
+
+    expect(english.version).toBe(3);
+    expect(russian.version).toBe(3);
+    expect(english.blocks).toHaveLength(18);
+    expect(russian.blocks).toHaveLength(18);
+    expect(english.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russian.blocks.map(({ id, type }) => ({ id, type })),
+    );
+
+    for (const lesson of [english, russian]) {
+      const commands = lesson.blocks.find((block) => block.id === 'pkg-commands');
+      expect(commands?.type).toBe('list');
+      if (commands?.type !== 'list') throw new Error('Package-manager command reference is missing');
+      const commandText = commands.items.join(' ').toLowerCase();
+      expect(commandText).toContain('npm update');
+      expect(commandText).toContain('lockfile');
+      expect(commandText).toMatch(/diff|изучи/);
+
+      const check = lesson.blocks.find((block) => block.id === 'pkg-update-range-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') throw new Error('npm update knowledge check is missing');
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['npm-update']);
+      expect(check.options.every((option) => option.feedback.trim().length > 45)).toBe(true);
+      expect(check.explanation).toContain('npm update');
+      expect(check.explanation).toMatch(lesson.locale === 'en' ? /lockfile diff/ : /diff lockfile/);
+
+      const references = lesson.blocks.find((block) => block.id === 'pkg-references');
+      expect(references?.type).toBe('references');
+      if (references?.type !== 'references') throw new Error('Package workflow references are missing');
+      expect(references.items.some((item) => item.url === 'https://docs.npmjs.com/cli/v11/commands/npm-update/')).toBe(true);
+    }
+  });
+
   it('provides a practical README walkthrough and deployment checklist in both locales', async () => {
     const [english, russian] = await Promise.all([
       getStructuredLesson('git.fundamentals', 'en'),
