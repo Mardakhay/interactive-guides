@@ -829,7 +829,7 @@ footer {
 
   <h3 class="sub">🟢 Asynchronous — Non-blocking Code</h3>
   <p class="prose">Asynchronous code lets JavaScript <strong>offload</strong> slow operations — timers, network requests, disk reads — to the browser's Web APIs. These run in the background (outside the JS thread). When they complete, a callback is queued and JavaScript picks it up later, when the main thread is free.</p>
-  <p class="prose">Crucially: <strong>JavaScript itself never truly runs in parallel.</strong> It's still single-threaded. The browser does the waiting on its behalf, and JavaScript comes back to handle the result.</p>
+  <p class="prose">On the main thread, ordinary JavaScript tasks run to completion one at a time. Async APIs can wait for timers or network activity without blocking that thread; this concurrency is not CPU-parallel execution of the main-thread callback. <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers" target="_blank" rel="noopener noreferrer">Web Workers</a> run JavaScript in separate threads and can execute work in parallel, but they communicate with the page via messages and cannot directly manipulate its DOM.</p>
   <div class="code-wrap">
     <span class="code-tag">js</span>
     <pre><span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'1 — Started'</span>);    <span class="cmt">// → Call Stack → runs immediately</span>
@@ -904,7 +904,7 @@ footer {
 <section class="section" id="eventloop">
   <div class="sec-label">Section 02</div>
   <h2>The Event Loop</h2>
-  <p class="intro">The Event Loop is JavaScript's concurrency model — the engine that makes async code possible without multi-threading. Understanding this deeply will explain every strange output order you ever see.</p>
+  <p class="intro">The Event Loop coordinates queued callbacks on the main thread, where ordinary JavaScript tasks run one at a time. Browser APIs and Web Workers have separate execution behavior; asynchronous waiting should not be confused with CPU-parallel work.</p>
 
   <h3 class="sub">The Five Components</h3>
   <p class="prose">JavaScript runtime has several distinct areas. Each plays a specific role:</p>
@@ -1246,12 +1246,12 @@ myPromise
     <div class="card accent-top green-top">
       <div class="card-label green">Promise.all()</div>
       <div class="card-title">All must succeed</div>
-      <div class="card-body">Runs ALL promises in parallel. Resolves with an array of all results — <strong>only when every single one resolves</strong>. If ANY one rejects, the whole thing rejects immediately and the other results are discarded. Use when you need every result and can't proceed without all of them.<br><br>Best for: loading all assets needed to render a page.</div>
+      <div class="card-body">Waits for all supplied Promises concurrently and fulfills with an array of results only when every input fulfills. The operations typically start when their Promises are created—not because Promise.all schedules synchronous JavaScript in parallel. If one rejects, the aggregate rejects immediately, but the other operations continue unless separately cancelled.<br><br>Best for: loading several independent resources before rendering.</div>
     </div>
     <div class="card accent-top orange-top">
       <div class="card-label orange">Promise.race()</div>
       <div class="card-title">First one wins</div>
-      <div class="card-body">Settles (resolves OR rejects) with whichever Promise settles first. The others are ignored. This is how you implement <strong>timeouts</strong>: race your request against a Promise that rejects after N seconds.<br><br>Best for: abort strategy — take fastest data source, implement request timeouts.</div>
+      <div class="card-body">Fulfills or rejects with the first input to settle, even if another input would later fulfill. The losing operations are not cancelled; their fetches, timers or other work can continue. A timeout race can settle the wrapper promise without cancelling the losing request or timer.<br><br>For a fetch timeout, use an <code>AbortController</code> signal and clear the timeout in a <code>finally</code> block when the request settles. See <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/race" target="_blank" rel="noopener noreferrer">MDN: Promise.race()</a>.<br><br>Best for: choosing the first settlement; add explicit cancellation and cleanup for timeouts.</div>
     </div>
     <div class="card accent-top purple-top">
       <div class="card-label purple">Promise.allSettled()</div>

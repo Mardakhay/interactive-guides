@@ -45,9 +45,9 @@ describe('js-003 legacy memory lesson accuracy and source parity', () => {
   });
 
   it('describes copy semantics, const and String wrappers without overclaiming runtime representation', () => {
-    expect(legacyMemoryHtml).toContain('Primitive values are immutable');
+    expect(legacyMemoryHtml).toContain('Primitive values themselves are immutable');
     expect(legacyMemoryHtml).toContain('JSON.parse(JSON.stringify())</code> is lossy');
-    expect(legacyMemoryHtml).toContain('Engine may share an internal representation');
+    expect(legacyMemoryHtml).toContain('how the engine optimizes its representation are implementation details');
     expect(legacyMemoryHtml).toContain('String wrapper object');
     expect(legacyMemoryHtml).toContain('String interning is an engine optimization, not a language guarantee');
     expect(legacyMemoryHtml).not.toContain('This predictability is what makes stack lightning fast.');

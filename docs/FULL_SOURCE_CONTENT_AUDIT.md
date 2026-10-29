@@ -1202,3 +1202,8 @@ See [JS002_SOURCE_PARITY.md](JS002_SOURCE_PARITY.md) for the source crosswalk an
 ## Focused js-003 memory source review — 2026-10-29
 
 See [JS003_SOURCE_PARITY.md](JS003_SOURCE_PARITY.md) for the EN/RU source crosswalk and the legacy corrections. The classic memory tutorial no longer presents stack/heap placement, byte counts, call-depth limits, fixed V8 heap sizes, string interning, hidden-class behavior or garbage-collection timing as portable JavaScript guarantees. Its teaching simulators remain intact and explicitly illustrative. Regression coverage lives in `src/content/legacyJsMemoryMastery.test.ts`; `js-003` remains **Blocked** until interaction parity, learner-state disposition, and native browser/accessibility evidence are reviewed.
+
+
+## Focused js-004 async-concurrency corrections — 2026-10-29
+
+See [JS004_SOURCE_PARITY.md](JS004_SOURCE_PARITY.md) for the section crosswalk and release decision. The legacy tutorial no longer claims that JavaScript never runs in parallel: it distinguishes one-at-a-time tasks on the main thread from Web Worker threads. Its Promise reference now explains that `Promise.all` aggregates concurrently running operations rather than scheduling synchronous CPU work in parallel, and that `Promise.race` does not cancel the losing request or timeout; fetch timeouts need explicit `AbortController` cancellation and timer cleanup. The updated `src/content/legacyAsyncFetchDemos.test.ts` protects these statements alongside the existing safe rendering of remote API responses. The `js-004` route remains **Blocked** because the original animations, live demos, quiz and learner-state disposition do not yet have parity/acceptance evidence.

@@ -397,13 +397,13 @@ describe('frontend authentication security and lifecycle', () => {
   it('covers status codes, JWT limits, OAuth roles and concurrent token refresh', () => {
     expect(lessonTranslationSchema.safeParse(englishAuth).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianAuth).success).toBe(true);
-    expect(englishAuth.version).toBe(4);
-    expect(englishAuth.blocks).toHaveLength(23);
+    expect(englishAuth.version).toBe(5);
+    expect(englishAuth.blocks).toHaveLength(25);
     expect(englishAuth.blocks.map(({ id, type }) => [id, type])).toEqual(
       russianAuth.blocks.map(({ id, type }) => [id, type]),
     );
     for (const lesson of [englishAuth, russianAuth]) {
-      for (const id of ['auth-http-status-check', 'auth-jwt-validation-check', 'auth-oauth-flow-check', 'auth-refresh-race-check']) {
+      for (const id of ['auth-http-status-check', 'auth-jwt-validation-check', 'auth-oauth-flow-check', 'auth-oauth-security-check', 'auth-refresh-race-check']) {
         const check = lesson.blocks.find((block) => block.id === id);
         expect(check?.type).toBe('knowledgeCheck');
         if (check?.type !== 'knowledgeCheck') return;
