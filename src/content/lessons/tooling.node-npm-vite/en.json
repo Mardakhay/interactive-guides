@@ -1,7 +1,7 @@
 {
   "id": "tooling.node-npm-vite",
   "locale": "en",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -24,7 +24,8 @@
     "Explain the roles of Vite, ESLint, and Prettier without treating them as interchangeable.",
     "Create a reproducible project setup and verify it using package scripts.",
     "Distinguish installing a dependency, running a package CLI with npx/npm exec, and scaffolding with npm create.",
-    "Choose the React + TypeScript Vite template and explain HMR behavior and its full-reload fallback."
+    "Choose the React + TypeScript Vite template and explain HMR behavior and its full-reload fallback.",
+    "Choose compatible dependency ranges and explain the roles of Vite's development server, ESLint and Prettier."
   ],
   "tags": [
     "nodejs",
@@ -76,6 +77,39 @@
       "id": "package-json-body",
       "type": "paragraph",
       "text": "package.json contains project metadata and configuration such as scripts, dependencies, development dependencies, and package constraints. A dependency is code the project needs. The distinction between dependencies and devDependencies is a practical classification for installation and packaging—not an absolute security boundary. Frontend build/test/lint tooling is commonly placed under devDependencies, while packages imported by the application at runtime are commonly dependencies."
+    },
+    {
+      "id": "dev-dependency-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which command declares ESLint as a development dependency in an npm project?",
+      "options": [
+        {
+          "id": "dev",
+          "text": "Use `npm install -D eslint` for a development-only tool.",
+          "correct": true,
+          "feedback": "Correct. `-D` is shorthand for `--save-dev`, which adds ESLint to devDependencies and updates the project's manifest/lockfile."
+        },
+        {
+          "id": "prod",
+          "text": "Use `npm install eslint` because every tool belongs in runtime dependencies.",
+          "correct": false,
+          "feedback": "Without `-D`, npm normally saves the package under dependencies; build/lint tooling is commonly classified under devDependencies."
+        },
+        {
+          "id": "global",
+          "text": "Use `npm install -g eslint` so each repository shares the same declared dependency.",
+          "correct": false,
+          "feedback": "A global install changes a machine-level environment but does not declare the project dependency or lock its version for teammates and CI."
+        },
+        {
+          "id": "npx",
+          "text": "Use `npx eslint` because it always records a permanent dependency.",
+          "correct": false,
+          "feedback": "npx/npm exec runs a CLI but does not automatically declare the tool as a lasting project dependency."
+        }
+      ],
+      "explanation": "Use a project dependency for tools the repository and CI must run reproducibly. `npm install -D` records an development dependency; npx is a command runner, not a replacement for declaring the tool."
     },
     {
       "id": "package-json-example",
@@ -141,6 +175,39 @@
       "id": "versions-body",
       "type": "paragraph",
       "text": "Exact versions, caret ranges such as ^1.2.3, and tilde ranges such as ~1.2.3 communicate different update policies. For normal stable semantic versions, caret generally permits compatible minor and patch updates within the same major, while tilde generally stays within the same minor. Prereleases and zero-major packages have important edge cases, so verify the actual range rather than relying on shorthand memory. npm, Yarn, and pnpm are package managers; a project should document and standardize one package manager and its lockfile rather than casually mixing them."
+    },
+    {
+      "id": "caret-range-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "For a normal stable release, what does the range `^1.2.3` generally permit?",
+      "options": [
+        {
+          "id": "compatible",
+          "text": "Compatible minor and patch updates within major version 1, but not version 2.x.",
+          "correct": true,
+          "feedback": "Correct. For a stable non-zero major version, caret typically allows compatible minor and patch changes while keeping the major version fixed."
+        },
+        {
+          "id": "patch-only",
+          "text": "Only patch updates such as 1.2.4; no minor update is allowed.",
+          "correct": false,
+          "feedback": "That is closer to the usual intent of a tilde range such as `~1.2.3`; caret generally permits compatible minor updates too."
+        },
+        {
+          "id": "all",
+          "text": "Any published version, including 2.x and later.",
+          "correct": false,
+          "feedback": "Caret is not a wildcard. It restricts updates under SemVer rules, though zero-major versions and prereleases have edge cases."
+        },
+        {
+          "id": "exact",
+          "text": "Only the exact version 1.2.3.",
+          "correct": false,
+          "feedback": "An exact pin is written without a caret or tilde; `^1.2.3` describes an allowed compatible range."
+        }
+      ],
+      "explanation": "Caret ranges express an update policy, not an exact lock. For stable versions with major greater than zero, `^1.2.3` normally allows compatible releases before 2.0.0; verify special cases for 0.x and prereleases."
     },
     {
       "id": "scripts",
@@ -268,6 +335,39 @@
       "text": "Vite provides a development server with fast feedback and a production build pipeline. During development it serves source modules and uses browser-native ES module support with transformation where needed. For production it bundles and optimizes assets. Vite is not the JavaScript runtime itself and is not a package manager; it uses Node and installed dependencies to perform its work."
     },
     {
+      "id": "vite-dev-server-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which explanation best describes how Vite can provide fast development feedback without claiming it is always faster than every other tool?",
+      "options": [
+        {
+          "id": "esm",
+          "text": "It serves source modules on demand through native ES modules, with dependency pre-bundling and transformations where needed.",
+          "correct": true,
+          "feedback": "Correct. This reduces the need to bundle the whole app before the server can respond, while Vite still performs work such as dependency optimization and source transformation."
+        },
+        {
+          "id": "full-bundle",
+          "text": "It rebuilds the complete production bundle before every browser request.",
+          "correct": false,
+          "feedback": "Vite separates its development server path from production bundling; it does not create a full production bundle for every request."
+        },
+        {
+          "id": "types",
+          "text": "It always runs a complete TypeScript type check in the browser before serving a module.",
+          "correct": false,
+          "feedback": "Vite transforms TypeScript for development but does not by itself replace a full type-check command such as `tsc`."
+        },
+        {
+          "id": "universal",
+          "text": "It is guaranteed to outperform every Webpack configuration on every project.",
+          "correct": false,
+          "feedback": "Performance depends on the project, plugins, dependency graph, and configuration. Avoid universal benchmark claims without measurements."
+        }
+      ],
+      "explanation": "Vite's development workflow serves modules on demand and transforms what is needed, while production build is a separate path. Actual performance should be evaluated for the configured project."
+    },
+    {
       "id": "vite-hmr-heading",
       "type": "heading",
       "level": 2,
@@ -321,6 +421,39 @@
       "id": "lint-format-body",
       "type": "paragraph",
       "text": "ESLint analyzes source code for configurable correctness, maintainability, and risky-pattern rules. Prettier formats source into a consistent layout according to its formatting rules. They can be used together: use ESLint to identify code patterns worth fixing and Prettier to normalize formatting. Formatting cannot prove that code is correct, and linting is not a replacement for tests or type checking."
+    },
+    {
+      "id": "lint-format-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which pairing correctly distinguishes ESLint from Prettier?",
+      "options": [
+        {
+          "id": "pair",
+          "text": "ESLint analyzes configured code patterns and potential problems; Prettier normalizes code formatting.",
+          "correct": true,
+          "feedback": "Correct. Their responsibilities can complement each other; neither tool proves that the product behavior is correct."
+        },
+        {
+          "id": "swap",
+          "text": "ESLint only formats whitespace; Prettier detects logic and correctness defects.",
+          "correct": false,
+          "feedback": "This swaps their typical roles: Prettier formats, while ESLint analyzes code against configured rules."
+        },
+        {
+          "id": "same",
+          "text": "They are interchangeable tools with identical behavior.",
+          "correct": false,
+          "feedback": "They overlap in some workflows but serve different primary purposes and can run together."
+        },
+        {
+          "id": "tests",
+          "text": "Prettier replaces TypeScript checking and unit tests.",
+          "correct": false,
+          "feedback": "Formatting does not validate types or runtime behavior; keep the checks as separate gates."
+        }
+      ],
+      "explanation": "Use each tool for its responsibility: static code-pattern analysis, consistent formatting, type checking, and tests are complementary rather than interchangeable."
     },
     {
       "id": "workflow",
