@@ -1065,6 +1065,27 @@ describe('Git workflow lesson translation', () => {
       expect(conflictExercise.requirements.length).toBeGreaterThanOrEqual(4);
       expect(conflictExercise.hints.length).toBeGreaterThanOrEqual(3);
       expect(conflictExercise.successCriteria.length).toBeGreaterThanOrEqual(4);
+      const labels = lesson.blocks.find((block) => block.id === 'review-comment-labels');
+      expect(labels?.type).toBe('list');
+      if (labels?.type !== 'list') throw new Error('Review comment labels are missing');
+      const labelText = labels.items.join(' ');
+      for (const label of ['BLOCKING', 'SUGGESTION', 'QUESTION', 'NITPICK']) {
+        expect(labelText).toContain(label);
+      }
+      expect(labelText).toMatch(/universal|universelle|универсальн/i);
+
+      const reviewQuiz = lesson.blocks.find((block) => block.id === 'review-comment-label-check');
+      expect(reviewQuiz?.type).toBe('knowledgeCheck');
+      if (reviewQuiz?.type !== 'knowledgeCheck') throw new Error('Review comment knowledge check is missing');
+      expect(reviewQuiz.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['blocking']);
+      expect(reviewQuiz.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
+      const reviewPractice = lesson.blocks.find((block) => block.id === 'review-comment-practice');
+      expect(reviewPractice?.type).toBe('codingExercise');
+      if (reviewPractice?.type !== 'codingExercise') throw new Error('Review comment practice is missing');
+      expect(reviewPractice.requirements.length).toBeGreaterThanOrEqual(5);
+      expect(reviewPractice.hints.length).toBeGreaterThanOrEqual(4);
+      expect(reviewPractice.successCriteria.length).toBeGreaterThanOrEqual(5);
     }
   });
 });
