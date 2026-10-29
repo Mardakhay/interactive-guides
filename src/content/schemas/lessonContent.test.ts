@@ -1053,7 +1053,7 @@ describe('Git workflow lesson translation', () => {
       for (const walkthrough of [mergeWalkthrough, rebaseWalkthrough]) {
         expect(walkthrough?.type).toBe('codeWalkthrough');
         if (walkthrough?.type !== 'codeWalkthrough') throw new Error('Conflict command walkthrough is missing');
-        const lineCount = walkthrough.code.split('\\n').length;
+        const lineCount = walkthrough.code.split(String.fromCharCode(10)).length;
         for (const step of walkthrough.steps) {
           expect(step.lineStart).toBeGreaterThan(0);
           expect(step.lineEnd).toBeLessThanOrEqual(lineCount);
