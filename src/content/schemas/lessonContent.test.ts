@@ -144,7 +144,7 @@ describe('HTML forms and accessibility lesson translation', () => {
     expect(russianForms.version).toBe(3);
     for (const lesson of [englishForms, russianForms]) {
       expect(lesson.updatedAt).toBe('2026-10-28');
-      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
       const specialized = lesson.blocks.find((block) => block.id === 'specialized-input-types-list');
       expect(specialized?.type).toBe('list');
       if (specialized?.type !== 'list') return;
@@ -410,12 +410,12 @@ describe('Node.js and project tooling lesson translation', () => {
     expect(englishTooling.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianTooling.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishTooling.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(englishTooling.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
     expect(russianTooling.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     expect(lessonTranslationSchema.safeParse(englishTooling).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianTooling).success).toBe(true);
-    expect(englishTooling.version).toBe(3);
-    expect(russianTooling.version).toBe(3);
+    expect(englishTooling.version).toBe(4);
+    expect(russianTooling.version).toBe(4);
     for (const lesson of [englishTooling, russianTooling]) {
       expect(lesson.updatedAt).toBe('2026-10-29');
       expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
@@ -423,7 +423,7 @@ describe('Node.js and project tooling lesson translation', () => {
       expect(walkthrough?.type).toBe('codeWalkthrough');
       if (walkthrough?.type !== 'codeWalkthrough') throw new Error('npm CLI walkthrough is missing');
       expect(walkthrough.code).toContain('npm exec -- vite --version');
-      expect(walkthrough.code).toContain('npm create vite@latest my-app');
+      expect(walkthrough.code).toContain('npm create vite@latest my-app -- --template react-ts');
       expect(walkthrough.code.split(String.fromCharCode(10))).toHaveLength(8);
       expect(walkthrough.steps.map(({ lineStart, lineEnd }) => [lineStart, lineEnd])).toEqual([[1, 2], [4, 5], [7, 8]]);
       const quiz = lesson.blocks.find((block) => block.id === 'npm-command-vs-exec-check');
@@ -432,11 +432,31 @@ describe('Node.js and project tooling lesson translation', () => {
       expect(quiz.questionType).toBe('single-choice');
       expect(quiz.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['cli']);
       expect(quiz.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
+      const templateCheck = lesson.blocks.find((block) => block.id === 'vite-template-check');
+      expect(templateCheck?.type).toBe('knowledgeCheck');
+      if (templateCheck?.type !== 'knowledgeCheck') throw new Error('Vite template question is missing');
+      expect(templateCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['react-ts']);
+      expect(templateCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
+      const hmrBody = lesson.blocks.find((block) => block.id === 'vite-hmr-body');
+      expect(hmrBody?.type).toBe('paragraph');
+      if (hmrBody?.type !== 'paragraph') throw new Error('HMR explanation is missing');
+      expect(hmrBody.text.toLowerCase()).toContain('hmr');
+      expect(hmrBody.text.toLowerCase()).toMatch(/reload|перезагрузки/);
+      const hmrCheck = lesson.blocks.find((block) => block.id === 'vite-hmr-check');
+      expect(hmrCheck?.type).toBe('knowledgeCheck');
+      if (hmrCheck?.type !== 'knowledgeCheck') throw new Error('HMR knowledge check is missing');
+      expect(hmrCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['hmr-precise']);
+      expect(hmrCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
       const refs = lesson.blocks.find((block) => block.id === 'references');
       expect(refs?.type).toBe('references');
       if (refs?.type !== 'references') throw new Error('tooling references are missing');
       expect(refs.items.some((item) => item.url === 'https://docs.npmjs.com/cli/v11/commands/npm-exec')).toBe(true);
       expect(refs.items.some((item) => item.url === 'https://docs.npmjs.com/cli/v11/commands/npm-init')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://vite.dev/guide/features.html')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://vite.dev/guide/troubleshooting.html')).toBe(true);
     }
   });
 });
