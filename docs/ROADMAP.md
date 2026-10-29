@@ -714,3 +714,13 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 - [x] Verify source/content/test checkpoint `b9a59af8780e3dd6f9f2187cc70dc4c022ad288e` in [CI #40842019192](https://github.com/Mardakhay/interactive-guides/actions/runs/40842019192): 37 test files / 230 tests, lint, typecheck, production build, 125 JavaScript chunks within budgets, zero reported npm audit advisories and production-preview smoke.
 - [ ] Keep `tl-002` **Blocked**: the branch canvas, tabs, click-to-inject seven-stage simulator and original sequential quiz scoring/restart UI are not reproduced one-to-one. Do not treat concept checks as interactive source equivalence.
 - [ ] Keep real-browser/device, screen-reader, mobile/offline/PWA and learner-state-retention acceptance open. No route redirection, HTML deletion, data fan-out or Supabase cutover is approved by this content batch.
+
+
+## Git Reference Guide safe-rebase operational parity — 2026-10-29
+
+- [x] Re-read the legacy `public/lessons/git-reference.html` Rebase section and compare it with the existing `git.fundamentals` EN/RU lesson. The old source explains merge vs rebase and warns that rebase rewrites history, but the structured lesson lacked a focused safe update sequence.
+- [x] Upgrade `git.fundamentals` EN/RU to v9 with 61 aligned blocks, 8 knowledge checks and 7 code walkthroughs per locale. Add a command-level flow for `git status`, `git fetch origin`, switching to an owned feature branch, `git rebase origin/main`, conditional conflict resolution and `git rebase --continue`; explain `git rebase --abort` as the alternative when the active rebase cannot be resolved safely.
+- [x] Add the scored rebase-safety check, answer/feedback and walkthrough line-range regression assertions, update the repository-level version expectations, and add the official `git-rebase` documentation reference.
+- [x] Exact content/test checkpoint `caf410e47427e62cc3c409b0e89f9a4a50f6b54f` passed [CI #40842971009](https://github.com/Mardakhay/interactive-guides/actions/runs/40842971009): 37 test files / 230 tests, lint, typecheck, production build, 125 JS chunks within budgets, zero reported npm audit advisories and preview smoke.
+- [ ] Keep `tl-001` **Blocked**: original search/copy/sidebar/accordion/quick-reference presentation and interaction behavior are not replicated one-to-one.
+- [ ] Keep real-browser/device, mobile, keyboard/screen-reader, install/offline/PWA and learner-state-retention acceptance open; content parity alone is not approval for redirects, HTML deletion or state migration.
