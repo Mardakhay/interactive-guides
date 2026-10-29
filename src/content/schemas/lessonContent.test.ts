@@ -848,10 +848,10 @@ describe('React API and custom hooks lesson translation', () => {
       expect(refs.items.some((item) => item.url === 'https://react.dev/reference/react/useEffect')).toBe(true);
       expect(refs.items.some((item) => item.url === 'https://www.typescriptlang.org/docs/handbook/2/generics.html')).toBe(true);
     }
-    expect(englishApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
-    expect(russianApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
-    expect(englishApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
-    expect(russianApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
+    expect(russianApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
+    expect(russianApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(englishApiHooks.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
         'api-fetch-axios-body',
