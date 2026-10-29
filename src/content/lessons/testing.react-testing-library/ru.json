@@ -195,25 +195,25 @@
       "options": [
         {
           "id": "query-by-role",
-          "text": "`expect(screen.queryByRole(\"status\")).toBeNull()`",
+          "text": "`expect(screen.queryByRole(\"status\")).toBeNull()` — проверить отсутствие",
           "correct": true,
           "feedback": "Верно. `queryByRole` возвращает null, когда совпадающего элемента нет, поэтому подходит для проверки отсутствия."
         },
         {
           "id": "get-by-role",
-          "text": "`expect(screen.getByRole(\"status\")).toBeNull()`",
+          "text": "`expect(screen.getByRole(\"status\")).toBeNull()` — здесь getBy выбросит исключение",
           "correct": false,
           "feedback": "`getByRole` сразу выбрасывает исключение, если совпадений нет, поэтому assertion не получает значение null для сравнения."
         },
         {
           "id": "find-by-role",
-          "text": "`expect(screen.findByRole(\"status\")).toBeNull()`",
+          "text": "`expect(screen.findByRole(\"status\")).toBeNull()` — findBy ожидает появления элемента",
           "correct": false,
           "feedback": "`findByRole` возвращает promise и ждёт появления элемента; это проверка будущего появления, а не немедленного отсутствия."
         },
         {
           "id": "get-all-by-role",
-          "text": "`expect(screen.getAllByRole(\"status\")).toHaveLength(0)`",
+          "text": "`expect(screen.getAllByRole(\"status\")).toHaveLength(0)` — getAll выбросит исключение",
           "correct": false,
           "feedback": "`getAllByRole` выбрасывает исключение, если совпадений нет. Используй queryBy, когда ожидаемое состояние — отсутствие."
         }
