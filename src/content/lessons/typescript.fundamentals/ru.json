@@ -1,7 +1,7 @@
 {
   "id": "typescript.fundamentals",
   "locale": "ru",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-29",
@@ -626,6 +626,39 @@
         }
       ],
       "explanation": "Utility types задают преобразования только на этапе проверки типов. Они не меняют значения и не валидируют сетевые payload."
+    },
+    {
+      "id": "partial-utility-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Какой utility type TypeScript делает каждое свойство существующего object type необязательным?",
+      "options": [
+        {
+          "id": "partial",
+          "text": "`Partial<T>` делает каждое свойство T необязательным в результирующем типе.",
+          "correct": true,
+          "feedback": "Верно. Partial — это mapped utility type на этапе проверки типов. Он не изменяет объект во время выполнения и не добавляет runtime-валидацию."
+        },
+        {
+          "id": "omit",
+          "text": "`Omit<T, K>` делает все свойства необязательными и сохраняет все ключи.",
+          "correct": false,
+          "feedback": "Omit удаляет выбранные ключи K из результирующего типа; он не делает оставшиеся свойства необязательными."
+        },
+        {
+          "id": "pick",
+          "text": "`Pick<T, K>` делает каждое свойство необязательным и сохраняет весь тип.",
+          "correct": false,
+          "feedback": "Pick выбирает подмножество ключей K; именно Partial добавляет необязательность свойств."
+        },
+        {
+          "id": "record",
+          "text": "`Record<K, V>` отмечает все свойства существующего типа как необязательные.",
+          "correct": false,
+          "feedback": "Record создаёт тип с ключами K и значениями V. Он не преобразует свойства существующего типа в optional."
+        }
+      ],
+      "explanation": "`Partial<T>` делает все свойства T необязательными на уровне типов. Он не изменяет runtime-значения и не валидирует внешние данные."
     },
     {
       "id": "utility-types-practice",
