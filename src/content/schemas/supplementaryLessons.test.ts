@@ -518,12 +518,28 @@ describe('Advanced package workflow toolchain coverage', () => {
   it('separates bundling, transformation, checking, and test-runner responsibilities', () => {
     expect(lessonTranslationSchema.safeParse(englishAdvancedTooling).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianAdvancedTooling).success).toBe(true);
-    expect(englishAdvancedTooling.version).toBe(2);
-    expect(englishAdvancedTooling.blocks).toHaveLength(17);
+    expect(englishAdvancedTooling.version).toBe(3);
+    expect(russianAdvancedTooling.version).toBe(3);
+    expect(englishAdvancedTooling.blocks).toHaveLength(18);
+    expect(russianAdvancedTooling.blocks).toHaveLength(18);
     expect(englishAdvancedTooling.blocks.map(({ id, type }) => [id, type])).toEqual(
       russianAdvancedTooling.blocks.map(({ id, type }) => [id, type]),
     );
     for (const lesson of [englishAdvancedTooling, russianAdvancedTooling]) {
+      const updateRangeCheck = lesson.blocks.find((block) => block.id === 'pkg-update-range-check');
+      expect(updateRangeCheck?.type).toBe('knowledgeCheck');
+      if (updateRangeCheck?.type !== 'knowledgeCheck') return;
+      expect(updateRangeCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['npm-update']);
+      expect(updateRangeCheck.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+      expect(updateRangeCheck.explanation).toContain('npm update');
+      expect(updateRangeCheck.prompt).toMatch(lesson.locale === 'en' ? /SemVer ranges/ : /SemVer-диапазонах/);
+
+      const packageReferences = lesson.blocks.find((block) => block.id === 'pkg-references');
+      expect(packageReferences?.type).toBe('references');
+      if (packageReferences?.type === 'references') {
+        expect(packageReferences.items.some((item) => item.url === 'https://docs.npmjs.com/cli/v11/commands/npm-update/')).toBe(true);
+      }
+
       const workflow = lesson.blocks.find((block) => block.id === 'pkg-toolchain-walkthrough');
       expect(workflow?.type).toBe('codeWalkthrough');
       if (workflow?.type !== 'codeWalkthrough') return;
