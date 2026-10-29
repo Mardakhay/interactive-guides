@@ -494,15 +494,17 @@ describe('Node.js and project tooling lesson translation', () => {
     expect(englishTooling.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianTooling.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishTooling.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
+    expect(englishTooling.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(12);
     expect(russianTooling.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     expect(lessonTranslationSchema.safeParse(englishTooling).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianTooling).success).toBe(true);
-    expect(englishTooling.version).toBe(5);
-    expect(russianTooling.version).toBe(5);
+    expect(englishTooling.version).toBe(6);
+    expect(englishTooling.blocks).toHaveLength(52);
+    expect(russianTooling.blocks).toHaveLength(52);
+    expect(russianTooling.version).toBe(6);
     for (const lesson of [englishTooling, russianTooling]) {
       expect(lesson.updatedAt).toBe('2026-10-29');
-      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
+      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(12);
       const walkthrough = lesson.blocks.find((block) => block.id === 'npm-command-vs-exec-walkthrough');
       expect(walkthrough?.type).toBe('codeWalkthrough');
       if (walkthrough?.type !== 'codeWalkthrough') throw new Error('npm CLI walkthrough is missing');
@@ -534,6 +536,23 @@ describe('Node.js and project tooling lesson translation', () => {
       expect(hmrCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['hmr-precise']);
       expect(hmrCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
 
+      const configWalkthrough = lesson.blocks.find((block) => block.id === 'vite-config-alias-proxy-walkthrough');
+      expect(configWalkthrough?.type).toBe('codeWalkthrough');
+      if (configWalkthrough?.type !== 'codeWalkthrough') throw new Error('Vite config walkthrough is missing');
+      expect(configWalkthrough.code).toContain("fileURLToPath(new URL('./src', import.meta.url))");
+      expect(configWalkthrough.code).toContain('port: 4000');
+      expect(configWalkthrough.code).toContain('open: true');
+      expect(configWalkthrough.code).toContain("'/api': { target: 'http://localhost:3001', changeOrigin: true }");
+      expect(configWalkthrough.code.split(String.fromCharCode(10))).toHaveLength(21);
+      expect(configWalkthrough.steps.map(({ lineStart, lineEnd }) => [lineStart, lineEnd])).toEqual([[1, 6], [8, 12], [14, 21]]);
+
+      const configCheck = lesson.blocks.find((block) => block.id === 'vite-proxy-dev-only-check');
+      expect(configCheck?.type).toBe('knowledgeCheck');
+      if (configCheck?.type !== 'knowledgeCheck') throw new Error('Vite proxy development-only check is missing');
+      expect(configCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['dev-only']);
+      expect(configCheck.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+      expect(configCheck.explanation).toMatch(lesson.locale === 'en' ? /production routing/i : /production-маршрутизац/i);
+
       const expectedToolingChecks = [
         ['dev-dependency-check', 'dev'],
         ['caret-range-check', 'compatible'],
@@ -555,6 +574,8 @@ describe('Node.js and project tooling lesson translation', () => {
       expect(refs.items.some((item) => item.url === 'https://docs.npmjs.com/cli/v11/commands/npm-init')).toBe(true);
       expect(refs.items.some((item) => item.url === 'https://vite.dev/guide/features.html')).toBe(true);
       expect(refs.items.some((item) => item.url === 'https://vite.dev/guide/troubleshooting.html')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://vite.dev/config/')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://vite.dev/config/server-options')).toBe(true);
     }
   });
 });

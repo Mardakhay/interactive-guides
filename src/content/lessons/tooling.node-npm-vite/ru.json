@@ -1,7 +1,7 @@
 {
   "id": "tooling.node-npm-vite",
   "locale": "ru",
-  "version": 5,
+  "version": 6,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-29",
@@ -412,6 +412,76 @@
       "explanation": "HMR пытается заменить изменённые модули в работающем dev-приложении. Если обновление невозможно безопасно обработать, полной перезагрузки может не избежать; изучи диагностику."
     },
     {
+      "id": "vite-config-alias-proxy-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Настрой alias и API-proxy для разработки в Vite"
+    },
+    {
+      "id": "vite-config-alias-proxy-body",
+      "type": "paragraph",
+      "text": "Размести `vite.config.ts` в корне проекта и используй его для настроек Vite, связанных с разработкой и сборкой. В примере подключается React plugin, alias `@` указывает на локальный каталог `src`, dev-сервер открывается на порту 4000 и пересылает запросы `/api` локальному backend на порту 3001. `resolve.alias` настраивает разрешение модулей самим Vite; если TypeScript и редактору также нужно разрешать импорты с `@/`, продублируй mapping в `compilerOptions.paths` соответствующего `tsconfig.json`. `server.proxy` — возможность dev-сервера: она не настраивает reverse proxy или маршрутизацию API на production-хостинге. Скрипты `lint`, `build` и `test` задаются в `package.json`; проверь `npm run` и согласуй команды с инструментами, реально установленными в репозитории."
+    },
+    {
+      "id": "vite-config-alias-proxy-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "import { defineConfig } from 'vite';\nimport react from '@vitejs/plugin-react';\nimport { fileURLToPath, URL } from 'node:url';\n\nexport default defineConfig({\n  plugins: [react()],\n\n  resolve: {\n    alias: {\n      '@': fileURLToPath(new URL('./src', import.meta.url)),\n    },\n  },\n\n  server: {\n    port: 4000,\n    open: true,\n    proxy: {\n      '/api': { target: 'http://localhost:3001', changeOrigin: true },\n    },\n  },\n});",
+      "steps": [
+        {
+          "title": "Подключи Vite и React plugin",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "Это ESM-конфигурация `vite.config.ts`. React plugin подключается и регистрируется, чтобы Vite обрабатывал исходники React."
+        },
+        {
+          "title": "Настрой alias для исходников",
+          "lineStart": 8,
+          "lineEnd": 12,
+          "explanation": "Alias направляет `@` в каталог `src` относительно файла конфигурации. Для разрешения импортов редактором и TypeScript может понадобиться такой же mapping в `compilerOptions.paths`."
+        },
+        {
+          "title": "Настрой локальную разработку",
+          "lineStart": 14,
+          "lineEnd": 21,
+          "explanation": "Dev-сервер использует порт 4000, открывает браузер и пересылает совпадающие пути `/api` локальному backend. Эта настройка относится к серверу Vite; production-маршрутизацию нужно настроить отдельно."
+        }
+      ]
+    },
+    {
+      "id": "vite-proxy-dev-only-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Приложение использует `server.proxy` в Vite, чтобы пересылать запросы `/api` на `http://localhost:3001`. Что важно учесть при production-развёртывании?",
+      "options": [
+        {
+          "id": "dev-only",
+          "text": "Это правило работает для dev-сервера Vite; маршрутизацию production нужно настроить на реальном хостинге или backend",
+          "correct": true,
+          "feedback": "Верно. В документации Vite `server.proxy` относится к dev-серверу. Production-хостингу нужна собственная конфигурация reverse proxy или API-маршрутизации, если такое поведение требуется."
+        },
+        {
+          "id": "auto-production",
+          "text": "Vite встраивает localhost proxy в production bundle и автоматически перенаправляет пользователей на порт 3001",
+          "correct": false,
+          "feedback": "Proxy-конфигурация dev-сервера не превращается автоматически в правило маршрутизации production-хостинга."
+        },
+        {
+          "id": "alias-controls-api",
+          "text": "Запись `resolve.alias` определяет, на какой host попадут сетевые запросы к `/api`",
+          "correct": false,
+          "feedback": "Module alias управляет разрешением импортов при build/dev, а не маршрутизацией HTTP-запросов."
+        },
+        {
+          "id": "open-controls-host",
+          "text": "`server.open: true` заставляет браузер каждого пользователя открыть production-сайт после deploy",
+          "correct": false,
+          "feedback": "Опция `open` управляет запуском браузера при старте локального Vite-сервера, а не поведением приложения после развёртывания."
+        }
+      ],
+      "explanation": "Разделяй разрешение импортов, поведение локального dev-сервера и production-маршрутизацию. После deployment проверь конфигурацию хостинга для API, а не предполагай, что `server.proxy` доступен в production."
+    },
+    {
       "id": "lint-format",
       "type": "heading",
       "level": 2,
@@ -815,6 +885,16 @@
         {
           "title": "Документация Vite: диагностика HMR и полной перезагрузки",
           "url": "https://vite.dev/guide/troubleshooting.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vite Config Reference",
+          "url": "https://vite.dev/config/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vite Server Options",
+          "url": "https://vite.dev/config/server-options",
           "kind": "official-docs"
         }
       ]
