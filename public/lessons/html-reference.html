@@ -445,7 +445,7 @@
 <span class="ht">&lt;/html&gt;</span></pre>
         </div>
         <div class="card-grid">
-          <div class="card"><div class="ci">📋</div><h3>&lt;!DOCTYPE html&gt;</h3><p>Declares the document type. Always the very first line — tells browsers to use HTML5 mode.</p></div>
+          <div class="card"><div class="ci">📋</div><h3>&lt;!DOCTYPE html&gt;</h3><p>Declares the document type and triggers standards mode in browsers. Place it before the root `<html>` element; it is normally the first line after any optional comments.</p></div>
           <div class="card"><div class="ci">🌐</div><h3>&lt;html lang="en"&gt;</h3><p>Root element of the page. The <code>lang</code> attribute helps browsers and screen readers with language.</p></div>
           <div class="card"><div class="ci">🧠</div><h3>&lt;head&gt;</h3><p>Contains metadata: title, charset, viewport, linked CSS/JS. Not visible to users.</p></div>
           <div class="card"><div class="ci">👁️</div><h3>&lt;body&gt;</h3><p>Everything inside here is rendered and shown to users in the browser window.</p></div>
@@ -468,7 +468,7 @@
 
       <div class="sub">
         <div class="sub-title">Headings h1–h6</div>
-        <div class="prose">HTML offers six levels of headings. <code>&lt;h1&gt;</code> is the most important (largest) and <code>&lt;h6&gt;</code> the least. Use only <strong>one &lt;h1&gt; per page</strong> for SEO.</div>
+        <div class="prose">HTML offers six heading levels. <code>&lt;h1&gt;</code> is the top-level heading and <code>&lt;h6&gt;</code> the lowest; choose levels to reflect the document hierarchy, not the font size. A single clear <code>&lt;h1&gt;</code> is a useful convention for the page topic, but it is not an SEO requirement or a substitute for meaningful content.</div>
         <div class="demo-wrap">
           <div class="demo-head">
             <div style="display:flex;gap:5px;"><div style="width:7px;height:7px;border-radius:50%;background:var(--green)"></div><span>LIVE PREVIEW</span></div>
@@ -620,7 +620,7 @@
           <span class="attr">download — force download</span>
           <span class="attr">title — tooltip text</span>
         </div>
-        <div class="info-box warn"><div class="ib-title">⚠️ Security</div><p>Always add <code>rel="noopener noreferrer"</code> when using <code>target="_blank"</code> to prevent the new page from accessing your page via <code>window.opener</code>.</p></div>
+        <div class="info-box warn"><div class="ib-title">⚠️ Security</div><p>Modern browsers generally give links with <code>target="_blank"</code> the same opener isolation as <code>rel="noopener"</code>. An explicit <code>rel="noopener"</code> can make intent clear; adding <code>noreferrer</code> also suppresses the HTTP Referer header, so choose it when that privacy trade-off is intended.</p></div>
       </div>
 
       <div class="sub">
@@ -643,7 +643,7 @@
           <span class="attr">loading="lazy"</span>
           <span class="attr">srcset — responsive images</span>
         </div>
-        <div class="info-box tip"><div class="ib-title">✅ Always use alt text</div><p>The <code>alt</code> attribute is essential for accessibility and SEO. Describe what the image shows. Use <code>alt=""</code> for purely decorative images.</p></div>
+        <div class="info-box tip"><div class="ib-title">✅ Always use alt text</div><p>Choose <code>alt</code> text by the image's purpose in context: informative images need a concise alternative conveying their essential information or function, while purely decorative images should use <code>alt=""</code>. Do not stuff keywords into alt text or assume it guarantees search ranking.</p></div>
       </div>
     </div>
   </section>
@@ -761,9 +761,9 @@
           <thead><tr><th>Attribute</th><th>Description</th></tr></thead>
           <tbody>
             <tr><td>action="/url"</td><td>Where the form data is sent on submit</td></tr>
-            <tr><td>method="POST"</td><td>HTTP method: POST (safe) or GET (visible in URL)</td></tr>
+            <tr><td>method="GET" / "POST"</td><td>GET appends form values to the URL and suits read-only searches without secrets; POST sends form data in the request body and is often used for changes. Neither method alone provides confidentiality or authorization.</td></tr>
             <tr><td>name="field"</td><td>Key name used in the submitted data</td></tr>
-            <tr><td>placeholder</td><td>Hint text shown inside the empty input</td></tr>
+            <tr><td>placeholder</td><td>Optional example or hint; it disappears/changes as the field is filled and is not a replacement for a visible, associated label</td></tr>
             <tr><td>required</td><td>Browser will refuse to submit without a value</td></tr>
             <tr><td>disabled</td><td>Makes field non-interactive</td></tr>
             <tr><td>readonly</td><td>Value shown but not editable</td></tr>
@@ -801,7 +801,7 @@
   <section id="sec-inputs" class="section">
     <div class="sec-head">
       <h2 class="sec-title">Input <em>Types</em></h2>
-      <p class="sec-desc">HTML5 introduced many new input types that provide built-in validation and mobile-friendly keyboards.</p>
+      <p class="sec-desc">HTML provides input types that can offer built-in constraint validation and a more suitable input UI on some devices. The exact keyboard and picker behavior varies by browser and operating system, and client-side validation never replaces server-side validation.</p>
     </div>
     <div class="sec-body">
       <table class="tag-table">
@@ -896,7 +896,7 @@
             <span class="acc-arrow">▼</span>
           </div>
           <div class="acc-b">
-            <p class="prose">The dominant content of the page. Only <strong>one &lt;main&gt;</strong> per page. Does not include repeated elements like headers or footers.</p>
+            <p class="prose">The page's dominant content, excluding repeated site-wide regions such as navigation and footers. Use at most one non-hidden <code>&lt;main&gt;</code> per document so assistive technologies can identify one main landmark; keep repeated content outside it.</p>
             <div class="codeblock"><div class="cb-head"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">HTML</span></div><pre><span class="ht">&lt;main&gt;</span>
   <span class="ht">&lt;h1&gt;</span>Page Title<span class="ht">&lt;/h1&gt;</span>
   <span class="ht">&lt;section&gt;</span>...<span class="ht">&lt;/section&gt;</span>
@@ -963,7 +963,7 @@
 
       <div class="info-box tip" style="margin-top:8px;">
         <div class="ib-title">✅ Semantic HTML vs &lt;div&gt; Soup</div>
-        <p>Using meaningful tags like <code>&lt;article&gt;</code> and <code>&lt;nav&gt;</code> instead of endless <code>&lt;div&gt;</code>s makes your code easier to read, helps screen readers, and improves search engine rankings.</p>
+        <p>Meaningful elements such as <code>&lt;article&gt;</code> and <code>&lt;nav&gt;</code> communicate the purpose of content and help assistive technologies identify structure and landmarks. They also make markup easier to maintain, but semantic tags alone do not guarantee higher search rankings.</p>
       </div>
     </div>
   </section>
@@ -1007,10 +1007,10 @@
           <div class="cb-head"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">HTML</span><button class="copy-btn">COPY</button></div>
           <pre><span class="ht">&lt;iframe</span> <span class="ha">src</span>=<span class="hv">"https://example.com"</span> <span class="ha">width</span>=<span class="hv">"600"</span> <span class="ha">height</span>=<span class="hv">"400"</span>
         <span class="ha">title</span>=<span class="hv">"Embedded content"</span> <span class="ha">loading</span>=<span class="hv">"lazy"</span>
-        <span class="ha">sandbox</span>=<span class="hv">"allow-scripts allow-same-origin"</span><span class="ht">&gt;</span>
+        <span class="ha">sandbox</span><span class="ht">&gt;</span>
 <span class="ht">&lt;/iframe&gt;</span></pre>
         </div>
-        <div class="info-box warn"><div class="ib-title">⚠️ iFrame Security</div><p>Use the <code>sandbox</code> attribute to restrict what the embedded content can do. Never embed untrusted sources without it.</p></div>
+        <div class="info-box warn"><div class="ib-title">⚠️ iFrame Security</div><p>The <code>sandbox</code> attribute is a defense-in-depth boundary: start with the fewest permissions and grant only the capabilities the embed actually needs. Do not casually combine <code>allow-scripts</code> and <code>allow-same-origin</code> for untrusted same-origin content, because the frame may be able to remove its own sandbox. For higher-risk content, use a separate origin and test the required interactions.</p></div>
       </div>
     </div>
   </section>

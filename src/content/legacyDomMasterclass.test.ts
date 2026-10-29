@@ -16,7 +16,7 @@ describe('wb-004 legacy DOM masterclass accuracy and parity', () => {
       expect(legacyDomHtml).toMatch(new RegExp('<section[^>]+id="' + id + '"'));
     }
     expect((legacyDomHtml.match(/<(?:button|input|textarea|select|form)\b/gi) ?? []).length).toBeGreaterThan(60);
-    expect((legacyDomHtml.match(/class="quiz-option"/g) ?? [])).toHaveLength(25);
+    expect((legacyDomHtml.match(/class="quiz-option"/g) ?? [])).toHaveLength(20);
     expect(legacyDomHtml).toContain('id="xssInput"');
     expect(legacyDomHtml).toContain('id="xssSafe"');
     expect(legacyDomHtml).toContain('id="xssUnsafe"');

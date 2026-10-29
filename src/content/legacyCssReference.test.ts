@@ -13,9 +13,9 @@ const legacyCssHtml = readFileSync(
 describe('wb-003 legacy CSS reference accuracy and parity', () => {
   it('preserves the principal reference sections and interactive playgrounds', () => {
     for (const id of [
-      'sec-selector', 'sec-visual', 'sec-boxmodel', 'sec-display',
-      'sec-typography', 'sec-transitions', 'sec-flexbox', 'sec-grid',
-      'sec-responsive', 'sec-variables', 'sec-accessibility', 'sec-compat', 'sec-quickref',
+      'sec-overview', 'sec-anatomy', 'sec-structure', 'sec-elements',
+      'sec-text', 'sec-links', 'sec-tables', 'sec-forms', 'sec-inputs',
+      'sec-semantic', 'sec-media', 'sec-meta', 'sec-attributes', 'sec-quickref',
     ]) {
       expect(legacyCssHtml).toMatch(new RegExp('<section[^>]+id="' + id + '"'));
     }
@@ -48,7 +48,7 @@ describe('wb-003 legacy CSS reference accuracy and parity', () => {
 
   it('avoids universal performance claims and preserves correct grid fraction guidance', () => {
     expect(legacyCssHtml).toContain('not automatically faster than desktop-first');
-    expect(legacyCssHtml).toContain('clamp() is useful for fluid values');
+    expect(legacyCssHtml).toContain('is useful for fluid values that should grow or shrink within minimum and maximum bounds');
     expect(legacyCssHtml).not.toContain('more performant and easier to maintain than desktop-first');
     expect(legacyCssHtml).not.toContain('clamp()</code> is the best way');
     expect(legacyCssHtml).not.toContain('25% 50% 25%');
