@@ -484,16 +484,21 @@ describe('TypeScript fundamentals lesson translation', () => {
     expect(englishTypeScript.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianTypeScript.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishTypeScript.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(englishTypeScript.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
     expect(russianTypeScript.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     for (const lesson of [englishTypeScript, russianTypeScript]) {
-      expect(lesson.version).toBe(3);
+      expect(lesson.version).toBe(4);
       expect(lesson.updatedAt).toBe('2026-10-29');
       const strictCheck = lesson.blocks.find((block) => block.id === 'strict-mode-check');
       expect(strictCheck?.type).toBe('knowledgeCheck');
       if (strictCheck?.type !== 'knowledgeCheck') throw new Error('TypeScript strict-mode check is missing');
       expect(strictCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['checks']);
       expect(strictCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const partialCheck = lesson.blocks.find((block) => block.id === 'partial-utility-check');
+      expect(partialCheck?.type).toBe('knowledgeCheck');
+      if (partialCheck?.type !== 'knowledgeCheck') throw new Error('Partial utility check is missing');
+      expect(partialCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['partial']);
+      expect(partialCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
       const refs = lesson.blocks.find((block) => block.type === 'references');
       expect(refs?.type).toBe('references');
       if (refs?.type !== 'references') throw new Error('TypeScript references are missing');
