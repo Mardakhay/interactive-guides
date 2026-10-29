@@ -804,7 +804,7 @@ describe('DOM and events lesson translation', () => {
         const walkthrough = lesson.blocks.find((block) => block.id === id);
         expect(walkthrough?.type).toBe('codeWalkthrough');
         if (walkthrough?.type !== 'codeWalkthrough') return;
-        const lineCount = walkthrough.code.split('\n').length;
+        const lineCount = walkthrough.code.split(String.fromCharCode(10)).length;
         expect(walkthrough.steps.every((step) => (step.lineEnd ?? 1) <= lineCount)).toBe(true);
       }
       const traversal = lesson.blocks.find((block) => block.id === 'dom-traversal-walkthrough');
