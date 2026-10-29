@@ -101,6 +101,16 @@ describe("tl-003 legacy tooling lesson parity and accuracy", () => {
     expect(q19).toContain("Vitest's vi.fn()");
   });
 
+  it("avoids overgeneralized Vite and shared-type-location claims", () => {
+    const viteSection = sectionBetween(legacyIntroHtml, "<!-- Vite -->", "<!-- ESLint -->");
+    expect(viteSection).toContain("dependency graph, plugins, and configuration");
+    expect(viteSection).toContain("Vite 5: Rollup; Vite 8: Rolldown");
+    expect(viteSection).not.toContain("regardless of project size");
+
+    const q16 = sectionBetween(legacyIntroHtml, "<!-- Q16 -->", '<div class="chapter-complete">');
+    expect(q16).toContain("no single folder convention is universal");
+  });
+
   it("uses an ESM-safe alias path in legacy Exercise 10", () => {
     const exercise10 = sectionBetween(legacyIntroHtml, "<!-- Exercise 10 -->", "<!-- COMPLETION BANNER -->");
     expect(exercise10).toContain("fileURLToPath(");
