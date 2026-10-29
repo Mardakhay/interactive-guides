@@ -19,6 +19,7 @@ export default function StructuredLessonPage() {
   const { locale: localeParam, lessonId } = useParams<{ locale: string; lessonId: string }>();
   const readingProgressRoot = useRef<HTMLDivElement | null>(null);
   const [readingProgress, setReadingProgress] = useState(0);
+  const [outlineQuery, setOutlineQuery] = useState('');
   const isLocaleSupported = isSupportedLocale(localeParam);
   const locale: SupportedLocale = isLocaleSupported ? localeParam : 'en';
   const requestKey = `${localeParam ?? ''}:${lessonId ?? ''}`;
@@ -113,6 +114,7 @@ export default function StructuredLessonPage() {
         review: 'Пилотный материал · проходит проверку',
         outcomes: 'После урока ты сможешь',
         outline: 'Содержание урока',
+        searchSections: 'Поиск по разделам',
         readingProgress: 'Прогресс чтения',
         sectionsReadCount: 'Разделов отмечено прочитанными',
         sectionsReadSummary: 'Отмечено прочитанными',
@@ -143,6 +145,7 @@ export default function StructuredLessonPage() {
         review: 'Pilot content · under review',
         outcomes: 'By the end of this lesson, you will be able to',
         outline: 'Lesson outline',
+        searchSections: 'Search sections',
         readingProgress: 'Reading progress',
         sectionsReadCount: 'Sections marked read',
         sectionsReadSummary: 'Marked read',
@@ -315,15 +318,21 @@ export default function StructuredLessonPage() {
         <aside className="min-w-0 lg:sticky lg:top-20 lg:self-start">
           <details className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-subtle lg:hidden">
             <summary className="cursor-pointer list-none text-sm font-semibold text-neutral-900">{copy.outline}</summary>
-            <nav aria-label={copy.outline} className="mt-3">
-              <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} />
-            </nav>
+            <div className="mt-3">
+              <OutlineSearch id="outline-search-mobile" query={outlineQuery} onQueryChange={setOutlineQuery} label={copy.searchSections} />
+              <nav aria-label={copy.outline}>
+                <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} query={outlineQuery} />
+              </nav>
+            </div>
           </details>
           <div className="hidden rounded-2xl border border-neutral-200 bg-white p-4 shadow-subtle lg:block">
             <h2 className="text-sm font-semibold text-neutral-900">{copy.outline}</h2>
-            <nav aria-label={copy.outline} className="mt-3">
-              <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} />
-            </nav>
+            <div className="mt-3">
+              <OutlineSearch id="outline-search-desktop" query={outlineQuery} onQueryChange={setOutlineQuery} label={copy.searchSections} />
+              <nav aria-label={copy.outline}>
+                <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} query={outlineQuery} />
+              </nav>
+            </div>
           </div>
           {week && (
             <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-4">
@@ -392,17 +401,44 @@ export default function StructuredLessonPage() {
   );
 }
 
+function OutlineSearch({
+  id,
+  query,
+  onQueryChange,
+  label,
+}: {
+  id: string;
+  query: string;
+  onQueryChange: (query: string) => void;
+  label: string;
+}) {
+  return (
+    <input
+      id={id}
+      type="search"
+      value={query}
+      onChange={(event) => onQueryChange(event.target.value)}
+      aria-label={label}
+      placeholder={label}
+      className="mb-3 min-h-10 w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+    />
+  );
+}
+
 function OutlineLinks({
   outline,
   completedSectionIds,
   sectionsReadLabel,
   sectionsReadSummary,
+  query,
 }: {
   outline: Array<{ id: string; text: string; level: 2 | 3 | 4 }>;
   completedSectionIds: string[];
   sectionsReadLabel: string;
   sectionsReadSummary: string;
+  query: string;
 }) {
+  const normalizedQuery = query.trim().toLocaleLowerCase();
   const sections = outline.filter((heading) => heading.level === 2);
   const sectionsRead = sections.filter((heading) => completedSectionIds.includes(heading.id)).length;
 
@@ -433,11 +469,12 @@ function OutlineLinks({
       <ul className="space-y-1.5">
         {outline.map((heading) => {
           const isRead = heading.level === 2 && completedSectionIds.includes(heading.id);
+          const matchesQuery = !normalizedQuery || heading.text.toLocaleLowerCase().includes(normalizedQuery);
           return (
             <li key={heading.id}>
               <a
                 href={`#${heading.id}`}
-                className={`flex items-start gap-2 rounded-lg px-2 py-1.5 text-sm leading-5 transition hover:bg-neutral-50 hover:text-primary-700 ${isRead ? 'text-emerald-800' : 'text-neutral-600'}`}
+                className={`flex items-start gap-2 rounded-lg px-2 py-1.5 text-sm leading-5 transition hover:bg-neutral-50 hover:text-primary-700 ${isRead ? 'text-emerald-800' : 'text-neutral-600'} ${matchesQuery ? 'opacity-100' : 'opacity-40'}`}
               >
                 <span className="min-w-0 flex-1">{heading.text}</span>
                 {isRead && <Check className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
