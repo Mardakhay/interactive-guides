@@ -1,7 +1,7 @@
 {
   "id": "git.fundamentals",
   "locale": "en",
-  "version": 9,
+  "version": 10,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -866,19 +866,157 @@
     },
     {
       "id": "git-command-reference-list",
-      "type": "list",
-      "ordered": false,
-      "items": [
-        "Start from a remote repository: `git clone <repository-url>` creates a local copy and configures the remote, commonly named `origin`.",
-        "Inspect your local state: `git status -sb` shows concise status and branch information; `git branch -vv` shows upstream tracking; `git remote -v` lists remote URLs.",
-        "Create a separate feature branch: `git switch -c feat/lesson-summary` creates and switches to a branch from the current commit. Start from the agreed, up-to-date base.",
-        "List and remove local branches: `git branch` lists them; after a branch has been merged, `git branch -d <branch>` removes it locally. Git refuses to delete an unmerged branch by default; do not use `-D` casually.",
-        "Merge a feature branch into the current target: `git merge <branch>` integrates the named branch into the checked-out branch. In a shared repository, follow the pull-request policy instead of merging directly into a protected branch.",
-        "Review the proposed commit: `git diff` displays unstaged edits; `git diff --staged` displays the content selected for the next commit.",
-        "Fetch without integrating: `git fetch origin` updates remote-tracking references without changing the current branch or working-tree files.",
-        "Integrate upstream only when fast-forward is possible: `git pull --ff-only` fetches and advances the current branch if it has no local divergence. It fails instead of inventing a merge when histories have diverged.",
-        "Publish the current branch: `git push -u origin HEAD` publishes the checked-out branch under the same name and configures upstream. It does not mean `main` unless you are on `main`; follow pull-request and branch-protection rules.",
-        "Undo a commit that was already shared: `git revert <commit>` adds an inverse commit and preserves the existing shared history."
+      "type": "commandReference",
+      "categories": [
+        {
+          "id": "basic-workflow",
+          "title": "Basic workflow",
+          "items": [
+            {
+              "id": "git-init",
+              "command": "git init",
+              "description": "Create a new local repository when this directory is not already under Git."
+            },
+            {
+              "id": "git-status",
+              "command": "git status -sb",
+              "description": "Review the current branch and working-tree changes before staging, committing or undoing anything."
+            },
+            {
+              "id": "git-add-file",
+              "command": "git add <file>",
+              "description": "Stage a specific file for the next commit; inspect the staged diff before committing."
+            },
+            {
+              "id": "git-add-all",
+              "command": "git add --all",
+              "description": "Stage tracked and untracked changes across the repository, including deletions. Review status first."
+            },
+            {
+              "id": "git-diff",
+              "command": "git diff",
+              "description": "Inspect unstaged changes before deciding what belongs in the next commit."
+            },
+            {
+              "id": "git-diff-staged",
+              "command": "git diff --staged",
+              "description": "Inspect exactly what is staged for the next commit."
+            },
+            {
+              "id": "git-commit",
+              "command": "git commit -m \"message\"",
+              "description": "Create a commit from staged changes using a message that describes the intent."
+            },
+            {
+              "id": "git-log",
+              "command": "git log --oneline",
+              "description": "View a compact list of recent commits."
+            }
+          ]
+        },
+        {
+          "id": "inspect-and-undo",
+          "title": "Inspect and undo",
+          "items": [
+            {
+              "id": "git-show-head",
+              "command": "git show HEAD",
+              "description": "Inspect the latest commit's metadata and patch."
+            },
+            {
+              "id": "git-restore-staged",
+              "command": "git restore --staged <file>",
+              "description": "Remove a file from the index without discarding its working-tree edits."
+            },
+            {
+              "id": "git-restore-file",
+              "command": "git restore <file>",
+              "description": "Discard unstaged edits for a file. This is destructive: review git diff first."
+            },
+            {
+              "id": "git-stash-push",
+              "command": "git stash push -u -m \"message\"",
+              "description": "Temporarily stash tracked and untracked changes before switching tasks; ignored files are not included."
+            },
+            {
+              "id": "git-stash-pop",
+              "command": "git stash pop",
+              "description": "Reapply the latest stash and remove it only if Git can apply it; inspect and resolve conflicts if needed."
+            },
+            {
+              "id": "git-commit-amend",
+              "command": "git commit --amend",
+              "description": "Revise the latest commit. This rewrites its ID; use only before sharing or with an agreed team workflow."
+            },
+            {
+              "id": "git-revert",
+              "command": "git revert <commit>",
+              "description": "Undo a commit by adding an inverse commit, preserving already-shared history."
+            }
+          ]
+        },
+        {
+          "id": "branching",
+          "title": "Branching",
+          "items": [
+            {
+              "id": "git-branch-vv",
+              "command": "git branch -vv",
+              "description": "List local branches and their upstream-tracking information."
+            },
+            {
+              "id": "git-switch-create",
+              "command": "git switch -c feat/my-change",
+              "description": "Create and switch to a feature branch from the current commit."
+            },
+            {
+              "id": "git-switch",
+              "command": "git switch <branch>",
+              "description": "Switch to an existing local branch; check status first if the working tree has changes."
+            },
+            {
+              "id": "git-merge",
+              "command": "git merge <branch>",
+              "description": "Merge the named branch into the branch currently checked out; follow the repository's review policy."
+            },
+            {
+              "id": "git-branch-delete",
+              "command": "git branch -d <merged-branch>",
+              "description": "Delete a local branch after it has been merged. Git refuses to delete an unmerged branch by default."
+            }
+          ]
+        },
+        {
+          "id": "remote-collaboration",
+          "title": "Remote collaboration",
+          "items": [
+            {
+              "id": "git-clone",
+              "command": "git clone <repository-url>",
+              "description": "Clone an existing remote repository and normally configure the remote named origin."
+            },
+            {
+              "id": "git-remote-v",
+              "command": "git remote -v",
+              "description": "Review configured remote names and URLs before fetching or pushing."
+            },
+            {
+              "id": "git-fetch-origin",
+              "command": "git fetch origin",
+              "description": "Update remote-tracking references without changing the current branch or working-tree files."
+            },
+            {
+              "id": "git-pull-ff-only",
+              "command": "git pull --ff-only",
+              "description": "Fetch and advance only when a fast-forward is possible; stop and investigate if local and remote history diverged."
+            },
+            {
+              "id": "git-push-head",
+              "command": "git push -u origin HEAD",
+              "description": "Publish the currently checked-out branch and set its upstream; this does not mean main unless you are on main."
+            }
+          ]
+        }
       ]
     },
     {

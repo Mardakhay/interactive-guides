@@ -352,8 +352,8 @@ describe('Git fundamentals lesson translation', () => {
     );
     expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
-    expect(englishGit.version).toBe(9);
-    expect(russianGit.version).toBe(9);
+    expect(englishGit.version).toBe(10);
+    expect(russianGit.version).toBe(10);
     const remoteExample = englishGit.blocks.find((block) => block.id === 'remote-example');
     expect(remoteExample?.type).toBe('codeWalkthrough');
     if (remoteExample?.type !== 'codeWalkthrough') return;
@@ -376,14 +376,28 @@ describe('Git fundamentals lesson translation', () => {
       expect(lesson.updatedAt).toBe('2026-10-29');
 
       const quickReference = lesson.blocks.find((block) => block.id === 'git-command-reference-list');
-      expect(quickReference?.type).toBe('list');
-      if (quickReference?.type !== 'list') return;
-      expect(quickReference.items.join(' ')).toContain('git clone <repository-url>');
-      expect(quickReference.items.join(' ')).toContain('git branch -d <branch>');
-      expect(quickReference.items.join(' ')).toContain('git merge <branch>');
-      expect(quickReference.items.join(' ')).toContain('git fetch origin');
-      expect(quickReference.items.join(' ')).toContain('git pull --ff-only');
-      expect(quickReference.items.join(' ')).toContain('git revert <commit>');
+      expect(quickReference?.type).toBe('commandReference');
+      if (quickReference?.type !== 'commandReference') return;
+      expect(quickReference.categories).toHaveLength(4);
+      const commands = quickReference.categories.flatMap((category) => category.items.map((item) => item.command));
+      const commandIds = quickReference.categories.flatMap((category) => category.items.map((item) => item.id));
+      expect(commands).toHaveLength(25);
+      expect(new Set(commandIds).size).toBe(25);
+      expect(commands).toContain('git clone <repository-url>');
+      expect(commands).toContain('git branch -d <merged-branch>');
+      expect(commands).toContain('git merge <branch>');
+      expect(commands).toContain('git fetch origin');
+      expect(commands).toContain('git pull --ff-only');
+      expect(commands).toContain('git restore --staged <file>');
+      expect(commands).toContain('git revert <commit>');
+      expect(commands).not.toContain('git reset --hard <SHA>');
+
+      const duplicateCommandIds = structuredClone(lesson);
+      const duplicateReference = duplicateCommandIds.blocks.find((block) => block.id === 'git-command-reference-list');
+      if (duplicateReference?.type === 'commandReference') {
+        duplicateReference.categories[1]!.items[0]!.id = duplicateReference.categories[0]!.items[0]!.id;
+      }
+      expect(lessonTranslationSchema.safeParse(duplicateCommandIds).success).toBe(false);
 
       const fetchCheck = lesson.blocks.find((block) => block.id === 'fetch-pull-check');
       expect(fetchCheck?.type).toBe('knowledgeCheck');

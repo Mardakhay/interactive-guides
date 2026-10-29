@@ -1,7 +1,7 @@
 {
   "id": "git.fundamentals",
   "locale": "ru",
-  "version": 9,
+  "version": 10,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-29",
@@ -866,19 +866,157 @@
     },
     {
       "id": "git-command-reference-list",
-      "type": "list",
-      "ordered": false,
-      "items": [
-        "Начать с удалённого репозитория: `git clone <repository-url>` создаёт локальную копию и настраивает remote, обычно с именем `origin`.",
-        "Проверить локальное состояние: `git status -sb` кратко показывает изменения и ветку; `git branch -vv` показывает upstream; `git remote -v` выводит URL удалённых репозиториев.",
-        "Создать отдельную feature-ветку: `git switch -c feat/lesson-summary` создаёт ветку от текущего коммита и переключается на неё. Начинай с согласованной и актуальной базовой ветки.",
-        "Посмотреть и удалить локальные ветки: `git branch` выводит их список; после слияния ветку можно удалить локально через `git branch -d <branch>`. По умолчанию Git откажется удалять несмёрженную ветку; не заменяй `-d` на `-D` без необходимости.",
-        "Слить feature-ветку в текущую целевую: `git merge <branch>` интегрирует указанную ветку в ту, на которой ты находишься. В общем репозитории соблюдай правила pull request вместо прямого слияния в защищённую ветку.",
-        "Проверить будущий коммит: `git diff` показывает незастейдженные правки; `git diff --staged` показывает содержимое, подготовленное для следующего коммита.",
-        "Получить обновления без интеграции: `git fetch origin` обновляет remote-tracking references, не меняя текущую ветку или файлы рабочего дерева.",
-        "Интегрировать remote, только если возможен fast-forward: `git pull --ff-only` получает обновления и передвигает текущую ветку, если нет локального расхождения. Если истории разошлись, команда остановится вместо создания непредусмотренного merge.",
-        "Опубликовать текущую ветку: `git push -u origin HEAD` отправляет текущую ветку под тем же именем и настраивает upstream. Это не обязательно `main`, если только ты сам не находишься в `main`; соблюдай правила pull request и защиты веток.",
-        "Отменить уже опубликованный коммит: `git revert <commit>` создаёт новый коммит с обратным изменением и сохраняет существующую общую историю."
+      "type": "commandReference",
+      "categories": [
+        {
+          "id": "basic-workflow",
+          "title": "Базовый рабочий процесс",
+          "items": [
+            {
+              "id": "git-init",
+              "command": "git init",
+              "description": "Создаёт новый локальный репозиторий, если текущий каталог ещё не находится под Git."
+            },
+            {
+              "id": "git-status",
+              "command": "git status -sb",
+              "description": "Проверь текущую ветку и изменения перед добавлением в staging, коммитом или отменой правок."
+            },
+            {
+              "id": "git-add-file",
+              "command": "git add <file>",
+              "description": "Добавь конкретный файл в staging для следующего коммита; перед коммитом проверь staged diff."
+            },
+            {
+              "id": "git-add-all",
+              "command": "git add --all",
+              "description": "Добавляет в staging все изменения репозитория, включая удалённые файлы. Сначала проверь status."
+            },
+            {
+              "id": "git-diff",
+              "command": "git diff",
+              "description": "Посмотри незастейдженные изменения, прежде чем выбирать содержимое следующего коммита."
+            },
+            {
+              "id": "git-diff-staged",
+              "command": "git diff --staged",
+              "description": "Проверь именно те изменения, которые подготовлены для следующего коммита."
+            },
+            {
+              "id": "git-commit",
+              "command": "git commit -m \"message\"",
+              "description": "Создай коммит из staged-изменений и опиши его намерение в сообщении."
+            },
+            {
+              "id": "git-log",
+              "command": "git log --oneline",
+              "description": "Показывает краткий список последних коммитов."
+            }
+          ]
+        },
+        {
+          "id": "inspect-and-undo",
+          "title": "Просмотр и отмена изменений",
+          "items": [
+            {
+              "id": "git-show-head",
+              "command": "git show HEAD",
+              "description": "Показывает метаданные и patch последнего коммита."
+            },
+            {
+              "id": "git-restore-staged",
+              "command": "git restore --staged <file>",
+              "description": "Убирает файл из index, не отбрасывая изменения в рабочем дереве."
+            },
+            {
+              "id": "git-restore-file",
+              "command": "git restore <file>",
+              "description": "Отбрасывает незастейдженные изменения файла. Это разрушительная операция: сначала проверь git diff."
+            },
+            {
+              "id": "git-stash-push",
+              "command": "git stash push -u -m \"message\"",
+              "description": "Временно сохраняет tracked и untracked изменения перед переключением задачи; ignored-файлы не включаются."
+            },
+            {
+              "id": "git-stash-pop",
+              "command": "git stash pop",
+              "description": "Применяет последний stash и удаляет его, только если Git смог применить изменения; при конфликте проверь состояние."
+            },
+            {
+              "id": "git-commit-amend",
+              "command": "git commit --amend",
+              "description": "Изменяет последний коммит и его ID; используй до публикации или по согласованной командной процедуре."
+            },
+            {
+              "id": "git-revert",
+              "command": "git revert <commit>",
+              "description": "Отменяет коммит обратным коммитом, сохраняя уже опубликованную общую историю."
+            }
+          ]
+        },
+        {
+          "id": "branching",
+          "title": "Ветвление",
+          "items": [
+            {
+              "id": "git-branch-vv",
+              "command": "git branch -vv",
+              "description": "Показывает локальные ветки и информацию об upstream."
+            },
+            {
+              "id": "git-switch-create",
+              "command": "git switch -c feat/my-change",
+              "description": "Создаёт feature-ветку от текущего коммита и переключается на неё."
+            },
+            {
+              "id": "git-switch",
+              "command": "git switch <branch>",
+              "description": "Переключается на существующую локальную ветку; если есть изменения, сначала проверь status."
+            },
+            {
+              "id": "git-merge",
+              "command": "git merge <branch>",
+              "description": "Сливает указанную ветку в текущую; соблюдай правила ревью репозитория."
+            },
+            {
+              "id": "git-branch-delete",
+              "command": "git branch -d <merged-branch>",
+              "description": "Удаляет локальную ветку после merge. По умолчанию Git отказывается удалять несмёрженную ветку."
+            }
+          ]
+        },
+        {
+          "id": "remote-collaboration",
+          "title": "Совместная работа с remote",
+          "items": [
+            {
+              "id": "git-clone",
+              "command": "git clone <repository-url>",
+              "description": "Клонирует удалённый репозиторий и обычно настраивает remote с именем origin."
+            },
+            {
+              "id": "git-remote-v",
+              "command": "git remote -v",
+              "description": "Проверь настроенные имена и URL remote перед fetch или push."
+            },
+            {
+              "id": "git-fetch-origin",
+              "command": "git fetch origin",
+              "description": "Обновляет remote-tracking references, не меняя текущую ветку или файлы рабочего дерева."
+            },
+            {
+              "id": "git-pull-ff-only",
+              "command": "git pull --ff-only",
+              "description": "Получает обновления и передвигает ветку только при fast-forward; если истории разошлись, остановись и разбери причину."
+            },
+            {
+              "id": "git-push-head",
+              "command": "git push -u origin HEAD",
+              "description": "Публикует текущую ветку и настраивает upstream; команда не означает main, если ты не находишься в main."
+            }
+          ]
+        }
       ]
     },
     {
