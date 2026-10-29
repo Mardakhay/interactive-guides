@@ -6,7 +6,7 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 
 This section replaces older status summaries below where they conflict. Chronological checkpoint notes remain a history, not a unique-task count.
 
-- Latest validated source/content/test checkpoint before this change: `067de9dbe1c798a82d711cf6acc4cbf4becf792a`; exact [Actions run #40875838636](https://github.com/Mardakhay/interactive-guides/actions/runs/40875838636) passed. This checkpoint continues source correction and bilingual content tests; it does not close native acceptance or route-cutover gates.
+- Latest validated code/content/test checkpoint: `4703f4c5b7f387fab29ab25928696631ccc7321e`; exact [Actions run #40885020971](https://github.com/Mardakhay/interactive-guides/actions/runs/40885020971) passed 46 test files / 300 tests, ESLint, TypeScript, production build, bundle budgets across 125 JavaScript chunks, npm audit with 0 reported advisories (informational/non-blocking), and production-preview smoke for 4 deep routes, the entry bundle, manifest, service worker, and 5 PWA assets. It includes the OAuth BCP/auth regression fixes, JS-004 async-concurrency source corrections, and WB-002 HTML-reference accuracy follow-up; it does not close native acceptance or route-cutover gates.
 - `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 is open Draft against `main`.
 - The audit step reports zero advisories but is explicitly informational/non-blocking; lint, typecheck, tests and build remain fail-fast. CI is not a native browser/device, screen-reader or mobile acceptance pass.
 - Registry: 27 core + 17 supplementary = 44 EN/RU lesson pairs (88 JSON locale records).
