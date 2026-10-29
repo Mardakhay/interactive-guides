@@ -38,6 +38,42 @@ describe('Git Reference source-derived content', () => {
     expect(russian.updatedAt).toBe(english.updatedAt);
   });
 
+  it('teaches the correct response to a committed secret leak in both locales', async () => {
+    for (const locale of locales) {
+      const lesson = await loadGitFundamentals(locale);
+      const body = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-body');
+      const walkthrough = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-walkthrough');
+      const check = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-check');
+
+      expect(body?.type).toBe('paragraph');
+      if (body?.type !== 'paragraph') throw new Error('Secret response guidance is missing');
+      expect(body.text).toMatch(locale === 'en' ? /revoke or rotate/ : /отзови или замени/);
+      expect(body.text).toMatch(locale === 'en' ? /Never paste the secret/ : /Никогда не вставляй секрет/);
+
+      expect(walkthrough?.type).toBe('codeWalkthrough');
+      if (walkthrough?.type !== 'codeWalkthrough') throw new Error('Secret response walkthrough is missing');
+      expect(walkthrough.code).toContain('git rm --cached -- .env');
+      expect(walkthrough.code).toContain('git diff --cached --stat');
+      expect(walkthrough.code).not.toContain('git diff --cached -- .env');
+      for (const step of walkthrough.steps) {
+        expect(step.lineStart).toBeGreaterThan(0);
+        expect(step.lineEnd).toBeLessThanOrEqual(walkthrough.code.split('\n').length);
+      }
+
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') throw new Error('Secret response check is missing');
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['revoke-first']);
+      expect(check.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+
+      const references = lesson.blocks.find((block) => block.id === 'references');
+      expect(references?.type).toBe('references');
+      if (references?.type === 'references') {
+        expect(references.items.some((item) => item.url === 'https://docs.github.com/en/code-security/tutorials/remediate-leaked-secrets/remediating-a-leaked-secret')).toBe(true);
+        expect(references.items.some((item) => item.url === 'https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository')).toBe(true);
+      }
+    }
+  });
+
   it('teaches the GitHub Flow pull-request review lifecycle in both locales', async () => {
     for (const locale of locales) {
       const lesson = await loadGitFundamentals(locale);

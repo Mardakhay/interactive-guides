@@ -284,6 +284,38 @@ describe('structured content repository', () => {
     expect(getPatternList(russian)).toContain('`!.env.example`');
   });
 
+  it('teaches safe remediation when a real secret was committed', async () => {
+    const [english, russian] = await Promise.all([
+      getStructuredLesson('git.fundamentals', 'en'),
+      getStructuredLesson('git.fundamentals', 'ru'),
+    ]);
+    expect(english).toBeDefined();
+    expect(russian).toBeDefined();
+    if (!english || !russian) throw new Error('Bilingual Git fundamentals lesson is missing');
+
+    expect(english.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russian.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    for (const lesson of [english, russian]) {
+      const body = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-body');
+      const walkthrough = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-walkthrough');
+      const check = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-check');
+      expect(body?.type).toBe('paragraph');
+      if (body?.type !== 'paragraph') throw new Error('Secret response body is missing');
+      expect(body.text).toMatch(lesson.locale === 'en' ? /revoke or rotate/ : /отзови или замени/);
+      expect(body.text).toMatch(lesson.locale === 'en' ? /history|forks|caches/ : /истории|fork|кеш/);
+      expect(walkthrough?.type).toBe('codeWalkthrough');
+      if (walkthrough?.type !== 'codeWalkthrough') throw new Error('Secret response walkthrough is missing');
+      expect(walkthrough.code).toContain('git rm --cached -- .env');
+      expect(walkthrough.code).toContain('git diff --cached --stat');
+      expect(walkthrough.code).not.toContain('git diff --cached -- .env');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') throw new Error('Secret response knowledge check is missing');
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['revoke-first']);
+      expect(check.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+    }
+  });
+
   it('provides a practical README walkthrough and deployment checklist in both locales', async () => {
     const [english, russian] = await Promise.all([
       getStructuredLesson('git.fundamentals', 'en'),
@@ -293,8 +325,8 @@ describe('structured content repository', () => {
     expect(russian).toBeDefined();
     if (!english || !russian) throw new Error('Bilingual Git fundamentals lesson is missing');
 
-    expect(english.version).toBe(11);
-    expect(russian.version).toBe(11);
+    expect(english.version).toBe(12);
+    expect(russian.version).toBe(12);
     expect(english.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russian.blocks.map(({ id, type }) => ({ id, type })),
     );

@@ -350,10 +350,10 @@ describe('Git fundamentals lesson translation', () => {
     expect(englishGit.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGit.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(9);
+    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
-    expect(englishGit.version).toBe(11);
-    expect(russianGit.version).toBe(11);
+    expect(englishGit.version).toBe(12);
+    expect(russianGit.version).toBe(12);
     const remoteExample = englishGit.blocks.find((block) => block.id === 'remote-example');
     expect(remoteExample?.type).toBe('codeWalkthrough');
     if (remoteExample?.type !== 'codeWalkthrough') return;
@@ -399,6 +399,26 @@ describe('Git fundamentals lesson translation', () => {
       }
       expect(lessonTranslationSchema.safeParse(duplicateCommandIds).success).toBe(false);
 
+      const secretResponse = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-body');
+      expect(secretResponse?.type).toBe('paragraph');
+      if (secretResponse?.type !== 'paragraph') throw new Error('Git secret remediation guidance is missing');
+      expect(secretResponse.text).toMatch(lesson.locale === 'en' ? /revoke or rotate/ : /отзови или замени/);
+      expect(secretResponse.text).toMatch(lesson.locale === 'en' ? /history|forks|caches/ : /истории|fork|кеш/);
+
+      const secretWalkthrough = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-walkthrough');
+      expect(secretWalkthrough?.type).toBe('codeWalkthrough');
+      if (secretWalkthrough?.type !== 'codeWalkthrough') throw new Error('Git secret remediation walkthrough is missing');
+      expect(secretWalkthrough.code).toContain('git rm --cached -- .env');
+      expect(secretWalkthrough.code).toContain('git diff --cached --stat');
+      expect(secretWalkthrough.code).toContain('git diff --cached -- .gitignore');
+      expect(secretWalkthrough.code).not.toContain('git diff --cached -- .env');
+
+      const secretCheck = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-check');
+      expect(secretCheck?.type).toBe('knowledgeCheck');
+      if (secretCheck?.type !== 'knowledgeCheck') throw new Error('Git secret remediation check is missing');
+      expect(secretCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['revoke-first']);
+      expect(secretCheck.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+
       const fetchCheck = lesson.blocks.find((block) => block.id === 'fetch-pull-check');
       expect(fetchCheck?.type).toBe('knowledgeCheck');
       if (fetchCheck?.type !== 'knowledgeCheck') return;
@@ -438,6 +458,8 @@ const refs = lesson.blocks.find((block) => block.id === 'references');
         expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-fetch')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-pull')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-rebase')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/code-security/tutorials/remediate-leaked-secrets/remediating-a-leaked-secret')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository')).toBe(true);
       }
     }
     expect(russianGit.blocks.find((block) => block.id === 'knowledge-check-3')?.type).toBe('knowledgeCheck');

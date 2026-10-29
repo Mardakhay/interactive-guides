@@ -1,7 +1,7 @@
 {
   "id": "git.fundamentals",
   "locale": "en",
-  "version": 11,
+  "version": 12,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -166,6 +166,76 @@
         "`!` negates an earlier pattern. `.env.*` followed by `!.env.example` ignores environment variants while keeping the example file. However, Git cannot re-include a child if an excluded parent directory prevents Git from traversing it.",
         "When several patterns match the same path, the last matching pattern decides whether it is ignored. Keep exceptions near the broader rule."
       ]
+    },
+    {
+      "id": "gitignore-secret-response-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "If a real secret was committed"
+    },
+    {
+      "id": "gitignore-secret-response-body",
+      "type": "paragraph",
+      "text": "Treat a pushed API token, password or private key as compromised. First revoke or rotate it with the provider and notify the credential owner or security contact; review available access/audit logs. Then add the local secret file to `.gitignore` and, if it is tracked, remove it from the index while preserving the local copy. A new removal commit does not erase old copies from history, forks or caches. Decide with repository maintainers whether history rewriting is necessary, because it changes commit IDs and must be coordinated with collaborators. Never paste the secret into an issue, pull request, CI log or remediation note."
+    },
+    {
+      "id": "gitignore-secret-response-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "# First revoke/rotate the leaked credential with its provider and notify its owner.\n# Edit .gitignore to include .env; do not paste the secret into logs or a PR.\ngit status --short\ngit rm --cached -- .env  # only if .env is already tracked; keeps the local file\ngit add .gitignore\ngit status --short\ngit diff --cached --stat\ngit diff --cached -- .gitignore\ngit commit -m \"chore: stop tracking local environment file\"",
+      "steps": [
+        {
+          "title": "Contain the exposed credential first",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "These first actions happen outside Git: revoke or rotate the real token with its provider, notify the responsible owner/security contact, and avoid copying secret values into comments or logs."
+        },
+        {
+          "title": "Stop tracking the file but preserve the local copy",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "explanation": "Edit `.gitignore` first. Run `git rm --cached -- .env` only if the file is currently tracked; this removes it from the index but keeps the local file. Stage the ignore rule and inspect status."
+        },
+        {
+          "title": "Review the staged change without printing the secret",
+          "lineStart": 7,
+          "lineEnd": 9,
+          "explanation": "Review the summary and only the `.gitignore` diff; do not display the `.env` contents. Commit after checking that the staged change contains the intended tracking removal. This does not purge older history by itself."
+        }
+      ]
+    },
+    {
+      "id": "gitignore-secret-response-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "An active production API token in `.env` was committed and pushed. What should you do first, before repository cleanup?",
+      "options": [
+        {
+          "id": "revoke-first",
+          "text": "Immediately revoke or rotate the token with its provider, alert the owner/security contact, and then coordinate index/history cleanup",
+          "correct": true,
+          "feedback": "Correct. Treat an exposed active credential as compromised. Revoke or rotate it through the provider first, notify the responsible owner, and then clean the tracked file and decide with maintainers whether history rewriting is warranted."
+        },
+        {
+          "id": "ignore-only",
+          "text": "Add `.env` to `.gitignore` and push; that automatically disables the token",
+          "correct": false,
+          "feedback": "`.gitignore` does not revoke a credential and does not remove an already-tracked file. The exposed token can still be used until its provider revokes or rotates it."
+        },
+        {
+          "id": "delete-latest-only",
+          "text": "Delete `.env` in a new commit and assume the token is no longer exposed",
+          "correct": false,
+          "feedback": "A new commit does not erase older versions from Git history, clones, forks or cached views. A real token must be revoked or rotated independently."
+        },
+        {
+          "id": "force-push-first",
+          "text": "Force-push rewritten history before revoking the token, without coordinating with collaborators",
+          "correct": false,
+          "feedback": "History rewriting is disruptive and will not invalidate the credential. Contain the credential first; any history rewrite needs a coordinated plan with repository owners and collaborators."
+        }
+      ],
+      "explanation": "Treat the active token as compromised: revoke or rotate it with its provider first, notify the responsible owner/security contact, inspect possible use, then remove the tracked file and coordinate any required history cleanup."
     },
     {
       "id": "remote",
@@ -1199,6 +1269,16 @@
         {
           "title": "GitHub Docs: GitHub flow",
           "url": "https://docs.github.com/en/get-started/using-github/github-flow",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: Remediating a leaked secret",
+          "url": "https://docs.github.com/en/code-security/tutorials/remediate-leaked-secrets/remediating-a-leaked-secret",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: Removing sensitive data from a repository",
+          "url": "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository",
           "kind": "official-docs"
         }
       ]
