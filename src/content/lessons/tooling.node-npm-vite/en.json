@@ -585,6 +585,16 @@
           "title": "Prettier: Introduction",
           "url": "https://prettier.io/docs/en/",
           "kind": "official-docs"
+        },
+        {
+          "title": "npm Docs: npm exec / npx",
+          "url": "https://docs.npmjs.com/cli/v11/commands/npm-exec",
+          "kind": "official-docs"
+        },
+        {
+          "title": "npm Docs: npm init / npm create",
+          "url": "https://docs.npmjs.com/cli/v11/commands/npm-init",
+          "kind": "official-docs"
         }
       ]
     }
