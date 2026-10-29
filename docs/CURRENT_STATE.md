@@ -74,3 +74,8 @@ Available scripts from `package.json`:
 
 The current CI workflow runs install, lint, typecheck, tests, and build for pushes and pull requests targeting `main`.
 
+
+
+## Focused js-003 memory source review — 2026-10-29
+
+The feature branch now includes [JS003_SOURCE_PARITY.md](JS003_SOURCE_PARITY.md) and `src/content/legacyJsMemoryMastery.test.ts`. The 2,737-line classic memory lesson was corrected to distinguish JavaScript semantics from engine-specific stack/heap layout, V8 implementation details, GC behavior and runtime limits. Simulators were retained and clarified as teaching models; the source route remains available. The `js-003` cutover row remains **Blocked** while interaction parity, learner-state disposition, and native browser/accessibility acceptance are open.

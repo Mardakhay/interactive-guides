@@ -75,3 +75,8 @@ These commands must be run on the target feature-branch checkout. The current ev
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
+
+
+## Focused js-003 memory source review — 2026-10-29
+
+The source-to-block map is in `docs/JS003_SOURCE_PARITY.md`. Corrected the classic lesson’s stack/heap memory map, fixed byte/size and recursion-depth claims, string-interning and hidden-class guarantees, leak explanations, and false implication that the GC demo controls real collection. Regression assertions are in `src/content/legacyJsMemoryMastery.test.ts`; preserve all classic controls and keep `js-003` blocked pending interaction parity, learner-state and native acceptance evidence.

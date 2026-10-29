@@ -1197,3 +1197,8 @@ See [WB002_SOURCE_PARITY.md](WB002_SOURCE_PARITY.md) for the source-to-block cro
 ## Focused js-002 objects/prototypes/classes source review — 2026-10-29
 
 See [JS002_SOURCE_PARITY.md](JS002_SOURCE_PARITY.md) for the source crosswalk and fixes. The classic guide now avoids the pass-by-reference myth, clarifies shallow `Object.freeze`/spread behavior, distinguishes `Constructor.prototype` from `Function.prototype`, bounds its simplified `new` helper, explains meaningful class semantics, and uses `Object.hasOwn`. Regression coverage lives in `src/content/legacyJsDeepDive.test.ts`; `js-002` remains **Blocked** until interactive parity, state disposition and native browser acceptance are recorded.
+
+
+## Focused js-003 memory source review — 2026-10-29
+
+See [JS003_SOURCE_PARITY.md](JS003_SOURCE_PARITY.md) for the EN/RU source crosswalk and the legacy corrections. The classic memory tutorial no longer presents stack/heap placement, byte counts, call-depth limits, fixed V8 heap sizes, string interning, hidden-class behavior or garbage-collection timing as portable JavaScript guarantees. Its teaching simulators remain intact and explicitly illustrative. Regression coverage lives in `src/content/legacyJsMemoryMastery.test.ts`; `js-003` remains **Blocked** until interaction parity, learner-state disposition, and native browser/accessibility evidence are reviewed.

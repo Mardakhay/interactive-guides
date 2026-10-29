@@ -6,7 +6,7 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 
 This section replaces older status summaries below where they conflict. Chronological checkpoint notes remain a history, not a unique-task count.
 
-- Latest validated source/content/test checkpoint: `2d2548bc770ad1a235465db6f4814f02febe4bfe`; exact [Actions run #40839614446](https://github.com/Mardakhay/interactive-guides/actions/runs/40839614446) passed 37 test files / 230 tests, lint, typecheck, build, 125 JavaScript chunk budgets and production preview smoke.
+- Latest validated source/content/test checkpoint before this change: `067de9dbe1c798a82d711cf6acc4cbf4becf792a`; exact [Actions run #40875838636](https://github.com/Mardakhay/interactive-guides/actions/runs/40875838636) passed. This checkpoint continues source correction and bilingual content tests; it does not close native acceptance or route-cutover gates.
 - `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 is open Draft against `main`.
 - The audit step reports zero advisories but is explicitly informational/non-blocking; lint, typecheck, tests and build remain fail-fast. CI is not a native browser/device, screen-reader or mobile acceptance pass.
 - Registry: 27 core + 17 supplementary = 44 EN/RU lesson pairs (88 JSON locale records).
@@ -788,3 +788,8 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 - [x] Add bilingual Product/generic-filter, accessible Toggle, typed/searchable list and defensive localStorage Hook examples where missing.
 - [x] Add a regression test for legacy inventory, source claims and EN/RU lesson alignment; update the existing lesson-version assertions to the extended content.
 - [ ] Keep `tl-003` **Blocked** until the original navigation/quiz/solution UI, learner-state disposition and browser/device/screen-reader acceptance are evidenced.
+
+
+## Focused js-003 memory source review — 2026-10-29
+
+The current source pass and its remaining gates are documented in [JS003_SOURCE_PARITY.md](JS003_SOURCE_PARITY.md). The structured EN/RU destination `js.runtime-memory` already has an implementation-caveat callout, GC/reachability guidance and memory-profiling references; this pass aligns the legacy page with those semantics and adds source regression coverage. Route cutover remains blocked.
