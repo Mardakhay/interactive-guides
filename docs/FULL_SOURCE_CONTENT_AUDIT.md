@@ -1097,3 +1097,18 @@ The first test run surfaced a separate edge case in the same page: when the read
 Exact checkpoint 703b09911f3da04ff6eb239102ee814918a13dc7 passed GitHub Actions #40843816941: 37 test files / 232 tests, lint, typecheck, production build, all 125 JavaScript chunks within budgets, and production-preview smoke over four deep routes plus the entry bundle, manifest, service worker and five PWA assets.
 
 This is a parity increment, not full text search or full Git Reference Guide reproduction. Command/body search, exact sidebar and accordion behavior, copy-control layout, full quick reference and responsive page structure still need review; tl-001 remains **Blocked**. Keep the original HTML and route until interaction inventory, browser/device and screen-reader acceptance, and learner-state retention are signed off.
+
+
+## Typed, copyable Git quick-reference parity increment — 2026-10-29
+
+Review of `public/lessons/git-reference.html` found 24 copy controls in the source and four visibly grouped quick-reference sections, whereas structured `git.fundamentals` previously represented ten commands as sentence-long list entries without per-command copy affordances.
+
+Upgraded `git.fundamentals` EN/RU to v10 without changing its 61-block structure. The former `git-command-reference-list` is now a typed `commandReference` block with 25 commands across four categories: basic workflow (8), inspect/undo (7), branching (5), and remote collaboration (5). Every item has stable identity, exact command text, localized description and its own copy control. The generic renderer handles copy success/failure through localized button labels and assistive-technology status messages.
+
+Added `commandReferenceItemSchema`, `commandReferenceCategorySchema` and `commandReferenceBlockSchema` with uniqueness validation across category and item IDs. Updated both lesson-version assertions to v10. The schema regression asserts the 25-command/four-category shape, representative command coverage, absence of an unconditional hard reset command, and rejection of duplicated command IDs. Renderer tests mock the clipboard to verify English and Russian copy success and status reporting.
+
+For safety, the catalog uses `git restore --staged <file>` for unstage and marks `git restore <file>` as destructive; `git commit --amend` warns that it rewrites the commit ID. Shared history undo uses `git revert <commit>`. An unconditional `git reset --hard <SHA>` is deliberately not promoted as a quick-reference remedy.
+
+Exact checkpoint `dcb85b2c20234c4d6bd57d8b5b976464cd297113` passed [GitHub Actions #40844593467](https://github.com/Mardakhay/interactive-guides/actions/runs/40844593467): 37 test files / 234 tests, lint, typecheck, production build, all 125 JS chunks within budgets, zero npm audit advisories and production-preview smoke across four deep routes and PWA assets.
+
+This is a substantial quick-reference increment, not full page reproduction. Search still applies to section headings only. The legacy sidebar accordion, original responsive layout and remaining interaction details need browser review; `tl-001` remains **Blocked**, the classic route and HTML remain available, and no learner data or route cutover was performed.

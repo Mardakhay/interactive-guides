@@ -735,3 +735,13 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 - [x] Verify exact HEAD 703b09911f3da04ff6eb239102ee814918a13dc7 in CI #40843816941: 37 test files / 232 tests, lint, typecheck, production build, 125-chunk budgets and production-preview smoke.
 - [ ] Keep tl-001 **Blocked**: query covers section titles only; command/body search and full legacy sidebar/accordion/quick-reference interaction and layout parity remain incomplete.
 - [ ] Keep the real-browser/device, keyboard/screen-reader, responsive/mobile, install/offline/PWA and learner-state retention gates open.
+
+
+## Typed bilingual, copyable Git quick reference — 2026-10-29
+
+- [x] Replace the ten sentence-style quick-reference bullets in `git.fundamentals` with a schema-validated `commandReference` containing 25 command entries in four categories (basic workflow, inspect/undo, branching and remote collaboration), preserving the same EN/RU block IDs and item order.
+- [x] Add individual copy buttons and localized success/failure status announcements per command; test successful clipboard copy in English and Russian.
+- [x] Validate unique category/item IDs, expect lesson version v10, and test the four-category / 25-entry contract. Prefer `git restore --staged` for unstaging, warn before destructive `git restore <file>` and history-rewriting `git commit --amend`, and avoid promoting unconditional `git reset --hard` as a normal remedy.
+- [x] Verify exact checkpoint `dcb85b2c20234c4d6bd57d8b5b976464cd297113` in [CI #40844593467](https://github.com/Mardakhay/interactive-guides/actions/runs/40844593467): 37 test files / 234 tests, lint, typecheck, build, 125-chunk budgets, zero npm audit advisories and production-preview smoke.
+- [ ] Keep `tl-001` **Blocked**: outline query is limited to section labels; original sidebar accordion and responsive page layout still require detailed comparison and manual browser acceptance.
+- [ ] Keep all browser/device/screen-reader and learner-state retention gates open; do not redirect routes or delete the legacy HTML.
