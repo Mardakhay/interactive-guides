@@ -20,7 +20,8 @@ describe('wb-004 legacy DOM masterclass accuracy and parity', () => {
     expect(legacyDomHtml).toContain('id="xssInput"');
     expect(legacyDomHtml).toContain('id="xssSafe"');
     expect(legacyDomHtml).toContain('id="xssUnsafe"');
-    expect(legacyDomHtml).toContain('id="treeNavigator"');
+    expect(legacyDomHtml).toContain('id="domTreeVis"');
+    expect(legacyDomHtml).toContain('id="domTree"');
   });
 
   it('explains innerHTML injection without claiming script tags execute on insertion', () => {

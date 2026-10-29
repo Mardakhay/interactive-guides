@@ -1192,3 +1192,8 @@ See [WB003_SOURCE_PARITY.md](WB003_SOURCE_PARITY.md) for the mapping and factual
 ## Focused wb-002 HTML reference source review — 2026-10-29
 
 See [WB002_SOURCE_PARITY.md](WB002_SOURCE_PARITY.md) for the source-to-block crosswalk and factual corrections. The legacy reference now removes the one-h1 SEO rule, qualifies doctype/heading semantics, distinguishes `noopener` from `noreferrer`, describes alt by image purpose, corrects GET/POST semantics, and narrows the iframe sandbox permissions. `src/content/legacyHtmlReference.test.ts` protects both the claims and original controls; `wb-002` remains **Blocked** until interaction parity, learner-state disposition, and browser/accessibility acceptance are evidenced.
+
+
+## Focused js-002 objects/prototypes/classes source review — 2026-10-29
+
+See [JS002_SOURCE_PARITY.md](JS002_SOURCE_PARITY.md) for the source crosswalk and fixes. The classic guide now avoids the pass-by-reference myth, clarifies shallow `Object.freeze`/spread behavior, distinguishes `Constructor.prototype` from `Function.prototype`, bounds its simplified `new` helper, explains meaningful class semantics, and uses `Object.hasOwn`. Regression coverage lives in `src/content/legacyJsDeepDive.test.ts`; `js-002` remains **Blocked** until interactive parity, state disposition and native browser acceptance are recorded.

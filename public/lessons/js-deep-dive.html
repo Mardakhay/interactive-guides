@@ -773,11 +773,11 @@ pre{
         </div>
         <div class="card">
           <h3><div class="card-icon" style="background:rgba(124,58,237,0.1)">🔗</div>By Reference</h3>
-          <p>Objects are stored by <strong>reference</strong>, not by value. Assigning an object to a variable doesn't copy it — both variables point to the same object in memory.</p>
+          <p>Assigning an object-valued variable copies the <strong>reference value</strong>, not the object itself. Both variables can therefore refer to the same object. JavaScript passes arguments by value too; when the value is an object reference, mutating that referenced object is visible through the other reference.</p>
         </div>
         <div class="card">
           <h3><div class="card-icon" style="background:rgba(16,185,129,0.1)">⚡</div>Mutable</h3>
-          <p>Objects are <strong>mutable</strong> — you can add, change, or delete properties even after creation. Only <code>Object.freeze()</code> makes an object immutable.</p>
+          <p>Ordinary objects are mutable by default. <code>Object.freeze()</code> prevents changes to an object's own property descriptors and values at the top level, but it is shallow: nested objects can still be mutated unless they are frozen separately. Other mechanisms such as non-writable descriptors and private fields can also restrict specific changes.</p>
         </div>
       </div>
 
@@ -847,8 +847,8 @@ pre{
         <strong>🧒 ELI5:</strong> Imagine your backpack has pockets. You can reach in and say "give me my <em>snack</em>" (dot notation). OR you can write "snack" on a sticky note and give it to a robot who reaches in for you (bracket notation). Both get you the snack — but the robot version works even if you don't know the pocket name until later!
       </div>
 
-      <h3 id="obj-methods" style="font-family:var(--font-head);font-size:1.2rem;font-weight:700;margin:36px 0 16px">Passing by Reference</h3>
-      <div class="callout info"><div class="callout-icon">💡</div><div><strong>Key concept:</strong> Primitives (strings, numbers) are copied when assigned. Objects are <strong>referenced</strong> — multiple variables can point to the same object. Mutating through one variable affects all references.</div></div>
+      <h3 id="obj-methods" style="font-family:var(--font-head);font-size:1.2rem;font-weight:700;margin:36px 0 16px">Shared Object References</h3>
+      <div class="callout info"><div class="callout-icon">💡</div><div><strong>Key concept:</strong> Assignment copies a value. For an object, that value is a reference; assigning it does not clone the object. JavaScript does not use pass-by-reference for variables or function arguments — it passes the reference value by value. Mutating the shared object is visible through each reference, while reassigning one variable is not.</div></div>
 
       <div class="code-block">
         <div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">javascript</span><button class="code-copy-btn" onclick="copyCode(this)">copy</button></div>
@@ -858,7 +858,7 @@ pre{
 <span class="fn">b</span><span class="punc">.</span><span class="prop">x</span> <span class="op">=</span> <span class="num">99</span><span class="punc">;</span>
 <span class="fn">console</span><span class="punc">.</span><span class="fn">log</span><span class="punc">(</span><span class="fn">a</span><span class="punc">.</span><span class="prop">x</span><span class="punc">);</span>        <span class="cm">// 99 — a was mutated too!</span>
 
-<span class="cm">// To truly copy: use spread or Object.assign</span>
+<span class="cm">// Shallow copy: top-level own enumerable properties; nested references remain shared</span>
 <span class="kw">const</span> <span class="fn">copy</span> <span class="op">=</span> <span class="punc">{ ...</span><span class="fn">a</span> <span class="punc">};</span>    <span class="cm">// shallow copy</span>
 <span class="fn">copy</span><span class="punc">.</span><span class="prop">x</span> <span class="op">=</span> <span class="num">0</span><span class="punc">;</span>
 <span class="fn">console</span><span class="punc">.</span><span class="fn">log</span><span class="punc">(</span><span class="fn">a</span><span class="punc">.</span><span class="prop">x</span><span class="punc">);</span>        <span class="cm">// 99 — original unchanged</span></pre></div>
@@ -895,7 +895,7 @@ pre{
 <span class="cm">// Or with spread:</span>
 <span class="kw">const</span> <span class="fn">merged2</span> <span class="op">=</span> <span class="punc">{ ...</span><span class="fn">obj</span><span class="punc">, </span><span class="prop">d</span><span class="punc">:</span> <span class="num">4</span> <span class="punc">};</span>
 
-<span class="cm">// Freeze (immutable)</span>
+<span class="cm">// Object.freeze is shallow; nested objects need separate handling</span>
 <span class="kw">const</span> <span class="fn">frozen</span> <span class="op">=</span> <span class="cls">Object</span><span class="punc">.</span><span class="fn">freeze</span><span class="punc">({ </span><span class="prop">x</span><span class="punc">:</span> <span class="num">1</span> <span class="punc">});</span>
 <span class="fn">frozen</span><span class="punc">.</span><span class="prop">x</span> <span class="op">=</span> <span class="num">99</span><span class="punc">;</span>           <span class="cm">// silently fails (or throws in strict mode)</span>
 <span class="fn">console</span><span class="punc">.</span><span class="fn">log</span><span class="punc">(</span><span class="fn">frozen</span><span class="punc">.</span><span class="prop">x</span><span class="punc">);</span>   <span class="cm">// still 1</span></pre></div>
@@ -996,11 +996,11 @@ console.log(person[key]);</textarea>
         </div>
         <div class="card">
           <h3><code>__proto__</code></h3>
-          <p>The legacy getter/setter that <em>exposes</em> [[Prototype]]. Works, but deprecated. Use <code>Object.getPrototypeOf</code> instead. Still useful for understanding.</p>
+          <p>A legacy accessor for reading or changing [[Prototype]], generally best avoided in new code. Use <code>Object.getPrototypeOf(obj)</code> to inspect the chain, and establish relationships deliberately with constructors, classes or <code>Object.create()</code>.</p>
         </div>
         <div class="card">
           <h3><code>.prototype</code></h3>
-          <p>Only on <em>functions</em>. When you call a function with <code>new</code>, the new object's [[Prototype]] is set to <code>Function.prototype</code>. Not the same as [[Prototype]]!</p>
+          <p>A constructable function or class constructor usually has its own <code>.prototype</code> property. For <code>new Constructor()</code>, that object becomes the instance's [[Prototype]] when it is an object. <code>Function.prototype</code> is instead part of the prototype chain of function objects themselves. Arrow functions are not constructable and do not provide a usable instance prototype property.</p>
         </div>
       </div>
 
@@ -1077,12 +1077,12 @@ console.log(person[key]);</textarea>
 <span class="cm">// 'breathe' is NOT on dog — found on animal via [[Prototype]]</span>
 
 <span class="cls">Object</span><span class="punc">.</span><span class="fn">getPrototypeOf</span><span class="punc">(</span><span class="fn">dog</span><span class="punc">)</span> <span class="op">===</span> <span class="fn">animal</span><span class="punc">;</span>  <span class="cm">// true</span>
-<span class="fn">dog</span><span class="punc">.</span><span class="fn">hasOwnProperty</span><span class="punc">(</span><span class="str">"breathe"</span><span class="punc">);</span>           <span class="cm">// false — inherited!</span>
-<span class="fn">dog</span><span class="punc">.</span><span class="fn">hasOwnProperty</span><span class="punc">(</span><span class="str">"name"</span><span class="punc">);</span>              <span class="cm">// true — own property</span></pre></div>
+<span class="cls">Object</span><span class="punc">.</span><span class="fn">hasOwn</span><span class="punc">(</span><span class="fn">dog</span><span class="punc">, </span><span class="str">"breathe"</span><span class="punc">);</span>           <span class="cm">// false — inherited!</span>
+<span class="cls">Object</span><span class="punc">.</span><span class="fn">hasOwn</span><span class="punc">(</span><span class="fn">dog</span><span class="punc">, </span><span class="str">"name"</span><span class="punc">);</span>              <span class="cm">// true — own property</span></pre></div>
       </div>
 
       <h3 id="constructor-fn" style="font-family:var(--font-head);font-size:1.2rem;font-weight:700;margin:36px 0 16px">Constructor Functions</h3>
-      <p style="color:var(--text2);font-size:.92rem;line-height:1.7;margin-bottom:16px">Before ES6 classes, constructor functions were <em>the</em> way to create multiple objects of the same "type." They're still fundamental — classes are just syntactic sugar over them.</p>
+      <p style="color:var(--text2);font-size:.92rem;line-height:1.7;margin-bottom:16px">Before ES2015 classes, constructor functions were a common way to create multiple objects that share a prototype. They are still useful, but class syntax is not merely a cosmetic rewrite: classes have additional semantics such as mandatory construction with <code>new</code>, strict-mode bodies, non-enumerable prototype methods, and built-in private elements.</p>
 
       <div class="code-block">
         <div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">javascript</span><button class="code-copy-btn" onclick="copyCode(this)">copy</button></div>
@@ -1110,7 +1110,7 @@ console.log(person[key]);</textarea>
       </div>
 
       <h3 id="new-keyword" style="font-family:var(--font-head);font-size:1.2rem;font-weight:700;margin:36px 0 16px">What <code>new</code> Actually Does</h3>
-      <div class="callout info"><div class="callout-icon">⚙️</div><div><strong>The 4 steps of <code>new</code>:</strong> When you write <code>new Dog("Rex")</code>, JavaScript executes 4 hidden steps behind the scenes. Understanding these steps is the key to understanding ALL of JavaScript's object system.</div></div>
+      <div class="callout info"><div class="callout-icon">⚙️</div><div><strong>A simplified model of <code>new</code>:</strong> For an ordinary constructable function, creation conceptually chooses a prototype, creates an object, calls the constructor with that object as <code>this</code>, and returns the object unless the constructor returns another object-like value. Native construction has additional rules; this sketch is not a drop-in replacement for <code>new</code> and cannot invoke a class constructor as a regular function.</div></div>
 
       <div class="code-block">
         <div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">javascript — What new does internally</span><button class="code-copy-btn" onclick="copyCode(this)">copy</button></div>
@@ -1118,18 +1118,21 @@ console.log(person[key]);</textarea>
 <span class="cm">// JavaScript secretly does THIS:</span>
 
 <span class="kw">function</span> <span class="fn">simulateNew</span><span class="punc">(</span><span class="fn">Constructor</span><span class="punc">, ...</span><span class="fn">args</span><span class="punc">) {</span>
-  <span class="cm">// Step 1: Create a new empty object</span>
-  <span class="kw">const</span> <span class="fn">obj</span> <span class="op">=</span> <span class="punc">{};</span>
+  <span class="cm">// Step 1: Use Constructor.prototype if it is an object; otherwise fall back</span>
+  <span class="cm">// to Object.prototype, as native construction does for this case.</span>
+  <span class="kw">const</span> <span class="fn">candidatePrototype</span> <span class="op">=</span> <span class="fn">Constructor</span><span class="punc">.</span><span class="prop">prototype</span><span class="punc">;</span>
+  <span class="kw">const</span> <span class="fn">proto</span> <span class="op">=</span> <span class="punc">(</span><span class="kw">typeof</span> <span class="fn">candidatePrototype</span> <span class="op">===</span> <span class="str">"object"</span> <span class="op">&&</span> <span class="fn">candidatePrototype</span> <span class="op">!==</span> <span class="kw">null</span><span class="punc">)</span>
+    <span class="op">?</span> <span class="fn">candidatePrototype</span> <span class="op">:</span> <span class="cls">Object</span><span class="punc">.</span><span class="prop">prototype</span><span class="punc">;</span>
 
-  <span class="cm">// Step 2: Set its [[Prototype]] to Constructor.prototype</span>
-  <span class="cls">Object</span><span class="punc">.</span><span class="fn">setPrototypeOf</span><span class="punc">(</span><span class="fn">obj</span><span class="punc">, </span><span class="fn">Constructor</span><span class="punc">.</span><span class="prop">prototype</span><span class="punc">);</span>
+  <span class="cm">// Step 2: Create the object with that prototype</span>
+  <span class="kw">const</span> <span class="fn">obj</span> <span class="op">=</span> <span class="cls">Object</span><span class="punc">.</span><span class="fn">create</span><span class="punc">(</span><span class="fn">proto</span><span class="punc">);</span>
 
   <span class="cm">// Step 3: Call the constructor with 'this' = new object</span>
   <span class="kw">const</span> <span class="fn">result</span> <span class="op">=</span> <span class="fn">Constructor</span><span class="punc">.</span><span class="fn">apply</span><span class="punc">(</span><span class="fn">obj</span><span class="punc">, </span><span class="fn">args</span><span class="punc">);</span>
 
   <span class="cm">// Step 4: Return obj (unless constructor returns its own object)</span>
-  <span class="kw">return</span> <span class="punc">(</span><span class="kw">typeof</span> <span class="fn">result</span> <span class="op">===</span> <span class="str">"object"</span> <span class="op">&&</span> <span class="fn">result</span> <span class="op">!==</span> <span class="kw">null</span><span class="punc">)</span>
-    <span class="op">?</span> <span class="fn">result</span> <span class="op">:</span> <span class="fn">obj</span><span class="punc">;</span>
+  <span class="kw">const</span> <span class="fn">resultIsObjectLike</span> <span class="op">=</span> <span class="punc">(</span><span class="kw">typeof</span> <span class="fn">result</span> <span class="op">===</span> <span class="str">"object"</span> <span class="op">&&</span> <span class="fn">result</span> <span class="op">!==</span> <span class="kw">null</span><span class="punc">)</span> <span class="op">||</span> <span class="kw">typeof</span> <span class="fn">result</span> <span class="op">===</span> <span class="str">"function"</span><span class="punc">;</span>
+  <span class="kw">return</span> <span class="fn">resultIsObjectLike</span> <span class="op">?</span> <span class="fn">result</span> <span class="op">:</span> <span class="fn">obj</span><span class="punc">;</span>
 <span class="punc">}</span>
 
 <span class="cm">// This is equivalent to: new Dog("Rex", "Labrador")</span>
@@ -1163,7 +1166,8 @@ console.log(person[key]);</textarea>
       <!-- instanceof explanation -->
       <div class="code-block">
         <div class="code-header"><div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><span class="code-lang">javascript — instanceof under the hood</span><button class="code-copy-btn" onclick="copyCode(this)">copy</button></div>
-        <div class="code-body"><pre><span class="cm">// instanceof checks: is Constructor.prototype in obj's chain?</span>
+        <div class="code-body"><pre><span class="cm">// For ordinary constructors, instanceof checks whether Constructor.prototype is in obj's chain.</span>
+<span class="cm">// Custom Symbol.hasInstance behavior can change that default test.</span>
 <span class="fn">rex</span> <span class="kw">instanceof</span> <span class="cls">Dog</span><span class="punc">;</span>     <span class="cm">// Is Dog.prototype in rex's [[Prototype]] chain? YES</span>
 <span class="fn">rex</span> <span class="kw">instanceof</span> <span class="cls">Object</span><span class="punc">;</span>  <span class="cm">// Is Object.prototype in rex's chain? YES (it's at the end)</span>
 
@@ -1254,10 +1258,10 @@ console.log("Shared methods?", cat.speak === cow.speak);</textarea>
       <div class="section-header">
         <div class="section-tag green">🏛️ Section 3</div>
         <h2>ES6 Classes</h2>
-        <p>Classes are syntactic sugar — elegant, readable syntax that compiles down to the exact same prototype-based patterns you just learned. Let's go deep.</p>
+        <p>Classes use prototype delegation for instance methods, but also add language-level rules. The syntax is concise; its behavior is not identical to a constructor function in every situation.</p>
       </div>
 
-      <div class="callout tip"><div class="callout-icon">🍬</div><div><strong>Syntactic sugar explained:</strong> "Syntactic sugar" means nicer-looking syntax that does the same thing underneath. ES6 classes don't add new capabilities — they just make prototype-based code cleaner and more readable.</div></div>
+      <div class="callout tip"><div class="callout-icon">🍬</div><div><strong>Prototype model plus class semantics:</strong> Class methods still participate in prototype lookup, but classes add behavior beyond surface syntax: the body is strict, calls without <code>new</code> throw, <code>super</code> has defined semantics, prototype methods are non-enumerable, and <code>#private</code> elements have language-enforced access rules.</div></div>
 
       <!-- Side by side comparison -->
       <h3 style="font-family:var(--font-head);font-size:1.2rem;font-weight:700;margin:32px 0 16px">Classes vs. Constructor Functions — Side by Side</h3>
@@ -1306,7 +1310,7 @@ console.log("Shared methods?", cat.speak === cow.speak);</textarea>
         </div>
       </div>
 
-      <div class="callout tip" style="margin-top:20px"><div class="callout-icon">✅</div><div>Both produce <strong>identical results</strong>. <code>typeof Animal</code> is still <code>"function"</code>. The class body methods still go on <code>Animal.prototype</code>. Classes are just cleaner syntax.</div></div>
+      <div class="callout tip" style="margin-top:20px"><div class="callout-icon">✅</div><div>For this example, both versions create objects whose instance methods are found through a prototype. <code>typeof Animal</code> is still <code>"function"</code>, and class-body methods are placed on <code>Animal.prototype</code>; class calls, strict mode, private fields and method enumerability still differ from ordinary constructor functions.</div></div>
 
       <!-- Comparison table -->
       <h3 style="font-family:var(--font-head);font-size:1.2rem;font-weight:700;margin:36px 0 16px">Feature Comparison</h3>
@@ -1320,7 +1324,7 @@ console.log("Shared methods?", cat.speak === cow.speak);</textarea>
             <tr><td>Private fields</td><td class="no">✗ (convention only)</td><td class="yes">✓ <code>#field</code> syntax</td></tr>
             <tr><td>Inheritance</td><td class="med">Verbose setup needed</td><td class="yes">✓ <code>extends</code> keyword</td></tr>
             <tr><td>Called without <code>new</code></td><td class="med">Works (usually broken)</td><td class="no">✗ Throws TypeError</td></tr>
-            <tr><td>Under the hood</td><td colspan="2" style="text-align:center;color:var(--accent)">Identical — prototypes all the way down</td></tr>
+            <tr><td>Shared model</td><td colspan="2" style="text-align:center;color:var(--accent)">Both use prototype chains; class syntax adds distinct runtime rules</td></tr>
           </tbody>
         </table>
       </div>
@@ -1864,11 +1868,11 @@ const quizExplanations = {
     wrong: "✗ Not quite. JavaScript follows the [[Prototype]] chain: it checks the object itself, then climbs up through each prototype in the chain until it finds the property or hits <code>null</code>."
   },
   q5: {
-    correct: "✓ Exactly! <code>obj.__proto__</code> is the instance's actual [[Prototype]] (deprecated accessor). <code>Constructor.prototype</code> is the object that becomes the [[Prototype]] of instances created with <code>new Constructor()</code>.",
+    correct: "✓ Exactly! <code>obj.__proto__</code> is a legacy accessor for an instance's [[Prototype]]. For a constructable function or class, <code>Constructor.prototype</code> is normally the prototype object linked to new instances.",
     wrong: "✗ Not quite. <code>__proto__</code> is on instances (the actual [[Prototype]]). <code>.prototype</code> is a property on functions/constructors — it's the object that will be set as the [[Prototype]] when <code>new</code> is used."
   },
   q6: {
-    correct: "✓ Perfect! Methods on the prototype are shared — 1000 instances still use 1 function. Methods inside the constructor body are copied to every instance — 1000 instances = 1000 function copies. Big memory difference!",
+    correct: "✓ Prototype methods are shared by instances that use the same prototype. A method defined in each constructor call creates a separate function per instance in this example; choose the approach based on shared behavior, closure needs and measured design constraints.",
     wrong: "✗ The key reason is memory efficiency. When methods are on the prototype, all instances share a single copy. When defined inside the constructor (with <code>this.method = function()</code>), each instance gets its own copy."
   },
   q7: {
@@ -1876,8 +1880,8 @@ const quizExplanations = {
     wrong: "✗ Not quite. Forgetting <code>super()</code> throws a ReferenceError at runtime: 'Must call super constructor in derived class before accessing this or returning from derived constructor.' <code>super()</code> is mandatory, not optional."
   },
   q8: {
-    correct: "✓ Exactly! Class methods go on <code>ClassName.prototype</code> — just like prototype-based code. That's what 'syntactic sugar' means — under the hood, it's the same prototype mechanism. Run <code>typeof Animal</code> — still 'function'!",
-    wrong: "✗ Not quite. Class methods live on <code>ClassName.prototype</code> — shared by all instances via the prototype chain. Classes are syntactic sugar, not a different system. The exact same memory-efficient sharing happens."
+    correct: "✓ Class methods normally live on <code>ClassName.prototype</code>, so instances share them through prototype lookup. Class syntax also has specific semantics, including strict mode and requiring <code>new</code> for construction.",
+    wrong: "✗ Not quite. Class methods normally live on <code>ClassName.prototype</code> and are shared through prototype lookup, but classes also add runtime rules such as strict mode, new-only construction and private elements."
   },
   q9: {
     correct: "✓ Correct! <code>static</code> methods/properties belong to the class constructor, not to instances. You call them on the class: <code>MyClass.staticMethod()</code>, not on instances. They're useful for utility functions and factory methods.",

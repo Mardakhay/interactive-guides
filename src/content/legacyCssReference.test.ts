@@ -13,9 +13,9 @@ const legacyCssHtml = readFileSync(
 describe('wb-003 legacy CSS reference accuracy and parity', () => {
   it('preserves the principal reference sections and interactive playgrounds', () => {
     for (const id of [
-      'sec-overview', 'sec-anatomy', 'sec-structure', 'sec-elements',
-      'sec-text', 'sec-links', 'sec-tables', 'sec-forms', 'sec-inputs',
-      'sec-semantic', 'sec-media', 'sec-meta', 'sec-attributes', 'sec-quickref',
+      'sec-overview', 'sec-syntax', 'sec-visual', 'sec-boxmodel', 'sec-display',
+      'sec-colors', 'sec-typography', 'sec-transitions', 'sec-flexbox', 'sec-grid',
+      'sec-responsive', 'sec-variables', 'sec-accessibility', 'sec-compat', 'sec-quickref',
     ]) {
       expect(legacyCssHtml).toMatch(new RegExp('<section[^>]+id="' + id + '"'));
     }
