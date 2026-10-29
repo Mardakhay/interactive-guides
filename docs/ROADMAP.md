@@ -704,3 +704,13 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 - [x] Update tooling tests to validate both locale schemas and identical block ordering, version/date, seven knowledge checks, the CLI walkthrough line ranges, correct `react-ts` and HMR answers, and npm/Vite reference URLs.
 - [x] Exact code/content SHA `0b20e7cf499c21d8ca3a879a104e11c11d1882f5` passed [CI #40832351304](https://github.com/Mardakhay/interactive-guides/actions/runs/40832351304): 36 test files / 226 tests, lint, typecheck, production build, 125 JS chunk budgets, zero npm audit advisories and preview smoke over four routes and five PWA assets.
 - [ ] `tl-003` remains blocked on full bilingual source/interaction parity; the legacy 20-question / 10-exercise interaction set is not recreated one-for-one. Preserve the source and classic route pending content, state-migration and browser/device acceptance.
+
+
+## Git Workflow original quiz and CI-stage assessment parity — 2026-10-29
+
+- [x] Re-read `public/lessons/git-workflow-cicd-guide.html` and map its ten quiz concepts against both `git.workflow-ci` locale bodies. Keep the original classic HTML in place.
+- [x] Upgrade `git.workflow-ci` EN/RU to v10: 69 aligned blocks and 19 scored knowledge checks per locale. Added explicit checks for hotfix origin, branch-protection enforcement vs CI reporting, the Git Flow feature target, CI purpose, actionable review feedback, SemVer MINOR, continuous deployment, focused PR review, and `npm ci`; retain the existing hotfix back-merge check to cover the full source quiz concept set.
+- [x] Expand the bilingual `ci-failure-diagnosis-matrix` to address checkout, dependency install, lint/typecheck, tests, build, security/audit, deployment and exact-SHA reruns. Add regression coverage for answer IDs, per-option feedback, explanatory copy, stage coverage and localized English/Russian test terminology.
+- [x] Verify source/content/test checkpoint `b9a59af8780e3dd6f9f2187cc70dc4c022ad288e` in [CI #40842019192](https://github.com/Mardakhay/interactive-guides/actions/runs/40842019192): 37 test files / 230 tests, lint, typecheck, production build, 125 JavaScript chunks within budgets, zero reported npm audit advisories and production-preview smoke.
+- [ ] Keep `tl-002` **Blocked**: the branch canvas, tabs, click-to-inject seven-stage simulator and original sequential quiz scoring/restart UI are not reproduced one-to-one. Do not treat concept checks as interactive source equivalence.
+- [ ] Keep real-browser/device, screen-reader, mobile/offline/PWA and learner-state-retention acceptance open. No route redirection, HTML deletion, data fan-out or Supabase cutover is approved by this content batch.
