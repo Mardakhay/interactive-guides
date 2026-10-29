@@ -74,7 +74,7 @@ describe('Git Reference source-derived content', () => {
       expect(body?.type).toBe('paragraph');
       if (body?.type !== 'paragraph') throw new Error('GitHub Pages explanation is missing');
       expect(body.text.toLowerCase()).toContain('git push');
-      expect(body.text.toLowerCase()).toMatch(/deployment|deploy/);
+      expect(body.text.toLowerCase()).toMatch(locale === 'en' ? /deployment|deploy/ : /deployment|публикац/);
 
       expect(checklist?.type).toBe('list');
       if (checklist?.type !== 'list') throw new Error('GitHub Pages checklist is missing');
