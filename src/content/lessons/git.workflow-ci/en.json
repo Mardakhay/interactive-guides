@@ -1,7 +1,7 @@
 {
   "id": "git.workflow-ci",
   "locale": "en",
-  "version": 8,
+  "version": 9,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -25,7 +25,8 @@
     "Explain how CI runs automated checks and why a green check is not a substitute for review.",
     "Compare common branch strategies and apply Semantic Versioning to compatible and breaking changes.",
     "Resolve an active merge or rebase conflict by staging the intended result and continuing or aborting the correct operation.",
-    "Write actionable code-review comments and distinguish blocking defects from suggestions, questions, and nitpicks."
+    "Write actionable code-review comments and distinguish blocking defects from suggestions, questions, and nitpicks.",
+    "Explain why a production hotfix must be back-merged into develop in Git Flow when the team maintains that integration branch."
   ],
   "tags": [
     "git",
@@ -673,6 +674,44 @@
       ]
     },
     {
+      "id": "hotfix-back-merge-guidance",
+      "type": "paragraph",
+      "text": "In Git Flow, a hotfix usually starts from the production branch (`main` or `master`) so unfinished work in `develop` is not accidentally released. After the fix is reviewed and merged into production, back-merge it into `develop` and any maintained release branch that also needs the fix. Otherwise the next release cut from `develop` can reintroduce the same bug. This is specific to workflows with a long-lived integration branch: a team using short-lived GitHub Flow branches may not have a `develop` branch at all, so follow the repository's agreed branch and release policy."
+    },
+    {
+      "id": "hotfix-back-merge-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A production hotfix has been merged into `main` under Git Flow. What helps prevent the next release from reintroducing the fixed bug?",
+      "options": [
+        {
+          "id": "back-merge",
+          "text": "Back-merge the hotfix into `develop` and any maintained release branch that needs the fix",
+          "correct": true,
+          "feedback": "Correct. The production fix must also reach the long-lived integration/release branches from which future versions are built."
+        },
+        {
+          "id": "force-main",
+          "text": "Force-push `main` again so Git remembers the fix",
+          "correct": false,
+          "feedback": "Repeating a push does not propagate the change to the `develop` branch, where the next release may still be based."
+        },
+        {
+          "id": "delete-develop",
+          "text": "Delete `develop` immediately after the hotfix",
+          "correct": false,
+          "feedback": "Deleting a branch does not merge the fix into work already based on it and may destroy the team's intended integration branch."
+        },
+        {
+          "id": "always-major",
+          "text": "Always increment the MAJOR version after any hotfix",
+          "correct": false,
+          "feedback": "Versioning follows compatibility and the release policy; it does not replace merging the code into maintained branches."
+        }
+      ],
+      "explanation": "When a team uses Git Flow, back-merging a production hotfix keeps the integration branch from losing that fix. Other branch models may use different targets, so follow the project's documented workflow."
+    },
+    {
       "id": "git-semantic-versioning",
       "type": "heading",
       "level": 2,
@@ -938,6 +977,11 @@
         {
           "title": "GitHub Docs: About merge conflicts",
           "url": "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/about-merge-conflicts",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Book: Branching Workflows",
+          "url": "https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows",
           "kind": "official-docs"
         }
       ]

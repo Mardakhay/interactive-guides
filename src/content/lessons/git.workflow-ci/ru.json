@@ -1,7 +1,7 @@
 {
   "id": "git.workflow-ci",
   "locale": "ru",
-  "version": 8,
+  "version": 9,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-29",
@@ -25,7 +25,8 @@
     "Объяснять роль CI и почему зелёный статус не заменяет ревью.",
     "Сравнивать распространённые стратегии ветвления и применять Semantic Versioning к совместимым и несовместимым изменениям.",
     "Разрешать конфликт в активном merge или rebase, добавлять правильный результат в staging и продолжать либо отменять нужную операцию.",
-    "Писать полезные комментарии code review и различать блокирующие дефекты, предложения, вопросы и nitpick."
+    "Писать полезные комментарии code review и различать блокирующие дефекты, предложения, вопросы и nitpick.",
+    "Объяснять, почему hotfix из production нужно обратно вливать в develop в Git Flow, если команда поддерживает эту интеграционную ветку."
   ],
   "tags": [
     "git",
@@ -673,6 +674,44 @@
       ]
     },
     {
+      "id": "hotfix-back-merge-guidance",
+      "type": "paragraph",
+      "text": "В Git Flow hotfix обычно создаётся от production-ветки (`main` или `master`), чтобы незавершённая работа из `develop` случайно не попала в выпуск. После ревью и слияния исправления в production его нужно обратно влить в `develop` и в поддерживаемые release-ветки, которым тоже нужен этот фикс. Иначе следующий релиз, созданный из `develop`, может вернуть ту же ошибку. Это правило относится к workflow с долгоживущей интеграционной веткой: в GitHub Flow с короткоживущими ветками `develop` может вообще не существовать, поэтому следуй согласованным правилам ветвления и релизов репозитория."
+    },
+    {
+      "id": "hotfix-back-merge-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Hotfix для production уже слит в `main` по Git Flow. Что помогает не допустить повторного появления исправленной ошибки в следующем релизе?",
+      "options": [
+        {
+          "id": "back-merge",
+          "text": "Обратно влить hotfix в `develop` и в поддерживаемые release-ветки, которым нужен фикс",
+          "correct": true,
+          "feedback": "Верно. Production-исправление должно попасть также в долгоживущие интеграционные и release-ветки, из которых готовятся будущие версии."
+        },
+        {
+          "id": "force-main",
+          "text": "Повторно сделать force-push в `main`, чтобы Git запомнил исправление",
+          "correct": false,
+          "feedback": "Повторная отправка не переносит изменение в `develop`; следующий релиз всё ещё может строиться из ветки без фикса."
+        },
+        {
+          "id": "delete-develop",
+          "text": "Немедленно удалить `develop` после hotfix",
+          "correct": false,
+          "feedback": "Удаление ветки не вливает исправление в уже основанную на ней работу и может разрушить принятую командой интеграционную ветку."
+        },
+        {
+          "id": "always-major",
+          "text": "Всегда повышать MAJOR-версию после любого hotfix",
+          "correct": false,
+          "feedback": "Версия определяется совместимостью и политикой релизов; она не заменяет слияние исправления в поддерживаемые ветки."
+        }
+      ],
+      "explanation": "В Git Flow обратное слияние production-hotfix сохраняет исправление в интеграционной ветке. В других моделях ветвления цели могут отличаться, поэтому соблюдай правила конкретного проекта."
+    },
+    {
       "id": "git-semantic-versioning",
       "type": "heading",
       "level": 2,
@@ -938,6 +977,11 @@
         {
           "title": "Документация GitHub: About merge conflicts",
           "url": "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/about-merge-conflicts",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Документация Git: Branching Workflows",
+          "url": "https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows",
           "kind": "official-docs"
         }
       ]

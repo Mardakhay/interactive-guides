@@ -1128,14 +1128,16 @@ describe('Git workflow lesson translation', () => {
     expect(englishGitWorkflow.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGitWorkflow.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(9);
-    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(9);
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
+    expect(englishGitWorkflow.learningOutcomes).toHaveLength(10);
+    expect(russianGitWorkflow.learningOutcomes).toHaveLength(10);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
-    expect(englishGitWorkflow.version).toBe(8);
-    expect(russianGitWorkflow.version).toBe(8);
+    expect(englishGitWorkflow.version).toBe(9);
+    expect(russianGitWorkflow.version).toBe(9);
     for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
       expect(lesson.updatedAt).toBe('2026-10-29');
       const ciExample = lesson.blocks.find((block) => block.id === 'ci-example');
@@ -1259,6 +1261,23 @@ describe('Git workflow lesson translation', () => {
       expect(reviewPractice.requirements.length).toBeGreaterThanOrEqual(5);
       expect(reviewPractice.hints.length).toBeGreaterThanOrEqual(4);
       expect(reviewPractice.successCriteria.length).toBeGreaterThanOrEqual(5);
+
+      const backMergeGuidance = lesson.blocks.find((block) => block.id === 'hotfix-back-merge-guidance');
+      expect(backMergeGuidance?.type).toBe('paragraph');
+      if (backMergeGuidance?.type !== 'paragraph') throw new Error('Hotfix back-merge guidance is missing');
+      expect(backMergeGuidance.text).toContain('develop');
+      expect(backMergeGuidance.text).toMatch(/back-merge|обратно влить/i);
+
+      const backMergeCheck = lesson.blocks.find((block) => block.id === 'hotfix-back-merge-check');
+      expect(backMergeCheck?.type).toBe('knowledgeCheck');
+      if (backMergeCheck?.type !== 'knowledgeCheck') throw new Error('Hotfix back-merge check is missing');
+      expect(backMergeCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['back-merge']);
+      expect(backMergeCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
+      const references = lesson.blocks.find((block) => block.id === 'git-workflow-references');
+      expect(references?.type).toBe('references');
+      if (references?.type !== 'references') throw new Error('Git workflow references are missing');
+      expect(references.items.some((item) => item.url === 'https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows')).toBe(true);
     }
   });
 });
