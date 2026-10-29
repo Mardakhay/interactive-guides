@@ -1,7 +1,7 @@
 {
   "id": "react.api-custom-hooks",
   "locale": "ru",
-  "version": 5,
+  "version": 6,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-29",
@@ -724,6 +724,69 @@
         "Размонтирование очищает ожидающий таймер.",
         "Поздний ответ старого запроса не заменяет актуальные результаты.",
         "Состояния загрузки, пустого результата, ошибки и результатов различимы."
+      ]
+    },
+    {
+      "id": "legacy-use-local-storage-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useEffect, useState } from \"react\";\n\ntype StoredValue<T> = {\n  key: string;\n  value: T;\n  shouldPersist: boolean;\n};\n\nfunction readStoredValue<T>(key: string, initialValue: T): StoredValue<T> {\n  if (typeof window === \"undefined\") {\n    return { key, value: initialValue, shouldPersist: false };\n  }\n\n  try {\n    const raw = window.localStorage.getItem(key);\n    if (raw === null) return { key, value: initialValue, shouldPersist: true };\n    return { key, value: JSON.parse(raw) as T, shouldPersist: false };\n  } catch {\n    // Do not overwrite malformed or inaccessible storage automatically.\n    return { key, value: initialValue, shouldPersist: false };\n  }\n}\n\nfunction useLocalStorage<T>(key: string, initialValue: T) {\n  const [stored, setStored] = useState(() => readStoredValue(key, initialValue));\n  const value = stored.key === key\n    ? stored.value\n    : readStoredValue(key, initialValue).value;\n\n  useEffect(() => {\n    if (stored.key !== key) {\n      setStored(readStoredValue(key, initialValue));\n      return;\n    }\n    if (!stored.shouldPersist || typeof window === \"undefined\") return;\n\n    try {\n      const serialized = JSON.stringify(stored.value);\n      if (serialized !== undefined) window.localStorage.setItem(key, serialized);\n    } catch {\n      // Keep in-memory state usable when storage is blocked or full.\n    }\n  }, [key, initialValue, stored]);\n\n  function setValue(next: T | ((current: T) => T)) {\n    setStored((current) => {\n      const previous = current.key === key\n        ? current.value\n        : readStoredValue(key, initialValue).value;\n      const value = typeof next === \"function\"\n        ? (next as (current: T) => T)(previous)\n        : next;\n      return { key, value, shouldPersist: true };\n    });\n  }\n\n  return [value, setValue] as const;\n}",
+      "steps": [
+        {
+          "title": "Читай storage с защитой от ошибок",
+          "lineStart": 1,
+          "lineEnd": 20,
+          "explanation": "Начальное чтение отличает отсутствующий ключ от повреждённой или недоступной записи. Type assertion после JSON.parse не валидирует данные во время выполнения."
+        },
+        {
+          "title": "Связывай состояние с конкретным ключом",
+          "lineStart": 22,
+          "lineEnd": 28,
+          "explanation": "При смене prop key сначала прочитай новое значение, прежде чем что-либо сохранять, чтобы не копировать старое значение в другую запись."
+        },
+        {
+          "title": "Сохраняй изменения, не делая storage обязательным для UI",
+          "lineStart": 29,
+          "lineEnd": 58,
+          "explanation": "Записи защищены обработкой ошибок, и in-memory состояние остаётся рабочим. Пример рассчитан на client-rendered приложение; SSR-приложению нужно избежать hydration mismatch."
+        }
+      ]
+    },
+    {
+      "id": "legacy-use-local-storage-practice",
+      "type": "codingExercise",
+      "title": "Реализуй защитный Hook useLocalStorage",
+      "language": "tsx",
+      "context": "Создай переиспользуемый Hook для client-rendered React-приложения. Редактор сохраняет черновик, но не выполняет TSX; проверь реализацию в реальном проекте.",
+      "instructions": [
+        "Прочитай выбранный ключ для текущего экземпляра Hook и используй начальное значение только при отсутствии сохранённого значения.",
+        "Возвращай текущее значение и setter, который поддерживает готовое значение или функциональный updater.",
+        "Сохраняй JSON при изменении значения и обрабатывай ситуации, когда localStorage заблокирован или заполнен, не ломая UI.",
+        "Если сохранённый JSON повреждён или storage недоступен для чтения, не перезаписывай исходную запись только из-за монтирования Hook.",
+        "Не допускай копирования значения предыдущего ключа под новый ключ; проверь стабильный и изменяющийся ключ.",
+        "Объясни, что type assertion после JSON.parse не валидирует runtime-структуру и что для SSR нужен дизайн с учётом hydration."
+      ],
+      "requirements": [
+        "Hook читает сохранённое значение или использует fallback, если ключ отсутствует.",
+        "Функциональное обновление рассчитывается от самого свежего состояния Hook.",
+        "Ошибки чтения/записи storage и JSON parsing обрабатываются осознанно.",
+        "Повреждённые или недоступные данные не заменяются fallback автоматически при монтировании.",
+        "При смене ключа загружается новое значение, а старое не переносится под новый ключ.",
+        "Объяснены runtime-валидация и различие client-only SPA и SSR."
+      ],
+      "starterCode": "import { useEffect, useState } from \"react\";\n\nfunction useLocalStorage<T>(key: string, initialValue: T) {\n  const [value, setValue] = useState<T>(() => initialValue);\n\n  useEffect(() => {\n    // TODO: read the key, preserving malformed/unreadable data.\n    // TODO: serialize updates without crashing when storage is unavailable.\n  }, [key, initialValue, value]);\n\n  return [value, setValue] as const;\n}",
+      "hints": [
+        "Storage API и JSON parsing могут выбрасывать ошибки; UI должен оставаться работоспособным.",
+        "Отслеживай, к какому ключу относится значение, чтобы смена key не записывала старое значение под новым ключом.",
+        "Type assertion для JSON не проверяет наличие ожидаемых свойств во время выполнения."
+      ],
+      "successCriteria": [
+        "Существующее значение загружается, а для отсутствующего ключа используется fallback.",
+        "Setter поддерживает прямые значения и функциональные updater.",
+        "Ошибки storage не приводят к падению компонента.",
+        "Повреждённые данные не стираются автоматически при монтировании.",
+        "Смена ключа не записывает старое значение под новым ключом.",
+        "Ограничения runtime-валидации и hydration описаны точно."
       ]
     },
     {
