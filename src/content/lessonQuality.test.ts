@@ -113,6 +113,7 @@ describe('cross-locale user-facing prose quality', () => {
           ['nested-destructuring-check', 'quiz-destructure'].includes(blockId) &&
           path[0] === 'options' && path[2] === 'text') ||
         (lessonId === 'testing.react-testing-library' && blockId === 'testing-quiz-1' && path[0] === 'options' && path[2] === 'text') ||
+        (lessonId === 'tooling.node-npm-vite' && blockId === 'vite-template-check' && path[0] === 'options' && path[2] === 'text') ||
         (lessonId === 'js.runtime-memory' && blockId === 'runtime-copy-practice' && path[0] === 'successCriteria' && path[1] === 2);
       if (codeLikeField) return;
 
