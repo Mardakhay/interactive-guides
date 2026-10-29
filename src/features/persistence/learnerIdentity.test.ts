@@ -43,6 +43,15 @@ afterEach(() => {
 });
 
 describe('learner state keeps classic and structured identities separate', () => {
+  it('stores the current last-opened pointer inside the progress record', () => {
+    useProgressStore.getState().markLessonOpened(classicId);
+
+    const progress = readRecord<{ lastOpenedLessonId: string | null; lastOpenedAt: string | null }>(STORAGE_KEYS.PROGRESS);
+    expect(progress.data.lastOpenedLessonId).toBe(classicId);
+    expect(progress.data.lastOpenedAt).toEqual(expect.any(String));
+    expect(localStorage.getItem(STORAGE_KEYS.LAST_LESSON)).toBeNull();
+  });
+
   it('keeps progress under each original lesson ID without fanning out completion', () => {
     useProgressStore.getState().markLessonCompleted(classicId);
     useProgressStore.getState().markLessonOpened(structuredId);

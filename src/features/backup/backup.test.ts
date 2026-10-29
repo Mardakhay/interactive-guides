@@ -57,6 +57,16 @@ describe('local learning data backups', () => {
     expect(parseBackup(serializeBackup(backup))).toEqual(backup);
   });
 
+  it('does not overwrite the standalone legacy last-lesson key during restore without a retention policy', () => {
+    const rawBackup = serializeBackup(createLocalBackup(createPopulatedStorage()));
+    const target = new MemoryStorage();
+    target.setItem(STORAGE_KEYS.LAST_LESSON, 'legacy-source-id');
+
+    restoreLocalBackup(rawBackup, target);
+
+    expect(target.getItem(STORAGE_KEYS.LAST_LESSON)).toBe('legacy-source-id');
+  });
+
   it('uses defaults for absent datasets and reads legacy structured data without migrating it', () => {
     const storage = new MemoryStorage();
     storage.setItem(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, JSON.stringify({ quizAttempts: {}, codeDrafts: {}, practiceChecklists: {} }));
