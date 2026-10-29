@@ -1,10 +1,10 @@
 {
   "id": "frontend.auth-security",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-28",
+  "updatedAt": "2026-10-29",
   "moduleId": "supplement-auth",
   "supplementaryTrackId": "supplement-auth",
   "order": 1,
@@ -134,7 +134,7 @@
     {
       "id": "auth-jwt-validation-model",
       "type": "paragraph",
-      "text": "A JWT's Base64URL-encoded header and payload are readable by anyone who has the token; encoding is not encryption. Decoding can help the UI display a non-authoritative hint such as an expiry time, but it does not verify the signature, issuer, audience, expiry policy or permissions. The resource server must validate the token according to its contract and authorize the requested operation. Never put passwords, API secrets or sensitive personal data in a readable token payload."
+      "text": "A JWT's Base64URL-encoded header and payload are readable by anyone who has the token; encoding is not encryption. Decoding can help the UI display a non-authoritative hint such as an expiry time, but a future `exp` claim does not prove the token is valid. Treat missing or malformed expiry claims explicitly. A local learning decoder should use synthetic/example tokens only—never paste a live access, ID, refresh or session token into a demo. Decoding does not verify the signature, issuer, audience, expiry policy, revocation state or permissions. The resource server must validate the token according to its contract and authorize the requested operation. Never put passwords, API secrets or sensitive personal data in a readable token payload."
     },
     {
       "id": "auth-jwt-validation-check",
@@ -423,6 +423,11 @@
           "title": "MDN: 401 Unauthorized",
           "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/401",
           "kind": "article"
+        },
+        {
+          "title": "RFC 7519: JSON Web Token (JWT)",
+          "url": "https://www.rfc-editor.org/rfc/rfc7519.html",
+          "kind": "standard"
         }
       ]
     }

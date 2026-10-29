@@ -1,10 +1,10 @@
 {
   "id": "frontend.auth-security",
   "locale": "ru",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-28",
+  "updatedAt": "2026-10-29",
   "moduleId": "supplement-auth",
   "supplementaryTrackId": "supplement-auth",
   "order": 1,
@@ -134,7 +134,7 @@
     {
       "id": "auth-jwt-validation-model",
       "type": "paragraph",
-      "text": "Заголовок и payload JWT, закодированные Base64URL, читаемы любым обладателем токена; кодирование — не шифрование. Декодирование помогает показать UI неподтверждённую подсказку, например время истечения, но не проверяет подпись, issuer, audience, политику срока жизни или права. Resource server обязан проверить токен по своему контракту и авторизовать конкретную операцию. Не помещай пароли, API-секреты и чувствительные персональные данные в читаемый payload."
+      "text": "Заголовок и payload JWT, закодированные Base64URL, читаемы любым обладателем токена; кодирование — не шифрование. Декодирование может дать UI неподтверждённую подсказку, например время истечения, но будущее значение `exp` не доказывает действительность токена. Явно обрабатывай отсутствующие или некорректные claims срока жизни. Для учебного локального декодера используй только синтетические примеры — никогда не вставляй настоящие access, ID, refresh или session tokens. Декодирование не проверяет подпись, issuer, audience, политику срока жизни, отзыв токена или права. Resource server обязан проверить токен по своему контракту и авторизовать конкретную операцию. Не помещай пароли, API-секреты и чувствительные персональные данные в читаемый payload."
     },
     {
       "id": "auth-jwt-validation-check",
@@ -423,6 +423,11 @@
           "title": "MDN: 401 Unauthorized",
           "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/401",
           "kind": "article"
+        },
+        {
+          "title": "RFC 7519: JSON Web Token (JWT)",
+          "url": "https://www.rfc-editor.org/rfc/rfc7519.html",
+          "kind": "standard"
         }
       ]
     }

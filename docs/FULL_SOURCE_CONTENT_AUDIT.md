@@ -1167,3 +1167,8 @@ See [TL003_SOURCE_PARITY.md](TL003_SOURCE_PARITY.md) for the bilingual source-to
 ## Focused tl-004 deployment source review — 2026-10-29
 
 The targeted crosswalk and exact factual corrections are documented in [TL004_SOURCE_PARITY.md](TL004_SOURCE_PARITY.md). The legacy deployment guide's env precedence, browser-secret warning, stale provider quota/price claims, SPA fallback caveat, rollback side effects and readiness-checklist language were corrected without deleting its interactive source controls. New regression coverage lives in `src/content/legacyDeployment.test.ts`; the `tl-004` cutover row remains **Blocked** because the legacy interactive behavior, learner-state disposition, and native browser/deployment acceptance are not equivalent or signed off.
+
+
+## Focused sec-001 authentication source review — 2026-10-29
+
+See [SEC001_SOURCE_PARITY.md](SEC001_SOURCE_PARITY.md) for the section crosswalk and security corrections. The legacy page no longer claims that HttpOnly prevents an XSS payload from acting as the user, and SameSite behavior is described with narrower, testable language. The JWT demo now warns against live credentials and does not label a future unverified `exp` claim as token validity; its expiry helper returns an indeterminate result for malformed or absent claims. EN/RU `frontend.auth-security` is now v4 with matching JWT guidance and RFC 7519. Regression coverage is in `src/content/legacyAuth.test.ts`; `sec-001` remains **Blocked** pending interaction parity, learner-state disposition, and native browser/security acceptance.

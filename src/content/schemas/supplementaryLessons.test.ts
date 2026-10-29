@@ -397,7 +397,7 @@ describe('frontend authentication security and lifecycle', () => {
   it('covers status codes, JWT limits, OAuth roles and concurrent token refresh', () => {
     expect(lessonTranslationSchema.safeParse(englishAuth).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianAuth).success).toBe(true);
-    expect(englishAuth.version).toBe(3);
+    expect(englishAuth.version).toBe(4);
     expect(englishAuth.blocks).toHaveLength(23);
     expect(englishAuth.blocks.map(({ id, type }) => [id, type])).toEqual(
       russianAuth.blocks.map(({ id, type }) => [id, type]),
@@ -428,11 +428,20 @@ describe('frontend authentication security and lifecycle', () => {
       expect(practice.requirements.length).toBeGreaterThanOrEqual(7);
       expect(practice.hints.length).toBeGreaterThanOrEqual(4);
       expect(practice.successCriteria.length).toBeGreaterThanOrEqual(6);
+      const jwtModel = lesson.blocks.find((block) => block.id === 'auth-jwt-validation-model');
+      expect(jwtModel?.type).toBe('paragraph');
+      if (jwtModel?.type === 'paragraph') {
+        expect(jwtModel.text.toLowerCase()).toContain(
+          lesson.locale === 'en' ? 'synthetic/example tokens' : 'синтетические примеры',
+        );
+        expect(jwtModel.text).toContain('`exp`');
+      }
       const refs = lesson.blocks.find((block) => block.id === 'auth-references');
       expect(refs?.type).toBe('references');
       if (refs?.type === 'references') {
         expect(refs.items.some((item) => item.url === 'https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/401')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://www.rfc-editor.org/rfc/rfc7519.html')).toBe(true);
       }
     }
   });
