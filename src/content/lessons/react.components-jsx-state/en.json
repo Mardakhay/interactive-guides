@@ -1,10 +1,10 @@
 {
   "id": "react.components-jsx-state",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-3-week-11",
   "week": 11,
   "order": 1,
@@ -22,7 +22,8 @@
     "Read JSX expressions and conditionally render elements.",
     "Pass data with props and treat props as read-only.",
     "Use useState for values that change over time and should update the UI.",
-    "Update arrays and objects immutably and use functional state updates when appropriate."
+    "Update arrays and objects immutably and use functional state updates when appropriate.",
+    "Describe the value/setter pair returned by useState and how it requests updates."
   ],
   "tags": [
     "react",
@@ -134,6 +135,39 @@
       "id": "state-body",
       "type": "paragraph",
       "text": "A local variable inside a component function is recreated when React calls that function again. Changing such a variable does not notify React that the UI needs an update. useState gives React a value to retain between renders and a setter that schedules an update. The state value observed by the currently executing render is a snapshot; calling the setter does not change that snapshot in place."
+    },
+    {
+      "id": "react-usestate-return-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does `useState(initialValue)` return?",
+      "options": [
+        {
+          "id": "pair",
+          "text": "A pair containing the current state value and a setter function that requests an update.",
+          "correct": true,
+          "feedback": "Correct. The returned value belongs to the current render snapshot; calling the setter schedules a future render when React processes the update."
+        },
+        {
+          "id": "value",
+          "text": "Only the current state value; React detects any local-variable assignment automatically.",
+          "correct": false,
+          "feedback": "A local variable assignment does not notify React. `useState` returns both the value and a setter function."
+        },
+        {
+          "id": "ref",
+          "text": "A mutable ref object whose `.current` changes without rendering.",
+          "correct": false,
+          "feedback": "That describes `useRef` more closely. `useState` gives a value and a setter that can schedule rendering."
+        },
+        {
+          "id": "promise",
+          "text": "A Promise that resolves to the next state value after the DOM is updated.",
+          "correct": false,
+          "feedback": "The setter does not return a Promise for the next state. State updates are scheduled and the next render receives a new snapshot."
+        }
+      ],
+      "explanation": "`useState` returns the current value and its setter. The setter requests an update; it does not mutate the value captured by the currently executing render."
     },
     {
       "id": "counter-example",
@@ -489,6 +523,11 @@
         {
           "title": "React: Updating Arrays in State",
           "url": "https://react.dev/learn/updating-arrays-in-state",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React reference: useState",
+          "url": "https://react.dev/reference/react/useState",
           "kind": "official-docs"
         }
       ]
