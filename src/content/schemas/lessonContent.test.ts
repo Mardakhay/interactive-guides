@@ -162,31 +162,7 @@ describe('HTML forms and accessibility lesson translation', () => {
       if (check?.type !== 'knowledgeCheck') return;
       expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['filter']);
       expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
-      const rebaseGuidance = lesson.blocks.find((block) => block.id === 'git-rebase-safe-update-body');
-      expect(rebaseGuidance?.type).toBe('paragraph');
-      if (rebaseGuidance?.type !== 'paragraph') throw new Error('Safe rebase guidance is missing');
-      expect(rebaseGuidance.text).toContain('git fetch origin');
-      expect(rebaseGuidance.text).toContain('git rebase --abort');
-      expect(rebaseGuidance.text).toContain('git rebase --continue');
-      expect(rebaseGuidance.text).toMatch(lesson.locale === 'en' ? /unpublished|teammates/ : /неопубликован|коллеги/);
 
-      const rebaseWalkthrough = lesson.blocks.find((block) => block.id === 'git-rebase-safe-update-walkthrough');
-      expect(rebaseWalkthrough?.type).toBe('codeWalkthrough');
-      if (rebaseWalkthrough?.type !== 'codeWalkthrough') throw new Error('Safe rebase walkthrough is missing');
-      expect(rebaseWalkthrough.code).toContain('git fetch origin');
-      expect(rebaseWalkthrough.code).toContain('git rebase origin/main');
-      expect(rebaseWalkthrough.code).toContain('git rebase --continue');
-      for (const step of rebaseWalkthrough.steps) {
-        expect(step.lineStart).toBeGreaterThan(0);
-        expect(step.lineEnd).toBeLessThanOrEqual(rebaseWalkthrough.code.split('\\n').length);
-      }
-
-      const rebaseCheck = lesson.blocks.find((block) => block.id === 'git-rebase-safety-check');
-      expect(rebaseCheck?.type).toBe('knowledgeCheck');
-      if (rebaseCheck?.type !== 'knowledgeCheck') throw new Error('Safe rebase knowledge check is missing');
-      expect(rebaseCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['rebase-own-feature']);
-      expect(rebaseCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
-      expect(rebaseCheck.explanation).toContain('git fetch origin');
 
       const refs = lesson.blocks.find((block) => block.id === 'references');
       expect(refs?.type).toBe('references');
@@ -415,11 +391,39 @@ describe('Git fundamentals lesson translation', () => {
       expect(fetchCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['fetch']);
       expect(fetchCheck.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
 
-      const refs = lesson.blocks.find((block) => block.id === 'references');
+      
+      const rebaseGuidance = lesson.blocks.find((block) => block.id === 'git-rebase-safe-update-body');
+      expect(rebaseGuidance?.type).toBe('paragraph');
+      if (rebaseGuidance?.type !== 'paragraph') throw new Error('Safe rebase guidance is missing');
+      expect(rebaseGuidance.text).toContain('git fetch origin');
+      expect(rebaseGuidance.text).toContain('git rebase --abort');
+      expect(rebaseGuidance.text).toContain('git rebase --continue');
+      expect(rebaseGuidance.text).toMatch(lesson.locale === 'en' ? /unpublished|teammates/ : /неопубликован|коллеги/);
+
+      const rebaseWalkthrough = lesson.blocks.find((block) => block.id === 'git-rebase-safe-update-walkthrough');
+      expect(rebaseWalkthrough?.type).toBe('codeWalkthrough');
+      if (rebaseWalkthrough?.type !== 'codeWalkthrough') throw new Error('Safe rebase walkthrough is missing');
+      expect(rebaseWalkthrough.code).toContain('git fetch origin');
+      expect(rebaseWalkthrough.code).toContain('git rebase origin/main');
+      expect(rebaseWalkthrough.code).toContain('git rebase --continue');
+      for (const step of rebaseWalkthrough.steps) {
+        expect(step.lineStart).toBeGreaterThan(0);
+        expect(step.lineEnd).toBeLessThanOrEqual(rebaseWalkthrough.code.split('\n').length);
+      }
+
+      const rebaseCheck = lesson.blocks.find((block) => block.id === 'git-rebase-safety-check');
+      expect(rebaseCheck?.type).toBe('knowledgeCheck');
+      if (rebaseCheck?.type !== 'knowledgeCheck') throw new Error('Safe rebase knowledge check is missing');
+      expect(rebaseCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['rebase-own-feature']);
+      expect(rebaseCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      expect(rebaseCheck.explanation).toContain('git fetch origin');
+
+const refs = lesson.blocks.find((block) => block.id === 'references');
       expect(refs?.type).toBe('references');
       if (refs?.type === 'references') {
         expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-fetch')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-pull')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-rebase')).toBe(true);
       }
     }
     expect(russianGit.blocks.find((block) => block.id === 'knowledge-check-3')?.type).toBe('knowledgeCheck');

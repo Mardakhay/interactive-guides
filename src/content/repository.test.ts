@@ -293,8 +293,8 @@ describe('structured content repository', () => {
     expect(russian).toBeDefined();
     if (!english || !russian) throw new Error('Bilingual Git fundamentals lesson is missing');
 
-    expect(english.version).toBe(8);
-    expect(russian.version).toBe(8);
+    expect(english.version).toBe(9);
+    expect(russian.version).toBe(9);
     expect(english.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russian.blocks.map(({ id, type }) => ({ id, type })),
     );
