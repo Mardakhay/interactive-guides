@@ -1103,14 +1103,16 @@ describe('React component testing lesson translation', () => {
   it('keeps Vitest mock history, implementation, and spy restoration distinct', () => {
     expect(lessonTranslationSchema.safeParse(englishTesting).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianTesting).success).toBe(true);
-    expect(englishTesting.version).toBe(5);
-    expect(russianTesting.version).toBe(5);
-    expect(englishTesting.blocks).toHaveLength(43);
-    expect(russianTesting.blocks).toHaveLength(43);
-    expect(englishTesting.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
-    expect(russianTesting.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    expect(englishTesting.version).toBe(6);
+    expect(russianTesting.version).toBe(6);
+    expect(englishTesting.blocks).toHaveLength(45);
+    expect(russianTesting.blocks).toHaveLength(45);
+    expect(englishTesting.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(9);
+    expect(russianTesting.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(9);
     expect(englishTesting.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(russianTesting.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(englishTesting.learningOutcomes).toHaveLength(11);
+    expect(russianTesting.learningOutcomes).toHaveLength(11);
     expect(englishTesting.blocks.map(({ id, type }) => ({ id, type }))).toEqual(russianTesting.blocks.map(({ id, type }) => ({ id, type })));
     for (const lesson of [englishTesting, russianTesting]) {
       expect(lesson.updatedAt).toBe('2026-10-29');
@@ -1160,6 +1162,18 @@ describe('React component testing lesson translation', () => {
       expect(practice.requirements.length).toBeGreaterThanOrEqual(5);
       expect(practice.hints.length).toBeGreaterThanOrEqual(3);
       expect(practice.successCriteria.length).toBeGreaterThanOrEqual(5);
+      const absenceCheck = lesson.blocks.find((block) => block.id === 'query-absence-check');
+      expect(absenceCheck?.type).toBe('knowledgeCheck');
+      if (absenceCheck?.type !== 'knowledgeCheck') throw new Error('Query absence check is missing');
+      expect(absenceCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['query-by-role']);
+      expect(absenceCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
+      const aaaCheck = lesson.blocks.find((block) => block.id === 'aaa-pattern-check');
+      expect(aaaCheck?.type).toBe('knowledgeCheck');
+      if (aaaCheck?.type !== 'knowledgeCheck') throw new Error('AAA pattern check is missing');
+      expect(aaaCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['arrange-act-assert']);
+      expect(aaaCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
       const refs = lesson.blocks.find((block) => block.id === 'testing-references');
       expect(refs?.type).toBe('references');
       if (refs?.type === 'references') {

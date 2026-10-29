@@ -1,7 +1,7 @@
 {
   "id": "testing.react-testing-library",
   "locale": "en",
-  "version": 5,
+  "version": 6,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -27,7 +27,9 @@
     "Write meaningful tests in the project's Vitest + React Testing Library setup and understand what changes if Jest is used.",
     "Control API success and failure behavior with isolated Vitest mocks while asserting user-visible UI outcomes.",
     "Distinguish mock call history, reset behavior, and restoring a spied method in Vitest.",
-    "Choose equality assertions based on whether the test requires primitive/value comparison, recursive object equality, or reference identity."
+    "Choose equality assertions based on whether the test requires primitive/value comparison, recursive object equality, or reference identity.",
+    "Choose getBy, queryBy and findBy according to immediate presence, expected absence, or asynchronous appearance.",
+    "Structure a focused test around Arrange, Act and Assert without treating the pattern as a fixed line-count rule."
   ],
   "tags": [
     "testing",
@@ -184,6 +186,72 @@
         }
       ],
       "explanation": "Use `toEqual` for recursive value comparison and `toBe` when reference identity or `Object.is` behavior is the intended contract."
+    },
+    {
+      "id": "query-absence-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "After saving, an optional status message should be absent. Which assertion checks for absence without throwing just because the element is missing?",
+      "options": [
+        {
+          "id": "query-by-role",
+          "text": "`expect(screen.queryByRole(\"status\")).toBeNull()`",
+          "correct": true,
+          "feedback": "Correct. `queryByRole` returns null when no matching element exists, so it is appropriate for an absence assertion."
+        },
+        {
+          "id": "get-by-role",
+          "text": "`expect(screen.getByRole(\"status\")).toBeNull()`",
+          "correct": false,
+          "feedback": "`getByRole` throws immediately when there is no match, so the assertion never gets a null value to compare."
+        },
+        {
+          "id": "find-by-role",
+          "text": "`expect(screen.findByRole(\"status\")).toBeNull()`",
+          "correct": false,
+          "feedback": "`findByRole` returns a promise and waits for an element to appear; it expresses an eventual-presence expectation, not immediate absence."
+        },
+        {
+          "id": "get-all-by-role",
+          "text": "`expect(screen.getAllByRole(\"status\")).toHaveLength(0)`",
+          "correct": false,
+          "feedback": "`getAllByRole` throws when no elements match. Use queryBy when the absence itself is the expected state."
+        }
+      ],
+      "explanation": "Use `queryBy...` to check that an element is absent, `getBy...` for a required immediate match, and `findBy...` when an element should appear asynchronously."
+    },
+    {
+      "id": "aaa-pattern-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What do the three A letters in the AAA test pattern stand for?",
+      "options": [
+        {
+          "id": "arrange-act-assert",
+          "text": "Arrange, Act, Assert",
+          "correct": true,
+          "feedback": "Correct. Arrange prepares data/context, Act triggers the behavior, and Assert checks the result."
+        },
+        {
+          "id": "async-await-assign",
+          "text": "Async, Await, Assign",
+          "correct": false,
+          "feedback": "Async and await may be used in a test, but they are not the AAA test-structure pattern."
+        },
+        {
+          "id": "add-apply-affirm",
+          "text": "Add, Apply, Affirm",
+          "correct": false,
+          "feedback": "These words do not describe the commonly used Arrange, Act, Assert structure."
+        },
+        {
+          "id": "analyze-automate-assert",
+          "text": "Analyze, Automate, Assert",
+          "correct": false,
+          "feedback": "A test may include analysis and automation, but AAA refers to preparing a scenario, triggering it, then checking the outcome."
+        }
+      ],
+      "explanation": "Arrange the scenario, Act by triggering behavior, and Assert the result. Treat AAA as a readable reasoning structure rather than a requirement for exactly three statements."
     },
     {
       "id": "arrange-act-assert",

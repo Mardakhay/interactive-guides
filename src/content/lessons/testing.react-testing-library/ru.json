@@ -1,7 +1,7 @@
 {
   "id": "testing.react-testing-library",
   "locale": "ru",
-  "version": 5,
+  "version": 6,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-29",
@@ -27,7 +27,9 @@
     "Писать осмысленные тесты в связке Vitest + React Testing Library и понимать, что изменится при использовании Jest.",
     "Управлять успехом и ошибками API с изолированными Vitest mocks, проверяя видимые пользователю результаты.",
     "Различать очистку истории mock, сброс реализации и восстановление метода spy в Vitest.",
-    "Выбирать проверки равенства с учётом того, требуется сравнить примитив/значение, содержимое объекта или идентичность ссылки."
+    "Выбирать проверки равенства с учётом того, требуется сравнить примитив/значение, содержимое объекта или идентичность ссылки.",
+    "Выбирать getBy, queryBy и findBy в зависимости от того, ожидается ли элемент сейчас, его отсутствие или асинхронное появление.",
+    "Строить понятный тест по схеме Arrange, Act, Assert, не считая её правилом фиксированного количества строк."
   ],
   "tags": [
     "testing",
@@ -184,6 +186,72 @@
         }
       ],
       "explanation": "Используй `toEqual` для рекурсивного сравнения значений, а `toBe` — когда нужно проверить идентичность ссылки или семантику `Object.is`."
+    },
+    {
+      "id": "query-absence-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "После сохранения необязательное статусное сообщение должно отсутствовать. Какая проверка проверяет отсутствие и не выбрасывает исключение только из-за того, что элемента нет?",
+      "options": [
+        {
+          "id": "query-by-role",
+          "text": "`expect(screen.queryByRole(\"status\")).toBeNull()`",
+          "correct": true,
+          "feedback": "Верно. `queryByRole` возвращает null, когда совпадающего элемента нет, поэтому подходит для проверки отсутствия."
+        },
+        {
+          "id": "get-by-role",
+          "text": "`expect(screen.getByRole(\"status\")).toBeNull()`",
+          "correct": false,
+          "feedback": "`getByRole` сразу выбрасывает исключение, если совпадений нет, поэтому assertion не получает значение null для сравнения."
+        },
+        {
+          "id": "find-by-role",
+          "text": "`expect(screen.findByRole(\"status\")).toBeNull()`",
+          "correct": false,
+          "feedback": "`findByRole` возвращает promise и ждёт появления элемента; это проверка будущего появления, а не немедленного отсутствия."
+        },
+        {
+          "id": "get-all-by-role",
+          "text": "`expect(screen.getAllByRole(\"status\")).toHaveLength(0)`",
+          "correct": false,
+          "feedback": "`getAllByRole` выбрасывает исключение, если совпадений нет. Используй queryBy, когда ожидаемое состояние — отсутствие."
+        }
+      ],
+      "explanation": "Используй `queryBy...` для проверки отсутствия элемента, `getBy...` для обязательного немедленного совпадения, а `findBy...` — когда элемент должен появиться асинхронно."
+    },
+    {
+      "id": "aaa-pattern-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что означают три буквы AAA в структуре теста?",
+      "options": [
+        {
+          "id": "arrange-act-assert",
+          "text": "Arrange, Act, Assert",
+          "correct": true,
+          "feedback": "Верно. Arrange подготавливает данные и контекст, Act запускает поведение, а Assert проверяет результат."
+        },
+        {
+          "id": "async-await-assign",
+          "text": "Async, Await, Assign",
+          "correct": false,
+          "feedback": "Async и await могут использоваться в тесте, но это не названия шагов паттерна AAA."
+        },
+        {
+          "id": "add-apply-affirm",
+          "text": "Add, Apply, Affirm",
+          "correct": false,
+          "feedback": "Эти слова не обозначают распространённую структуру Arrange, Act, Assert."
+        },
+        {
+          "id": "analyze-automate-assert",
+          "text": "Analyze, Automate, Assert",
+          "correct": false,
+          "feedback": "Тест может включать анализ и автоматизацию, но AAA означает подготовить сценарий, запустить поведение и проверить результат."
+        }
+      ],
+      "explanation": "Подготовь сценарий (Arrange), вызови поведение (Act) и проверь результат (Assert). AAA — структура для ясного рассуждения, а не требование ровно трёх инструкций."
     },
     {
       "id": "arrange-act-assert",
