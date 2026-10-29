@@ -1,7 +1,7 @@
 {
   "id": "typescript.fundamentals",
   "locale": "en",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -197,6 +197,26 @@
       ]
     },
     {
+      "id": "legacy-product-interface-example",
+      "type": "codeWalkthrough",
+      "language": "ts",
+      "code": "interface Product {\n  id: number;\n  name: string;\n  price: number;\n  category: \"electronics\" | \"clothing\" | \"food\";\n  description?: string;\n  inStock: boolean;\n}\n\nconst laptop: Product = {\n  id: 1,\n  name: \"Sample laptop\",\n  price: 1299,\n  category: \"electronics\",\n  description: \"14-inch laptop\",\n  inStock: true,\n};",
+      "steps": [
+        {
+          "title": "Describe the required and optional fields",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "The interface makes each field's type explicit. The category union limits the allowed strings, while description may be omitted."
+        },
+        {
+          "title": "Create a value that satisfies Product",
+          "lineStart": 10,
+          "lineEnd": 17,
+          "explanation": "The object supplies the required fields and a valid category. TypeScript checks this shape at compile time; it does not validate arbitrary JSON at runtime."
+        }
+      ]
+    },
+    {
       "id": "unions-narrowing",
       "type": "heading",
       "level": 2,
@@ -248,6 +268,32 @@
           "lineStart": 4,
           "lineEnd": 7,
           "explanation": "The first array contains strings, so the result is string | undefined. The second contains numbers, so its result is number | undefined."
+        }
+      ]
+    },
+    {
+      "id": "legacy-generic-filter-example",
+      "type": "codeWalkthrough",
+      "language": "ts",
+      "code": "function filterItems<T>(\n  items: T[],\n  predicate: (item: T) => boolean,\n): T[] {\n  return items.filter(predicate);\n}\n\ntype Product = {\n  id: string;\n  category: \"electronics\" | \"clothing\" | \"food\";\n  inStock: boolean;\n};\n\nconst products: Product[] = [\n  { id: \"p-1\", category: \"electronics\", inStock: true },\n  { id: \"p-2\", category: \"food\", inStock: true },\n];\n\nconst inStockElectronics = filterItems(\n  products,\n  (product) => product.category === \"electronics\" && product.inStock,\n);\n// inStockElectronics is Product[].",
+      "steps": [
+        {
+          "title": "Keep item, predicate and result types connected",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "The same T describes each input item and each returned item. The predicate decides whether an item is included."
+        },
+        {
+          "title": "Use the helper with a concrete domain type",
+          "lineStart": 8,
+          "lineEnd": 18,
+          "explanation": "The filter can work with Product or another type without losing the specific result type."
+        },
+        {
+          "title": "Inspect the inferred result",
+          "lineStart": 19,
+          "lineEnd": 23,
+          "explanation": "The result remains Product[]. This helper does not improve on Array.filter's built-in typing; it demonstrates how a generic API preserves a type relationship."
         }
       ]
     },
