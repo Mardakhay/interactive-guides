@@ -430,7 +430,7 @@
     {
       "id": "github-pages-deployment-body",
       "type": "paragraph",
-      "text": "GitHub Pages serves a static site from a configured publishing source or workflow. The fact that git push succeeded only proves that Git accepted the push; it does not prove that a build ran, an artifact was published, or the site is serving the new version. A project site may be served beneath a repository-name path, so the app's base path and asset URLs must match the published URL."
+      "text": "GitHub Pages serves a static site from a configured publishing source or workflow. The fact that git push succeeded only proves that Git accepted the push; it does not prove that a build ran, an artifact was published, or the site deployment completed and is serving the new version. A project site may be served beneath a repository-name path, so the app's base path and asset URLs must match the published URL."
     },
     {
       "id": "github-pages-checklist",
