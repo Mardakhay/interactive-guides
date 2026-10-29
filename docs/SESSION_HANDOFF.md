@@ -9,21 +9,29 @@
 
 This section is authoritative for the current continuation. Earlier dated entries below are a historical work log and must not be mistaken for current head/status.
 
-- **Feature HEAD before this checkpoint:** `af953df222b108e380da87a38d5862d4363bc922` (`docs: refresh project status and remaining gates`).
+- **Validated code/content checkpoint:** `0d757e15d0cfe2346744675a8bf97f4c47267c1a`. Subsequent commits in this documentation refresh change docs only.
 - **Main HEAD observed:** `b13af92576e8a73753a6e3f3d26765d9f9c44397`. Do not commit changes to `main`; work through the feature branch and PR #1.
 - **PR:** [#1 — Deepen structured lessons and prepare HTML-to-JSON cutover](https://github.com/Mardakhay/interactive-guides/pull/1) remains open as Draft against `main`.
-- **Exact-head CI:** [run #40717844032](https://github.com/Mardakhay/interactive-guides/actions/runs/40717844032) passed on `af953df222b108e380da87a38d5862d4363bc922`. Its steps included `npm ci`, lint, typecheck, Vitest, production build/bundle-budget checks and `npm run smoke:preview`. The run does not establish local-checkout, real-browser/device, screen-reader or mobile acceptance.
+- **Exact code-checkpoint CI:** [run #40831290691](https://github.com/Mardakhay/interactive-guides/actions/runs/40831290691) passed on `0d757e15d0cfe2346744675a8bf97f4c47267c1a`: 36 test files / 226 tests, lint, typecheck, production build, budgets for 125 JS chunks, zero npm audit advisories and production preview smoke covering four deep routes, the entry bundle, manifest, service worker and five PWA assets. This does not establish real-browser/device, screen-reader or mobile acceptance.
 - **Structured content:** 27 core and 17 supplementary lesson IDs (44 EN/RU pairs, 88 JSON records); `ui.bootstrap-mui` is core week 17 and `css.sass-scss` is supplementary.
 - **Legacy parity gate:** `docs/LEGACY_ROUTE_CUTOVER_MATRIX.md` has 25 classic-ID rows and all 25 are **Blocked**. The provisional mapping identifies useful destinations but explicitly lists missing/equivalent behavior. Keep all `/lessons/:lessonId` routes and source HTML. Do not migrate progress, bookmarks, notes, last-opened pointers or quiz results without per-store semantics and tests.
 - **Source verification:** the source inventory says 25/25 legacy HTML files received a content/code/interaction review. That is not claim-level or widget parity. The 21 fetched/mapped Notion records are still marked `verification.state=unverified`.
 - **Manual acceptance:** every native browser/device checklist case is still unrun. HTTP smoke in CI is limited to the app shell/assets.
 - **Cloud sync:** Supabase auth, RLS and sync are not implemented. Continue treating them as gated scope until reconciliation and security requirements are approved.
 
+
+## Git source-parity continuation — 2026-10-29
+
+- `git.fundamentals` EN/RU v8 has 57 aligned blocks. For legacy `tl-001`, added a worked Markdown README example, Pages source/workflow/base-path/deployment checklist, scored check and applied task. Regression coverage: `src/content/gitReferenceParity.test.ts`.
+- `git.workflow-ci` EN/RU v8 has 57 aligned blocks, 9 scored questions, 5 code walkthroughs and 5 practice tasks per locale. For `tl-002`, added dedicated merge/rebase conflict recovery with operation-specific `--continue`/`--abort` guidance, plus review-comment labels with a security scenario and feedback rewrite exercise. `src/content/schemas/lessonContent.test.ts` asserts schemas, locale parity, item counts, quiz feedback and walkthrough line ranges.
+- The exact code/content checkpoint `0d757e15d0cfe2346744675a8bf97f4c47267c1a` passed [Actions #40831290691](https://github.com/Mardakhay/interactive-guides/actions/runs/40831290691). During the continuation, failed interim runs exposed stale counts and a test string-escaping error; the assertions were corrected. Only the final exact code SHA is reported as green.
+- Cutover decisions did not change: `tl-001` and `tl-002` remain **Blocked** due to remaining search/sidebar/canvas/simulator/quiz UI parity and learner-state disposition. Do not delete classic HTML or migrate/duplicate progress, bookmarks, notes or quiz results.
+
 ## Current review notes (2026-10-29)
 
 Repository metadata comparison shows `feat/learning-platform-foundation` is **693 commits ahead of main, 0 behind**, with merge base equal to `main` at `b13af92576e8a73753a6e3f3d26765d9f9c44397`. This includes the feature history; it is not a claim of 693 unique user-facing improvements. The four October 23 content commits discussed earlier are included in the current main tip (`main` ends at `b13af925`), while the feature branch has continued independently. Preserve that history; do not rewrite or force-push either branch.
 
-The current PR body still mentions `283305d` and run `#40701225217` as the latest checkpoint, although that was superseded by `af953df222b108e380da87a38d5862d4363bc922` and run `#40717844032`. Update PR status text when the next verified checkpoint is available.
+PR #1 status text was refreshed on 2026-10-29 to record the verified code checkpoint and the new Git source-parity work. It remains Draft and all cutover rows remain blocked.
 
 ## Recommended next work, in dependency order
 
