@@ -1128,7 +1128,7 @@ describe('React component testing lesson translation', () => {
       expect(matcherWalkthrough.code).toContain('.toEqual(');
       expect(matcherWalkthrough.code).toContain('.not.toBe(');
       expect(matcherWalkthrough.code).toContain('sameReference');
-      const matcherLineCount = matcherWalkthrough.code.split('\\n').length;
+      const matcherLineCount = matcherWalkthrough.code.split('\n').length;
       expect(matcherWalkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd >= step.lineStart && step.lineEnd <= matcherLineCount)).toBe(true);
 
       const matcherCheck = lesson.blocks.find((block) => block.id === 'matcher-equality-check');
