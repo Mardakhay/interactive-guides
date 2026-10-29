@@ -1157,3 +1157,8 @@ Updated `tooling.node-npm-vite` EN/RU to v6 (52 aligned blocks, 12 knowledge che
 Exact source/test checkpoint `ea9ec62fd7bb9d5895c4969ace95779ce93ac6d0` passed [Actions #40850154495](https://github.com/Mardakhay/interactive-guides/actions/runs/40850154495): 37 test files / 240 tests, lint, typecheck, production build, all 125 JS chunks within budgets, zero npm audit advisories and production-preview smoke across four deep routes/PWA assets.
 
 These updates improve content accuracy and close one source-example gap; they do not recreate the legacy 20-question/10-exercise UI. `tl-003` remains **Blocked**, and no classic route or learner state is changed.
+
+
+## Focused tl-003 checkpoint — 2026-10-29
+
+See [TL003_SOURCE_PARITY.md](TL003_SOURCE_PARITY.md) for the bilingual source-to-block crosswalk of the 20-question/10-exercise legacy lesson, the factual corrections required, and the explicit no-cutover decision. The route remains blocked until saved learner-state handling and manual browser/accessibility gates have evidence.
