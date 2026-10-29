@@ -9,10 +9,10 @@
 
 This section replaces older status summaries below when they disagree. Historical checkpoints are retained as a work log only.
 
-- **Latest validated code/content checkpoint:** `813d8478da125ce5802334b1ecb355a4d2a73c54`; later status-document commits do not change source behavior.
+- **Latest validated code/content checkpoint:** `a2a331a59bed3d40a85f1d02e992e12ca045b272`; later status-document commits do not change source behavior.
 - **Main:** `b13af92576e8a73753a6e3f3d26765d9f9c44397`; it was not changed in this continuation.
 - **PR #1:** [open Draft PR against main](https://github.com/Mardakhay/interactive-guides/pull/1).
-- **Exact code-checkpoint CI:** [run #40835609562](https://github.com/Mardakhay/interactive-guides/actions/runs/40835609562) passed on `813d8478da125ce5802334b1ecb355a4d2a73c54`: install, lint, typecheck, 36 test files / 227 tests, production build, bundle budgets, no npm audit advisories in the informational report, and production preview smoke. CI does not replace browser/device or assistive-technology acceptance.
+- **Exact code-checkpoint CI:** [run #40836307195](https://github.com/Mardakhay/interactive-guides/actions/runs/40836307195) passed on `a2a331a59bed3d40a85f1d02e992e12ca045b272`: 36 test files / 227 tests, lint, typecheck, production build, budgets for 125 JS chunks, no npm audit advisories in the informational report, and production preview smoke covering four deep routes, the entry bundle, manifest, service worker and five PWA assets. This does not establish real-browser/device, screen-reader or mobile acceptance.
 - **Curriculum registry:** 27 core + 17 supplementary lesson IDs = 44 bilingual pairs and 88 locale JSON files. `ui.bootstrap-mui` is core week 17; `css.sass-scss` is supplementary.
 - **Legacy migration gate:** all 25 legacy cutover rows remain **Blocked**. Git `tl-001` has bilingual Markdown/Pages guidance; `tl-002` has merge/rebase recovery and actionable review-comment practice; `tl-003` now distinguishes dependency installation, `npx`/`npm exec` and `npm create` with a scored check. Remaining interactions, complete claim/example parity and learner-state disposition are not signed off.
 - **Notion source evidence:** 21 pages have been fetched/mapped but remain `verification.state=unverified`; this must not be presented as formal verification.
@@ -25,6 +25,7 @@ This section replaces older status summaries below when they disagree. Historica
 
 - `git.fundamentals` EN/RU v8: 57 aligned blocks, including a Markdown walkthrough and a Pages publishing/deployment verification checklist with quiz and practice.
 - `git.workflow-ci` EN/RU v9: 59 aligned blocks per locale, with 10 knowledge checks, 5 walkthroughs and 5 exercises. Added operation-specific merge/rebase recovery, an assessed review-comment taxonomy, explicit Git Flow feature-to-`develop` and hotfix back-merge guidance, and regression checks that informational audit reporting does not make required CI checks non-blocking.
+- `js.dom-events` EN/RU v7: 71 aligned blocks per locale, with 13 knowledge checks, 18 code walkthroughs and 5 coding exercises. Added a dedicated static NodeList/live HTMLCollection walkthrough and scored check that demonstrates insertion semantics and a stable snapshot before deletion; live source tree/theme/editor UI remains partial.
 - `tooling.node-npm-vite` EN/RU v4: 44 aligned blocks, 7 knowledge checks and 8 outcomes per locale. Added the `react-ts` Vite template command, HMR explanation/full-reload fallback and official Vite docs; regression tests cover bilingual parity, answers, wording, line ranges and references.
 - Latest code/content verification is green at `0b20e7cf499c21d8ca3a879a104e11c11d1882f5`, [CI #40832351304](https://github.com/Mardakhay/interactive-guides/actions/runs/40832351304). The remaining cutover/UI/state and manual acceptance gates stay open.
 
