@@ -1,10 +1,10 @@
 {
   "id": "typescript.fundamentals",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-3-week-10",
   "week": 10,
   "order": 1,
@@ -23,7 +23,8 @@
     "Model objects with interface and type aliases, including optional and union properties.",
     "Use generics such as Array<T> to preserve the relationship between input and output types.",
     "Model a typed user list and write functions that search, update, and filter it safely.",
-    "Derive create, preview, and patch types with utility types while separating static checking from runtime validation."
+    "Derive create, preview, and patch types with utility types while separating static checking from runtime validation.",
+    "Explain what strict TypeScript compiler settings check and why they do not validate data at runtime."
   ],
   "tags": [
     "typescript",
@@ -45,6 +46,39 @@
       "id": "ts-purpose-body",
       "type": "paragraph",
       "text": "TypeScript extends JavaScript with a static type system. The type checker analyzes code during development or build time to identify many mistakes before the program executes. Type annotations and interfaces are mostly erased from the emitted JavaScript: the browser or Node runs JavaScript, not TypeScript type declarations. TypeScript cannot prove every runtime behavior safe, and external data can still violate the type you hoped to receive."
+    },
+    {
+      "id": "strict-mode-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does setting `\"strict\": true` in tsconfig.json do?",
+      "options": [
+        {
+          "id": "checks",
+          "text": "Enables a family of stricter compile-time checks, including checks such as `noImplicitAny` and `strictNullChecks`.",
+          "correct": true,
+          "feedback": "Correct. The strict option enables related static checks that help detect unsafe assumptions; the flag itself does not change emitted JavaScript runtime behavior."
+        },
+        {
+          "id": "runtime",
+          "text": "Adds runtime validators that reject any API payload that violates an interface.",
+          "correct": false,
+          "feedback": "TypeScript interfaces are erased at runtime. Use a runtime schema or explicit validation for untrusted API data."
+        },
+        {
+          "id": "emit",
+          "text": "Changes TypeScript into a different browser runtime and leaves types in the output.",
+          "correct": false,
+          "feedback": "Browsers still run JavaScript; TypeScript type declarations are normally erased from emitted JavaScript."
+        },
+        {
+          "id": "disable",
+          "text": "Turns off compiler errors so an application can build even when types are inconsistent.",
+          "correct": false,
+          "feedback": "Strict mode generally enables more checks, so it can surface additional issues rather than suppress them."
+        }
+      ],
+      "explanation": "The `strict` option enables a family of static type-checking rules. It improves diagnostics at compile time but does not replace runtime validation of network, storage, or user-provided data."
     },
     {
       "id": "ts-mental-model",
@@ -672,6 +706,11 @@
         {
           "title": "TypeScript Handbook: Utility Types",
           "url": "https://www.typescriptlang.org/docs/handbook/utility-types.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "TypeScript TSConfig: strict",
+          "url": "https://www.typescriptlang.org/tsconfig/#strict",
           "kind": "official-docs"
         }
       ]
