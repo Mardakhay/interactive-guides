@@ -1140,3 +1140,20 @@ Updated `tooling.advanced-package-workflows` EN/RU to v3 (18 aligned blocks). Ad
 Regression tests in `src/content/gitReferenceParity.test.ts`, `src/content/schemas/supplementaryLessons.test.ts` and `src/content/repository.test.ts` cover bilingual IDs/ordering, the revoke-first and Triage answer IDs, v3/18-block package workflow, the only-correct `npm-update` option, feedback/explanation quality and the official docs URL. An initially failing run on `fe7dfd7f7b267d892cd4bf664cea706678f9a78d` was traced to stale v2/17-block expectations; `fabe0f1c40bd30fbcc4563a50364fa803b085f64` updates them and passes exact-head [Actions #40848460443](https://github.com/Mardakhay/interactive-guides/actions/runs/40848460443): 37 test files / 240 tests, lint, typecheck, build, 125-chunk budgets, zero reported npm audit advisories and production-preview smoke.
 
 These content changes do not approve any classic route migration. All 25 cutover rows remain **Blocked**; real-browser/device and learner-state safety acceptance are outstanding.
+
+
+## React Effect cleanup: correct the legacy unmount-warning claim — 2026-10-29
+
+The legacy `public/lessons/intro.dev.html` question q14 describes cleanup as a way to “prevent setting state on an unmounted component” and says this avoids memory leaks. That is too broad as a general React 18 claim: React 18 removed the old development warning because a Promise that resolves later does not by itself prove a memory leak. Cleanup remains necessary for genuine external-resource lifetime management and for avoiding stale-response races.
+
+Updated `react.effects-lists-composition` EN/RU to v6 (45 blocks per locale). A bilingual callout distinguishes late Promise settlement from a memory leak and recommends resource-specific cleanup, request cancellation and freshness guards rather than a generic `isMounted` flag just to silence a warning. The existing `deep-effects-trace` uses `AbortController` plus an `ignore` freshness guard; tests assert both and the official React 18 upgrade guide URL. The classic HTML has not been changed; its q14 remains available until the route is formally cut over.
+
+## Legacy tooling Exercise 10: Vite config, aliases and dev proxy — 2026-10-29
+
+The final coding exercise in `public/lessons/intro.dev.html` asks for a `vite.config.ts` with the React plugin, an `@` alias to `./src`, dev-server port 4000, automatic browser open, an `/api` proxy to `http://localhost:3001`, and package scripts. No corresponding Vite config/alias/proxy walkthrough existed in `tooling.node-npm-vite` v5.
+
+Updated `tooling.node-npm-vite` EN/RU to v6 (52 aligned blocks, 12 knowledge checks and 5 walkthroughs per locale). Added a typed Vite config example using `fileURLToPath(new URL('./src', import.meta.url))`, the React plugin, port/open settings and `server.proxy`. The accompanying explanation notes that Vite's module alias may need a matching TS `compilerOptions.paths` mapping, and explicitly distinguishes dev-only `server.proxy` from production-host API routing. A scored check asks learners to identify this production boundary. Added official `https://vite.dev/config/` and `https://vite.dev/config/server-options` references and regression tests for code, line ranges, correct answer, feedback and references.
+
+Exact source/test checkpoint `ea9ec62fd7bb9d5895c4969ace95779ce93ac6d0` passed [Actions #40850154495](https://github.com/Mardakhay/interactive-guides/actions/runs/40850154495): 37 test files / 240 tests, lint, typecheck, production build, all 125 JS chunks within budgets, zero npm audit advisories and production-preview smoke across four deep routes/PWA assets.
+
+These updates improve content accuracy and close one source-example gap; they do not recreate the legacy 20-question/10-exercise UI. `tl-003` remains **Blocked**, and no classic route or learner state is changed.

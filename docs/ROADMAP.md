@@ -769,3 +769,13 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 - [x] Explain the decision between `npm update` (refresh within declared ranges by default), `npm ci` (reproduce locked resolution), and targeted `npm install react@latest` (not equivalent and may change the direct range); require lockfile diff review and project checks.
 - [x] Update the schema regression expectations to v3/18 blocks and assert the single correct answer, feedback/explanation, and official npm update URL.
 - [x] Verify exact checkpoint `fabe0f1c40bd30fbcc4563a50364fa803b085f64` in [CI #40848460443](https://github.com/Mardakhay/interactive-guides/actions/runs/40848460443): 37 test files / 240 tests, lint, typecheck, production build, 125-chunk budgets, zero npm audit advisories and production-preview smoke.
+
+
+## React Effect cleanup accuracy and legacy Vite-config exercise — 2026-10-29
+
+- [x] Correct the broad legacy q14 wording with an EN/RU callout: after unmount, a Promise settling later does not by itself prove a memory leak; cleanup should release external resources, cancel requests when appropriate, and guard stale responses. Link the official React 18 upgrade guide.
+- [x] Upgrade `react.effects-lists-composition` to v6; assert the cleanup accuracy note, AbortController/freshness code, line ranges and official React 18 reference.
+- [x] Close the identified gap from legacy Exercise 10 in `intro.dev.html`: add bilingual Vite config with React plugin, `@` source alias, port 4000, auto-open and `/api` dev proxy to port 3001.
+- [x] Explain that TypeScript may require an equivalent `compilerOptions.paths` entry and that Vite `server.proxy` does not configure production-host routing. Add a scored knowledge check and official Vite config/server-options references.
+- [x] Upgrade `tooling.node-npm-vite` to v6 (52 aligned blocks, 12 checks and 5 walkthroughs per locale); exact checkpoint `ea9ec62fd7bb9d5895c4969ace95779ce93ac6d0` passed [CI #40850154495](https://github.com/Mardakhay/interactive-guides/actions/runs/40850154495): 37 test files / 240 tests, lint, typecheck, build, 125-chunk budgets, zero npm audit advisories and production-preview smoke.
+- [ ] Keep `tl-003` **Blocked**: the original 20-question/10-exercise UI and full source interaction parity remain incomplete. Review remaining legacy exercise examples/version-specific commands; preserve the classic route and learner data until formal cutover gates pass.
