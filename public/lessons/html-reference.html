@@ -332,12 +332,12 @@
         <div class="card"><div class="ci">🏷️</div><h3>Tags</h3><p>Elements are written using <code>&lt;tags&gt;</code>. Most have an opening <code>&lt;tag&gt;</code> and closing <code>&lt;/tag&gt;</code>.</p></div>
         <div class="card"><div class="ci">⚙️</div><h3>Attributes</h3><p>Tags can carry attributes like <code>class</code>, <code>id</code>, <code>href</code>, <code>src</code> that add extra information.</p></div>
         <div class="card"><div class="ci">🌐</div><h3>Modern HTML</h3><p>HTML evolves as a maintained Living Standard. HTML5 introduced semantic elements, native audio/video, canvas, and modern form inputs; the platform continues to evolve.</p></div>
-        <div class="card"><div class="ci">♿</div><h3>Accessibility</h3><p>Semantic HTML improves screen reader support and makes pages more accessible to everyone.</p></div>
+        <div class="card"><div class="ci">♿</div><h3>Accessibility</h3><p>Semantic elements expose document structure to accessibility APIs and can improve navigation when used correctly. Accessibility also depends on labels, keyboard behavior, visible focus, and context-specific requirements.</p></div>
         <div class="card"><div class="ci">🔍</div><h3>SEO</h3><p>Clear, meaningful markup helps machines interpret page content; semantic HTML alone does not guarantee a search-ranking boost.</p></div>
       </div>
       <div class="info-box note">
         <div class="ib-title">💡 HTML, CSS & JavaScript</div>
-        <p>HTML provides <strong>structure</strong>, CSS adds <strong>style</strong>, and JavaScript adds <strong>behaviour</strong>. They are the three core technologies of every webpage.</p>
+        <p>HTML provides <strong>structure</strong>, CSS adds <strong>style</strong>, and JavaScript adds <strong>behaviour when needed</strong>. Together they are core technologies used to build modern web pages; a simple page may not need client-side JavaScript.</p>
       </div>
     </div>
   </section>
@@ -378,7 +378,7 @@
           </div>
           <div>
             <div class="sub-title">Nesting Rules</div>
-            <div class="prose">Elements can be nested inside each other. The inner element must be closed before the outer one.</div>
+            <div class="prose">Elements can be nested inside each other. When explicit end tags are required, close the inner element before the outer one; some HTML elements have void tags or optional end tags.</div>
             <div class="codeblock">
               <div class="cb-head"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">HTML</span><button class="copy-btn">COPY</button></div>
               <pre><span class="ht">&lt;p&gt;</span>This is <span class="ht">&lt;strong&gt;</span>bold<span class="ht">&lt;/strong&gt;</span> and <span class="ht">&lt;em&gt;</span>italic<span class="ht">&lt;/em&gt;</span> text.<span class="ht">&lt;/p&gt;</span></pre>
@@ -731,7 +731,7 @@
   <section id="sec-forms" class="section">
     <div class="sec-head">
       <h2 class="sec-title">HTML <em>Forms</em></h2>
-      <p class="sec-desc">Forms collect user input and send it to a server. Every interactive page — login, checkout, search — uses a form.</p>
+      <p class="sec-desc">Forms collect user input and can send it to a server. Many common interactions — login, checkout and search — use forms; other interactions may be implemented without a form.</p>
     </div>
     <div class="sec-body">
       <div class="sub">
@@ -1064,7 +1064,7 @@
           <tr><td>title</td><td>Tooltip shown on hover</td><td><code>title="More info"</code></td></tr>
           <tr><td>data-*</td><td>Custom data attributes for JavaScript</td><td><code>data-user-id="42"</code></td></tr>
           <tr><td>hidden</td><td>Hides the element (like display:none)</td><td><code>&lt;div hidden&gt;</code></td></tr>
-          <tr><td>tabindex</td><td>Controls keyboard focus order</td><td><code>tabindex="0"</code></td></tr>
+          <tr><td>tabindex</td><td>0 follows natural DOM tab order; negative values remove an element from sequential tab navigation; avoid positive values that impose a custom order</td><td><code>tabindex="0"</code></td></tr>
           <tr><td>contenteditable</td><td>Makes element editable in the browser</td><td><code>contenteditable="true"</code></td></tr>
           <tr><td>draggable</td><td>Makes element draggable</td><td><code>draggable="true"</code></td></tr>
           <tr><td>lang</td><td>Specifies language of element content</td><td><code>lang="fr"</code></td></tr>

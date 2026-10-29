@@ -69,6 +69,16 @@ describe('wb-002 legacy HTML reference accuracy and parity', () => {
     expect(legacyHtmlReference).not.toContain('ARIA role for accessibility');
   });
 
+  it('qualifies broad HTML conventions and explains keyboard focus order', () => {
+    expect(legacyHtmlReference).toContain('a simple page may not need client-side JavaScript');
+    expect(legacyHtmlReference).not.toContain('three core technologies of every webpage');
+    expect(legacyHtmlReference).toContain('Many common interactions — login, checkout and search — use forms');
+    expect(legacyHtmlReference).not.toContain('Every interactive page — login, checkout, search — uses a form.');
+    expect(legacyHtmlReference).toContain('When explicit end tags are required, close the inner element before the outer one');
+    expect(legacyHtmlReference).toContain('Accessibility also depends on labels, keyboard behavior, visible focus');
+    expect(legacyHtmlReference).toContain('avoid positive values that impose a custom order');
+  });
+
   it('describes alt text by purpose and avoids treating placeholder as a label', () => {
     expect(legacyHtmlReference).toContain('informative images need a concise alternative conveying their essential information or function');
     expect(legacyHtmlReference).toContain('purely decorative images should use <code>alt=""</code>');
