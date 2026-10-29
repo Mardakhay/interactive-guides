@@ -1,10 +1,10 @@
 {
   "id": "git.workflow-ci",
   "locale": "ru",
-  "version": 6,
+  "version": 7,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-28",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-5-week-20",
   "week": 20,
   "order": 1,
@@ -23,7 +23,8 @@
     "Проверять корректность, читаемость, доступность, тесты и риск регрессий.",
     "Осознанно разрешать merge-конфликты и в общих чертах различать merge и rebase.",
     "Объяснять роль CI и почему зелёный статус не заменяет ревью.",
-    "Сравнивать распространённые стратегии ветвления и применять Semantic Versioning к совместимым и несовместимым изменениям."
+    "Сравнивать распространённые стратегии ветвления и применять Semantic Versioning к совместимым и несовместимым изменениям.",
+    "Разрешать конфликт в активном merge или rebase, добавлять правильный результат в staging и продолжать либо отменять нужную операцию."
   ],
   "tags": [
     "git",
@@ -339,6 +340,149 @@
           "lineEnd": 5,
           "explanation": "Удали все маркеры конфликта, запусти необходимые тесты и просмотри итоговый diff. Добавляй файл в staging как решённый только после проверки содержимого."
         }
+      ]
+    },
+    {
+      "id": "conflict-resolution-procedure",
+      "type": "heading",
+      "level": 3,
+      "text": "Разрешай конфликт и безопасно продолжай операцию"
+    },
+    {
+      "id": "conflict-resolution-procedure-body",
+      "type": "paragraph",
+      "text": "Маркеры конфликта означают, что Git не смог автоматически выбрать между пересекающимися изменениями; они не подсказывают, какое поведение нужно продукту. Сначала выполни `git status`, чтобы узнать, идёт ли merge или rebase. Изучи обе стороны и окружающий код, затем создай правильный объединённый результат и удали все маркеры. Проверь diff, выполни `git diff --check` и нужные тесты, затем добавь в staging только разрешённые пути. Продолжай операцию, указанную Git: для merge и rebase команды разные. Если не можешь безопасно принять решение, остановись и запроси контекст; отменяй только ту операцию, которая действительно выполняется. Перед запуском merge/rebase сохрани возможность восстановить несвязанные локальные изменения."
+    },
+    {
+      "id": "conflict-resolution-merge-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "git status\ngit diff -- src/components/PageTitle.tsx\n# Исправь конфликт в редакторе и удали все маркеры.\ngit diff --check\ngit add src/components/PageTitle.tsx\ngit status\ngit merge --continue",
+      "steps": [
+        {
+          "title": "Определи операцию и изучи конфликт",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Status показывает, выполняется ли merge или rebase и какие пути ещё не объединены. Изучи изменённые строки в контексте до редактирования."
+        },
+        {
+          "title": "Создай и проверь правильный результат",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "Отредактируй файл согласно требованию продукта, удали все маркеры конфликта и используй diff --check для поиска ошибок пробелов. Эта команда не заменяет запуск тестов."
+        },
+        {
+          "title": "Добавь изменения и продолжи merge",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "Добавь в staging только разрешённый путь и проверь, что status больше не помечает его как unmerged. Пример предназначен для активного merge; при rebase используй соответствующую команду продолжения."
+        }
+      ]
+    },
+    {
+      "id": "conflict-resolution-rebase-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "git status\ngit diff -- src/components/PageTitle.tsx\n# Исправь конфликт в редакторе и удали все маркеры.\ngit diff --check\ngit add src/components/PageTitle.tsx\ngit status\ngit rebase --continue",
+      "steps": [
+        {
+          "title": "Подтверди, что выполняется rebase",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Не определяй операцию только по маркерам в файле. Проверь status, коммит, который накладывается повторно, и конфликтующий файл."
+        },
+        {
+          "title": "Разреши конфликт и проверь diff",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "Вручную объедини нужные изменения, удали все маркеры и изучи результат. Diff --check находит проблемы пробелов, но не ошибки бизнес-логики."
+        },
+        {
+          "title": "Добавь файл и продолжи rebase",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "Добавь разрешённый путь в staging и проверь status. Используй rebase --continue только при активном rebase; не запускай одновременно merge --continue. После завершения операции выполни тесты."
+        }
+      ]
+    },
+    {
+      "id": "conflict-continuation-commands",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Если выполняется merge, добавь разрешённые файлы в staging и используй `git merge --continue`.",
+        "Если выполняется rebase, добавь разрешённые файлы в staging и используй `git rebase --continue`; не запускай обе команды продолжения.",
+        "Если не можешь безопасно разрешить конфликт merge, `git merge --abort` пытается вернуть состояние до merge. Для активного rebase `git rebase --abort` возвращает исходное состояние ветки до этой операции. Используй команду, соответствующую операции в status.",
+        "Не используй массовый checkout с `--ours` / `--theirs`, `git reset --hard` или удаление `.git` как универсальное исправление: это может удалить нужные изменения или историю репозитория.",
+        "После завершения операции проверь `git status` и итоговый diff, запусти соответствующие тесты и продолжай push/PR согласно правилам ветвления команды."
+      ]
+    },
+    {
+      "id": "conflict-resolution-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Ты разрешил конфликт, удалил все маркеры, добавил результат в staging, а `git status` сообщает, что выполняется rebase. Какая команда продолжает эту операцию?",
+      "options": [
+        {
+          "id": "rebase-continue",
+          "text": "git rebase --continue",
+          "correct": true,
+          "feedback": "Верно. Status сообщает об активном rebase. Продолжай его только после проверки и staging разрешённого результата."
+        },
+        {
+          "id": "merge-continue",
+          "text": "git merge --continue",
+          "correct": false,
+          "feedback": "Эта команда продолжает активный merge, а не rebase. Выбирай команду по текущей операции в status."
+        },
+        {
+          "id": "force",
+          "text": "Немедленно выполнить git push --force",
+          "correct": false,
+          "feedback": "Публикация не завершит активную локальную операцию, а force push может переписать общую историю. Сначала закончи и проверь операцию."
+        },
+        {
+          "id": "discard",
+          "text": "git reset --hard HEAD",
+          "correct": false,
+          "feedback": "Hard reset может удалить отслеживаемые изменения и не является стандартным следующим шагом после разрешения конфликта."
+        }
+      ],
+      "explanation": "Команда продолжения зависит от операции, которую показывает Git. Сначала разреши конфликт, проверь и добавь результат; для merge используется merge --continue, для rebase — rebase --continue."
+    },
+    {
+      "id": "conflict-resolution-practice",
+      "type": "codingExercise",
+      "title": "Разреши и проверь конфликт merge или rebase",
+      "language": "bash",
+      "context": "Это упражнение на рассуждение, а не встроенный терминал. В учебном репозитории Git остановился из-за пересекающихся изменений в `PageTitle.tsx`. Нужно сохранить правильное объединённое поведение и безопасно завершить операцию.",
+      "instructions": [
+        "Изучи `git status` и определи, выполняется ли merge или rebase; просмотри конфликтующий файл и окружающий код.",
+        "Разреши файл согласно требованию продукта, удали каждый маркер конфликта и просмотри полный diff.",
+        "Выполни `git diff --check`, добавь в staging только разрешённый путь и убедись, что Git больше не помечает его как unmerged.",
+        "Выбери только соответствующую команду продолжения: `git merge --continue` для merge или `git rebase --continue` для rebase.",
+        "После завершения операции запусти нужные тесты и просмотри status и историю. Объясни, когда отмена безопаснее случайного выбора."
+      ],
+      "requirements": [
+        "Решение основано на требуемом поведении, а не на автоматическом выборе ours или theirs.",
+        "Маркеры отсутствуют, в staging добавлены только нужные пути.",
+        "Команда продолжения соответствует активной операции merge/rebase.",
+        "Результат просмотрен, после завершения операции запущены подходящие тесты.",
+        "Hard reset или force push не используются как универсальный обход; отмена операции обоснована и соответствует её типу."
+      ],
+      "starterCode": "<<<<<<< HEAD\nconst pageTitle = 'Dashboard';\n=======\nconst pageTitle = 'Overview';\n>>>>>>> feature/rename-page\n\n# определи операцию и затронутые файлы\ngit status\ngit diff -- src/components/PageTitle.tsx\n\n# запиши правильный результат, проверь его и добавь в staging\ngit diff --check\ngit add src/components/PageTitle.tsx\ngit status\n\n# выбери ровно одну команду по результату git status:\ngit merge --continue\n# ИЛИ вместо неё используй эту, если выполняется rebase:\ngit rebase --continue",
+      "hints": [
+        "Разреши код согласно требованиям и окружающему контексту; название ветки не определяет правильное поведение.",
+        "Добавляй разрешённый файл в staging только после удаления маркеров и проверки diff.",
+        "Выполни только команду продолжения, соответствующую `git status`. Не запускай обе альтернативы.",
+        "Если контекста недостаточно, чтобы безопасно выбрать поведение, остановись и уточни требование или отмени активную операцию после сохранения несвязанных изменений."
+      ],
+      "successCriteria": [
+        "По status определено, выполняется merge или rebase.",
+        "Представлен разрешённый код и объяснено, почему это правильное объединённое поведение.",
+        "Все маркеры удалены, diff проверен, в staging добавлен только нужный файл.",
+        "Выбрана правильная команда продолжения и после операции запущены тесты.",
+        "Объяснён безопасный путь отмены без подачи destructive reset как обычного восстановления."
       ]
     },
     {
@@ -689,6 +833,21 @@
           "title": "Semantic Versioning 2.0.0",
           "url": "https://semver.org/spec/v2.0.0.html",
           "kind": "standard"
+        },
+        {
+          "title": "Документация Git: git-merge",
+          "url": "https://git-scm.com/docs/git-merge",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Документация Git: git-rebase",
+          "url": "https://git-scm.com/docs/git-rebase",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Документация GitHub: About merge conflicts",
+          "url": "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/about-merge-conflicts",
+          "kind": "official-docs"
         }
       ]
     }
