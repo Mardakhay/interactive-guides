@@ -1257,7 +1257,10 @@ describe('Git workflow lesson translation', () => {
       if (matrix?.type !== 'list') throw new Error('CI diagnostic matrix is missing');
       expect(matrix.items.length).toBeGreaterThanOrEqual(8);
       const stageCoverage = matrix.items.join(' ').toLowerCase();
-      for (const stageSignal of ['checkout', 'npm ci', 'lint', 'typecheck', 'test', 'build', 'security', 'audit', 'deploy', 'sha']) {
+      const localizedStageSignals = lesson.locale === 'en'
+        ? ['checkout', 'npm ci', 'lint', 'typecheck', 'test', 'build', 'security', 'audit', 'deploy', 'sha']
+        : ['checkout', 'npm ci', 'lint', 'typecheck', 'тест', 'build', 'security', 'audit', 'deploy', 'sha'];
+      for (const stageSignal of localizedStageSignals) {
         expect(stageCoverage).toContain(stageSignal);
       }
       const block = lesson.blocks.find((candidate) => candidate.id === 'ci-failure-diagnosis-check');
