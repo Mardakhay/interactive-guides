@@ -1,7 +1,7 @@
 {
   "id": "tooling.node-npm-vite",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -23,7 +23,8 @@
     "Use npm scripts to start, test, lint, typecheck, and build a project.",
     "Explain the roles of Vite, ESLint, and Prettier without treating them as interchangeable.",
     "Create a reproducible project setup and verify it using package scripts.",
-    "Distinguish installing a dependency, running a package CLI with npx/npm exec, and scaffolding with npm create."
+    "Distinguish installing a dependency, running a package CLI with npx/npm exec, and scaffolding with npm create.",
+    "Choose the React + TypeScript Vite template and explain HMR behavior and its full-reload fallback."
   ],
   "tags": [
     "nodejs",
@@ -167,7 +168,7 @@
       "id": "npm-command-vs-exec-walkthrough",
       "type": "codeWalkthrough",
       "language": "bash",
-      "code": "# Inspect scripts configured for this repository\nnpm run\n\n# Run a project CLI when Vite is declared as a dependency\nnpm exec -- vite --version\n\n# Scaffold a new project in a new directory\nnpm create vite@latest my-app",
+      "code": "# Inspect scripts configured for this repository\nnpm run\n\n# Run a project CLI when Vite is declared as a dependency\nnpm exec -- vite --version\n\n# Scaffold a new project in a new directory\nnpm create vite@latest my-app -- --template react-ts",
       "steps": [
         {
           "title": "Inspect the project scripts",
@@ -223,6 +224,39 @@
       "explanation": "Use install to declare dependencies, exec/npx to run a CLI, and create/init to run a scaffolder. For reproducible team workflows, keep required tools and versions declared in the project."
     },
     {
+      "id": "vite-template-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which Vite create command selects the React + TypeScript template using npm 7+?",
+      "options": [
+        {
+          "id": "react-ts",
+          "text": "npm create vite@latest my-app -- --template react-ts",
+          "correct": true,
+          "feedback": "Correct. The template identifier `react-ts` selects React with TypeScript; npm 7+ uses the extra `--` to pass the template flag through to create-vite."
+        },
+        {
+          "id": "react",
+          "text": "npm create vite@latest my-app -- --template react",
+          "correct": false,
+          "feedback": "The `react` template is JavaScript-oriented. Choose `react-ts` when you want the starter configured with TypeScript."
+        },
+        {
+          "id": "install",
+          "text": "npm install react-ts --template my-app",
+          "correct": false,
+          "feedback": "This attempts dependency installation rather than running the Vite project scaffolder and its template selection."
+        },
+        {
+          "id": "exec",
+          "text": "npm exec -- react-ts my-app",
+          "correct": false,
+          "feedback": "This tries to run an executable named react-ts; it is not the create-vite template-selection syntax."
+        }
+      ],
+      "explanation": "The `--template react-ts` option selects the Vite React + TypeScript starter. The extra double dash separates npm's options from arguments passed to the create-vite initializer."
+    },
+    {
       "id": "vite",
       "type": "heading",
       "level": 2,
@@ -232,6 +266,50 @@
       "id": "vite-body",
       "type": "paragraph",
       "text": "Vite provides a development server with fast feedback and a production build pipeline. During development it serves source modules and uses browser-native ES module support with transformation where needed. For production it bundles and optimizes assets. Vite is not the JavaScript runtime itself and is not a package manager; it uses Node and installed dependencies to perform its work."
+    },
+    {
+      "id": "vite-hmr-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Hot Module Replacement updates code during development"
+    },
+    {
+      "id": "vite-hmr-body",
+      "type": "paragraph",
+      "text": "Hot Module Replacement (HMR) lets a development server send updates for changed modules without rebuilding and reloading the whole page. Vite uses native ES modules and an HMR API; supported framework integrations such as React Fast Refresh can update components and often preserve state. HMR is development feedback, not production deployment. A full page reload can still be necessary when a module or plugin does not handle updates, an update cannot safely propagate, or a dependency cycle interferes. If a change does not appear, inspect terminal/browser errors and the HMR logs instead of assuming every edit must preserve state."
+    },
+    {
+      "id": "vite-hmr-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A file change in a Vite development server causes a full page reload instead of a hot update. Which statement is most accurate?",
+      "options": [
+        {
+          "id": "hmr-precise",
+          "text": "HMR may not be supported by the changed module/plugin or may be unable to propagate safely; inspect errors and the module graph.",
+          "correct": true,
+          "feedback": "Correct. HMR updates supported modules, but unsupported boundaries and some dependency cycles can require a full reload. Inspect diagnostics before assuming the dev server is broken."
+        },
+        {
+          "id": "hmr-prod",
+          "text": "The production bundle has already been redeployed to the live site.",
+          "correct": false,
+          "feedback": "HMR is a development-server feature and does not publish a production deployment."
+        },
+        {
+          "id": "hmr-types",
+          "text": "TypeScript type checking always failed, so Vite restarts the browser.",
+          "correct": false,
+          "feedback": "HMR and full TypeScript type checking are separate concerns. Vite transforms TypeScript but does not perform a full type check by itself."
+        },
+        {
+          "id": "hmr-all",
+          "text": "Vite promises that every edit preserves all browser state and never reloads the page.",
+          "correct": false,
+          "feedback": "State preservation depends on the framework integration and the update boundary; full reloads are a supported fallback in some cases."
+        }
+      ],
+      "explanation": "HMR attempts to replace changed modules in a running development app. If an update cannot be safely handled, a full reload may be the correct fallback; inspect the diagnostics."
     },
     {
       "id": "lint-format",
@@ -594,6 +672,16 @@
         {
           "title": "npm Docs: npm init / npm create",
           "url": "https://docs.npmjs.com/cli/v11/commands/npm-init",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vite Guide: Features and HMR",
+          "url": "https://vite.dev/guide/features.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vite Guide: Troubleshooting HMR and full reloads",
+          "url": "https://vite.dev/guide/troubleshooting.html",
           "kind": "official-docs"
         }
       ]
