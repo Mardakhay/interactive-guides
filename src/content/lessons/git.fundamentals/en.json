@@ -1,7 +1,7 @@
 {
   "id": "git.fundamentals",
   "locale": "en",
-  "version": 12,
+  "version": 13,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -349,6 +349,50 @@
         }
       ],
       "explanation": "Keep review discussion and fixes together in the existing pull request. Push the correction to its feature branch, respond to feedback, and merge only when the required approvals and checks pass."
+    },
+    {
+      "id": "repository-access-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Manage repository access with least privilege"
+    },
+    {
+      "id": "repository-access-body",
+      "type": "paragraph",
+      "text": "Repository access and branch protections are configured on the hosting platform, not with local Git commands. Personal repositories have a simpler owner/collaborator model; organization repositories can use granular roles and teams. Give each person only the access required: Read for viewing/discussion, Triage for managing issues and pull requests without pushing code, Write for contributors who need to push, and Maintain/Admin only when their additional responsibilities justify it. Review team membership periodically, remove access that is no longer needed, and keep administrator/owner privileges limited. Branch protection or rulesets are a separate control that can require reviews and checks; a role alone is not proof that those rules are configured."
+    },
+    {
+      "id": "repository-access-role-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "In an organization-owned repository, a teammate needs to organize issues, discussions and pull requests but does not need to push code. Which role best follows least privilege?",
+      "options": [
+        {
+          "id": "triage-role",
+          "text": "Triage",
+          "correct": true,
+          "feedback": "Correct. Triage is intended for contributors who need to manage issues and pull requests without write access to repository contents."
+        },
+        {
+          "id": "read-role",
+          "text": "Read",
+          "correct": false,
+          "feedback": "Read is appropriate for viewing and discussing repository content, but it does not grant the issue and pull-request management capabilities described in this scenario."
+        },
+        {
+          "id": "write-role",
+          "text": "Write",
+          "correct": false,
+          "feedback": "Write allows pushing code. Do not grant code-write privileges when the contributor only needs triage capabilities."
+        },
+        {
+          "id": "owner-role",
+          "text": "Organization owner or repository administrator",
+          "correct": false,
+          "feedback": "Owner/admin access is much broader than required and can include sensitive settings or destructive actions. Use the narrowest role that supports the work."
+        }
+      ],
+      "explanation": "For an organization-owned repository, choose the least-privileged role that matches the job: Read for viewing/discussion, Triage for issue and PR management without code push, Write for contributors who push code, and higher roles only when their extra permissions are necessary."
     },
     {
       "id": "commit-message",
@@ -1279,6 +1323,21 @@
         {
           "title": "GitHub Docs: Removing sensitive data from a repository",
           "url": "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: Access permissions on GitHub",
+          "url": "https://docs.github.com/en/get-started/learning-about-github/access-permissions-on-github",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: Managing repository roles",
+          "url": "https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: Creating repository rulesets",
+          "url": "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository",
           "kind": "official-docs"
         }
       ]

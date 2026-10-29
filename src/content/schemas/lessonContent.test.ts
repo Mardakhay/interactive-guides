@@ -350,10 +350,10 @@ describe('Git fundamentals lesson translation', () => {
     expect(englishGit.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGit.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
+    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
-    expect(englishGit.version).toBe(12);
-    expect(russianGit.version).toBe(12);
+    expect(englishGit.version).toBe(13);
+    expect(russianGit.version).toBe(13);
     const remoteExample = englishGit.blocks.find((block) => block.id === 'remote-example');
     expect(remoteExample?.type).toBe('codeWalkthrough');
     if (remoteExample?.type !== 'codeWalkthrough') return;
@@ -419,6 +419,19 @@ describe('Git fundamentals lesson translation', () => {
       expect(secretCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['revoke-first']);
       expect(secretCheck.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
 
+      const accessGuidance = lesson.blocks.find((block) => block.id === 'repository-access-body');
+      expect(accessGuidance?.type).toBe('paragraph');
+      if (accessGuidance?.type !== 'paragraph') throw new Error('Repository access guidance is missing');
+      expect(accessGuidance.text).toMatch(lesson.locale === 'en' ? /least privilege/ : /минимальных привилегий/);
+      expect(accessGuidance.text).toContain('Triage');
+      expect(accessGuidance.text).toMatch(/ruleset|protection/);
+
+      const accessCheck = lesson.blocks.find((block) => block.id === 'repository-access-role-check');
+      expect(accessCheck?.type).toBe('knowledgeCheck');
+      if (accessCheck?.type !== 'knowledgeCheck') throw new Error('Repository access question is missing');
+      expect(accessCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['triage-role']);
+      expect(accessCheck.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+
       const fetchCheck = lesson.blocks.find((block) => block.id === 'fetch-pull-check');
       expect(fetchCheck?.type).toBe('knowledgeCheck');
       if (fetchCheck?.type !== 'knowledgeCheck') return;
@@ -460,6 +473,9 @@ const refs = lesson.blocks.find((block) => block.id === 'references');
         expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-rebase')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/code-security/tutorials/remediate-leaked-secrets/remediating-a-leaked-secret')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/get-started/learning-about-github/access-permissions-on-github')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository')).toBe(true);
       }
     }
     expect(russianGit.blocks.find((block) => block.id === 'knowledge-check-3')?.type).toBe('knowledgeCheck');

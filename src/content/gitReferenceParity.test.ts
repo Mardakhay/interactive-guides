@@ -38,6 +38,33 @@ describe('Git Reference source-derived content', () => {
     expect(russian.updatedAt).toBe(english.updatedAt);
   });
 
+  it('teaches least-privilege repository access roles in both locales', async () => {
+    for (const locale of locales) {
+      const lesson = await loadGitFundamentals(locale);
+      const body = lesson.blocks.find((block) => block.id === 'repository-access-body');
+      const check = lesson.blocks.find((block) => block.id === 'repository-access-role-check');
+
+      expect(body?.type).toBe('paragraph');
+      if (body?.type !== 'paragraph') throw new Error('Repository access guidance is missing');
+      expect(body.text).toMatch(locale === 'en' ? /least privilege/ : /минимальных привилегий/);
+      expect(body.text).toContain('Triage');
+      expect(body.text).toMatch(/ruleset|protection/);
+
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') throw new Error('Repository access check is missing');
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['triage-role']);
+      expect(check.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+
+      const references = lesson.blocks.find((block) => block.id === 'references');
+      expect(references?.type).toBe('references');
+      if (references?.type === 'references') {
+        expect(references.items.some((item) => item.url === 'https://docs.github.com/en/get-started/learning-about-github/access-permissions-on-github')).toBe(true);
+        expect(references.items.some((item) => item.url === 'https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles')).toBe(true);
+        expect(references.items.some((item) => item.url === 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository')).toBe(true);
+      }
+    }
+  });
+
   it('teaches the correct response to a committed secret leak in both locales', async () => {
     for (const locale of locales) {
       const lesson = await loadGitFundamentals(locale);

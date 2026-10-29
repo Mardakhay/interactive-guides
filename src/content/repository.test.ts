@@ -316,6 +316,32 @@ describe('structured content repository', () => {
     }
   });
 
+  it('teaches least-privilege access management for organization repositories', async () => {
+    const [english, russian] = await Promise.all([
+      getStructuredLesson('git.fundamentals', 'en'),
+      getStructuredLesson('git.fundamentals', 'ru'),
+    ]);
+    expect(english).toBeDefined();
+    expect(russian).toBeDefined();
+    if (!english || !russian) throw new Error('Bilingual Git fundamentals lesson is missing');
+    expect(english.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russian.blocks.map(({ id, type }) => ({ id, type })),
+    );
+
+    for (const lesson of [english, russian]) {
+      const body = lesson.blocks.find((block) => block.id === 'repository-access-body');
+      const check = lesson.blocks.find((block) => block.id === 'repository-access-role-check');
+      expect(body?.type).toBe('paragraph');
+      if (body?.type !== 'paragraph') throw new Error('Repository access guidance is missing');
+      expect(body.text).toMatch(lesson.locale === 'en' ? /least privilege/ : /минимальных привилегий/);
+      expect(body.text).toContain('Triage');
+      expect(body.text).toMatch(/ruleset|protection/);
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') throw new Error('Repository role check is missing');
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['triage-role']);
+    }
+  });
+
   it('provides a practical README walkthrough and deployment checklist in both locales', async () => {
     const [english, russian] = await Promise.all([
       getStructuredLesson('git.fundamentals', 'en'),
@@ -325,8 +351,8 @@ describe('structured content repository', () => {
     expect(russian).toBeDefined();
     if (!english || !russian) throw new Error('Bilingual Git fundamentals lesson is missing');
 
-    expect(english.version).toBe(12);
-    expect(russian.version).toBe(12);
+    expect(english.version).toBe(13);
+    expect(russian.version).toBe(13);
     expect(english.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russian.blocks.map(({ id, type }) => ({ id, type })),
     );

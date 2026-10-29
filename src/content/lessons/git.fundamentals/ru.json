@@ -1,7 +1,7 @@
 {
   "id": "git.fundamentals",
   "locale": "ru",
-  "version": 12,
+  "version": 13,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-29",
@@ -349,6 +349,50 @@
         }
       ],
       "explanation": "Сохраняй обсуждение и исправления в одном pull request. Отправь исправление в feature-ветку, ответь на замечания и выполняй merge только после обязательных одобрений и проверок."
+    },
+    {
+      "id": "repository-access-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Настраивай доступ к репозиторию по принципу минимальных привилегий"
+    },
+    {
+      "id": "repository-access-body",
+      "type": "paragraph",
+      "text": "Доступ к репозиторию и защита веток настраиваются на хостинг-платформе, а не локальными Git-командами. У личного репозитория более простая модель owner/collaborator; репозитории организации поддерживают гранулярные роли и команды. Выдавай только необходимые права: Read для просмотра и обсуждения, Triage для управления issues и pull request без отправки кода, Write для авторов, которым нужен push, а Maintain/Admin — только когда этого требуют дополнительные обязанности. Регулярно проверяй состав команд, отзывай устаревший доступ и ограничивай количество владельцев/администраторов. Branch protection и rulesets — отдельные механизмы, которые могут требовать ревью и проверки; сама роль не доказывает, что эти правила настроены."
+    },
+    {
+      "id": "repository-access-role-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В репозитории организации участнику нужно управлять issues, обсуждениями и pull request, но отправлять код в репозиторий ему не требуется. Какая роль лучше соответствует принципу минимальных привилегий?",
+      "options": [
+        {
+          "id": "triage-role",
+          "text": "Triage",
+          "correct": true,
+          "feedback": "Верно. Triage предназначена для участников, которым нужно управлять issues и pull request без права записи содержимого репозитория."
+        },
+        {
+          "id": "read-role",
+          "text": "Read",
+          "correct": false,
+          "feedback": "Read подходит для просмотра и обсуждения содержимого, но не даёт описанных в сценарии возможностей управления issues и pull request."
+        },
+        {
+          "id": "write-role",
+          "text": "Write",
+          "correct": false,
+          "feedback": "Write позволяет отправлять код. Не выдавай право записи, если участнику нужны только функции triage."
+        },
+        {
+          "id": "owner-role",
+          "text": "Владелец организации или администратор репозитория",
+          "correct": false,
+          "feedback": "Права owner/admin гораздо шире необходимого и могут включать чувствительные настройки и разрушительные действия. Выбирай минимальную роль, достаточную для задачи."
+        }
+      ],
+      "explanation": "Для репозитория организации выбирай минимальные права под задачу: Read — просмотр и обсуждение, Triage — управление issues и PR без push кода, Write — для авторов, которые отправляют код, а повышенные роли — только при необходимости дополнительных полномочий."
     },
     {
       "id": "commit-message",
@@ -1279,6 +1323,21 @@
         {
           "title": "Документация GitHub: Удаление чувствительных данных из репозитория",
           "url": "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Документация GitHub: Права доступа на GitHub",
+          "url": "https://docs.github.com/en/get-started/learning-about-github/access-permissions-on-github",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Документация GitHub: Управление ролями репозитория",
+          "url": "https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Документация GitHub: Создание rulesets репозитория",
+          "url": "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository",
           "kind": "official-docs"
         }
       ]
