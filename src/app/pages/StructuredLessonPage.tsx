@@ -55,10 +55,13 @@ export default function StructuredLessonPage() {
 
     const updateProgress = () => {
       const { top, height } = root.getBoundingClientRect();
+      // A zero-height root means layout has not been measured yet, not that reading is complete.
       const scrollableDistance = height - window.innerHeight;
-      const nextProgress = scrollableDistance <= 0
-        ? 100
-        : Math.round((Math.min(scrollableDistance, Math.max(0, -top)) / scrollableDistance) * 100);
+      const nextProgress = height <= 0
+        ? 0
+        : scrollableDistance <= 0
+          ? 100
+          : Math.round((Math.min(scrollableDistance, Math.max(0, -top)) / scrollableDistance) * 100);
       setReadingProgress((current) => current === nextProgress ? current : nextProgress);
     };
 
