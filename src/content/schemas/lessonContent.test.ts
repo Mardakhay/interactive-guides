@@ -955,11 +955,20 @@ describe('React fundamentals lesson translation', () => {
     expect(englishReactBasics.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianReactBasics.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishReactBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(englishReactBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
     expect(russianReactBasics.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     for (const lesson of [englishReactBasics, russianReactBasics]) {
-      expect(lesson.version).toBe(3);
+      expect(lesson.version).toBe(4);
       expect(lesson.updatedAt).toBe('2026-10-29');
+      const propsCheck = lesson.blocks.find((block) => block.id === 'react-props-contract-check');
+      expect(propsCheck?.type).toBe('knowledgeCheck');
+      if (propsCheck?.type !== 'knowledgeCheck') throw new Error('Props contract check is missing');
+      expect(propsCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['parent-data']);
+      expect(propsCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.type === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type !== 'references') throw new Error('React state references are missing');
+      expect(refs.items.some((item) => item.url === 'https://react.dev/learn/passing-props-to-a-component')).toBe(true);
       const stateCheck = lesson.blocks.find((block) => block.id === 'react-usestate-return-check');
       expect(stateCheck?.type).toBe('knowledgeCheck');
       if (stateCheck?.type !== 'knowledgeCheck') throw new Error('useState return check is missing');
