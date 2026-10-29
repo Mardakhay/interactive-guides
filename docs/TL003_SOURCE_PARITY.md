@@ -18,7 +18,7 @@ This is the evidence checklist for the `tl-003` legacy tooling/tutorial page. Th
 | Q4 | npx / scaffolding | tooling: `npm-command-vs-exec-check`, `vite-template-check` | Covered with modern CLI-vs-scaffolding distinction. |
 | Q5 | `Partial<T>` | TypeScript: `partial-utility-check`, `utility-types-walkthrough` | Covered. |
 | Q6 | Optional property | TypeScript: `object-shape`, `utility-types-limits` | Covered; optional differs from nullable. |
-| Q7 | Generics | TypeScript: `generic-example` | Add an explicit generic filtering example if source-to-block review finds it absent. |
+| Q7 | Generics | TypeScript: `generic-example`, `legacy-generic-filter-example` | Added a bilingual generic filtering walkthrough; it explains that the helper demonstrates the type relationship rather than improving on `Array.filter`'s built-in typing. |
 | Q8 | `strict: true` | TypeScript: `strict-mode-check` | Covered. |
 | Q9 | `useState` return | React basics: `react-usestate-return-check`, `counter-example` | Covered. |
 | Q10 | State updates | React basics: `react-quiz-1`, `immutable-example` | Covered; explain render snapshots. |
@@ -38,20 +38,20 @@ This is the evidence checklist for the `tl-003` legacy tooling/tutorial page. Th
 | Exercise | Destination / expected evidence | Notes |
 |---|---|---|
 | 1. Create package.json | tooling: `package-json-example`, `practice-project-setup`, `deep-tooling-practice`; advanced packages lesson | Match actual project scripts/lockfile instead of copying historical versions blindly. |
-| 2. Product interface | TypeScript Fundamentals | Include a typed Product example and optional/literal-union fields. |
-| 3. Generic filter | TypeScript Fundamentals | Show generic input/predicate/output relationship; clarify built-in `Array.filter` is already generic. |
-| 4. Toggle | React basics | Use native button, state updater and accessible `aria-pressed`. |
-| 5. Typed list | React basics; React Effects list pipeline | Include stable IDs and empty state. |
-| 6. useLocalStorage | API Hooks | Cover storage exceptions, malformed JSON, key changes, runtime validation and SSR/hydration. |
+| 2. Product interface | TypeScript Fundamentals | Added bilingual `legacy-product-interface-example` with required fields, a literal-union category, optional description, and a typed value. |
+| 3. Generic filter | TypeScript Fundamentals | Added bilingual `legacy-generic-filter-example`; the walkthrough preserves T between items, predicate and output. |
+| 4. Toggle | React basics | Added bilingual `legacy-toggle-example` with native button, functional state updater and accessible `aria-pressed`. |
+| 5. Typed list | React basics; React Effects list pipeline | Added bilingual `legacy-typed-list-example` with stable IDs and an explicit empty state; the advanced list pipeline remains for filter/sort composition. |
+| 6. useLocalStorage | API Hooks | Added bilingual `legacy-use-local-storage-walkthrough` and `legacy-use-local-storage-practice` covering storage exceptions, malformed JSON, key changes, runtime validation and SSR/hydration. |
 | 7. Async data component | React Effects `posts-effect-example`/`practice-posts-list`; API Hooks | Loading/error/empty/success, response status and cleanup. |
 | 8. Utility types | TypeScript `utility-types-walkthrough`/`utility-types-practice` | Concept covered; source field names may differ. |
-| 9. Search filter | React basics | Controlled query, case-insensitive match, derived list and stable keys. |
+| 9. Search filter | React basics | Added bilingual `legacy-searchable-list-example` with controlled query, case-insensitive matching, a derived list and stable keys. |
 | 10. Vite config | tooling `vite-config-alias-proxy-walkthrough`, `vite-proxy-dev-only-check` | Use ESM-safe path resolution; configure matching TypeScript `paths` where needed; dev proxy is not production routing. |
 
-## Corrections that must be reflected in the legacy source
+## Corrections applied to the legacy source
 
 - **Effect cleanup:** cleanup mirrors setup; for fetching, abort the request when appropriate or ignore stale results after dependencies change. A late Promise alone does not establish a memory leak. Sources: [React useEffect](https://react.dev/reference/react/useEffect), [Synchronizing with Effects](https://react.dev/learn/synchronizing-with-effects).
-- **Vite:** describe native ES modules and dependency pre-bundling during development without promising that Vite is faster for every project; confirm production-bundler details for the pinned version. Source: [Vite features](https://vite.dev/guide/features).
+- **Vite:** the lesson body and Q17 no longer claim near-instant startup regardless of project size or say development does not pre-bundle anything. They describe native ESM, dependency pre-bundling and project-dependent behavior; the production bundler is versioned explicitly (Vite 5: Rollup; Vite 8: Rolldown). Source: [Vite features](https://vite.dev/guide/features).
 - **Mocks:** Vitest `vi.fn()` and Jest `jest.fn()` are similar APIs from different runners. Source: [Vitest vi.fn](https://vitest.dev/api/vi).
 - **ES modules:** `__dirname` is not defined by default in native ESM configuration; resolve paths using `fileURLToPath(new URL("./src", import.meta.url))`. Vite `server.proxy` applies to the development server.
 
