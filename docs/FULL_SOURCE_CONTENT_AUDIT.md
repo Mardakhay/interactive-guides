@@ -1191,7 +1191,7 @@ See [WB003_SOURCE_PARITY.md](WB003_SOURCE_PARITY.md) for the mapping and factual
 
 ## Focused wb-002 HTML reference source review — 2026-10-29
 
-See [WB002_SOURCE_PARITY.md](WB002_SOURCE_PARITY.md) for the source-to-block crosswalk and factual corrections. The legacy reference removes the one-h1 SEO rule, qualifies doctype/heading semantics, distinguishes `noopener` from `noreferrer`, scopes alt text by purpose, corrects GET/POST semantics and iframe sandbox permissions, and clarifies the Living Standard, non-guaranteed SEO impact, native input constraints, hidden-field trust boundary, and reset semantics. `src/content/legacyHtmlReference.test.ts` protects these claims and the original controls; `wb-002` remains **Blocked** until interaction parity, learner-state disposition, and browser/accessibility acceptance are evidenced.
+See [WB002_SOURCE_PARITY.md](WB002_SOURCE_PARITY.md) for the source-to-block crosswalk and factual corrections. The legacy reference removes the one-h1 SEO rule, qualifies doctype/heading semantics, distinguishes `noopener` from `noreferrer`, scopes alt text by purpose, corrects GET/POST semantics and iframe sandbox permissions, and clarifies the Living Standard, non-guaranteed SEO impact, native input constraints, hidden-field trust boundary, reset semantics, disabled-versus-readonly submission, native `required` validation caveat, and the limit of ARIA `role` without real keyboard/activation behavior. `src/content/legacyHtmlReference.test.ts` protects these claims and the original controls; `wb-002` remains **Blocked** until interaction parity, learner-state disposition, and browser/accessibility acceptance are evidenced.
 
 
 ## Focused js-002 objects/prototypes/classes source review — 2026-10-29

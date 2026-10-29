@@ -60,6 +60,13 @@ describe('wb-002 legacy HTML reference accuracy and parity', () => {
     expect(legacyHtmlReference).not.toContain('Validates @ format');
     expect(legacyHtmlReference).not.toContain('Mobile shows dial pad');
     expect(legacyHtmlReference).toContain('client-side validation never replaces server-side validation');
+    expect(legacyHtmlReference).toContain('Participates in browser constraint validation when form validation is enabled; server-side validation is still required');
+    expect(legacyHtmlReference).toContain('Not interactive and omitted from submitted form data');
+    expect(legacyHtmlReference).toContain('Not editable by the user, but included in submitted form data when named');
+    expect(legacyHtmlReference).toContain('Accessible names, states and relationships exposed through accessibility APIs');
+    expect(legacyHtmlReference).toContain('it does not add native keyboard or activation behavior');
+    expect(legacyHtmlReference).not.toContain('Browser will refuse to submit without a value');
+    expect(legacyHtmlReference).not.toContain('ARIA role for accessibility');
   });
 
   it('describes alt text by purpose and avoids treating placeholder as a label', () => {
