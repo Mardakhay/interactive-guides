@@ -143,7 +143,7 @@ describe('HTML forms and accessibility lesson translation', () => {
     expect(englishForms.version).toBe(3);
     expect(russianForms.version).toBe(3);
     for (const lesson of [englishForms, russianForms]) {
-      expect(lesson.updatedAt).toBe('2026-10-29');
+      expect(lesson.updatedAt).toBe('2026-10-28');
       expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
       const specialized = lesson.blocks.find((block) => block.id === 'specialized-input-types-list');
       expect(specialized?.type).toBe('list');
@@ -369,7 +369,7 @@ describe('Git fundamentals lesson translation', () => {
     }
     for (const lesson of [englishGit, russianGit]) {
       expect(lessonTranslationSchema.safeParse(lesson).success).toBe(true);
-      expect(lesson.updatedAt).toBe('2026-10-28');
+      expect(lesson.updatedAt).toBe('2026-10-29');
 
       const quickReference = lesson.blocks.find((block) => block.id === 'git-command-reference-list');
       expect(quickReference?.type).toBe('list');
