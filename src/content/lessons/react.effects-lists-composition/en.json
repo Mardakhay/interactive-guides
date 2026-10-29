@@ -1,10 +1,10 @@
 {
   "id": "react.effects-lists-composition",
   "locale": "en",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-3-week-12",
   "week": 12,
   "order": 1,
@@ -23,7 +23,8 @@
     "Compose parent and child components instead of putting all UI in one component.",
     "Render arrays with stable keys that identify items across insertions, removals, and reordering.",
     "Build an API-driven posts list with loading, success, empty, and error states.",
-    "Derive filtered and sorted list views without mutating source data."
+    "Derive filtered and sorted list views without mutating source data.",
+    "Explain how a useEffect dependency array controls re-synchronization and why dependencies are not an optimization wish list."
   ],
   "tags": [
     "react",
@@ -100,6 +101,39 @@
       "id": "effect-dependencies-body",
       "type": "paragraph",
       "text": "The dependency array is not a performance wish list. It describes the reactive values that determine the effect's setup. When an effect reads a prop or state value, include it in the dependency list unless the code is deliberately structured so it is not reactive. If adding a dependency causes repeated work, first inspect the effect's purpose and how values/functions are created rather than suppressing the lint rule without understanding why."
+    },
+    {
+      "id": "effect-dependency-array-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "For `useEffect(() => { ... }, [count])`, when does React normally run the setup function?",
+      "options": [
+        {
+          "id": "count",
+          "text": "After the initial commit and again when `count` changes.",
+          "correct": true,
+          "feedback": "Correct. The dependency array describes reactive inputs: the effect first sets up after mount, then re-synchronizes when the compared dependency changes. Cleanup for the prior setup runs first."
+        },
+        {
+          "id": "once",
+          "text": "Only one time in every environment, even if count changes.",
+          "correct": false,
+          "feedback": "A non-empty dependency array causes re-synchronization when one of its values changes. Development Strict Mode may also perform an extra setup/cleanup cycle."
+        },
+        {
+          "id": "every",
+          "text": "After every render no matter whether count changed.",
+          "correct": false,
+          "feedback": "That behavior is associated with omitting the dependency array entirely, not with `[count]`."
+        },
+        {
+          "id": "before",
+          "text": "During render before React commits the UI.",
+          "correct": false,
+          "feedback": "Effects synchronize after React commits the render; they are not executed as part of the pure render calculation."
+        }
+      ],
+      "explanation": "A dependency array lists the reactive values used by the effect. `[count]` means setup after the initial commit and re-synchronization when count changes; cleanup reverses the previous setup before the next one."
     },
     {
       "id": "effects-not-derived",
@@ -756,6 +790,11 @@
           "title": "JSONPlaceholder public API",
           "url": "https://jsonplaceholder.typicode.com/",
           "kind": "guide"
+        },
+        {
+          "title": "React reference: useEffect",
+          "url": "https://react.dev/reference/react/useEffect",
+          "kind": "official-docs"
         }
       ]
     }
