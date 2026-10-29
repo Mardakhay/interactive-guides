@@ -9,12 +9,12 @@
 
 This section replaces older status summaries below when they disagree. Historical checkpoints are retained as a work log only.
 
-- **Latest validated code/content checkpoint:** `0d757e15d0cfe2346744675a8bf97f4c47267c1a`; the current snapshot refresh itself is documentation-only.
+- **Latest validated code/content checkpoint:** `d34aa294adbc2b89b3f28ba0d34c399298ea13ec`; the branch tip after this checkpoint contains documentation-only descendants.
 - **Main:** `b13af92576e8a73753a6e3f3d26765d9f9c44397`; it was not changed in this continuation.
 - **PR #1:** [open Draft PR against main](https://github.com/Mardakhay/interactive-guides/pull/1).
-- **Exact code-checkpoint CI:** [run #40831290691](https://github.com/Mardakhay/interactive-guides/actions/runs/40831290691) passed on `0d757e15d0cfe2346744675a8bf97f4c47267c1a`: `npm ci`, lint, typecheck, 36 test files / 226 tests, production build, 125-chunk bundle budgets, zero npm audit advisories, and production preview smoke (four deep routes, entry bundle, manifest, service worker and five PWA assets). CI does not replace browser/device or assistive-technology acceptance.
+- **Exact code-checkpoint CI:** [run #40831682747](https://github.com/Mardakhay/interactive-guides/actions/runs/40831682747) passed on `d34aa294adbc2b89b3f28ba0d34c399298ea13ec`: `npm ci`, lint, typecheck, 36 test files / 226 tests, production build, 125-chunk bundle budgets, zero npm audit advisories, and production preview smoke (four deep routes, entry bundle, manifest, service worker and five PWA assets). CI does not replace browser/device or assistive-technology acceptance.
 - **Curriculum registry:** 27 core + 17 supplementary lesson IDs = 44 bilingual pairs and 88 locale JSON files. `ui.bootstrap-mui` is core week 17; `css.sass-scss` is supplementary.
-- **Legacy migration gate:** 25 source HTML files have documented content/code/interaction reviews; all 25 legacy cutover rows remain **Blocked**. Git `tl-001` now has bilingual Markdown/Pages instructions and assessed practice; Git workflow `tl-002` now has bilingual merge/rebase recovery and actionable code-review feedback guidance. Remaining interactive controls and state retention are not signed off.
+- **Legacy migration gate:** all 25 legacy cutover rows remain **Blocked**. Git `tl-001` has bilingual Markdown/Pages guidance; `tl-002` has merge/rebase recovery and actionable review-comment practice; `tl-003` now distinguishes dependency installation, `npx`/`npm exec` and `npm create` with a scored check. Remaining interactions, complete claim/example parity and learner-state disposition are not signed off.
 - **Notion source evidence:** 21 pages have been fetched/mapped but remain `verification.state=unverified`; this must not be presented as formal verification.
 - **PWA/manual acceptance:** HTTP smoke validates the built shell, routes and assets. No native browser/device install/offline, screen-reader, keyboard or mobile acceptance is recorded.
 - **Data safety:** classic routes and source HTML remain available. No redirects/removals should occur before the content and per-store learner-state gates pass.
@@ -25,6 +25,7 @@ This section replaces older status summaries below when they disagree. Historica
 
 - `git.fundamentals` EN/RU v8: 57 aligned blocks, including a Markdown walkthrough and a Pages publishing/deployment verification checklist with quiz and practice.
 - `git.workflow-ci` EN/RU v8: 57 aligned blocks per locale, with 9 knowledge checks, 5 walkthroughs and 5 exercises. Added conflict recovery for active merge/rebase operations and a review-comment taxonomy (`BLOCKING`, `SUGGESTION`, `QUESTION`, `NITPICK`) with assessed, bilingual practice.
+- `tooling.node-npm-vite` EN/RU v3: 40 aligned blocks, 5 knowledge checks and 7 outcomes per locale. Added the missing npx/npm exec/npm create distinction and regression coverage for both language schemas, line ranges, correct answer and official references.
 - Exact code/content verification is green at `0d757e15d0cfe2346744675a8bf97f4c47267c1a`, [CI #40831290691](https://github.com/Mardakhay/interactive-guides/actions/runs/40831290691). The remaining cutover/UI/state and manual acceptance gates stay open.
 
 ## Highest-priority remaining work
