@@ -1177,3 +1177,8 @@ See [SEC001_SOURCE_PARITY.md](SEC001_SOURCE_PARITY.md) for the section crosswalk
 ## Focused qa-002 testing source review — 2026-10-29
 
 The crosswalk and remaining interaction gaps are recorded in [QA002_SOURCE_PARITY.md](QA002_SOURCE_PARITY.md). The legacy guide keeps its Jest material for learning, but clearly distinguishes it from this repository's Vitest stack, corrects `toBe` semantics to `Object.is`, upgrades the primary form example to `userEvent.setup()`, and removes a hard-coded async-query timeout claim. `src/content/legacyTestingGuide.test.ts` protects those claims and the original control inventory; `qa-002` remains **Blocked** until interaction parity, learner-state disposition and native acceptance are evidenced.
+
+
+## Focused wb-004 DOM source review — 2026-10-29
+
+See [WB004_SOURCE_PARITY.md](WB004_SOURCE_PARITY.md) for the crosswalk and source-level corrections. The legacy DOM masterclass now describes `innerHTML` script insertion accurately, scopes `textContent` safety to plain-text contexts, removes unsupported classList/DocumentFragment performance guarantees, and uses passive wheel listeners only with explicit non-cancellation intent. A source regression suite preserves key interactive sections and the 25 quiz options. `wb-004` remains **Blocked** because live demos/editors, learner-state disposition and native acceptance do not yet have parity evidence.
