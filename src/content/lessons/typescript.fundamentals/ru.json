@@ -1,7 +1,7 @@
 {
   "id": "typescript.fundamentals",
   "locale": "ru",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-29",
@@ -197,6 +197,26 @@
       ]
     },
     {
+      "id": "legacy-product-interface-example",
+      "type": "codeWalkthrough",
+      "language": "ts",
+      "code": "interface Product {\n  id: number;\n  name: string;\n  price: number;\n  category: \"electronics\" | \"clothing\" | \"food\";\n  description?: string;\n  inStock: boolean;\n}\n\nconst laptop: Product = {\n  id: 1,\n  name: \"Sample laptop\",\n  price: 1299,\n  category: \"electronics\",\n  description: \"14-inch laptop\",\n  inStock: true,\n};",
+      "steps": [
+        {
+          "title": "Опиши обязательные и необязательные поля",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "Интерфейс явно задаёт тип каждого поля. Union ограничивает допустимые строки категории, а description можно не указывать."
+        },
+        {
+          "title": "Создай значение, соответствующее Product",
+          "lineStart": 10,
+          "lineEnd": 17,
+          "explanation": "Объект содержит обязательные поля и допустимую категорию. TypeScript проверяет форму при компиляции, но не валидирует произвольный JSON во время выполнения."
+        }
+      ]
+    },
+    {
       "id": "unions-narrowing",
       "type": "heading",
       "level": 2,
@@ -248,6 +268,32 @@
           "lineStart": 4,
           "lineEnd": 7,
           "explanation": "Первый массив содержит строки, значит результат — string | undefined. Второй массив содержит числа, поэтому результат — number | undefined."
+        }
+      ]
+    },
+    {
+      "id": "legacy-generic-filter-example",
+      "type": "codeWalkthrough",
+      "language": "ts",
+      "code": "function filterItems<T>(\n  items: T[],\n  predicate: (item: T) => boolean,\n): T[] {\n  return items.filter(predicate);\n}\n\ntype Product = {\n  id: string;\n  category: \"electronics\" | \"clothing\" | \"food\";\n  inStock: boolean;\n};\n\nconst products: Product[] = [\n  { id: \"p-1\", category: \"electronics\", inStock: true },\n  { id: \"p-2\", category: \"food\", inStock: true },\n];\n\nconst inStockElectronics = filterItems(\n  products,\n  (product) => product.category === \"electronics\" && product.inStock,\n);\n// inStockElectronics is Product[].",
+      "steps": [
+        {
+          "title": "Свяжи тип элемента с predicate и результатом",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "Один и тот же T описывает каждый входной элемент и элемент результата. Predicate решает, нужно ли включить элемент."
+        },
+        {
+          "title": "Вызови helper с конкретным доменным типом",
+          "lineStart": 8,
+          "lineEnd": 18,
+          "explanation": "Функция работает с Product и другими типами, не теряя конкретный тип результата."
+        },
+        {
+          "title": "Изучи выведенный тип результата",
+          "lineStart": 19,
+          "lineEnd": 23,
+          "explanation": "Результат остаётся Product[]. Helper не типизирует Array.filter лучше встроенного метода; пример показывает, как generic API сохраняет связь типов."
         }
       ]
     },
