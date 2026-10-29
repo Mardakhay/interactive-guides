@@ -1,10 +1,10 @@
 {
   "id": "typescript.fundamentals",
   "locale": "ru",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-3-week-10",
   "week": 10,
   "order": 1,
@@ -23,7 +23,8 @@
     "Моделировать объекты через interface и type alias, включая optional и union свойства.",
     "Использовать generic-типы вроде Array<T>, сохраняя связь между входным и выходным типами.",
     "Создавать типизированный список пользователей и безопасно искать, обновлять и фильтровать его.",
-    "Выводить типы create, preview и patch с помощью utility types, отличая статическую проверку от runtime-валидации."
+    "Выводить типы create, preview и patch с помощью utility types, отличая статическую проверку от runtime-валидации.",
+    "Объяснять, какие проверки включает strict в TypeScript и почему они не валидируют данные во время выполнения."
   ],
   "tags": [
     "typescript",
@@ -45,6 +46,39 @@
       "id": "ts-purpose-body",
       "type": "paragraph",
       "text": "TypeScript расширяет JavaScript статической системой типов. Проверяющий типы анализирует код во время разработки или сборки, чтобы обнаружить многие ошибки до выполнения программы. Аннотации типов и интерфейсы в основном удаляются из скомпилированного JavaScript: браузер или Node выполняют JavaScript, а не объявления TypeScript. TypeScript не может доказать безопасность любого runtime-поведения, а внешние данные могут не соответствовать типу, который ты ожидаешь."
+    },
+    {
+      "id": "strict-mode-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что делает настройка `\"strict\": true` в tsconfig.json?",
+      "options": [
+        {
+          "id": "checks",
+          "text": "Включает группу более строгих проверок при компиляции, включая такие проверки, как `noImplicitAny` и `strictNullChecks`.",
+          "correct": true,
+          "feedback": "Верно. Опция strict включает связанные статические проверки, которые помогают обнаруживать небезопасные предположения; сама настройка не меняет runtime-поведение JavaScript."
+        },
+        {
+          "id": "runtime",
+          "text": "Добавляет runtime-валидаторы, отклоняющие любой API payload, который не соответствует interface.",
+          "correct": false,
+          "feedback": "Интерфейсы TypeScript удаляются при компиляции. Для недоверенных API-данных нужна runtime-схема или явная валидация."
+        },
+        {
+          "id": "emit",
+          "text": "Превращает TypeScript в отдельную браузерную runtime-среду и оставляет типы в output.",
+          "correct": false,
+          "feedback": "Браузеры по-прежнему выполняют JavaScript; объявления типов TypeScript обычно удаляются из результата компиляции."
+        },
+        {
+          "id": "disable",
+          "text": "Отключает ошибки компилятора, чтобы приложение собиралось при несогласованных типах.",
+          "correct": false,
+          "feedback": "Strict mode обычно включает дополнительные проверки, поэтому он может обнаружить больше проблем, а не подавлять их."
+        }
+      ],
+      "explanation": "Опция `strict` включает группу статических проверок типов. Она улучшает диагностику во время компиляции, но не заменяет runtime-валидацию сетевых данных, storage и пользовательского ввода."
     },
     {
       "id": "ts-mental-model",
@@ -672,6 +706,11 @@
         {
           "title": "TypeScript Handbook: Utility Types",
           "url": "https://www.typescriptlang.org/docs/handbook/utility-types.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "TypeScript TSConfig: strict",
+          "url": "https://www.typescriptlang.org/tsconfig/#strict",
           "kind": "official-docs"
         }
       ]
