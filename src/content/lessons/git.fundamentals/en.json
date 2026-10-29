@@ -851,7 +851,7 @@
           "feedback": "Rebase recreates commits and changes their IDs. Do not rewrite history that collaborators depend on without an agreed team procedure."
         }
       ],
-      "explanation": "Fetch first so the remote-tracking ref is current, then rebase only your own branch when history rewriting is permitted. If conflict resolution is unsafe, abort the active rebase rather than guessing."
+      "explanation": "Run `git fetch origin` first so the remote-tracking ref is current, then rebase only your own branch when history rewriting is permitted. If conflict resolution is unsafe, abort the active rebase instead of guessing."
     },
     {
       "id": "git-command-reference-heading",
