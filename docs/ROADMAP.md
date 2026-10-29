@@ -754,3 +754,18 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 - [x] Upgrade `git.fundamentals` to v11 (65 aligned blocks, 9 knowledge checks, 8 walkthroughs in both locales) and update schema/repository/source parity assertions for version and line-range safety.
 - [x] Validate exact checkpoint `13de653ac575836ab2d0d63a482cf35792271d83` in [CI #40845507742](https://github.com/Mardakhay/interactive-guides/actions/runs/40845507742): 37 test files / 235 tests, lint, typecheck, production build, 125-chunk budgets, zero reported npm audit advisories and production-preview smoke.
 - [ ] Keep `tl-001` **Blocked** until the original sidebar accordion, responsive layout and interaction disposition are reviewed in real browsers and learner-state safety is signed off.
+
+
+## Secret-leak response and least-privilege repository roles — 2026-10-29
+
+- [x] Add a bilingual, assessed response for an already-pushed secret: revoke/rotate with the provider first, alert the owner/security contact, review logs, remove the tracked file while preserving a local copy, and coordinate any necessary history cleanup.
+- [x] Add bilingual least-privilege repository-role guidance and a scored mapping from issue/PR management without code push to the Triage role.
+- [x] Validate source/content answer IDs and references in the Git parity suite. `git.fundamentals` is now v13 with 72 aligned blocks, 11 knowledge checks and 9 walkthroughs per locale.
+- [ ] Keep `tl-001` **Blocked** until exact interaction/layout parity, browser/device acceptance, learner-state disposition and screen-reader checks are complete.
+
+## npm update range semantics — 2026-10-29
+
+- [x] Upgrade `tooling.advanced-package-workflows` EN/RU to v3 with 18 aligned blocks and a scored `pkg-update-range-check`.
+- [x] Explain the decision between `npm update` (refresh within declared ranges by default), `npm ci` (reproduce locked resolution), and targeted `npm install react@latest` (not equivalent and may change the direct range); require lockfile diff review and project checks.
+- [x] Update the schema regression expectations to v3/18 blocks and assert the single correct answer, feedback/explanation, and official npm update URL.
+- [x] Verify exact checkpoint `fabe0f1c40bd30fbcc4563a50364fa803b085f64` in [CI #40848460443](https://github.com/Mardakhay/interactive-guides/actions/runs/40848460443): 37 test files / 240 tests, lint, typecheck, production build, 125-chunk budgets, zero npm audit advisories and production-preview smoke.

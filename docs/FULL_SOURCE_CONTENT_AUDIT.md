@@ -1123,3 +1123,20 @@ Upgraded `git.fundamentals` EN/RU to v11: 65 aligned blocks, 9 knowledge checks 
 Schema, repository and source-parity tests were updated for v11 and the ninth knowledge check; they validate walkthrough line ranges, correct answer ID update-pr-branch, per-option feedback, and the official GitHub Flow docs URL. Exact checkpoint `13de653ac575836ab2d0d63a482cf35792271d83` passed [GitHub Actions #40845507742](https://github.com/Mardakhay/interactive-guides/actions/runs/40845507742): 37 test files / 235 tests, lint, typecheck, production build, 125 JavaScript chunks within budgets, zero npm audit advisories and production-preview smoke.
 
 `tl-001` remains **Blocked**: the old sidebar accordion, full responsive layout and exact interaction parity are not reproduced. Keep the legacy HTML and route until manual browser/device, keyboard/screen-reader and learner-state acceptance are complete.
+
+
+## Secret-leak response and least-privilege repository access — 2026-10-29
+
+The Git Reference source review identified two operational concerns that deserved explicit, assessed guidance in the structured Git reference: what to do after a real credential is pushed, and how to choose repository permissions under least privilege.
+
+Updated `git.fundamentals` EN/RU to v13 (72 aligned blocks, 11 knowledge checks, 9 walkthroughs per locale). The new secret-leak response says to treat an exposed, pushed token/password/private key as compromised: revoke or rotate with the provider first, notify the credential owner/security contact, review available logs, then remove the tracked file while retaining the local copy, and coordinate any history cleanup. Removing the file in a later commit does not invalidate the credential or erase historical copies. A scored check enforces revoke-first ordering. Added a source reference to GitHub's leaked-secret remediation guidance.
+
+A separate least-privilege section distinguishes organization repository roles: Read for view/discussion, Triage for issue/PR management without code push, Write for contributors who need to push, and elevated access only for responsibilities that require it. A scored EN/RU check maps issue/PR triage without code push to Triage, backed by GitHub documentation. The existing 25-command quick reference, safe-rebase walkthrough, GitHub Flow lifecycle and localized section-title search remain.
+
+## npm update SemVer-range assessment — 2026-10-29
+
+Updated `tooling.advanced-package-workflows` EN/RU to v3 (18 aligned blocks). Added the scored `pkg-update-range-check`: use `npm update` to refresh resolved installed versions while respecting declared SemVer ranges by default; contrast it with `npm ci`, which reproduces the lockfile, and a targeted `npm install react@latest`, which is not equivalent and may alter the direct declaration. The lesson requires inspecting `package-lock.json` and rerunning project checks. Added the official npm CLI reference for `npm update`.
+
+Regression tests in `src/content/gitReferenceParity.test.ts`, `src/content/schemas/supplementaryLessons.test.ts` and `src/content/repository.test.ts` cover bilingual IDs/ordering, the revoke-first and Triage answer IDs, v3/18-block package workflow, the only-correct `npm-update` option, feedback/explanation quality and the official docs URL. An initially failing run on `fe7dfd7f7b267d892cd4bf664cea706678f9a78d` was traced to stale v2/17-block expectations; `fabe0f1c40bd30fbcc4563a50364fa803b085f64` updates them and passes exact-head [Actions #40848460443](https://github.com/Mardakhay/interactive-guides/actions/runs/40848460443): 37 test files / 240 tests, lint, typecheck, build, 125-chunk budgets, zero reported npm audit advisories and production-preview smoke.
+
+These content changes do not approve any classic route migration. All 25 cutover rows remain **Blocked**; real-browser/device and learner-state safety acceptance are outstanding.
