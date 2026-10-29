@@ -6,9 +6,9 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 
 This section replaces older status summaries below where they conflict. Chronological checkpoint notes remain a history, not a unique-task count.
 
-- Latest validated code/content checkpoint: `a2a331a59bed3d40a85f1d02e992e12ca045b272`.
+- Latest validated code/content checkpoint: `6a0f9dbc888d713762096aac6074ed01a928336c`.
 - `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 is open Draft against `main`.
-- Exact-head Actions run [#40836307195](https://github.com/Mardakhay/interactive-guides/actions/runs/40836307195) passed on `a2a331a59bed3d40a85f1d02e992e12ca045b272`: install, lint, typecheck, 36 test files / 227 tests, production build/bundle checks, informational audit report and production preview smoke. It is not a native browser/device pass.
+- Exact-head Actions run [#40837078455](https://github.com/Mardakhay/interactive-guides/actions/runs/40837078455) passed on `6a0f9dbc888d713762096aac6074ed01a928336c`: lint, typecheck, 36 test files / 227 tests, production build/bundle checks, informational audit report and production preview smoke. It is not a native browser/device pass.
 - Registry: 27 core + 17 supplementary = 44 EN/RU lesson pairs (88 JSON locale records).
 - 25 legacy HTML source reviews are documented, but all 25 route-cutover rows remain **Blocked**. Source-to-block parity, interaction dispositions and learner-state retention are still release gates.
 - 21 mapped Notion sources remain `verification.state=unverified`.
