@@ -976,10 +976,10 @@ describe('React fundamentals lesson translation', () => {
       if (stateCheck?.type !== 'knowledgeCheck') throw new Error('useState return check is missing');
       expect(stateCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['pair']);
       expect(stateCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
-      const refs = lesson.blocks.find((block) => block.type === 'references');
-      expect(refs?.type).toBe('references');
-      if (refs?.type !== 'references') throw new Error('React state references are missing');
-      expect(refs.items.some((item) => item.url === 'https://react.dev/reference/react/useState')).toBe(true);
+      const stateRefs = lesson.blocks.find((block) => block.type === 'references');
+      expect(stateRefs?.type).toBe('references');
+      if (stateRefs?.type !== 'references') throw new Error('React state references are missing');
+      expect(stateRefs.items.some((item) => item.url === 'https://react.dev/reference/react/useState')).toBe(true);
     }
   });
 });
