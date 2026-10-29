@@ -1,7 +1,7 @@
 {
   "id": "react.components-jsx-state",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -23,7 +23,8 @@
     "Pass data with props and treat props as read-only.",
     "Use useState for values that change over time and should update the UI.",
     "Update arrays and objects immutably and use functional state updates when appropriate.",
-    "Describe the value/setter pair returned by useState and how it requests updates."
+    "Describe the value/setter pair returned by useState and how it requests updates.",
+    "Explain how parent-provided props configure a child and why child components should treat props as read-only."
   ],
   "tags": [
     "react",
@@ -117,6 +118,39 @@
       "id": "props-body",
       "type": "paragraph",
       "text": "Props let a parent pass strings, numbers, booleans, objects, arrays, and callbacks to a child. Treat these values as read-only. If a child needs to ask for a change, it can invoke a callback supplied by the parent or manage appropriate local state. A component should render from current props, not assume the values never change."
+    },
+    {
+      "id": "react-props-contract-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What is the normal role of props in a React component?",
+      "options": [
+        {
+          "id": "parent-data",
+          "text": "They carry values or callbacks from a parent to configure a child; the child treats them as read-only.",
+          "correct": true,
+          "feedback": "Correct. Props describe the inputs supplied by the parent. When the child needs a change, it can call a callback supplied by the parent or update its own local state as appropriate."
+        },
+        {
+          "id": "child-owned",
+          "text": "They are local state owned and mutated directly by the child.",
+          "correct": false,
+          "feedback": "Local component state is a different mechanism. Mutating a prop can break assumptions about parent-driven rendering."
+        },
+        {
+          "id": "global",
+          "text": "They are globally shared values automatically visible to every component.",
+          "correct": false,
+          "feedback": "Props are passed through the component tree; global sharing requires an explicit shared-state mechanism."
+        },
+        {
+          "id": "immutable-state",
+          "text": "They can never change after the first render, even when the parent changes inputs.",
+          "correct": false,
+          "feedback": "Props are read-only from the child's perspective, but their values can change when the parent renders with different inputs."
+        }
+      ],
+      "explanation": "Props are parent-provided inputs, including data and callbacks. Components should not mutate them; the parent owns the inputs and decides how changes flow through the tree."
     },
     {
       "id": "props-example",
