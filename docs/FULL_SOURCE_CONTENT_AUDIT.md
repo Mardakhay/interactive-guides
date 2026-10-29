@@ -1084,3 +1084,16 @@ Updated `git.fundamentals` EN/RU to v9 with 61 aligned blocks, 8 knowledge check
 Regression tests in `src/content/schemas/lessonContent.test.ts` and `src/content/repository.test.ts` validate v9 in both locales, aligned block IDs/types, 61 blocks, eight checks, answer key and feedback, exact command presence, walkthrough line ranges, safety language and the official reference. The final exact content/test checkpoint `caf410e47427e62cc3c409b0e89f9a4a50f6b54f` passed [Actions #40842971009](https://github.com/Mardakhay/interactive-guides/actions/runs/40842971009): lint, typecheck, 37 test files / 230 tests, production build, 125-chunk budgets, zero informational npm audit advisories, and preview smoke.
 
 This is a focused source-concept and command-workflow improvement, not full page parity. The original live search, copy controls, sidebar/accordion navigation, quick-reference presentation and page layout remain non-equivalent; `tl-001` stays **Blocked**. Keep the classic HTML and route until interaction disposition, learner-state safety and manual browser/device acceptance are recorded.
+
+
+## Structured lesson navigation search parity increment — 2026-10-29
+
+A follow-up review of the classic Git Reference Guide found that its search input only changes the opacity of matching/nonmatching sidebar navigation labels; it does not search lesson body text or filter command snippets. The structured lesson page previously had mobile and desktop outlines but no query control.
+
+Added localized outline search to src/app/pages/StructuredLessonPage.tsx: EN uses Search sections, RU uses Поиск по разделам; both mobile and desktop inputs share query state. Match evaluation is case-insensitive against heading text. Nonmatching outline links are dimmed rather than removed, retaining keyboard navigation and assistive-technology access. src/app/pages/StructuredLessonPage.test.tsx covers EN/RU labels, matching versus nonmatching headings, synchronized mobile/desktop input state and clearing the query.
+
+The first test run surfaced a separate edge case in the same page: when the reading-progress root had a measured height of zero (layout has not been established), the page reported 100% progress. Guarded zero-height measurement to remain at 0%, while preserving 100% for a genuinely nonempty page with no scrollable overflow. The fix also stabilizes the existing progress test.
+
+Exact checkpoint 703b09911f3da04ff6eb239102ee814918a13dc7 passed GitHub Actions #40843816941: 37 test files / 232 tests, lint, typecheck, production build, all 125 JavaScript chunks within budgets, and production-preview smoke over four deep routes plus the entry bundle, manifest, service worker and five PWA assets.
+
+This is a parity increment, not full text search or full Git Reference Guide reproduction. Command/body search, exact sidebar and accordion behavior, copy-control layout, full quick reference and responsive page structure still need review; tl-001 remains **Blocked**. Keep the original HTML and route until interaction inventory, browser/device and screen-reader acceptance, and learner-state retention are signed off.

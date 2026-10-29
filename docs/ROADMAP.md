@@ -724,3 +724,14 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 - [x] Exact content/test checkpoint `caf410e47427e62cc3c409b0e89f9a4a50f6b54f` passed [CI #40842971009](https://github.com/Mardakhay/interactive-guides/actions/runs/40842971009): 37 test files / 230 tests, lint, typecheck, production build, 125 JS chunks within budgets, zero reported npm audit advisories and preview smoke.
 - [ ] Keep `tl-001` **Blocked**: original search/copy/sidebar/accordion/quick-reference presentation and interaction behavior are not replicated one-to-one.
 - [ ] Keep real-browser/device, mobile, keyboard/screen-reader, install/offline/PWA and learner-state-retention acceptance open; content parity alone is not approval for redirects, HTML deletion or state migration.
+
+
+## Structured lesson outline search parity — 2026-10-29
+
+- [x] Reinspect the classic Git Reference Guide search behavior. It fades nonmatching sidebar-navigation labels and does not filter lesson body text or command snippets.
+- [x] Add bilingual Search sections / Поиск по разделам inputs to the structured lesson page's mobile and desktop outlines, sharing one query state; perform case-insensitive heading-text matching and dim nonmatching links instead of removing them from keyboard/assistive navigation.
+- [x] Add regression coverage for EN/RU labels, match/mismatch styling, mobile/desktop synchronized value and query clearing.
+- [x] Fix the reading-progress edge case that incorrectly marked a zero-height, not-yet-measured root as 100% complete.
+- [x] Verify exact HEAD 703b09911f3da04ff6eb239102ee814918a13dc7 in CI #40843816941: 37 test files / 232 tests, lint, typecheck, production build, 125-chunk budgets and production-preview smoke.
+- [ ] Keep tl-001 **Blocked**: query covers section titles only; command/body search and full legacy sidebar/accordion/quick-reference interaction and layout parity remain incomplete.
+- [ ] Keep the real-browser/device, keyboard/screen-reader, responsive/mobile, install/offline/PWA and learner-state retention gates open.
