@@ -418,7 +418,7 @@ describe('Node.js and project tooling lesson translation', () => {
     expect(russianTooling.version).toBe(4);
     for (const lesson of [englishTooling, russianTooling]) {
       expect(lesson.updatedAt).toBe('2026-10-29');
-      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
       const walkthrough = lesson.blocks.find((block) => block.id === 'npm-command-vs-exec-walkthrough');
       expect(walkthrough?.type).toBe('codeWalkthrough');
       if (walkthrough?.type !== 'codeWalkthrough') throw new Error('npm CLI walkthrough is missing');
