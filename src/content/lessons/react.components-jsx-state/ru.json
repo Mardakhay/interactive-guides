@@ -1,10 +1,10 @@
 {
   "id": "react.components-jsx-state",
   "locale": "ru",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-3-week-11",
   "week": 11,
   "order": 1,
@@ -22,7 +22,8 @@
     "Читать JSX-выражения и выполнять условный рендеринг.",
     "Передавать данные через props и считать их доступными только для чтения.",
     "Использовать useState для значений, меняющихся со временем и влияющих на UI.",
-    "Обновлять массивы и объекты иммутабельно и применять функциональные обновления при необходимости."
+    "Обновлять массивы и объекты иммутабельно и применять функциональные обновления при необходимости.",
+    "Описывать пару value/setter, которую возвращает useState, и как она запрашивает обновление."
   ],
   "tags": [
     "react",
@@ -134,6 +135,39 @@
       "id": "state-body",
       "type": "paragraph",
       "text": "Локальная переменная внутри функции компонента создаётся заново, когда React вызывает функцию повторно. Изменение такой переменной не сообщает React, что UI нужно обновить. UseState предоставляет значение, которое React сохраняет между рендерами, и setter для планирования обновления. Значение состояния текущего рендера — снимок; вызов setter не меняет этот снимок на месте."
+    },
+    {
+      "id": "react-usestate-return-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что возвращает `useState(initialValue)`?",
+      "options": [
+        {
+          "id": "pair",
+          "text": "Пару из текущего значения состояния и setter-функции, которая запрашивает обновление.",
+          "correct": true,
+          "feedback": "Верно. Значение относится к снимку текущего render; вызов setter планирует следующий render, когда React обработает обновление."
+        },
+        {
+          "id": "value",
+          "text": "Только текущее значение состояния; React автоматически замечает присваивания локальной переменной.",
+          "correct": false,
+          "feedback": "Присваивание локальной переменной не уведомляет React. `useState` возвращает и значение, и setter-функцию."
+        },
+        {
+          "id": "ref",
+          "text": "Изменяемый объект ref, у которого `.current` меняется без render.",
+          "correct": false,
+          "feedback": "Это ближе к `useRef`. `useState` возвращает значение и setter, способный запланировать render."
+        },
+        {
+          "id": "promise",
+          "text": "Promise, который возвращает следующее состояние после обновления DOM.",
+          "correct": false,
+          "feedback": "Setter не возвращает Promise следующего состояния. Обновления планируются, и следующий render получает новый снимок."
+        }
+      ],
+      "explanation": "`useState` возвращает текущее значение и его setter. Setter запрашивает обновление, но не изменяет значение, захваченное выполняющимся render."
     },
     {
       "id": "counter-example",
@@ -489,6 +523,11 @@
         {
           "title": "React: Updating Arrays in State",
           "url": "https://react.dev/learn/updating-arrays-in-state",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Справочник React: useState",
+          "url": "https://react.dev/reference/react/useState",
           "kind": "official-docs"
         }
       ]
