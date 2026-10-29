@@ -1145,11 +1145,23 @@ describe('Git workflow lesson translation', () => {
       expect(ciExample.code).toContain('npm install --global npm@11.21.1');
       expect(ciExample.code).toContain('permissions:');
       expect(ciExample.code).toContain('contents: read');
-      expect(ciExample.code).toContain('continue-on-error: true');
-      expect(ciExample.code).toContain('npm run lint');
-      expect(ciExample.code).toContain('npm run typecheck');
-      expect(ciExample.code).toContain('npm test');
-      expect(ciExample.code).toContain('npm run build');
+
+      const auditStart = ciExample.code.indexOf('- name: Report npm audit advisories (informational)');
+      const lintStart = ciExample.code.indexOf('- run: npm run lint');
+      expect(auditStart).toBeGreaterThanOrEqual(0);
+      expect(lintStart).toBeGreaterThan(auditStart);
+      const optionalAuditStep = ciExample.code.slice(auditStart, lintStart);
+      expect(optionalAuditStep).toContain('continue-on-error: true');
+      expect(optionalAuditStep).toContain('npm audit --json');
+      expect(optionalAuditStep).toContain('|| true');
+
+      const requiredChecks = ciExample.code.slice(lintStart);
+      expect(requiredChecks).toContain('- run: npm run lint');
+      expect(requiredChecks).toContain('- run: npm run typecheck');
+      expect(requiredChecks).toContain('- run: npm test');
+      expect(requiredChecks).toContain('- run: npm run build');
+      expect(requiredChecks).not.toContain('continue-on-error: true');
+      expect(requiredChecks).not.toContain('|| true');
     }
     expect(englishGitWorkflow.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
