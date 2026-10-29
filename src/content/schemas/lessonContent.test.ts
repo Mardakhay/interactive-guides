@@ -47,6 +47,8 @@ import englishApiHooks from '../lessons/react.api-custom-hooks/en.json';
 import russianApiHooks from '../lessons/react.api-custom-hooks/ru.json';
 import englishReactBasics from '../lessons/react.components-jsx-state/en.json';
 import russianReactBasics from '../lessons/react.components-jsx-state/ru.json';
+import englishArchitectureBoundaries from '../lessons/frontend.architecture-boundaries/en.json';
+import russianArchitectureBoundaries from '../lessons/frontend.architecture-boundaries/ru.json';
 import englishDesignSystem from '../lessons/ui.design-systems/en.json';
 import russianDesignSystem from '../lessons/ui.design-systems/ru.json';
 import englishUiEcosystem from '../lessons/ui.bootstrap-mui/en.json';
@@ -982,6 +984,33 @@ describe('React fundamentals lesson translation', () => {
   });
 });
 
+describe('Frontend architecture type-colocation lesson', () => {
+  it('teaches feature ownership instead of treating one central types folder as universal', () => {
+    expect(lessonTranslationSchema.safeParse(englishArchitectureBoundaries).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianArchitectureBoundaries).success).toBe(true);
+    expect(englishArchitectureBoundaries.id).toBe(russianArchitectureBoundaries.id);
+    expect(englishArchitectureBoundaries.version).toBe(5);
+    expect(russianArchitectureBoundaries.version).toBe(5);
+    expect(englishArchitectureBoundaries.updatedAt).toBe('2026-10-29');
+    expect(russianArchitectureBoundaries.updatedAt).toBe('2026-10-29');
+    expect(englishArchitectureBoundaries.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianArchitectureBoundaries.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishArchitectureBoundaries.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(russianArchitectureBoundaries.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    for (const lesson of [englishArchitectureBoundaries, russianArchitectureBoundaries]) {
+      const check = lesson.blocks.find((block) => block.id === 'arch-type-colocation-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') throw new Error('Type-colocation check is missing');
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['colocate']);
+      expect(check.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.type === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type !== 'references') throw new Error('Architecture references are missing');
+      expect(refs.items.some((item) => item.url === 'https://www.typescriptlang.org/docs/handbook/2/objects.html')).toBe(true);
+    }
+  });
+});
 describe('UI design system lesson translation', () => {
   it('validates both locales and preserves equivalent block structure', () => {
     expect(lessonTranslationSchema.safeParse(englishDesignSystem).success).toBe(true);
