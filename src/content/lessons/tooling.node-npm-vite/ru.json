@@ -1,7 +1,7 @@
 {
   "id": "tooling.node-npm-vite",
   "locale": "ru",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-29",
@@ -23,7 +23,8 @@
     "Использовать npm-скрипты для запуска, тестирования, linting, проверки типов и сборки.",
     "Объяснять роли Vite, ESLint и Prettier и не считать их взаимозаменяемыми.",
     "Создавать воспроизводимую конфигурацию проекта и проверять её через package-скрипты.",
-    "Различать установку зависимости, запуск CLI через npx/npm exec и создание структуры проекта через npm create."
+    "Различать установку зависимости, запуск CLI через npx/npm exec и создание структуры проекта через npm create.",
+    "Выбирать шаблон Vite React + TypeScript и объяснять работу HMR и ситуации с полной перезагрузкой."
   ],
   "tags": [
     "nodejs",
@@ -167,7 +168,7 @@
       "id": "npm-command-vs-exec-walkthrough",
       "type": "codeWalkthrough",
       "language": "bash",
-      "code": "# Посмотри scripts, настроенные в этом репозитории\nnpm run\n\n# Запусти CLI проекта, если Vite объявлен как зависимость\nnpm exec -- vite --version\n\n# Создай новый проект в отдельном каталоге\nnpm create vite@latest my-app",
+      "code": "# Посмотри scripts, настроенные в этом репозитории\nnpm run\n\n# Запусти CLI проекта, если Vite объявлен как зависимость\nnpm exec -- vite --version\n\n# Создай новый проект в отдельном каталоге\nnpm create vite@latest my-app -- --template react-ts",
       "steps": [
         {
           "title": "Изучи scripts проекта",
@@ -223,6 +224,39 @@
       "explanation": "Используй install, чтобы объявить зависимость; exec/npx — чтобы запустить CLI; create/init — чтобы вызвать генератор проекта. Для воспроизводимого workflow объявляй нужные инструменты и версии в проекте."
     },
     {
+      "id": "vite-template-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Какая команда create для Vite выбирает шаблон React + TypeScript при использовании npm 7+?",
+      "options": [
+        {
+          "id": "react-ts",
+          "text": "npm create vite@latest my-app -- --template react-ts",
+          "correct": true,
+          "feedback": "Верно. Шаблон `react-ts` выбирает React с TypeScript; в npm 7+ дополнительный `--` передаёт флаг шаблона команде create-vite."
+        },
+        {
+          "id": "react",
+          "text": "npm create vite@latest my-app -- --template react",
+          "correct": false,
+          "feedback": "Шаблон `react` ориентирован на JavaScript. Для стартового проекта с TypeScript выбери `react-ts`."
+        },
+        {
+          "id": "install",
+          "text": "npm install react-ts --template my-app",
+          "correct": false,
+          "feedback": "Эта команда пытается установить зависимость, а не запустить генератор проекта Vite с выбором шаблона."
+        },
+        {
+          "id": "exec",
+          "text": "npm exec -- react-ts my-app",
+          "correct": false,
+          "feedback": "Эта команда пытается запустить executable с именем react-ts; это не синтаксис выбора шаблона create-vite."
+        }
+      ],
+      "explanation": "Параметр `--template react-ts` выбирает стартовый шаблон Vite React + TypeScript. Дополнительный двойной дефис отделяет параметры npm от аргументов, которые передаются генератору create-vite."
+    },
+    {
       "id": "vite",
       "type": "heading",
       "level": 2,
@@ -232,6 +266,50 @@
       "id": "vite-body",
       "type": "paragraph",
       "text": "Vite предоставляет dev-сервер с быстрым циклом обратной связи и production-сборку. При разработке он раздаёт исходные модули и использует нативные ES-модули браузера с необходимыми преобразованиями. Для production он объединяет и оптимизирует ресурсы. Vite не является ни самим JavaScript runtime, ни пакетным менеджером: для работы он использует Node и установленные зависимости."
+    },
+    {
+      "id": "vite-hmr-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Hot Module Replacement обновляет код во время разработки"
+    },
+    {
+      "id": "vite-hmr-body",
+      "type": "paragraph",
+      "text": "Hot Module Replacement (HMR) позволяет dev-серверу передавать обновления изменённых модулей без полной пересборки и перезагрузки страницы. Vite использует нативные ES-модули и HMR API; поддерживаемые интеграции фреймворков, например React Fast Refresh, обновляют компоненты и часто сохраняют состояние. HMR — это обратная связь при разработке, а не production deployment. Полная перезагрузка всё ещё может понадобиться, если модуль или plugin не обрабатывает обновления, их нельзя безопасно распространить или мешает цикл зависимостей. Если изменение не отображается, изучи ошибки в терминале/браузере и логи HMR, а не предполагай, что после любой правки состояние обязано сохраниться."
+    },
+    {
+      "id": "vite-hmr-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "После изменения файла dev-сервер Vite выполняет полную перезагрузку вместо hot update. Какое утверждение точнее?",
+      "options": [
+        {
+          "id": "hmr-precise",
+          "text": "Изменённый модуль/plugin может не поддерживать HMR, либо обновление нельзя безопасно распространить; проверь ошибки и граф модулей.",
+          "correct": true,
+          "feedback": "Верно. HMR обновляет поддерживаемые модули, но неподдерживаемые границы или некоторые циклы зависимостей могут требовать полной перезагрузки. Изучи диагностику, прежде чем считать dev-сервер сломанным."
+        },
+        {
+          "id": "hmr-prod",
+          "text": "Production bundle уже повторно опубликован на live-сайт.",
+          "correct": false,
+          "feedback": "HMR — функция dev-сервера и не публикует production deployment."
+        },
+        {
+          "id": "hmr-types",
+          "text": "Проверка типов TypeScript всегда завершилась ошибкой, поэтому Vite перезапускает браузер.",
+          "correct": false,
+          "feedback": "HMR и полноценная проверка типов TypeScript — разные задачи. Vite преобразует TypeScript, но сам по себе не выполняет полную проверку типов."
+        },
+        {
+          "id": "hmr-all",
+          "text": "Vite гарантирует, что любая правка сохраняет всё состояние браузера и никогда не перезагружает страницу.",
+          "correct": false,
+          "feedback": "Сохранение состояния зависит от интеграции фреймворка и границы обновления; в некоторых случаях полная перезагрузка — допустимый запасной вариант."
+        }
+      ],
+      "explanation": "HMR пытается заменить изменённые модули в работающем dev-приложении. Если обновление невозможно безопасно обработать, полной перезагрузки может не избежать; изучи диагностику."
     },
     {
       "id": "lint-format",
@@ -594,6 +672,16 @@
         {
           "title": "Документация npm: npm init / npm create",
           "url": "https://docs.npmjs.com/cli/v11/commands/npm-init",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Документация Vite: функции и HMR",
+          "url": "https://vite.dev/guide/features.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Документация Vite: диагностика HMR и полной перезагрузки",
+          "url": "https://vite.dev/guide/troubleshooting.html",
           "kind": "official-docs"
         }
       ]
