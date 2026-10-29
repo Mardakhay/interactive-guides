@@ -6,9 +6,9 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 
 This section replaces older status summaries below where they conflict. Chronological checkpoint notes remain a history, not a unique-task count.
 
-- Latest validated code/content checkpoint: `6a0f9dbc888d713762096aac6074ed01a928336c`.
+- Latest validated source/content/test checkpoint: `2d2548bc770ad1a235465db6f4814f02febe4bfe`; exact [Actions run #40839614446](https://github.com/Mardakhay/interactive-guides/actions/runs/40839614446) passed 37 test files / 230 tests, lint, typecheck, build, 125 JavaScript chunk budgets and production preview smoke.
 - `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 is open Draft against `main`.
-- Exact-head Actions run [#40837078455](https://github.com/Mardakhay/interactive-guides/actions/runs/40837078455) passed on `6a0f9dbc888d713762096aac6074ed01a928336c`: lint, typecheck, 36 test files / 227 tests, production build/bundle checks, informational audit report and production preview smoke. It is not a native browser/device pass.
+- The audit step reports zero advisories but is explicitly informational/non-blocking; lint, typecheck, tests and build remain fail-fast. CI is not a native browser/device, screen-reader or mobile acceptance pass.
 - Registry: 27 core + 17 supplementary = 44 EN/RU lesson pairs (88 JSON locale records).
 - 25 legacy HTML source reviews are documented, but all 25 route-cutover rows remain **Blocked**. Source-to-block parity, interaction dispositions and learner-state retention are still release gates.
 - 21 mapped Notion sources remain `verification.state=unverified`.
@@ -17,7 +17,7 @@ This section replaces older status summaries below where they conflict. Chronolo
 ### Remaining work, by dependency
 
 1. **Source parity and cutover:** verify each legacy source against its actual English and Russian target content, including examples, code, quizzes, answer feedback, references and interaction behavior. Record reviewed keep-classic/defer decisions where equivalence is incomplete; do not infer readiness from mappings or CI.
-2. **Learner-state safety:** define and test retention for progress, bookmarks, notes, last-opened state and classic quiz keys before redirects or source removal.
+2. **Learner-state safety:** use [`docs/LEARNER_STATE_MIGRATION_INVENTORY.md`](LEARNER_STATE_MIGRATION_INVENTORY.md) as the store/identity baseline; prove retention for progress, bookmarks, notes, last-opened state, classic quiz IDs, structured block IDs and failure recovery before redirects or source removal.
 3. **Native acceptance:** run the documented browser/device checklist with synthetic data and record SHA, browser/version, OS/device, network mode and evidence.
 4. **Curriculum and UX sign-off:** map all 24-week outcomes, review bilingual semantics, uncommon UI strings, keyboard/accessibility, responsive layout, and exercise solution disclosure.
 5. **Release and cloud scope:** verify actual deployment/screenshot evidence. Implement Supabase only after scope, local/cloud reconciliation, RLS and account-isolation behavior are approved.

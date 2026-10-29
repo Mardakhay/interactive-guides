@@ -9,15 +9,15 @@
 
 This section replaces older status summaries below when they disagree. Historical checkpoints are retained as a work log only.
 
-- **Latest validated code/content checkpoint:** `6a0f9dbc888d713762096aac6074ed01a928336c`; later status-document commits do not change source behavior.
+- **Latest validated source/content/test checkpoint:** `2d2548bc770ad1a235465db6f4814f02febe4bfe`, exact [Actions run #40839614446](https://github.com/Mardakhay/interactive-guides/actions/runs/40839614446) succeeded.
 - **Main:** `b13af92576e8a73753a6e3f3d26765d9f9c44397`; it was not changed in this continuation.
 - **PR #1:** [open Draft PR against main](https://github.com/Mardakhay/interactive-guides/pull/1).
-- **Exact code-checkpoint CI:** [run #40837078455](https://github.com/Mardakhay/interactive-guides/actions/runs/40837078455) passed on `6a0f9dbc888d713762096aac6074ed01a928336c`: lint, typecheck, 36 test files / 227 tests, production build, bundle budgets across 125 JavaScript chunks, no npm audit advisories in the informational report, and production preview smoke covering four deep routes, the entry bundle, manifest, service worker and five PWA assets. This does not establish real-browser/device, screen-reader or mobile acceptance.
+- **Exact CI evidence:** run #40839614446 passed lint, typecheck, 37 test files / 230 tests, production build, budgets across 125 JavaScript chunks and production-preview smoke. The npm audit report has zero advisories and is informational/non-blocking. This does not establish real-browser/device, screen-reader or mobile acceptance.
 - **Curriculum registry:** 27 core + 17 supplementary lesson IDs = 44 bilingual pairs and 88 locale JSON files. `ui.bootstrap-mui` is core week 17; `css.sass-scss` is supplementary.
 - **Legacy migration gate:** all 25 legacy cutover rows remain **Blocked**. Git `tl-001` has bilingual Markdown/Pages guidance; `tl-002` has merge/rebase recovery and actionable review-comment practice; `tl-003` now distinguishes dependency installation, `npx`/`npm exec` and `npm create` with a scored check. Remaining interactions, complete claim/example parity and learner-state disposition are not signed off.
 - **Notion source evidence:** 21 pages have been fetched/mapped but remain `verification.state=unverified`; this must not be presented as formal verification.
 - **PWA/manual acceptance:** HTTP smoke validates the built shell, routes and assets. No native browser/device install/offline, screen-reader, keyboard or mobile acceptance is recorded.
-- **Data safety:** classic routes and source HTML remain available. No redirects/removals should occur before the content and per-store learner-state gates pass.
+- **Data safety:** classic routes and source HTML remain available. `docs/LEARNER_STATE_MIGRATION_INVENTORY.md` records local keys, identity-bearing fields and mandatory migration invariants; `src/features/persistence/learnerIdentity.test.ts` confirms classic progress/bookmarks/notes and classic quiz results remain distinct from structured lesson/block state. These tests are not approval to migrate data. No redirects/removals should occur before all gates pass.
 - **Supabase:** authentication, SQL/RLS and cloud synchronization remain unimplemented and gated by approved scope and reconciliation/security design.
 
 
@@ -28,7 +28,7 @@ This section replaces older status summaries below when they disagree. Historica
 - `js.dom-events` EN/RU v7: 71 aligned blocks per locale, with 13 knowledge checks, 18 code walkthroughs and 5 coding exercises. Added a dedicated static NodeList/live HTMLCollection walkthrough and scored check that demonstrates insertion semantics and a stable snapshot before deletion; live source tree/theme/editor UI remains partial.
 - `testing.react-testing-library` EN/RU v6 has 45 aligned blocks, 9 knowledge checks, 5 walkthroughs, 4 exercises and 11 learning outcomes per locale. For `qa-002`, added `toBe` vs `toEqual` reference/structural equality, a scored `queryBy...` absence assertion, and an AAA (Arrange, Act, Assert) check. The project-specific examples use Vitest rather than copying Jest-only setup; original tabs/FAQ/copy/quiz UI remains non-equivalent.
 - `tooling.node-npm-vite` EN/RU v4: 44 aligned blocks, 7 knowledge checks and 8 outcomes per locale. Added the `react-ts` Vite template command, HMR explanation/full-reload fallback and official Vite docs; regression tests cover bilingual parity, answers, wording, line ranges and references.
-- Latest code/content verification is green at `0b20e7cf499c21d8ca3a879a104e11c11d1882f5`, [CI #40832351304](https://github.com/Mardakhay/interactive-guides/actions/runs/40832351304). The remaining cutover/UI/state and manual acceptance gates stay open.
+- The exact-head regression checkpoint `2d2548bc770ad1a235465db6f4814f02febe4bfe` is green at [CI #40839614446](https://github.com/Mardakhay/interactive-guides/actions/runs/40839614446). The cutover/UI/state and manual-acceptance gates remain open.
 
 ## Highest-priority remaining work
 

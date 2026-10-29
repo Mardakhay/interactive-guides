@@ -9,12 +9,12 @@
 
 This section is authoritative for the current continuation. Earlier dated entries below are a historical work log and must not be mistaken for current head/status.
 
-- **Latest validated code/content checkpoint:** `6a0f9dbc888d713762096aac6074ed01a928336c`, passed on [Actions #40837078455](https://github.com/Mardakhay/interactive-guides/actions/runs/40837078455). Subsequent checkpoint-document updates do not change source behavior; `main` remains untouched.
+- **Latest validated source/content/test checkpoint:** `2d2548bc770ad1a235465db6f4814f02febe4bfe`, passed on [Actions #40839614446](https://github.com/Mardakhay/interactive-guides/actions/runs/40839614446): 37 test files / 230 tests, lint, typecheck, production build, bundle budgets across 125 JavaScript chunks, zero reported npm audit advisories (informational step), and production preview smoke. It includes regression checks that classic and structured learner records remain under distinct lesson/block identities.
 - **Main HEAD observed:** `b13af92576e8a73753a6e3f3d26765d9f9c44397`. Do not commit changes to `main`; work through the feature branch and PR #1.
 - **PR:** [#1 — Deepen structured lessons and prepare HTML-to-JSON cutover](https://github.com/Mardakhay/interactive-guides/pull/1) remains open as Draft against `main`.
-- **Exact code-checkpoint CI:** [run #40837078455](https://github.com/Mardakhay/interactive-guides/actions/runs/40837078455) passed on `6a0f9dbc888d713762096aac6074ed01a928336c`: lint, typecheck, 36 test files / 227 tests, production build, bundle budgets across 125 JavaScript chunks, no npm audit advisories in the informational report, and production preview smoke covering four deep routes, the entry bundle, manifest, service worker and five PWA assets. This does not establish real-browser/device, screen-reader or mobile acceptance.
+- **Manual-acceptance limitation:** green CI and the production-preview smoke do not establish real-browser/device, screen-reader, install/offline, or mobile acceptance.
 - **Structured content:** 27 core and 17 supplementary lesson IDs (44 EN/RU pairs, 88 JSON records); `ui.bootstrap-mui` is core week 17 and `css.sass-scss` is supplementary.
-- **Legacy parity gate:** `docs/LEGACY_ROUTE_CUTOVER_MATRIX.md` has 25 classic-ID rows and all 25 are **Blocked**. The provisional mapping identifies useful destinations but explicitly lists missing/equivalent behavior. Keep all `/lessons/:lessonId` routes and source HTML. Do not migrate progress, bookmarks, notes, last-opened pointers or quiz results without per-store semantics and tests.
+- **Legacy parity gate:** `docs/LEGACY_ROUTE_CUTOVER_MATRIX.md` has 25 classic-ID rows and all 25 are **Blocked**. Keep all `/lessons/:lessonId` routes and source HTML. `docs/LEARNER_STATE_MIGRATION_INVENTORY.md` inventories progress, bookmarks, notes, last-opened state, classic quiz results and structured exercise state; format-envelope migration is distinct from lesson-ID migration. Do not redirect or rewrite learner data without explicit per-store rules and failure/recovery tests.
 - **Source verification:** the source inventory says 25/25 legacy HTML files received a content/code/interaction review. That is not claim-level or widget parity. The 21 fetched/mapped Notion records are still marked `verification.state=unverified`.
 - **Manual acceptance:** every native browser/device checklist case is still unrun. HTTP smoke in CI is limited to the app shell/assets.
 - **Cloud sync:** Supabase auth, RLS and sync are not implemented. Continue treating them as gated scope until reconciliation and security requirements are approved.
@@ -27,7 +27,7 @@ This section is authoritative for the current continuation. Earlier dated entrie
 - `js.dom-events` EN/RU v7 has 71 aligned blocks, 13 knowledge checks, 18 walkthroughs, 5 exercises and 9 learning outcomes per locale. For `wb-004`, added a direct trace of static `querySelectorAll()` results vs live `getElementsByClassName()` results and an assessed insertion example; the live source demos/editors remain partial.
 - `testing.react-testing-library` EN/RU v6 has 45 aligned blocks, 9 knowledge checks, 5 walkthroughs, 4 exercises and 11 learning outcomes per locale. For `qa-002`, added `toBe` vs `toEqual` reference/structural equality, a scored `queryBy...` absence assertion, and an AAA (Arrange, Act, Assert) check. The project-specific examples use Vitest rather than copying Jest-only setup; original tabs/FAQ/copy/quiz UI remains non-equivalent.
 - `tooling.node-npm-vite` EN/RU v4 has 44 aligned blocks, 7 knowledge checks and 8 learning outcomes per locale. For `tl-003`, it now distinguishes `npm install`, `npx`/`npm exec`, and `npm create`; uses the exact React + TypeScript Vite `react-ts` template syntax; explains HMR and the full-reload fallback; and links official npm/Vite docs. Regression tests assert locale parity, template command, both new correct answers, HMR guidance, line ranges and references.
-- Earlier interim runs exposed stale lesson-count/date assertions, one newline-escaping mistake, and literal shell-command strings misclassified as untranslated prose. Those specific checks were corrected; the latest complete code/content checkpoint is `0b20e7cf499c21d8ca3a879a104e11c11d1882f5` with the passing run linked above.
+- Earlier interim runs exposed stale lesson-count/date assertions, newline-escaping mistakes and overly rigid test expectations. These were corrected and re-verified on the exact checkpoint linked above; failed interim runs are historical only.
 - Cutover decisions did not change: `tl-001` and `tl-002` remain **Blocked** due to remaining search/sidebar/canvas/simulator/quiz UI parity and learner-state disposition. Do not delete classic HTML or migrate/duplicate progress, bookmarks, notes or quiz results.
 
 ## Current review notes (2026-10-29)
@@ -60,7 +60,7 @@ These commands must be run on the target feature-branch checkout. The current ev
 
 # Session Handoff
 
-**Last updated:** 2026-10-28  
+**Last updated:** 2026-10-29  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`

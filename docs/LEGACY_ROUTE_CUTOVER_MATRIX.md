@@ -3,7 +3,7 @@
 **Status:** provisional mapping only — **no legacy route is cutover-ready**  
 **Updated:** 2026-10-29  
 
-**Latest verification boundary (2026-10-28):** exact-head CI on the pre-refresh HEAD `283305ddb174ee4430ac4da69e4aa98187dddb0c` passed [run #40701225217](https://github.com/Mardakhay/interactive-guides/actions/runs/40701225217), including 223 tests / 35 files, build budgets, preview HTTP smoke and zero npm audit findings. This does **not** change any cutover decision: all 25 rows below remain **Blocked** because source parity and learner-state handling are not signed off.
+**Latest verification boundary (2026-10-29):** exact-head CI on `2d2548bc770ad1a235465db6f4814f02febe4bfe` passed [run #40839614446](https://github.com/Mardakhay/interactive-guides/actions/runs/40839614446), including 230 tests / 37 files, build budgets across 125 JavaScript chunks, an informational npm audit report with zero advisories and production-preview smoke. This evidence does **not** change the cutover decision: all 25 rows remain **Blocked** because content parity, interaction disposition and learner-state safety have not been signed off.
 
 **Scope:** 25-entry classic catalog at `/lessons/:lessonId` versus the 44-ID bilingual structured curriculum (27 core + 17 supplementary lesson IDs) at `/:locale/structured-lessons` and `/:locale/structured-lessons/:lessonId`.
 
@@ -11,7 +11,7 @@
 
 The legacy catalog IDs (`wb-002`, `re-005`, etc.) and structured lesson IDs (`html.document-structure`, `react.router-spa`, etc.) are different identity namespaces. They are not aliases. The classic reader uses embedded lesson content if present and otherwise falls back to an HTML file. The structured reader loads a separate, validated EN/RU JSON body.
 
-At least progress, bookmarks, and notes are stored in records keyed by lesson ID. The classic quiz-result model must be inspected separately before deciding how its keys migrate. A one-to-many topic mapping is not itself a safe data-migration rule: completing one broad legacy page must not silently complete every destination, and a note must not be cloned into several unrelated notes without an explicit product decision.
+Progress, bookmarks and notes are stored under lesson IDs; classic quiz results are keyed separately by quiz ID; structured attempts, drafts and checklists are keyed by lesson/block identity. The detailed storage inventory is in [`docs/LEARNER_STATE_MIGRATION_INVENTORY.md`](LEARNER_STATE_MIGRATION_INVENTORY.md). A one-to-many topic mapping is not a safe data-migration rule: completing one broad legacy page must not complete every destination, a bookmark or note must not be cloned to unrelated lessons, and a classic quiz score must not transfer without verified question/answer/scoring equivalence.
 
 The regression guard in `src/features/lesson-renderer/lessonLoader.test.ts` checks that every catalog entry resolves to non-empty embedded content or an existing `public/lessons/*.html` fallback. This protects renderability only; it does not prove lesson equivalence, localization quality, quiz/answer parity, or preservation of learner state.
 
@@ -48,6 +48,8 @@ The destinations below are **provisional candidates**, based on the source-revie
 | `dt-001` | SQL Learning Page · `sql-learning-page.html` | `data.sql-postgresql` | SQL v2 covers dialect and safe DML; seven legacy editors return canned data and are not recreated as a fake SQL engine. | **Blocked** — target parity and learner-state disposition not signed off. |
 
 ## Evidence and cutover rule
+
+- `docs/LEARNER_STATE_MIGRATION_INVENTORY.md` captures the observed local storage keys, versioned envelope behavior, classic vs structured identity fields, non-negotiable preservation rules and required migration acceptance cases. `src/features/persistence/learnerIdentity.test.ts` provides regression coverage for distinct progress, bookmark, note and quiz identities; it does not authorize any ID remapping.
 
 - The source table in `FULL_SOURCE_CONTENT_AUDIT.md` is the evidence source for these candidates. Each destination still needs its actual EN/RU body checked for section/example/exercise/answer/reference coverage.
 - **No row is cutover-ready from a candidate mapping or green CI alone.** Exact interactive-widget parity is partial; Notion pages fetched so far report `verification.state=unverified`.

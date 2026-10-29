@@ -52,6 +52,19 @@ The shared preference constants live in `src/lib/constants.ts`. The reusable ver
 - Confirm bookmarks, notes, code drafts, checklists, quiz history and the last-opened route render correctly in both locales after any approved mapping.
 - Only after these tests pass should a migration plan specify a redirect/retention disposition for each legacy catalog ID.
 
+
+
+## Regression coverage now in the feature branch
+
+`src/features/persistence/learnerIdentity.test.ts` seeds synthetic classic ID `tl-004` and structured ID `deployment.production-hosting` records in separate local stores and asserts that:
+
+- progress for the classic lesson can be completed while the structured lesson stays in-progress;
+- classic/structured bookmarks and notes retain separate keys/content;
+- a classic quiz-ID result and a structured `lessonId::blockId` attempt persist in their distinct formats;
+- no code path in these tests automatically fans out a classic completion, note, bookmark or score into the structured record.
+
+This protects existing identity boundaries; it is not yet a general migration engine. The more extensive one-to-one, one-to-many, ambiguous-map, failure-injection and idempotency tests in the acceptance section are still required before a redirect or store mutation.
+
 ## Current decision
 
 **Keep all 25 legacy rows blocked.** This document establishes the data inventory and test obligations; it does not approve a cutover, delete a key, redirect a route, remap a record, or enable Supabase.
