@@ -1,10 +1,10 @@
 {
   "id": "git.fundamentals",
   "locale": "en",
-  "version": 7,
+  "version": 8,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-28",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-2-week-8",
   "week": 8,
   "order": 2,
@@ -23,7 +23,8 @@
     "Create a useful .gitignore and identify files that should not be committed.",
     "Read the outcome of Git commands and recover from common beginner mistakes without deleting work.",
     "Publish a small project to a remote repository using a focused commit history.",
-    "Use stash, aliases and amend with an explicit understanding of what is local and what has been shared."
+    "Use stash, aliases and amend with an explicit understanding of what is local and what has been shared.",
+    "Write a readable Markdown README and verify the configured GitHub Pages publishing path and deployment result."
   ],
   "tags": [
     "git",
@@ -348,6 +349,165 @@
         "Name a license only after it has actually been chosen and added to the repository; credit third-party material when needed.",
         "For GitHub Pages, verify the configured publishing source or workflow, build output/artifact, base path, and deployment status. Do not assume every push automatically and successfully publishes the site.",
         "Never place passwords, API tokens, or private keys in the README, command examples, or screenshots."
+      ]
+    },
+    {
+      "id": "markdown-basics",
+      "type": "heading",
+      "level": 2,
+      "text": "Write readable documentation with Markdown"
+    },
+    {
+      "id": "markdown-basics-body",
+      "type": "paragraph",
+      "text": "GitHub renders Markdown in README files, pull requests, issues, and other repository views. Use headings to express hierarchy, lists for related points, fenced code blocks for commands, and descriptive links for navigation. Preview the rendered result: Markdown characters that look correct in plain text can still produce a confusing page, and a link in a README does not verify that its destination exists."
+    },
+    {
+      "id": "markdown-readme-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "markdown",
+      "code": "# Project title\n\nA short statement of the problem this project solves.\n\n## Run locally\n```bash\nnpm ci\nnpm run dev\n```\n\n## Useful links\n- [Source code](https://github.com/OWNER/REPOSITORY)\n- [Issue tracker](https://github.com/OWNER/REPOSITORY/issues)",
+      "steps": [
+        {
+          "title": "State the purpose",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "A top-level heading names the project, and the short paragraph explains why a reader should care before they run commands."
+        },
+        {
+          "title": "Fence command examples",
+          "lineStart": 5,
+          "lineEnd": 9,
+          "explanation": "The second-level heading groups setup instructions. Triple backticks create a fenced code block; the bash label requests shell syntax highlighting and does not execute the commands."
+        },
+        {
+          "title": "Use descriptive links",
+          "lineStart": 11,
+          "lineEnd": 13,
+          "explanation": "Link text should describe the destination. Replace OWNER and REPOSITORY with the real path and open each link to confirm it works."
+        }
+      ]
+    },
+    {
+      "id": "markdown-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "In a Markdown README, what do three backticks around commands usually create?",
+      "options": [
+        {
+          "id": "fence",
+          "text": "A fenced code block that preserves code formatting",
+          "correct": true,
+          "feedback": "Correct. The opening and closing fences separate code from prose; a language tag such as bash can enable syntax highlighting."
+        },
+        {
+          "id": "heading",
+          "text": "A heading whose level is selected automatically",
+          "correct": false,
+          "feedback": "Headings use leading hash marks such as # or ##, not code fences."
+        },
+        {
+          "id": "execute",
+          "text": "A terminal session that runs the commands on GitHub",
+          "correct": false,
+          "feedback": "Markdown displays commands as text. A reader must run them in the appropriate environment."
+        },
+        {
+          "id": "deploy",
+          "text": "A deployment workflow that publishes the repository",
+          "correct": false,
+          "feedback": "A fenced block is only documentation; publishing must be configured separately."
+        }
+      ],
+      "explanation": "Markdown formatting describes how repository text is rendered. It does not run shell commands or configure deployment."
+    },
+    {
+      "id": "github-pages-deployment",
+      "type": "heading",
+      "level": 2,
+      "text": "Verify the GitHub Pages publishing path"
+    },
+    {
+      "id": "github-pages-deployment-body",
+      "type": "paragraph",
+      "text": "GitHub Pages serves a static site from a configured publishing source or workflow. The fact that git push succeeded only proves that Git accepted the push; it does not prove that a build ran, an artifact was published, or the site is serving the new version. A project site may be served beneath a repository-name path, so the app's base path and asset URLs must match the published URL."
+    },
+    {
+      "id": "github-pages-checklist",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Open the repository's Settings → Pages and identify the actual publishing source: a selected branch/folder or GitHub Actions.",
+        "For a branch/folder source, confirm the selected branch and folder contain the intended static output. For an Actions source, inspect the workflow trigger, build command, artifact and deploy job.",
+        "Confirm the output includes the entry HTML and its required assets; verify the configured base path and links when the site is served below a repository-name path.",
+        "Check the latest deployment or Actions run, open the published URL, and test a representative route or asset.",
+        "If the site is stale or unavailable, inspect the failed deployment step and its logs instead of repeatedly pushing without diagnosing the cause.",
+        "Do not expect a static Pages deployment to provide a private server runtime. Never put secrets in client-side code or build output."
+      ]
+    },
+    {
+      "id": "github-pages-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A push succeeded, but the GitHub Pages site still shows the previous version. What is the best first step?",
+      "options": [
+        {
+          "id": "inspect-deploy",
+          "text": "Inspect the configured publishing source or deployment workflow, build output/base path, and latest deployment status",
+          "correct": true,
+          "feedback": "Correct. Deployment is a separate pipeline: confirm what is published and inspect the actual result and logs."
+        },
+        {
+          "id": "repeat-push",
+          "text": "Keep pushing the same commit until the website updates",
+          "correct": false,
+          "feedback": "Repeated pushes do not diagnose a misconfigured source, failed build, wrong output directory, or base-path issue."
+        },
+        {
+          "id": "delete-ignore",
+          "text": "Delete .gitignore so all files are uploaded",
+          "correct": false,
+          "feedback": ".gitignore does not configure Pages deployment or select its publishing source."
+        },
+        {
+          "id": "reset-main",
+          "text": "Run git reset --hard on main",
+          "correct": false,
+          "feedback": "Reset changes local repository state and does not fix the deployment configuration; it can also discard work."
+        }
+      ],
+      "explanation": "A successful Git push and a successful website deployment are separate events. Verify the configured publishing path and the latest build/deploy evidence."
+    },
+    {
+      "id": "github-pages-practice",
+      "type": "codingExercise",
+      "title": "Prepare a README and verify a static-site deployment",
+      "language": "markdown",
+      "context": "You are preparing a small frontend repository for another developer and need to explain how to run it and how to check its published Pages site. The actual hosting configuration may use a branch/folder or a GitHub Actions workflow.",
+      "instructions": [
+        "Write a README with a project heading, a one-sentence purpose, and useful section headings.",
+        "Add fenced setup and verification commands that match the repository's real package scripts.",
+        "Inspect Settings → Pages or the deployment workflow. Record the real publishing source, build output, base path if applicable, and published URL.",
+        "Check the latest deployment or Actions run and note the evidence that the new version is available. If it failed, report the failed step rather than claiming success."
+      ],
+      "requirements": [
+        "Use valid Markdown headings, a list where appropriate, fenced shell commands, and descriptive links.",
+        "Do not invent a package command, Pages URL, publishing branch, or build directory.",
+        "Distinguish a successful push from a successful build and deployment.",
+        "Do not include secrets, private tokens, or private learner data in the README or client bundle."
+      ],
+      "starterCode": "# Project name\n\nTODO: Explain the problem this project solves.\n\n## Run locally\n```bash\nTODO: Replace with the repository's actual install and start commands.\n```\n\n## Verify deployment\nTODO: Record the configured publishing source, build output/base path, published URL, and how to inspect the latest deployment status.\n\n## Useful links\n- [Source code](TODO: add the real repository URL)",
+      "hints": [
+        "Use package.json to verify scripts instead of copying commands from another README.",
+        "The branch/folder or workflow shown in Settings → Pages is the evidence for the publishing source.",
+        "If the URL has a repository-name segment, check that the build's base path and asset paths account for it."
+      ],
+      "successCriteria": [
+        "A reader can understand the project and follow the documented setup commands.",
+        "The Markdown preview shows the intended heading hierarchy, code block, list, and links.",
+        "Publishing source and build output are recorded from repository settings or workflow configuration.",
+        "The published URL and latest deployment status are checked; failure is reported honestly if the run did not succeed.",
+        "No credentials or private data are committed or exposed in the client build."
       ]
     },
     {
