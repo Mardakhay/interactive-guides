@@ -1112,3 +1112,14 @@ For safety, the catalog uses `git restore --staged <file>` for unstage and marks
 Exact checkpoint `dcb85b2c20234c4d6bd57d8b5b976464cd297113` passed [GitHub Actions #40844593467](https://github.com/Mardakhay/interactive-guides/actions/runs/40844593467): 37 test files / 234 tests, lint, typecheck, production build, all 125 JS chunks within budgets, zero npm audit advisories and production-preview smoke across four deep routes and PWA assets.
 
 This is a substantial quick-reference increment, not full page reproduction. Search still applies to section headings only. The legacy sidebar accordion, original responsive layout and remaining interaction details need browser review; `tl-001` remains **Blocked**, the classic route and HTML remain available, and no learner data or route cutover was performed.
+
+
+## GitHub Flow review lifecycle and pull-request parity — 2026-10-29
+
+A further comparison of `public/lessons/git-reference.html` found a distinct GitHub Flow path in which local branching/pushing is followed by a hosted pull request, review, revision, and merge. The structured lesson had remote commands and general PR references, but did not assess what a contributor should do after a reviewer requests changes.
+
+Upgraded `git.fundamentals` EN/RU to v11: 65 aligned blocks, 9 knowledge checks and 8 walkthroughs per locale. Added the GitHub Flow heading, explanatory paragraph, walkthrough and scored check. The walkthrough checks status, fetches origin, fast-forward updates the default branch, creates a focused feature branch, stages only intended files, inspects the staged diff, commits and pushes the branch; the accompanying prose makes clear that opening the PR and requesting review happen in the hosting UI, not via a Git CLI command. It instructs contributors to update the same PR branch on review feedback and wait for required approvals and checks before merge. Added the official GitHub Flow reference.
+
+Schema, repository and source-parity tests were updated for v11 and the ninth knowledge check; they validate walkthrough line ranges, correct answer ID update-pr-branch, per-option feedback, and the official GitHub Flow docs URL. Exact checkpoint `13de653ac575836ab2d0d63a482cf35792271d83` passed [GitHub Actions #40845507742](https://github.com/Mardakhay/interactive-guides/actions/runs/40845507742): 37 test files / 235 tests, lint, typecheck, production build, 125 JavaScript chunks within budgets, zero npm audit advisories and production-preview smoke.
+
+`tl-001` remains **Blocked**: the old sidebar accordion, full responsive layout and exact interaction parity are not reproduced. Keep the legacy HTML and route until manual browser/device, keyboard/screen-reader and learner-state acceptance are complete.

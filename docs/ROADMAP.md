@@ -745,3 +745,12 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 - [x] Verify exact checkpoint `dcb85b2c20234c4d6bd57d8b5b976464cd297113` in [CI #40844593467](https://github.com/Mardakhay/interactive-guides/actions/runs/40844593467): 37 test files / 234 tests, lint, typecheck, build, 125-chunk budgets, zero npm audit advisories and production-preview smoke.
 - [ ] Keep `tl-001` **Blocked**: outline query is limited to section labels; original sidebar accordion and responsive page layout still require detailed comparison and manual browser acceptance.
 - [ ] Keep all browser/device/screen-reader and learner-state retention gates open; do not redirect routes or delete the legacy HTML.
+
+
+## GitHub Flow pull-request review lifecycle — 2026-10-29
+
+- [x] Add bilingual guidance distinguishing local Git commands from opening a hosted pull request: branch, test, commit, push, open PR, describe check evidence, request review, update the same branch after feedback, and merge only when policy-required approvals/checks pass.
+- [x] Add a ten-line code walkthrough with step ranges and a scored question about handling reviewer change requests. Link the official GitHub Flow documentation.
+- [x] Upgrade `git.fundamentals` to v11 (65 aligned blocks, 9 knowledge checks, 8 walkthroughs in both locales) and update schema/repository/source parity assertions for version and line-range safety.
+- [x] Validate exact checkpoint `13de653ac575836ab2d0d63a482cf35792271d83` in [CI #40845507742](https://github.com/Mardakhay/interactive-guides/actions/runs/40845507742): 37 test files / 235 tests, lint, typecheck, production build, 125-chunk budgets, zero reported npm audit advisories and production-preview smoke.
+- [ ] Keep `tl-001` **Blocked** until the original sidebar accordion, responsive layout and interaction disposition are reviewed in real browsers and learner-state safety is signed off.
