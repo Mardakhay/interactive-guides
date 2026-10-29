@@ -1162,3 +1162,8 @@ These updates improve content accuracy and close one source-example gap; they do
 ## Focused tl-003 checkpoint — 2026-10-29
 
 See [TL003_SOURCE_PARITY.md](TL003_SOURCE_PARITY.md) for the bilingual source-to-block crosswalk of the 20-question/10-exercise legacy lesson, the factual corrections required, and the explicit no-cutover decision. The route remains blocked until saved learner-state handling and manual browser/accessibility gates have evidence.
+
+
+## Focused tl-004 deployment source review — 2026-10-29
+
+The targeted crosswalk and exact factual corrections are documented in [TL004_SOURCE_PARITY.md](TL004_SOURCE_PARITY.md). The legacy deployment guide's env precedence, browser-secret warning, stale provider quota/price claims, SPA fallback caveat, rollback side effects and readiness-checklist language were corrected without deleting its interactive source controls. New regression coverage lives in `src/content/legacyDeployment.test.ts`; the `tl-004` cutover row remains **Blocked** because the legacy interactive behavior, learner-state disposition, and native browser/deployment acceptance are not equivalent or signed off.
