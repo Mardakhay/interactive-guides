@@ -1,7 +1,7 @@
 {
   "id": "git.fundamentals",
   "locale": "en",
-  "version": 8,
+  "version": 9,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -784,6 +784,76 @@
       ]
     },
     {
+      "id": "git-rebase-safe-update",
+      "type": "heading",
+      "level": 2,
+      "text": "Update your own feature branch with a safe rebase"
+    },
+    {
+      "id": "git-rebase-safe-update-body",
+      "type": "paragraph",
+      "text": "Use rebase to replay your own unpublished feature commits on top of the latest base when the team permits that workflow. Start with a clean working tree and fetch first: `git fetch origin` updates remote-tracking references without integrating them. `git rebase origin/main` recreates your commits on top of the updated base, so their commit IDs change. Do not rebase commits teammates may depend on. If a conflict is unclear, `git rebase --abort` can abandon the active rebase and return to the state from when that rebase began; use it instead of guessing, and do not run it together with `git rebase --continue`. After a successful rebase, inspect status and history, run relevant tests, and coordinate before publishing rewritten shared history."
+    },
+    {
+      "id": "git-rebase-safe-update-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "git status\ngit fetch origin\ngit switch feat/my-change\ngit rebase origin/main\n# Only if Git stops for a conflict: resolve the file in your editor first\ngit diff --check\ngit add src/components/Panel.tsx\ngit rebase --continue\ngit status\ngit log --oneline --graph -8",
+      "steps": [
+        {
+          "title": "Fetch and rebase your own branch",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Start with a clean working tree. Fetch updates origin/main without integrating it; switch to your own feature branch, then replay its commits on the refreshed base. If no conflict occurs, skip the conditional resolution commands below."
+        },
+        {
+          "title": "Validate a conflict resolution before continuing",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Run these lines only when the rebase has stopped for a conflict: edit the intended result, check whitespace, stage the resolved path, then continue the active rebase. If you cannot safely resolve it, use git rebase --abort instead of git rebase --continue."
+        },
+        {
+          "title": "Verify the result",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "After the rebase finishes, inspect the working tree and commit graph and run the project's tests. Rebase recreates commit IDs; coordinate with teammates before pushing rewritten commits they may rely on."
+        }
+      ]
+    },
+    {
+      "id": "git-rebase-safety-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You need to update your own unpublished `feat/search` branch with the latest `main`. The working tree is clean and the team permits rebase. Which sequence refreshes the base before replaying your commits?",
+      "options": [
+        {
+          "id": "rebase-own-feature",
+          "text": "Run `git fetch origin`, switch to `feat/search`, then run `git rebase origin/main`",
+          "correct": true,
+          "feedback": "Correct. Fetch refreshes the remote-tracking reference; rebasing your own unpublished feature branch then replays its commits on the latest origin/main."
+        },
+        {
+          "id": "stale-local-main",
+          "text": "Run `git rebase main` without fetching, assuming local `main` must be current",
+          "correct": false,
+          "feedback": "Local main may be stale. Fetch first and rebase onto the remote-tracking branch that reflects the latest fetched base."
+        },
+        {
+          "id": "hard-reset-main",
+          "text": "Switch to `main` and run `git reset --hard origin/main` to move the feature branch",
+          "correct": false,
+          "feedback": "That changes main and can discard tracked work; it does not rebase the feature branch onto the updated base."
+        },
+        {
+          "id": "rewrite-shared-branch",
+          "text": "Rebase a feature branch that teammates already use without coordinating with them",
+          "correct": false,
+          "feedback": "Rebase recreates commits and changes their IDs. Do not rewrite history that collaborators depend on without an agreed team procedure."
+        }
+      ],
+      "explanation": "Fetch first so the remote-tracking ref is current, then rebase only your own branch when history rewriting is permitted. If conflict resolution is unsafe, abort the active rebase rather than guessing."
+    },
+    {
       "id": "git-command-reference-heading",
       "type": "heading",
       "level": 2,
@@ -911,6 +981,11 @@
         {
           "title": "GitHub Docs: Basic writing and formatting syntax",
           "url": "https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Documentation: git-rebase",
+          "url": "https://git-scm.com/docs/git-rebase",
           "kind": "official-docs"
         }
       ]

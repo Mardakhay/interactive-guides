@@ -1,7 +1,7 @@
 {
   "id": "git.fundamentals",
   "locale": "ru",
-  "version": 8,
+  "version": 9,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-29",
@@ -784,6 +784,76 @@
       ]
     },
     {
+      "id": "git-rebase-safe-update",
+      "type": "heading",
+      "level": 2,
+      "text": "Безопасно обновляй свою feature-ветку через rebase"
+    },
+    {
+      "id": "git-rebase-safe-update-body",
+      "type": "paragraph",
+      "text": "Используй rebase, чтобы перенести собственные неопубликованные коммиты feature-ветки поверх актуальной базовой ветки, если команда допускает такой workflow. Начни с чистого рабочего дерева и сначала выполни fetch: `git fetch origin` обновляет remote-tracking refs, но не интегрирует изменения в текущую ветку. `git rebase origin/main` заново создаёт твои коммиты поверх обновлённой базы, поэтому их ID меняются. Не делай rebase коммитов, от которых зависят коллеги. Если конфликт нельзя уверенно разрешить, `git rebase --abort` отменит активный rebase и вернёт состояние к моменту его начала; используй abort вместо догадок и не запускай его вместе с `git rebase --continue`. После успешного rebase проверь status и историю, запусти нужные тесты и согласуй публикацию переписанной общей истории с командой."
+    },
+    {
+      "id": "git-rebase-safe-update-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "git status\ngit fetch origin\ngit switch feat/my-change\ngit rebase origin/main\n# Только если Git остановился из-за конфликта: сначала разреши его в редакторе\ngit diff --check\ngit add src/components/Panel.tsx\ngit rebase --continue\ngit status\ngit log --oneline --graph -8",
+      "steps": [
+        {
+          "title": "Обнови сведения об удалённой базе и выполни rebase своей ветки",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Начни с чистого рабочего дерева. Fetch обновляет origin/main, но не интегрирует его; переключись на собственную feature-ветку и перенеси её коммиты на обновлённую базу. Если конфликта нет, пропусти условные команды разрешения ниже."
+        },
+        {
+          "title": "Проверь разрешение конфликта перед продолжением",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Выполняй эти строки только если rebase остановился на конфликте: отредактируй нужный результат, проверь пробелы, добавь разрешённый путь в staging, затем продолжи активный rebase. Если безопасного решения нет, используй git rebase --abort вместо git rebase --continue."
+        },
+        {
+          "title": "Проверь результат",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "После завершения rebase проверь рабочее дерево и граф коммитов и запусти тесты проекта. Rebase создаёт новые ID коммитов; согласуй действия с коллегами, прежде чем отправлять переписанные коммиты, от которых они могут зависеть."
+        }
+      ]
+    },
+    {
+      "id": "git-rebase-safety-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Тебе нужно обновить свою неопубликованную ветку `feat/search` по последней версии `main`. Рабочее дерево чистое, и команда разрешает rebase. Какая последовательность сначала обновит базу, а затем перенесёт твои коммиты?",
+      "options": [
+        {
+          "id": "rebase-own-feature",
+          "text": "Выполнить `git fetch origin`, переключиться на `feat/search`, затем выполнить `git rebase origin/main`",
+          "correct": true,
+          "feedback": "Верно. Fetch обновляет remote-tracking ссылку; rebase собственной неопубликованной feature-ветки затем переносит её коммиты поверх последней origin/main."
+        },
+        {
+          "id": "stale-local-main",
+          "text": "Выполнить `git rebase main` без fetch, считая локальную `main` актуальной",
+          "correct": false,
+          "feedback": "Локальная main может отставать. Сначала выполни fetch, затем используй remote-tracking ветку, отражающую последнюю полученную базу."
+        },
+        {
+          "id": "hard-reset-main",
+          "text": "Переключиться на `main` и выполнить `git reset --hard origin/main`, чтобы переместить feature-ветку",
+          "correct": false,
+          "feedback": "Эта команда изменяет main и может отбросить отслеживаемые изменения; она не переносит feature-ветку на обновлённую базу."
+        },
+        {
+          "id": "rewrite-shared-branch",
+          "text": "Сделать rebase общей feature-ветки, которой пользуются коллеги, не согласовав это с ними",
+          "correct": false,
+          "feedback": "Rebase пересоздаёт коммиты и меняет их ID. Не переписывай историю, от которой зависят коллеги, без согласованной командной процедуры."
+        }
+      ],
+      "explanation": "Сначала обнови remote-tracking ссылку через fetch, затем выполняй rebase только собственной ветки, если переписывание истории разрешено. Если конфликт нельзя безопасно решить, отмени активный rebase вместо догадок."
+    },
+    {
       "id": "git-command-reference-heading",
       "type": "heading",
       "level": 2,
@@ -911,6 +981,11 @@
         {
           "title": "GitHub Docs: Basic writing and formatting syntax",
           "url": "https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Documentation: git-rebase",
+          "url": "https://git-scm.com/docs/git-rebase",
           "kind": "official-docs"
         }
       ]

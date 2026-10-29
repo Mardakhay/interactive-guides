@@ -162,6 +162,32 @@ describe('HTML forms and accessibility lesson translation', () => {
       if (check?.type !== 'knowledgeCheck') return;
       expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['filter']);
       expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      const rebaseGuidance = lesson.blocks.find((block) => block.id === 'git-rebase-safe-update-body');
+      expect(rebaseGuidance?.type).toBe('paragraph');
+      if (rebaseGuidance?.type !== 'paragraph') throw new Error('Safe rebase guidance is missing');
+      expect(rebaseGuidance.text).toContain('git fetch origin');
+      expect(rebaseGuidance.text).toContain('git rebase --abort');
+      expect(rebaseGuidance.text).toContain('git rebase --continue');
+      expect(rebaseGuidance.text).toMatch(lesson.locale === 'en' ? /unpublished|teammates/ : /неопубликован|коллеги/);
+
+      const rebaseWalkthrough = lesson.blocks.find((block) => block.id === 'git-rebase-safe-update-walkthrough');
+      expect(rebaseWalkthrough?.type).toBe('codeWalkthrough');
+      if (rebaseWalkthrough?.type !== 'codeWalkthrough') throw new Error('Safe rebase walkthrough is missing');
+      expect(rebaseWalkthrough.code).toContain('git fetch origin');
+      expect(rebaseWalkthrough.code).toContain('git rebase origin/main');
+      expect(rebaseWalkthrough.code).toContain('git rebase --continue');
+      for (const step of rebaseWalkthrough.steps) {
+        expect(step.lineStart).toBeGreaterThan(0);
+        expect(step.lineEnd).toBeLessThanOrEqual(rebaseWalkthrough.code.split('\\n').length);
+      }
+
+      const rebaseCheck = lesson.blocks.find((block) => block.id === 'git-rebase-safety-check');
+      expect(rebaseCheck?.type).toBe('knowledgeCheck');
+      if (rebaseCheck?.type !== 'knowledgeCheck') throw new Error('Safe rebase knowledge check is missing');
+      expect(rebaseCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['rebase-own-feature']);
+      expect(rebaseCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      expect(rebaseCheck.explanation).toContain('git fetch origin');
+
       const refs = lesson.blocks.find((block) => block.id === 'references');
       expect(refs?.type).toBe('references');
       if (refs?.type === 'references') {
@@ -348,10 +374,10 @@ describe('Git fundamentals lesson translation', () => {
     expect(englishGit.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGit.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
-    expect(englishGit.version).toBe(8);
-    expect(russianGit.version).toBe(8);
+    expect(englishGit.version).toBe(9);
+    expect(russianGit.version).toBe(9);
     const remoteExample = englishGit.blocks.find((block) => block.id === 'remote-example');
     expect(remoteExample?.type).toBe('codeWalkthrough');
     if (remoteExample?.type !== 'codeWalkthrough') return;
