@@ -59,7 +59,7 @@ describe('Git Reference source-derived content', () => {
       expect(walkthrough.code).toContain('git push -u origin HEAD');
       for (const step of walkthrough.steps) {
         expect(step.lineStart).toBeGreaterThan(0);
-        expect(step.lineEnd).toBeLessThanOrEqual(walkthrough.code.split('\\n').length);
+        expect(step.lineEnd).toBeLessThanOrEqual(walkthrough.code.split('\n').length);
       }
 
       expect(check?.type).toBe('knowledgeCheck');
