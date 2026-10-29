@@ -144,7 +144,7 @@ describe('HTML forms and accessibility lesson translation', () => {
     expect(russianForms.version).toBe(3);
     for (const lesson of [englishForms, russianForms]) {
       expect(lesson.updatedAt).toBe('2026-10-28');
-      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
       const specialized = lesson.blocks.find((block) => block.id === 'specialized-input-types-list');
       expect(specialized?.type).toBe('list');
       if (specialized?.type !== 'list') return;
