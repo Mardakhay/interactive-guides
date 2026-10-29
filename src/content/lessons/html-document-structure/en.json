@@ -1,10 +1,10 @@
 {
   "id": "html.document-structure",
   "locale": "en",
-  "version": 8,
+  "version": 9,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-28",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-1-week-1",
   "week": 1,
   "order": 1,
@@ -394,8 +394,42 @@
         "`hidden`: indicates that the element is not currently relevant for display; do not use it just to visually move content off-screen for accessibility.",
         "`lang`: identifies the language of an element's text when it differs from the surrounding document language.",
         "`tabindex=\"0\"` can place a custom focusable element in normal sequential focus order; `tabindex=\"-1\"` permits programmatic focus without adding it to that order. Avoid positive values.",
-        "`title` may provide advisory information but is not a replacement for a visible label, clear link text or instructions."
+        "`title` may provide advisory information but is not a replacement for a visible label, clear link text or instructions.",
+        "`role` communicates semantics through accessibility APIs but does not add native keyboard or activation behavior; prefer a native control when possible."
       ]
+    },
+    {
+      "id": "html-role-keyboard-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A generic `<div>` has `role=\"button\"`. What is still needed for reliable keyboard activation?",
+      "options": [
+        {
+          "id": "native",
+          "text": "Prefer a native `<button>`; if a custom widget is required, implement and test focusability, Enter/Space activation, and state semantics",
+          "correct": true,
+          "feedback": "A native button supplies expected focus and activation behavior. An ARIA role communicates semantics but does not implement behavior."
+        },
+        {
+          "id": "role-only",
+          "text": "Nothing: `role=\"button\"` automatically adds native button keyboard behavior",
+          "correct": false,
+          "feedback": "ARIA roles change how an element is exposed semantically; they do not add native key handling or activation."
+        },
+        {
+          "id": "tabindex-only",
+          "text": "Add `tabindex=\"0\"`; focusability alone creates Enter/Space activation",
+          "correct": false,
+          "feedback": "Tabindex may put an element in sequential focus order, but does not implement button activation."
+        },
+        {
+          "id": "label-only",
+          "text": "Add `aria-label`; a name automatically creates keyboard activation",
+          "correct": false,
+          "feedback": "An accessible name identifies the control but does not implement focus or activation behavior."
+        }
+      ],
+      "explanation": "Use a native button when possible. If you build a custom button-like widget, implement its keyboard behavior, state, focus management, and accessible name rather than relying on role alone."
     },
     {
       "id": "html-data-tables-heading",

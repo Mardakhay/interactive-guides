@@ -101,7 +101,7 @@ describe('wb-002 legacy HTML reference accuracy and parity', () => {
       expect(lessonTranslationSchema.safeParse(lesson).success, lesson.id + ':' + lesson.locale).toBe(true);
     }
     for (const [english, russian, id, version, blockCount] of [
-      [englishDocument, russianDocument, 'html.document-structure', 8, 54],
+      [englishDocument, russianDocument, 'html.document-structure', 9, 55],
       [englishForms, russianForms, 'html.forms-accessibility', 3, 39],
     ] as const) {
       expect(english.id).toBe(id);
@@ -111,6 +111,23 @@ describe('wb-002 legacy HTML reference accuracy and parity', () => {
       expect(english.blocks.map(({ id: blockId, type }) => [blockId, type])).toEqual(
         russian.blocks.map(({ id: blockId, type }) => [blockId, type]),
       );
+    }
+
+    for (const lesson of [englishDocument, russianDocument]) {
+      const attributes = lesson.blocks.find(block => block.id === 'html-global-attributes');
+      expect(attributes?.type).toBe('list');
+      if (attributes?.type === 'list') {
+        expect(attributes.items.some(item => item.includes('native keyboard or activation behavior') || item.includes('не добавляет нативную клавиатурную активацию'))).toBe(true);
+        expect(attributes.items.some(item => item.includes('Avoid positive values') || item.includes('Избегай положительных значений'))).toBe(true);
+      }
+      const roleCheck = lesson.blocks.find(block => block.id === 'html-role-keyboard-check');
+      expect(roleCheck?.type).toBe('knowledgeCheck');
+      if (roleCheck?.type === 'knowledgeCheck') {
+        expect(roleCheck.options.filter(option => option.correct)).toHaveLength(1);
+        expect(roleCheck.options.find(option => option.correct)?.id).toBe('native');
+        expect(roleCheck.options.every(option => option.feedback.trim().length > 20)).toBe(true);
+        expect(roleCheck.prompt).toContain('role="button"');
+      }
     }
 
     const formMethod = englishForms.blocks.find(block => block.id === 'action-method');
