@@ -822,9 +822,9 @@ describe('DOM and events lesson translation', () => {
     expect(englishDom.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianDom.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(12);
+    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(13);
     expect(russianDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(12);
-    expect(englishDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(17);
+    expect(englishDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(18);
     expect(russianDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(17);
     expect(englishDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(russianDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
@@ -841,13 +841,17 @@ describe('DOM and events lesson translation', () => {
         'dom-throttle-walkthrough',
         'dom-throttle-check',
         'dom-rate-control',
+        'dom-live-collections-heading',
+        'dom-live-collections-body',
+        'dom-live-collections-walkthrough',
+        'dom-live-collections-check',
         'dom-advanced-practice',
       ]),
     );
     const advancedPractice = englishDom.blocks.find((block) => block.id === 'dom-advanced-practice');
     for (const lesson of [englishDom, russianDom]) {
-      expect(lesson.version).toBe(6);
-      expect(lesson.blocks).toHaveLength(67);
+      expect(lesson.version).toBe(7);
+      expect(lesson.blocks).toHaveLength(71);
       const resize = lesson.blocks.find((block) => block.id === 'dom-resize-observer-walkthrough');
       expect(resize?.type).toBe('codeWalkthrough');
       if (resize?.type !== 'codeWalkthrough') return;
@@ -897,6 +901,23 @@ describe('DOM and events lesson translation', () => {
         expect(exercise.instructions.some((instruction) => /throttled scroll handler/.test(instruction))).toBe(true);
         expect(exercise.requirements.some((requirement) => lesson.locale === 'en' ? /callback reference/.test(requirement) : /той же ссылкой на callback/.test(requirement))).toBe(true);
       }
+      const collectionWalkthrough = lesson.blocks.find((block) => block.id === 'dom-live-collections-walkthrough');
+      expect(collectionWalkthrough?.type).toBe('codeWalkthrough');
+      if (collectionWalkthrough?.type !== 'codeWalkthrough') throw new Error('Live collection walkthrough is missing');
+      expect(collectionWalkthrough.code).toContain('querySelectorAll');
+      expect(collectionWalkthrough.code).toContain('getElementsByClassName');
+      expect(collectionWalkthrough.code).toContain('Array.from(liveItems)');
+      const collectionLineCount = collectionWalkthrough.code.split('\\n').length;
+      expect(collectionWalkthrough.steps.every((step) =>
+        step.lineStart >= 1 && step.lineEnd >= step.lineStart && step.lineEnd <= collectionLineCount
+      )).toBe(true);
+
+      const collectionCheck = lesson.blocks.find((block) => block.id === 'dom-live-collections-check');
+      expect(collectionCheck?.type).toBe('knowledgeCheck');
+      if (collectionCheck?.type !== 'knowledgeCheck') throw new Error('Live collection check is missing');
+      expect(collectionCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['snapshot-live']);
+      expect(collectionCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
       const refs = lesson.blocks.find((block) => block.id === 'dom-references');
       expect(refs?.type).toBe('references');
       if (refs?.type === 'references') expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener')).toBe(true);
@@ -911,7 +932,7 @@ describe('DOM and events lesson translation', () => {
   it('teaches traversal, content properties and state-driven rendering in both locales', () => {
     for (const lesson of [englishDom, russianDom]) {
       expect(lessonTranslationSchema.safeParse(lesson).success).toBe(true);
-      expect(lesson.version).toBe(6);
+      expect(lesson.version).toBe(7);
       for (const id of ['dom-traversal-walkthrough', 'dom-content-walkthrough', 'dom-state-render-walkthrough']) {
         const walkthrough = lesson.blocks.find((block) => block.id === id);
         expect(walkthrough?.type).toBe('codeWalkthrough');

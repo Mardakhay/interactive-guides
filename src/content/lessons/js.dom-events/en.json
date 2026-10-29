@@ -1,10 +1,10 @@
 {
   "id": "js.dom-events",
   "locale": "en",
-  "version": 6,
+  "version": 7,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-27",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-2-week-7",
   "week": 7,
   "order": 1,
@@ -24,7 +24,8 @@
     "Debug initial HTML attributes versus mutable DOM properties.",
     "Build a data-driven DOM list and validate behavior with browser DevTools.",
     "Choose between textContent, innerText and innerHTML, and drive classes and data attributes from one state object.",
-    "Choose a leading-edge throttle intentionally and remove its DOM event listener during teardown."
+    "Choose a leading-edge throttle intentionally and remove its DOM event listener during teardown.",
+    "Explain how live HTMLCollection membership changes with DOM mutations and choose a stable collection when mutating nodes."
   ],
   "tags": [
     "javascript",
@@ -528,6 +529,76 @@
         "Event delegation depends on event propagation and target resolution; it is not a replacement for validating the action and its container.",
         "Use `textContent` for untrusted text. If rich user-authored HTML is a requirement, it needs an explicit, reviewed sanitization strategy."
       ]
+    },
+    {
+      "id": "dom-live-collections-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Static NodeList vs live HTMLCollection"
+    },
+    {
+      "id": "dom-live-collections-body",
+      "type": "paragraph",
+      "text": "`querySelectorAll()` returns a static `NodeList`: it contains the matches from the moment the query ran, so later DOM changes do not change its membership. `getElementsByClassName()` returns a live `HTMLCollection`: it reflects the current matching elements, including newly inserted or removed nodes. A live collection can be useful when you need a current view, but removing nodes while iterating it by increasing index can skip items because the collection shrinks. When you need a stable set to process, query a static collection or copy the live collection with `Array.from()` before mutating the DOM."
+    },
+    {
+      "id": "dom-live-collections-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const list = document.querySelector(\"#items\");\nif (!list) throw new Error(\"List not found\");\n\nconst snapshot = list.querySelectorAll(\".item\");\nconst liveItems = list.getElementsByClassName(\"item\");\nconsole.log(snapshot.length, liveItems.length); // 2, 2\n\nconst item = document.createElement(\"li\");\nitem.className = \"item\";\nitem.textContent = \"Third\";\nlist.append(item);\n\nconsole.log(snapshot.length, liveItems.length); // 2, 3\n\n// Copy a live collection before removing items while iterating.\nconst removalSnapshot = Array.from(liveItems);\nfor (const current of removalSnapshot) current.remove();\nconsole.log(liveItems.length); // 0",
+      "steps": [
+        {
+          "title": "Take both collections at the same time",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "The list starts with two `.item` descendants. `querySelectorAll()` takes a static snapshot; `getElementsByClassName()` creates a live collection that reflects the current DOM."
+        },
+        {
+          "title": "Insert a matching element",
+          "lineStart": 8,
+          "lineEnd": 13,
+          "explanation": "After appending a third matching `li`, the original NodeList still contains two elements, while the live HTMLCollection now contains three."
+        },
+        {
+          "title": "Snapshot before mutating",
+          "lineStart": 15,
+          "lineEnd": 18,
+          "explanation": "`Array.from()` creates a stable array of the current items, so removing each one does not shift the collection being iterated. The live collection itself falls to zero as the nodes are removed."
+        }
+      ]
+    },
+    {
+      "id": "dom-live-collections-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A list has two `.item` elements. You create `querySelectorAll('.item')` and `getElementsByClassName('item')`, then append a third matching element. What are the collection lengths after the append?",
+      "options": [
+        {
+          "id": "snapshot-live",
+          "text": "Static NodeList: 2; live HTMLCollection: 3",
+          "correct": true,
+          "feedback": "Correct. The NodeList returned by querySelectorAll stays as the original snapshot. The HTMLCollection from getElementsByClassName reflects the newly inserted matching element."
+        },
+        {
+          "id": "both-live",
+          "text": "Both collections: 3",
+          "correct": false,
+          "feedback": "querySelectorAll returns a static NodeList, so inserting another match does not change the earlier result."
+        },
+        {
+          "id": "both-static",
+          "text": "Both collections: 2",
+          "correct": false,
+          "feedback": "The HTMLCollection returned by getElementsByClassName is live and updates when matching descendants are inserted or removed."
+        },
+        {
+          "id": "reversed",
+          "text": "Static NodeList: 3; live HTMLCollection: 2",
+          "correct": false,
+          "feedback": "The behaviors are reversed in this answer: querySelectorAll is static, while getElementsByClassName is live."
+        }
+      ],
+      "explanation": "Collection type determines whether membership is a snapshot or a live view. If you will mutate nodes while processing a live collection, copy it first or use a static selection for a stable iteration set."
     },
     {
       "id": "deep-dom-check",

@@ -1,10 +1,10 @@
 {
   "id": "js.dom-events",
   "locale": "ru",
-  "version": 6,
+  "version": 7,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-27",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-2-week-7",
   "week": 7,
   "order": 1,
@@ -24,7 +24,8 @@
     "Отлаживать различия между HTML-атрибутами и изменяемыми DOM-свойствами.",
     "Создавать список с источником данных в JS и проверять поведение через DevTools.",
     "Выбирать между textContent, innerText и innerHTML и управлять классами и data-атрибутами из одного объекта состояния.",
-    "Осознанно выбирать leading-edge throttle и снимать DOM listener при teardown."
+    "Осознанно выбирать leading-edge throttle и снимать DOM listener при teardown.",
+    "Объяснять, как состав живой HTMLCollection меняется при изменении DOM, и выбирать стабильную коллекцию при удалении узлов."
   ],
   "tags": [
     "javascript",
@@ -528,6 +529,76 @@
         "Делегирование основано на распространении события и поиске нужной цели; оно не отменяет проверку действия и его контейнера.",
         "Для непроверенного текста используй `textContent`. Если нужен HTML от пользователя с разметкой, требуется отдельная проверенная стратегия очистки."
       ]
+    },
+    {
+      "id": "dom-live-collections-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Статический NodeList и живой HTMLCollection"
+    },
+    {
+      "id": "dom-live-collections-body",
+      "type": "paragraph",
+      "text": "`querySelectorAll()` возвращает статический `NodeList`: он содержит совпадения на момент выполнения запроса, поэтому последующие изменения DOM не меняют его состав. `getElementsByClassName()` возвращает живой `HTMLCollection`: коллекция отражает текущий набор подходящих элементов, включая добавленные и удалённые узлы. Живая коллекция полезна, когда нужен актуальный набор, но при удалении узлов в цикле с возрастающим индексом элементы могут пропускаться, потому что коллекция уменьшается. Для предсказуемой обработки выбери статическую коллекцию или скопируй живую через `Array.from()` перед изменением DOM."
+    },
+    {
+      "id": "dom-live-collections-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const list = document.querySelector(\"#items\");\nif (!list) throw new Error(\"List not found\");\n\nconst snapshot = list.querySelectorAll(\".item\");\nconst liveItems = list.getElementsByClassName(\"item\");\nconsole.log(snapshot.length, liveItems.length); // 2, 2\n\nconst item = document.createElement(\"li\");\nitem.className = \"item\";\nitem.textContent = \"Third\";\nlist.append(item);\n\nconsole.log(snapshot.length, liveItems.length); // 2, 3\n\n// Copy a live collection before removing items while iterating.\nconst removalSnapshot = Array.from(liveItems);\nfor (const current of removalSnapshot) current.remove();\nconsole.log(liveItems.length); // 0",
+      "steps": [
+        {
+          "title": "Создай обе коллекции одновременно",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "В списке сначала два потомка `.item`. `querySelectorAll()` создаёт статический снимок, а `getElementsByClassName()` возвращает живую коллекцию, которая отражает текущий DOM."
+        },
+        {
+          "title": "Добавь подходящий элемент",
+          "lineStart": 8,
+          "lineEnd": 13,
+          "explanation": "После добавления третьего `li` прежний NodeList по-прежнему содержит два элемента, а живая HTMLCollection уже содержит три."
+        },
+        {
+          "title": "Создай снимок перед изменением DOM",
+          "lineStart": 15,
+          "lineEnd": 18,
+          "explanation": "`Array.from()` создаёт стабильный массив текущих элементов. Поэтому удаление каждого элемента не сдвигает индексы коллекции, по которой идёт итерация. Сама живая коллекция уменьшается до нуля по мере удаления узлов."
+        }
+      ]
+    },
+    {
+      "id": "dom-live-collections-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В списке два элемента `.item`. Ты создаёшь `querySelectorAll('.item')` и `getElementsByClassName('item')`, затем добавляешь третий подходящий элемент. Какова длина коллекций после вставки?",
+      "options": [
+        {
+          "id": "snapshot-live",
+          "text": "Статический NodeList: 2; живая HTMLCollection: 3",
+          "correct": true,
+          "feedback": "Верно. NodeList от querySelectorAll остаётся исходным снимком. HTMLCollection от getElementsByClassName отражает новый подходящий элемент."
+        },
+        {
+          "id": "both-live",
+          "text": "Обе коллекции: 3",
+          "correct": false,
+          "feedback": "querySelectorAll возвращает статический NodeList, поэтому добавление нового совпадения не меняет уже созданный результат."
+        },
+        {
+          "id": "both-static",
+          "text": "Обе коллекции: 2",
+          "correct": false,
+          "feedback": "HTMLCollection от getElementsByClassName — живая коллекция, она обновляется при добавлении и удалении подходящих потомков."
+        },
+        {
+          "id": "reversed",
+          "text": "Статический NodeList: 3; живая HTMLCollection: 2",
+          "correct": false,
+          "feedback": "В этом варианте поведение перепутано: querySelectorAll возвращает статический снимок, а getElementsByClassName — живую коллекцию."
+        }
+      ],
+      "explanation": "Тип коллекции определяет, является ли её состав снимком или живым представлением DOM. Если в процессе обработки нужно удалять узлы, сначала скопируй живую коллекцию или используй статический набор для стабильной итерации."
     },
     {
       "id": "deep-dom-check",
