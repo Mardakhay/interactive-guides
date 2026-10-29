@@ -967,14 +967,14 @@ describe('Git workflow lesson translation', () => {
     expect(englishGitWorkflow.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGitWorkflow.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
-    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(9);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(9);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
-    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
-    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
-    expect(englishGitWorkflow.version).toBe(7);
-    expect(russianGitWorkflow.version).toBe(7);
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
+    expect(englishGitWorkflow.version).toBe(8);
+    expect(russianGitWorkflow.version).toBe(8);
     for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
       expect(lesson.updatedAt).toBe('2026-10-29');
       const ciExample = lesson.blocks.find((block) => block.id === 'ci-example');
