@@ -823,9 +823,9 @@ describe('DOM and events lesson translation', () => {
       russianDom.blocks.map(({ id, type }) => ({ id, type })),
     );
     expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(13);
-    expect(russianDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(12);
+    expect(russianDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(13);
     expect(englishDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(18);
-    expect(russianDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(17);
+    expect(russianDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(18);
     expect(englishDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(russianDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(englishDom.blocks.map((block) => block.id)).toEqual(
@@ -907,7 +907,7 @@ describe('DOM and events lesson translation', () => {
       expect(collectionWalkthrough.code).toContain('querySelectorAll');
       expect(collectionWalkthrough.code).toContain('getElementsByClassName');
       expect(collectionWalkthrough.code).toContain('Array.from(liveItems)');
-      const collectionLineCount = collectionWalkthrough.code.split('\\n').length;
+      const collectionLineCount = collectionWalkthrough.code.split('\n').length;
       expect(collectionWalkthrough.steps.every((step) =>
         step.lineStart >= 1 && step.lineEnd >= step.lineStart && step.lineEnd <= collectionLineCount
       )).toBe(true);
