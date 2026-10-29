@@ -482,8 +482,21 @@ describe('TypeScript fundamentals lesson translation', () => {
     expect(englishTypeScript.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianTypeScript.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishTypeScript.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(englishTypeScript.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
     expect(russianTypeScript.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    for (const lesson of [englishTypeScript, russianTypeScript]) {
+      expect(lesson.version).toBe(3);
+      expect(lesson.updatedAt).toBe('2026-10-29');
+      const strictCheck = lesson.blocks.find((block) => block.id === 'strict-mode-check');
+      expect(strictCheck?.type).toBe('knowledgeCheck');
+      if (strictCheck?.type !== 'knowledgeCheck') throw new Error('TypeScript strict-mode check is missing');
+      expect(strictCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['checks']);
+      expect(strictCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.type === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type !== 'references') throw new Error('TypeScript references are missing');
+      expect(refs.items.some((item) => item.url === 'https://www.typescriptlang.org/tsconfig/#strict')).toBe(true);
+    }
   });
 });
 
@@ -494,8 +507,21 @@ describe('React effects and lists lesson translation', () => {
     expect(englishReactEffects.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianReactEffects.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
-    expect(russianReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    expect(russianReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    for (const lesson of [englishReactEffects, russianReactEffects]) {
+      expect(lesson.version).toBe(5);
+      expect(lesson.updatedAt).toBe('2026-10-29');
+      const dependencyCheck = lesson.blocks.find((block) => block.id === 'effect-dependency-array-check');
+      expect(dependencyCheck?.type).toBe('knowledgeCheck');
+      if (dependencyCheck?.type !== 'knowledgeCheck') throw new Error('Effect dependency check is missing');
+      expect(dependencyCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['count']);
+      expect(dependencyCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.type === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type !== 'references') throw new Error('Effect references are missing');
+      expect(refs.items.some((item) => item.url === 'https://react.dev/reference/react/useEffect')).toBe(true);
+    }
     expect(englishReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
     expect(russianReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
     expect(englishReactEffects.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
@@ -675,8 +701,27 @@ describe('React API and custom hooks lesson translation', () => {
     expect(englishApiHooks.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianApiHooks.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
-    expect(russianApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
+    expect(russianApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
+    for (const lesson of [englishApiHooks, russianApiHooks]) {
+      expect(lesson.version).toBe(5);
+      expect(lesson.updatedAt).toBe('2026-10-29');
+      const cleanupCheck = lesson.blocks.find((block) => block.id === 'api-fetch-cleanup-check');
+      expect(cleanupCheck?.type).toBe('knowledgeCheck');
+      if (cleanupCheck?.type !== 'knowledgeCheck') throw new Error('Fetch cleanup check is missing');
+      expect(cleanupCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['cleanup']);
+      expect(cleanupCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const genericCheck = lesson.blocks.find((block) => block.id === 'api-generic-type-check');
+      expect(genericCheck?.type).toBe('knowledgeCheck');
+      if (genericCheck?.type !== 'knowledgeCheck') throw new Error('Generic response check is missing');
+      expect(genericCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['shape']);
+      expect(genericCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.type === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type !== 'references') throw new Error('API hook references are missing');
+      expect(refs.items.some((item) => item.url === 'https://react.dev/reference/react/useEffect')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://www.typescriptlang.org/docs/handbook/2/generics.html')).toBe(true);
+    }
     expect(englishApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(russianApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(englishApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
@@ -910,8 +955,21 @@ describe('React fundamentals lesson translation', () => {
     expect(englishReactBasics.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianReactBasics.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishReactBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishReactBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
     expect(russianReactBasics.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    for (const lesson of [englishReactBasics, russianReactBasics]) {
+      expect(lesson.version).toBe(3);
+      expect(lesson.updatedAt).toBe('2026-10-29');
+      const stateCheck = lesson.blocks.find((block) => block.id === 'react-usestate-return-check');
+      expect(stateCheck?.type).toBe('knowledgeCheck');
+      if (stateCheck?.type !== 'knowledgeCheck') throw new Error('useState return check is missing');
+      expect(stateCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['pair']);
+      expect(stateCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.type === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type !== 'references') throw new Error('React state references are missing');
+      expect(refs.items.some((item) => item.url === 'https://react.dev/reference/react/useState')).toBe(true);
+    }
   });
 });
 
