@@ -1,7 +1,7 @@
 {
   "id": "frontend.auth-security",
   "locale": "ru",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-29",
@@ -221,6 +221,46 @@
         }
       ],
       "explanation": "Для публичного SPA ориентируйся на актуальные инструкции провайдера и Authorization Code с PKCE; BFF — другая архитектура, переносящая обработку токенов на сервер."
+    },
+    {
+      "id": "auth-oauth-security-guidance",
+      "type": "callout",
+      "tone": "warning",
+      "title": "OAuth 2.0 Security BCP (RFC 9700)",
+      "text": "Для публичных клиентов используй Authorization Code с PKCE и методом challenge S256. Сервер авторизации должен точно сопоставлять web redirect URI с зарегистрированными значениями. Не используй Implicit grant или Resource Owner Password Credentials для новых приложений и не допускай open redirector. Refresh token публичного клиента должен быть привязан к отправителю (sender-constrained) либо ротироваться. PKCE не заменяет проверку redirect URI, привязанную к транзакции CSRF-защиту и защиту от mix-up; следуй документированному профилю провайдера."
+    },
+    {
+      "id": "auth-oauth-security-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Публичное SPA использует Authorization Code с PKCE. Какие дополнительные меры соответствуют OAuth 2.0 Security BCP (RFC 9700)?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Разрешить wildcard в redirect URI, потому что PKCE предотвращает перехват authorization code",
+          "correct": false,
+          "feedback": "PKCE защищает обмен кода, но не делает произвольные адреса перенаправления безопасными; зарегистрированные web redirect URI нужно сопоставлять точно."
+        },
+        {
+          "id": "b",
+          "text": "Перейти на Implicit grant, если провайдер его поддерживает, чтобы не использовать PKCE",
+          "correct": false,
+          "feedback": "Security BCP не рекомендует Implicit grant для новых решений и требует PKCE для публичных клиентов в Authorization Code flow."
+        },
+        {
+          "id": "c",
+          "text": "Считать декодированные claims JWT и frontend route guards заменой проверок протокола",
+          "correct": false,
+          "feedback": "Claims, декодированные в браузере, и route guards не являются доверенной проверкой протокола или авторизацией на resource server."
+        },
+        {
+          "id": "d",
+          "text": "Точно сопоставлять зарегистрированные redirect URI, использовать PKCE с S256 и rotation либо sender-constraining для refresh token публичного клиента",
+          "correct": true,
+          "feedback": "Эти меры объединяют проверку перенаправления с защитами PKCE и refresh token для публичных клиентов, описанными в RFC 9700."
+        }
+      ],
+      "explanation": "PKCE — одна из мер безопасного потока, а не замена проверке redirect URI и другим защитам протокола. RFC 9700 описывает актуальные требования и рекомендации OAuth для клиентов и серверов авторизации."
     },
     {
       "id": "auth-options-heading",

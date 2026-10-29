@@ -30,6 +30,13 @@ describe('sec-001 legacy authentication source accuracy and parity', () => {
     expect(legacyAuthHtml).toContain("switchTab(this, 'tab-implicit')");
     expect(legacyAuthHtml).toContain("switchTab(this, 'tab-oidc')");
     expect(legacyAuthHtml).toContain("switchTab(this, 'tab-bff')");
+    const oauth = sectionById('oauth');
+    expect(oauth).toContain('OAuth 2.0 Security BCP — RFC 9700');
+    expect(oauth).toContain('S256 challenge method');
+    expect(oauth).toContain('exactly match registered web redirect URIs');
+    expect(oauth).toContain('sender-constrained or rotated');
+    expect(oauth).toContain('PKCE does not replace redirect validation');
+    expect(oauth).toContain('https://www.rfc-editor.org/rfc/rfc9700.html');
   });
 
   it('does not claim HttpOnly prevents XSS from acting as the current user', () => {
@@ -64,11 +71,11 @@ describe('sec-001 legacy authentication source accuracy and parity', () => {
     expect(legacyAuthHtml).toContain('return</span> <span class="kw">null');
   });
 
-  it('keeps structured EN/RU security guidance aligned and references the JWT standard', () => {
+  it('keeps structured EN/RU security guidance aligned and references OAuth and JWT standards', () => {
     expect(lessonTranslationSchema.safeParse(englishAuth).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianAuth).success).toBe(true);
-    expect(englishAuth.version).toBe(4);
-    expect(englishAuth.blocks).toHaveLength(23);
+    expect(englishAuth.version).toBe(5);
+    expect(englishAuth.blocks).toHaveLength(25);
     expect(englishAuth.blocks.map(({ id, type }) => [id, type])).toEqual(
       russianAuth.blocks.map(({ id, type }) => [id, type]),
     );
@@ -83,6 +90,24 @@ describe('sec-001 legacy authentication source accuracy and parity', () => {
       expect(refs?.type).toBe('references');
       if (refs?.type === 'references') {
         expect(refs.items.some((item) => item.url === 'https://www.rfc-editor.org/rfc/rfc7519.html')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://datatracker.ietf.org/doc/html/rfc9700')).toBe(true);
+      }
+      const guidance = lesson.blocks.find((block) => block.id === 'auth-oauth-security-guidance');
+      expect(guidance?.type).toBe('callout');
+      if (guidance?.type === 'callout') {
+        expect(guidance.title).toContain('RFC 9700');
+        expect(guidance.text).toContain('S256');
+        expect(guidance.text).toContain(lesson.locale === 'en' ? 'redirect URIs' : 'redirect URI');
+        expect(guidance.text).toContain('sender-constrained');
+      }
+      const bcpCheck = lesson.blocks.find((block) => block.id === 'auth-oauth-security-check');
+      expect(bcpCheck?.type).toBe('knowledgeCheck');
+      if (bcpCheck?.type === 'knowledgeCheck') {
+        expect(bcpCheck.options.filter((option) => option.correct)).toHaveLength(1);
+        expect(bcpCheck.options.find((option) => option.correct)?.id).toBe('d');
+        expect(bcpCheck.options.every((option) => option.feedback.trim().length > 0)).toBe(true);
+        expect(bcpCheck.prompt).toContain('RFC 9700');
+        expect(bcpCheck.explanation).toContain(lesson.locale === 'en' ? 'redirect validation' : 'проверке redirect URI');
       }
     }
   });

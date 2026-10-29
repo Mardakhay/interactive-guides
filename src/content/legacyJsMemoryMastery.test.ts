@@ -89,7 +89,7 @@ describe('js-003 legacy memory lesson accuracy and source parity', () => {
       const caveat = lesson.blocks.find((block) => block.id === 'runtime-engine-callout');
       expect(caveat?.type).toBe('callout');
       if (caveat?.type === 'callout') {
-        expect(caveat.text).toContain('physical stack' === 'physical stack' && lesson.locale === 'en' ? 'physical stack' : 'физическом стеке');
+        expect(caveat.text).toContain(lesson.locale === 'en' ? 'physical stack' : 'физическом стеке');
         expect(caveat.text).toContain(lesson.locale === 'en' ? 'numeric addresses' : 'числовые адреса');
       }
       const memory = lesson.blocks.find((block) => block.id === 'runtime-memory-text');

@@ -1714,6 +1714,12 @@ api.interceptors.response.<span class="fn">use</span>(
       OAuth 2.0 delegates authorization to a third-party platform. OIDC adds identity on top. For SPAs, the correct flow is <strong>Authorization Code + PKCE</strong> — the older Implicit flow is deprecated and insecure.
     </p>
 
+    <div class="card" style="margin-top:1rem;border-left:3px solid var(--orange);">
+      <div class="card-title">OAuth 2.0 Security BCP — RFC 9700</div>
+      <p>For public clients, use Authorization Code with PKCE and the S256 challenge method. Authorization servers must exactly match registered web redirect URIs. Do not use the Implicit or Resource Owner Password Credentials grant for new applications, and do not expose open redirectors. Public-client refresh tokens must be sender-constrained or rotated. PKCE does not replace redirect validation, transaction-specific CSRF protection, or mix-up defenses.</p>
+      <p><a href="https://www.rfc-editor.org/rfc/rfc9700.html" target="_blank" rel="noopener noreferrer">Read RFC 9700: Best Current Practice for OAuth 2.0 Security</a></p>
+    </div>
+
     <div class="tabs-wrapper">
       <div class="tab-nav">
         <button class="tab-btn active" onclick="switchTab(this, 'tab-pkce')">Auth Code + PKCE</button>

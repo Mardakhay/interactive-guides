@@ -1,7 +1,7 @@
 {
   "id": "frontend.auth-security",
   "locale": "en",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -221,6 +221,46 @@
         }
       ],
       "explanation": "Use current provider guidance for Authorization Code with PKCE in a public SPA; a BFF is another architecture option that moves token handling to the server."
+    },
+    {
+      "id": "auth-oauth-security-guidance",
+      "type": "callout",
+      "tone": "warning",
+      "title": "OAuth 2.0 Security BCP (RFC 9700)",
+      "text": "For public clients, use Authorization Code with PKCE and the S256 challenge method. Authorization servers must exactly match registered web redirect URIs. Do not use the Implicit or Resource Owner Password Credentials grant for new applications, and do not expose open redirectors. Public-client refresh tokens must be sender-constrained or rotated. PKCE does not replace redirect validation, transaction-specific CSRF protection, or mix-up defenses; follow the provider's documented profile."
+    },
+    {
+      "id": "auth-oauth-security-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A public SPA uses Authorization Code with PKCE. Which additional controls align with the OAuth 2.0 Security BCP (RFC 9700)?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Allow wildcard redirect URIs because PKCE prevents authorization-code interception",
+          "correct": false,
+          "feedback": "PKCE protects code redemption, but it does not make arbitrary redirect destinations safe; registered web redirect URIs still need exact matching."
+        },
+        {
+          "id": "b",
+          "text": "Switch to the Implicit grant when the provider supports it, so the app does not need PKCE",
+          "correct": false,
+          "feedback": "The security BCP discourages the Implicit grant for new deployments and requires PKCE for public clients using Authorization Code."
+        },
+        {
+          "id": "c",
+          "text": "Treat decoded JWT claims and frontend route guards as substitutes for protocol validation",
+          "correct": false,
+          "feedback": "Browser-decoded claims and route guards are not trusted protocol checks or resource-server authorization."
+        },
+        {
+          "id": "d",
+          "text": "Use exact registered redirect URIs, PKCE with S256, and refresh-token rotation or sender-constraining for public clients",
+          "correct": true,
+          "feedback": "This combines redirect validation with the public-client PKCE and refresh-token protections described by RFC 9700."
+        }
+      ],
+      "explanation": "PKCE is one control in a secure flow, not a substitute for redirect validation or other protocol defenses. RFC 9700 describes current OAuth security requirements and recommendations for clients and authorization servers."
     },
     {
       "id": "auth-options-heading",
