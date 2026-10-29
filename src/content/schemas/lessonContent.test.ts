@@ -410,15 +410,15 @@ describe('Node.js and project tooling lesson translation', () => {
     expect(englishTooling.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianTooling.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishTooling.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    expect(englishTooling.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
     expect(russianTooling.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     expect(lessonTranslationSchema.safeParse(englishTooling).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianTooling).success).toBe(true);
-    expect(englishTooling.version).toBe(4);
-    expect(russianTooling.version).toBe(4);
+    expect(englishTooling.version).toBe(5);
+    expect(russianTooling.version).toBe(5);
     for (const lesson of [englishTooling, russianTooling]) {
       expect(lesson.updatedAt).toBe('2026-10-29');
-      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
       const walkthrough = lesson.blocks.find((block) => block.id === 'npm-command-vs-exec-walkthrough');
       expect(walkthrough?.type).toBe('codeWalkthrough');
       if (walkthrough?.type !== 'codeWalkthrough') throw new Error('npm CLI walkthrough is missing');
@@ -449,6 +449,20 @@ describe('Node.js and project tooling lesson translation', () => {
       if (hmrCheck?.type !== 'knowledgeCheck') throw new Error('HMR knowledge check is missing');
       expect(hmrCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['hmr-precise']);
       expect(hmrCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
+      const expectedToolingChecks = [
+        ['dev-dependency-check', 'dev'],
+        ['caret-range-check', 'compatible'],
+        ['vite-dev-server-check', 'esm'],
+        ['lint-format-check', 'pair'],
+      ] as const;
+      for (const [blockId, correctId] of expectedToolingChecks) {
+        const check = lesson.blocks.find((block) => block.id === blockId);
+        expect(check?.type).toBe('knowledgeCheck');
+        if (check?.type !== 'knowledgeCheck') throw new Error(`${blockId} is missing`);
+        expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual([correctId]);
+        expect(check.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      }
 
       const refs = lesson.blocks.find((block) => block.id === 'references');
       expect(refs?.type).toBe('references');
