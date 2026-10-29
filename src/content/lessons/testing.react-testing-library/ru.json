@@ -1,10 +1,10 @@
 {
   "id": "testing.react-testing-library",
   "locale": "ru",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-5-week-19",
   "week": 19,
   "order": 1,
@@ -26,7 +26,8 @@
     "Делать тестовые данные, сетевые границы и проверки детерминированными.",
     "Писать осмысленные тесты в связке Vitest + React Testing Library и понимать, что изменится при использовании Jest.",
     "Управлять успехом и ошибками API с изолированными Vitest mocks, проверяя видимые пользователю результаты.",
-    "Различать очистку истории mock, сброс реализации и восстановление метода spy в Vitest."
+    "Различать очистку истории mock, сброс реализации и восстановление метода spy в Vitest.",
+    "Выбирать проверки равенства с учётом того, требуется сравнить примитив/значение, содержимое объекта или идентичность ссылки."
   ],
   "tags": [
     "testing",
@@ -113,6 +114,76 @@
           "explanation": "Клик асинхронен, поэтому его ожидают через await. Проверяется видимое состояние, а не способ хранения внутреннего state."
         }
       ]
+    },
+    {
+      "id": "matcher-equality-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Выбирай `toBe` или `toEqual` под нужное сравнение"
+    },
+    {
+      "id": "matcher-equality-body",
+      "type": "paragraph",
+      "text": "В Vitest `toBe(expected)` использует семантику `Object.is`. Это хороший вариант для примитивных значений; для объектов он проверяет идентичность ссылки. Два отдельно созданных объекта могут иметь одинаковые свойства, но при этом быть разными ссылками. `toEqual(expected)` рекурсивно сравнивает содержимое объектов и обычно подходит, когда требуется структурное равенство. Выбирай matcher, который выражает нужное поведение: успешная проверка должна объяснять требование, а не просто делать тест зелёным."
+    },
+    {
+      "id": "matcher-equality-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "import { expect, it } from \"vitest\";\n\nconst first = { id: 1, name: \"Ada\" };\nconst equivalent = { id: 1, name: \"Ada\" };\n\nit(\"distinguishes structure from reference identity\", () => {\n  expect(first).toEqual(equivalent); // passes: matching object properties\n  expect(first).not.toBe(equivalent); // passes: distinct object references\n\n  const sameReference = first;\n  expect(first).toBe(sameReference); // passes: same object\n});",
+      "steps": [
+        {
+          "title": "Создай отдельные, но эквивалентные объекты",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "У `first` и `equivalent` одинаковые свойства, но каждый объектный литерал создаёт отдельную ссылку."
+        },
+        {
+          "title": "Проверь структуру и различие ссылок",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "`toEqual` рекурсивно сравнивает содержимое объектов. `not.toBe` проходит, потому что две переменные ссылаются на разные объекты."
+        },
+        {
+          "title": "Проверь идентичность общей ссылки",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "explanation": "Присваивание `first` другой переменной сохраняет ту же ссылку, поэтому `toBe` проходит. Выбирай matcher в зависимости от того, проверяешь ты значения или идентичность."
+        }
+      ]
+    },
+    {
+      "id": "matcher-equality-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Два отдельных объектных литерала имеют одинаковые свойства `id` и `name`. Какой matcher проверяет структурное равенство этих объектов?",
+      "options": [
+        {
+          "id": "to-equal",
+          "text": "`expect(first).toEqual(second)`",
+          "correct": true,
+          "feedback": "Верно. `toEqual` рекурсивно сравнивает содержимое объектов, поэтому отдельные объекты с одинаковыми значениями свойств проходят проверку."
+        },
+        {
+          "id": "to-be",
+          "text": "`expect(first).toBe(second)`",
+          "correct": false,
+          "feedback": "`toBe` использует семантику `Object.is`. Для разных объектных литералов он проверяет идентичность ссылки, поэтому одинаковых свойств недостаточно."
+        },
+        {
+          "id": "to-be-truthy",
+          "text": "`expect(first).toBeTruthy()`",
+          "correct": false,
+          "feedback": "Этот matcher проверяет истинность значения. Он не сравнивает свойства объекта с другим объектом."
+        },
+        {
+          "id": "to-have-been-called",
+          "text": "`expect(first).toHaveBeenCalled()`",
+          "correct": false,
+          "feedback": "Этот matcher относится к mock/spy-функциям и истории вызовов, а не к сравнению значений объектов."
+        }
+      ],
+      "explanation": "Используй `toEqual` для рекурсивного сравнения значений, а `toBe` — когда нужно проверить идентичность ссылки или семантику `Object.is`."
     },
     {
       "id": "arrange-act-assert",

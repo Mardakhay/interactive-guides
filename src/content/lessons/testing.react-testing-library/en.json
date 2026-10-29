@@ -1,10 +1,10 @@
 {
   "id": "testing.react-testing-library",
   "locale": "en",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-5-week-19",
   "week": 19,
   "order": 1,
@@ -26,7 +26,8 @@
     "Keep test data, network boundaries, and assertions deterministic.",
     "Write meaningful tests in the project's Vitest + React Testing Library setup and understand what changes if Jest is used.",
     "Control API success and failure behavior with isolated Vitest mocks while asserting user-visible UI outcomes.",
-    "Distinguish mock call history, reset behavior, and restoring a spied method in Vitest."
+    "Distinguish mock call history, reset behavior, and restoring a spied method in Vitest.",
+    "Choose equality assertions based on whether the test requires primitive/value comparison, recursive object equality, or reference identity."
   ],
   "tags": [
     "testing",
@@ -113,6 +114,76 @@
           "explanation": "The click is asynchronous and is awaited. The assertion checks the visible outcome; it does not care how the counter stores its state internally."
         }
       ]
+    },
+    {
+      "id": "matcher-equality-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Choose `toBe` or `toEqual` for the intended comparison"
+    },
+    {
+      "id": "matcher-equality-body",
+      "type": "paragraph",
+      "text": "In Vitest, `toBe(expected)` uses `Object.is` semantics. It is a good default for primitive values, and it checks reference identity for objects. Two separately created objects can have the same properties but still be different references. `toEqual(expected)` recursively compares object contents, so it is the usual choice when the contract is structural equality. Prefer the matcher that describes the behavior you intend to prove; a passing assertion should explain the requirement, not just make a test green."
+    },
+    {
+      "id": "matcher-equality-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "import { expect, it } from \"vitest\";\n\nconst first = { id: 1, name: \"Ada\" };\nconst equivalent = { id: 1, name: \"Ada\" };\n\nit(\"distinguishes structure from reference identity\", () => {\n  expect(first).toEqual(equivalent); // passes: matching object properties\n  expect(first).not.toBe(equivalent); // passes: distinct object references\n\n  const sameReference = first;\n  expect(first).toBe(sameReference); // passes: same object\n});",
+      "steps": [
+        {
+          "title": "Create separate but equivalent objects",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "`first` and `equivalent` have the same properties, but each object literal creates a different object reference."
+        },
+        {
+          "title": "Assert structural equality and distinct identity",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "`toEqual` checks the object contents recursively. `not.toBe` succeeds because the two variables do not point to the same object."
+        },
+        {
+          "title": "Assert that a shared reference is identical",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "explanation": "Assigning `first` to another variable keeps the same reference, so `toBe` succeeds. Choose the matcher based on whether the contract is values or identity."
+        }
+      ]
+    },
+    {
+      "id": "matcher-equality-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Two separate object literals have the same `id` and `name` properties. Which matcher tests structural equality between them?",
+      "options": [
+        {
+          "id": "to-equal",
+          "text": "`expect(first).toEqual(second)`",
+          "correct": true,
+          "feedback": "Correct. `toEqual` recursively compares object contents, so separate objects with matching property values can satisfy the assertion."
+        },
+        {
+          "id": "to-be",
+          "text": "`expect(first).toBe(second)`",
+          "correct": false,
+          "feedback": "`toBe` uses `Object.is` semantics. For distinct object literals it checks reference identity, so matching properties are not enough."
+        },
+        {
+          "id": "to-be-truthy",
+          "text": "`expect(first).toBeTruthy()`",
+          "correct": false,
+          "feedback": "This checks whether the value is truthy. It does not compare the object's properties with another object."
+        },
+        {
+          "id": "to-have-been-called",
+          "text": "`expect(first).toHaveBeenCalled()`",
+          "correct": false,
+          "feedback": "This matcher is for mock or spy functions and their call history, not for comparing object values."
+        }
+      ],
+      "explanation": "Use `toEqual` for recursive value comparison and `toBe` when reference identity or `Object.is` behavior is the intended contract."
     },
     {
       "id": "arrange-act-assert",

@@ -1103,10 +1103,39 @@ describe('React component testing lesson translation', () => {
   it('keeps Vitest mock history, implementation, and spy restoration distinct', () => {
     expect(lessonTranslationSchema.safeParse(englishTesting).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianTesting).success).toBe(true);
-    expect(englishTesting.version).toBe(4);
-    expect(englishTesting.blocks).toHaveLength(39);
+    expect(englishTesting.version).toBe(5);
+    expect(russianTesting.version).toBe(5);
+    expect(englishTesting.blocks).toHaveLength(43);
+    expect(russianTesting.blocks).toHaveLength(43);
+    expect(englishTesting.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    expect(russianTesting.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    expect(englishTesting.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(russianTesting.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(englishTesting.blocks.map(({ id, type }) => ({ id, type }))).toEqual(russianTesting.blocks.map(({ id, type }) => ({ id, type })));
     for (const lesson of [englishTesting, russianTesting]) {
+      expect(lesson.updatedAt).toBe('2026-10-29');
+
+      const matcherBody = lesson.blocks.find((block) => block.id === 'matcher-equality-body');
+      expect(matcherBody?.type).toBe('paragraph');
+      if (matcherBody?.type !== 'paragraph') throw new Error('Equality matcher explanation is missing');
+      expect(matcherBody.text).toContain('Object.is');
+      expect(matcherBody.text).toContain('toEqual');
+
+      const matcherWalkthrough = lesson.blocks.find((block) => block.id === 'matcher-equality-walkthrough');
+      expect(matcherWalkthrough?.type).toBe('codeWalkthrough');
+      if (matcherWalkthrough?.type !== 'codeWalkthrough') throw new Error('Equality matcher walkthrough is missing');
+      expect(matcherWalkthrough.language).toBe('typescript');
+      expect(matcherWalkthrough.code).toContain('.toEqual(');
+      expect(matcherWalkthrough.code).toContain('.not.toBe(');
+      expect(matcherWalkthrough.code).toContain('sameReference');
+      const matcherLineCount = matcherWalkthrough.code.split('\\n').length;
+      expect(matcherWalkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd >= step.lineStart && step.lineEnd <= matcherLineCount)).toBe(true);
+
+      const matcherCheck = lesson.blocks.find((block) => block.id === 'matcher-equality-check');
+      expect(matcherCheck?.type).toBe('knowledgeCheck');
+      if (matcherCheck?.type !== 'knowledgeCheck') throw new Error('Equality matcher knowledge check is missing');
+      expect(matcherCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['to-equal']);
+      expect(matcherCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
       const model = lesson.blocks.find((block) => block.id === 'test-mock-lifecycle-model');
       expect(model?.type).toBe('paragraph');
       if (model?.type === 'paragraph') {
