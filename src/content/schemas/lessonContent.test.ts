@@ -1240,6 +1240,18 @@ describe('Git workflow lesson translation', () => {
       expect(conflictExercise.requirements.length).toBeGreaterThanOrEqual(4);
       expect(conflictExercise.hints.length).toBeGreaterThanOrEqual(3);
       expect(conflictExercise.successCriteria.length).toBeGreaterThanOrEqual(4);
+      const branchStrategies = lesson.blocks.find((block) => block.id === 'git-branch-strategy-choices');
+      expect(branchStrategies?.type).toBe('list');
+      if (branchStrategies?.type !== 'list') throw new Error('Branch strategy comparison is missing');
+      const gitFlowChoice = branchStrategies.items.find((item) => item.includes('Git Flow'));
+      expect(gitFlowChoice).toBeDefined();
+      if (!gitFlowChoice) throw new Error('Git Flow branch destinations are missing');
+      expect(gitFlowChoice).toContain('develop');
+      expect(gitFlowChoice).toContain('main');
+      expect(gitFlowChoice.toLowerCase()).toMatch(
+        lesson.locale === 'en' ? /feature branches.*merge/ : /feature-ветки.*сливаются/,
+      );
+
       const labels = lesson.blocks.find((block) => block.id === 'review-comment-labels');
       expect(labels?.type).toBe('list');
       if (labels?.type !== 'list') throw new Error('Review comment labels are missing');

@@ -668,7 +668,7 @@
       "items": [
         "Trunk-based development keeps branches very short-lived and integrates to a shared trunk frequently, often with feature flags and strong automated checks.",
         "GitHub Flow normally uses a protected main branch, a short-lived feature branch, a pull request, checks, review, and merge.",
-        "Git Flow adds long-lived develop and purpose-specific release/hotfix branches. It can help with scheduled or parallel release maintenance, but it introduces more coordination and branch management.",
+        "Git Flow adds long-lived `develop` and purpose-specific release/hotfix branches. Feature branches normally merge into `develop`; release branches stabilize a candidate before it reaches `main`; hotfixes start from the production branch and are back-merged into `develop` and any other maintained branch that needs the fix. This can help with scheduled or parallel release maintenance, but it introduces more coordination and branch management.",
         "A release branch stabilizes a candidate for a release; a hotfix branch isolates an urgent correction. Their source, target and back-merge policy should be explicit.",
         "Choose based on release cadence, team size, support obligations and the maturity of CI. Do not adopt extra branches just because a diagram contains them."
       ]
