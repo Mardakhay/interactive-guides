@@ -1,7 +1,7 @@
 {
   "id": "git.fundamentals",
   "locale": "en",
-  "version": 10,
+  "version": 11,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -209,6 +209,76 @@
           "explanation": "After confirming the current branch and team policy, `git push -u origin HEAD` publishes the checked-out branch under the same name on origin and sets upstream tracking. It does not mean 'push main' unless you are currently on main; do not bypass a required PR workflow."
         }
       ]
+    },
+    {
+      "id": "github-flow-review-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Follow GitHub Flow: branch, pull request, review, merge"
+    },
+    {
+      "id": "github-flow-review-body",
+      "type": "paragraph",
+      "text": "GitHub Flow separates local Git work from the hosted review process. Create a focused feature branch, make and test a small change, commit it, then push that branch and open a pull request on GitHub (or your team's hosting platform) against the intended base branch, usually `main`. Describe the intent, notable trade-offs and checks you ran. Reviewers discuss the diff and may request changes; push follow-up commits to the same feature branch so the existing discussion and checks update. Do not merge merely because a PR exists: wait for required reviews and checks to pass under the repository's rules. After merge, update your local default branch and delete the feature branch when the team policy allows it."
+    },
+    {
+      "id": "github-flow-review-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "git status\ngit fetch origin\ngit switch main\ngit pull --ff-only\ngit switch -c feat/my-change\n# Edit files and run the checks documented by the repository\ngit add path/to/changed-file\ngit diff --staged\ngit commit -m \"feat: describe the change\"\ngit push -u origin HEAD",
+      "steps": [
+        {
+          "title": "Start from an up-to-date base",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Check that your working tree is clean, fetch remote references, switch to the default branch and update it only if a fast-forward is possible. Replace `main` if the project uses a different default branch."
+        },
+        {
+          "title": "Create the feature and prepare a reviewable diff",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Create a focused branch, make the change and run the repository's documented checks. Stage only the intended file, then inspect the staged diff so unrelated or sensitive changes do not enter the commit."
+        },
+        {
+          "title": "Commit and publish the review branch",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "Commit the scoped change and publish the current feature branch. The next step happens in the hosting platform: open a pull request, describe the intent and test evidence, and request review. If feedback arrives, update this same branch and PR; merge only after policy-required reviews and checks pass."
+        }
+      ]
+    },
+    {
+      "id": "github-flow-review-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A reviewer requests changes on your open pull request. What is the best next step?",
+      "options": [
+        {
+          "id": "update-pr-branch",
+          "text": "Update the same feature branch, run the relevant checks, commit and push the fix, respond to the review, then wait for required approvals and checks before merging",
+          "correct": true,
+          "feedback": "Correct. A pull request tracks the proposed branch; pushing follow-up commits to that branch updates the same review. Required approvals and checks still need to pass before merge."
+        },
+        {
+          "id": "open-new-pr",
+          "text": "Open a completely new pull request for every review comment, leaving the original branch unchanged",
+          "correct": false,
+          "feedback": "That fragments the discussion and leaves the original pull request unresolved. Follow-up commits normally update the existing feature branch and pull request."
+        },
+        {
+          "id": "skip-checks",
+          "text": "Merge immediately because the initial pull-request review has already started",
+          "correct": false,
+          "feedback": "A review request is not approval, and required checks may still be failing. Follow the repository's approval and branch-protection rules."
+        },
+        {
+          "id": "push-main",
+          "text": "Commit the correction directly to the protected default branch to avoid another review",
+          "correct": false,
+          "feedback": "That bypasses the review workflow and may be blocked by branch protection. Make the correction on the pull-request branch and follow the team's policy."
+        }
+      ],
+      "explanation": "Keep review discussion and fixes together in the existing pull request. Push the correction to its feature branch, respond to feedback, and merge only when the required approvals and checks pass."
     },
     {
       "id": "commit-message",
@@ -1124,6 +1194,11 @@
         {
           "title": "Git Documentation: git-rebase",
           "url": "https://git-scm.com/docs/git-rebase",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: GitHub flow",
+          "url": "https://docs.github.com/en/get-started/using-github/github-flow",
           "kind": "official-docs"
         }
       ]

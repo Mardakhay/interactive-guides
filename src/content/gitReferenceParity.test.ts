@@ -38,6 +38,44 @@ describe('Git Reference source-derived content', () => {
     expect(russian.updatedAt).toBe(english.updatedAt);
   });
 
+  it('teaches the GitHub Flow pull-request review lifecycle in both locales', async () => {
+    for (const locale of locales) {
+      const lesson = await loadGitFundamentals(locale);
+      const heading = lesson.blocks.find((block) => block.id === 'github-flow-review-heading');
+      const body = lesson.blocks.find((block) => block.id === 'github-flow-review-body');
+      const walkthrough = lesson.blocks.find((block) => block.id === 'github-flow-review-walkthrough');
+      const check = lesson.blocks.find((block) => block.id === 'github-flow-review-check');
+
+      expect(heading?.type).toBe('heading');
+      expect(body?.type).toBe('paragraph');
+      if (body?.type !== 'paragraph') throw new Error('GitHub Flow review guidance is missing');
+      expect(body.text.toLowerCase()).toContain('pull request');
+      expect(body.text.toLowerCase()).toMatch(locale === 'en' ? /review|checks|merge/ : /ревью|провер|merge/);
+
+      expect(walkthrough?.type).toBe('codeWalkthrough');
+      if (walkthrough?.type !== 'codeWalkthrough') throw new Error('GitHub Flow walkthrough is missing');
+      expect(walkthrough.code).toContain('git fetch origin');
+      expect(walkthrough.code).toContain('git switch -c feat/my-change');
+      expect(walkthrough.code).toContain('git push -u origin HEAD');
+      for (const step of walkthrough.steps) {
+        expect(step.lineStart).toBeGreaterThan(0);
+        expect(step.lineEnd).toBeLessThanOrEqual(walkthrough.code.split('\\n').length);
+      }
+
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') throw new Error('GitHub Flow review check is missing');
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['update-pr-branch']);
+      expect(check.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+      expect(check.explanation.toLowerCase()).toMatch(locale === 'en' ? /required approvals|approvals and checks/ : /одобрени|провер/);
+
+      const references = lesson.blocks.find((block) => block.id === 'references');
+      expect(references?.type).toBe('references');
+      if (references?.type === 'references') {
+        expect(references.items.some((item) => item.url === 'https://docs.github.com/en/get-started/using-github/github-flow')).toBe(true);
+      }
+    }
+  });
+
   it('teaches Markdown syntax with a line-checked worked example and explanatory feedback', async () => {
     for (const locale of locales) {
       const lesson = await loadGitFundamentals(locale);

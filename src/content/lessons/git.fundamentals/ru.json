@@ -1,7 +1,7 @@
 {
   "id": "git.fundamentals",
   "locale": "ru",
-  "version": 10,
+  "version": 11,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-29",
@@ -209,6 +209,76 @@
           "explanation": "После проверки текущей ветки и правил команды `git push -u origin HEAD` отправляет текущую ветку в origin под тем же именем и задаёт upstream tracking. Это не означает «отправить main», если ты находишься на другой ветке; не обходи обязательный PR workflow."
         }
       ]
+    },
+    {
+      "id": "github-flow-review-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Рабочий процесс GitHub Flow: ветка, pull request, ревью, merge"
+    },
+    {
+      "id": "github-flow-review-body",
+      "type": "paragraph",
+      "text": "GitHub Flow отделяет локальную работу Git от процесса ревью на хостинге. Создай focused feature-ветку, внеси небольшое изменение и проверь его, затем закоммить и отправь ветку, после чего открой pull request на GitHub (или платформе команды) в нужную базовую ветку, обычно `main`. Опиши цель, важные компромиссы и выполненные проверки. Ревьюеры обсуждают diff и могут запросить изменения; отправляй новые коммиты в ту же feature-ветку, чтобы обновлялись существующее обсуждение и статусы проверок. Не делай merge только потому, что PR открыт: дождись обязательных одобрений и успешных проверок по правилам репозитория. После merge обнови локальную default-ветку и удали feature-ветку, если это допускает политика команды."
+    },
+    {
+      "id": "github-flow-review-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "git status\ngit fetch origin\ngit switch main\ngit pull --ff-only\ngit switch -c feat/my-change\n# Измени файлы и запусти проверки, описанные в репозитории\ngit add path/to/changed-file\ngit diff --staged\ngit commit -m \"feat: describe the change\"\ngit push -u origin HEAD",
+      "steps": [
+        {
+          "title": "Начни с актуальной базовой ветки",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Проверь чистоту рабочего дерева, получи удалённые ссылки, переключись на default-ветку и обновляй её только если возможен fast-forward. Замени `main`, если в проекте другая default-ветка."
+        },
+        {
+          "title": "Создай feature-ветку и подготовь diff для ревью",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Создай узкоспециализированную ветку, внеси изменение и запусти проверки, предусмотренные репозиторием. Добавь в staging только нужный файл и просмотри staged diff, чтобы случайные или чувствительные изменения не попали в коммит."
+        },
+        {
+          "title": "Закоммить изменение и опубликуй ветку для ревью",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "Закоммить ограниченное по области изменение и отправь текущую feature-ветку. Следующий шаг выполняется на платформе хостинга: открой pull request, опиши цель и результаты проверок и запроси ревью. На замечания отвечай в той же ветке и PR; выполняй merge только после обязательных одобрений и успешных проверок."
+        }
+      ]
+    },
+    {
+      "id": "github-flow-review-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Ревьюер запросил изменения в открытом pull request. Как лучше поступить дальше?",
+      "options": [
+        {
+          "id": "update-pr-branch",
+          "text": "Исправить код в той же feature-ветке, запустить нужные проверки, закоммитить и отправить исправление, ответить на замечания и дождаться обязательных одобрений и проверок перед merge",
+          "correct": true,
+          "feedback": "Верно. Pull request отслеживает предлагаемую ветку; последующие коммиты в эту ветку обновляют тот же PR. Перед merge всё равно должны пройти обязательные проверки и одобрения."
+        },
+        {
+          "id": "open-new-pr",
+          "text": "Открывать новый pull request для каждого замечания, не меняя исходную ветку",
+          "correct": false,
+          "feedback": "Так обсуждение распадается на части, а исходный pull request остаётся нерешённым. Обычно последующие коммиты обновляют существующую feature-ветку и PR."
+        },
+        {
+          "id": "skip-checks",
+          "text": "Сразу выполнить merge, поскольку ревью pull request уже началось",
+          "correct": false,
+          "feedback": "Запрос ревью не означает одобрение, а обязательные проверки могут ещё завершаться с ошибкой. Соблюдай правила одобрения и защиты ветки."
+        },
+        {
+          "id": "push-main",
+          "text": "Закоммитить исправление напрямую в защищённую default-ветку, чтобы избежать повторного ревью",
+          "correct": false,
+          "feedback": "Так обходится процесс ревью, а защита ветки может заблокировать push. Исправляй PR в его feature-ветке и соблюдай правила команды."
+        }
+      ],
+      "explanation": "Сохраняй обсуждение и исправления в одном pull request. Отправь исправление в feature-ветку, ответь на замечания и выполняй merge только после обязательных одобрений и проверок."
     },
     {
       "id": "commit-message",
@@ -1124,6 +1194,11 @@
         {
           "title": "Git Documentation: git-rebase",
           "url": "https://git-scm.com/docs/git-rebase",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: GitHub flow",
+          "url": "https://docs.github.com/en/get-started/using-github/github-flow",
           "kind": "official-docs"
         }
       ]
