@@ -331,9 +331,9 @@
         <div class="card"><div class="ci">🏗️</div><h3>Structure</h3><p>HTML defines the skeleton of every webpage — headings, paragraphs, images, links, and more.</p></div>
         <div class="card"><div class="ci">🏷️</div><h3>Tags</h3><p>Elements are written using <code>&lt;tags&gt;</code>. Most have an opening <code>&lt;tag&gt;</code> and closing <code>&lt;/tag&gt;</code>.</p></div>
         <div class="card"><div class="ci">⚙️</div><h3>Attributes</h3><p>Tags can carry attributes like <code>class</code>, <code>id</code>, <code>href</code>, <code>src</code> that add extra information.</p></div>
-        <div class="card"><div class="ci">🌐</div><h3>HTML5</h3><p>The latest standard. Adds semantic tags, native audio/video, canvas, and modern form inputs.</p></div>
+        <div class="card"><div class="ci">🌐</div><h3>Modern HTML</h3><p>HTML evolves as a maintained Living Standard. HTML5 introduced semantic elements, native audio/video, canvas, and modern form inputs; the platform continues to evolve.</p></div>
         <div class="card"><div class="ci">♿</div><h3>Accessibility</h3><p>Semantic HTML improves screen reader support and makes pages more accessible to everyone.</p></div>
-        <div class="card"><div class="ci">🔍</div><h3>SEO</h3><p>Proper HTML structure helps search engines understand and rank your content better.</p></div>
+        <div class="card"><div class="ci">🔍</div><h3>SEO</h3><p>Clear, meaningful markup helps machines interpret page content; semantic HTML alone does not guarantee a search-ranking boost.</p></div>
       </div>
       <div class="info-box note">
         <div class="ib-title">💡 HTML, CSS & JavaScript</div>
@@ -808,22 +808,22 @@
         <thead><tr><th>type=""</th><th>Description</th><th>Notes</th></tr></thead>
         <tbody>
           <tr><td>text</td><td>Single-line text</td><td>Default input type</td></tr>
-          <tr><td>email</td><td>Email address</td><td>Validates @ format</td></tr>
+          <tr><td>email</td><td>Email address</td><td>Checks basic email syntax only; it does not confirm mailbox existence</td></tr>
           <tr><td>password</td><td>Hidden text</td><td>Dots/asterisks mask input</td></tr>
           <tr><td>number</td><td>Numeric value</td><td>Supports min, max, step</td></tr>
           <tr><td>range</td><td>Slider</td><td>Supports min, max, step</td></tr>
           <tr><td>date</td><td>Date picker</td><td>Returns YYYY-MM-DD</td></tr>
           <tr><td>time</td><td>Time picker</td><td>Returns HH:MM</td></tr>
           <tr><td>color</td><td>Colour picker</td><td>Returns hex value</td></tr>
-          <tr><td>file</td><td>File upload</td><td>Use accept="" to filter types</td></tr>
+          <tr><td>file</td><td>File upload</td><td>accept hints file-picker choices; it is not security validation</td></tr>
           <tr><td>checkbox</td><td>On/off toggle</td><td>Multiple independent options</td></tr>
           <tr><td>radio</td><td>One of a group</td><td>Same name = same group</td></tr>
           <tr><td>submit</td><td>Submit button</td><td>Triggers form submission</td></tr>
-          <tr><td>reset</td><td>Reset button</td><td>Clears form fields</td></tr>
-          <tr><td>hidden</td><td>Hidden value</td><td>Not visible, still submitted</td></tr>
+          <tr><td>reset</td><td>Reset button</td><td>Resets controls to their initial/default values</td></tr>
+          <tr><td>hidden</td><td>Hidden value</td><td>Submitted value is client-controlled; never trust it for authorization</td></tr>
           <tr><td>search</td><td>Search field</td><td>May show X to clear</td></tr>
-          <tr><td>tel</td><td>Telephone number</td><td>Mobile shows dial pad</td></tr>
-          <tr><td>url</td><td>URL input</td><td>Validates URL format</td></tr>
+          <tr><td>tel</td><td>Telephone number</td><td>May offer a telephone keypad on mobile; behavior varies by device</td></tr>
+          <tr><td>url</td><td>URL input</td><td>Checks URL syntax only; it does not verify destination or trustworthiness</td></tr>
         </tbody>
       </table>
       <div class="codeblock" style="margin-top:16px;">
@@ -841,7 +841,7 @@
   <section id="sec-semantic" class="section">
     <div class="sec-head">
       <h2 class="sec-title">Semantic <em>HTML</em></h2>
-      <p class="sec-desc">Semantic elements clearly describe their meaning — to both browsers and developers. They improve accessibility, SEO, and code readability.</p>
+      <p class="sec-desc">Semantic elements describe the role of content to browsers, developers, and assistive technologies. They can improve document navigation and machine-readable structure; semantic markup alone does not guarantee search-ranking changes.</p>
     </div>
     <div class="sec-body">
       <div class="sub">

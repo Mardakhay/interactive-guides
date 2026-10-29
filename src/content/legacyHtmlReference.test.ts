@@ -46,6 +46,22 @@ describe('wb-002 legacy HTML reference accuracy and parity', () => {
     expect(legacyHtmlReference).not.toContain('Always add <code>rel="noopener noreferrer"</code>');
   });
 
+  it('describes HTML standards, semantics and input-type constraints without overpromising', () => {
+    expect(legacyHtmlReference).toContain('HTML evolves as a maintained Living Standard');
+    expect(legacyHtmlReference).not.toContain('The latest standard. Adds semantic tags');
+    expect(legacyHtmlReference).toContain('semantic HTML alone does not guarantee a search-ranking boost');
+    expect(legacyHtmlReference).not.toContain('Proper HTML structure helps search engines understand and rank your content better.');
+    expect(legacyHtmlReference).toContain('Checks basic email syntax only; it does not confirm mailbox existence');
+    expect(legacyHtmlReference).toContain('accept hints file-picker choices; it is not security validation');
+    expect(legacyHtmlReference).toContain('Resets controls to their initial/default values');
+    expect(legacyHtmlReference).toContain('Submitted value is client-controlled; never trust it for authorization');
+    expect(legacyHtmlReference).toContain('May offer a telephone keypad on mobile; behavior varies by device');
+    expect(legacyHtmlReference).toContain('Checks URL syntax only; it does not verify destination or trustworthiness');
+    expect(legacyHtmlReference).not.toContain('Validates @ format');
+    expect(legacyHtmlReference).not.toContain('Mobile shows dial pad');
+    expect(legacyHtmlReference).toContain('client-side validation never replaces server-side validation');
+  });
+
   it('describes alt text by purpose and avoids treating placeholder as a label', () => {
     expect(legacyHtmlReference).toContain('informative images need a concise alternative conveying their essential information or function');
     expect(legacyHtmlReference).toContain('purely decorative images should use <code>alt=""</code>');
