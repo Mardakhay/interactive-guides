@@ -1,7 +1,7 @@
 import englishCurriculum from './curriculum/bootcamp-core.en.json';
 import russianCurriculum from './curriculum/bootcamp-core.ru.json';
 import { bootcampCurriculumSchema } from './schemas/curriculum';
-import { lessonTranslationSchema, type LessonTranslation } from './schemas/lessonContent';
+import { lessonTranslationSchema, type LessonContentBlock, type LessonTranslation, type LessonPublicationStatus } from './schemas/lessonContent';
 import { STRUCTURED_LESSON_MANIFEST } from './lessonManifest';
 
 export const SUPPORTED_LOCALES = ['en', 'ru'] as const;
@@ -11,6 +11,16 @@ export interface StructuredLessonMetadata {
   readonly id: string;
   readonly locale: SupportedLocale;
   readonly title: string;
+  readonly status: LessonPublicationStatus;
+}
+
+export interface StructuredLessonSearchDocument extends StructuredLessonMetadata {
+  readonly description: string;
+  readonly difficulty: string;
+  readonly estimatedMinutes: number;
+  readonly tags: readonly string[];
+  readonly learningOutcomes: readonly string[];
+  readonly searchText: string;
 }
 
 type LessonFileMetadata = StructuredLessonMetadata & { readonly filePath: string };
@@ -18,10 +28,11 @@ type LessonFileMetadata = StructuredLessonMetadata & { readonly filePath: string
 // Only the compact translated manifest is eager. Each complete lesson is a separate lazy chunk.
 const lessonBodies = import.meta.glob<unknown>('./lessons/**/*.json', { import: 'default' });
 const lessonFiles: LessonFileMetadata[] = STRUCTURED_LESSON_MANIFEST.flatMap((entry) =>
-  (['en', 'ru'] as const).map((locale) => ({
+  entry.status === 'draft' ? [] : (['en', 'ru'] as const).map((locale) => ({
     id: entry.id,
     locale,
     title: entry.titles[locale],
+    status: entry.status,
     filePath: `./lessons/${entry.folder}/${locale}.json`,
   })),
 );
@@ -32,24 +43,78 @@ const curricula = {
   ru: bootcampCurriculumSchema.parse(russianCurriculum),
 } as const;
 
+const searchDocumentsByLocale = new Map<SupportedLocale, Promise<StructuredLessonSearchDocument[]>>();
+
 /** Returns a lightweight lesson summary without loading its full content body. */
 export function getStructuredLessonMetadata(id: string, locale: SupportedLocale): StructuredLessonMetadata | undefined {
   const entry = lessonFilesByKey.get(`${locale}:${id}`);
   if (!entry) return undefined;
-  return { id: entry.id, locale: entry.locale, title: entry.title };
+  return { id: entry.id, locale: entry.locale, title: entry.title, status: entry.status };
 }
 
 /** Loads and validates one lesson body on demand so opening one lesson does not download all lessons. */
 export async function getStructuredLesson(id: string, locale: SupportedLocale): Promise<LessonTranslation | undefined> {
   const entry = lessonFilesByKey.get(`${locale}:${id}`);
   if (!entry) return undefined;
+  if (entry.status === 'draft') return undefined;
   const load = lessonBodies[entry.filePath];
   if (!load) return undefined;
   const lesson = lessonTranslationSchema.parse(await load());
   if (lesson.id !== id || lesson.locale !== locale) {
     throw new Error(`Lesson manifest mismatch for ${locale}:${id}`);
   }
+  if (lesson.status !== entry.status) {
+    throw new Error(`Publication status mismatch for ${locale}:${id}; update lessonManifest.ts with the reviewed status.`);
+  }
   return lesson;
+}
+
+function blockSearchText(block: LessonContentBlock): string {
+  switch (block.type) {
+    case 'heading':
+    case 'paragraph':
+      return block.text;
+    case 'list':
+      return block.items.join(' ');
+    case 'commandReference':
+      return block.categories.map((category) => category.title + ' ' + category.items.map((item) => item.command + ' ' + item.description).join(' ')).join(' ');
+    case 'callout':
+      return block.title + ' ' + block.text;
+    case 'code':
+      return block.language + ' ' + (block.caption ?? '') + ' ' + block.code;
+    case 'codeWalkthrough':
+      return block.language + ' ' + block.code + ' ' + block.steps.map((step) => step.title + ' ' + step.explanation).join(' ');
+    case 'knowledgeCheck':
+      return block.prompt;
+    case 'codingExercise':
+      return block.title + ' ' + block.context + ' ' + block.instructions.join(' ') + ' ' + block.requirements.join(' ') + ' ' + block.successCriteria.join(' ');
+    case 'references':
+      return block.items.map((item) => item.title + ' ' + item.url).join(' ');
+    default:
+      return '';
+  }
+}
+
+export function getStructuredLessonSearchDocuments(locale: SupportedLocale): Promise<StructuredLessonSearchDocument[]> {
+  const cached = searchDocumentsByLocale.get(locale);
+  if (cached) return cached;
+  const pending = Promise.all(getStructuredLessonIds().map(async (id) => {
+    const lesson = await getStructuredLesson(id, locale);
+    const metadata = getStructuredLessonMetadata(id, locale);
+    if (!lesson || !metadata) return null;
+    return {
+      ...metadata,
+      description: lesson.description,
+      difficulty: lesson.difficulty,
+      estimatedMinutes: lesson.estimatedMinutes,
+      tags: lesson.tags,
+      learningOutcomes: lesson.learningOutcomes,
+      searchText: [lesson.description, lesson.tags.join(' '), lesson.learningOutcomes.join(' '), lesson.blocks.map(blockSearchText).join(' ')].join(' '),
+    } satisfies StructuredLessonSearchDocument;
+  })).then((documents) => documents.filter((document): document is StructuredLessonSearchDocument => document !== null));
+  const cachedPromise = pending.catch((error: unknown) => { searchDocumentsByLocale.delete(locale); throw error; });
+  searchDocumentsByLocale.set(locale, cachedPromise);
+  return cachedPromise;
 }
 
 /** Returns the complete curriculum in the requested locale. */

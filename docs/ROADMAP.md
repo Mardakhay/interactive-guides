@@ -37,6 +37,7 @@ A task is not complete merely because a destination lesson is registered, the so
 - [x] Define and validate schemas for curriculum, lesson translations and content blocks.
 - [x] Map registered core and supplementary lesson IDs to the 24-week syllabus or a separately labeled track; source-content parity is tracked separately.
 - [x] Add automated schema, repository, curriculum and locale checks for required fields, IDs/order, references and answer keys.
+- [x] Record bilingual publication status in the stable-ID manifest, verify it against both locale records, and exclude draft lessons from learner-facing surfaces.
 - [x] Create bilingual structured lessons and a React authoring/rendering path; source parity and editorial approval remain open.
 - Acceptance: the curriculum can be loaded without an HTML manifest; content validation runs in CI.
 - Suggested commits:
@@ -49,6 +50,7 @@ A task is not complete merely because a destination lesson is registered, the so
 - [x] Add a persistent EN/RU preference, a switch in the shared top bar, and route-aware locale selection for structured lessons.
 - [x] Localize the common shell/navigation, dashboard widgets, catalog/category views, learning paths, bookmarks, notes, lesson controls/metadata/navigation, quiz controls, search and common empty/error states.
 - [x] Keep dashboard progress separate for classic HTML catalog IDs and canonical structured lesson IDs; resume the last-opened lesson through its matching route.
+- [x] Expand search to structured lesson body text/tags/outcomes and canonical core/supplementary curriculum topics through a locale-specific lazy-loaded index.
 - [x] Preserve structured lesson bookmarks and notes in their list pages; add bookmark/note controls to the structured reader and resolve structured IDs in dashboard recent activity.
 - [ ] Audit remaining uncommon strings and edge states across every route; verify the browser document language and accessible announcements.
 - [ ] Review and translate legacy lesson bodies where equivalent Russian source content exists; preserve the route-specific language of structured lessons.

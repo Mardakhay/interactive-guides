@@ -36,6 +36,21 @@ describe('SearchPage structured content integration', () => {
     expect(lessonLink.getAttribute('href')).toBe('/en/structured-lessons/html.document-structure');
   });
 
+  it('finds content inside a structured lesson, not only its title and description', async () => {
+    const input = renderSearch();
+    fireEvent.change(input, { target: { value: 'doctype' } });
+    const lessonLink = await screen.findByRole('link', { name: /HTML document structure and semantic page regions/i });
+    expect(lessonLink.getAttribute('href')).toBe('/en/structured-lessons/html.document-structure');
+  });
+
+  it('finds week topics from the canonical 24-week curriculum', async () => {
+    const input = renderSearch();
+    useSearchStore.setState({ filter: 'course' });
+    fireEvent.change(input, { target: { value: 'request response' } });
+    const weekLink = await screen.findByRole('link', { name: /Week 1:/i });
+    expect(weekLink.getAttribute('href')).toBe('/en/structured-lessons');
+  });
+
   it('finds notes attached to structured lesson IDs', async () => {
     useNoteStore.setState({
       lessons: {
