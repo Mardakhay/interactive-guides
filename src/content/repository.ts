@@ -88,6 +88,8 @@ export function getSearchableContentBlockText(block: LessonContentBlock): string
       return block.title + ' ' + block.context + ' ' + block.instructions.join(' ') + ' ' + block.requirements.join(' ') + ' ' + block.successCriteria.join(' ');
     case 'references':
       return block.items.map((item) => item.title + ' ' + item.url).join(' ');
+    case 'pipelineSimulation':
+      return block.title + ' ' + block.description + ' ' + block.stages.map((stage) => stage.label + ' ' + stage.description + ' ' + stage.successMessage + ' ' + stage.failureMessage).join(' ');
     default:
       return '';
   }

@@ -202,6 +202,35 @@ const referencesBlockSchema = z.object({
   })).min(1),
 });
 
+const pipelineStageSchema = z.object({
+  id: z.enum(['checkout', 'install', 'lint', 'build', 'test', 'security', 'deploy']),
+  label: z.string().min(1),
+  description: z.string().min(1),
+  successMessage: z.string().min(1),
+  failureMessage: z.string().min(1),
+  gate: z.enum(['required', 'informational', 'post-merge']),
+});
+
+const pipelineSimulationBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal('pipelineSimulation'),
+  title: z.string().min(1),
+  description: z.string().min(1),
+  stages: z.array(pipelineStageSchema).length(7),
+}).superRefine((block, ctx) => {
+  const expected = ['checkout', 'install', 'lint', 'build', 'test', 'security', 'deploy'];
+  const actual = block.stages.map((stage) => stage.id);
+  if (actual.some((id, index) => id !== expected[index])) {
+    ctx.addIssue({ code: 'custom', path: ['stages'], message: 'Pipeline stages must preserve the documented seven-stage order' });
+  }
+  block.stages.forEach((stage, index) => {
+    const expectedGate = index === 5 ? 'informational' : index === 6 ? 'post-merge' : 'required';
+    if (stage.gate !== expectedGate) {
+      ctx.addIssue({ code: 'custom', path: ['stages', index, 'gate'], message: 'Pipeline stage gate does not match its documented lifecycle phase' });
+    }
+  });
+});
+
 export const lessonContentBlockSchema = z.discriminatedUnion('type', [
   headingBlockSchema,
   paragraphBlockSchema,
@@ -213,6 +242,7 @@ export const lessonContentBlockSchema = z.discriminatedUnion('type', [
   knowledgeCheckBlockSchema,
   codingExerciseBlockSchema,
   referencesBlockSchema,
+  pipelineSimulationBlockSchema,
 ]);
 
 export const lessonTranslationSchema = z.object({

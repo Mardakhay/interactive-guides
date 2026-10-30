@@ -1332,10 +1332,17 @@ describe('Git workflow lesson translation', () => {
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
-    expect(englishGitWorkflow.version).toBe(10);
-    expect(russianGitWorkflow.version).toBe(10);
+    expect(englishGitWorkflow.version).toBe(11);
+    expect(russianGitWorkflow.version).toBe(11);
     for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
-      expect(lesson.updatedAt).toBe('2026-10-29');
+      expect(lesson.updatedAt).toBe('2026-10-30');
+
+      const pipelineSimulation = lesson.blocks.find((block) => block.id === 'git-workflow-pipeline-simulation-ui');
+      expect(pipelineSimulation?.type).toBe('pipelineSimulation');
+      if (pipelineSimulation?.type !== 'pipelineSimulation') throw new Error('Git workflow pipeline simulator is missing');
+      expect(pipelineSimulation.stages.map((stage) => stage.id)).toEqual(['checkout', 'install', 'lint', 'build', 'test', 'security', 'deploy']);
+      expect(pipelineSimulation.stages.map((stage) => stage.gate)).toEqual(['required', 'required', 'required', 'required', 'required', 'informational', 'post-merge']);
+
       const ciExample = lesson.blocks.find((block) => block.id === 'ci-example');
       expect(ciExample?.type).toBe('code');
       if (ciExample?.type !== 'code') return;

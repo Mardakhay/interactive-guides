@@ -1,10 +1,10 @@
 {
   "id": "git.workflow-ci",
   "locale": "en",
-  "version": 10,
+  "version": 11,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-29",
+  "updatedAt": "2026-10-30",
   "moduleId": "month-5-week-20",
   "week": 20,
   "order": 1,
@@ -918,6 +918,70 @@
         "States review/status branch protection behavior.",
         "Selects and explains a production trigger without conflating delivery and deployment.",
         "Defines artifact tracking and rollback responsibility."
+      ]
+    },
+    {
+      "id": "git-workflow-pipeline-simulation-ui",
+      "type": "pipelineSimulation",
+      "title": "Explore a seven-stage CI/CD pipeline",
+      "description": "Choose a stage to inject a failure, then run the simulation. Required pre-merge checks stop the pipeline when they fail; the dependency audit is informational in this example; deployment is post-merge and needs release recovery rather than a retroactive PR failure.",
+      "stages": [
+        {
+          "id": "checkout",
+          "label": "Checkout",
+          "gate": "required",
+          "description": "Fetch and check out the exact commit SHA proposed by the pull request.",
+          "successMessage": "The requested commit was checked out.",
+          "failureMessage": "Inspect the repository URL, branch/ref, credentials, token scope and checkout logs."
+        },
+        {
+          "id": "install",
+          "label": "Install",
+          "gate": "required",
+          "description": "Install dependencies reproducibly from the committed lockfile with npm ci.",
+          "successMessage": "Dependencies were installed from the lockfile.",
+          "failureMessage": "Inspect lockfile consistency, runtime versions, registry access and install logs."
+        },
+        {
+          "id": "lint",
+          "label": "Lint",
+          "gate": "required",
+          "description": "Run static checks and TypeScript validation required by this project's workflow.",
+          "successMessage": "Lint and type checks passed.",
+          "failureMessage": "Inspect the first actionable lint/type diagnostic; do not hide it with a non-blocking flag."
+        },
+        {
+          "id": "build",
+          "label": "Build",
+          "gate": "required",
+          "description": "Create the production bundle and enforce its configured size budgets.",
+          "successMessage": "The production build and configured bundle budgets passed.",
+          "failureMessage": "Inspect compiler/build output and the first failing budget before changing code or limits."
+        },
+        {
+          "id": "test",
+          "label": "Tests",
+          "gate": "required",
+          "description": "Run unit, component and regression tests against the proposed commit.",
+          "successMessage": "The test suite passed for this commit.",
+          "failureMessage": "Use the failing test and assertion to reproduce the defect, then fix it and test a new commit."
+        },
+        {
+          "id": "security",
+          "label": "Dependency audit",
+          "gate": "informational",
+          "description": "Collect dependency vulnerability information. In this example audit reporting is informational rather than a required merge gate.",
+          "successMessage": "The audit report was collected for review.",
+          "failureMessage": "Review the advisory and dependency path. This example continues because audit reporting is informational; teams may define a required security gate."
+        },
+        {
+          "id": "deploy",
+          "label": "Deployment",
+          "gate": "post-merge",
+          "description": "Deploy the already-merged, verified artifact. This stage happens after the pre-merge checks in this model.",
+          "successMessage": "The verified artifact was deployed and the service health check passed.",
+          "failureMessage": "The deployment did not become healthy. Inspect provider logs and prepare rollback or forward recovery."
+        }
       ]
     },
     {

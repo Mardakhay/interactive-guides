@@ -1,10 +1,10 @@
 {
   "id": "git.workflow-ci",
   "locale": "ru",
-  "version": 10,
+  "version": 11,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-29",
+  "updatedAt": "2026-10-30",
   "moduleId": "month-5-week-20",
   "week": 20,
   "order": 1,
@@ -918,6 +918,70 @@
         "Описано поведение review/status branch protection.",
         "Выбран и обоснован production trigger без смешения delivery и deployment.",
         "Определены отслеживание artifact и ответственность за rollback."
+      ]
+    },
+    {
+      "id": "git-workflow-pipeline-simulation-ui",
+      "type": "pipelineSimulation",
+      "title": "Исследуй семиэтапный CI/CD pipeline",
+      "description": "Выбери этап, в который нужно внести сбой, и запусти симуляцию. При ошибке обязательной pre-merge проверки pipeline останавливается; аудит зависимостей в этом примере информационный; deployment выполняется после merge и требует восстановления релиза, а не ретроактивного отказа проверки PR.",
+      "stages": [
+        {
+          "id": "checkout",
+          "label": "Checkout",
+          "gate": "required",
+          "description": "Получить и переключиться на точный commit SHA, предложенный в pull request.",
+          "successMessage": "Требуемый commit успешно получен.",
+          "failureMessage": "Проверь URL репозитория, branch/ref, учётные данные, права токена и логи checkout."
+        },
+        {
+          "id": "install",
+          "label": "Установка",
+          "gate": "required",
+          "description": "Воспроизводимо установить зависимости из закоммиченного lockfile с помощью npm ci.",
+          "successMessage": "Зависимости установлены по lockfile.",
+          "failureMessage": "Проверь согласованность lockfile, версии runtime, доступ к registry и логи установки."
+        },
+        {
+          "id": "lint",
+          "label": "Lint и типы",
+          "gate": "required",
+          "description": "Выполнить статические проверки и проверку TypeScript, обязательные для workflow проекта.",
+          "successMessage": "Lint и проверка типов прошли.",
+          "failureMessage": "Изучи первую конкретную диагностику lint/typecheck; не скрывай её через non-blocking флаг."
+        },
+        {
+          "id": "build",
+          "label": "Сборка",
+          "gate": "required",
+          "description": "Создать production bundle и проверить заданные ограничения размера.",
+          "successMessage": "Production build и проверки размера bundle прошли.",
+          "failureMessage": "Изучи вывод компилятора/сборки и первое нарушенное ограничение прежде, чем менять код или лимит."
+        },
+        {
+          "id": "test",
+          "label": "Тесты",
+          "gate": "required",
+          "description": "Запустить unit-, component- и regression-тесты для предлагаемого commit.",
+          "successMessage": "Набор тестов прошёл для этого commit.",
+          "failureMessage": "Используй упавший тест и assertion для воспроизведения дефекта, исправь его и проверь новый commit."
+        },
+        {
+          "id": "security",
+          "label": "Аудит зависимостей",
+          "gate": "informational",
+          "description": "Собрать информацию об уязвимостях зависимостей. В этой модели отчёт аудита информационный, а не обязательный gate для merge.",
+          "successMessage": "Отчёт аудита собран для проверки.",
+          "failureMessage": "Изучи advisory и цепочку зависимости. В этой модели pipeline продолжается, потому что аудит информационный; команда может сделать security gate обязательным."
+        },
+        {
+          "id": "deploy",
+          "label": "Deployment",
+          "gate": "post-merge",
+          "description": "Развернуть уже слитый и проверенный артефакт. В этой модели этап выполняется после pre-merge проверок.",
+          "successMessage": "Проверенный артефакт развёрнут, health check сервиса прошёл.",
+          "failureMessage": "Deployment не стал healthy. Изучи логи провайдера и подготовь rollback или forward recovery."
+        }
       ]
     },
     {
