@@ -128,6 +128,7 @@ describe('structured content repository', () => {
     expect(aboutMe).not.toHaveProperty('solution');
     expect(aboutMe).not.toHaveProperty('hints');
     expect(aboutMe?.successCriteria.length).toBeGreaterThan(0);
+    expect(aboutMe).not.toHaveProperty('starterCode');
   });
 
   it('keeps visible Russian metadata and learning outcomes localized across the full registry', async () => {

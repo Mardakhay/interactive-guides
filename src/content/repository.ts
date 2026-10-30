@@ -43,81 +43,6 @@ const curricula = {
   ru: bootcampCurriculumSchema.parse(russianCurriculum),
 } as const;
 
-const searchDocumentsByLocale = new Map<SupportedLocale, Promise<StructuredLessonSearchDocument[]>>();
-
-/** Returns a lightweight lesson summary without loading its full content body. */
-export function getStructuredLessonMetadata(id: string, locale: SupportedLocale): StructuredLessonMetadata | undefined {
-  const entry = lessonFilesByKey.get(`${locale}:${id}`);
-  if (!entry) return undefined;
-  return { id: entry.id, locale: entry.locale, title: entry.title, status: entry.status };
-}
-
-/** Loads and validates one lesson body on demand so opening one lesson does not download all lessons. */
-export async function getStructuredLesson(id: string, locale: SupportedLocale): Promise<LessonTranslation | undefined> {
-  const entry = lessonFilesByKey.get(`${locale}:${id}`);
-  if (!entry) return undefined;
-  if (entry.status === 'draft') return undefined;
-  const load = lessonBodies[entry.filePath];
-  if (!load) return undefined;
-  const lesson = lessonTranslationSchema.parse(await load());
-  if (lesson.id !== id || lesson.locale !== locale) {
-    throw new Error(`Lesson manifest mismatch for ${locale}:${id}`);
-  }
-  if (lesson.status !== entry.status) {
-    throw new Error(`Publication status mismatch for ${locale}:${id}; update lessonManifest.ts with the reviewed status.`);
-  }
-  return lesson;
-}
-
-export function getSearchableContentBlockText(block: LessonContentBlock): string {
-  switch (block.type) {
-    case 'heading':
-    case 'paragraph':
-      return block.text;
-    case 'list':
-      return block.items.join(' ');
-    case 'commandReference':
-      return block.categories.map((category) => category.title + ' ' + category.items.map((item) => item.command + ' ' + item.description).join(' ')).join(' ');
-    case 'callout':
-      return block.title + ' ' + block.text;
-    case 'code':
-      return block.language + ' ' + (block.caption ?? '') + ' ' + block.code;
-    case 'codeWalkthrough':
-      return block.language + ' ' + block.code + ' ' + block.steps.map((step) => step.title + ' ' + step.explanation).join(' ');
-    case 'knowledgeCheck':
-      return block.prompt;
-    case 'codingExercise':
-      return block.title + ' ' + block.context + ' ' + block.instructions.join(' ') + ' ' + block.requirements.join(' ') + ' ' + block.successCriteria.join(' ');
-    case 'references':
-      return block.items.map((item) => item.title + ' ' + item.url).join(' ');
-    default:
-      return '';
-  }
-}
-
-export function getStructuredLessonSearchDocuments(locale: SupportedLocale): Promise<StructuredLessonSearchDocument[]> {
-  const cached = searchDocumentsByLocale.get(locale);
-  if (cached) return cached;
-  const pending = Promise.all(getStructuredLessonIds().map(async (id) => {
-    const lesson = await getStructuredLesson(id, locale);
-    const metadata = getStructuredLessonMetadata(id, locale);
-    if (!lesson || !metadata) return null;
-    return {
-      ...metadata,
-      description: lesson.description,
-      difficulty: lesson.difficulty,
-      estimatedMinutes: lesson.estimatedMinutes,
-      tags: lesson.tags,
-      learningOutcomes: lesson.learningOutcomes,
-      searchText: [lesson.description, lesson.tags.join(' '), lesson.learningOutcomes.join(' '), lesson.blocks.map(getSearchableContentBlockText).join(' ')].join(' '),
-    } satisfies StructuredLessonSearchDocument;
-  })).then((documents) => documents.filter((document): document is StructuredLessonSearchDocument => document !== null));
-  const cachedPromise = pending.catch((error: unknown) => { searchDocumentsByLocale.delete(locale); throw error; });
-  searchDocumentsByLocale.set(locale, cachedPromise);
-  return cachedPromise;
-}
-
-
 export interface StructuredPracticeExercise {
   readonly lessonId: string;
   readonly lessonTitle: string;
@@ -129,50 +54,42 @@ export interface StructuredPracticeExercise {
   readonly context: string;
   readonly instructions: string[];
   readonly requirements: string[];
-  readonly starterCode: string;
   readonly successCriteria: string[];
-  readonly estimatedMinutes: number;
-  readonly difficulty: LessonTranslation['difficulty'];
 }
 
-const practiceExercisesByLocale = new Map<SupportedLocale, Promise<StructuredPracticeExercise[]>>();
+/** Build-time generated, locale-specific projection. Full lesson bodies remain independently lazy. */
+interface GeneratedStructuredContentIndex {
+  readonly searchDocuments: StructuredLessonSearchDocument[];
+  readonly practiceExercises: StructuredPracticeExercise[];
+}
 
-/**
- * Lists authored coding exercises for the practice hub.
- * Hints and worked solutions are deliberately not copied into this learner-facing index.
- */
-export function getStructuredPracticeExercises(locale: SupportedLocale): Promise<StructuredPracticeExercise[]> {
-  const cached = practiceExercisesByLocale.get(locale);
+const structuredContentIndexLoaders: Record<SupportedLocale, () => Promise<GeneratedStructuredContentIndex>> = {
+  en: () => import('./generated/structured-content-index.en.json').then((module) => module.default as GeneratedStructuredContentIndex),
+  ru: () => import('./generated/structured-content-index.ru.json').then((module) => module.default as GeneratedStructuredContentIndex),
+};
+const structuredContentIndexPromises = new Map<SupportedLocale, Promise<GeneratedStructuredContentIndex>>();
+
+function getGeneratedStructuredContentIndex(locale: SupportedLocale): Promise<GeneratedStructuredContentIndex> {
+  const cached = structuredContentIndexPromises.get(locale);
   if (cached) return cached;
 
-  const pending = Promise.all(getStructuredLessonIds().map(async (lessonId) => {
-    const lesson = await getStructuredLesson(lessonId, locale);
-    const metadata = getStructuredLessonMetadata(lessonId, locale);
-    if (!lesson || !metadata) return [];
-    return lesson.blocks.flatMap((block) => block.type === 'codingExercise' ? [{
-      lessonId: lesson.id,
-      lessonTitle: lesson.title,
-      locale,
-      lessonStatus: lesson.status,
-      exerciseId: block.id,
-      title: block.title,
-      language: block.language,
-      context: block.context,
-      instructions: block.instructions,
-      requirements: block.requirements,
-      starterCode: block.starterCode,
-      successCriteria: block.successCriteria,
-      estimatedMinutes: lesson.estimatedMinutes,
-      difficulty: lesson.difficulty,
-    } satisfies StructuredPracticeExercise] : []);
-  })).then((groups) => groups.flat());
-
+  const pending = structuredContentIndexLoaders[locale]();
   const cachedPromise = pending.catch((error: unknown) => {
-    practiceExercisesByLocale.delete(locale);
+    structuredContentIndexPromises.delete(locale);
     throw error;
   });
-  practiceExercisesByLocale.set(locale, cachedPromise);
+  structuredContentIndexPromises.set(locale, cachedPromise);
   return cachedPromise;
+}
+
+/** Loads one compact generated locale index; it does not request the 44 full lesson chunks. */
+export function getStructuredLessonSearchDocuments(locale: SupportedLocale): Promise<StructuredLessonSearchDocument[]> {
+  return getGeneratedStructuredContentIndex(locale).then((index) => index.searchDocuments);
+}
+
+/** Lists coding exercises from the compact locale index without loading full lesson bodies. */
+export function getStructuredPracticeExercises(locale: SupportedLocale): Promise<StructuredPracticeExercise[]> {
+  return getGeneratedStructuredContentIndex(locale).then((index) => index.practiceExercises);
 }
 
 /** Returns the complete curriculum in the requested locale. */
