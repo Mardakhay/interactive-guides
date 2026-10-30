@@ -74,6 +74,32 @@ describe('StructuredLessonPage', () => {
     expect(screen.getAllByRole('link', { name: 'Why document structure matters' }).every((link) => link.className.includes('opacity-100'))).toBe(true);
   });
 
+  it('searches command examples inside a section as well as its heading', async () => {
+    renderLesson('/en/structured-lessons/git.fundamentals');
+
+    const searchFields = await screen.findAllByRole('searchbox', { name: 'Search sections' });
+    fireEvent.change(searchFields[0]!, { target: { value: 'git status -sb' } });
+
+    const commandReference = screen.getAllByRole('link', { name: 'Quick command reference: choose by intent' });
+    const unrelatedSection = screen.getAllByRole('link', { name: 'Update your own feature branch with a safe rebase' });
+    expect(commandReference).toHaveLength(2);
+    expect(commandReference.every((link) => link.className.includes('opacity-100'))).toBe(true);
+    expect(unrelatedSection.every((link) => link.className.includes('opacity-40'))).toBe(true);
+  });
+
+  it('searches command examples inside a section as well as its heading', async () => {
+    renderLesson('/en/structured-lessons/git.fundamentals');
+
+    const searchFields = await screen.findAllByRole('searchbox', { name: 'Search sections' });
+    fireEvent.change(searchFields[0]!, { target: { value: 'git status -sb' } });
+
+    const commandReference = screen.getAllByRole('link', { name: 'Quick command reference: choose by intent' });
+    const unrelatedSection = screen.getAllByRole('link', { name: 'Update your own feature branch with a safe rebase' });
+    expect(commandReference).toHaveLength(2);
+    expect(commandReference.every((link) => link.className.includes('opacity-100'))).toBe(true);
+    expect(unrelatedSection.every((link) => link.className.includes('opacity-40'))).toBe(true);
+  });
+
   it('localizes section search and preserves Russian outline links', async () => {
     renderLesson('/ru/structured-lessons/html.document-structure');
 

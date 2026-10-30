@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Clock3, Languages, RotateCcw } from 'lucide-react';
-import { getAdjacentStructuredLessons, getBootcampCurriculum, getStructuredLesson, getWeekForLesson, getSupplementaryTrackForLesson, SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
+import { getAdjacentStructuredLessons, getBootcampCurriculum, getStructuredLesson, getSearchableContentBlockText, getWeekForLesson, getSupplementaryTrackForLesson, SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
 import type { LessonTranslation } from '@/content/schemas/lessonContent';
 import { StructuredLessonRenderer } from '@/features/structured-lesson/StructuredLessonRenderer';
 import { BookmarkButton } from '@/features/bookmarks';
@@ -240,7 +240,29 @@ export default function StructuredLessonPage() {
   }, 0);
   const draftsSaved = codingExercises.filter((block) => allCodeDrafts[`${lesson.id}::${block.id}`] !== undefined).length;
   const otherLocale: SupportedLocale = locale === 'en' ? 'ru' : 'en';
-  const outline = lesson.blocks.filter((block) => block.type === 'heading');
+  const sectionSearchTextById: Record<string, string> = {};
+  let activeOutlineSectionId: string | undefined;
+  const outline = lesson.blocks.flatMap((block) => {
+    if (block.type === 'heading') {
+      if (block.level === 2) {
+        activeOutlineSectionId = block.id;
+        sectionSearchTextById[block.id] = block.text;
+      } else if (activeOutlineSectionId) {
+        sectionSearchTextById[activeOutlineSectionId] = (sectionSearchTextById[activeOutlineSectionId] ?? '') + ' ' + block.text;
+      }
+      return [{
+        id: block.id,
+        text: block.text,
+        level: block.level,
+        sectionId: activeOutlineSectionId ?? block.id,
+      }];
+    }
+
+    if (activeOutlineSectionId) {
+      sectionSearchTextById[activeOutlineSectionId] = (sectionSearchTextById[activeOutlineSectionId] ?? '') + ' ' + getSearchableContentBlockText(block);
+    }
+    return [];
+  });
   const completedSectionIds = savedSectionIds ?? EMPTY_SECTION_IDS;
   const statusLabel = progressStatus === 'completed' ? copy.statusCompleted : progressStatus === 'not-started' ? copy.statusNotStarted : copy.statusStarted;
 
@@ -337,7 +359,7 @@ export default function StructuredLessonPage() {
             <div className="mt-3">
               <OutlineSearch id="outline-search-mobile" query={outlineQuery} onQueryChange={setOutlineQuery} label={copy.searchSections} />
               <nav aria-label={copy.outline}>
-                <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} query={outlineQuery} />
+                <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} query={outlineQuery} sectionSearchTextById={sectionSearchTextById} />
               </nav>
             </div>
           </details>
@@ -346,7 +368,7 @@ export default function StructuredLessonPage() {
             <div className="mt-3">
               <OutlineSearch id="outline-search-desktop" query={outlineQuery} onQueryChange={setOutlineQuery} label={copy.searchSections} />
               <nav aria-label={copy.outline}>
-                <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} query={outlineQuery} />
+                <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} query={outlineQuery} sectionSearchTextById={sectionSearchTextById} />
               </nav>
             </div>
           </div>
@@ -447,12 +469,14 @@ function OutlineLinks({
   sectionsReadLabel,
   sectionsReadSummary,
   query,
+  sectionSearchTextById,
 }: {
-  outline: Array<{ id: string; text: string; level: 2 | 3 | 4 }>;
+  outline: Array<{ id: string; text: string; level: 2 | 3 | 4; sectionId: string }>;
   completedSectionIds: string[];
   sectionsReadLabel: string;
   sectionsReadSummary: string;
   query: string;
+  sectionSearchTextById: Record<string, string>;
 }) {
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const sections = outline.filter((heading) => heading.level === 2);
@@ -485,7 +509,7 @@ function OutlineLinks({
       <ul className="space-y-1.5">
         {outline.map((heading) => {
           const isRead = heading.level === 2 && completedSectionIds.includes(heading.id);
-          const matchesQuery = !normalizedQuery || heading.text.toLocaleLowerCase().includes(normalizedQuery);
+          const matchesQuery = !normalizedQuery || heading.text.toLocaleLowerCase().includes(normalizedQuery) || (sectionSearchTextById[heading.sectionId] ?? '').toLocaleLowerCase().includes(normalizedQuery);
           return (
             <li key={heading.id}>
               <a

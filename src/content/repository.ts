@@ -69,7 +69,7 @@ export async function getStructuredLesson(id: string, locale: SupportedLocale): 
   return lesson;
 }
 
-function blockSearchText(block: LessonContentBlock): string {
+export function getSearchableContentBlockText(block: LessonContentBlock): string {
   switch (block.type) {
     case 'heading':
     case 'paragraph':
@@ -109,7 +109,7 @@ export function getStructuredLessonSearchDocuments(locale: SupportedLocale): Pro
       estimatedMinutes: lesson.estimatedMinutes,
       tags: lesson.tags,
       learningOutcomes: lesson.learningOutcomes,
-      searchText: [lesson.description, lesson.tags.join(' '), lesson.learningOutcomes.join(' '), lesson.blocks.map(blockSearchText).join(' ')].join(' '),
+      searchText: [lesson.description, lesson.tags.join(' '), lesson.learningOutcomes.join(' '), lesson.blocks.map(getSearchableContentBlockText).join(' ')].join(' '),
     } satisfies StructuredLessonSearchDocument;
   })).then((documents) => documents.filter((document): document is StructuredLessonSearchDocument => document !== null));
   const cachedPromise = pending.catch((error: unknown) => { searchDocumentsByLocale.delete(locale); throw error; });
