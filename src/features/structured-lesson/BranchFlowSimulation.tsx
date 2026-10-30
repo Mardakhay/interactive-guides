@@ -265,7 +265,7 @@ export function BranchFlowSimulation({ block, locale }: BranchFlowSimulationProp
         <svg
           role="img"
           aria-label={labels.graph}
-          aria-labelledby={block.id + '-graph-title ' + block.id + '-graph-description'}
+          aria-describedby={block.id + '-graph-description'}
           viewBox={'0 0 ' + graphWidth + ' 260'}
           width={graphWidth}
           height="260"
