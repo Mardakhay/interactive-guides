@@ -1,4 +1,4 @@
-import { readdir, readFile, mkdir, writeFile } from 'node:fs/promises';
+import { readdir, readFile, mkdir, writeFile, unlink } from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 import process from 'node:process';
 import { gzipSync } from 'node:zlib';
@@ -8,6 +8,8 @@ const ROOT = process.cwd();
 const LESSON_ROOT = resolve(ROOT, 'src/content/lessons');
 const OUTPUT_ROOT = resolve(ROOT, 'src/content/generated');
 const LOCALES = ['en', 'ru'];
+const SEARCH_INDEX_PART_COUNT = 6;
+const MAX_GENERATED_CHUNK_BYTES = 500 * 1024;
 
 function searchableBlockText(block) {
   switch (block.type) {
@@ -151,25 +153,90 @@ async function main() {
 
   if (lessonIds.length === 0) throw new Error('No structured lesson directories found');
 
+function splitSearchDocuments(documents, partCount) {
+  const chunks = Array.from({ length: partCount }, () => []);
+  const chunkPayloadBytes = Array.from({ length: partCount }, () => 0);
+  const totalPayloadBytes = documents.reduce((total, document) => total + Buffer.byteLength(JSON.stringify(document)) + 1, 0);
+  const targetPayloadBytes = Math.ceil(totalPayloadBytes / partCount);
+  let partIndex = 0;
+
+  for (const document of documents) {
+    const documentBytes = Buffer.byteLength(JSON.stringify(document)) + 1;
+    const currentChunk = chunks[partIndex];
+    if (
+      partIndex < partCount - 1
+      && currentChunk.length > 0
+      && chunkPayloadBytes[partIndex] + documentBytes > targetPayloadBytes
+    ) {
+      partIndex += 1;
+    }
+    chunks[partIndex].push(document);
+    chunkPayloadBytes[partIndex] += documentBytes;
+  }
+
+  return chunks.filter((chunk) => chunk.length > 0);
+}
+
+async function writeGeneratedIndexFile(filename, value, label) {
+  const serialized = JSON.stringify(value) + '\n';
+  const rawBytes = Buffer.byteLength(serialized);
+  if (rawBytes > MAX_GENERATED_CHUNK_BYTES) {
+    throw new Error(label + ' exceeds the ' + MAX_GENERATED_CHUNK_BYTES + '-byte raw chunk budget: ' + rawBytes + ' bytes');
+  }
+  await writeFile(join(OUTPUT_ROOT, filename), serialized, 'utf8');
+  const gzipBytes = gzipSync(serialized, { level: 9 }).byteLength;
+  process.stdout.write(
+    label + ': ' + rawBytes.toLocaleString('en-US') + ' bytes raw / '
+    + gzipBytes.toLocaleString('en-US') + ' bytes gzip.\n',
+  );
+}
+
+async function main() {
+  const directories = await readdir(LESSON_ROOT, { withFileTypes: true });
+  const lessonIds = directories
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
+
+  if (lessonIds.length === 0) throw new Error('No structured lesson directories found');
+
   await mkdir(OUTPUT_ROOT, { recursive: true });
+  const staleFiles = (await readdir(OUTPUT_ROOT)).filter((filename) =>
+    /^structured-(content|search|practice)-index\\.(en|ru)(?:\\.\\d+)?\\.json$/.test(filename),
+  );
+  await Promise.all(staleFiles.map((filename) => unlink(join(OUTPUT_ROOT, filename))));
+
   for (const locale of LOCALES) {
     const { searchDocuments, practiceExercises, indexedLessonCount } = await buildLocaleIndex(lessonIds, locale);
-    const index = { searchDocuments, practiceExercises };
-    const serialized = JSON.stringify(index) + '\n';
-    const outputPath = join(OUTPUT_ROOT, 'structured-content-index.' + locale + '.json');
-    await writeFile(outputPath, serialized, 'utf8');
-    const rawBytes = Buffer.byteLength(serialized);
-    const gzipBytes = gzipSync(serialized, { level: 9 }).byteLength;
+    const searchChunks = splitSearchDocuments(searchDocuments, SEARCH_INDEX_PART_COUNT);
+
+    if (searchChunks.length !== SEARCH_INDEX_PART_COUNT) {
+      throw new Error('Search index partitioner expected ' + SEARCH_INDEX_PART_COUNT + ' non-empty parts for ' + locale + ', received ' + searchChunks.length);
+    }
+
+    for (const [partIndex, documents] of searchChunks.entries()) {
+      const filename = 'structured-search-index.' + locale + '.' + partIndex + '.json';
+      await writeGeneratedIndexFile(
+        filename,
+        { searchDocuments: documents },
+        locale.toUpperCase() + ' search index ' + (partIndex + 1) + '/' + searchChunks.length,
+      );
+    }
+
+    await writeGeneratedIndexFile(
+      'structured-practice-index.' + locale + '.json',
+      { practiceExercises },
+      locale.toUpperCase() + ' practice index (' + practiceExercises.length + ' exercises)',
+    );
+
     process.stdout.write(
-      'Generated ' + locale.toUpperCase() + ' structured index: '
-      + index.searchDocuments.length + ' lesson documents from ' + indexedLessonCount + ' paired lesson folders, '
-      + index.practiceExercises.length + ' exercises, '
-      + rawBytes.toLocaleString('en-US') + ' bytes raw / '
-      + gzipBytes.toLocaleString('en-US') + ' bytes gzip.\n',
+      'Generated ' + locale.toUpperCase() + ' indexes from ' + indexedLessonCount
+      + ' paired lesson folders: ' + searchDocuments.length + ' searchable lessons.\n',
     );
   }
 
-  process.stdout.write('Generated localized structured indexes from ' + lessonIds.length + ' bilingual lesson pairs.\n');
+  process.stdout.write('Generated bounded bilingual search/practice indexes from ' + lessonIds.length + ' lesson folders.\n');
+}
 }
 
 main().catch((error) => {

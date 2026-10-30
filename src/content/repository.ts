@@ -108,39 +108,77 @@ export interface StructuredPracticeExercise {
   readonly successCriteria: string[];
 }
 
-/** Build-time generated, locale-specific projection. Full lesson bodies remain independently lazy. */
-interface GeneratedStructuredContentIndex {
+/** A bounded generated search-index part. Full lesson bodies remain independently lazy. */
+interface GeneratedStructuredSearchIndexPart {
   readonly searchDocuments: StructuredLessonSearchDocument[];
+}
+
+interface GeneratedStructuredPracticeIndex {
   readonly practiceExercises: StructuredPracticeExercise[];
 }
 
-const structuredContentIndexLoaders: Record<SupportedLocale, () => Promise<GeneratedStructuredContentIndex>> = {
-  en: () => import('./generated/structured-content-index.en.json').then((module) => module.default as GeneratedStructuredContentIndex),
-  ru: () => import('./generated/structured-content-index.ru.json').then((module) => module.default as GeneratedStructuredContentIndex),
+const SEARCH_INDEX_PART_COUNT = 6;
+
+const structuredSearchIndexLoaders: Record<SupportedLocale, Array<() => Promise<GeneratedStructuredSearchIndexPart>>> = {
+  en: [
+    () => import('./generated/structured-search-index.en.0.json').then((module) => module.default as GeneratedStructuredSearchIndexPart),
+    () => import('./generated/structured-search-index.en.1.json').then((module) => module.default as GeneratedStructuredSearchIndexPart),
+    () => import('./generated/structured-search-index.en.2.json').then((module) => module.default as GeneratedStructuredSearchIndexPart),
+    () => import('./generated/structured-search-index.en.3.json').then((module) => module.default as GeneratedStructuredSearchIndexPart),
+    () => import('./generated/structured-search-index.en.4.json').then((module) => module.default as GeneratedStructuredSearchIndexPart),
+    () => import('./generated/structured-search-index.en.5.json').then((module) => module.default as GeneratedStructuredSearchIndexPart),
+  ],
+  ru: [
+    () => import('./generated/structured-search-index.ru.0.json').then((module) => module.default as GeneratedStructuredSearchIndexPart),
+    () => import('./generated/structured-search-index.ru.1.json').then((module) => module.default as GeneratedStructuredSearchIndexPart),
+    () => import('./generated/structured-search-index.ru.2.json').then((module) => module.default as GeneratedStructuredSearchIndexPart),
+    () => import('./generated/structured-search-index.ru.3.json').then((module) => module.default as GeneratedStructuredSearchIndexPart),
+    () => import('./generated/structured-search-index.ru.4.json').then((module) => module.default as GeneratedStructuredSearchIndexPart),
+    () => import('./generated/structured-search-index.ru.5.json').then((module) => module.default as GeneratedStructuredSearchIndexPart),
+  ],
 };
-const structuredContentIndexPromises = new Map<SupportedLocale, Promise<GeneratedStructuredContentIndex>>();
 
-function getGeneratedStructuredContentIndex(locale: SupportedLocale): Promise<GeneratedStructuredContentIndex> {
-  const cached = structuredContentIndexPromises.get(locale);
+const structuredPracticeIndexLoaders: Record<SupportedLocale, () => Promise<GeneratedStructuredPracticeIndex>> = {
+  en: () => import('./generated/structured-practice-index.en.json').then((module) => module.default as GeneratedStructuredPracticeIndex),
+  ru: () => import('./generated/structured-practice-index.ru.json').then((module) => module.default as GeneratedStructuredPracticeIndex),
+};
+
+const searchIndexPromisesByLocale = new Map<SupportedLocale, Promise<StructuredLessonSearchDocument[]>>();
+const practiceIndexPromisesByLocale = new Map<SupportedLocale, Promise<StructuredPracticeExercise[]>>();
+
+function cacheLocaleIndex<T>(
+  cache: Map<SupportedLocale, Promise<T>>,
+  locale: SupportedLocale,
+  load: () => Promise<T>,
+): Promise<T> {
+  const cached = cache.get(locale);
   if (cached) return cached;
-
-  const pending = structuredContentIndexLoaders[locale]();
+  const pending = load();
   const cachedPromise = pending.catch((error: unknown) => {
-    structuredContentIndexPromises.delete(locale);
+    cache.delete(locale);
     throw error;
   });
-  structuredContentIndexPromises.set(locale, cachedPromise);
+  cache.set(locale, cachedPromise);
   return cachedPromise;
 }
 
-/** Loads one compact generated locale index; it does not request the 44 full lesson chunks. */
+/** Loads bounded search parts for one locale; this never requests full lesson body chunks. */
 export function getStructuredLessonSearchDocuments(locale: SupportedLocale): Promise<StructuredLessonSearchDocument[]> {
-  return getGeneratedStructuredContentIndex(locale).then((index) => index.searchDocuments);
+  return cacheLocaleIndex(searchIndexPromisesByLocale, locale, async () => {
+    const parts = await Promise.all(structuredSearchIndexLoaders[locale].map((load) => load()));
+    if (parts.length !== SEARCH_INDEX_PART_COUNT) {
+      throw new Error('Incomplete generated search index for locale ' + locale);
+    }
+    return parts.flatMap((part) => part.searchDocuments);
+  });
 }
 
-/** Lists coding exercises from the compact locale index without loading full lesson bodies. */
+/** Loads only the exercise summary projection, not the much larger search text index. */
 export function getStructuredPracticeExercises(locale: SupportedLocale): Promise<StructuredPracticeExercise[]> {
-  return getGeneratedStructuredContentIndex(locale).then((index) => index.practiceExercises);
+  return cacheLocaleIndex(practiceIndexPromisesByLocale, locale, async () => {
+    const index = await structuredPracticeIndexLoaders[locale]();
+    return index.practiceExercises;
+  });
 }
 
 /** Returns the complete curriculum in the requested locale. */
