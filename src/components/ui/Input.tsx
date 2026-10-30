@@ -13,7 +13,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         type={type}
         className={cn(
           'h-10 w-full rounded-lg border bg-white px-3 text-sm text-neutral-900',
-          'placeholder:text-neutral-400',
+          'placeholder:text-neutral-500',
           'transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/30',
           invalid
             ? 'border-error-400 focus:border-error-500'
