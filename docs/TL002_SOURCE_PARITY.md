@@ -2,9 +2,9 @@
 
 **Review date:** 2026-10-30  
 **Legacy source:** `public/lessons/git-workflow-cicd-guide.html` (94,686 bytes; 1 inline script; 20 buttons)  
-**Structured target:** `git.workflow-ci` EN/RU v11 (70 blocks per locale)  
+**Structured target:** `git.workflow-ci` EN/RU v12 (71 blocks per locale)  
 **Related target:** `deployment.production-hosting` for provider rollback and post-merge recovery concepts  
-**Cutover:** **Blocked** — the pipeline simulator is now interactive, but source canvas, tab and sequential quiz parity is incomplete.
+**Cutover:** **Blocked** — both pipeline and branch graph simulators are interactive, but the source seven-tab navigation and sequential quiz/progress/result/restart parity is incomplete.
 
 ## Source interaction inventory
 
@@ -42,30 +42,44 @@ The new bilingual `pipelineSimulation` block is rendered by `src/features/struct
 
 The source visual places deployment inside the same simulated pre-merge progression and says an MR cannot merge when deploy fails, while its displayed workflow YAML has no deployment job. The structured simulator deliberately corrects this inconsistency by modelling deployment as post-merge release work. This is conceptually safer and matches the documented delivery/deployment distinction.
 
+## Interactive branch graph — v12
+
+The former missing branch-canvas interaction is now partially implemented as the bilingual `branchFlowSimulation` block, rendered by `src/features/structured-lesson/BranchFlowSimulation.tsx`.
+
+- The model keeps explicit heads for `main`, `develop`, `feature` and `hotfix`, all pointing to commit IDs. Branch creation starts at the base branch head instead of inventing an empty commit.
+- Every commit records its branch, message, parent IDs and optional tag. Ordinary commits have one parent; feature/hotfix/release merge commits have two parents. The graph renders four lanes, parent edges, commit nodes, HEAD markers and history, including release tags `v1.0.1` and `v2.0.0`.
+- Eight localized actions create/switch develop, feature and hotfix branches; commit on the active branch; merge feature into develop; merge hotfix into production main; back-merge the production fix into develop; and release develop to main. A separate reset returns the exercise to its initial main-only state.
+- After merging a hotfix to main, the simulator exposes a pending back-merge warning and disables release until the fix is merged back into develop. This prevents the next release from silently omitting the production fix.
+- The graph is a deterministic learning model only: it does not execute Git commands or mutate a repository. It uses an accessible named SVG, separate description, keyboard-operable buttons, visible prerequisites, and a localized live status.
+- Four `BranchFlowSimulation` component tests cover feature branch/commit/merge, hotfix → main → develop back-merge and release gating, reset, and Russian localization. Schema tests assert the eight action IDs and their order.
+- Exact-head [Actions run #41059019377 (run #877)](https://github.com/Mardakhay/interactive-guides/actions/runs/41059019377) passed 64 test files / 352 tests, lint, typecheck, production build, 141 bundle budgets, zero npm audit advisories, and preview smoke for 13 routes plus 14 generated content assets.
+
+This closes the core interactive branch-flow mechanism, but not all source UI parity: it is deterministic rather than animated, has no source-style seven-tab navigation, and does not reproduce the original quiz's one-question-at-a-time progress and final score/restart screen.
+
 ## Locale and test evidence
 
-- `git.workflow-ci` EN/RU v11: 70 blocks per locale; 19 knowledge checks, 5 walkthroughs and 5 coding exercises per locale; ordered block IDs/types stay aligned.
+- `git.workflow-ci` EN/RU v12: 71 blocks per locale; 19 knowledge checks, 5 walkthroughs and 5 coding exercises per locale; ordered block IDs/types stay aligned.
 - The seven simulation stages have the same IDs/order and gate classification in EN/RU: five required pre-merge gates, one informational audit stage and one post-merge deployment stage.
 - `src/features/structured-lesson/PipelineSimulation.test.tsx` has four tests for pre-merge stop/new-commit rerun, informational audit continuation, post-merge rollback and Russian localization.
 - `src/content/schemas/lessonContent.test.ts` verifies the seven-stage order and gate semantics.
-- Exact-head [Actions #41057274229 (run #872)](https://github.com/Mardakhay/interactive-guides/actions/runs/41057274229) passed 63 test files / 348 tests, lint, typecheck, production build, 141 JavaScript budgets, zero npm audit advisories and preview smoke for 13 routes plus 14 generated content assets.
+- Exact-head [Actions #41059019377 (run #877)](https://github.com/Mardakhay/interactive-guides/actions/runs/41059019377) passed 64 test files / 352 tests, lint, typecheck, production build, 141 JavaScript budgets, zero npm audit advisories and preview smoke for 13 routes plus 14 generated content assets.
 
 ## Interaction disposition
 
 | Legacy interaction | Structured target / disposition |
 |---|---|
 | Seven top-level tabs | Replaced by the structured lesson outline/flow; no exact tab state or transition parity. |
-| Animated Git Flow branch canvas and eight actions | Not implemented in this increment. Branch strategy explanations and command walkthroughs remain, but not a live graph. |
+| Animated Git Flow branch canvas and eight actions | Partially implemented as a deterministic branch-flow graph with four lanes, HEAD pointers, commit-parent edges, eight actions plus reset, merge/tag history and required hotfix back-merge. The original animation and surrounding seven-tab layout are not reproduced. |
 | Seven-stage failure-injection simulator | Implemented as a localized accessible block; gate semantics are corrected as documented above. |
 | Sequential 10-question quiz with score/progress/restart | The ten concepts are assessed as individual scored knowledge checks, but the source's one-question-at-a-time sequence, aggregate percentage and restart screen are not reproduced. |
 | Learner state on classic lesson route | Retain classic route and quiz-result identity; no automatic result migration is authorized. |
 
 ## Remaining release blockers
 
-1. Decide whether the animated branch canvas and its eight branch actions need a faithful structured interactive equivalent or may be explicitly deferred.
+1. Decide whether the legacy canvas animation and seven-tab navigation need a closer visual/interaction match; the core branch state machine and eight actions are implemented.
 2. Decide whether to add a sequential quiz presentation layer on top of the ten existing assessments, preserving current per-question feedback and learner state.
 3. Complete full claim/code/example/reference review and editorial sign-off for both locales.
 4. Define learner-state retention for classic `tl-002` quiz results before changing route identity.
 5. Execute keyboard, screen-reader, responsive and native browser checks for the new simulator and all other app routes.
 
-**Current disposition: Blocked.** The pipeline simulator interaction gap is materially reduced, but tabs, branch canvas, sequential quiz and migration/manual-acceptance gates remain open.
+**Current disposition: Blocked.** The pipeline and branch-flow interactions are implemented as bilingual accessible exercises, but the seven source tabs, sequential quiz/progress/result/restart UI, learner-state disposition and manual-acceptance gates remain open.

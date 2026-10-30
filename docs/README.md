@@ -10,12 +10,12 @@ Read these documents in order:
 4. [Structured content audit](./CONTENT_AUDIT.md) — registered lesson catalog and schema guarantees versus editorial limits.
 5. [Git Reference source-to-block review](./TL001_SOURCE_PARITY.md) — focused content and interaction crosswalk; cutover remains blocked.
 6. [Git Workflow & CI/CD source-to-block review](./TL002_SOURCE_PARITY.md) — bilingual quiz and pipeline simulator crosswalk; branch canvas, tabs and sequential quiz parity remain open.
-6. [Legacy HTML inventory](./LEGACY_CONTENT_INVENTORY.md) — all original HTML source files and migration notes.
-7. [Week 14–15 source parity review](./CONTENT_PARITY_REVIEW_WEEK14-15.md) — focused React forms/shared-state review.
-8. [Product requirements](./PRODUCT_REQUIREMENTS.md), [architecture](./ARCHITECTURE.md), [persistence](./PERSISTENCE_AND_SUPABASE.md), [PWA/mobile](./PWA_AND_MOBILE.md), and [current roadmap](./ROADMAP.md). Historical dated roadmap/checkpoint notes are preserved in [ROADMAP_HISTORY.md](./ROADMAP_HISTORY.md).
-9. [Browser/device smoke-test checklist](./BROWSER_SMOKE_TEST_CHECKLIST.md) — reproducible local-storage, backup/restore and PWA acceptance steps; results must be recorded, not inferred from CI.
-10. [Content authoring guide](./CONTENT_AUTHORING_GUIDE.md) — lesson schema, bilingual editing, learning-path notes, and validation workflow.
-11. [Session handoff](./SESSION_HANDOFF.md) — latest verified branch/CI checkpoint and next action.
+7. [Legacy HTML inventory](./LEGACY_CONTENT_INVENTORY.md) — all original HTML source files and migration notes.
+8. [Week 14–15 source parity review](./CONTENT_PARITY_REVIEW_WEEK14-15.md) — focused React forms/shared-state review.
+9. [Product requirements](./PRODUCT_REQUIREMENTS.md), [architecture](./ARCHITECTURE.md), [persistence](./PERSISTENCE_AND_SUPABASE.md), [PWA/mobile](./PWA_AND_MOBILE.md), and [current roadmap](./ROADMAP.md). Historical dated roadmap/checkpoint notes are preserved in [ROADMAP_HISTORY.md](./ROADMAP_HISTORY.md).
+10. [Browser/device smoke-test checklist](./BROWSER_SMOKE_TEST_CHECKLIST.md) — reproducible local-storage, backup/restore and PWA acceptance steps; results must be recorded, not inferred from CI.
+11. [Content authoring guide](./CONTENT_AUTHORING_GUIDE.md) — lesson schema, bilingual editing, learning-path notes, and validation workflow.
+12. [Session handoff](./SESSION_HANDOFF.md) — latest verified branch/CI checkpoint and next action.
 
 ## Working rules
 

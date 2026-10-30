@@ -1,7 +1,7 @@
 # Code-to-requirements conformance audit
 
 **Audit date:** 2026-10-30  
-**Audit baseline:** `d955e4478676acd5bd6588434f6eafce930e7354`  
+**Audit baseline:** `d2e837913df75d1e8135165f01ffa7c7553facad`  
 **Working branch:** `feat/learning-platform-foundation`
 
 This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md`, `CURRICULUM_AND_CONTENT.md`, `ROADMAP.md`, persistence/PWA documents and source-parity checklists. It is not native browser, mobile, screen-reader, production-deployment or editorial acceptance.
@@ -64,9 +64,18 @@ The six commits after the previous code audit baseline add and test these app-wi
 - Exact-head [Actions #41057274229 (run #872)](https://github.com/Mardakhay/interactive-guides/actions/runs/41057274229) passed 63 test files / 348 tests, lint, typecheck, production build, 141 bundle budgets, 0 npm audit advisories and preview smoke for 13 routes and 14 generated content assets.
 - The legacy animated branch canvas, seven-tab navigation and sequential quiz/result/restart experience remain absent. This is meaningful pipeline-interaction parity, not complete source-widget parity; `tl-002` remains blocked.
 
+## Git Flow branch graph simulator — 2026-10-30
+
+- `git.workflow-ci` EN/RU v12 adds one schema-validated `branchFlowSimulation` block to the v11 pair, preserving 71 aligned ordered block IDs/types and the 19 scored source-concept checks in each locale.
+- The branch model represents `main`, `develop`, `feature` and `hotfix` as branch pointers to commit IDs. Creating a branch points it at the current base commit; commits advance one branch head; merge commits retain both parent IDs. The SVG renders four branch lanes, commit nodes, parent edges, current HEAD markers, commit history and release tags.
+- Eight localized actions cover creating/switching branches, committing, merging feature into develop, creating and merging a production hotfix, back-merging the hotfix into develop, and releasing develop to main. A release is disabled until any hotfix is back-merged; the simulation is explicitly local-only and does not execute Git commands.
+- The component exposes named SVG and commit-history semantics, keyboard-operable controls, disabled prerequisites, and a localized polite live status. Four component tests cover feature merge, hotfix back-merge/release gating, reset and Russian labels.
+- Exact-head [Actions run #41059019377 (run #877)](https://github.com/Mardakhay/interactive-guides/actions/runs/41059019377) passed 64 test files / 352 tests, lint, typecheck, production build, 141 JavaScript bundle budgets, zero npm audit advisories and preview smoke for 13 deep routes plus all 14 generated content assets.
+- This is an accessible, deterministic branch-graph exercise, not a pixel-identical animated reproduction of the legacy canvas. The seven legacy tabs and sequential quiz/progress/result/restart UI remain absent; `tl-002` stays blocked pending the remaining interaction, learner-state and manual-acceptance gates.
+
 ## Verification boundary
 
-Exact-head CI on this audit baseline passed 62 test files / 344 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, 14 generated index assets and PWA files ([run #41056326223, run #869](https://github.com/Mardakhay/interactive-guides/actions/runs/41056326223)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
+Exact-head CI on this audit baseline passed 64 test files / 352 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, 14 generated index assets and PWA files ([run #41059019377, run #877](https://github.com/Mardakhay/interactive-guides/actions/runs/41059019377)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
 
 ## Safe continuation order
 

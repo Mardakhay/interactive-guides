@@ -8,7 +8,7 @@ This is the one authoritative task list. Dated progress notes and superseded che
 
 ## Verified baseline
 
-- Last validated code checkpoint: `d955e4478676acd5bd6588434f6eafce930e7354`; exact feature-branch CI [Actions run #41057274229 (run #872)](https://github.com/Mardakhay/interactive-guides/actions/runs/41057274229) passed install, ESLint, TypeScript, **63 test files / 348 tests**, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, entry bundle, manifest, service worker, 5 PWA assets and all 14 generated content assets. npm audit reported zero advisories. Git Fundamentals EN/RU v14 has 26 copyable commands; Git Workflow/CI v11 now includes the localized seven-stage failure-injection simulator.
+- Last validated code checkpoint: `d2e837913df75d1e8135165f01ffa7c7553facad`; exact feature-branch CI [Actions run #41059019377 (run #877)](https://github.com/Mardakhay/interactive-guides/actions/runs/41059019377) passed install, ESLint, TypeScript, **64 test files / 352 tests**, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, entry bundle, manifest, service worker, 5 PWA assets and all 14 generated content assets. npm audit reported zero advisories. Git Fundamentals EN/RU v14 has 26 copyable commands; Git Workflow/CI v12 now includes both the localized seven-stage failure-injection simulator and interactive branch-flow graph.
 - The preview smoke covers 13 deep routes, including `/en`, `/ru`, locale-prefixed application routes and legacy aliases, as well as the entry bundle, manifest, service worker, five PWA assets and all 14 generated content chunks. The generated search data totals 269,738 bytes gzip EN / 340,328 bytes gzip RU; Practice has a separate 59,527-byte EN / 75,293-byte RU payload. Native browser latency and mobile transfer remain unmeasured. Structured lesson outline search also now matches authored section text and command-reference examples, including Git commands.
 - Current branch also contains documentation reconciliation after that code checkpoint. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
 - Curriculum inventory: 27 core + 17 supplementary = 44 bilingual lesson pairs (88 locale JSON records).
@@ -36,6 +36,7 @@ This is the one authoritative task list. Dated progress notes and superseded che
 - [x] Announce classic quiz result summaries and structured knowledge-check feedback with focus moved to the result; make note autosave status politely announced without changing debounce or persistence.
 - [x] Associate structured HTML preview, hints and example-solution disclosures with their controlled panels and verify hidden/expanded state.
 - [x] Add a bilingual, keyboard-operable seven-stage Git Workflow pipeline simulator with deterministic failure injection, required/informational/post-merge gate semantics, new-commit retry and deployment rollback.
+- [x] Add a bilingual interactive Git Flow branch graph with develop/feature/hotfix pointers, commit parents, feature merge, hotfix production merge/back-merge and release tags; retain the original seven-tab and sequential-quiz parity as open work.
 
 ## P0 — Content parity, publication and migration safety
 
