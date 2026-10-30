@@ -352,8 +352,8 @@ describe('Git fundamentals lesson translation', () => {
     );
     expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
-    expect(englishGit.version).toBe(13);
-    expect(russianGit.version).toBe(13);
+    expect(englishGit.version).toBe(14);
+    expect(russianGit.version).toBe(14);
     const remoteExample = englishGit.blocks.find((block) => block.id === 'remote-example');
     expect(remoteExample?.type).toBe('codeWalkthrough');
     if (remoteExample?.type !== 'codeWalkthrough') return;
@@ -373,7 +373,7 @@ describe('Git fundamentals lesson translation', () => {
     }
     for (const lesson of [englishGit, russianGit]) {
       expect(lessonTranslationSchema.safeParse(lesson).success).toBe(true);
-      expect(lesson.updatedAt).toBe('2026-10-29');
+      expect(lesson.updatedAt).toBe('2026-10-30');
 
       const quickReference = lesson.blocks.find((block) => block.id === 'git-command-reference-list');
       expect(quickReference?.type).toBe('commandReference');
@@ -381,8 +381,8 @@ describe('Git fundamentals lesson translation', () => {
       expect(quickReference.categories).toHaveLength(4);
       const commands = quickReference.categories.flatMap((category) => category.items.map((item) => item.command));
       const commandIds = quickReference.categories.flatMap((category) => category.items.map((item) => item.id));
-      expect(commands).toHaveLength(25);
-      expect(new Set(commandIds).size).toBe(25);
+      expect(commands).toHaveLength(26);
+      expect(new Set(commandIds).size).toBe(26);
       expect(commands).toContain('git clone <repository-url>');
       expect(commands).toContain('git branch -d <merged-branch>');
       expect(commands).toContain('git merge <branch>');
@@ -390,7 +390,18 @@ describe('Git fundamentals lesson translation', () => {
       expect(commands).toContain('git pull --ff-only');
       expect(commands).toContain('git restore --staged <file>');
       expect(commands).toContain('git revert <commit>');
+      expect(commands).toContain('git log -S \"string\"');
       expect(commands).not.toContain('git reset --hard <SHA>');
+
+      const undoGuide = lesson.blocks.find((block) => block.id === 'deep-git-undo-guide');
+      expect(undoGuide?.type).toBe('list');
+      if (undoGuide?.type !== 'list') throw new Error('Git reset mode guidance is missing');
+      const undoText = undoGuide.items.join(' ').toLowerCase();
+      expect(undoText).toContain('git reset --soft <commit>');
+      expect(undoText).toContain('git reset --mixed <commit>');
+      expect(undoText).toContain('git reset --hard <commit>');
+      expect(undoText).toContain(locale === 'en' ? 'default commit-reset mode' : 'режимом сброса по умолчанию');
+      expect(undoText).toContain('git restore --staged <file>');
 
       const duplicateCommandIds = structuredClone(lesson);
       const duplicateReference = duplicateCommandIds.blocks.find((block) => block.id === 'git-command-reference-list');
@@ -471,6 +482,8 @@ const refs = lesson.blocks.find((block) => block.id === 'references');
         expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-fetch')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-pull')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-rebase')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-reset')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-log')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/code-security/tutorials/remediate-leaked-secrets/remediating-a-leaked-secret')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/get-started/learning-about-github/access-permissions-on-github')).toBe(true);

@@ -1,10 +1,10 @@
 {
   "id": "git.fundamentals",
   "locale": "en",
-  "version": 13,
+  "version": 14,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-29",
+  "updatedAt": "2026-10-30",
   "moduleId": "month-2-week-8",
   "week": 8,
   "order": 2,
@@ -881,7 +881,12 @@
         "`git restore --staged file` removes a file from the index but keeps the working-tree edits.",
         "`git revert <commit>` creates a new commit that reverses a previous commit; it is usually safer on shared branches.",
         "`git reset` moves the current branch/HEAD and changes the index or working tree depending on flags; `--hard` discards tracked work and rewrites the branch position. Avoid it until you understand the target and have checked whether work is shared.",
-        "`git stash` temporarily shelves selected uncommitted changes; `git stash list` and `git stash apply` let you inspect/reapply them. `git reflog` can help find recent local HEAD positions after a mistaken reset, but it is not a substitute for remote backup."
+        "`git stash` temporarily shelves selected uncommitted changes; `git stash list` and `git stash apply` let you inspect/reapply them. `git reflog` can help find recent local HEAD positions after a mistaken reset, but it is not a substitute for remote backup.",
+        "`git reset HEAD -- <file>` (the path form) resets only that path in the index to HEAD; it keeps the working-tree edits. The modern explicit equivalent is `git restore --staged <file>`.",
+        "`git reset --soft <commit>` moves HEAD/the current branch but leaves both the index and working tree unchanged; the removed commits' changes remain staged.",
+        "`git reset --mixed <commit>` is the default commit-reset mode: it moves HEAD and resets the index to the target commit, but leaves working-tree files unchanged. Therefore `git reset <commit>` means `--mixed`, not `--hard`.",
+        "`git reset --hard <commit>` moves HEAD, the index and tracked working-tree files to the target, discarding tracked changes; it can also overwrite untracked files that obstruct tracked paths. Back up and verify the target first; do not use it as a routine cleanup command.",
+        "The older `git checkout HEAD -- <file>` form replaces both the index and working-tree copy from HEAD. For only unstaged edits use `git restore <file>`; to unstage while keeping edits use `git restore --staged <file>`."
       ]
     },
     {
@@ -1136,6 +1141,11 @@
               "id": "git-revert",
               "command": "git revert <commit>",
               "description": "Undo a commit by adding an inverse commit, preserving already-shared history."
+            },
+            {
+              "id": "git-log-pickaxe",
+              "command": "git log -S \"string\"",
+              "description": "Find commits where the number of occurrences of an exact string changes; use -G when you need to match added or removed diff lines with a regular expression."
             }
           ]
         },
@@ -1338,6 +1348,16 @@
         {
           "title": "GitHub Docs: Creating repository rulesets",
           "url": "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Documentation: git-reset",
+          "url": "https://git-scm.com/docs/git-reset",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Documentation: git-log",
+          "url": "https://git-scm.com/docs/git-log",
           "kind": "official-docs"
         }
       ]
