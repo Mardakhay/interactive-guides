@@ -277,6 +277,12 @@ The complete `git-reference.html` source has been reviewed. Its broad reference 
 The audit records safer recovery semantics, configured GitHub Pages sources, tracked-secret handling, and non-equivalent search/copy UI. Full HTML reads documented: 17/25; seven other unread sources remain plus the planned `html-reference.html` re-review. Notion verification is still open.
 
 
+## Git command-reference interaction follow-up — 2026-10-30
+
+The structured `git.fundamentals` command-reference block now offers a bilingual live search over command text, category and description, with an explicit no-results state that is recoverable by clearing the query. This restores the main task of the legacy `Search commands...` field while keeping the structured UI and per-command copy feedback. Renderer regression tests exercise the filter and no-result recovery in English and Russian.
+
+The focused source crosswalk is maintained in [TL001_SOURCE_PARITY.md](./TL001_SOURCE_PARITY.md). This closes one interaction gap only: the Git legacy route remains blocked for the original active-section sidebar, full navigation/layout equivalence, learner-state disposition and native browser acceptance.
+
 ## Async JavaScript source and legacy-demo remediation — 2026-10-27
 
 The complete `interactive-async-js.html` review found that existing bilingual `js.async-fetch` and `web.internet-http` lessons already provide the canonical concepts; the old interactive animations and run/reset API widgets are not copied into another lesson. The source's live GET/joke/POST examples did contain risky dynamic `innerHTML` interpolation, and POST treated parseable non-2xx responses as success. Those issues are fixed on the legacy page, with a new regression test for safe `textContent` rendering and HTTP status handling.

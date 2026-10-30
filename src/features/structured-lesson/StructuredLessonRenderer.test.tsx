@@ -154,6 +154,24 @@ describe('StructuredLessonRenderer', () => {
     }
   });
 
+  it('filters the Git command reference by command text and shows a recoverable empty state', async () => {
+    const lesson = await getStructuredLesson('git.fundamentals', 'en');
+    if (!lesson) throw new Error('English Git fundamentals lesson is missing');
+
+    render(<StructuredLessonRenderer lesson={lesson} />);
+
+    const commandSearch = screen.getByRole('searchbox', { name: 'Search Git commands' });
+    fireEvent.change(commandSearch, { target: { value: 'git status -sb' } });
+
+    expect(screen.getByRole('button', { name: 'Copy command: git status -sb' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Copy command: git init' })).toBeNull();
+
+    fireEvent.change(commandSearch, { target: { value: 'no-command-matches-this' } });
+    expect(screen.getByRole('status')).toHaveTextContent('No commands found');
+    fireEvent.change(commandSearch, { target: { value: '' } });
+    expect(screen.getByRole('button', { name: 'Copy command: git init' })).toBeTruthy();
+  });
+
   it('localizes and copies a Russian Git quick-reference command', async () => {
     const lesson = await getStructuredLesson('git.fundamentals', 'ru');
     if (!lesson) throw new Error('Russian Git fundamentals lesson is missing');
@@ -173,6 +191,21 @@ describe('StructuredLessonRenderer', () => {
       if (clipboardDescriptor) Object.defineProperty(navigator, 'clipboard', clipboardDescriptor);
       else Reflect.deleteProperty(navigator, 'clipboard');
     }
+  });
+
+  it('localizes command search and its empty state in Russian', async () => {
+    const lesson = await getStructuredLesson('git.fundamentals', 'ru');
+    if (!lesson) throw new Error('Russian Git fundamentals lesson is missing');
+
+    render(<StructuredLessonRenderer lesson={lesson} />);
+
+    const commandSearch = screen.getByRole('searchbox', { name: 'Поиск команд Git' });
+    fireEvent.change(commandSearch, { target: { value: 'git status -sb' } });
+    expect(screen.getByRole('button', { name: 'Копировать команду: git status -sb' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Копировать команду: git init' })).toBeNull();
+
+    fireEvent.change(commandSearch, { target: { value: 'несуществующая-команда' } });
+    expect(screen.getByRole('status')).toHaveTextContent('Команды не найдены');
   });
 
   it('announces a failed copy attempt to assistive technology', async () => {
