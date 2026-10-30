@@ -1212,3 +1212,11 @@ See [JS004_SOURCE_PARITY.md](JS004_SOURCE_PARITY.md) for the section crosswalk a
 ## Focused wb-001 Internet Fundamentals source review — 2026-10-29
 
 See [WB001_SOURCE_PARITY.md](WB001_SOURCE_PARITY.md) for the source-to-structured-block crosswalk. The classic source no longer claims that each device has one unique global IP address, that UDP is inherently faster than TCP, that DNS TTL is simply set by the domain owner, that HTTP itself is TCP-only, that every HTTP/1.0 resource necessarily gets a new TCP connection, or that HTTP/2 eliminates transport head-of-line blocking. It introduces HTTP/3 over QUIC/UDP, qualifies TLS metadata/early-data guarantees, and corrects mixed-content, browser process-isolation and Chrome Incognito privacy statements. Regression coverage is in `src/content/legacyInternetFundamentals.test.ts`. The `wb-001` row remains **Blocked** pending source/interaction parity, learner-state disposition and native browser/accessibility evidence.
+
+
+## Structured outline body/command search increment — 2026-10-30
+
+At feature code/test checkpoint `4a84793f340aa1d00471ff8265f83cfc1b2c1380`, the structured lesson outline search was extended beyond section-heading labels. Each heading now receives the searchable text of its parent section, including authored paragraphs, safe code/code-walkthrough content, callout text, list items, references and command-reference commands/descriptions. The implementation reuses the same search-text helper as global structured search. Knowledge-check answer options/feedback and coding-exercise hints/solutions remain excluded. Regression coverage searches for `git status -sb` in `git.fundamentals` and verifies that the containing section is highlighted.
+
+Exact-head [Actions run #41032390443](https://github.com/Mardakhay/interactive-guides/actions/runs/41032390443) passed 49 test files / 325 tests, lint, typecheck, production build, 127 bundle budgets and production-preview smoke over six deep routes. This closes only the outline body/command search gap. `tl-001` remains **Blocked**: the classic sidebar accordion, exact responsive layout, remaining copy/navigation interactions, learner-state disposition and native browser/accessibility acceptance are still open.
+

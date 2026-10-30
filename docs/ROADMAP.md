@@ -8,8 +8,8 @@ This is the one authoritative task list. Dated progress notes and superseded che
 
 ## Verified baseline
 
-- Last validated code checkpoint: `5c0e11b0f597b40fd6550b92087b29c979305557`; [exact-head CI run #41031107552](https://github.com/Mardakhay/interactive-guides/actions/runs/41031107552) completed successfully: install, ESLint, TypeScript, full Vitest suite, production build and production-preview smoke.
-- The preview smoke covers six deep routes, including `/practice` and `/settings`, as well as the entry bundle, manifest, service worker and PWA assets.
+- Last validated code checkpoint: `4a84793f340aa1d00471ff8265f83cfc1b2c1380`; [exact-head CI run #41032390443](https://github.com/Mardakhay/interactive-guides/actions/runs/41032390443) completed successfully: 49 test files / 325 tests, ESLint, TypeScript, production build, bundle budgets across 127 JS chunks and production-preview smoke.
+- The preview smoke covers six deep routes, including `/practice` and `/settings`, as well as the entry bundle, manifest, service worker and PWA assets. Structured lesson outline search also now matches authored section text and command-reference examples, including Git commands.
 - Current branch also contains documentation reconciliation after that code checkpoint. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
 - Curriculum inventory: 27 core + 17 supplementary = 44 bilingual lesson pairs (88 locale JSON records).
 - Practice Center indexes 118 coding exercises. Settings exposes the persisted UI language, browser connectivity signal, local-data counts and backup access.
