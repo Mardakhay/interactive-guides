@@ -1,7 +1,7 @@
 # Code-to-requirements conformance audit
 
 **Audit date:** 2026-10-30  
-**Audit baseline:** `f25e87e65fd05be5aa49fcde590489325f0bc40f`  
+**Audit baseline:** `42950849ea63f83fd0f3f290d2a7dd185a8add81`  
 **Working branch:** `feat/learning-platform-foundation`
 
 This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md`, `CURRICULUM_AND_CONTENT.md`, `ROADMAP.md`, persistence/PWA documents and source-parity checklists. It is not native browser, mobile, screen-reader, production-deployment or editorial acceptance.
@@ -23,7 +23,7 @@ The lesson schema carried `draft`, `review` and `published`, but the original re
 
 ## Search coverage
 
-Search includes classic lesson metadata, notes, structured lesson titles/descriptions/tags/outcomes and authored block text, plus 24-week month/week topics, practice descriptions, projects and supplementary-track topics. The structured lesson outline also searches safe section-body text, walkthrough examples and command-reference items, so a Git command query can highlight the section containing that command. Search and Practice now load a generated per-locale index built from the canonical lesson JSON rather than fetching all 44 full lesson chunks. The generator validates EN/RU IDs, statuses and block ID/type parity, and emits only approved search fields plus exercise task/rubric summaries. Full lesson bodies remain independently lazy-loaded. The generator produces six bounded search chunks and one separate exercise-summary payload per locale. In the production build, search chunks total about 272 KB gzip for EN / 341 KB for RU, while Practice loads only about 60 KB EN / 75 KB RU; the largest built chunk is about 276 KB raw, below the 512 KB budget. Native browser cold/warm latency and mobile transfer still require measurement. Knowledge-check answers/feedback and exercise hints/solutions are excluded from snippets. This is a local in-memory index, not a server search service.
+Search includes classic lesson metadata, notes, structured lesson titles/descriptions/tags/outcomes and authored block text, plus 24-week month/week topics, practice descriptions, projects and supplementary-track topics. The structured lesson outline also searches safe section-body text, walkthrough examples and command-reference items, so a Git command query can highlight the section containing that command. Search and Practice now load a generated per-locale index built from the canonical lesson JSON rather than fetching all 44 full lesson chunks. The generator validates EN/RU IDs, statuses and block ID/type parity, and emits only approved search fields plus exercise task/rubric summaries. Full lesson bodies remain independently lazy-loaded. The generator produces six bounded search chunks and one separate exercise-summary payload per locale. In the production build, the six search JSON parts total 269,738 bytes gzip for EN / 340,328 bytes for RU, while Practice loads only its dedicated 59,527-byte EN / 75,293-byte RU payload. The largest generated JSON part is 276,641 bytes raw / 69,033 bytes gzip; the largest emitted JavaScript asset is 313,972 bytes raw, below the 512 KiB budget. Exact-head preview smoke verifies all 14 generated assets. Native browser cold/warm latency and mobile transfer still require measurement. Knowledge-check answers/feedback and exercise hints/solutions are excluded from snippets. This is a local in-memory index, not a server search service.
 
 ## Known functional gaps
 
@@ -38,7 +38,7 @@ Search includes classic lesson metadata, notes, structured lesson titles/descrip
 
 ## Verification boundary
 
-Exact-head CI on this audit baseline passed 49 test files / 325 tests, lint, typecheck, production build, 127 chunk budgets and preview smoke for six deep routes ([run #41032390443](https://github.com/Mardakhay/interactive-guides/actions/runs/41032390443)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
+Exact-head CI on this audit baseline passed 49 test files / 327 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for six deep routes, 14 generated index assets and PWA files ([run #41036830648](https://github.com/Mardakhay/interactive-guides/actions/runs/41036830648)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
 
 ## Safe continuation order
 
