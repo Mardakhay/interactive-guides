@@ -10,7 +10,7 @@ import { useStructuredLearningStore } from '@/features/structured-lesson/store';
 
 function CurrentPath() {
   const location = useLocation();
-  return <output data-testid="current-path">{location.pathname}</output>;
+  return <div data-testid="current-path">{location.pathname}</div>;
 }
 
 function renderSettings(path = '/en/settings') {
