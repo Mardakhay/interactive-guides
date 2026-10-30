@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import SettingsPage from './SettingsPage';
@@ -25,6 +25,7 @@ afterEach(() => {
     sectionProgress: {},
   });
   localStorage.clear();
+  vi.restoreAllMocks();
 });
 
 describe('SettingsPage', () => {
@@ -70,10 +71,12 @@ describe('SettingsPage', () => {
 
   it('reacts to browser online and offline events without claiming lesson availability', () => {
     renderSettings();
+    const onlineState = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
     fireEvent(window, new Event('offline'));
     expect(screen.getByRole('status')).toHaveTextContent('Browser reports no network connection');
     expect(screen.getByText(/does not guarantee that every lesson/i)).toBeTruthy();
 
+    onlineState.mockReturnValue(true);
     fireEvent(window, new Event('online'));
     expect(screen.getByRole('status')).toHaveTextContent('Browser reports an internet connection');
   });
