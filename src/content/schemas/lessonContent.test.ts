@@ -390,7 +390,7 @@ describe('Git fundamentals lesson translation', () => {
       expect(commands).toContain('git pull --ff-only');
       expect(commands).toContain('git restore --staged <file>');
       expect(commands).toContain('git revert <commit>');
-      expect(commands).toContain('git log -S \"string\"');
+      expect(commands).toContain('git log -S "string"');
       expect(commands).not.toContain('git reset --hard <SHA>');
 
       const undoGuide = lesson.blocks.find((block) => block.id === 'deep-git-undo-guide');
