@@ -29,7 +29,7 @@ export function AppLayout() {
             <Suspense
               fallback={
                 <div className="flex min-h-[50vh] items-center justify-center">
-                  <Spinner className="h-8" />
+                  <Spinner className="h-8" label={translate(locale, 'loading')} />
                 </div>
               }
             >
