@@ -167,7 +167,7 @@ describe('StructuredLessonRenderer', () => {
     expect(screen.queryByRole('button', { name: 'Copy command: git init' })).toBeNull();
 
     fireEvent.change(commandSearch, { target: { value: 'no-command-matches-this' } });
-    expect(screen.getByRole('status')).toHaveTextContent('No commands found');
+    expect(screen.getByText('No commands found. Try a different search.')).toBeTruthy();
     fireEvent.change(commandSearch, { target: { value: '' } });
     expect(screen.getByRole('button', { name: 'Copy command: git init' })).toBeTruthy();
   });
@@ -205,7 +205,7 @@ describe('StructuredLessonRenderer', () => {
     expect(screen.queryByRole('button', { name: 'Копировать команду: git init' })).toBeNull();
 
     fireEvent.change(commandSearch, { target: { value: 'несуществующая-команда' } });
-    expect(screen.getByRole('status')).toHaveTextContent('Команды не найдены');
+    expect(screen.getByText('Команды не найдены. Измени поисковый запрос.')).toBeTruthy();
   });
 
   it('announces a failed copy attempt to assistive technology', async () => {
