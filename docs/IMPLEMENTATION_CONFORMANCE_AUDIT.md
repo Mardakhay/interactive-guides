@@ -1,7 +1,7 @@
 # Code-to-requirements conformance audit
 
 **Audit date:** 2026-10-30  
-**Audit baseline:** `8b450e8890c2598bf23aee26d8d3acf1cda262a5`  
+**Audit baseline:** `5c0e11b0f597b40fd6550b92087b29c979305557`  
 **Working branch:** `feat/learning-platform-foundation`
 
 This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md`, `CURRICULUM_AND_CONTENT.md`, `ROADMAP.md`, persistence/PWA documents and source-parity checklists. It is not native browser, mobile, screen-reader, production-deployment or editorial acceptance.
@@ -28,7 +28,7 @@ Search includes classic lesson metadata, notes, structured lesson titles/descrip
 ## Known functional gaps
 
 - No evidence-based mastery status or review queue. Completion, quiz submissions, self-reviewed criteria and drafts remain separate activity signals.
-- No dedicated Settings experience or complete theme/offline/account/sync preferences.
+- Settings exposes the currently implemented local controls/status. A theme switch, cloud account/sync and comprehensive offline availability controls are not implemented.
 - Explicit locale URLs exist for structured lessons, not every legacy/application route.
 - Structured content remains editorially marked `review`; it must not be represented as approved production curriculum.
 - 21 fetched/mapped Notion sources remain connector-unverified.
@@ -38,7 +38,7 @@ Search includes classic lesson metadata, notes, structured lesson titles/descrip
 
 ## Verification boundary
 
-Exact-head CI on this audit baseline passed 48 test files / 319 tests, lint, typecheck, production build, 126 chunk budgets and HTTP smoke for five deep routes/PWA assets ([run #41029890527](https://github.com/Mardakhay/interactive-guides/actions/runs/41029890527)). Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
+Exact-head CI on this audit baseline passed the workflow's install, lint, typecheck, complete test, production build and preview smoke stages ([run #41031107552](https://github.com/Mardakhay/interactive-guides/actions/runs/41031107552)). The smoke covers six deep routes including Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
 
 ## Safe continuation order
 

@@ -1,6 +1,6 @@
 # Browser and device smoke-test checklist
 
-**Status as of 2026-10-30: automated preview HTTP smoke passes; native browser/device acceptance has not been run.** Exact-head CI at `8b450e8890c2598bf23aee26d8d3acf1cda262a5` passed [run #41029890527](https://github.com/Mardakhay/interactive-guides/actions/runs/41029890527): 319 tests / 48 files, lint, typecheck, production build, 126 JavaScript chunk budgets, zero npm audit advisories, and HTTP smoke for five deep routes including `/practice`, the entry bundle, manifest, service worker and PWA assets. The preview smoke checks HTTP routes/assets only; do not use it to mark install, offline, storage, accessibility or mobile cases as passed. Fill in the execution record only after running the procedure against a known feature-branch SHA.
+**Status as of 2026-10-30: automated preview HTTP smoke passes; native browser/device acceptance has not been run.** Exact-head CI at `5c0e11b0f597b40fd6550b92087b29c979305557` passed [run #41031107552](https://github.com/Mardakhay/interactive-guides/actions/runs/41031107552): install, lint, typecheck, test suite, production build, and HTTP smoke for six deep routes including `/practice` and `/settings`, plus manifest, service worker and PWA assets. The preview smoke checks HTTP routes/assets only; do not use it to mark install, offline, storage, accessibility or mobile cases as passed.
 
 ## Safe setup and evidence
 
@@ -54,6 +54,16 @@ These cases are partly exercised with deterministic Storage API mocks in Vitest;
 | PC-03 | Filter the catalog by saved drafts and self-review, then search by lesson title, task phrase and programming language. | Only matching exercises are shown; clearing filters restores the full catalog. No hint or worked solution is exposed by the index/card. | Not run |
 | PC-04 | Select **Open exercise** from a card. | The matching structured lesson loads and scrolls to the exact coding exercise block, not merely to the top of the lesson. | Not run |
 | PC-05 | Inspect the activity wording. | Drafts and self-review are described as learner activity, not automatic grading, a mastery score or an official assessment. | Not run |
+
+## E. Settings and local-data status
+
+| ID | Procedure | Expected result | Outcome / notes |
+|---|---|---|---|
+| S-01 | Open `/settings` in English and switch the saved UI locale to Russian, then reload a non-structured route. | The saved locale persists across reload and the Settings copy stays in Russian. Structured lesson locale remains encoded in its route. | Not run |
+| S-02 | In a synthetic profile, create progress, a bookmark, a note, a structured code draft and a quiz attempt. Open Settings. | Counts match the actual local store records; Settings does not mutate or reformat them. | Not run |
+| S-03 | Use browser/DevTools controls or a supported test harness to switch the browser offline/online. | The network status follows `navigator.onLine`; the explanatory text does not promise that all lessons are cached or available offline. | Not run |
+| S-04 | Open backup and restore from Settings. | Navigation reaches the existing backup/restore flow; replacement confirmation and restore safeguards remain intact. | Not run |
+| S-05 | Inspect the cloud and appearance sections. | UI states that cloud account/sync is not configured and no theme toggle is currently implemented; no non-functional toggles are presented. | Not run |
 
 ## Execution record
 
