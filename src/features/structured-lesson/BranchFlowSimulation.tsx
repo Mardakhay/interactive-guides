@@ -264,6 +264,7 @@ export function BranchFlowSimulation({ block, locale }: BranchFlowSimulationProp
       <div className="mt-5 overflow-x-auto rounded-xl border border-neutral-200 bg-neutral-50 p-2">
         <svg
           role="img"
+          aria-label={labels.graph}
           aria-labelledby={block.id + '-graph-title ' + block.id + '-graph-description'}
           viewBox={'0 0 ' + graphWidth + ' 260'}
           width={graphWidth}
@@ -298,6 +299,25 @@ export function BranchFlowSimulation({ block, locale }: BranchFlowSimulationProp
               {commit.tag && <text x={x(commit.id)} y={laneY[commit.branch] + 26} fill="#404040" fontSize="10" textAnchor="middle">{commit.tag}</text>}
             </g>
           ))}
+          {branchOrder.map((branch) => {
+            const headId = state.heads[branch];
+            if (headId === null) return null;
+            return (
+              <g key={'head-' + branch} aria-hidden="true">
+                <rect
+                  x={x(headId) - 5}
+                  y={laneY[branch] - 5}
+                  width="10"
+                  height="10"
+                  rx="2"
+                  fill={branchColors[branch]}
+                  stroke="#ffffff"
+                  strokeWidth="2"
+                />
+                <text x={x(headId) + 13} y={laneY[branch] + 4} fill="#404040" fontSize="9">HEAD</text>
+              </g>
+            );
+          })}
         </svg>
       </div>
 

@@ -35,6 +35,7 @@ describe('BranchFlowSimulation', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Create / switch to develop' }));
     fireEvent.click(screen.getByRole('button', { name: 'Create / switch to hotfix' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Commit on active branch' }));
     fireEvent.click(screen.getByRole('button', { name: 'Merge hotfix into main' }));
 
     expect(screen.getByText(/still needs to be back-merged into develop/i)).toBeTruthy();
