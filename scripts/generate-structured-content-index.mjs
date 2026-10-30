@@ -53,26 +53,26 @@ function assertLessonRecord(lesson, locale, path) {
   }
 }
 
-function assertLocaleParity(english, russian, id) {
+function assertLocaleParity(english, russian, folderName) {
   if (english.id !== russian.id) {
-    throw new Error('EN/RU stable lesson ID differs for ' + id);
+    throw new Error('EN/RU stable lesson ID differs in folder ' + folderName);
   }
   if (english.status !== russian.status) {
-    throw new Error('EN/RU publication status differs for ' + id);
+    throw new Error('EN/RU publication status differs for ' + english.id);
   }
   if (english.blocks.length !== russian.blocks.length) {
-    throw new Error('EN/RU block count differs for ' + id);
+    throw new Error('EN/RU block count differs for ' + english.id);
   }
   for (let index = 0; index < english.blocks.length; index += 1) {
     const left = english.blocks[index];
     const right = russian.blocks[index];
     if (left.id !== right.id || left.type !== right.type) {
-      throw new Error('EN/RU block identity/type differs for ' + id + ' at index ' + index);
+      throw new Error('EN/RU block identity/type differs for ' + english.id + ' at index ' + index);
     }
   }
   if (english.status === 'published'
     && (english.translationStatus === 'review-needed' || russian.translationStatus === 'review-needed')) {
-    throw new Error('A published EN/RU pair cannot contain a review-needed translation: ' + id);
+    throw new Error('A published EN/RU pair cannot contain a review-needed translation: ' + english.id);
   }
 }
 
@@ -83,18 +83,16 @@ async function readLesson(path, locale) {
   return lesson;
 }
 
-async function buildLocaleIndex(lessonIds, locale) {
+async function buildLocaleIndex(lessonFolders, locale) {
   const searchDocuments = [];
   const practiceExercises = [];
   const seenStableIds = new Set();
 
-  for (const folderName of lessonIds) {
+  for (const folderName of lessonFolders) {
     const folder = join(LESSON_ROOT, folderName);
-    const englishPath = join(folder, 'en.json');
-    const russianPath = join(folder, 'ru.json');
     const [english, russian] = await Promise.all([
-      readLesson(englishPath, 'en'),
-      readLesson(russianPath, 'ru'),
+      readLesson(join(folder, 'en.json'), 'en'),
+      readLesson(join(folder, 'ru.json'), 'ru'),
     ]);
     assertLocaleParity(english, russian, folderName);
     if (seenStableIds.has(english.id)) {
@@ -144,37 +142,25 @@ async function buildLocaleIndex(lessonIds, locale) {
   return { searchDocuments, practiceExercises, indexedLessonCount: seenStableIds.size };
 }
 
-async function main() {
-  const directories = await readdir(LESSON_ROOT, { withFileTypes: true });
-  const lessonIds = directories
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .sort();
-
-  if (lessonIds.length === 0) throw new Error('No structured lesson directories found');
-
 function splitSearchDocuments(documents, partCount) {
-  const chunks = Array.from({ length: partCount }, () => []);
-  const chunkPayloadBytes = Array.from({ length: partCount }, () => 0);
-  const totalPayloadBytes = documents.reduce((total, document) => total + Buffer.byteLength(JSON.stringify(document)) + 1, 0);
-  const targetPayloadBytes = Math.ceil(totalPayloadBytes / partCount);
-  let partIndex = 0;
-
-  for (const document of documents) {
-    const documentBytes = Buffer.byteLength(JSON.stringify(document)) + 1;
-    const currentChunk = chunks[partIndex];
-    if (
-      partIndex < partCount - 1
-      && currentChunk.length > 0
-      && chunkPayloadBytes[partIndex] + documentBytes > targetPayloadBytes
-    ) {
-      partIndex += 1;
-    }
-    chunks[partIndex].push(document);
-    chunkPayloadBytes[partIndex] += documentBytes;
+  if (documents.length < partCount) {
+    throw new Error('Cannot create ' + partCount + ' non-empty search-index parts from ' + documents.length + ' documents');
   }
 
-  return chunks.filter((chunk) => chunk.length > 0);
+  const chunks = [];
+  let offset = 0;
+  for (let partIndex = 0; partIndex < partCount; partIndex += 1) {
+    const remainingDocuments = documents.length - offset;
+    const remainingParts = partCount - partIndex;
+    const documentsInPart = Math.ceil(remainingDocuments / remainingParts);
+    chunks.push(documents.slice(offset, offset + documentsInPart));
+    offset += documentsInPart;
+  }
+
+  if (offset !== documents.length || chunks.some((chunk) => chunk.length === 0)) {
+    throw new Error('Search index partitioner did not consume every document into non-empty parts');
+  }
+  return chunks;
 }
 
 async function writeGeneratedIndexFile(filename, value, label) {
@@ -183,6 +169,7 @@ async function writeGeneratedIndexFile(filename, value, label) {
   if (rawBytes > MAX_GENERATED_CHUNK_BYTES) {
     throw new Error(label + ' exceeds the ' + MAX_GENERATED_CHUNK_BYTES + '-byte raw chunk budget: ' + rawBytes + ' bytes');
   }
+
   await writeFile(join(OUTPUT_ROOT, filename), serialized, 'utf8');
   const gzipBytes = gzipSync(serialized, { level: 9 }).byteLength;
   process.stdout.write(
@@ -193,26 +180,23 @@ async function writeGeneratedIndexFile(filename, value, label) {
 
 async function main() {
   const directories = await readdir(LESSON_ROOT, { withFileTypes: true });
-  const lessonIds = directories
+  const lessonFolders = directories
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .sort();
 
-  if (lessonIds.length === 0) throw new Error('No structured lesson directories found');
+  if (lessonFolders.length === 0) {
+    throw new Error('No structured lesson directories found');
+  }
 
   await mkdir(OUTPUT_ROOT, { recursive: true });
-  const staleFiles = (await readdir(OUTPUT_ROOT)).filter((filename) =>
-    /^structured-(content|search|practice)-index\.(en|ru)(?:\.\d+)?\.json$/.test(filename),
-  );
+  const generatedFilePattern = /^structured-(content|search|practice)-index\.(en|ru)(?:\.\d+)?\.json$/;
+  const staleFiles = (await readdir(OUTPUT_ROOT)).filter((filename) => generatedFilePattern.test(filename));
   await Promise.all(staleFiles.map((filename) => unlink(join(OUTPUT_ROOT, filename))));
 
   for (const locale of LOCALES) {
-    const { searchDocuments, practiceExercises, indexedLessonCount } = await buildLocaleIndex(lessonIds, locale);
+    const { searchDocuments, practiceExercises, indexedLessonCount } = await buildLocaleIndex(lessonFolders, locale);
     const searchChunks = splitSearchDocuments(searchDocuments, SEARCH_INDEX_PART_COUNT);
-
-    if (searchChunks.length !== SEARCH_INDEX_PART_COUNT) {
-      throw new Error('Search index partitioner expected ' + SEARCH_INDEX_PART_COUNT + ' non-empty parts for ' + locale + ', received ' + searchChunks.length);
-    }
 
     for (const [partIndex, documents] of searchChunks.entries()) {
       const filename = 'structured-search-index.' + locale + '.' + partIndex + '.json';
@@ -235,7 +219,7 @@ async function main() {
     );
   }
 
-  process.stdout.write('Generated bounded bilingual search/practice indexes from ' + lessonIds.length + ' lesson folders.\n');
+  process.stdout.write('Generated bounded bilingual search/practice indexes from ' + lessonFolders.length + ' lesson folders.\n');
 }
 
 void main().catch((error) => {
