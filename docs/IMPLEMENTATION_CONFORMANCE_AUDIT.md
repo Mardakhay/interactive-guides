@@ -1,7 +1,7 @@
 # Code-to-requirements conformance audit
 
 **Audit date:** 2026-10-30  
-**Audit baseline:** `80240230d09253cc3f58b8406d7e4e081e3f17cb`  
+**Audit baseline:** `288cabb506ebc3a94a7f05a0e7073545a4d69c91`  
 **Working branch:** `feat/learning-platform-foundation`
 
 This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md`, `CURRICULUM_AND_CONTENT.md`, `ROADMAP.md`, persistence/PWA documents and source-parity checklists. It is not native browser, mobile, screen-reader, production-deployment or editorial acceptance.
@@ -48,9 +48,16 @@ The six commits after the previous code audit baseline add and test these app-wi
 - Give loading feedback an accessible name, expose invalid field state through `aria-invalid`, keep placeholder contrast readable, and expose the current breadcrumb item semantically.
 - Add regression coverage for route error rendering, breadcrumb semantics, loading status and invalid Input/Textarea states. These are automated DOM/component checks; real browser and assistive-technology acceptance is still required.
 
+## Git Reference v14 content continuation — 2026-10-30
+
+- `git.fundamentals` is v14 in both locales with 72 aligned blocks, 11 knowledge checks, 9 walkthroughs and 3 coding exercises. Its four-category quick reference contains 26 uniquely identified commands, including `git log -S "string"` with the distinction from regex-based `-G`.
+- The expanded undo guide distinguishes path-form `git reset`, `--soft`, default `--mixed`, and destructive `--hard`; it also explains the different index/working-tree effects of legacy `git checkout HEAD -- <file>` and modern `git restore` commands. Official `git-reset` and `git-log` references are included.
+- EN/RU regression assertions check the new version, inventory size and uniqueness, the documented reset modes, the default mixed behavior, and both official references. Exact-head CI passed all 344 tests in 62 files.
+- This improves source-concept/command parity but does not recreate the legacy sidebar accordion, fixed dark presentation or responsive source navigation. `tl-001` remains blocked.
+
 ## Verification boundary
 
-Exact-head CI on this audit baseline passed 62 test files / 344 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, 14 generated index assets and PWA files ([run #41053104167, run #862](https://github.com/Mardakhay/interactive-guides/actions/runs/41053104167)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
+Exact-head CI on this audit baseline passed 62 test files / 344 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, 14 generated index assets and PWA files ([run #41056326223, run #869](https://github.com/Mardakhay/interactive-guides/actions/runs/41056326223)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
 
 ## Safe continuation order
 

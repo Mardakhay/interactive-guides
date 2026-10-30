@@ -2,7 +2,7 @@
 
 **Review date:** 2026-10-30  
 **Legacy source:** `public/lessons/git-reference.html` (1,582 lines / 64,174 characters at review time)  
-**Structured target:** `git.fundamentals` EN/RU v13, plus `git.workflow-ci` for collaboration/CI topics  
+**Structured target:** `git.fundamentals` EN/RU v14, plus `git.workflow-ci` for collaboration/CI topics  
 **Cutover:** **Blocked** — this document records implemented coverage and unresolved interaction/state differences; it is not approval to remove the legacy route.
 
 ## Source interaction inventory
@@ -28,7 +28,7 @@ The legacy file has 12 sidebar navigation items, one command-search input, 20 in
 
 ## Locale and content integrity
 
-- English and Russian `git.fundamentals` are both v13 with 72 blocks; ordered block IDs/types are aligned. English status is `original`; Russian status is `translated`. Both records remain editorially `review`.
+- English and Russian `git.fundamentals` are both v14 with 72 blocks; ordered block IDs/types are aligned. English status is `original`; Russian status is `translated`. Both records remain editorially `review`.
 - The lesson has 11 knowledge checks, 9 code walkthroughs, 3 coding exercises, one command reference and one references block. Knowledge-check feedback/options and coding-exercise hints/solutions are not exposed by the shared search-text extractor.
 - The source-to-target mapping is one-to-many across `git.fundamentals` and `git.workflow-ci`; parity must be reviewed as a pair rather than treating either target as the whole source.
 
@@ -53,13 +53,20 @@ The legacy file has 12 sidebar navigation items, one command-search input, 20 in
 
 A focused verification pass checked the actual structured JSON and existing regression coverage, not only the earlier crosswalk:
 
-- `git.fundamentals` EN/RU v13 contains 72 blocks per locale: 19 headings, 16 paragraphs, 2 callouts, 9 lists, 9 walkthroughs, 1 code block, 11 knowledge checks, 3 coding exercises, 1 command reference and 1 references block. Ordered block IDs and types align across locales; all 11 checks have the same option IDs and the same correct-answer IDs in EN/RU. Both records remain editorial status `review`.
+- `git.fundamentals` EN/RU v14 contains 72 blocks per locale: 19 headings, 16 paragraphs, 2 callouts, 9 lists, 9 walkthroughs, 1 code block, 11 knowledge checks, 3 coding exercises, 1 command reference and 1 references block. Ordered block IDs and types align across locales; all 11 checks have the same option IDs and the same correct-answer IDs in EN/RU. Both records remain editorial status `review`.
 - `git.workflow-ci` EN/RU v10 contains 69 blocks per locale, including 19 checks, 5 walkthroughs and 5 coding exercises. Ordered block IDs/types and every check's option/correct-answer IDs align across locales. Both records remain editorial status `review`.
-- The Git Fundamentals quick reference contains 25 uniquely identified commands in four categories. It includes inspection-first commands, safe unstage/revert/fetch flows and explicit cautions for destructive `restore`, unpublished-only `commit --amend`, and fast-forward-only pull. It does not promote `git reset --hard` or `git push --force`.
+- The Git Fundamentals quick reference contains 26 uniquely identified commands in four categories. It includes inspection-first commands, safe unstage/revert/fetch flows and explicit cautions for destructive `restore`, unpublished-only `commit --amend`, and fast-forward-only pull. It does not promote `git reset --hard` or `git push --force`.
 - Walkthroughs distinguish local Git commands from hosting-platform actions, warn that `.gitignore` does not revoke an exposed credential or remove historical commits, instruct token revocation/rotation before cleanup, preserve the local `.env` with `git rm --cached`, and limit rebase guidance to a learner's own unpublished branch with an abort path.
-- Existing regression coverage in `src/content/schemas/lessonContent.test.ts` and `src/content/gitReferenceParity.test.ts` checks locale block alignment, the 25-command inventory and unique IDs, absence of hard reset guidance, secret-leak response, least-privilege roles, safe rebase, fetch-vs-pull, Markdown, GitHub Pages and their assessed feedback.
+- Existing regression coverage in `src/content/schemas/lessonContent.test.ts` and `src/content/gitReferenceParity.test.ts` checks locale block alignment, the 26-command inventory and unique IDs, absence of hard reset guidance, secret-leak response, least-privilege roles, safe rebase, fetch-vs-pull, Markdown, GitHub Pages and their assessed feedback.
 
 This verifies the current structured pair's structural alignment and selected high-risk concepts. It is **not** a full sentence-by-sentence editorial sign-off for every legacy paragraph, screenshot, code fragment or hosted-platform UI. The two lessons remain in review status, and no cutover is approved.
+
+## Git Reference v14 reset and history-search increment — 2026-10-30
+
+- Updated `git.fundamentals` EN/RU to v14 while preserving the 72-block structure and locale block alignment. The four-category command reference now has 26 unique items, including `git log -S "string"` to locate commits that change the occurrence count of an exact string; `-G` is identified as the diff-line regular-expression alternative.
+- The undo guide distinguishes `git reset HEAD -- <file>` (index/path only), `--soft` (move HEAD, preserve index and working tree), default `--mixed` (move HEAD and reset index, preserve working tree), and `--hard` (also update tracked working-tree files and discard tracked changes). It explains the older `git checkout HEAD -- <file>` effect separately from `git restore <file>` and `git restore --staged <file>`.
+- EN/RU schema and repository tests enforce the new version, 26 unique commands, reset semantics and official `git-reset`/`git-log` references. Exact-head [Actions run #41056326223 (run #869)](https://github.com/Mardakhay/interactive-guides/actions/runs/41056326223) passed 62 test files / 344 tests, lint, typecheck, production build, 141 bundle budgets, 0 npm audit advisories and preview smoke for 13 routes plus all 14 generated content assets.
+- The legacy HTML has 20 copy buttons plus its sidebar menu toggle (21 buttons total); the structured reference has 26 separately copyable commands. These are not equivalent control counts or a one-to-one layout. Full source editorial/UI parity remains open.
 
 ## Remaining release blockers
 
