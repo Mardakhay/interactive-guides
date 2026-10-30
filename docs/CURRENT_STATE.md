@@ -1,19 +1,19 @@
 # Current-State Audit
 
-**Audit date:** 2026-10-29  
+**Audit date:** 2026-10-30  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Working branch:** `feat/learning-platform-foundation`  
 **Default branch observed:** `main`
 
-## Authoritative status snapshot — 2026-10-29
+## Authoritative status snapshot — 2026-10-30
 
 This section replaces older status summaries below when they disagree. Historical checkpoints are retained as a work log only.
 
-- **Latest validated code/content/test checkpoint:** `2ea2401f11fe12f7bb3112b1c7d3eecce1133606`, exact [Actions run #40889174905](https://github.com/Mardakhay/interactive-guides/actions/runs/40889174905) succeeded: 47 test files / 310 tests, ESLint, TypeScript, production build, bundle budgets across 125 JavaScript chunks, npm audit with zero reported advisories, and production-preview smoke for 4 deep routes, the entry bundle, manifest, service worker, and 5 PWA assets. It includes the new WB-001 source-accuracy review and regression suite, HTTP/3/QUIC explanation, DNS/cache/TLS/browser-privacy corrections, and `WB001_SOURCE_PARITY.md`. The legacy route remains blocked pending interaction/state/browser acceptance.
+- **Latest validated code/content/test checkpoint:** `8b450e8890c2598bf23aee26d8d3acf1cda262a5`, exact [Actions run #41029890527](https://github.com/Mardakhay/interactive-guides/actions/runs/41029890527) succeeded: 48 test files / 319 tests, ESLint, TypeScript, production build, bundle budgets across 126 JavaScript chunks, npm audit reporting zero advisories, and production-preview smoke for 5 deep routes (including `/practice`), the entry bundle, manifest, service worker and 5 PWA assets. This checkpoint includes bilingual publication-status enforcement, structured lesson/curriculum search, and the new Practice Center. Native browser/device, screen-reader and editorial acceptance remain open.
 - **Main:** `b13af92576e8a73753a6e3f3d26765d9f9c44397`; it was not changed in this continuation.
 - **PR #1:** [open Draft PR against main](https://github.com/Mardakhay/interactive-guides/pull/1).
-- **Acceptance boundary:** green CI and HTTP preview smoke do not establish real-browser/device, screen-reader, install/offline, keyboard or mobile acceptance. The native acceptance checklist remains unrun.
-- **Curriculum registry:** 27 core + 17 supplementary lesson IDs = 44 bilingual pairs and 88 locale JSON files. `ui.bootstrap-mui` is core week 17; `css.sass-scss` is supplementary.
+- **Acceptance boundary:** green CI and HTTP preview smoke do not establish real-browser/device, screen-reader, install/offline, keyboard or mobile acceptance. The native acceptance checklist, including Practice Center mobile/deep-link checks, remains unrun.
+- **Curriculum registry:** 27 core + 17 supplementary lesson IDs = 44 bilingual pairs and 88 locale JSON files. The Practice Center now aggregates 118 coding exercises without changing learner-state storage or treating self-review as automated mastery. `ui.bootstrap-mui` is core week 17; `css.sass-scss` is supplementary.
 - **Legacy migration gate:** all 25 legacy cutover rows remain **Blocked**. Git tl-001 has v13 `git.fundamentals` with 72 blocks, 11 checks and 9 walkthroughs, including the 25-command copyable reference and security/least-privilege guidance. Git tl-002 remains v10 with 69 blocks and 19 checks per locale covering original quiz concepts and seven pipeline stages, but canvas/tabs/failure-injection/sequential-quiz behavior remains non-equivalent. Git tooling row tl-003 now has `tooling.node-npm-vite` v6 with 52 blocks, 12 checks and 5 walkthroughs, including the formerly missing Vite config/alias/dev-proxy scenario. `tooling.advanced-package-workflows` is v3. `react.effects-lists-composition` is v6 with the React 18 cleanup warning clarified. Learner-state disposition and manual browser/device/screen-reader acceptance remain open.
 - **Notion source evidence:** 21 pages have been fetched/mapped but remain `verification.state=unverified`; this must not be presented as formal verification.
 - **PWA/manual acceptance:** HTTP smoke validates the built shell, routes and assets. No native browser/device install/offline, screen-reader, keyboard or mobile acceptance is recorded.

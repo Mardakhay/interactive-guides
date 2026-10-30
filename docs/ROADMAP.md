@@ -2,11 +2,11 @@
 
 Follow this sequence. Each phase should land as a small reviewed change; avoid one giant rewrite.
 
-## Authoritative current status — 2026-10-29
+## Authoritative current status — 2026-10-30
 
 This section replaces older status summaries below where they conflict. Chronological checkpoint notes remain a history, not a unique-task count.
 
-- Latest validated code/content/test checkpoint: `2ea2401f11fe12f7bb3112b1c7d3eecce1133606`; exact [Actions run #40889174905](https://github.com/Mardakhay/interactive-guides/actions/runs/40889174905) passed 47 test files / 310 tests, ESLint, TypeScript, production build, bundle budgets across 125 JavaScript chunks, npm audit with zero reported advisories, and production-preview smoke for 4 deep routes, the entry bundle, manifest, service worker, and 5 PWA assets. It includes the OAuth BCP/auth fixes, JS-004 async-concurrency corrections, WB-002 native form/ARIA/keyboard-focus clarifications, and the WB-001 network/HTTP/TLS/browser-privacy correction pass with six new source regression tests. Native acceptance and route-cutover gates remain open.
+- Latest validated code/content/test checkpoint: `8b450e8890c2598bf23aee26d8d3acf1cda262a5`; exact [Actions run #41029890527](https://github.com/Mardakhay/interactive-guides/actions/runs/41029890527) passed 48 test files / 319 tests, ESLint, TypeScript, production build, budgets across 126 JavaScript chunks, npm audit with zero reported advisories, and production-preview smoke for 5 deep routes (including `/practice`), the entry bundle, manifest, service worker and 5 PWA assets. This adds bilingual publication-status enforcement, structured lesson/curriculum-topic search and a Practice Center with 118 exercises. Native acceptance, content parity and route-cutover gates remain open.
 - `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 is open Draft against `main`.
 - The audit step reports zero advisories but is explicitly informational/non-blocking; lint, typecheck, tests and build remain fail-fast. CI is not a native browser/device, screen-reader or mobile acceptance pass.
 - Registry: 27 core + 17 supplementary = 44 EN/RU lesson pairs (88 JSON locale records).

@@ -1,22 +1,22 @@
 # Session Handoff
 
-**Last updated:** 2026-10-29  
+**Last updated:** 2026-10-30  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Base branch:** `main`  
 **Working branch:** `feat/learning-platform-foundation`
 
-## Authoritative continuation checkpoint — 2026-10-29
+## Authoritative continuation checkpoint — 2026-10-30
 
 This section is authoritative for the current continuation. Earlier dated entries below are a historical work log and must not be mistaken for current head/status.
 
-- **Latest validated source/content/test checkpoint:** `2ea2401f11fe12f7bb3112b1c7d3eecce1133606`, passed on [Actions run #40889174905](https://github.com/Mardakhay/interactive-guides/actions/runs/40889174905): 47 test files / 310 tests, lint, typecheck, production build, budgets across 125 JavaScript chunks, zero npm audit advisories, and preview smoke (4 deep routes plus entry bundle, manifest, service worker and 5 PWA assets). Latest focused source corrections include OAuth BCP (EN/RU auth v5), JS-004 async/runtime facts, WB-002 HTML/ARIA/keyboard semantics, and WB-001 IP/DNS/HTTP/QUIC/TLS/browser-privacy material with a dedicated parity review. The standalone `ig:last-lesson` key has no active source reads/writes and is not included in the typed backup; preserve existing values pending a retention decision. Existing lesson baselines: `git.workflow-ci` v10; `git.fundamentals` v13 (72 aligned blocks, 11 checks, 9 walkthroughs); `react.effects-lists-composition` v6 (45 blocks, 7 checks, 6 walkthroughs); `tooling.node-npm-vite` v6 (52 blocks, 12 checks, 5 walkthroughs); `tooling.advanced-package-workflows` v3 (18 blocks).
+- **Latest validated source/content/test checkpoint:** `8b450e8890c2598bf23aee26d8d3acf1cda262a5`, passed [Actions run #41029890527](https://github.com/Mardakhay/interactive-guides/actions/runs/41029890527): 48 test files / 319 tests, lint, typecheck, production build, budgets across 126 JavaScript chunks, zero npm audit advisories, and preview smoke over five deep routes (including `/practice`), entry bundle, manifest, service worker and five PWA assets. This includes publication-status enforcement, content/topic search, and the bilingual Practice Center with 118 coding exercises and per-exercise draft/self-review signals.
 - **Main HEAD observed:** `b13af92576e8a73753a6e3f3d26765d9f9c44397`. Do not commit changes to `main`; work through the feature branch and PR #1.
 - **PR:** [#1 — Deepen structured lessons and prepare HTML-to-JSON cutover](https://github.com/Mardakhay/interactive-guides/pull/1) remains open as Draft against `main`.
 - **Manual-acceptance limitation:** green CI and the production-preview smoke do not establish real-browser/device, screen-reader, install/offline, or mobile acceptance.
-- **Structured content:** 27 core and 17 supplementary lesson IDs (44 EN/RU pairs, 88 JSON records); `ui.bootstrap-mui` is core week 17 and `css.sass-scss` is supplementary.
+- **Structured content:** 27 core and 17 supplementary lesson IDs (44 EN/RU pairs, 88 JSON records); `ui.bootstrap-mui` is core week 17 and `css.sass-scss` is supplementary. The new `/practice` page indexes 118 coding exercises, persists no new learner data, and links into the source lesson by block ID.
 - **Legacy parity gate:** `docs/LEGACY_ROUTE_CUTOVER_MATRIX.md` has 25 classic-ID rows and all 25 are **Blocked**. Keep all `/lessons/:lessonId` routes and source HTML. `docs/LEARNER_STATE_MIGRATION_INVENTORY.md` inventories progress, bookmarks, notes, last-opened state, classic quiz results and structured exercise state; format-envelope migration is distinct from lesson-ID migration. Do not redirect or rewrite learner data without explicit per-store rules and failure/recovery tests.
 - **Source verification:** the source inventory says 25/25 legacy HTML files received a content/code/interaction review. That is not claim-level or widget parity. The 21 fetched/mapped Notion records are still marked `verification.state=unverified`.
-- **Manual acceptance:** every native browser/device checklist case is still unrun. HTTP smoke in CI is limited to the app shell/assets.
+- **Manual acceptance:** every native browser/device checklist case is still unrun, including new Practice Center responsive/deep-link checks. HTTP smoke in CI confirms the app shell/routes/assets only.
 - **Cloud sync:** Supabase auth, RLS and sync are not implemented. Continue treating them as gated scope until reconciliation and security requirements are approved.
 
 
