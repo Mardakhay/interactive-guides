@@ -39,10 +39,14 @@ export function LocalizedAppLayout() {
   }, [preferredLocale, routeLocale, setLocale]);
 
   if (!isSupportedLocale(routeLocale)) {
+    const hasUnsupportedLocalePrefix = /^\/[a-z]{2,3}(?:-[a-z]{2})?(?=\/|$)/i.test(location.pathname);
+    const requestedPath = hasUnsupportedLocalePrefix
+      ? location.pathname.replace(/^\/[^/]+/, '') || '/'
+      : location.pathname;
     return (
       <Navigate
         to={{
-          pathname: localizedPath(location.pathname, preferredLocale),
+          pathname: localizedPath(requestedPath, preferredLocale),
           search: location.search,
           hash: location.hash,
         }}

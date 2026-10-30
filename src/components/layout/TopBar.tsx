@@ -24,7 +24,7 @@ export function TopBar() {
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-neutral-200 bg-white/95 px-4 backdrop-blur lg:px-6">
       <button
-        className="rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 lg:hidden"
+        className="rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700 lg:hidden"
         onClick={toggleSidebar}
         aria-label={translate(locale, 'openMenu')}
       >
@@ -32,7 +32,7 @@ export function TopBar() {
       </button>
 
       <button
-        className="flex flex-1 items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-500 hover:bg-neutral-100"
+        className="flex flex-1 items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-500 hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
         onClick={() => navigate(localizedPath(ROUTE_PATHS.SEARCH, locale))}
         aria-label={translate(locale, 'search')}
       >

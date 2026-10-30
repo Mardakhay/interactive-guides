@@ -57,7 +57,7 @@ describe('localized route layout', () => {
   it('repairs an unsupported locale segment without losing the requested route', async () => {
     useLocaleStore.setState({ locale: 'en' });
     render(
-      <MemoryRouter initialEntries={['/xx/courses']}>
+      <MemoryRouter initialEntries={['/xx/courses?tab=one#main']}>
         <Routes>
           <Route path="/:locale" element={<LocalizedAppLayout />}>
             <Route path="courses" element={<RouteProbe />} />
@@ -67,6 +67,6 @@ describe('localized route layout', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByTestId('route-probe')).toHaveTextContent('/en/xx/courses|en');
+    expect(await screen.findByTestId('route-probe')).toHaveTextContent('/en/courses?tab=one#main|en');
   });
 });
