@@ -1,7 +1,7 @@
 # Code-to-requirements conformance audit
 
 **Audit date:** 2026-10-30  
-**Audit baseline:** `d2e837913df75d1e8135165f01ffa7c7553facad`  
+**Audit baseline:** `0b2eeac35454290c1a2b95ba3551dfc523e55bbd`  
 **Working branch:** `feat/learning-platform-foundation`
 
 This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md`, `CURRICULUM_AND_CONTENT.md`, `ROADMAP.md`, persistence/PWA documents and source-parity checklists. It is not native browser, mobile, screen-reader, production-deployment or editorial acceptance.
@@ -73,9 +73,20 @@ The six commits after the previous code audit baseline add and test these app-wi
 - Exact-head [Actions run #41059019377 (run #877)](https://github.com/Mardakhay/interactive-guides/actions/runs/41059019377) passed 64 test files / 352 tests, lint, typecheck, production build, 141 JavaScript bundle budgets, zero npm audit advisories and preview smoke for 13 deep routes plus all 14 generated content assets.
 - This is an accessible, deterministic branch-graph exercise, not a pixel-identical animated reproduction of the legacy canvas. The seven legacy tabs and sequential quiz/progress/result/restart UI remain absent; `tl-002` stays blocked pending the remaining interaction, learner-state and manual-acceptance gates.
 
+## Sequential Git Workflow quiz — v13
+
+- `git.workflow-ci` EN/RU v13 adds a schema-validated `sequentialQuiz` block, bringing the locale pair to 72 aligned blocks without duplicating the ten underlying `knowledgeCheck` records.
+- The quiz references the existing source-aligned questions in order: `hotfix-origin-check`, `branch-protection-check`, `git-flow-feature-target-check`, `ci-basics-check`, `review-comment-specificity-check`, `hotfix-back-merge-check`, `git-semver-minor-check`, `continuous-deployment-check`, `small-pr-review-check`, and `npm-ci-lockfile-check`. Lesson-level Zod validation requires ten unique references that resolve to knowledge-check blocks in the same lesson.
+- The structured renderer displays only the active referenced question inside the sequence and suppresses its ordinary standalone occurrence elsewhere in the lesson. It preserves option selection and feedback when navigating Previous/Next, locks an answered question, and derives the run score from the ten question IDs to prevent double counting.
+- The UI exposes question position, a labelled progress bar, current score, final percentage and result feedback. Restart resets the current in-memory run while leaving the existing per-question `recordQuizAttempt` history intact. It does not add a separate aggregate quiz-result persistence model or migrate classic HTML quiz results.
+- Focus moves to each new question, then to its feedback after submission and to the final result after completion. The progress/status labels and navigation are localized in EN/RU.
+- Five `SequentialKnowledgeQuiz` component tests cover one-question-at-a-time behavior, duplicate suppression in the full lesson renderer, Previous/Next with restored answers, final score/restart and Russian localization. The schema test verifies v13 and the exact ten question IDs.
+- Exact-head [Actions run #41063587947 (run #883)](https://github.com/Mardakhay/interactive-guides/actions/runs/41063587947) passed 65 test files / 357 tests, lint, typecheck, production build, 141 bundle budgets, zero npm audit advisories and preview smoke for 13 routes plus 14 generated content assets.
+- The seven legacy top-level tabs and their exact active-tab transitions remain non-equivalent. `tl-002` remains blocked pending that decision, full editorial review, learner-state disposition and native acceptance.
+
 ## Verification boundary
 
-Exact-head CI on this audit baseline passed 64 test files / 352 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, 14 generated index assets and PWA files ([run #41059019377, run #877](https://github.com/Mardakhay/interactive-guides/actions/runs/41059019377)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
+Exact-head CI on this audit baseline passed 65 test files / 357 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, 14 generated index assets and PWA files ([Actions run #41063587947 (run #883)](https://github.com/Mardakhay/interactive-guides/actions/runs/41063587947)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
 
 ## Safe continuation order
 

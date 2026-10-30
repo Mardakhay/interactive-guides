@@ -124,6 +124,23 @@ These cases are partly exercised with deterministic Storage API mocks in Vitest;
 | A11Y-STATUS-01 | Inspect loading feedback and route errors with a screen reader. | Loading feedback has an accessible name; route error announcements and recovery controls are understandable and localized. | Not run with a screen reader |
 | A11Y-MOTION-01 | Enable the operating-system reduced-motion preference and navigate/expand app UI. | Non-essential transitions and animations are reduced or removed without hiding state changes or blocking interaction. | Not run in a native browser |
 
+## N. Git Workflow quiz and simulator acceptance
+
+Run these checks against the locale-prefixed structured lesson route `/en/structured-lessons/git.workflow-ci` and `/ru/structured-lessons/git.workflow-ci`. Component tests do not replace native browser or assistive-technology acceptance.
+
+| ID | Procedure | Expected result | Outcome / notes |
+|---|---|---|---|
+| GIT-QUIZ-01 | Open the Git Workflow lesson in EN and RU and locate the sequential quiz. | Only question 1 of 10 is visible; progress is 1/10 and score is 0/10; no referenced question is repeated later in the lesson flow. | Not run in a native browser |
+| GIT-QUIZ-02 | Answer question 1 correctly and question 2 incorrectly; use Previous, then Next. | Each answer is locked after submission; selected option and feedback are restored; live score remains correct and revisiting does not add another attempt. | Pass in Vitest component tests; native browser not run |
+| GIT-QUIZ-03 | Navigate through all ten questions with keyboard only. | Previous is disabled on the first question; Next/Finish is unavailable before answering; prompt and feedback focus changes are announced in a logical order. | Not run in a native browser/screen reader |
+| GIT-QUIZ-04 | Finish with a known mix of correct/incorrect answers, then restart. | Final score and percentage match the answers; restart returns to question 1 with a clean run score while per-question attempt history remains available. | Pass in Vitest component tests; native browser not run |
+| GIT-QUIZ-05 | Complete the sequence in Russian at 200% zoom and a 320px viewport. | Navigation, progress, score, feedback and final result remain localized, keyboard accessible and free of unintended page-wide horizontal overflow. | Not run in a native browser |
+| GIT-BRANCH-01 | Create develop and feature branches, add a commit and merge feature into develop. | Branch pointers and commit-parent graph update; active branch and history reflect the merge. | Pass in Vitest component tests; native browser not run |
+| GIT-BRANCH-02 | Create a hotfix from main, add a commit, merge to main, then attempt a release before back-merge. | A pending back-merge warning appears and release remains disabled until hotfix is merged into develop. | Pass in Vitest component tests; native browser not run |
+| GIT-BRANCH-03 | Back-merge hotfix and create a release, then reset the graph. | Release tag appears; reset returns the exercise to the initial main-only graph. | Pass in Vitest component tests; native browser not run |
+| GIT-PIPE-01 | Inject failure into a required pre-merge stage, then create a fix/new simulated commit and rerun. | Later stages are skipped after a required failure; retry uses a new simulated commit number and successful checks update the result. | Pass in Vitest component tests; native browser not run |
+| GIT-PIPE-02 | Inject an informational dependency-audit warning and separately a post-merge deployment failure. | Audit warning does not stop subsequent stages in this model; deployment failure is presented as release recovery with rollback, not as a retroactive PR gate failure. | Pass in Vitest component tests; native browser not run |
+
 ## Execution record
 
 Create one row per tested environment. Do not fill a result unless the procedure was actually run.
