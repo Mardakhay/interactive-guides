@@ -2317,12 +2317,12 @@ Done. Now run:</span>
       <div class="quiz-card" id="q14">
         <div class="quiz-header">
           <span class="quiz-num">Q14</span>
-          <div class="quiz-question">Why do we return a cleanup function from inside <code>useEffect</code> in the <code>useFetch</code> hook?</div>
+          <div class="quiz-question">Why should a fetching <code>useEffect</code> return a cleanup function?</div>
         </div>
         <div class="quiz-options">
-          <button class="quiz-option" onclick="checkAnswer(this, 'q14', false, 'The cleanup runs when the component unmounts or the URL changes, not before every fetch.')">To run code before the next fetch begins</button>
+          <button class="quiz-option" onclick="checkAnswer(this, 'q14', false, 'Cleanup undoes or stops the previous effect\'s work; the next setup starts any replacement request.')">To launch the next request from the cleanup function</button>
           <button class="quiz-option" onclick="checkAnswer(this, 'q14', false, 'The cleanup function doesn\'t call setState — it sets the cancelled flag to prevent stale state updates.')">To call setState with an empty value</button>
-          <button class="quiz-option" onclick="checkAnswer(this, 'q14', true, 'Correct! The cleanup prevents setting state after the component unmounts, avoiding memory leaks and stale state.')">To prevent setting state on an unmounted component</button>
+          <button class="quiz-option" onclick="checkAnswer(this, 'q14', true, 'Correct! Cleanup mirrors setup. Abort the request when possible or ignore its result when it is no longer current; a late Promise alone does not prove a memory leak.')">To cancel or ignore work that is no longer current</button>
           <button class="quiz-option" onclick="checkAnswer(this, 'q14', false, 'The cleanup is for managing async side effects, not for type inference — TypeScript handles that separately.')">To help TypeScript infer the return type</button>
         </div>
         <div class="quiz-feedback" id="q14-feedback"></div>
@@ -2347,12 +2347,12 @@ Done. Now run:</span>
       <div class="quiz-card" id="q16">
         <div class="quiz-header">
           <span class="quiz-num">Q16</span>
-          <div class="quiz-question">Where should TypeScript interfaces for your data models typically be stored in a React project?</div>
+          <div class="quiz-question">Where is a reasonable place for a TypeScript type shared across several unrelated features?</div>
         </div>
         <div class="quiz-options">
           <button class="quiz-option" onclick="checkAnswer(this, 'q16', false, 'node_modules is for external packages only — never put your own code there.')">In node_modules/</button>
           <button class="quiz-option" onclick="checkAnswer(this, 'q16', false, 'package.json stores metadata and scripts, not TypeScript types.')">In package.json</button>
-          <button class="quiz-option" onclick="checkAnswer(this, 'q16', true, 'Correct! A src/types/ folder (or types/index.ts) is the standard place to centralize shared TypeScript interfaces.')">In a src/types/ folder</button>
+          <button class="quiz-option" onclick="checkAnswer(this, 'q16', true, 'Correct! A src/types/ module can be useful for types shared across unrelated features. Types owned by one feature can stay with that feature; no single folder convention is universal.')">In a src/types/ folder</button>
           <button class="quiz-option" onclick="checkAnswer(this, 'q16', false, 'tsconfig.json is a configuration file for the compiler, not a place to store type definitions.')">In tsconfig.json</button>
         </div>
         <div class="quiz-feedback" id="q16-feedback"></div>
@@ -2379,12 +2379,12 @@ Done. Now run:</span>
       <div class="section-title">Vite — Next Generation Build Tool</div>
       <div class="card">
         <h3>Why Vite is so fast</h3>
-        <p>Traditional bundlers like Webpack bundle your entire application before serving it. Vite leverages native browser <span data-tip="ES Modules are natively supported by all modern browsers">ES Modules</span> during development, serving files on demand. This makes the dev server start nearly instantly regardless of project size.</p>
+        <p>During development, Vite serves application modules on demand through native browser <span data-tip="ES Modules are natively supported by modern browsers">ES Modules</span> and pre-bundles dependencies where needed. This can reduce startup work compared with bundling the entire application first, but actual startup and update times depend on the dependency graph, plugins, and configuration.</p>
         <ul style="margin-top:12px;">
-          <li><strong style="color:var(--blue)">Dev server</strong> starts in milliseconds (no bundling required)</li>
-          <li><strong style="color:var(--blue)">HMR</strong> (Hot Module Replacement) updates only changed files</li>
-          <li><strong style="color:var(--blue)">Production builds</strong> use Rollup for optimized output</li>
-          <li><strong style="color:var(--blue)">Plugin system</strong> compatible with Rollup plugins</li>
+          <li><strong style="color:var(--blue)">Dev server</strong> serves source modules on demand; dependencies may be pre-bundled</li>
+          <li><strong style="color:var(--blue)">HMR</strong> applies eligible module updates; some changes still require a full reload</li>
+          <li><strong style="color:var(--blue)">Production builds</strong> use a version-dependent bundler (Vite 5: Rollup; Vite 8: Rolldown)</li>
+          <li><strong style="color:var(--blue)">Plugin system</strong> supports Rollup-style plugins; check compatibility with the installed Vite major</li>
         </ul>
       </div>
 
@@ -2470,7 +2470,7 @@ Done. Now run:</span>
 
       <!-- Testing -->
       <div class="section-title purple">Testing with Vitest</div>
-      <p class="section-intro">Vitest is a Vite-native testing framework compatible with the Jest API. It's extremely fast because it shares Vite's transformation pipeline.</p>
+      <p class="section-intro">Vitest integrates with Vite's configuration and transformation pipeline and offers APIs similar to Jest. Many APIs overlap, but runner and setup behavior are not identical; use Vitest's own documentation for differences.</p>
 
       <div class="code-block">
         <div class="code-block-header">
@@ -2525,12 +2525,12 @@ Done. Now run:</span>
       <div class="quiz-card" id="q17">
         <div class="quiz-header">
           <span class="quiz-num">Q17</span>
-          <div class="quiz-question">Why is Vite's development server significantly faster than traditional webpack-based setups?</div>
+          <div class="quiz-question">Which mechanism helps Vite provide fast development feedback without promising it will outperform every webpack setup?</div>
         </div>
         <div class="quiz-options">
-          <button class="quiz-option" onclick="checkAnswer(this, 'q17', false, 'Vite uses Rollup for production builds, but during dev it uses native ES modules rather than bundling.')">It uses Rollup to bundle files faster</button>
+          <button class="quiz-option" onclick="checkAnswer(this, 'q17', false, 'Vite serves application source modules on demand during development and separately pre-bundles dependencies. Vite 8 uses Rolldown for production bundling.')">It bundles the entire application before every development request</button>
           <button class="quiz-option" onclick="checkAnswer(this, 'q17', false, 'Vite does use TypeScript, but native ES modules are the reason for the speed improvement.')">It doesn\'t support TypeScript</button>
-          <button class="quiz-option" onclick="checkAnswer(this, 'q17', true, 'Correct! Vite serves files using native browser ES modules during development — no bundling step needed, so the server starts in milliseconds.')">It leverages native browser ES modules and avoids bundling during development</button>
+          <button class="quiz-option" onclick="checkAnswer(this, 'q17', true, 'Correct! Vite enhances native ESM development with dependency pre-bundling and transforms where needed. Performance depends on the project and configuration.')">It serves source modules through native ES modules on demand, with dependency pre-bundling where needed</button>
           <button class="quiz-option" onclick="checkAnswer(this, 'q17', false, 'Skipping type checking is done with tsc --noEmit but that\'s not the reason Vite is fast in dev mode.')">It skips TypeScript type checking entirely</button>
         </div>
         <div class="quiz-feedback" id="q17-feedback"></div>
@@ -2555,12 +2555,12 @@ Done. Now run:</span>
       <div class="quiz-card" id="q19">
         <div class="quiz-header">
           <span class="quiz-num">Q19</span>
-          <div class="quiz-question">In Vitest / Jest, what does <code>vi.fn()</code> create?</div>
+          <div class="quiz-question">In Vitest, what does <code>vi.fn()</code> create? (Jest provides the corresponding API as <code>jest.fn()</code>.)</div>
         </div>
         <div class="quiz-options">
           <button class="quiz-option" onclick="checkAnswer(this, 'q19', false, 'vi.fn() is a mock function — it records how it was called but does not generate test data.')">A fixture that generates test data automatically</button>
           <button class="quiz-option" onclick="checkAnswer(this, 'q19', false, 'vi.fn() creates a mock function, not a test suite. describe() creates test suites.')">A test suite that groups related tests</button>
-          <button class="quiz-option" onclick="checkAnswer(this, 'q19', true, 'Correct! vi.fn() creates a "mock" or "spy" function that tracks how many times it was called and with what arguments.')">A mock function that tracks calls and arguments</button>
+          <button class="quiz-option" onclick="checkAnswer(this, 'q19', true, 'Correct! Vitest's vi.fn() creates a mock function that records calls and arguments. In Jest, use jest.fn().')">A mock function that tracks calls and arguments</button>
           <button class="quiz-option" onclick="checkAnswer(this, 'q19', false, 'render() from @testing-library/react renders components into a test DOM. vi.fn() is for mocking functions.')">A utility to render components in tests</button>
         </div>
         <div class="quiz-feedback" id="q19-feedback"></div>
@@ -2575,7 +2575,7 @@ Done. Now run:</span>
         <div class="quiz-options">
           <button class="quiz-option" onclick="checkAnswer(this, 'q20', false, 'HMR is a developer experience feature in the dev server — it does not apply to production builds.')">It replaces old modules in production bundles</button>
           <button class="quiz-option" onclick="checkAnswer(this, 'q20', false, 'TypeScript compilation is separate. HMR is specifically about updating changed modules without a full reload.')">It compiles TypeScript to JavaScript automatically</button>
-          <button class="quiz-option" onclick="checkAnswer(this, 'q20', true, 'Correct! HMR updates only the changed module in the browser without a full page reload, preserving application state.')">It updates only the changed modules in the browser without a full page reload</button>
+          <button class="quiz-option" onclick="checkAnswer(this, 'q20', true, 'Correct! Vite applies module updates when the module's HMR boundary can handle them; some changes still require a full page reload.')">It applies eligible module updates without requiring a full page reload</button>
           <button class="quiz-option" onclick="checkAnswer(this, 'q20', false, 'Route-based code splitting is a different concept. HMR is about live updates during development.')">It splits code based on routes automatically</button>
         </div>
         <div class="quiz-feedback" id="q20-feedback"></div>
@@ -3210,14 +3210,14 @@ export default defineConfig({
               </div>
               <pre><span class="kw">import</span> { defineConfig } <span class="kw">from</span> <span class="str">"vite"</span>;
 <span class="kw">import</span> react <span class="kw">from</span> <span class="str">"@vitejs/plugin-react"</span>;
-<span class="kw">import</span> path <span class="kw">from</span> <span class="str">"path"</span>;
+<span class="kw">import</span> { fileURLToPath } <span class="kw">from</span> <span class="str">"node:url"</span>;
 
 <span class="kw">export default</span> <span class="fn">defineConfig</span>({
   plugins<span class="op">:</span> [<span class="fn">react</span>()],
 
   resolve<span class="op">:</span> {
     alias<span class="op">:</span> {
-      <span class="str">"@"</span><span class="op">:</span> path.<span class="fn">resolve</span>(__dirname, <span class="str">"./src"</span>)
+      <span class="str">"@"</span><span class="op">:</span> fileURLToPath(<span class="kw">new</span> URL(<span class="str">"./src"</span>, import.meta.url))
     }
   },
 
@@ -3257,6 +3257,7 @@ export default defineConfig({
   }
 }</pre>
             </div>
+            <p class="section-intro"><strong>Configuration notes:</strong> In native ES modules, <code>__dirname</code> is not defined by default; resolve file paths from <code>import.meta.url</code>. TypeScript may also need a matching <code>compilerOptions.paths</code> alias. Vite's <code>server.proxy</code> applies to the development server only; configure production API routing on the real host or backend.</p>
           </div>
         </div>
       </div>

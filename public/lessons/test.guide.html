@@ -1145,16 +1145,17 @@ Code → Test → ❌ Fail → Fix → ✅ Pass</pre>
 </div>
 <pre><code><span class="cm">// ✅ Integration test — form submission flow</span>
 <span class="fn">test</span>(<span class="str">'shows a welcome message after submission'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">const</span> user = userEvent.<span class="fn">setup</span>();
   <span class="fn">render</span>(&lt;<span class="fn">LoginForm</span> /&gt;);
 
   <span class="cm">// Enter email</span>
-  <span class="kw">await</span> userEvent.<span class="fn">type</span>(
+  <span class="kw">await</span> user.<span class="fn">type</span>(
     screen.<span class="fn">getByLabelText</span>(<span class="str">'Email'</span>),
     <span class="str">'test@mail.com'</span>
   );
 
   <span class="cm">// Click the button</span>
-  <span class="kw">await</span> userEvent.<span class="fn">click</span>(
+  <span class="kw">await</span> user.<span class="fn">click</span>(
     screen.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">'Sign in'</span> })
   );
 
@@ -1255,7 +1256,8 @@ Code → Test → ❌ Fail → Fix → ✅ Pass</pre>
 <section class="section anchor" id="jest">
 <div class="section-label">Section 03</div>
 <h2 class="section-title">Jest — Setup &amp; First Test</h2>
-<p class="section-desc">Jest is one of the most popular JavaScript testing frameworks. It was created at Facebook and works extremely well with React.</p>
+<p class="section-desc">Jest is a widely used JavaScript test runner and works with React when its module, JSX/TSX transform, environment and setup are configured correctly. The examples below deliberately teach Jest syntax; they are not all drop-in commands for every React project.</p>
+<div class="callout info reveal"><div class="callout-title">Runner note for this repository</div><p>This project uses Vitest, React Testing Library and <code>user-event</code>. Use <code>vi.fn()</code>, <code>vi.mock()</code> and <code>vi.spyOn()</code> in this repository rather than copying Jest-only globals unchanged. Installing <code>jest</code> alone does not configure a React transform or test environment; follow current setup documentation for the selected runner.</p></div>
 <!-- INSTALL -->
 <div class="code-wrap reveal">
 <div class="code-header">
@@ -1265,14 +1267,11 @@ Code → Test → ❌ Fail → Fix → ✅ Pass</pre>
 <button class="copy-btn" onclick="copyCode(this)">Copy</button>
 </div>
 </div>
-<pre><code><span class="cm"># Create React App — Jest is included! ✅</span>
-npx create-react-app my-app
+<pre><code><span class="cm"># Example dependencies when a project deliberately chooses Jest</span>
+npm install --save-dev jest @testing-library/react @testing-library/jest-dom @testing-library/user-event
 
-<span class="cm"># For a Vite project:</span>
-npm install --save-dev jest
-npm install --save-dev @testing-library/react
-npm install --save-dev @testing-library/jest-dom
-npm install --save-dev @testing-library/user-event</code></pre>
+<span class="cm"># This install alone does not configure JSX/TSX transforms, a DOM environment,</span>
+<span class="cm"># or setup files; follow the chosen runner configuration guide.</span></code></pre>
 </div>
 <!-- FILE STRUCTURE -->
 <div class="callout info reveal">
@@ -1428,11 +1427,11 @@ npm install --save-dev @testing-library/user-event</code></pre>
 <div class="matcher-grid reveal">
 <div class="matcher-item">
 <div class="matcher-name">.toBe()</div>
-<div class="matcher-desc">Primitive value comparison (<span class="ic">===</span>). Use it for numbers, strings, and booleans.</div>
+<div class="matcher-desc">Uses <span class="ic">Object.is</span> semantics. It fits primitive values and checks reference identity for objects; it is not identical to <span class="ic">===</span> for every edge case.</div>
 </div>
 <div class="matcher-item">
 <div class="matcher-name">.toEqual()</div>
-<div class="matcher-desc">Deep comparison for objects/arrays. Use <span class="ic">toBe</span> only for primitive values.</div>
+<div class="matcher-desc">Compares object/array structure recursively. Use <span class="ic">toStrictEqual</span> when differences such as missing versus undefined properties or object-type details matter.</div>
 </div>
 <div class="matcher-item">
 <div class="matcher-name">.toBeTruthy()</div>
@@ -1781,7 +1780,7 @@ jest.<span class="fn">mock</span>(<span class="str">'./emailService'</span>);
 </div>
 <div class="card">
 <h3><span class="ic">findBy...</span></h3>
-<p>Async — waits for the element. For elements that appear after an API response. Default waits 1000ms.</p>
+<p>Async — retries until the element is found or the configured async timeout is reached. Use it for elements expected after an API response; timeout settings can vary by test configuration.</p>
 <div class="feature-list" style="margin-top:0.75rem;">
 <li>0 found → ❌ Error (timeout)</li>
 <li>1 found → ✅ Promise</li>

@@ -17,8 +17,8 @@ export interface InlineHtmlSource {
 
 /**
  * Lesson HTML rendered from an external or static file via an iframe.
- * Not used by any lesson yet — this is the extension point for future
- * standalone HTML lesson files.
+ * Retained as a migration fallback for lessons whose embedded content is
+ * still empty.
  */
 export interface ExternalHtmlSource {
   readonly type: 'external-html';

@@ -1,0 +1,798 @@
+{
+  "id": "typescript.fundamentals",
+  "locale": "ru",
+  "version": 5,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-29",
+  "moduleId": "month-3-week-10",
+  "week": 10,
+  "order": 1,
+  "title": "Основы TypeScript: типы, union и обобщённые коллекции",
+  "description": "Изучи, как TypeScript добавляет статическую проверку к JavaScript, моделируй структуру объектов, сужай типы неопределённых значений и используй типы, делающие преобразования данных безопаснее.",
+  "estimatedMinutes": 100,
+  "difficulty": "beginner",
+  "prerequisites": [
+    "tooling.node-npm-vite",
+    "js.functions-arrays-objects"
+  ],
+  "learningOutcomes": [
+    "Объяснять различие между статической проверкой TypeScript и runtime-поведением JavaScript.",
+    "Использовать аннотации и вывод типов для примитивных и объектных значений.",
+    "Объяснять, почему unknown безопаснее any, и сужать тип перед использованием.",
+    "Моделировать объекты через interface и type alias, включая optional и union свойства.",
+    "Использовать generic-типы вроде Array<T>, сохраняя связь между входным и выходным типами.",
+    "Создавать типизированный список пользователей и безопасно искать, обновлять и фильтровать его.",
+    "Выводить типы create, preview и patch с помощью utility types, отличая статическую проверку от runtime-валидации.",
+    "Объяснять, какие проверки включает strict в TypeScript и почему они не валидируют данные во время выполнения."
+  ],
+  "tags": [
+    "typescript",
+    "types",
+    "type-inference",
+    "unknown",
+    "union-types",
+    "interface",
+    "generics"
+  ],
+  "blocks": [
+    {
+      "id": "ts-purpose",
+      "type": "heading",
+      "level": 2,
+      "text": "TypeScript проверяет программу до выполнения"
+    },
+    {
+      "id": "ts-purpose-body",
+      "type": "paragraph",
+      "text": "TypeScript расширяет JavaScript статической системой типов. Проверяющий типы анализирует код во время разработки или сборки, чтобы обнаружить многие ошибки до выполнения программы. Аннотации типов и интерфейсы в основном удаляются из скомпилированного JavaScript: браузер или Node выполняют JavaScript, а не объявления TypeScript. TypeScript не может доказать безопасность любого runtime-поведения, а внешние данные могут не соответствовать типу, который ты ожидаешь."
+    },
+    {
+      "id": "strict-mode-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что делает настройка `\"strict\": true` в tsconfig.json?",
+      "options": [
+        {
+          "id": "checks",
+          "text": "Включает группу более строгих проверок при компиляции, включая такие проверки, как `noImplicitAny` и `strictNullChecks`.",
+          "correct": true,
+          "feedback": "Верно. Опция strict включает связанные статические проверки, которые помогают обнаруживать небезопасные предположения; сама настройка не меняет runtime-поведение JavaScript."
+        },
+        {
+          "id": "runtime",
+          "text": "Добавляет runtime-валидаторы, отклоняющие любой API payload, который не соответствует interface.",
+          "correct": false,
+          "feedback": "Интерфейсы TypeScript удаляются при компиляции. Для недоверенных API-данных нужна runtime-схема или явная валидация."
+        },
+        {
+          "id": "emit",
+          "text": "Превращает TypeScript в отдельную браузерную runtime-среду и оставляет типы в output.",
+          "correct": false,
+          "feedback": "Браузеры по-прежнему выполняют JavaScript; объявления типов TypeScript обычно удаляются из результата компиляции."
+        },
+        {
+          "id": "disable",
+          "text": "Отключает ошибки компилятора, чтобы приложение собиралось при несогласованных типах.",
+          "correct": false,
+          "feedback": "Strict mode обычно включает дополнительные проверки, поэтому он может обнаружить больше проблем, а не подавлять их."
+        }
+      ],
+      "explanation": "Опция `strict` включает группу статических проверок типов. Она улучшает диагностику во время компиляции, но не заменяет runtime-валидацию сетевых данных, storage и пользовательского ввода."
+    },
+    {
+      "id": "ts-mental-model",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Типы описывают, на что код может рассчитывать",
+      "text": "Тип — это контракт для значений в определённой точке программы. Хорошие типы делают предположения явными, улучшают подсказки редактора и помогают при рефакторинге. Но сами по себе они не выполняют runtime-проверку, поэтому валидируй данные API, хранилища, пользовательского ввода и других недоверенных границ."
+    },
+    {
+      "id": "annotations-inference",
+      "type": "heading",
+      "level": 2,
+      "text": "Аннотации и вывод типов"
+    },
+    {
+      "id": "annotations-inference-body",
+      "type": "paragraph",
+      "text": "Аннотация явно указывает допустимый тип, например let count: number = 0. При выводе типов TypeScript определяет тип по начальной величине или контексту, поэтому не нужно аннотировать каждую локальную переменную. Добавляй аннотации там, где они проясняют публичный контракт, границу функции или неоднозначное значение; не дублируй очевидную информацию без пользы."
+    },
+    {
+      "id": "primitive-types",
+      "type": "code",
+      "language": "typescript",
+      "caption": "Аннотации примитивных типов и вывод типов",
+      "code": "const title: string = \"Study plan\";\nlet completedCount: number = 0;\nconst isPublished = false; // inferred as boolean\nconst tags: string[] = [\"html\", \"css\"];\n\ncompletedCount += 1;"
+    },
+    {
+      "id": "functions-types",
+      "type": "heading",
+      "level": 2,
+      "text": "Типизируй входы и выходы функции"
+    },
+    {
+      "id": "functions-types-body",
+      "type": "paragraph",
+      "text": "Типы параметров ограничивают аргументы, которые можно передать функции. Тип возвращаемого значения описывает результат успешного вызова; TypeScript часто выводит его автоматически, но явный return type может прояснить переиспользуемый API. Функция, намеренно ничего не возвращающая, может иметь тип void. Не используй any просто для подавления ошибок: это отключает многие проверки для выражения и производных от него значений."
+    },
+    {
+      "id": "unknown-any",
+      "type": "heading",
+      "level": 2,
+      "text": "unknown и any"
+    },
+    {
+      "id": "unknown-any-body",
+      "type": "paragraph",
+      "text": "Any отключает проверку типов для значения и позволяет большинство операций без доказательств. Unknown тоже принимает любое входное значение, но требует проверить или сузить его тип перед использованием в качестве более конкретного значения. Предпочитай unknown на границах, где форма значения ещё неизвестна, затем выполняй проверку. Type assertion меняет предположение компилятора, но не исследует и не преобразует runtime-значение."
+    },
+    {
+      "id": "unknown-example",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "function describeValue(value: unknown): string {\n  if (typeof value === \"string\") {\n    return value.toUpperCase();\n  }\n\n  if (typeof value === \"number\") {\n    return value.toFixed(2);\n  }\n\n  return \"Unsupported value\";\n}",
+      "steps": [
+        {
+          "title": "Прими неопределённое значение безопасно",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "Unknown сообщает, что функция может получить значения разных типов, но не позволяет произвольно использовать их в теле функции."
+        },
+        {
+          "title": "Сузь тип проверкой во время выполнения",
+          "lineStart": 2,
+          "lineEnd": 4,
+          "explanation": "Внутри ветки typeof value === 'string' тип value сужается до string, поэтому доступны методы строки."
+        },
+        {
+          "title": "Обработай другой поддерживаемый тип",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "Проверка number сужает value до числа, позволяя вызвать toFixed. В каждой ветке значение используется только после проверки."
+        },
+        {
+          "title": "Обозначь неподдерживаемые значения явно",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "explanation": "Значения, которые не являются строкой или числом, попадают в запасную ветку. Для реальных данных нужно решить, отклонять ли их, сообщать ли об ошибке или поддерживать дополнительные варианты."
+        }
+      ]
+    },
+    {
+      "id": "objects-interface-type",
+      "type": "heading",
+      "level": 2,
+      "text": "Моделируй объекты с помощью interface и type"
+    },
+    {
+      "id": "objects-interface-type-body",
+      "type": "paragraph",
+      "text": "Interface описывает форму объекта и часто подходит для сущностей предметной области, например User или Product. Type alias тоже может описывать объект, но также позволяет задавать union, intersection и другие типы. Для многих объектных объявлений они пересекаются по возможностям; выбирай исходя из нужной композиции и соглашений проекта, а не из предположения, что один всегда лучше другого."
+    },
+    {
+      "id": "object-shape",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "interface User {\n  id: string;\n  name: string;\n  email?: string;\n  role: \"learner\" | \"admin\";\n}\n\nconst user: User = {\n  id: \"u-1\",\n  name: \"Mira\",\n  role: \"learner\",\n};",
+      "steps": [
+        {
+          "title": "Определи обязательные свойства",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Id и name — обязательные строки. Role является union двух строковых литералов, поэтому произвольная строка не подходит."
+        },
+        {
+          "title": "Отметь необязательное свойство",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "Email?: string означает, что свойство может отсутствовать. Если оно есть, значение должно быть строкой, если другие настройки или объявление не задают иное."
+        },
+        {
+          "title": "Проверь объект по контракту",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "explanation": "Объект содержит обязательные поля и допустимую роль. Email можно опустить, поскольку свойство необязательное."
+        }
+      ]
+    },
+    {
+      "id": "legacy-product-interface-example",
+      "type": "codeWalkthrough",
+      "language": "ts",
+      "code": "interface Product {\n  id: number;\n  name: string;\n  price: number;\n  category: \"electronics\" | \"clothing\" | \"food\";\n  description?: string;\n  inStock: boolean;\n}\n\nconst laptop: Product = {\n  id: 1,\n  name: \"Sample laptop\",\n  price: 1299,\n  category: \"electronics\",\n  description: \"14-inch laptop\",\n  inStock: true,\n};",
+      "steps": [
+        {
+          "title": "Опиши обязательные и необязательные поля",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "Интерфейс явно задаёт тип каждого поля. Union ограничивает допустимые строки категории, а description можно не указывать."
+        },
+        {
+          "title": "Создай значение, соответствующее Product",
+          "lineStart": 10,
+          "lineEnd": 17,
+          "explanation": "Объект содержит обязательные поля и допустимую категорию. TypeScript проверяет форму при компиляции, но не валидирует произвольный JSON во время выполнения."
+        }
+      ]
+    },
+    {
+      "id": "unions-narrowing",
+      "type": "heading",
+      "level": 2,
+      "text": "Union-типы и сужение"
+    },
+    {
+      "id": "unions-narrowing-body",
+      "type": "paragraph",
+      "text": "Union-тип говорит, что значение может быть одним из нескольких вариантов. Например, string | number означает строку или число. Пока условие не сузило union, код может использовать только операции, действительные для всех вариантов. Для сужения применяются typeof, сравнение на равенство, оператор in, дискриминирующие свойства или пользовательские type guard. Это способ превратить неопределённый контракт в конкретное значение, с которым можно работать."
+    },
+    {
+      "id": "union-example",
+      "type": "code",
+      "language": "typescript",
+      "caption": "Union заставляет учитывать оба варианта",
+      "code": "type Identifier = string | number;\n\nfunction formatId(id: Identifier): string {\n  if (typeof id === \"number\") {\n    return `ID-${id.toString()}`;\n  }\n  return id.trim();\n}"
+    },
+    {
+      "id": "generics",
+      "type": "heading",
+      "level": 2,
+      "text": "Generics сохраняют связи между типами"
+    },
+    {
+      "id": "generics-body",
+      "type": "paragraph",
+      "text": "Параметр типа позволяет коду работать с семейством типов, сохраняя информацию о конкретном типе для каждого вызова. Array<T> означает массив значений типа T. Функция first<T>(items: T[]): T | undefined связывает результат с типом элемента: для User[] результат будет User | undefined, а не произвольное значение any."
+    },
+    {
+      "id": "generic-example",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "function first<T>(items: T[]): T | undefined {\n  return items[0];\n}\n\nconst names = first([\"Mira\", \"Omar\"]);\nconst counts = first([3, 5, 8]);\n// names: string | undefined\n// counts: number | undefined",
+      "steps": [
+        {
+          "title": "Введи параметр типа",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "T обозначает тип элемента, выбранный для конкретного вызова. Функция переиспользуется, не теряя связь с этим типом."
+        },
+        {
+          "title": "Учти пустой массив",
+          "lineStart": 2,
+          "lineEnd": 2,
+          "explanation": "Массив может быть пустым, поэтому items[0] может быть undefined. Тип результата делает эту возможность явной каждому вызывающему коду."
+        },
+        {
+          "title": "Выведи T из каждого вызова",
+          "lineStart": 4,
+          "lineEnd": 7,
+          "explanation": "Первый массив содержит строки, значит результат — string | undefined. Второй массив содержит числа, поэтому результат — number | undefined."
+        }
+      ]
+    },
+    {
+      "id": "legacy-generic-filter-example",
+      "type": "codeWalkthrough",
+      "language": "ts",
+      "code": "function filterItems<T>(\n  items: T[],\n  predicate: (item: T) => boolean,\n): T[] {\n  return items.filter(predicate);\n}\n\ntype Product = {\n  id: string;\n  category: \"electronics\" | \"clothing\" | \"food\";\n  inStock: boolean;\n};\n\nconst products: Product[] = [\n  { id: \"p-1\", category: \"electronics\", inStock: true },\n  { id: \"p-2\", category: \"food\", inStock: true },\n];\n\nconst inStockElectronics = filterItems(\n  products,\n  (product) => product.category === \"electronics\" && product.inStock,\n);\n// inStockElectronics is Product[].",
+      "steps": [
+        {
+          "title": "Свяжи тип элемента с predicate и результатом",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "Один и тот же T описывает каждый входной элемент и элемент результата. Predicate решает, нужно ли включить элемент."
+        },
+        {
+          "title": "Вызови helper с конкретным доменным типом",
+          "lineStart": 8,
+          "lineEnd": 18,
+          "explanation": "Функция работает с Product и другими типами, не теряя конкретный тип результата."
+        },
+        {
+          "title": "Изучи выведенный тип результата",
+          "lineStart": 19,
+          "lineEnd": 23,
+          "explanation": "Результат остаётся Product[]. Helper не типизирует Array.filter лучше встроенного метода; пример показывает, как generic API сохраняет связь типов."
+        }
+      ]
+    },
+    {
+      "id": "typed-user-list",
+      "type": "heading",
+      "level": 2,
+      "text": "Практический типизированный список пользователей"
+    },
+    {
+      "id": "typed-user-list-body",
+      "type": "paragraph",
+      "text": "Полезная модель типов делает повседневную обработку коллекций безопаснее. Если массив имеет тип User[], callback filter получает User, find возвращает User | undefined, а функция обновления пользователя должна сохранять остальные свойства. Типы помогают обнаруживать опечатки в свойствах и недопустимые роли, но не валидируют произвольный JSON во время выполнения."
+    },
+    {
+      "id": "typed-user-list-example",
+      "type": "code",
+      "language": "typescript",
+      "caption": "Фильтрация и обновление типизированной коллекции",
+      "code": "interface User {\n  id: string;\n  name: string;\n  role: \"learner\" | \"admin\";\n}\n\nconst users: User[] = [\n  { id: \"u-1\", name: \"Mira\", role: \"learner\" },\n  { id: \"u-2\", name: \"Omar\", role: \"admin\" },\n];\n\nconst admins = users.filter((user) => user.role === \"admin\");\nconst updatedUsers = users.map((user) =>\n  user.id === \"u-1\" ? { ...user, name: \"Mira R.\" } : user,\n);"
+    },
+    {
+      "id": "type-boundaries",
+      "type": "callout",
+      "tone": "important",
+      "title": "Статические типы не валидируют JSON во время выполнения",
+      "text": "Аннотация fetch(...).json() as User[] лишь говорит TypeScript, что ты хочешь так считать; она не доказывает, что сервер прислал корректные объекты User. Для данных из недоверенной границы нужна runtime-валидация. В этом проекте Zod уже используется для проверки структурированного контента уроков и curriculum JSON."
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В чём ключевое различие между unknown и any с точки зрения безопасности?",
+      "options": [
+        {
+          "id": "a",
+          "text": "unknown требует сужения перед операциями, специфичными для типа",
+          "correct": true,
+          "feedback": "Unknown допускает неизвестное значение, но программа должна проверить тип до использования специфичных свойств или методов."
+        },
+        {
+          "id": "b",
+          "text": "unknown автоматически преобразует любое значение в строку",
+          "correct": false,
+          "feedback": "Ни unknown, ни аннотация типа не преобразуют runtime-значение; нужно явное преобразование или проверка."
+        },
+        {
+          "id": "c",
+          "text": "any безопаснее, потому что сообщает о каждой недопустимой операции",
+          "correct": false,
+          "feedback": "Any отключает многие проверки, поэтому недопустимые операции могут пройти проверку типов."
+        },
+        {
+          "id": "d",
+          "text": "unknown может представлять только null и undefined",
+          "correct": false,
+          "feedback": "Unknown может хранить значение любого runtime-типа; ограничение касается использования до сужения."
+        }
+      ],
+      "explanation": "Unknown сохраняет безопасность, требуя доказать тип значения до разрешения специфичных операций."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "Type assertion, например value as User, проверяет, что runtime-объект содержит все свойства типа User.",
+      "options": [
+        {
+          "id": "true",
+          "text": "Верно",
+          "correct": false,
+          "feedback": "Type assertion меняет предположение компилятора, но не исследует и не валидирует runtime-объект."
+        },
+        {
+          "id": "false",
+          "text": "Неверно",
+          "correct": true,
+          "feedback": "Для runtime-валидации нужны проверки реальных данных или библиотека валидации; одной assertion недостаточно, так как она удаляется при компиляции."
+        }
+      ],
+      "explanation": "Информация о типах во время компиляции не доказывает автоматически, что внешние данные соответствуют контракту во время выполнения."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Какие утверждения о типах TypeScript верны? Выбери все подходящие варианты.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Необязательное свойство может отсутствовать в объекте",
+          "correct": true,
+          "feedback": "Модификатор ? помечает свойство как необязательное."
+        },
+        {
+          "id": "b",
+          "text": "Union-тип может описывать несколько допустимых альтернатив",
+          "correct": true,
+          "feedback": "Union вроде string | number представляет любой из вариантов; перед специфическими операциями его можно сузить."
+        },
+        {
+          "id": "c",
+          "text": "Generic всегда означает, что runtime-функция создаёт новый класс",
+          "correct": false,
+          "feedback": "Generics описывают связи между типами и не создают автоматически runtime-классы или объекты."
+        },
+        {
+          "id": "d",
+          "text": "Объявления типов TypeScript обычно остаются в скомпилированном браузерном JavaScript",
+          "correct": false,
+          "feedback": "Синтаксис, используемый только для типов, удаляется во время компиляции, оставляя JavaScript для runtime."
+        }
+      ],
+      "explanation": "Типы описывают допустимые значения и отношения во время компиляции, а не являются общей runtime-системой объектов."
+    },
+    {
+      "id": "practice-typed-users",
+      "type": "codingExercise",
+      "title": "Смоделируй и обработай типизированный список пользователей",
+      "language": "typescript",
+      "context": "Напиши небольшой TypeScript-модуль для списка пользователей. Редактор сохраняет черновик, но пока не компилирует и не выполняет TypeScript, поэтому проверь код в своём TypeScript-проекте.",
+      "instructions": [
+        "Определи User с помощью interface или type, указав id, name и role.",
+        "Используй union для role, чтобы принимались только \"learner\" или \"admin\".",
+        "Напиши getAdmins(users), возвращающую только администраторов.",
+        "Напиши findUser(users, id) с типом результата, допускающим отсутствие совпадения.",
+        "Напиши renameUser(users, id, newName), которая возвращает новый массив и сохраняет остальные свойства.",
+        "Напиши firstUser<T>(items: T[]): T | undefined и объясни, почему возможен undefined.",
+        "Добавь намеренно некорректный объект или return и проверь, что TypeScript сообщает об ошибке.",
+        "Объясни, почему внешний JSON всё равно требует runtime-валидации после определения User."
+      ],
+      "requirements": [
+        "Форма пользователя содержит обязательные свойства с корректными типами.",
+        "Union роли отклоняет строки вне двух разрешённых значений.",
+        "getAdmins возвращает User[] и не изменяет исходную коллекцию.",
+        "Тип findUser явно описывает случай отсутствующего пользователя.",
+        "renameUser возвращает обновлённые данные, не теряя остальные поля.",
+        "Generic-помощник сохраняет тип элементов и обрабатывает пустой массив.",
+        "Ученик различает проверки времени компиляции и runtime-валидацию."
+      ],
+      "starterCode": "interface User {\n  id: string;\n  name: string;\n  role: \"learner\" | \"admin\";\n}\n\nfunction getAdmins(users: User[]): User[] {\n  // TODO: отфильтруй администраторов.\n}\n\nfunction findUser(users: User[], id: string): User | undefined {\n  // TODO: найди пользователя по ID.\n}\n\nfunction renameUser(users: User[], id: string, newName: string): User[] {\n  // TODO: создай новый массив и обнови только имя совпавшего пользователя.\n}\n\nfunction firstUser<T>(items: T[]): T | undefined {\n  // TODO: верни первый элемент, если он есть.\n}",
+      "hints": [
+        "Используй User в сигнатурах функций, чтобы контракт был виден вызывающему коду.",
+        "Find может вернуть undefined, поэтому укажи это в типе результата.",
+        "Используй spread для обновления одного свойства, чтобы сохранить остальные поля в новом объекте."
+      ],
+      "successCriteria": [
+        "Модуль проходит строгую проверку TypeScript.",
+        "Недопустимые значения роли и неправильные типы свойств отклоняются компилятором.",
+        "Функции возвращают новые данные, а не изменяют входной массив.",
+        "Случай отсутствующего пользователя и пустого массива описаны явно.",
+        "Ты можешь объяснить, какие гарантии существуют только на этапе компиляции, а какие требуют runtime-проверки."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "TypeScript добавляет статическую проверку, но компилируется в JavaScript для выполнения.",
+        "Вывод типов избавляет от ненужных аннотаций; явные типы полезны для важных контрактов и границ.",
+        "Unknown безопаснее any, так как требует сужения перед специфичными операциями.",
+        "Используй interface/type для описания формы, union для альтернатив, optional для отсутствия свойства и generics для сохранения связи типов.",
+        "Типы сами не проверяют внешний JSON во время выполнения; валидируй данные на границах доверия."
+      ]
+    },
+    {
+      "id": "deep-ts-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Глубокое погружение: narrowing, discriminated unions и границы доверия runtime-данным"
+    },
+    {
+      "id": "deep-ts-model",
+      "type": "paragraph",
+      "text": "TypeScript проверяет отношения между значениями во время сборки, но типы удаляются из готового JavaScript. Аннотация типа или `as User` не проверяет payload, полученный с сервера. Считай внешние данные `unknown`, проверь их во время выполнения и только после этого возвращай доверенный тип предметной области. Discriminated unions помогают компилятору сузить допустимые поля для каждого состояния и выявить необработанные варианты."
+    },
+    {
+      "id": "deep-ts-trace",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "type LoadState<T> =\n  | { status: 'idle' }\n  | { status: 'loading' }\n  | { status: 'success'; data: T }\n  | { status: 'error'; message: string };\n\nfunction assertNever(value: never): never {\n  throw new Error(`Unhandled state: ${value}`);\n}\n\nfunction describe<T>(state: LoadState<T>): string {\n  switch (state.status) {\n    case 'idle': return 'Not started';\n    case 'loading': return 'Loading';\n    case 'success': return 'Loaded';\n    case 'error': return state.message;\n    default: return assertNever(state);\n  }\n}",
+      "steps": [
+        {
+          "title": "Свяжи состояние с данными через discriminant",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "У каждого варианта union есть литеральный status. Только success содержит data, а только error — message, поэтому код не может случайно обращаться к несуществующим полям текущего состояния."
+        },
+        {
+          "title": "Позволь control flow сузить тип",
+          "lineStart": 11,
+          "lineEnd": 18,
+          "explanation": "switch по status сужает state до конкретного участника union в каждой ветке. Компилятор знает, что state.message существует в ветке error."
+        },
+        {
+          "title": "Сделай пропущенные варианты заметными",
+          "lineStart": 7,
+          "lineEnd": 9,
+          "explanation": "assertNever принимает только never. Если добавить новый status, но не обновить switch, вызов перестанет проходить проверку типов."
+        }
+      ]
+    },
+    {
+      "id": "deep-ts-runtime-boundary",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Типы исчезают во время выполнения",
+      "text": "Это не валидация: `const user = payload as User`. Выражение меняет представление компилятора о значении, а не сам payload. Для сетевых данных разбирай `unknown` с runtime-схемой или явными проверками полей, которые реально нужны приложению."
+    },
+    {
+      "id": "deep-ts-example",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "type User = { id: number; name: string };\n\nfunction parseUser(value: unknown): User {\n  if (typeof value !== 'object' || value === null) {\n    throw new Error('User must be an object');\n  }\n  const candidate = value as Record<string, unknown>;\n  if (typeof candidate.id !== 'number' || typeof candidate.name !== 'string') {\n    throw new Error('Invalid user shape');\n  }\n  return { id: candidate.id, name: candidate.name };\n}",
+      "steps": [
+        {
+          "title": "Принимай unknown на недоверенной границе",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "unknown заставляет реализацию доказать наличие нужных свойств. Первая проверка отвергает null и значения, которые не являются объектами."
+        },
+        {
+          "title": "Проверь каждое обязательное поле",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "explanation": "Форма объекта проверяется до создания доверенного результата User. Для больших payload лучше использовать поддерживаемый schema validator, а не длинную цепочку ручных проверок."
+        },
+        {
+          "title": "Верни контракт приложения",
+          "lineStart": 11,
+          "lineEnd": 11,
+          "explanation": "Возвращённый объект содержит только проверенные поля из примера; дополнительные серверные свойства автоматически не считаются доверенными."
+        }
+      ]
+    },
+    {
+      "id": "deep-ts-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что гарантирует во время выполнения `const user = payload as User`, если payload пришёл из HTTP-ответа?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Проверяет, что payload содержит числовой id и строковый name",
+          "correct": false,
+          "feedback": "Type assertion удаляется при компиляции и не исследует ответ во время выполнения."
+        },
+        {
+          "id": "b",
+          "text": "Просит компилятор считать выражение User, но не валидирует фактическое значение",
+          "correct": true,
+          "feedback": "Payload всё ещё может быть неправильной формы. На внешней границе используй runtime-валидацию."
+        },
+        {
+          "id": "c",
+          "text": "Преобразует JSON в экземпляр класса",
+          "correct": false,
+          "feedback": "Type assertion не преобразует значение и не создаёт экземпляр."
+        },
+        {
+          "id": "d",
+          "text": "Удаляет все дополнительные ключи payload",
+          "correct": false,
+          "feedback": "Assertion не меняет содержимое объекта."
+        }
+      ],
+      "explanation": "Статическая проверка типов и runtime-валидация связаны, но решают разные задачи."
+    },
+    {
+      "id": "deep-ts-practice",
+      "type": "codingExercise",
+      "title": "Провалидируй unknown из API и исчерпывающе обработай состояние запроса",
+      "language": "typescript",
+      "context": "Построй безопасную границу типов вместо слепого доверия JSON через assertion.",
+      "instructions": [
+        "Реализуй runtime-парсер unknown для значения формы `{ id: number, name: string }`.",
+        "Отклоняй null, массивы и объекты с обязательными полями неправильных типов.",
+        "После проверки возвращай новый объект User.",
+        "Реализуй switch для discriminated union LoadState и сделай пропущенные статусы заметными во время проверки типов.",
+        "Объясни, где schema validator снизит стоимость поддержки для более крупного payload."
+      ],
+      "requirements": [
+        "Недоверенный ввод начинается как unknown.",
+        "Парсер проверяет runtime-данные до возврата User.",
+        "Неверные значения отклоняются явно, а не проходят через assertion.",
+        "Каждая ветка состояния использует поля, допустимые для её status.",
+        "Проверка исчерпывающего набора укажет на новый вариант union, если для него нет ветки."
+      ],
+      "starterCode": "type User = { id: number; name: string };\n\nfunction parseUser(value: unknown): User {\n  // TODO: проверь значение во время выполнения и верни только доверенные поля.\n}\n\ntype LoadState<T> =\n  | { status: 'loading' }\n  | { status: 'success'; data: T }\n  | { status: 'error'; message: string };\n\nfunction describe<T>(state: LoadState<T>): string {\n  // TODO: используй switch по status и обработай все варианты.\n}",
+      "hints": [
+        "unknown запрещает обращаться к полям до runtime-проверок.",
+        "typeof null равно 'object', поэтому проверяй null отдельно.",
+        "Используй helper с never в default-ветке, чтобы проверять полноту switch."
+      ],
+      "successCriteria": [
+        "Парсер отклоняет некорректные runtime-значения.",
+        "Валидный payload возвращает типизированный User.",
+        "Обработка состояния использует narrowing по discriminant.",
+        "Пропущенный вариант union приводит к ошибке type-check или явной проверки исчерпывающего набора."
+      ]
+    },
+    {
+      "id": "utility-types-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Utility types преобразуют структуру только на этапе проверки типов"
+    },
+    {
+      "id": "utility-types-body",
+      "type": "paragraph",
+      "text": "Partial<T>, Required<T>, Pick<T, K>, Omit<T, K> и Readonly<T> выводят новую статическую форму из существующего типа. Они уменьшают повторение, когда доменная модель и payload API имеют общие поля, но не создают runtime-валидатор и не клонируют/замораживают объекты. Используйте производный тип на границе только тогда, когда его смысл соответствует реальной операции."
+    },
+    {
+      "id": "utility-types-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "interface Article {\n  id: string;\n  title: string;\n  body: string;\n  author: string;\n  publishedAt: Date;\n}\n\ntype CreateArticle = Omit<Article, \"id\" | \"publishedAt\">;\ntype ArticlePreview = Pick<Article, \"id\" | \"title\" | \"author\">;\ntype ArticlePatch = { id: string } & Partial<Omit<Article, \"id\">>;\n\nconst patch: ArticlePatch = { id: \"a-7\", title: \"Revised\" };",
+      "steps": [
+        {
+          "title": "Начните с доменной модели",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "Article описывает полную форму объекта. В create-запросе отсутствуют поля, создаваемые сервером; preview содержит только выбранные поля."
+        },
+        {
+          "title": "Выведите типы для отдельных операций",
+          "lineStart": 9,
+          "lineEnd": 11,
+          "explanation": "Omit удаляет указанные ключи, Pick оставляет только выбранные, Partial делает каждое оставшееся поле необязательным. Пересечение сохраняет обязательный id в patch."
+        },
+        {
+          "title": "Проверьте, что разрешает компилятор",
+          "lineStart": 13,
+          "lineEnd": 13,
+          "explanation": "Patch может содержать id и только изменённые поля. Эти типы исчезают из JavaScript и не проверяют JSON, полученный от сервера."
+        }
+      ]
+    },
+    {
+      "id": "utility-types-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Optional не равен nullable, а Partial действует неглубоко",
+      "text": "При strictNullChecks необязательное свойство может отсутствовать, а при чтении иметь значение undefined; это не означает, что разрешён null. Partial меняет только поля верхнего уровня, а Readonly ограничивает присваивания в типах, но не вызывает Object.freeze. Недоверенные значения нужно проверять во время выполнения, а семантику вложенного patch определять отдельно."
+    },
+    {
+      "id": "utility-types-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что гарантирует `Partial<Omit<Article, \"id\">>` во время выполнения?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Он удаляет id из каждого объекта JavaScript и делает остальные свойства необязательными во время выполнения.",
+          "correct": false,
+          "feedback": "Utility types не переписывают объекты: после компиляции они стираются."
+        },
+        {
+          "id": "b",
+          "text": "Он проверяет входящий JSON patch перед отправкой запроса.",
+          "correct": false,
+          "feedback": "Статические типы не проверяют внешние данные; нужна runtime-схема или явные проверки."
+        },
+        {
+          "id": "c",
+          "text": "На этапе компиляции он описывает объект без id с необязательными полями верхнего уровня Article, кроме id.",
+          "correct": true,
+          "feedback": "Верно. Меняется только форма типа; проверка во время выполнения и семантика вложенных полей решаются отдельно."
+        },
+        {
+          "id": "d",
+          "text": "Он рекурсивно делает все вложенные свойства необязательными и неизменяемыми.",
+          "correct": false,
+          "feedback": "Partial неглубокий и не подразумевает Readonly."
+        }
+      ],
+      "explanation": "Utility types задают преобразования только на этапе проверки типов. Они не меняют значения и не валидируют сетевые payload."
+    },
+    {
+      "id": "partial-utility-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Какой utility type TypeScript делает каждое свойство существующего object type необязательным?",
+      "options": [
+        {
+          "id": "partial",
+          "text": "`Partial<T>` делает каждое свойство T необязательным в результирующем типе.",
+          "correct": true,
+          "feedback": "Верно. Partial — это mapped utility type на этапе проверки типов. Он не изменяет объект во время выполнения и не добавляет runtime-валидацию."
+        },
+        {
+          "id": "omit",
+          "text": "`Omit<T, K>` делает все свойства необязательными и сохраняет все ключи.",
+          "correct": false,
+          "feedback": "Omit удаляет выбранные ключи K из результирующего типа; он не делает оставшиеся свойства необязательными."
+        },
+        {
+          "id": "pick",
+          "text": "`Pick<T, K>` делает каждое свойство необязательным и сохраняет весь тип.",
+          "correct": false,
+          "feedback": "Pick выбирает подмножество ключей K; именно Partial добавляет необязательность свойств."
+        },
+        {
+          "id": "record",
+          "text": "`Record<K, V>` отмечает все свойства существующего типа как необязательные.",
+          "correct": false,
+          "feedback": "Record создаёт тип с ключами K и значениями V. Он не преобразует свойства существующего типа в optional."
+        }
+      ],
+      "explanation": "`Partial<T>` делает все свойства T необязательными на уровне типов. Он не изменяет runtime-значения и не валидирует внешние данные."
+    },
+    {
+      "id": "utility-types-practice",
+      "type": "codingExercise",
+      "title": "Опишите типы create, preview и patch",
+      "language": "typescript",
+      "context": "UI редактирует статьи, а сервер задаёт ID и время публикации. Повторно используйте Article вместо копирования списка полей, но не считайте TypeScript runtime-валидатором.",
+      "instructions": [
+        "Опишите `CreateArticleInput` без `id` и `publishedAt`.",
+        "Опишите `ArticlePreview`, содержащий только `id`, `title` и `author`.",
+        "Опишите `UpdateArticleInput` с обязательным `id` и необязательными остальными полями верхнего уровня.",
+        "Добавьте допустимые компилятором примеры и закомментированные формы, которые должны вызвать ошибку типов.",
+        "Объясните, какие runtime-проверки всё ещё нужны для patch, полученного из JSON."
+      ],
+      "requirements": [
+        "Используйте Omit и Pick для типов create и preview.",
+        "Для update используйте Partial<Omit<Article, 'id'>> в пересечении с `{ id: string }`.",
+        "Оставьте id обязательным и исключите его перезапись через patch-поля.",
+        "Не утверждайте, что производные типы валидируют или глубоко преобразуют runtime-данные.",
+        "Опишите, что вложенные поля и явные null требуют контракта API."
+      ],
+      "starterCode": "interface Article {\n  id: string;\n  title: string;\n  body: string;\n  author: string;\n  publishedAt: Date;\n}\n\n// TODO: derive create, preview, and update types.\n",
+      "hints": [
+        "Create input исключает поля, создаваемые сервером.",
+        "Pick выбирает нужные поля, сохраняя их типы без копирования.",
+        "Partial неглубокий; вложенные объекты сохраняют исходные требования к полям.",
+        "Сочетайте статические типы с runtime-валидацией JSON и авторизацией на сервере."
+      ],
+      "successCriteria": [
+        "Create input исключает оба серверных поля.",
+        "Preview содержит ровно три запрошенных свойства.",
+        "В Update id обязателен, остальные поля верхнего уровня необязательны.",
+        "Примеры показывают допустимую и недопустимую форму.",
+        "Объяснение разделяет проверку компилятором и runtime-валидацию.",
+        "Поведение вложенных и nullable patch-полей описано как решение API-контракта."
+      ]
+    },
+    {
+      "id": "deep-ts-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Используй unknown на внешних границах и проверяй данные до того, как доверять типу предметной области.",
+        "Discriminated unions связывают тег состояния с полями, допустимыми в этом состоянии.",
+        "Проверяй исчерпывающий набор вариантов, чтобы новые состояния требовали явного обновления кода.",
+        "Выводите типы операций API через utility types, а внешние значения всё равно проверяйте во время выполнения."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "TypeScript Handbook: The Basics",
+          "url": "https://www.typescriptlang.org/docs/handbook/2/basic-types.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "TypeScript Handbook: Everyday Types",
+          "url": "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "TypeScript Handbook: Narrowing",
+          "url": "https://www.typescriptlang.org/docs/handbook/2/narrowing.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "TypeScript Handbook: Object Types",
+          "url": "https://www.typescriptlang.org/docs/handbook/2/objects.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "TypeScript Handbook: Generics",
+          "url": "https://www.typescriptlang.org/docs/handbook/2/generics.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "TypeScript Handbook: Utility Types",
+          "url": "https://www.typescriptlang.org/docs/handbook/utility-types.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "TypeScript TSConfig: strict",
+          "url": "https://www.typescriptlang.org/tsconfig/#strict",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

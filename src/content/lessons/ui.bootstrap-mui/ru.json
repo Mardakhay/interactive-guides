@@ -1,0 +1,498 @@
+{
+  "id": "ui.bootstrap-mui",
+  "locale": "ru",
+  "version": 4,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-26",
+  "moduleId": "month-5-week-17",
+  "order": 2,
+  "title": "UI-библиотеки: Bootstrap Grid, Material UI и выбор build-versus-buy",
+  "description": "Сравни CSS-фреймворк с React-библиотекой компонентов и выбирай по ограничениям продукта, а не популярности.",
+  "estimatedMinutes": 95,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "html.document-structure",
+    "css.flexbox-grid-responsive",
+    "react.components-jsx-state"
+  ],
+  "learningOutcomes": [
+    "Объяснять разницу CSS-first фреймворка и React-библиотеки компонентов.",
+    "Использовать модель container/row/column и breakpoints Bootstrap.",
+    "Настраивать theme React-библиотеки через поддерживаемый API.",
+    "Оценивать версии, bundle, доступность и стоимость поддержки."
+  ],
+  "tags": [
+    "bootstrap",
+    "mui",
+    "ui-library",
+    "design-system",
+    "responsive"
+  ],
+  "blocks": [
+    {
+      "id": "uilib-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Bootstrap и Material UI решают пересекающиеся, но разные задачи"
+    },
+    {
+      "id": "uilib-model",
+      "type": "paragraph",
+      "text": "Bootstrap — CSS-first фреймворк с responsive grid, стилями компонентов и utilities; Material UI (MUI) предоставляет React-компоненты, API тем и поведение компонентов. Обе библиотеки ускоряют разработку, но различаются стилями, точками расширения, влиянием на bundle, доступностью и стоимостью миграции версий. Не считай их взаимозаменяемыми и не смешивай их соглашения без решения на уровне design system."
+    },
+    {
+      "id": "uilib-bootstrap",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<div class=\"container\">\n  <div class=\"row g-3\">\n    <div class=\"col-12 col-md-8\">Main content</div>\n    <div class=\"col-12 col-md-4\">Sidebar</div>\n  </div>\n</div>",
+      "steps": [
+        {
+          "title": "Соблюдай структуру container → row → column",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Grid Bootstrap предполагает container, row и columns. Responsive-классы описывают ширину контента на разных breakpoints; это не произвольные ширины для любых элементов."
+        },
+        {
+          "title": "Строй mobile-first layout",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "col-12 складывает содержимое по умолчанию, а col-md-* раскладывает его по колонкам начиная с medium breakpoint. Сверь точные breakpoints с версией Bootstrap проекта."
+        }
+      ]
+    },
+    {
+      "id": "uilib-mui",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import Button from '@mui/material/Button';\nimport { ThemeProvider, createTheme } from '@mui/material/styles';\n\nconst theme = createTheme({\n  palette: {\n    primary: { main: '#3451b2' }\n  }\n});\n\nfunction App() {\n  return (\n    <ThemeProvider theme={theme}>\n      <Button variant=\"contained\" color=\"primary\">Save</Button>\n    </ThemeProvider>\n  );\n}",
+      "steps": [
+        {
+          "title": "Используй публичный API библиотеки",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Импортируй компоненты из документированных entry points. Сверяй установку, peer dependencies и стиль импортов с конкретной major-версией."
+        },
+        {
+          "title": "Централизуй брендовые решения в theme",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "explanation": "Theme централизует значения дизайна для компонентов. Но это не означает, что доступность и поведение каждого компонента автоматически верны во всех сценариях."
+        },
+        {
+          "title": "Выбирай варианты по назначению",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "explanation": "Contained primary button подчёркивает главное действие, но destructive, secondary и навигационные действия могут требовать другого визуального и семантического решения."
+        }
+      ]
+    },
+    {
+      "id": "uilib-decisions",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Bootstrap может подойти responsive layout, построенному вокруг контента, utility-классов и CSS grid без отдельного React API для каждого контрола.",
+        "MUI может подойти React-приложениям, которым нужны готовое поведение компонентов, темы и кастомизация через props/theme API.",
+        "До внедрения оцени bundle, владельца CSS, темы, клавиатуру/фокус, контраст, локализацию и breaking changes.",
+        "Не копируй старые команды установки без сверки версий; версии зависимостей в legacy MUI source могут отличаться от приложения.",
+        "По возможности используй единый слой tokens/theme. Смешение независимых библиотек часто дублирует reset, typography, spacing и focus behavior."
+      ]
+    },
+    {
+      "id": "uilib-version-compatibility-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Проверяй установленную major-версию перед копированием примера"
+    },
+    {
+      "id": "uilib-version-compatibility-note",
+      "type": "paragraph",
+      "text": "API Material UI, peer dependencies и deprecated props могут меняться между major-версиями. Открой страницу версий и подходящий migration guide для версии из lockfile; согласуй версии связанных пакетов @mui и проверь поддерживаемые версии React. Если проект использует React 18, следуй и официальным инструкциям по совместимости `react-is`. Обновляй зависимости отдельной веткой, изучай предупреждения typecheck/build и проверяй взаимодействия и accessibility. Не устанавливай новую major только потому, что её использует отдельный пример."
+    },
+    {
+      "id": "uilib-version-compatibility-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В tutorial используется API Material UI v9, но lockfile проекта закрепляет более старую major-версию MUI и версию React. Как лучше поступить сначала?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Копировать код без изменений, потому что semver гарантирует совместимость между всеми major-версиями MUI",
+          "correct": false,
+          "feedback": "В major-версиях могут меняться API и peer dependencies; semver не гарантирует совместимость исходного кода между major-версиями."
+        },
+        {
+          "id": "b",
+          "text": "Проверить установленную версию, поддерживаемые версии React и соответствующий migration guide перед планированием обновления",
+          "correct": true,
+          "feedback": "Сначала используй документацию для установленной major-версии, затем планируй обновление зависимостей и проверь приложение после миграции."
+        },
+        {
+          "id": "c",
+          "text": "Установить вторую major-версию MUI рядом с существующей и импортировать компоненты, которые компилируются",
+          "correct": false,
+          "feedback": "Несколько major-версий могут привести к дублирующим зависимостям, конфликтам theme/context и лишней сложности bundle."
+        },
+        {
+          "id": "d",
+          "text": "Сразу понизить React до версии из tutorial, не проверяя требования текущей библиотеки",
+          "correct": false,
+          "feedback": "Совместимость проверяется по фактическому dependency graph проекта; необдуманный downgrade может сломать другие пакеты."
+        }
+      ],
+      "explanation": "Пример компонента привязан к определённой версии API. Перед изменением dependency graph проверь lockfile, peer dependencies, документацию нужной версии и migration guide."
+    },
+    {
+      "id": "uilib-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что полезнее всего сделать перед копированием инструкции установки Material UI из старого урока?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Предположить, что у последней версии те же package names и API",
+          "correct": false,
+          "feedback": "Major-версии могут менять пакеты, peer dependencies и API."
+        },
+        {
+          "id": "b",
+          "text": "Проверить установленные версии React/MUI и открыть официальную документацию соответствующей версии",
+          "correct": true,
+          "feedback": "Пример должен соответствовать реальным зависимостям и conventions проекта."
+        },
+        {
+          "id": "c",
+          "text": "Одновременно установить все библиотеки компонентов и сравнить их в production",
+          "correct": false,
+          "feedback": "Добавление библиотек увеличивает зависимости и bundle до того, как потребность доказана."
+        },
+        {
+          "id": "d",
+          "text": "Игнорировать доступность, потому что библиотека автоматически решает любой контекст приложения",
+          "correct": false,
+          "feedback": "Библиотеки помогают с типовыми паттернами, но labels, focus, contrast и контекст страницы всё равно нужно проверять."
+        }
+      ],
+      "explanation": "Библиотека компонентов экономит повторную работу, но не отменяет выравнивание версий и ответственность за дизайн приложения."
+    },
+    {
+      "id": "uilib-practice",
+      "type": "codingExercise",
+      "title": "Выбери и настрой UI-библиотеку для dashboard",
+      "language": "text",
+      "context": "Прими обоснованное решение и определи, как библиотека впишется в существующую design system.",
+      "instructions": [
+        "Сравни Bootstrap и MUI по layout, поведению компонентов, theming, bundle, accessibility, customization и upgrade cost.",
+        "Выбери библиотеку для небольшой responsive dashboard и объясни ограничения, повлиявшие на решение.",
+        "Набросай, как брендовые цвета/spacing и focus styles останутся согласованными между компонентами.",
+        "Сверь установку и API компонентов с официальной документацией точных версий.",
+        "Перечисли проверки клавиатуры, адаптивности, контраста и локализации после установки."
+      ],
+      "requirements": [
+        "Выбор основан на ограничениях проекта, а не только популярности.",
+        "Зависимости и версии указаны явно.",
+        "Понятно, где находится владелец tokens/theme.",
+        "Доступность предусмотрена как требование к проверке, а не как автоматическая гарантия библиотеки.",
+        "Компромиссы обновления/миграции задокументированы."
+      ],
+      "starterCode": "Потребности: responsive dashboard, формы, таблицы, keyboard support\n\nВарианты: Bootstrap / Material UI\n\nСравнение:\n- модель layout:\n- API компонентов:\n- theme/tokens:\n- bundle/dependencies:\n- проверки доступности:\n- costs кастомизации и обновлений:\n\nРешение и обоснование:",
+      "hints": [
+        "Bootstrap акцентирует layout utilities и CSS-классы; MUI — React-компоненты и theme API.",
+        "Сверяй примеры с установленной major-версией.",
+        "Выбери единый источник tokens и избегай конкурирующих reset/theme слоёв."
+      ],
+      "successCriteria": [
+        "Выбор библиотеки обоснован.",
+        "Перечислены проверки версии/документации.",
+        "Есть план согласованности tokens/theme.",
+        "Включена остаточная проверка accessibility/responsive."
+      ]
+    },
+    {
+      "id": "uilib-bootstrap-components-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Компоненты Bootstrap: разметка и поведение должны совпадать"
+    },
+    {
+      "id": "uilib-bootstrap-collapse",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<nav class=\"navbar navbar-expand-lg\" aria-label=\"Основная навигация\">\n  <div class=\"container\">\n    <a class=\"navbar-brand\" href=\"/\">Field Notes</a>\n    <button class=\"navbar-toggler\" type=\"button\"\n      data-bs-toggle=\"collapse\" data-bs-target=\"#primaryNav\"\n      aria-controls=\"primaryNav\" aria-expanded=\"false\"\n      aria-label=\"Открыть основную навигацию\">\n      <span class=\"navbar-toggler-icon\"></span>\n    </button>\n    <div class=\"collapse navbar-collapse\" id=\"primaryNav\">\n      <ul class=\"navbar-nav ms-auto\">\n        <li class=\"nav-item\"><a class=\"nav-link\" href=\"/guides\">Руководства</a></li>\n      </ul>\n    </div>\n  </div>\n</nav>",
+      "steps": [
+        {
+          "title": "Дайте ориентиру навигации понятное имя",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "На странице может быть несколько nav landmarks; короткое доступное имя помогает пользователям вспомогательных технологий отличать основную навигацию."
+        },
+        {
+          "title": "Свяжите кнопку с одной панелью",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "explanation": "data-bs-target указывает на ID элемента, и aria-controls описывает ту же связь. Состояние aria-expanded должно соответствовать видимости; плагин collapse Bootstrap обновляет его."
+        },
+        {
+          "title": "Подключите поведение, а не только CSS",
+          "lineStart": 9,
+          "lineEnd": 14,
+          "explanation": "Классы collapse задают начальное и переходное состояние, но переключение выполняет JavaScript-плагин Bootstrap. В сборщике импортируйте нужный плагин или bundle согласно закреплённой версии; одни CSS-стили оставят кнопку без действия."
+        }
+      ]
+    },
+    {
+      "id": "uilib-collapse-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Кнопка меню выглядит правильно, но ничего не делает. CSS Bootstrap подключён. Что первым проверить в поведении?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Подключён ли JavaScript-плагин collapse и совпадает ли ID цели",
+          "correct": true,
+          "feedback": "CSS отвечает за оформление, плагин collapse — за изменение состояния. Несовпадающий селектор также не даст кнопке найти панель."
+        },
+        {
+          "id": "b",
+          "text": "Добавить больше атрибутов `aria-label`",
+          "correct": false,
+          "feedback": "Доступное имя не реализует поведение интерактивного элемента."
+        },
+        {
+          "id": "c",
+          "text": "Заменить кнопку на ссылку с href=\"#\"",
+          "correct": false,
+          "feedback": "Фиктивная ссылка не исправляет отсутствие поведения и может прокручивать страницу."
+        },
+        {
+          "id": "d",
+          "text": "Добавить панели `display: none`",
+          "correct": false,
+          "feedback": "Это скроет панель, но не создаст управляемый disclosure."
+        }
+      ],
+      "explanation": "Сначала проверьте подключение поведения и связь с целевым элементом, а не меняйте стили или семантику."
+    },
+    {
+      "id": "uilib-grid-cards",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<div class=\"container\">\n  <div class=\"row g-3\">\n    <article class=\"col-12 col-sm-6 col-xl-4\">\n      <div class=\"card h-100\">\n        <img src=\"/images/guide.jpg\" class=\"card-img-top\" alt=\"Человек делает набросок структуры страницы\">\n        <div class=\"card-body\">\n          <h2 class=\"card-title h5\">Планирование страницы</h2>\n          <p class=\"card-text\">Превратите потребность пользователя в понятную структуру контента.</p>\n          <a class=\"btn btn-primary\" href=\"/guides/planning\">Читать руководство</a>\n        </div>\n      </div>\n    </article>\n  </div>\n</div>",
+      "steps": [
+        {
+          "title": "Пусть сетка описывает раскладку",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Колонки складываются на узком экране, становятся двумя в строке на small breakpoint и тремя на extra-large. Названия и ширины breakpoints зависят от версии фреймворка — сверяйте с документацией закреплённой версии проекта."
+        },
+        {
+          "title": "Сохраняйте семантику документа при использовании card utilities",
+          "lineStart": 5,
+          "lineEnd": 9,
+          "explanation": "article — самостоятельная единица контента; заголовок и ссылка понятны и без визуального оформления карточки. h-100 помогает выровнять высоту элементов при разном объёме текста."
+        },
+        {
+          "title": "Добавляйте изображениям подходящий альтернативный текст",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "Изображение передаёт смысл темы руководства, поэтому alt описывает важное содержание. Для чисто декоративного изображения используйте пустой alt, а не повторяйте соседний текст."
+        }
+      ]
+    },
+    {
+      "id": "uilib-carousel-tradeoff",
+      "type": "callout",
+      "tone": "important",
+      "title": "Используйте carousel, только если ротация действительно помогает",
+      "text": "Carousel скрывает контент за состоянием и затрудняет сравнение. Если он необходим, добавьте понятные кнопки назад/вперёд, названия слайдов, управление клавиатурой и возможность остановить автопрокрутку. Учитывайте reduced-motion и проверяйте фокус, объявления и сенсорное управление. Статичный список карточек часто яснее."
+    },
+    {
+      "id": "uilib-bootstrap-task",
+      "type": "codingExercise",
+      "title": "Создайте доступный адаптивный раздел ресурсов",
+      "language": "html",
+      "context": "Главной странице документации нужны основная навигация и карточки ресурсов. Реализуйте их с закреплённой в проекте версией Bootstrap, а затем проверьте работу, а не только наличие классов.",
+      "instructions": [
+        "Создайте именованный landmark навигации и кнопку раскрытия на узком экране, связанную с уникальной collapse-целью.",
+        "Сверстайте адаптивную сетку: одна колонка на самом узком экране и дополнительные на выбранных breakpoints.",
+        "Оформите ресурс как семантический article с заголовком, полезным alt (или пустым alt для декора) и понятной ссылкой.",
+        "Подключите нужное JavaScript-поведение Bootstrap и укажите место импорта зависимости проекта.",
+        "Проверьте клавиатуру, видимый фокус, масштабирование/reflow, доступные имена, узкую/широкую раскладку и поведение без JavaScript."
+      ],
+      "requirements": [
+        "Указана версия Bootstrap; примеры ей соответствуют.",
+        "Кнопка раскрытия — button с правильной целью, aria-controls и понятным доступным именем.",
+        "Сетка следует container/row/column, порядок контента остаётся логичным при переносе.",
+        "Карточки используют семантические заголовки и ссылки; alt соответствует назначению изображения.",
+        "Проверяются поведение и responsive-состояния, а не только скриншоты."
+      ],
+      "starterCode": "<!-- TODO: создайте именованный адаптивный disclosure для навигации. -->\n<!-- TODO: добавьте карточки по схеме container > row > columns. -->\n<!-- Запишите версию Bootstrap и импорт JS ниже. -->\n<!-- Версия/импорт: -->",
+      "hints": [
+        "Начните с семантического HTML, затем добавляйте классы Bootstrap.",
+        "data-bs-target и ID collapse-элемента должны точно совпадать.",
+        "Проверьте подключение плагина collapse: одних CSS-стилей недостаточно.",
+        "Для проверки используйте дерево доступности и клавиатуру, а не только внешний вид."
+      ],
+      "successCriteria": [
+        "Навигация управляется клавиатурой и сообщает понятное имя/состояние.",
+        "Раскладка ресурсов перестраивается без горизонтальной прокрутки на узком экране и остаётся читаемой при увеличении.",
+        "У каждой карточки есть полезный заголовок и описательная ссылка; alt у изображений подобран уместно.",
+        "Заметки о реализации соответствуют закреплённой версии Bootstrap и подключённому JS-поведению."
+      ]
+    },
+    {
+      "id": "uilib-mui-form-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Контролы MUI не заменяют поведение формы приложения"
+    },
+    {
+      "id": "uilib-mui-form-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState, type FormEvent } from 'react';\nimport { Button, Card, CardActions, CardContent, TextField, Typography } from '@mui/material';\n\nfunction EmailPreferences() {\n  const [email, setEmail] = useState('');\n  const [saved, setSaved] = useState(false);\n\n  function handleSubmit(event: FormEvent<HTMLFormElement>) {\n    event.preventDefault();\n    setSaved(true);\n  }\n\n  return (\n    <Card component=\"section\" aria-labelledby=\"preferences-title\">\n      <CardContent>\n        <Typography id=\"preferences-title\" component=\"h2\" variant=\"h6\">\n          Настройки email\n        </Typography>\n        <form onSubmit={handleSubmit}>\n          <TextField\n            label=\"Адрес email\"\n            type=\"email\"\n            autoComplete=\"email\"\n            required\n            fullWidth\n            value={email}\n            onChange={(event) => setEmail(event.target.value)}\n            helperText=\"Мы будем отправлять сюда новости курса.\"\n          />\n          <CardActions>\n            <Button type=\"submit\" variant=\"contained\">Сохранить настройки</Button>\n          </CardActions>\n        </form>\n        {saved && <p role=\"status\">В этом примере настройки сохранены локально.</p>}\n      </CardContent>\n    </Card>\n  );\n}",
+      "steps": [
+        {
+          "title": "Соберите семантическую структуру из компонентов",
+          "lineStart": 13,
+          "lineEnd": 18,
+          "explanation": "Card — это оформление, если не указать подходящий семантический корневой элемент. component=\"section\" и aria-labelledby создают именованный раздел; если содержимое не является разделом, выберите другой элемент."
+        },
+        {
+          "title": "Явно задайте состояние input и браузерную семантику",
+          "lineStart": 19,
+          "lineEnd": 29,
+          "explanation": "TextField объединяет input, label и вспомогательный текст. type=email и required включают нативные ограничения, но не выполняют серверную проверку и не задают всю политику ошибок приложения. Значение controlled-поля обновляется из события input."
+        },
+        {
+          "title": "Используйте настоящую отправку формы",
+          "lineStart": 30,
+          "lineEnd": 34,
+          "explanation": "Кнопка submit сохраняет клавиатурное поведение формы. Флаг saved здесь лишь демонстрирует локальное состояние — код не аутентифицирует пользователя, не отправляет и не сохраняет адрес."
+        }
+      ]
+    },
+    {
+      "id": "uilib-mui-form-boundary",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Компонентная библиотека не является слоем валидации или безопасности",
+      "text": "MUI предоставляет темы и UI-контролы; приложение по-прежнему отвечает за правила полей, серверную проверку, состояния отправки/загрузки/ошибки, связь доступной ошибки с полем и авторизацию. Не сохраняйте и не отправляйте credentials только потому, что TextField их отображает. Используйте API компонентов и тем именно установленной major-версии."
+    },
+    {
+      "id": "uilib-mui-form-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что само по себе даёт `required` и `type=\"email\"` для MUI TextField?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Нативные ограничения браузера для отображаемого input, но не серверную проверку или сохранение",
+          "correct": true,
+          "feedback": "MUI отображает input с браузерной семантикой; доверенная проверка и поток данных остаются ответственностью приложения/сервера."
+        },
+        {
+          "id": "b",
+          "text": "Доказательство, что адрес принадлежит пользователю",
+          "correct": false,
+          "feedback": "Проверка формата не подтверждает контроль над почтовым ящиком."
+        },
+        {
+          "id": "c",
+          "text": "Автоматически защищённое хранение адреса",
+          "correct": false,
+          "feedback": "UI-компонент не задаёт политику хранения или безопасности."
+        },
+        {
+          "id": "d",
+          "text": "Проверку доступа к аккаунту",
+          "correct": false,
+          "feedback": "Авторизация выполняется на доверенной границе ресурса, а не компонентом ввода."
+        }
+      ],
+      "explanation": "Считайте компоненты UI-строительными блоками, а затем реализуйте и проверяйте в правильных слоях валидацию, сохранение и доступ."
+    },
+    {
+      "id": "uilib-mui-form-practice",
+      "type": "codingExercise",
+      "title": "Создайте форму MUI, сохранив ответственность приложения",
+      "language": "tsx",
+      "context": "Создайте локальную форму настроек email с компонентами MUI и фактически установленной major-версией библиотеки.",
+      "instructions": [
+        "Соберите семантический section/card, заголовок, TextField с label и кнопку отправки.",
+        "Используйте browser constraints для email и required, затем реализуйте понятные состояния отправки, успеха и ошибки приложения.",
+        "Оставьте пример локальным; опишите границу API/service, которая проверяла бы и сохраняла настройки в настоящем продукте.",
+        "Проверьте порядок клавиатуры, видимый focus, связь label/helper/error и раскладку на узком viewport.",
+        "Сверьте импорты и theme overrides с точной версией MUI; не добавляйте зависимость UI-библиотеки без утверждённого решения проекта."
+      ],
+      "requirements": [
+        "У полей есть понятные подписи, подходящий autocomplete и тип ввода.",
+        "Форму можно отправить клавиатурой; статусы и ошибки доступны вспомогательным технологиям.",
+        "Нативные ограничения не называются подтверждением владения адресом или серверной валидацией.",
+        "Для задания не сохраняются секреты или credentials в браузерном состоянии.",
+        "Зависимости и API компонентов соответствуют закреплённым версиям проекта."
+      ],
+      "starterCode": "import { Button, Card, CardContent, TextField } from '@mui/material';\n\nfunction PreferencesForm() {\n  // TODO: задайте controlled field и статус отправки.\n  return (\n    <Card>\n      <CardContent>\n        {/* TODO: семантический заголовок и подписанное поле */}\n        {/* TODO: нативные ограничения и ясные helper/error сообщения */}\n        {/* TODO: кнопка отправки и доступный статус результата */}\n      </CardContent>\n    </Card>\n  );\n}",
+      "hints": [
+        "TextField — составной контрол; проверьте его доступное имя и связь со вспомогательным/ошибочным текстом.",
+        "Используйте настоящую форму и submit-кнопку, а не div только с обработчиком click.",
+        "required и type=email проверяют ограничения ввода; настоящий сервер всё равно проверяет операцию.",
+        "Сверяйтесь с установленной версией и соглашениями темы приложения; в текущем репозитории MUI не установлен."
+      ],
+      "successCriteria": [
+        "Пользователь клавиатуры может заполнить и отправить форму с видимым focus.",
+        "У каждого поля понятное доступное имя и инструкции/ошибки.",
+        "Статус успеха/ошибки объявляется и не зависит только от цвета.",
+        "Объяснена граница UI-проверок и доверенного сохранения/авторизации."
+      ]
+    },
+    {
+      "id": "uilib-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Bootstrap акцентирует CSS grid/utilities и responsive-классы; MUI — React-компоненты и theme API.",
+        "Выбирай по layout, поведению компонентов, доступности, кастомизации, bundle и цене обновления.",
+        "Библиотеки ускоряют работу, но не отменяют дизайн-систему, проверку версий и доступности."
+      ]
+    },
+    {
+      "id": "uilib-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "Bootstrap: Grid system",
+          "url": "https://getbootstrap.com/docs/5.3/layout/grid/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Bootstrap: Breakpoints",
+          "url": "https://getbootstrap.com/docs/5.3/layout/breakpoints/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MUI: Installation",
+          "url": "https://mui.com/material-ui/getting-started/installation/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MUI: Theming",
+          "url": "https://mui.com/material-ui/customization/theming/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Material UI: versions and compatibility",
+          "url": "https://mui.com/material-ui/getting-started/versions/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Material UI: upgrade to v9",
+          "url": "https://mui.com/material-ui/migration/upgrade-to-v9/",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ],
+  "week": 17
+}

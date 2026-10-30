@@ -1,21 +1,66 @@
 # Current-State Audit
 
-**Audit date:** 2026-10-22  
+**Audit date:** 2026-10-30  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
+**Working branch:** `feat/learning-platform-foundation`  
 **Default branch observed:** `main`
 
-This audit is based on the repository root, source directory listings, current package/config files, the lesson catalog, the renderer and progress-store implementation, selected full HTML lesson files, and recent commit history available through GitHub. It is not a local test run; no claim is made that the current build or tests were executed during this remote audit.
+## Authoritative status snapshot — 2026-10-30
+
+This section replaces older status summaries below when they disagree. Historical checkpoints are retained as a work log only.
+
+- **Latest validated code/content/test checkpoint:** `0b2eeac35454290c1a2b95ba3551dfc523e55bbd`; exact [Actions run #41063587947 (run #883)](https://github.com/Mardakhay/interactive-guides/actions/runs/41063587947) passed install, ESLint, TypeScript, **65 test files / 357 tests**, production build, 141 JavaScript chunk budgets, zero npm audit advisories, and preview smoke for 13 deep routes, entry bundle, manifest, service worker, five PWA assets and all 14 generated content assets. Git Fundamentals EN/RU is v14 with 26 copyable commands; Git Workflow/CI is v13 with 72 aligned blocks, a localized seven-stage pipeline simulator, interactive branch graph and ten-question sequential quiz.
+- **Main:** `b13af92576e8a73753a6e3f3d26765d9f9c44397`; it was not changed in this continuation.
+- **PR #1:** [open Draft PR against main](https://github.com/Mardakhay/interactive-guides/pull/1).
+- **Acceptance boundary:** green CI and HTTP preview smoke do not establish real-browser/device, screen-reader, install/offline, keyboard or mobile acceptance. Automated tests cover locale redirects, mobile drawer and Modal focus containment/restoration, toggle-filter semantics, quiz result announcements/focus, note autosave status, structured knowledge-check feedback and disclosure controls. Native browser/assistive-technology acceptance remains open. The native acceptance checklist, including locale-prefixed direct refresh, legacy redirect, Practice Center deep-link, Settings mobile/network, and index cold/warm transfer checks, remains unrun.
+- **Curriculum registry:** 27 core + 17 supplementary lesson IDs = 44 bilingual pairs and 88 locale JSON files. The Practice Center aggregates 118 coding exercises without changing learner-state storage or treating self-review as automated mastery. Settings exposes local language preference, browser network signal, data counts and backup access; cloud sync and theme switching are not implemented. All app screens now support locale-prefixed URLs; legacy root paths redirect through the saved language preference while preserving query/hash. The production smoke checks both locale prefixes and legacy aliases. Search/Practice use generated indexes; Practice no longer downloads the full search corpus. The generator emits six search chunks per locale plus one dedicated Practice chunk per locale; production smoke verifies all 14 assets and caps each at 512 KiB. `ui.bootstrap-mui` is core week 17; `css.sass-scss` is supplementary.
+- **Legacy migration gate:** all 25 legacy cutover rows remain **Blocked**. Git tl-001 has v14 `git.fundamentals` with 72 blocks, 11 checks and 9 walkthroughs, including the 26-command copyable reference, explicit `reset --soft`/`--mixed`/`--hard` and path-form distinctions, `git log -S`/`-G`, and security/least-privilege guidance. Git tl-002 is now v13 with 72 aligned blocks, 19 knowledge checks, 5 walkthroughs and 5 exercises per locale. It includes the localized seven-stage pipeline simulator, interactive branch-flow graph, and a ten-question sequential quiz with Previous/Next, persistent per-question answers, progress, live score, final percentage and restart. The seven source-level top tabs remain non-equivalent; per-run aggregate scores are not added to learner storage. Git tooling row tl-003 now has `tooling.node-npm-vite` v6 with 52 blocks, 12 checks and 5 walkthroughs, including the formerly missing Vite config/alias/dev-proxy scenario. `tooling.advanced-package-workflows` is v3. `react.effects-lists-composition` is v6 with the React 18 cleanup warning clarified. Learner-state disposition and manual browser/device/screen-reader acceptance remain open.
+- **Notion source evidence:** 21 pages have been fetched/mapped but remain `verification.state=unverified`; this must not be presented as formal verification.
+- **PWA/manual acceptance:** HTTP smoke validates the built shell, routes and assets. No native browser/device install/offline, screen-reader, keyboard or mobile acceptance is recorded.
+- **Data safety:** classic routes and source HTML remain available. `docs/LEARNER_STATE_MIGRATION_INVENTORY.md` records local keys and identity-bearing fields. A scan of all 173 `src/` TS/TSX/JS/JSX files at `fe161ade` found no read/write of `ig:last-lesson` beyond its declaration; the active last-opened pointer is in `ig:progress.lastOpenedLessonId`. Tests protect that pointer and preserve any pre-existing standalone value on restore; the typed backup format does not export it. Classic progress/bookmarks/notes/quiz IDs remain distinct from structured lesson/block state, and these tests are not approval to migrate data. No redirects/removals should occur before all gates pass.
+- **Supabase:** authentication, SQL/RLS and cloud synchronization remain unimplemented and gated by approved scope and reconciliation/security design.
+
+
+## Source-parity continuation — 2026-10-29
+
+- `git.fundamentals` EN/RU v13: 72 aligned blocks, 11 checks and 9 walkthroughs. Includes 25 individually copyable commands, safe rebase/GitHub Flow, secret-leak remediation and least-privilege guidance.
+- `react.effects-lists-composition` EN/RU v6: 45 blocks, 7 checks and 6 walkthroughs. The cleanup note explicitly distinguishes an unmounted state update from a proven memory leak and links the React 18 upgrade guide; existing AbortController + stale-response protection remains tested.
+- `tooling.node-npm-vite` EN/RU v6: 52 blocks, 12 checks and 5 walkthroughs. Adds a typed Vite config example for `@` alias, port/open, and dev `/api` proxy; test asserts the production-routing caveat and official Vite docs.
+- `tooling.advanced-package-workflows` EN/RU v3: 18 blocks. `pkg-update-range-check` distinguishes `npm update` within declared SemVer ranges from lockfile-frozen `npm ci` and targeted `npm install <package>@latest`.
+- `git.workflow-ci` EN/RU v10: 69 aligned blocks per locale, 19 knowledge checks, 5 walkthroughs and 5 exercises. The original `tl-002` quiz concepts are now individually assessed (the existing hotfix back-merge check plus nine new checks), and the bilingual CI diagnosis matrix explicitly covers checkout, install, lint/typecheck, tests, build, security/audit, deployment and current-SHA reruns. Exact-head CI passed in [run #40842019192](https://github.com/Mardakhay/interactive-guides/actions/runs/40842019192): 230 tests / 37 files, lint, typecheck, build, 125-chunk budgets, zero npm audit advisories and preview smoke. The classic canvas/tabs/failure-injection UI remains non-equivalent; `tl-002` remains blocked.
+- `js.dom-events` EN/RU v7: 71 aligned blocks per locale, with 13 knowledge checks, 18 code walkthroughs and 5 coding exercises. Added a dedicated static NodeList/live HTMLCollection walkthrough and scored check that demonstrates insertion semantics and a stable snapshot before deletion; live source tree/theme/editor UI remains partial.
+- `testing.react-testing-library` EN/RU v6 has 45 aligned blocks, 9 knowledge checks, 5 walkthroughs, 4 exercises and 11 learning outcomes per locale. For `qa-002`, added `toBe` vs `toEqual` reference/structural equality, a scored `queryBy...` absence assertion, and an AAA (Arrange, Act, Assert) check. The project-specific examples use Vitest rather than copying Jest-only setup; original tabs/FAQ/copy/quiz UI remains non-equivalent.
+- `tooling.node-npm-vite` EN/RU v4: 44 aligned blocks, 7 knowledge checks and 8 outcomes per locale. Added the `react-ts` Vite template command, HMR explanation/full-reload fallback and official Vite docs; regression tests cover bilingual parity, answers, wording, line ranges and references.
+- The exact-head regression checkpoint `2d2548bc770ad1a235465db6f4814f02febe4bfe` is green at [CI #40839614446](https://github.com/Mardakhay/interactive-guides/actions/runs/40839614446). The cutover/UI/state and manual-acceptance gates remain open.
+
+## Focused tl-003 source-parity checkpoint — 2026-10-29
+
+- `docs/TL003_SOURCE_PARITY.md` records the legacy 20-question / 10-exercise crosswalk and the factual caveats. The cutover matrix now points to that evidence.
+- The source remains in `public/lessons/intro.dev.html`; automated regression coverage checks all 20 quiz IDs, all 10 reveal IDs, corrected source wording, ESM alias guidance and EN/RU block equivalence.
+- EN/RU `typescript.fundamentals` v5 has 48 blocks and adds the Product interface and generic filter walkthroughs. EN/RU `react.components-jsx-state` v5 has 35 blocks and adds Toggle, typed-list and controlled-search walkthroughs. EN/RU `react.api-custom-hooks` v6 has 42 blocks and adds a defensive localStorage walkthrough plus a scaffolded coding exercise.
+- Corrected source claims cover Effect cleanup versus memory leaks, native ESM and version-specific Vite bundling, Vitest versus Jest mock APIs, type-module placement as a convention rather than a law, and ESM-safe alias resolution. The existing schema tests now expect the updated lesson versions and correct walkthrough/exercise counts.
+- `tl-003` remains **Blocked** until legacy interaction parity, learner-state retention/migration rules and real-browser/device/keyboard/screen-reader acceptance have explicit evidence. CI passed for the code/test checkpoint `05edf0c6cc5bcbf177ffe45f885a8682aeccb4a0` in [Actions #40862454665](https://github.com/Mardakhay/interactive-guides/actions/runs/40862454665): `npm ci`, lint, typecheck, 38 test files / 249 tests, build, 125-chunk bundle budgets, zero reported npm audit advisories, and production-preview smoke. Later Git-data commit `5819fef16a30a016a740a9f43277a49ddfea648d` updated only `docs/SESSION_HANDOFF.md` and `docs/CURRENT_STATE.md`; check Actions against any subsequent HEAD before describing that exact ref as green.
+
+## Highest-priority remaining work
+
+1. Review actual EN/RU destination content against one legacy source at a time and record sections, claims, examples, practice, answer feedback, references and interaction gaps.
+2. Define and test retention/migration for progress, bookmarks, notes, last-opened pointers and quiz results before changing route identity.
+3. Execute and record the real-browser/device checklist; do not infer success from CI.
+4. Complete outcome-by-outcome 24-week curriculum coverage, semantic bilingual review, uncommon UI copy, accessibility and responsive checks.
+5. Verify deployment evidence and screenshots. Keep cloud sync separate until reconciliation and RLS/cross-user isolation requirements are approved.
+
+The remainder of this document is a chronological implementation log. It is not the source of truth where dates, lesson counts or CI checkpoints conflict with the snapshot above.
 
 ## Existing application
 
 The repository is already a React application, not just a set of HTML files:
 
-- React 18, TypeScript, Vite 5, Tailwind CSS 3
-- React Router 6
+- React 18, TypeScript, Vite 8, Tailwind CSS 3
+- React Router 7.18.0 (the app still imports through `react-router-dom` for v6-to-v7 compatibility)
 - Zustand for state
 - Zod schemas
-- Vitest and Testing Library
-- ESLint and GitHub Actions CI
+- Vitest 4.1 and Testing Library
+- ESLint and GitHub Actions CI (Node 22; pinned npm 11.21.1 for reproducible lockfile handling)
 
 Available scripts from `package.json`:
 
@@ -29,58 +74,8 @@ Available scripts from `package.json`:
 
 The current CI workflow runs install, lint, typecheck, tests, and build for pushes and pull requests targeting `main`.
 
-## Existing application features visible in source
 
-- Dashboard
-- Course catalog and category details
-- Lesson viewer with previous/next navigation
-- Lesson completion status and auto-advance behavior
-- Bookmarks
-- Notes
-- Quizzes and saved results
-- Search
-- Learning paths
-- Sidebar and mobile navigation
-- Lazy-loaded route pages and route error boundaries
-- Schema validation for catalog and progress state
-- Local persistence through a small `localStorage` helper
-- Some unit tests
 
-The catalog presently declares 25 lessons (IDs spanning `sh-001`, `wb-001…004`, `js-001…004`, `re-001…006`, `ui-001…002`, `tl-001…004`, `qa-001…002`, `sec-001`, and `dt-001`). These categories do not fully represent the 24-week bootcamp sequence in order yet.
+## Focused js-003 memory source review — 2026-10-29
 
-## Current content model
-
-`src/data/lessons.json` stores metadata such as ID, title, slug, description, category, difficulty, tags, duration, and order. Its `content` values are empty for the listed lessons.
-
-`src/features/lesson-renderer/lessonLoader.ts` contains a manifest mapping lesson IDs to files in `public/lessons/`. The viewer resolves the manifest and displays content using `LessonRenderer`. `src/features/lesson-renderer/components/ExternalHtmlLesson.tsx` is the current implementation to inspect closely during migration.
-
-There are 25 large standalone HTML content files in `public/lessons/`. The selected samples (HTML, CSS, JavaScript, React ecosystem, Git, authentication and deployment) have separate document shells, CSS, typography choices, sidebars/navigation patterns, and visual token sets. That makes them rich source material but not a consistent application-level lesson format. At least some content mixes reference material, deep dives, and guided lessons. The migration should extract and improve their instructional substance, not keep their independent shells as the main user experience.
-
-## Current persistence
-
-The progress store uses `localStorage` and tracks per-lesson status (`not-started`, `in-progress`, `completed`), started/completed timestamps, and the last opened lesson. The generic storage helper catches errors and silently falls back. The current model does not represent section-level reading, individual quiz attempts, coding exercise results, confidence/mastery, spaced repetition, or user-scoped cloud synchronization.
-
-Other features should be inspected before modifying them: bookmarks and notes have their own stores/schema/API modules. Preserve and migrate those records where practical.
-
-## Gaps against the desired product
-
-1. HTML documents are the main content container; there is no single typed, component-rendered lesson schema.
-2. Lesson catalog/order is category-oriented rather than a canonical curriculum/program/module/week/lesson hierarchy.
-3. Lesson metadata and lesson content are split by a hand-maintained manifest.
-4. Current quiz formats need to be audited for explanation quality, coverage, localization and attempt history.
-5. English and Russian are not modeled as paired translations at the catalog/content level.
-6. Progress is mostly binary per lesson and only local to this browser.
-7. There is no documented Supabase authentication/sync design.
-8. PWA metadata, install prompt, offline strategy, service-worker cache lifecycle and offline acceptance tests need verification/implementation.
-9. Visual styling inside each HTML lesson conflicts with the cohesive application design system.
-10. The available course set includes deployment, auth, SQL, and architecture, but should be remapped to the bootcamp syllabus and explicitly mark supplements outside the original bootcamp scope.
-
-## Non-negotiable migration constraints
-
-- Keep the existing `main` history intact.
-- Establish a feature branch before large implementation changes.
-- Keep `public/lessons/*.html` as migration input until each lesson is extracted, reviewed, translated, validated and linked to its new structured counterpart.
-- Do not delete a source lesson simply because a replacement route exists.
-- Add data/content contract tests before bulk content migration.
-- No service-role key or secret may be shipped to browser code.
-- Do not make cloud accounts mandatory for anonymous/local learning.
+The feature branch now includes [JS003_SOURCE_PARITY.md](JS003_SOURCE_PARITY.md) and `src/content/legacyJsMemoryMastery.test.ts`. The 2,737-line classic memory lesson was corrected to distinguish JavaScript semantics from engine-specific stack/heap layout, V8 implementation details, GC behavior and runtime limits. Simulators were retained and clarified as teaching models; the source route remains available. The `js-003` cutover row remains **Blocked** while interaction parity, learner-state disposition, and native browser/accessibility acceptance are open.

@@ -1362,7 +1362,7 @@
           <h3>🔑 Common Examples</h3>
           <ul style="list-style:none;padding:0;">
             <li style="padding:4px 0;font-size:13px;color:var(--muted2);">• <code>VITE_API_URL</code> — backend endpoint</li>
-            <li style="padding:4px 0;font-size:13px;color:var(--muted2);">• <code>VITE_STRIPE_KEY</code> — payment public key</li>
+            <li style="padding:4px 0;font-size:13px;color:var(--muted2);">• <code>VITE_STRIPE_PUBLISHABLE_KEY</code> — payment public key</li>
             <li style="padding:4px 0;font-size:13px;color:var(--muted2);">• <code>VITE_FIREBASE_KEY</code> — Firebase config</li>
             <li style="padding:4px 0;font-size:13px;color:var(--muted2);">• <code>VITE_FEATURE_DARK_MODE</code> — feature flags</li>
           </ul>
@@ -1471,17 +1471,17 @@
         </div>
       </div>
 
-      <p>Vite loads different <code>.env</code> files depending on the current mode. Understanding the priority order helps you avoid hard-to-debug issues where the wrong value is being used.</p>
+      <p>Vite loads <code>.env</code> and <code>.env.local</code> in every mode, plus <code>.env.[mode]</code> and <code>.env.[mode].local</code> for the active mode. For the same key, the file priority is <code>.env.[mode].local</code> → <code>.env.[mode]</code> → <code>.env.local</code> → <code>.env</code>. A variable already present in the process environment has the highest priority and is not overwritten by these files. By default, <code>npm run dev</code> uses development mode and <code>npm run build</code> uses production mode; an explicit <code>--mode</code> changes which mode-specific files apply.</p>
 
       <div class="env-priority" id="envPriority">
         <div class="env-row" onclick="toggleEnvRow(this, 'env-d1')">
           <span class="env-badge" style="background:rgba(255,84,112,.12);color:var(--red);border:1px solid rgba(255,84,112,.2);">.env.local</span>
           <span class="env-file">.env.local</span>
-          <span class="env-desc">Highest priority · Personal, never committed to Git</span>
+          <span class="env-desc">All modes · Local-only · Below matching mode-specific files</span>
           <span class="env-expand-icon">▶</span>
         </div>
         <div class="env-detail" id="env-d1">
-          <strong style="color:var(--text);font-size:13px;">Your personal overrides.</strong> This file is in <code>.gitignore</code> by default. Use it for your own API keys during development. It overrides everything else. Never share or commit this file.
+          <strong style="color:var(--text);font-size:13px;">Shared local overrides.</strong> This file is normally ignored by Git and can contain machine-specific values. A matching <code>.env.[mode]</code> or <code>.env.[mode].local</code> value takes precedence over this file, while an existing process-environment value takes precedence over every env file. Never share or commit local secrets.
         </div>
 
         <div class="env-row" onclick="toggleEnvRow(this, 'env-d2')">
@@ -1491,17 +1491,17 @@
           <span class="env-expand-icon">▶</span>
         </div>
         <div class="env-detail" id="env-d2">
-          Same as <code>.env.local</code> but only loaded when running <code>npm run dev</code>. Useful if you need to override dev-specific values on your machine.
+          Loaded only when the active mode is <code>development</code> (the default for <code>npm run dev</code>). It overrides <code>.env.development</code>, <code>.env.local</code>, and <code>.env</code> for duplicate keys; process-environment values still win. Keep this personal file out of Git.
         </div>
 
         <div class="env-row" onclick="toggleEnvRow(this, 'env-d3')">
           <span class="env-badge" style="background:rgba(79,142,247,.1);color:var(--blue2);border:1px solid rgba(79,142,247,.2);">.env.development</span>
           <span class="env-file">.env.development</span>
-          <span class="env-desc">Loaded only during npm run dev · Can be committed</span>
+          <span class="env-desc">Development mode only · Public/team values only</span>
           <span class="env-expand-icon">▶</span>
         </div>
         <div class="env-detail" id="env-d3">
-          Shared dev config that your whole team uses. Safe to commit. Example: point the API URL to a staging server that all developers use.
+          Shared development configuration can be committed only after review confirms it contains no credentials, tokens, personal data, or other private values. Example: a public staging API origin. An existing process-environment value takes precedence over this file.
         </div>
 
         <div class="env-row" onclick="toggleEnvRow(this, 'env-d4')">
@@ -1511,17 +1511,17 @@
           <span class="env-expand-icon">▶</span>
         </div>
         <div class="env-detail" id="env-d4">
-          Used at build time when deploying. Can be committed since it should only contain non-secret production config. Platform env vars (Vercel/Netlify) override these at build time.
+          Loaded when the active mode is <code>production</code>, which is the default for <code>npm run build</code>. Do not assume this file is safe to commit: commit it only if every value is intentionally public and non-sensitive. Prefer your host’s environment settings for deployment-specific configuration, verify the Preview/Production scope, and remember that process-environment values take precedence over file values.
         </div>
 
         <div class="env-row" onclick="toggleEnvRow(this, 'env-d5')">
           <span class="env-badge" style="background:rgba(255,255,255,.06);color:var(--muted2);border:1px solid var(--border2);">.env</span>
           <span class="env-file">.env</span>
-          <span class="env-desc">Lowest priority · Loaded in all modes · Default values</span>
+          <span class="env-desc">Base values · Loaded in all modes</span>
           <span class="env-expand-icon">▶</span>
         </div>
         <div class="env-detail" id="env-d5">
-          The base/default config file. Loaded in every mode. Put non-sensitive defaults here. All other files override these values when they define the same key.
+          The base file is loaded in every mode. Keep values non-sensitive. For duplicate keys, local and active-mode files take precedence; variables already defined by the process environment take precedence over all files.
         </div>
       </div>
 
@@ -1532,7 +1532,7 @@
           <span class="code-filename">.gitignore</span>
           <button class="copy-btn" onclick="copyCode(this)">Copy</button>
         </div>
-        <pre><span class="t-comment"># Environment variables — NEVER commit these</span>
+        <pre><span class="t-comment"># Ignore local/private environment values</span>
 <span class="t-red">.env</span>
 <span class="t-red">.env.local</span>
 <span class="t-red">.env.*.local</span>
@@ -1562,7 +1562,7 @@
         <span class="callout-icon">🚨</span>
         <div class="callout-body">
           <strong>If .env lands in Git history, treat it as compromised</strong>
-          <p>Even one accidental commit exposes your keys. Rotate all API keys immediately. Use <code>git filter-repo</code> to scrub history. Prevention is far easier than cleanup.</p>
+          <p>If a credential was committed or otherwise exposed, revoke or rotate that credential first and notify its owner/security contact. Review relevant access logs, then remove the secret from the current tree and coordinate any necessary history cleanup. Rewriting Git history does not revoke the credential or remove copies already made by forks, caches, or collaborators.</p>
         </div>
       </div>
     </section>
@@ -1579,7 +1579,7 @@
         </div>
       </div>
 
-      <p>Both platforms offer generous free tiers for frontend hosting and are industry-standard choices. Here's a practical comparison:</p>
+      <p>Both platforms can host many frontend applications, but included features, usage limits, and pricing vary by product and plan. Use this as a workflow comparison—not a current pricing table—and verify the provider’s current documentation and account limits before estimating cost or committing to a platform.</p>
 
       <div class="tab-container">
         <div class="tab-list">
@@ -1594,12 +1594,12 @@
               <div class="platform-name" style="color:var(--blue2);">▲ Vercel</div>
               <div class="platform-tagline">Made by the Next.js team — React-first</div>
               <ul class="feature-list">
-                <li><span>✅</span><span>Optimal for React & Next.js projects</span></li>
-                <li><span>✅</span><span>Deploy in ~30 seconds</span></li>
-                <li><span>✅</span><span>Preview URL for every PR automatically</span></li>
-                <li><span>✅</span><span>Serverless Functions (API routes)</span></li>
-                <li><span>✅</span><span>Global Edge Network (fast everywhere)</span></li>
-                <li><span>⚡</span><span>Free: 100 deploys/day · Bandwidth limits</span></li>
+                <li><span>✅</span><span>Framework-aware workflows for React, Next.js, Vite and other supported projects</span></li>
+                <li><span>✅</span><span>Build duration depends on queue, project size and build work</span></li>
+                <li><span>✅</span><span>Preview deployments can be enabled for branches and pull requests</span></li>
+                <li><span>✅</span><span>Serverless and edge functions are available subject to runtime and plan limits</span></li>
+                <li><span>✅</span><span>CDN/edge delivery; observed performance depends on cache, region and app behavior</span></li>
+                <li><span>⚡</span><span>Build, bandwidth/egress and function limits depend on the current plan</span></li>
               </ul>
               <div class="verdict-box" style="background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);color:var(--blue2);">
                 🏆 Best for: React/Vite projects, modern stack
@@ -1609,12 +1609,12 @@
               <div class="platform-name" style="color:#c49fff;">◆ Netlify</div>
               <div class="platform-tagline">Beginner-friendly, most flexible</div>
               <ul class="feature-list">
-                <li><span>✅</span><span>Simplest UI — great for beginners</span></li>
-                <li><span>✅</span><span>Drag & drop deploy (no Git needed)</span></li>
-                <li><span>✅</span><span>Built-in form handling (no backend)</span></li>
-                <li><span>✅</span><span>Netlify Functions (serverless)</span></li>
-                <li><span>✅</span><span>A/B split testing built in</span></li>
-                <li><span>⚡</span><span>Free: 300 build min/mo · 100GB bandwidth</span></li>
+                <li><span>✅</span><span>Dashboard-based Git deployment and configurable build workflows</span></li>
+                <li><span>✅</span><span>Manual upload is available for static output when appropriate</span></li>
+                <li><span>✅</span><span>Platform form handling may be available with the required configuration</span></li>
+                <li><span>✅</span><span>Functions and other runtime features have product-specific limits</span></li>
+                <li><span>✅</span><span>Preview and testing features depend on current product support and plan</span></li>
+                <li><span>⚡</span><span>Build minutes, bandwidth/egress and function quotas depend on the current plan</span></li>
               </ul>
               <div class="verdict-box" style="background:rgba(155,109,255,.08);border:1px solid rgba(155,109,255,.2);color:#c49fff;">
                 🏆 Best for: quick demos, beginners, form projects
@@ -1625,7 +1625,7 @@
             <span class="callout-icon">💡</span>
             <div class="callout-body">
               <strong>Recommendation</strong>
-              <p>Both are excellent. For a React/Vite project, most developers choose Vercel. Pick one, commit to it, get the live URL. The choice is less important than shipping.</p>
+              <p>Both can work for a React/Vite single-page app. Compare the required build command, output directory, preview workflow, functions, SPA routing, custom domains, access controls, observability and cost at the expected usage. Make a small preview deployment and verify the exact routes and request behavior before choosing.</p>
             </div>
           </div>
         </div>
@@ -1633,7 +1633,7 @@
         <div class="tab-panel" id="tab-vercel">
           <div class="card" style="margin-bottom:16px;">
             <h3>How Vercel handles your Vite project</h3>
-            <p style="font-size:13.5px;color:var(--muted2);">When you connect a Vite repo, Vercel auto-detects the framework and pre-configures: <code>npm run build</code> as the build command, <code>dist</code> as the output directory, and SPA rewrites so page refreshes don't 404.</p>
+            <p style="font-size:13.5px;color:var(--muted2);">Vercel may detect common Vite settings, but inspect the actual project configuration: build command, output directory, preview environment scope and direct-route behavior. Do not infer that a nested route works because in-app navigation works; load and refresh it in a deployed preview and follow the provider’s current routing guidance.</p>
           </div>
           <table>
             <thead>
@@ -1685,7 +1685,7 @@
             <span class="callout-icon">⚠️</span>
             <div class="callout-body">
               <strong>Without _redirects, you'll get 404 on page refresh</strong>
-              <p>On Netlify, navigating to <code>/about</code> and refreshing will return 404 unless this file exists. Vercel handles this automatically for Vite projects.</p>
+              <p>Without a suitable SPA fallback or equivalent host configuration, a nested-route refresh can return 404. Behavior depends on the actual build preset and routing rules. Test a known application route, an API path, and a missing JavaScript/CSS asset separately; a broad fallback must not hide API errors or return application HTML for a missing asset. Verify current provider documentation instead of assuming a default.</p>
             </div>
           </div>
         </div>
@@ -1899,7 +1899,7 @@
 
       <div class="card">
         <h3>↩️ Rollback — Your Safety Net</h3>
-        <p style="font-size:13.5px;color:var(--muted2);">Every deploy is saved as a snapshot. If a bad deploy goes to production:</p>
+        <p style="font-size:13.5px;color:var(--muted2);">If a bad deployment reaches production, select a known-good deployment using the provider’s current workflow. Availability and interface labels vary by product and plan; confirm the affected release and preserve its commit/build evidence.</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;">
           <div>
             <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:6px;">VERCEL</div>
@@ -1913,8 +1913,8 @@
         <div class="callout callout-tip" style="margin-top:12px;margin-bottom:0;">
           <span class="callout-icon">⚡</span>
           <div class="callout-body">
-            <strong>Rollback doesn't rebuild</strong>
-            <p>It activates a previously built snapshot. That's why it's nearly instant — no re-running <code>npm run build</code>.</p>
+            <strong>Rollback restores deployed assets—not every side effect</strong>
+            <p>A provider may activate a previously built snapshot without rebuilding it, but rollback does not undo database writes, schema changes, or external side effects. Before restoring old assets, check compatibility with the current API and data. Afterward, smoke-test critical routes and requests, inspect error/health signals, and document the recovery. Exact rollback behavior is provider-specific.</p>
           </div>
         </div>
       </div>
@@ -1930,7 +1930,7 @@
           <tr><th>Step</th><th>What to do</th><th>Notes</th></tr>
         </thead>
         <tbody>
-          <tr><td>1. Buy domain</td><td>Namecheap, Google Domains, Cloudflare</td><td>~$10-15/year</td></tr>
+          <tr><td>1. Choose a registrar</td><td>Compare current registrars for the required domain extension</td><td>Check both first-year and renewal pricing for the exact TLD; prices and included services vary</td></tr>
           <tr><td>2. Add to platform</td><td>Settings → Domains → add your domain</td><td>Vercel guides you</td></tr>
           <tr><td>3. Update DNS</td><td>Add CNAME pointing to platform</td><td>Propagates in ~24h</td></tr>
           <tr><td>4. HTTPS</td><td>Automatic — Let's Encrypt certificate</td><td>No extra cost</td></tr>
@@ -2023,8 +2023,8 @@
         <div class="callout callout-tip">
           <span class="callout-icon">🎉</span>
           <div class="callout-body">
-            <strong>You're ready to ship!</strong>
-            <p>All checks passed. Your deployment is production-ready. Share that live link!</p>
+            <strong>Checklist complete — review the remaining release gates</strong>
+            <p>All 12 items in this checklist are checked. This checklist is only one release input, not a production-readiness guarantee. Also verify critical user journeys, security/privacy, accessibility, monitoring, backup/recovery, rollback, and provider-specific route and asset behavior.</p>
           </div>
         </div>
       </div>

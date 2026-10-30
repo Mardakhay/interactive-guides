@@ -1,0 +1,498 @@
+{
+  "id": "ui.bootstrap-mui",
+  "locale": "en",
+  "version": 4,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-26",
+  "moduleId": "month-5-week-17",
+  "order": 2,
+  "title": "UI Libraries: Bootstrap Grid, Material UI, and Build-versus-Buy",
+  "description": "Compare a CSS framework with a React component library, understand their APIs, and choose based on product constraints rather than popularity.",
+  "estimatedMinutes": 95,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "html.document-structure",
+    "css.flexbox-grid-responsive",
+    "react.components-jsx-state"
+  ],
+  "learningOutcomes": [
+    "Explain the difference between a CSS-first framework and a React component library.",
+    "Use Bootstrap's container/row/column and breakpoint mental model.",
+    "Configure a React component library theme using its supported API.",
+    "Evaluate version, bundle, accessibility and maintenance trade-offs."
+  ],
+  "tags": [
+    "bootstrap",
+    "mui",
+    "ui-library",
+    "design-system",
+    "responsive"
+  ],
+  "blocks": [
+    {
+      "id": "uilib-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Bootstrap and Material UI solve overlapping but different problems"
+    },
+    {
+      "id": "uilib-model",
+      "type": "paragraph",
+      "text": "Bootstrap is a CSS-first framework with a responsive grid and styled components/utilities; Material UI (MUI) provides React components, theme APIs and component behavior. Both can speed up delivery, but their styling model, extension points, bundle implications, accessibility details and version migration differ. Do not treat them as interchangeable or combine their styling conventions everywhere without an explicit design-system decision."
+    },
+    {
+      "id": "uilib-bootstrap",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<div class=\"container\">\n  <div class=\"row g-3\">\n    <div class=\"col-12 col-md-8\">Main content</div>\n    <div class=\"col-12 col-md-4\">Sidebar</div>\n  </div>\n</div>",
+      "steps": [
+        {
+          "title": "Use the expected container → row → column structure",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Bootstrap's grid expects a container, row and columns. Responsive column classes describe how the content spans at different breakpoints; they are not arbitrary widths for unrelated elements."
+        },
+        {
+          "title": "Design for mobile-first content",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "col-12 stacks content by default, then col-md-* lays it out in columns at the medium breakpoint. Verify the exact breakpoint definitions for the Bootstrap version used by the project."
+        }
+      ]
+    },
+    {
+      "id": "uilib-mui",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import Button from '@mui/material/Button';\nimport { ThemeProvider, createTheme } from '@mui/material/styles';\n\nconst theme = createTheme({\n  palette: {\n    primary: { main: '#3451b2' }\n  }\n});\n\nfunction App() {\n  return (\n    <ThemeProvider theme={theme}>\n      <Button variant=\"contained\" color=\"primary\">Save</Button>\n    </ThemeProvider>\n  );\n}",
+      "steps": [
+        {
+          "title": "Use library components through their public API",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Import from the library's documented entry points. Check installation, peer dependencies and import conventions against the exact major version installed."
+        },
+        {
+          "title": "Centralize brand decisions in a theme",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "explanation": "A theme can centralize design values across components. It does not mean every component's accessibility or interaction behavior is automatically correct for every use case."
+        },
+        {
+          "title": "Choose variants based on intent",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "explanation": "A contained primary button signals the main action, but destructive, secondary and navigation actions may need different visual and semantic treatments."
+        }
+      ]
+    },
+    {
+      "id": "uilib-decisions",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Bootstrap may fit content-led responsive layouts where utility classes and a CSS grid are desired without adopting a component API for every control.",
+        "MUI may fit React applications that want ready-made component behavior, theming and customization through component props/theme APIs.",
+        "Audit bundle size, CSS ownership, theming, keyboard/focus behavior, contrast, localization and breaking changes before adopting either.",
+        "Do not copy old installation snippets without checking package versions; dependency versions in the legacy MUI source may differ from the app you are building.",
+        "Use one coherent token/theme layer where possible. Mixing independent libraries often duplicates resets, typography, spacing and focus behavior."
+      ]
+    },
+    {
+      "id": "uilib-version-compatibility-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Check the installed major before using a component example"
+    },
+    {
+      "id": "uilib-version-compatibility-note",
+      "type": "paragraph",
+      "text": "Material UI APIs, peer dependencies and deprecated props can change across major versions. Read the version page and matching migration guide for the version in your lockfile; keep related @mui packages aligned and confirm the supported React peer versions. If the project uses React 18, also follow the official `react-is` compatibility guidance. Upgrade on a separate branch, inspect type/build warnings and run interaction/accessibility checks. Do not install a new major just because a standalone example uses it."
+    },
+    {
+      "id": "uilib-version-compatibility-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A tutorial uses Material UI v9 APIs, but your project's lockfile pins an older MUI major and React version. What is the best first step?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Copy the code as-is because semver guarantees compatibility between all MUI major versions",
+          "correct": false,
+          "feedback": "Major versions can include breaking API and peer-dependency changes; semver does not guarantee cross-major source compatibility."
+        },
+        {
+          "id": "b",
+          "text": "Check the installed version, its supported React peers and the matching migration guide before planning an upgrade",
+          "correct": true,
+          "feedback": "Use documentation for the installed major first, then make any dependency upgrade deliberate and validate the app after migration."
+        },
+        {
+          "id": "c",
+          "text": "Install a second MUI major beside the existing one and import whichever component happens to compile",
+          "correct": false,
+          "feedback": "Multiple major versions can produce duplicate dependencies, theme/context mismatches and confusing bundle behavior."
+        },
+        {
+          "id": "d",
+          "text": "Downgrade React blindly until the tutorial compiles, without checking the installed library requirements",
+          "correct": false,
+          "feedback": "Compatibility must be checked across the project's actual dependency graph; a blind downgrade can break unrelated packages."
+        }
+      ],
+      "explanation": "A component snippet is tied to a versioned API. Check the lockfile, peer dependencies, version-specific documentation and migration guide before changing the dependency graph."
+    },
+    {
+      "id": "uilib-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What is the most useful first step before copying a Material UI installation snippet from a legacy tutorial?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Assume the newest version has the exact same package names and API",
+          "correct": false,
+          "feedback": "Major versions can change packages, peer dependencies and APIs."
+        },
+        {
+          "id": "b",
+          "text": "Check the installed project's React/MUI versions and the matching official installation docs",
+          "correct": true,
+          "feedback": "Examples need to match the real dependency versions and conventions in the project."
+        },
+        {
+          "id": "c",
+          "text": "Install every component library at once to compare them in production",
+          "correct": false,
+          "feedback": "Adding libraries increases dependency and bundle cost before a need has been established."
+        },
+        {
+          "id": "d",
+          "text": "Ignore accessibility because the library handles every application context automatically",
+          "correct": false,
+          "feedback": "Libraries help with common patterns but usage, labels, focus, contrast and page context still require validation."
+        }
+      ],
+      "explanation": "A component library reduces repetitive work but does not remove version alignment or application-level design responsibility."
+    },
+    {
+      "id": "uilib-practice",
+      "type": "codingExercise",
+      "title": "Choose and configure a UI library for a dashboard",
+      "language": "text",
+      "context": "Make an evidence-based library decision and define how it fits the app's existing design system.",
+      "instructions": [
+        "Compare Bootstrap and MUI on layout, component behavior, theming, bundle, accessibility, customization and version upgrade cost.",
+        "Choose one for a small responsive dashboard and explain the constraints that led to the decision.",
+        "Sketch how brand colors/spacing and focus styles will stay consistent across components.",
+        "Verify installation and component APIs against official docs for the exact versions.",
+        "List keyboard, responsive, contrast and localization checks still needed after installation."
+      ],
+      "requirements": [
+        "Choice uses project constraints rather than popularity alone.",
+        "Dependencies and versions are explicit.",
+        "Design tokens/theme ownership is clear.",
+        "Accessibility is treated as a verification requirement, not assumed from library usage.",
+        "Migration/upgrade trade-offs are documented."
+      ],
+      "starterCode": "Product needs: responsive dashboard, forms, tables, keyboard support\n\nOptions: Bootstrap / Material UI\n\nComparison:\n- layout model:\n- component API:\n- theme/tokens:\n- bundle/dependencies:\n- accessibility checks:\n- customization/version costs:\n\nDecision and rationale:",
+      "hints": [
+        "Bootstrap emphasizes layout utilities and CSS classes; MUI emphasizes React components and its theme API.",
+        "Match examples to the exact installed major version.",
+        "Choose one source of truth for tokens and avoid stacking competing resets/themes."
+      ],
+      "successCriteria": [
+        "States a justified library choice.",
+        "Identifies version/documentation checks.",
+        "Provides a token/theme consistency plan.",
+        "Includes remaining accessibility/responsive validation."
+      ]
+    },
+    {
+      "id": "uilib-bootstrap-components-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Bootstrap components: markup and behavior belong together"
+    },
+    {
+      "id": "uilib-bootstrap-collapse",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<nav class=\"navbar navbar-expand-lg\" aria-label=\"Primary\">\n  <div class=\"container\">\n    <a class=\"navbar-brand\" href=\"/\">Field Notes</a>\n    <button class=\"navbar-toggler\" type=\"button\"\n      data-bs-toggle=\"collapse\" data-bs-target=\"#primaryNav\"\n      aria-controls=\"primaryNav\" aria-expanded=\"false\"\n      aria-label=\"Toggle primary navigation\">\n      <span class=\"navbar-toggler-icon\"></span>\n    </button>\n    <div class=\"collapse navbar-collapse\" id=\"primaryNav\">\n      <ul class=\"navbar-nav ms-auto\">\n        <li class=\"nav-item\"><a class=\"nav-link\" href=\"/guides\">Guides</a></li>\n      </ul>\n    </div>\n  </div>\n</nav>",
+      "steps": [
+        {
+          "title": "Give the navigation a landmark name",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "A page may have multiple nav landmarks; a concise accessible name lets assistive-technology users distinguish the primary navigation."
+        },
+        {
+          "title": "Connect the toggle to one collapse target",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "explanation": "data-bs-target points to the element ID and aria-controls describes the same relationship. Keep aria-expanded synchronized with the visible state; Bootstrap's collapse plugin updates it."
+        },
+        {
+          "title": "Load the behavior, not only the CSS",
+          "lineStart": 9,
+          "lineEnd": 14,
+          "explanation": "The collapse classes define initial/transition states, but the Bootstrap JavaScript plugin handles the toggle. In a bundler, import the required plugin or bundle according to the pinned Bootstrap version; CSS alone leaves the button inert."
+        }
+      ]
+    },
+    {
+      "id": "uilib-collapse-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A navbar toggle looks correct but clicking it does nothing. The Bootstrap CSS is loaded. What is the first behavior-level check?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Confirm Bootstrap's JavaScript collapse plugin is imported and the target ID matches",
+          "correct": true,
+          "feedback": "CSS supplies appearance; the collapse plugin handles state changes. A mismatched selector also prevents the toggle from finding its panel."
+        },
+        {
+          "id": "b",
+          "text": "Add more `aria-label` attributes",
+          "correct": false,
+          "feedback": "Accessible names do not implement the interaction behavior."
+        },
+        {
+          "id": "c",
+          "text": "Replace the button with an anchor that has href=\"#\"",
+          "correct": false,
+          "feedback": "A fake link does not fix the missing behavior and can cause page jumps."
+        },
+        {
+          "id": "d",
+          "text": "Add `display: none` to the nav",
+          "correct": false,
+          "feedback": "That hides the panel but does not create a controllable disclosure."
+        }
+      ],
+      "explanation": "Debug behavior dependencies and selector wiring before changing presentation or semantics."
+    },
+    {
+      "id": "uilib-grid-cards",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<div class=\"container\">\n  <div class=\"row g-3\">\n    <article class=\"col-12 col-sm-6 col-xl-4\">\n      <div class=\"card h-100\">\n        <img src=\"/images/guide.jpg\" class=\"card-img-top\" alt=\"A person sketching a page layout\">\n        <div class=\"card-body\">\n          <h2 class=\"card-title h5\">Plan the page</h2>\n          <p class=\"card-text\">Turn a user need into a clear content structure.</p>\n          <a class=\"btn btn-primary\" href=\"/guides/planning\">Read guide</a>\n        </div>\n      </div>\n    </article>\n  </div>\n</div>",
+      "steps": [
+        {
+          "title": "Let the grid describe the layout",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The columns stack by default, become two across at the small breakpoint, then three at extra-large. The breakpoint names and widths are framework-version facts—verify them against the project's pinned Bootstrap docs."
+        },
+        {
+          "title": "Use card utilities without losing document semantics",
+          "lineStart": 5,
+          "lineEnd": 9,
+          "explanation": "The article is a meaningful content unit; the heading and link remain understandable outside their visual card styling. h-100 helps equalize card height when row items have different text lengths."
+        },
+        {
+          "title": "Give images useful alternative text",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "This image communicates the guide topic, so the alt describes its meaningful content. For decoration only, use an empty alt instead of repeating nearby text."
+        }
+      ]
+    },
+    {
+      "id": "uilib-carousel-tradeoff",
+      "type": "callout",
+      "tone": "important",
+      "title": "Use a carousel only when rotation solves a real user problem",
+      "text": "Carousels hide content behind state and can make comparison harder. If one is necessary, provide clear previous/next controls, meaningful slide labels, keyboard operation and a way to pause automatic movement. Respect reduced-motion preferences and test focus, announcements and touch behavior. A static card list is often clearer."
+    },
+    {
+      "id": "uilib-bootstrap-task",
+      "type": "codingExercise",
+      "title": "Build an accessible responsive resource area",
+      "language": "html",
+      "context": "A documentation landing page needs primary navigation and resource cards. Implement it with the project's pinned Bootstrap version, then verify the behavior instead of trusting the classes.",
+      "instructions": [
+        "Build a named navigation landmark with a small-screen disclosure button connected to a unique collapse target.",
+        "Create a responsive grid with one column at the smallest width and additional columns at selected breakpoints.",
+        "Make each resource a semantic article with a heading, useful image alternative text (or empty alt for decoration), and a descriptive link.",
+        "Wire the exact Bootstrap JavaScript behavior needed by the collapse and document the project's dependency/import point.",
+        "Test keyboard use, visible focus, zoom/reflow, accessible names, narrow/wide layouts, and no-JavaScript fallback behavior."
+      ],
+      "requirements": [
+        "Bootstrap version is stated and examples match that version.",
+        "Collapse control is a button with a matching target, aria-controls, and meaningful accessible name.",
+        "Grid uses container/row/column conventions and content order remains meaningful when stacked.",
+        "Cards use semantic headings and links; image alternative text reflects the image's purpose.",
+        "Checks cover interaction and responsive states, not just screenshots."
+      ],
+      "starterCode": "<!-- TODO: build a named, responsive navigation disclosure. -->\n<!-- TODO: add resource cards using container > row > columns. -->\n<!-- Note the installed Bootstrap version and JS import below. -->\n<!-- Version/import: -->",
+      "hints": [
+        "Start with semantic HTML, then add Bootstrap classes.",
+        "data-bs-target and the collapse element ID must match exactly.",
+        "Check that the collapse JavaScript plugin is loaded; CSS alone is not interactive.",
+        "Use the accessibility tree and keyboard, not only visual appearance, to verify."
+      ],
+      "successCriteria": [
+        "Navigation toggles with keyboard and announces a useful state/name.",
+        "Resource layout reflows without horizontal scrolling at narrow widths and remains readable when zoomed.",
+        "Every card has a useful heading and descriptive link; images have appropriate alt text.",
+        "Implementation notes match the exact pinned Bootstrap version and imported JS behavior."
+      ]
+    },
+    {
+      "id": "uilib-mui-form-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "MUI controls still need application-owned form behavior"
+    },
+    {
+      "id": "uilib-mui-form-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState, type FormEvent } from 'react';\nimport { Button, Card, CardActions, CardContent, TextField, Typography } from '@mui/material';\n\nfunction EmailPreferences() {\n  const [email, setEmail] = useState('');\n  const [saved, setSaved] = useState(false);\n\n  function handleSubmit(event: FormEvent<HTMLFormElement>) {\n    event.preventDefault();\n    setSaved(true);\n  }\n\n  return (\n    <Card component=\"section\" aria-labelledby=\"preferences-title\">\n      <CardContent>\n        <Typography id=\"preferences-title\" component=\"h2\" variant=\"h6\">\n          Email preferences\n        </Typography>\n        <form onSubmit={handleSubmit}>\n          <TextField\n            label=\"Email address\"\n            type=\"email\"\n            autoComplete=\"email\"\n            required\n            fullWidth\n            value={email}\n            onChange={(event) => setEmail(event.target.value)}\n            helperText=\"We will use this address for course updates.\"\n          />\n          <CardActions>\n            <Button type=\"submit\" variant=\"contained\">Save preferences</Button>\n          </CardActions>\n        </form>\n        {saved && <p role=\"status\">Preferences saved locally for this example.</p>}\n      </CardContent>\n    </Card>\n  );\n}",
+      "steps": [
+        {
+          "title": "Compose semantic structure from components",
+          "lineStart": 13,
+          "lineEnd": 18,
+          "explanation": "Card is presentation unless given an appropriate semantic root. component=\"section\" and aria-labelledby make this region a named section; use a different element if the content is not a section."
+        },
+        {
+          "title": "Keep input state and browser semantics explicit",
+          "lineStart": 19,
+          "lineEnd": 29,
+          "explanation": "TextField composes an input with a label and helper text. type=email and required invoke native constraints, but they do not validate server-side or define the product's full error policy. Controlled value is updated from the input event."
+        },
+        {
+          "title": "Use a real form submit action",
+          "lineStart": 30,
+          "lineEnd": 34,
+          "explanation": "A submit button preserves keyboard form behavior. The example's saved flag is only local demonstration state—it does not authenticate, send, or persist an email preference."
+        }
+      ]
+    },
+    {
+      "id": "uilib-mui-form-boundary",
+      "type": "callout",
+      "tone": "warning",
+      "title": "A component library is not a validation or security layer",
+      "text": "MUI supplies themed controls and interaction primitives; the app still owns field rules, server validation, submission/loading/error states, accessible error association, and authorization. Never store or send credentials merely because a TextField renders them. Use the exact component and theming APIs for the installed major version."
+    },
+    {
+      "id": "uilib-mui-form-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does adding `required` and `type=\"email\"` to a MUI TextField provide by itself?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Native browser constraints for the rendered input, but not server validation or persistence",
+          "correct": true,
+          "feedback": "MUI renders an input with browser semantics; the application/server still defines the trusted validation and data flow."
+        },
+        {
+          "id": "b",
+          "text": "Proof that the address belongs to the user",
+          "correct": false,
+          "feedback": "Format validation cannot verify control of an email address."
+        },
+        {
+          "id": "c",
+          "text": "Automatic secure storage of the email value",
+          "correct": false,
+          "feedback": "A UI component does not choose storage or provide a persistence/security policy."
+        },
+        {
+          "id": "d",
+          "text": "An authorization check for the account",
+          "correct": false,
+          "feedback": "Authorization is enforced at the trusted resource boundary, not by an input component."
+        }
+      ],
+      "explanation": "Treat component primitives as UI building blocks, then implement and test product validation, persistence and access rules in the correct layers."
+    },
+    {
+      "id": "uilib-mui-form-practice",
+      "type": "codingExercise",
+      "title": "Build a themed MUI form without outsourcing responsibility",
+      "language": "tsx",
+      "context": "Create a local-only email preferences form using MUI components and the project's actual installed MUI major version.",
+      "instructions": [
+        "Compose a semantic section/card, a heading, a labeled TextField and a submit button.",
+        "Use the browser's email and required constraints, then implement clear app-level submitting, success and error feedback.",
+        "Keep the example local-only; describe the API/service boundary that would validate and save preferences in a real product.",
+        "Check keyboard order, visible focus, label/helper/error association and narrow viewport layout.",
+        "Verify every import and theme override against the exact MUI version; do not add a UI-library dependency unless the project decision explicitly approves it."
+      ],
+      "requirements": [
+        "Inputs have meaningful labels and suitable autocomplete/input type.",
+        "Form submits by keyboard and exposes status/error feedback to assistive technologies.",
+        "Native constraints are not described as ownership verification or server validation.",
+        "No secrets or credentials are stored in browser state for this task.",
+        "Dependencies and component APIs match the pinned project versions."
+      ],
+      "starterCode": "import { Button, Card, CardContent, TextField } from '@mui/material';\n\nfunction PreferencesForm() {\n  // TODO: own the controlled field and submit status.\n  return (\n    <Card>\n      <CardContent>\n        {/* TODO: semantic heading and labeled field */}\n        {/* TODO: native constraints and clear helper/error feedback */}\n        {/* TODO: submit button and accessible result status */}\n      </CardContent>\n    </Card>\n  );\n}",
+      "hints": [
+        "TextField is a composite control; inspect its rendered accessible name and helper/error description.",
+        "Use a native form and submit button rather than a click-only div.",
+        "Native `required` and `type=\"email\"` check input constraints; a real server still validates the submitted operation.",
+        "Use the app's installed package version and theme conventions; the current repository does not include MUI."
+      ],
+      "successCriteria": [
+        "Keyboard users can complete and submit the form with visible focus.",
+        "Each field has an accessible name and understandable instructions/errors.",
+        "Success/error status is announced without relying on color alone.",
+        "Explains the boundary between UI checks and trusted persistence/authorization."
+      ]
+    },
+    {
+      "id": "uilib-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Bootstrap emphasizes CSS grid/utilities and responsive classes; MUI emphasizes React components and theme APIs.",
+        "Choose based on layout needs, component behavior, accessibility, customization, bundle impact and upgrade cost.",
+        "Libraries accelerate implementation but do not eliminate design-system, version or accessibility review."
+      ]
+    },
+    {
+      "id": "uilib-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "Bootstrap: Grid system",
+          "url": "https://getbootstrap.com/docs/5.3/layout/grid/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Bootstrap: Breakpoints",
+          "url": "https://getbootstrap.com/docs/5.3/layout/breakpoints/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MUI: Installation",
+          "url": "https://mui.com/material-ui/getting-started/installation/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MUI: Theming",
+          "url": "https://mui.com/material-ui/customization/theming/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Material UI: versions and compatibility",
+          "url": "https://mui.com/material-ui/getting-started/versions/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Material UI: upgrade to v9",
+          "url": "https://mui.com/material-ui/migration/upgrade-to-v9/",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ],
+  "week": 17
+}

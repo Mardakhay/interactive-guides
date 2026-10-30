@@ -1397,8 +1397,8 @@
         </div>
         <div class="acc-body">
           <div class="acc-body-inner">
-            <p>When the server sets a cookie with the <code>HttpOnly</code> flag, the browser stores it but <strong>completely blocks JavaScript access</strong>. <code>document.cookie</code> won't return it. No XSS payload can steal it.</p>
-            <p>This is the primary defense for session IDs and refresh tokens. If your refresh token lives in an <code>HttpOnly</code> cookie, even a fully compromised XSS attack can't read it with JS — though they can still send requests <em>using</em> it (CSRF concern).</p>
+            <p>When the server sets a cookie with the <code>HttpOnly</code> flag, the browser withholds its value from JavaScript and <code>document.cookie</code> won't return it. This prevents a script from directly reading and copying the cookie value; it does <strong>not</strong> make a compromised page safe.</p>
+            <p>If an XSS payload runs in your page, it may still send authenticated requests from the user's browser even when it cannot read an <code>HttpOnly</code> cookie. Treat <code>HttpOnly</code> as one useful control—not as a replacement for XSS prevention, server-side authorization, and a deliberate CSRF strategy.</p>
             <div class="code-block">
               <div class="code-header">
                 <div class="dots"><span></span><span></span><span></span></div>
@@ -1422,15 +1422,16 @@
         <div class="acc-body">
           <div class="acc-body-inner">
             <p><strong>CSRF (Cross-Site Request Forgery)</strong>: a malicious site tricks the user's browser into sending a cookie-authenticated request to <em>your</em> server. The cookie goes along automatically.</p>
-            <p>The <code>SameSite</code> attribute controls when cookies are sent with cross-origin requests:</p>
+            <p>The <code>SameSite</code> attribute affects whether cookies accompany <em>cross-site</em> requests (a site and an origin are not the same concept). It is one part of CSRF defense, not a complete security policy by itself:</p>
             <table class="compare-table" style="margin-top: 12px;">
               <thead><tr><th>Value</th><th>Behavior</th><th>Use case</th></tr></thead>
               <tbody>
-                <tr><td>Strict</td><td>Never on cross-site requests</td><td>High-security, breaks OAuth flows</td></tr>
-                <tr><td>Lax</td><td>Top-level navigations only</td><td>Modern default, good balance</td></tr>
-                <tr><td>None</td><td>Always sent cross-site</td><td>Must pair with Secure; CSRF risk</td></tr>
+                <tr><td>Strict</td><td>Generally withholds the cookie on cross-site requests</td><td>Test external-link return navigation and identity-provider flows</td></tr>
+                <tr><td>Lax</td><td>Usually permits top-level cross-site navigation with safe methods, but not cross-site subrequests</td><td>Common default; confirm the application’s redirect and request needs</td></tr>
+                <tr><td>None</td><td>Allows cross-site cookie delivery when paired with <code>Secure</code></td><td>Use only with an explicit cross-site and CSRF threat analysis</td></tr>
               </tbody>
             </table>
+            <p>Cookie behavior also depends on browser rules, request method, redirect flow and site boundaries. Validate the real login/logout callback and state-changing requests in supported browsers; do not assume <code>SameSite</code> alone makes every endpoint CSRF-safe.</p>
           </div>
         </div>
       </div>
@@ -1623,10 +1624,11 @@ api.interceptors.response.<span class="fn">use</span>(
       <div class="code-header">
         <div class="dots"><span></span><span></span><span></span></div>
         <span class="code-lang">Interactive JWT Decoder</span>
-        <span style="font-size: 11px; color: var(--text3);">paste any JWT to decode payload</span>
+        <span style="font-size: 11px; color: var(--text3);">synthetic/example tokens only — never paste live credentials</span>
       </div>
       <div class="code-body" style="padding-bottom: 8px;">
-        <textarea id="jwt-demo-input" placeholder="Paste a JWT here… e.g. eyJhbGci..."></textarea>
+        <p style="font-size:12px;color:var(--orange);margin:0 0 10px;">Use a deliberately synthetic token only. Access, ID and refresh tokens are credentials; do not paste a live token into a decoder or share it in screenshots.</p>
+        <textarea id="jwt-demo-input" placeholder="Paste a synthetic JWT example…"></textarea>
         <button class="demo-btn" onclick="decodeJWT()">▶ Decode Payload</button>
         <div id="jwt-demo-output" style="display:none;"></div>
       </div>
@@ -1643,7 +1645,7 @@ api.interceptors.response.<span class="fn">use</span>(
         </div>
         <div class="acc-body">
           <div class="acc-body-inner">
-            <p>The <code>exp</code> claim is a Unix timestamp. You can decode the JWT on the frontend and proactively refresh <em>before</em> it expires — avoiding the 401 → refresh → retry cycle entirely.</p>
+            <p>The <code>exp</code> claim is a Unix timestamp. A decoder can offer a best-effort user-experience hint, but an absent or malformed claim must be handled explicitly. A future <code>exp</code> value does not make the token valid: parsing a JWT does not verify its signature, issuer, audience, revocation state or permissions. Prefer your identity provider’s supported client library and follow the API’s bounded refresh/retry contract.</p>
             <div class="code-block">
               <div class="code-header">
                 <div class="dots"><span></span><span></span><span></span></div>
@@ -1651,10 +1653,20 @@ api.interceptors.response.<span class="fn">use</span>(
                 <button class="code-copy" onclick="copyCode(this)">copy</button>
               </div>
               <div class="code-body"><span class="kw">function</span> <span class="fn">isTokenExpiringSoon</span>(token, bufferSecs = <span class="num">60</span>) {
-  <span class="kw">const</span> [, payload] = token.<span class="fn">split</span>(<span class="str">'.'</span>);
-  <span class="kw">const</span> { exp } = <span class="const">JSON</span>.<span class="fn">parse</span>(<span class="fn">atob</span>(payload));
-  <span class="kw">const</span> nowSecs = <span class="const">Date</span>.<span class="fn">now</span>() / <span class="num">1000</span>;
-  <span class="kw">return</span> exp - nowSecs &lt; bufferSecs; <span class="cmt">// refresh if < 60s left</span>
+  <span class="kw">const</span> parts = token.<span class="fn">split</span>(<span class="str">'.'</span>);
+  <span class="kw">if</span> (parts.length !== <span class="num">3</span> || !parts[<span class="num">1</span>]) <span class="kw">return</span> <span class="kw">null</span>;
+
+  <span class="kw">try</span> {
+    <span class="kw">const</span> base64 = parts[<span class="num">1</span>].<span class="fn">replace</span>(/<span class="str">-/g</span>, <span class="str">'+'</span>).<span class="fn">replace</span>(/<span class="str">_/g</span>, <span class="str">'/'</span>);
+    <span class="kw">const</span> padded = base64 + <span class="str">'='</span>.<span class="fn">repeat</span>((<span class="num">4</span> - base64.length % <span class="num">4</span>) % <span class="num">4</span>);
+    <span class="kw">const</span> bytes = <span class="const">Uint8Array</span>.<span class="fn">from</span>(<span class="fn">atob</span>(padded), (char) =&gt; char.<span class="fn">charCodeAt</span>(<span class="num">0</span>));
+    <span class="kw">const</span> payload = <span class="const">JSON</span>.<span class="fn">parse</span>(<span class="kw">new</span> <span class="const">TextDecoder</span>().<span class="fn">decode</span>(bytes));
+    <span class="kw">if</span> (<span class="kw">typeof</span> payload.exp !== <span class="str">'number'</span> || !<span class="const">Number</span>.<span class="fn">isFinite</span>(payload.exp)) <span class="kw">return</span> <span class="kw">null</span>;
+
+    <span class="kw">return</span> payload.exp - <span class="const">Date</span>.<span class="fn">now</span>() / <span class="num">1000</span> &lt; bufferSecs; <span class="cmt">// unverified hint only</span>
+  } <span class="kw">catch</span> {
+    <span class="kw">return</span> <span class="kw">null</span>;
+  }
 }</div>
             </div>
           </div>
@@ -1701,6 +1713,12 @@ api.interceptors.response.<span class="fn">use</span>(
     <p class="section-intro">
       OAuth 2.0 delegates authorization to a third-party platform. OIDC adds identity on top. For SPAs, the correct flow is <strong>Authorization Code + PKCE</strong> — the older Implicit flow is deprecated and insecure.
     </p>
+
+    <div class="card" style="margin-top:1rem;border-left:3px solid var(--orange);">
+      <div class="card-title">OAuth 2.0 Security BCP — RFC 9700</div>
+      <p>For public clients, use Authorization Code with PKCE and the S256 challenge method. Authorization servers must exactly match registered web redirect URIs. Do not use the Implicit or Resource Owner Password Credentials grant for new applications, and do not expose open redirectors. Public-client refresh tokens must be sender-constrained or rotated. PKCE does not replace redirect validation, transaction-specific CSRF protection, or mix-up defenses.</p>
+      <p><a href="https://www.rfc-editor.org/rfc/rfc9700.html" target="_blank" rel="noopener noreferrer">Read RFC 9700: Best Current Practice for OAuth 2.0 Security</a></p>
+    </div>
 
     <div class="tabs-wrapper">
       <div class="tab-nav">
@@ -2339,8 +2357,9 @@ api.interceptors.response.<span class="fn">use</span>(
     try {
       const header = base64UrlDecode(parts[0]);
       const payload = base64UrlDecode(parts[1]);
-      const expDate = payload.exp ? new Date(payload.exp * 1000).toLocaleString() : 'N/A';
-      const isExpired = typeof payload.exp === 'number' ? (Date.now() / 1000 > payload.exp) : null;
+      const expSeconds = typeof payload.exp === 'number' && Number.isFinite(payload.exp) ? payload.exp : null;
+      const expDate = expSeconds === null ? 'Missing or non-numeric' : new Date(expSeconds * 1000).toLocaleString();
+      const isExpired = expSeconds === null ? null : Date.now() / 1000 > expSeconds;
 
       appendJsonBlock(output, 'Header', 'var(--orange)', header);
 
@@ -2365,7 +2384,7 @@ api.interceptors.response.<span class="fn">use</span>(
 
       const expiry = document.createElement('div');
       expiry.style.color = isExpired === null ? 'var(--text3)' : (isExpired ? 'var(--red)' : 'var(--green)');
-      expiry.textContent = `// Expiry: ${expDate}${isExpired === true ? ' ⚠️ EXPIRED' : isExpired === false ? ' ✓ Valid' : ''}`;
+      expiry.textContent = `// Unverified exp claim: ${expDate}${isExpired === true ? ' — expired by claim' : isExpired === false ? ' — not expired by claim; token is NOT verified' : ' — cannot determine expiry'}`;
       output.appendChild(expiry);
     } catch (e) {
       output.style.color = 'var(--red)';

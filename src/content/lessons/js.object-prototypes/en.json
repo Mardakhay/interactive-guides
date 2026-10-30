@@ -1,0 +1,825 @@
+{
+  "id": "js.object-prototypes",
+  "locale": "en",
+  "version": 3,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-26",
+  "moduleId": "supplement-js-internals",
+  "supplementaryTrackId": "supplement-js-internals",
+  "order": 2,
+  "title": "JavaScript Object Model: Prototypes, new, Classes, and this",
+  "description": "Trace property lookup through the prototype chain, explain constructor/new behavior, and choose the right this binding.",
+  "estimatedMinutes": 105,
+  "difficulty": "advanced",
+  "prerequisites": [
+    "js.functions-arrays-objects"
+  ],
+  "learningOutcomes": [
+    "Distinguish an object's internal prototype link from Constructor.prototype.",
+    "Trace property lookup and identify own vs inherited properties.",
+    "Explain the conceptual steps of new and class methods on prototypes.",
+    "Predict this and compare call/apply/bind.",
+    "Use private fields and inheritance deliberately.",
+    "Explain class constructors, prototype methods, inheritance, static members, private fields, and class-specific rules.",
+    "Explain fluent APIs, their return-value contract, and the difference between mutable, array/string, and Promise chaining."
+  ],
+  "tags": [
+    "javascript",
+    "objects",
+    "prototypes",
+    "classes",
+    "this",
+    "inheritance",
+    "method-chaining",
+    "fluent-api"
+  ],
+  "blocks": [
+    {
+      "id": "object-model-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Objects delegate property lookup through prototypes"
+    },
+    {
+      "id": "object-model-paragraph",
+      "type": "paragraph",
+      "text": "An object can read properties it does not own by following its internal [[Prototype]] link. That link is different from Constructor.prototype: the latter is the object that instances created through new Constructor() may delegate to. JavaScript classes use this prototype model; they do not replace it with a separate classical object system."
+    },
+    {
+      "id": "object-model-callout",
+      "type": "callout",
+      "tone": "important",
+      "title": "Do not confuse these values",
+      "text": "obj is an instance. Object.getPrototypeOf(obj) returns its prototype link. Constructor.prototype is commonly linked to instances made by new Constructor(). These values often relate, but they are not generally the same object."
+    },
+    {
+      "id": "object-model-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const animal = { speak() { return 'sound'; } };\nconst dog = Object.create(animal);\ndog.name = 'Milo';\n\nconsole.log(Object.hasOwn(dog, 'name'));  // true\nconsole.log(Object.hasOwn(dog, 'speak')); // false\nconsole.log(dog.speak());                 // 'sound'",
+      "steps": [
+        {
+          "title": "Create an object with a prototype link",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "dog gets its own name property and delegates lookup to animal. The properties of animal are not copied onto dog."
+        },
+        {
+          "title": "Distinguish own and inherited properties",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "name is an own property, but speak is found through the prototype chain. Object.hasOwn tests ownership, while normal property access can find inherited properties."
+        },
+        {
+          "title": "Follow the chain to find the method",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "dog.speak is found on animal when lookup does not find an own speak property."
+        }
+      ]
+    },
+    {
+      "id": "object-model-new",
+      "type": "heading",
+      "level": 2,
+      "text": "What new does conceptually"
+    },
+    {
+      "id": "object-model-new-text",
+      "type": "paragraph",
+      "text": "For an ordinary constructor call, new creates an object, links its prototype to Constructor.prototype, calls the constructor with this bound to the new object, then returns an explicitly returned object if there is one or otherwise returns the new object. Class constructors add stricter rules, including requiring new."
+    },
+    {
+      "id": "object-model-this",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "For obj.method(), this normally refers to obj for that call.",
+        "Extracting const method = obj.method and later calling method() loses the object call-site; do not expect this to remain obj.",
+        "Arrow functions do not create their own this; they capture it lexically.",
+        "call/apply invoke immediately with a chosen this; bind returns a new bound function.",
+        "Class instance methods are usually stored on the prototype; arrow-function fields create a function per instance and have different memory/reference trade-offs."
+      ]
+    },
+    {
+      "id": "object-model-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "For const child = Object.create(parent), where is a property found when child has no own property with that name but parent does?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It is copied automatically from parent to child",
+          "correct": false,
+          "feedback": "Object.create links a prototype; it does not copy parent properties."
+        },
+        {
+          "id": "b",
+          "text": "Lookup follows the prototype chain to parent",
+          "correct": true,
+          "feedback": "Ordinary property access looks for an own property, then follows prototype links when needed."
+        },
+        {
+          "id": "c",
+          "text": "JavaScript creates a global binding with that name",
+          "correct": false,
+          "feedback": "Object property lookup does not create global variables."
+        },
+        {
+          "id": "d",
+          "text": "It can only be found with JSON.parse",
+          "correct": false,
+          "feedback": "JSON parsing is unrelated to prototype property lookup."
+        }
+      ],
+      "explanation": "Own-property tests and ordinary property lookup answer different questions."
+    },
+    {
+      "id": "object-model-practice",
+      "type": "codingExercise",
+      "title": "Trace prototype lookup and repair a detached method",
+      "language": "javascript",
+      "context": "Run the examples in a JavaScript runtime and explain the observed results using object-model rules.",
+      "instructions": [
+        "Create an object that delegates to a prototype and prove which properties are own vs inherited.",
+        "Create a constructor whose instances share a greet method through Constructor.prototype.",
+        "Repair a detached callback so it uses the intended object; choose bind, an explicit parameter, or a suitable arrow wrapper.",
+        "Explain the difference between a private class field such as #value and a property named _value."
+      ],
+      "requirements": [
+        "Property lookup is traced through the prototype chain.",
+        "Instances share a prototype method without copying it onto each instance.",
+        "The callback has an intentional and predictable this binding.",
+        "The explanation distinguishes language-enforced private fields from naming conventions."
+      ],
+      "starterCode": "const base = { describe() { return this.name; } };\nconst item = Object.create(base);\nitem.name = 'Ada';\n\nconst detached = item.describe;\n// TODO: make the call return 'Ada' reliably and explain why.\n\nfunction Person(name) {\n  // TODO: initialize this.name\n}\n// TODO: add a greet method through Person.prototype",
+      "hints": [
+        "Object.create links an object to a prototype; it does not copy properties.",
+        "A regular method's this is usually determined by its call site.",
+        "bind returns a new function; call invokes immediately."
+      ],
+      "successCriteria": [
+        "Own and inherited properties are distinguished.",
+        "Constructor-created instances share a prototype method.",
+        "The detached method uses an intentional this value.",
+        "Privacy patterns are explained accurately."
+      ]
+    },
+    {
+      "id": "prototype-shadowing-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Shadowing, mutation, and where a write lands"
+    },
+    {
+      "id": "prototype-shadowing-text",
+      "type": "paragraph",
+      "text": "Reading and writing are asymmetric: a read may find a value higher in the chain, but `child.status = ...` normally creates or updates an own property on `child`. It does not update the prototype’s property. This is useful for per-instance overrides, but surprising when a shared prototype value is an object: mutating `child.settings.theme` can mutate the same nested object shared by every instance. Put per-instance mutable data on each instance instead."
+    },
+    {
+      "id": "prototype-shadowing-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const defaults = { status: 'idle', settings: { theme: 'light' } };\nconst first = Object.create(defaults);\nconst second = Object.create(defaults);\n\nfirst.status = 'ready';\nfirst.settings.theme = 'dark';\n\nconsole.log(Object.hasOwn(first, 'status')); // true\nconsole.log(second.status);                  // 'idle'\nconsole.log(second.settings.theme);          // 'dark'",
+      "steps": [
+        {
+          "title": "Reads can be inherited",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "Neither instance owns status or settings; both read the same values through defaults."
+        },
+        {
+          "title": "A direct assignment shadows",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "explanation": "The assignment creates first.status. second still reads defaults.status because its own property was not changed."
+        },
+        {
+          "title": "Nested mutation follows the shared reference",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "explanation": "first.settings resolves to the object stored on defaults, then mutates that object. second sees the changed theme. Clone or initialize mutable per-instance data to avoid this coupling."
+        }
+      ]
+    },
+    {
+      "id": "prototype-shadowing-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "After `const child = Object.create(base)`, what does `child.count++` do when `base.count` is an ordinary writable data property and child has no own count?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It increments base.count because the original value was inherited",
+          "correct": false,
+          "feedback": "Property access finds the inherited number, but the subsequent ordinary assignment targets child."
+        },
+        {
+          "id": "b",
+          "text": "It creates child.count with the incremented value and leaves base.count unchanged",
+          "correct": true,
+          "feedback": "The read is inherited; the write creates an own property (assuming ordinary writable data-property semantics)."
+        },
+        {
+          "id": "c",
+          "text": "It changes the prototype link",
+          "correct": false,
+          "feedback": "Updating a property value does not replace [[Prototype]]."
+        },
+        {
+          "id": "d",
+          "text": "It throws for every inherited property",
+          "correct": false,
+          "feedback": "Writable inherited data properties can be shadowed. Accessors and non-writable descriptors have different behavior."
+        }
+      ],
+      "explanation": "Always reason about the read and write phases separately; accessors and property descriptors can change assignment behavior."
+    },
+    {
+      "id": "prototype-descriptors-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Descriptors and safe dictionary objects"
+    },
+    {
+      "id": "prototype-descriptors-text",
+      "type": "paragraph",
+      "text": "A property descriptor determines whether a property is writable, enumerable, or configurable, or instead is an accessor with a getter/setter. Prototype lookup can invoke inherited getters, and assignment can invoke setters. For user-controlled keys such as `__proto__`, `constructor`, or `prototype`, avoid merging arbitrary input into ordinary configuration objects without validation. Prefer allowlisted keys or a `Map`; a null-prototype dictionary created with `Object.create(null)` also has no inherited names, but lacks ordinary object methods."
+    },
+    {
+      "id": "prototype-descriptors-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You need a dictionary keyed by untrusted user-provided strings. Which design is the safest default among these options?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Merge every key into `{}` with Object.assign",
+          "correct": false,
+          "feedback": "Ordinary objects inherit from Object.prototype and unsafe merge logic can interact with special keys."
+        },
+        {
+          "id": "b",
+          "text": "Use an allowlist or Map, and validate any values before storing them",
+          "correct": true,
+          "feedback": "Explicit keys avoid prototype-chain surprises; Map is designed for key/value collections, while an allowlist limits accepted input."
+        },
+        {
+          "id": "c",
+          "text": "Use `for...in` and assume every enumerated key is own",
+          "correct": false,
+          "feedback": "for...in can include enumerable inherited properties; use ownership checks when appropriate."
+        },
+        {
+          "id": "d",
+          "text": "Disable strict mode",
+          "correct": false,
+          "feedback": "Strict mode does not make arbitrary object-key handling safe."
+        }
+      ],
+      "explanation": "The prototype chain is part of normal property semantics, so input-key handling must account for inherited names and special merge behavior."
+    },
+    {
+      "id": "prototype-debug-practice",
+      "type": "codingExercise",
+      "title": "Diagnose an inherited-state bug",
+      "language": "javascript",
+      "context": "A settings panel unexpectedly changes every profile after one profile is edited. Trace property ownership and repair the data model.",
+      "instructions": [
+        "Run the shadowing walkthrough and record own-property checks before and after each assignment.",
+        "Create a Profile constructor or class where each instance receives independent nested settings.",
+        "Add a test that edits one instance and proves a second instance remains unchanged.",
+        "Use Object.getPrototypeOf and Object.getOwnPropertyDescriptor to inspect where a property comes from."
+      ],
+      "requirements": [
+        "Explain the inherited read versus own-property write behavior.",
+        "Show the shared nested-reference failure before the repair.",
+        "Give each instance independent mutable settings in the repaired version.",
+        "Tests check values and ownership, not only printed output."
+      ],
+      "starterCode": "const defaults = { settings: { theme: 'light' } };\nconst first = Object.create(defaults);\nconst second = Object.create(defaults);\n\n// TODO: reproduce the shared nested mutation.\n// TODO: design an instance factory with independent settings.\n// TODO: assert that changing first does not affect second.",
+      "hints": [
+        "Object.create shares the prototype object; it does not deep-clone nested data.",
+        "A shallow spread can copy a nested reference without cloning that nested object.",
+        "Check both Object.hasOwn(instance, 'settings') and object identity."
+      ],
+      "successCriteria": [
+        "Reproduces and explains the shared nested-object bug.",
+        "Provides each profile its own nested settings object.",
+        "Includes an assertion proving instances are isolated.",
+        "Uses descriptor/prototype inspection to support the diagnosis."
+      ]
+    },
+    {
+      "id": "method-chaining-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Method chaining: define the return contract"
+    },
+    {
+      "id": "method-chaining-contract",
+      "type": "paragraph",
+      "text": "Method chaining is a syntax pattern, not a special JavaScript engine feature: each call's return value becomes the receiver of the next call. A mutable fluent API often returns `this` from each step, then uses a terminal method such as `value()` to return a result. Array methods such as `filter()` and `map()` return new arrays; `reduce()` returns the accumulated value. String methods return new strings because strings are immutable. Promise chaining is a separate async contract: `.then()` returns a Promise, not the same object."
+    },
+    {
+      "id": "method-chaining-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "class PriceBuilder {\n  #price = 0;\n\n  add(amount) {\n    if (!Number.isFinite(amount)) throw new TypeError('amount must be finite');\n    this.#price += amount;\n    return this;\n  }\n\n  multiply(factor) {\n    if (!Number.isFinite(factor) || factor < 0) throw new RangeError('factor must be finite and non-negative');\n    this.#price *= factor;\n    return this;\n  }\n\n  discount(percent) {\n    if (!Number.isFinite(percent) || percent < 0 || percent > 100) throw new RangeError('discount must be 0..100');\n    this.#price *= (100 - percent) / 100;\n    return this;\n  }\n\n  value() {\n    return this.#price;\n  }\n}\n\nconst price = new PriceBuilder().add(100).discount(10).multiply(2).value(); // 180\n\nconst total = [1, 2, 3, 4].filter((n) => n % 2 === 0).map((n) => n * 2).reduce((sum, n) => sum + n, 0); // 12\nconst label = '  Hello WORLD  '.trim().toLowerCase().replace('world', 'JS'); // 'hello js'",
+      "steps": [
+        {
+          "title": "Return the current instance from fluent steps",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "`add`, `multiply`, and `discount` return `this`, so the next call receives the same builder instance. If a step accidentally returns `undefined`, the next property lookup fails."
+        },
+        {
+          "title": "Keep validation at the public boundary",
+          "lineStart": 10,
+          "lineEnd": 19,
+          "explanation": "Validate arguments before mutating state. Fluent syntax does not make a sequence atomic: an error after an earlier step can leave that same instance partially updated, so decide whether a builder needs rollback or immutable operations."
+        },
+        {
+          "title": "Use a terminal method to return a value",
+          "lineStart": 22,
+          "lineEnd": 27,
+          "explanation": "`value()` intentionally returns a number rather than the builder; it is a terminal operation. Do not expect to chain builder methods after a terminal method with a different return type."
+        },
+        {
+          "title": "Distinguish different chaining contracts",
+          "lineStart": 29,
+          "lineEnd": 30,
+          "explanation": "Array and string chaining relies on each built-in method's documented result type. `reduce()` here yields the number 12, while the string chain creates a new string. Promise `.then()` chains eventual values and errors; it belongs to the async lesson."
+        }
+      ]
+    },
+    {
+      "id": "method-chaining-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "In a custom mutable builder, `add()` changes internal state but forgets `return this`. What happens in `builder.add(2).multiply(3)`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The JavaScript engine automatically returns the builder from methods",
+          "correct": false,
+          "feedback": "Ordinary methods return `undefined` when they do not explicitly return a value; chaining is not added by the engine."
+        },
+        {
+          "id": "b",
+          "text": "The first call returns `undefined`, so `.multiply` cannot be read from that result",
+          "correct": true,
+          "feedback": "The next call is made on the previous method's return value. A missing `return this` breaks the fluent API at that point."
+        },
+        {
+          "id": "c",
+          "text": "The `multiply` call is skipped but `add` still returns the instance",
+          "correct": false,
+          "feedback": "An implicit return does not return the receiver; JavaScript does not skip the following member access."
+        },
+        {
+          "id": "d",
+          "text": "This is only a TypeScript compile-time issue",
+          "correct": false,
+          "feedback": "In JavaScript the failure happens at runtime when the next method is accessed on the prior return value."
+        }
+      ],
+      "explanation": "A fluent method must deliberately return the receiver if that is the public API contract. Use a terminal method when the intended result is no longer the builder."
+    },
+    {
+      "id": "method-chaining-practice",
+      "type": "codingExercise",
+      "title": "Implement a validated fluent price builder",
+      "language": "javascript",
+      "context": "A checkout estimate needs to apply additions, multipliers and a discount in a chosen order. The existing sketch mutates a number but one method returns nothing, and invalid inputs can quietly corrupt the estimate.",
+      "instructions": [
+        "Implement `add(amount)`, `multiply(factor)` and `discount(percent)` so each validates its inputs, updates the builder and returns the same instance.",
+        "Add `value()` as a terminal method that returns the numeric price, not the builder.",
+        "Write tests for a valid chain and its expected result, including a zero discount and a 100% discount.",
+        "Reject non-finite amounts, negative multipliers, and percentages outside 0–100 with clear errors.",
+        "Explain why a mutable fluent API is order-dependent and when an immutable transformation might be easier to reason about."
+      ],
+      "requirements": [
+        "All intermediate builder methods return `this` after successful validation and mutation.",
+        "`value()` returns a number and terminates the fluent chain.",
+        "Valid calls produce the expected value in the exact documented order.",
+        "Invalid input is rejected before the failing method mutates the state.",
+        "The write-up describes shared-instance mutation and an immutable alternative."
+      ],
+      "starterCode": "class PriceBuilder {\n  #price = 0;\n\n  add(amount) {\n    // TODO: validate amount, update #price, and return this.\n  }\n\n  multiply(factor) {\n    // TODO: validate factor, update #price, and return this.\n  }\n\n  discount(percent) {\n    // TODO: validate 0..100, update #price, and return this.\n  }\n\n  value() {\n    // TODO: return the computed number.\n  }\n}\n\nconst result = new PriceBuilder().add(100).discount(10).multiply(2).value();\n// Expected: 180",
+      "hints": [
+        "Each intermediate method should return the same instance after the state update.",
+        "Perform all argument validation before changing `#price`; `Number.isFinite` rejects NaN and infinities.",
+        "The terminal `value()` returns a number, so later builder methods should not be chained after it."
+      ],
+      "successCriteria": [
+        "The happy-path chain returns the expected value.",
+        "Zero and 100% discounts are handled correctly.",
+        "Invalid values throw before changing the current step's state.",
+        "Every intermediate method preserves the fluent return contract.",
+        "The explanation distinguishes mutable builder chaining, array transformation chaining, and Promise chaining."
+      ]
+    },
+    {
+      "id": "classes-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Classes add syntax and rules to the prototype model"
+    },
+    {
+      "id": "classes-model",
+      "type": "paragraph",
+      "text": "A class declaration creates a constructor function with class-specific semantics; it does not replace prototype delegation. Instance methods are shared on Constructor.prototype, while static members belong to the constructor itself. Class bodies are strict, class declarations are not usable before initialization, and class constructors must be called with new. extends creates both an instance-method chain and a constructor chain for inherited static members. Private fields beginning with # are enforced by the language and can be accessed only by code with that class's private brand."
+    },
+    {
+      "id": "classes-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "class Account {\n  #balance = 0;\n\n  constructor(owner, opening = 0) {\n    if (!Number.isFinite(opening) || opening < 0) throw new RangeError(\"opening must be non-negative\");\n    this.owner = owner;\n    this.#balance = opening;\n  }\n\n  get balance() { return this.#balance; }\n  deposit(amount) {\n    if (!Number.isFinite(amount) || amount <= 0) throw new RangeError(\"invalid amount\");\n    this.#balance += amount;\n    return this;\n  }\n\n  static createStarter(owner) { return new this(owner, 0); }\n}\n\nclass SavingsAccount extends Account {\n  constructor(owner, opening, rate) {\n    super(owner, opening); // must run before using this\n    this.rate = rate;\n  }\n  addMonthlyInterest() { this.deposit(this.balance * this.rate); }\n}\n\nconst account = new SavingsAccount(\"Mina\", 100, 0.02);\naccount.addMonthlyInterest();\nconsole.log(account.balance); // 102\nconsole.log(Object.hasOwn(account, \"deposit\")); // false\nconsole.log(Object.hasOwn(Account.prototype, \"deposit\")); // true\nconsole.log(SavingsAccount.createStarter(\"Ada\") instanceof SavingsAccount); // true",
+      "steps": [
+        {
+          "title": "Keep invariant state private and validate at the boundary",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "The #balance field is not an ordinary property; callers cannot read or write it by guessing a string key. The constructor checks its initial value before setting it."
+        },
+        {
+          "title": "Use accessors and methods to preserve invariants",
+          "lineStart": 10,
+          "lineEnd": 15,
+          "explanation": "balance exposes a read-only view. deposit rejects non-finite or non-positive values, mutates only the private field, and returns this for chaining."
+        },
+        {
+          "title": "Distinguish static members from instance methods",
+          "lineStart": 17,
+          "lineEnd": 17,
+          "explanation": "createStarter is called on the class, not an account instance. Here new this preserves the subclass constructor when the inherited static method is called through SavingsAccount."
+        },
+        {
+          "title": "Establish the parent before using subclass state",
+          "lineStart": 19,
+          "lineEnd": 25,
+          "explanation": "A derived constructor must call super() before it reads or writes this. The instance method then extends Account behavior without duplicating balance logic."
+        },
+        {
+          "title": "Verify lookup and behavior",
+          "lineStart": 27,
+          "lineEnd": 32,
+          "explanation": "Interest is 2% of 100, so the balance becomes 102. deposit is inherited from Account.prototype rather than copied as an own property. The static factory returns a SavingsAccount instance."
+        }
+      ]
+    },
+    {
+      "id": "classes-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Classes are not merely interchangeable syntax",
+      "text": "Class methods are non-enumerable prototype properties, class calls require new, and class code is always strict. Constructor functions have different hoisting/call behavior. Private # fields are not the same as a naming convention such as _balance, and subclasses cannot access a parent's private field directly. Prefer composition over inheritance when a type relationship does not model substitutability."
+    },
+    {
+      "id": "classes-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "After `const account = new SavingsAccount(...)`, where is the inherited `deposit` method normally found?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Copied as an own property onto every account instance.",
+          "correct": false,
+          "feedback": "Class instance methods are shared rather than recreated as own methods per instance."
+        },
+        {
+          "id": "b",
+          "text": "On Account.prototype, reached through SavingsAccount.prototype.",
+          "correct": true,
+          "feedback": "Correct. The instance chain is account → SavingsAccount.prototype → Account.prototype."
+        },
+        {
+          "id": "c",
+          "text": "Only on the SavingsAccount constructor object.",
+          "correct": false,
+          "feedback": "The constructor object holds static members; instance methods live on prototype objects."
+        },
+        {
+          "id": "d",
+          "text": "In a private field table on the global object.",
+          "correct": false,
+          "feedback": "Private fields are per-instance branded state, but methods are not stored in a global table."
+        }
+      ],
+      "explanation": "extends links the subclass prototype to the base prototype, so inherited instance methods are found through ordinary property lookup."
+    },
+    {
+      "id": "classes-practice",
+      "type": "codingExercise",
+      "title": "Build and test an inherited class safely",
+      "language": "javascript",
+      "context": "Create a Vehicle base class and an ElectricCar subclass. Use encapsulated state, validate inputs, and prove which methods are inherited rather than duplicated.",
+      "instructions": [
+        "Implement Vehicle with a make field and a validated accelerate(amount) method that updates speed.",
+        "Implement ElectricCar extends Vehicle with a private battery charge and a charge(amount) method.",
+        "Call super before accessing this in the subclass constructor; reject invalid or out-of-range values.",
+        "Add an inherited static factory or explain why static members live on the constructor chain.",
+        "Test instanceof, own-property checks for methods, and that invalid state transitions do not mutate the instance."
+      ],
+      "requirements": [
+        "Put shared instance methods on class prototypes rather than assigning a new function in each constructor.",
+        "Use a # private field and do not expose a writable public alias for it.",
+        "Call super before using this in the subclass constructor.",
+        "Validate finite numeric inputs and stated boundaries before mutation.",
+        "Use tests or observable outputs to distinguish own and inherited methods."
+      ],
+      "starterCode": "class Vehicle {\n  constructor(make) {\n    // TODO: initialize valid state\n  }\n  accelerate(amount) {\n    // TODO: validate and update speed\n  }\n}\n\nclass ElectricCar extends Vehicle {\n  #charge = 0;\n  constructor(make, capacity) {\n    // TODO: call super before using this\n  }\n  charge(amount) {\n    // TODO: keep charge within the documented range\n  }\n}\n",
+      "hints": [
+        "A derived constructor cannot use this before super().",
+        "An inherited instance method is found on the prototype chain; Object.hasOwn(instance, 'method') should be false.",
+        "Use Number.isFinite and validate bounds before changing state.",
+        "Private names such as #charge are checked by syntax and cannot be reached as ordinary string keys."
+      ],
+      "successCriteria": [
+        "Invalid constructor or method inputs are rejected without partial mutation.",
+        "The derived instance passes instanceof checks for both classes.",
+        "Shared instance methods are found on prototypes, not stored as own function values.",
+        "The private charge cannot be read or assigned from outside the class.",
+        "super is called before subclass state access.",
+        "Tests cover normal transitions, boundary values, inheritance and rejected operations."
+      ]
+    },
+    {
+      "id": "invocation-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Function calls, thisArg, and bound functions"
+    },
+    {
+      "id": "invocation-model",
+      "type": "paragraph",
+      "text": "For an ordinary function, this is determined by how the function is called, not where it was declared. The expression obj.method() supplies obj as the receiver; an extracted function no longer receives that object automatically. call and apply invoke immediately with a chosen thisArg, while bind creates a new function for a later call."
+    },
+    {
+      "id": "invocation-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function formatGreeting(prefix, punctuation) {\n  return prefix + this.name + punctuation;\n}\nconst user = { name: \"Ayla\" };\n\nconsole.log(formatGreeting.call(user, \"Hi, \", \"!\"));\nconsole.log(formatGreeting.apply(user, [\"Hello, \", \".\"]));\nconst sayHey = formatGreeting.bind(user, \"Hey, \");\nconsole.log(sayHey(\"?\"));",
+      "steps": [
+        {
+          "title": "Look at the call site",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "formatGreeting does not store user. Its receiver is supplied when called; here we create a simple record with a name."
+        },
+        {
+          "title": "Invoke immediately with arguments",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "call receives arguments individually; apply receives an array or array-like list. Both invoke the function immediately with user as this."
+        },
+        {
+          "title": "Prepare a later invocation",
+          "lineStart": 8,
+          "lineEnd": 9,
+          "explanation": "bind does not format anything now: it returns a new function with the receiver and first argument partially fixed. sayHey can be called later."
+        }
+      ]
+    },
+    {
+      "id": "invocation-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What happens in `const later = formatGreeting.bind(user, \"Hello \")`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "formatGreeting runs immediately and its result is stored in later.",
+          "correct": false,
+          "feedback": "call/apply invoke now; bind returns a function for a later invocation."
+        },
+        {
+          "id": "b",
+          "text": "A new function is created with this and the first argument fixed.",
+          "correct": true,
+          "feedback": "Correct. Arguments supplied later are added after the prefilled arguments."
+        },
+        {
+          "id": "c",
+          "text": "The original function permanently receives a new this for all calls.",
+          "correct": false,
+          "feedback": "bind leaves the original alone and returns a separate bound function."
+        },
+        {
+          "id": "d",
+          "text": "JavaScript automatically clones user.",
+          "correct": false,
+          "feedback": "The receiver reference is fixed, not a copy of the object."
+        }
+      ],
+      "explanation": "bind creates a new callable and does not invoke the original. call and apply invoke immediately; their difference is how arguments are supplied."
+    },
+    {
+      "id": "arrow-this-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const panel = {\n  label: \"settings\",\n  makeReader() {\n    return () => this.label;\n  },\n};\nconst read = panel.makeReader();\nconsole.log(read.call({ label: \"other\" }));",
+      "steps": [
+        {
+          "title": "Create an arrow from a method",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "makeReader is called as panel.makeReader(), so the method's this is panel. The arrow captures this lexically."
+        },
+        {
+          "title": "Try to replace its receiver",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "call cannot change an arrow's lexical this. The result remains settings rather than other."
+        }
+      ]
+    },
+    {
+      "id": "bind-lifecycle",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Keep a bound callback if you need to remove a listener",
+      "text": "Each bind call creates a new function. addEventListener('click', handler.bind(this)) and removeEventListener('click', handler.bind(this)) receive different references; save the bound callback. For a bound constructor called with new, the bound this is ignored, but preset arguments still apply."
+    },
+    {
+      "id": "strict-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Strict mode makes mistakes visible"
+    },
+    {
+      "id": "strict-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "\"use strict\";\nfunction readReceiver() {\n  return this;\n}\nconsole.log(readReceiver() === undefined);\n\nconst user = Object.freeze({ count: 0 });\ntry {\n  user.count = 1;\n} catch (error) {\n  console.log(error instanceof TypeError);\n}",
+      "steps": [
+        {
+          "title": "An unbound call in strict mode",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Without a receiver, this inside an ordinary function stays undefined. In a sloppy classic browser script, globalThis may be substituted, hiding a mistake."
+        },
+        {
+          "title": "Expose a forbidden mutation",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "explanation": "Object.freeze makes the property non-writable. In strict mode an attempted assignment throws TypeError instead of being silently ignored."
+        }
+      ]
+    },
+    {
+      "id": "strict-context",
+      "type": "paragraph",
+      "text": "An ES module and a class body automatically use strict mode; a classic script can opt in with a directive at the beginning of a function or script. Strict mode also rejects some legacy constructs and helps expose mistakes. It is not a replacement for tests or input validation."
+    },
+    {
+      "id": "strict-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "When does a plain `read()` call give `this === undefined` for a function without its own receiver?",
+      "options": [
+        {
+          "id": "a",
+          "text": "In strict mode or a function/module with strict semantics.",
+          "correct": true,
+          "feedback": "Correct. ES modules and class bodies enable strict mode automatically."
+        },
+        {
+          "id": "b",
+          "text": "Only when the function is an arrow.",
+          "correct": false,
+          "feedback": "An arrow does not create its own this; that is a different mechanism."
+        },
+        {
+          "id": "c",
+          "text": "Always in all browser scripts.",
+          "correct": false,
+          "feedback": "Classic scripts without strict mode may substitute globalThis."
+        },
+        {
+          "id": "d",
+          "text": "Whenever the function uses bind.",
+          "correct": false,
+          "feedback": "bind fixes a receiver for a bound function; strict mode is not the reason."
+        }
+      ],
+      "explanation": "A plain ordinary function call yields undefined in strict mode; sloppy classic scripts historically substitute globalThis."
+    },
+    {
+      "id": "invocation-practice",
+      "type": "codingExercise",
+      "title": "Compare call, apply, and bind for an invoice",
+      "language": "javascript",
+      "context": "A renderer receives an invoice formatter separately from an order. Three ways of supplying the receiver should produce the same text; the bound version is invoked later.",
+      "instructions": [
+        "Implement formatInvoice(currency, taxRate) using this.customer and this.subtotal.",
+        "Calculate totals with call and apply using the same order object.",
+        "Create a bound function with bind, prefill currency, and invoke it later with taxRate.",
+        "Verify all three results match and are rounded to two decimal places.",
+        "Explain why bind creates a new function and how to preserve its reference for an event listener."
+      ],
+      "requirements": [
+        "call/apply invoke the original function immediately with order as receiver.",
+        "call takes separate arguments; apply takes an array-like argument list.",
+        "bind returns a function and does not format until a later call.",
+        "All three approaches return the same correct total.",
+        "Solution changes neither the original function nor a copy of order."
+      ],
+      "starterCode": "function formatInvoice(currency, taxRate) {\n  // TODO: use this.customer and this.subtotal.\n}\n\nconst order = { customer: \"Ayla\", subtotal: 20 };\nconst byCall = formatInvoice.call(order, \"$\", 0.1);\nconst byApply = formatInvoice.apply(order, [\"$\", 0.1]);\nconst later = formatInvoice.bind(order, \"$\");\nconst byBind = later(0.1);\n\nconsole.log(byCall, byApply, byBind);\n// Expected: \"Ayla: $22.00\" three times",
+      "hints": [
+        "Inside an ordinary function, this comes from the call expression. Pass order explicitly to call/apply/bind.",
+        "Apply receives one array-like argument list; call receives each argument separately.",
+        "Bind fixes order and currency now, but you supply taxRate when invoking later(0.1).",
+        "Format the numeric result with toFixed(2); do not mutate order.subtotal."
+      ],
+      "successCriteria": [
+        "All three outputs equal Ayla: $22.00.",
+        "call and apply invoke immediately with the intended receiver.",
+        "The bound function delays execution until later(0.1).",
+        "Order stays unchanged and the original function can use another receiver.",
+        "Explanation distinguishes this binding from copying or mutating an object."
+      ]
+    },
+    {
+      "id": "invocation-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "An ordinary function's this follows its call site; arrow this is lexical.",
+        "call/apply invoke immediately; call takes separate arguments and apply takes an array-like list.",
+        "bind returns a new function and can prefill receiver/arguments; preserve its identity for add/remove listener pairs.",
+        "Strict mode makes an unbound ordinary this undefined and exposes some silent failures; modules/classes are strict automatically."
+      ]
+    },
+    {
+      "id": "object-model-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Property lookup delegates through [[Prototype]]; Constructor.prototype is a separate concept.",
+        "new creates an instance linked to Constructor.prototype and initializes this for the constructor.",
+        "For regular methods this depends on the call site; arrows capture this lexically, call/apply invoke, and bind returns a bound function.",
+        "Use private fields and inheritance intentionally, based on encapsulation and substitutability needs.",
+        "call/apply invoke immediately; bind creates a new function. Strict mode changes plain-call this."
+      ]
+    },
+    {
+      "id": "object-model-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Inheritance and the prototype chain",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Inheritance_and_the_prototype_chain",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Classes",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function.prototype.bind()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function.prototype.call()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function.prototype.apply()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Strict mode",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Private elements",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_elements",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: super",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/super",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Object.freeze",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Array.prototype.reduce()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

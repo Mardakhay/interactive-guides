@@ -1,0 +1,623 @@
+{
+  "id": "react.context-shared-state",
+  "locale": "en",
+  "version": 2,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-23",
+  "moduleId": "month-4-week-15",
+  "week": 15,
+  "order": 1,
+  "title": "Shared State, Lifting State Up, and Context API",
+  "description": "Choose a clear owner for shared state, lift it to the nearest common parent, and use React Context to make cross-cutting values available without threading every prop through every layer.",
+  "estimatedMinutes": 90,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "react.components-jsx-state",
+    "react.effects-lists-composition"
+  ],
+  "learningOutcomes": [
+    "Identify which component should own a piece of state based on who reads and changes it.",
+    "Lift state to the nearest common ancestor when sibling components need to coordinate.",
+    "Explain prop drilling and when explicit props are still the simplest option.",
+    "Create a typed Context and Provider for a shared value and update function.",
+    "Understand that context distributes a value but does not automatically make all state design concerns disappear.",
+    "Build a theme toggle and shared user state example with clear ownership and update behavior.",
+    "Explain why each call to a custom Hook owns its own local state and when shared ownership or Context is required.",
+    "Use useReducer for explicit action-based transitions and combine it with Context when descendants need the same feature state."
+  ],
+  "tags": [
+    "react",
+    "context-api",
+    "useContext",
+    "state-management",
+    "lifting-state",
+    "prop-drilling"
+  ],
+  "blocks": [
+    {
+      "id": "state-ownership",
+      "type": "heading",
+      "level": 2,
+      "text": "State should live where it can be coordinated"
+    },
+    {
+      "id": "state-ownership-body",
+      "type": "paragraph",
+      "text": "Before choosing a state library, decide who owns the value. State can stay local when only one component needs it. If sibling components need to read or update the same value, move it to their nearest common ancestor and pass values/callbacks down. This is lifting state up. The goal is one clear source of truth for a shared piece of state, rather than two components maintaining competing copies."
+    },
+    {
+      "id": "lifting-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "function SearchPage() {\n  const [query, setQuery] = useState(\"\");\n\n  return (\n    <>\n      <SearchInput value={query} onChange={setQuery} />\n      <SearchSummary query={query} />\n    </>\n  );\n}\n\nfunction SearchInput({ value, onChange }: Props) {\n  return <input value={value} onChange={(event) => onChange(event.target.value)} />;\n}\n\nfunction SearchSummary({ query }: { query: string }) {\n  return <p>Searching for: {query || \"(nothing yet)\"}</p>;\n}",
+      "steps": [
+        {
+          "title": "Keep shared state in the common parent",
+          "lineStart": 2,
+          "lineEnd": 2,
+          "explanation": "Both the input and summary depend on query, so SearchPage is the natural owner in this example."
+        },
+        {
+          "title": "Pass the value and update callback",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "SearchInput receives the current value and a callback that requests an update. It does not need to own a second copy of query."
+        },
+        {
+          "title": "Pass the same source of truth to the summary",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "SearchSummary receives query from the same parent, so the displayed summary stays consistent with the input."
+        }
+      ]
+    },
+    {
+      "id": "prop-drilling",
+      "type": "heading",
+      "level": 2,
+      "text": "Prop drilling: inconvenient is not automatically wrong"
+    },
+    {
+      "id": "prop-drilling-body",
+      "type": "paragraph",
+      "text": "Prop drilling describes passing a value through intermediate components that do not use it, only so a deeper child can receive it. A few layers are often explicit and easy to follow. When a value is genuinely cross-cutting—such as the active theme, current user, or locale—Context can reduce the amount of plumbing. Do not use Context to hide every dependency; explicit props are easier to see, test, and reuse when the dependency is local."
+    },
+    {
+      "id": "context-purpose",
+      "type": "heading",
+      "level": 2,
+      "text": "Context distributes a value through a subtree"
+    },
+    {
+      "id": "context-purpose-body",
+      "type": "paragraph",
+      "text": "Context lets a parent make a value available to descendant components without passing it through every intermediate component. A Provider supplies the current value, and useContext reads the closest matching provider. The value can be state, configuration, or a stable service. Context is a delivery mechanism, not a database and not a replacement for deciding where state lives."
+    },
+    {
+      "id": "context-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { createContext, useContext, useState } from \"react\";\n\ntype Theme = \"light\" | \"dark\";\ntype ThemeContextValue = { theme: Theme; toggleTheme: () => void };\nconst ThemeContext = createContext<ThemeContextValue | null>(null);\n\nfunction ThemeProvider({ children }: { children: React.ReactNode }) {\n  const [theme, setTheme] = useState<Theme>(\"light\");\n  const value = {\n    theme,\n    toggleTheme: () => setTheme((current) => current === \"light\" ? \"dark\" : \"light\"),\n  };\n  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;\n}\n\nfunction useTheme() {\n  const value = useContext(ThemeContext);\n  if (!value) throw new Error(\"useTheme must be used within ThemeProvider\");\n  return value;\n}",
+      "steps": [
+        {
+          "title": "Define a typed context contract",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "The context value describes both the theme and the function that changes it. null makes the absence of a matching provider detectable."
+        },
+        {
+          "title": "Keep the actual state in the provider",
+          "lineStart": 7,
+          "lineEnd": 11,
+          "explanation": "ThemeProvider owns the state. Descendants receive a value and an action; they do not duplicate the theme state independently."
+        },
+        {
+          "title": "Read the closest provider value",
+          "lineStart": 14,
+          "lineEnd": 17,
+          "explanation": "useContext reads the nearest matching provider. Throwing a clear error makes accidental use outside ThemeProvider easier to diagnose."
+        }
+      ]
+    },
+    {
+      "id": "context-rerenders",
+      "type": "heading",
+      "level": 2,
+      "text": "Context updates can re-render consumers"
+    },
+    {
+      "id": "context-rerenders-body",
+      "type": "paragraph",
+      "text": "When the provider's value changes, components that read that context can re-render with the new value. If the provider creates a new object every render, identity may change even when the meaningful fields did not. Start with a simple, correct design and use stable values or memoization when profiling or real usage shows it matters. Avoid prematurely splitting every context into many tiny providers without a real need."
+    },
+    {
+      "id": "global-state-choice",
+      "type": "heading",
+      "level": 2,
+      "text": "Context, local state, and dedicated state tools"
+    },
+    {
+      "id": "global-state-choice-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Local useState: state owned by one component or a small subtree.",
+        "Lifted state plus props: siblings need one value and data flow stays clear.",
+        "Context: cross-cutting, often stable values such as theme, locale or current user when many descendants need them.",
+        "useReducer: coordinated state transitions with explicit action types, even when state is local.",
+        "Context + useReducer: several descendants need the same feature state and its multiple actions.",
+        "Zustand/Redux can help when global updates, selectors, devtools or multiple state slices justify the added complexity.",
+        "Server state (posts, users, products) has caching, freshness, refetching, error and synchronization concerns. Do not put it in Context just because several components read it.",
+        "Start simple. Context alone does not provide persistence, cache invalidation, synchronization or authorization."
+      ]
+    },
+    {
+      "id": "custom-hook-instance",
+      "type": "heading",
+      "level": 2,
+      "text": "Custom Hooks reuse logic; they do not share state automatically"
+    },
+    {
+      "id": "custom-hook-instance-body",
+      "type": "paragraph",
+      "text": "A custom Hook calls React Hooks and packages reusable behavior. Calling it in two components does not create one shared state: each call owns its useState/useReducer state. Use a custom Hook to reuse logic; for a shared value, use a common owner or Context."
+    },
+    {
+      "id": "custom-hook-instance-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState } from \"react\";\nfunction useCounter() {\n  const [count, setCount] = useState(0);\n  return { count, increment: () => setCount((current) => current + 1) };\n}\nfunction CounterA() {\n  const { count, increment } = useCounter();\n  return <button onClick={increment}>A: {count}</button>;\n}\nfunction CounterB() {\n  const { count, increment } = useCounter();\n  return <button onClick={increment}>B: {count}</button>;\n}",
+      "steps": [
+        {
+          "title": "Define reusable logic in a custom Hook",
+          "lineStart": 2,
+          "lineEnd": 4,
+          "explanation": "The Hook packages state and an action behind a small API."
+        },
+        {
+          "title": "Each component calls the Hook independently",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "explanation": "Each call owns its own useState instance; the Hook name does not make it shared."
+        },
+        {
+          "title": "Reusable logic is not shared state",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "explanation": "Clicking A updates A, not B. Shared state needs a common owner or Context."
+        }
+      ]
+    },
+    {
+      "id": "bookclub-reducer",
+      "type": "heading",
+      "level": 2,
+      "text": "A reducer for a real feature: the BookClub reading tracker"
+    },
+    {
+      "id": "bookclub-reducer-body",
+      "type": "paragraph",
+      "text": "The legacy React ecosystem lesson combines Context and useReducer in BookClub, where separate components add books, toggle reading status, and delete records. The reducer isolates these transitions. The caller creates the ID before dispatching ADD_BOOK; the reducer stays pure."
+    },
+    {
+      "id": "bookclub-reducer-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type Book = {\n  id: string;\n  title: string;\n  author: string;\n  year: number;\n  isRead: boolean;\n};\ntype BookAction =\n  | { type: \"ADD_BOOK\"; book: Book }\n  | { type: \"TOGGLE_READ\"; id: string }\n  | { type: \"DELETE_BOOK\"; id: string };\n\nfunction bookReducer(state: Book[], action: BookAction): Book[] {\n  switch (action.type) {\n    case \"ADD_BOOK\":\n      return [...state, action.book];\n    case \"TOGGLE_READ\":\n      return state.map((book) =>\n        book.id === action.id ? { ...book, isRead: !book.isRead } : book\n      );\n    case \"DELETE_BOOK\":\n      return state.filter((book) => book.id !== action.id);\n    default: {\n      const exhaustiveCheck: never = action;\n      return exhaustiveCheck;\n    }\n  }\n}",
+      "steps": [
+        {
+          "title": "Model the book and allowed actions",
+          "lineStart": 1,
+          "lineEnd": 11,
+          "explanation": "The action union describes adding, toggling, and deleting."
+        },
+        {
+          "title": "Handle ADD_BOOK immutably",
+          "lineStart": 15,
+          "lineEnd": 16,
+          "explanation": "The reducer returns a new array. The caller creates the ID before dispatch."
+        },
+        {
+          "title": "Toggle one book without mutation",
+          "lineStart": 17,
+          "lineEnd": 19,
+          "explanation": "map creates a new array and a new object only for the matching book."
+        },
+        {
+          "title": "Delete by ID and check all actions",
+          "lineStart": 21,
+          "lineEnd": 25,
+          "explanation": "filter removes the selected book; never helps flag an unhandled new action."
+        }
+      ]
+    },
+    {
+      "id": "bookclub-state-flow",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "BookProvider owns reducer state and exposes the list and dispatch through Context.",
+        "AddBook dispatches ADD_BOOK after Week 14 form validation and preparing a book with an ID.",
+        "BooksList reads the list and dispatches TOGGLE_READ or DELETE_BOOK.",
+        "A summary derives the number of read books from the list instead of storing a duplicate counter.",
+        "Routing stays in Week 13, forms in Week 14; this project focuses on shared state and actions."
+      ]
+    },
+    {
+      "id": "reducer-context",
+      "type": "heading",
+      "level": 2,
+      "text": "When several state changes form one workflow"
+    },
+    {
+      "id": "reducer-context-body",
+      "type": "paragraph",
+      "text": "Lifting state up or using useState is usually enough for a small value. When a feature has several related transitions—such as changing display preferences or moving through a multi-step form—useReducer can place those transitions in one reducer function. Pairing a reducer with Context lets descendants read the same state and dispatch named actions without threading both through every intermediate component. The reducer still owns the transition rules; Context only distributes the state and dispatch function."
+    },
+    {
+      "id": "reducer-context-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { createContext, useContext, useReducer, type Dispatch, type ReactNode } from \"react\";\n\ntype Preferences = {\n  theme: \"light\" | \"dark\";\n  compactMode: boolean;\n};\ntype PreferencesAction =\n  | { type: \"toggle-theme\" }\n  | { type: \"toggle-compact\" };\n\nfunction preferencesReducer(\n  state: Preferences,\n  action: PreferencesAction,\n): Preferences {\n  switch (action.type) {\n    case \"toggle-theme\":\n      return { ...state, theme: state.theme === \"light\" ? \"dark\" : \"light\" };\n    case \"toggle-compact\":\n      return { ...state, compactMode: !state.compactMode };\n    default: {\n      const exhaustiveCheck: never = action;\n      return exhaustiveCheck;\n    }\n  }\n}\n\ntype PreferencesContextValue = {\n  state: Preferences;\n  dispatch: Dispatch<PreferencesAction>;\n};\nconst PreferencesContext = createContext<PreferencesContextValue | null>(null);\n\nfunction PreferencesProvider({ children }: { children: ReactNode }) {\n  const [state, dispatch] = useReducer(preferencesReducer, {\n    theme: \"light\",\n    compactMode: false,\n  });\n  return (\n    <PreferencesContext.Provider value={{ state, dispatch }}>\n      {children}\n    </PreferencesContext.Provider>\n  );\n}\n\nfunction usePreferences() {\n  const context = useContext(PreferencesContext);\n  if (!context) throw new Error(\"usePreferences must be inside PreferencesProvider\");\n  return context;\n}",
+      "steps": [
+        {
+          "title": "Define the state and allowed actions",
+          "lineStart": 3,
+          "lineEnd": 9,
+          "explanation": "Preferences describes the state shape. The discriminated union limits updates to two named actions, so callers cannot pass arbitrary action strings."
+        },
+        {
+          "title": "Keep related transition rules together",
+          "lineStart": 11,
+          "lineEnd": 25,
+          "explanation": "The reducer receives the current state and an action, then returns a new object. Spreading state preserves the field that the chosen action does not change; the never check makes missing action cases visible to TypeScript."
+        },
+        {
+          "title": "Expose a typed shared contract",
+          "lineStart": 27,
+          "lineEnd": 31,
+          "explanation": "Consumers can read the state and dispatch only valid PreferencesAction values. The initial null makes a missing provider detectable."
+        },
+        {
+          "title": "Own the reducer in the provider",
+          "lineStart": 33,
+          "lineEnd": 43,
+          "explanation": "useReducer remains the source of truth. The provider distributes its current state and dispatch to descendants; it does not make that state persistent."
+        },
+        {
+          "title": "Centralize the provider check",
+          "lineStart": 45,
+          "lineEnd": 49,
+          "explanation": "The custom hook keeps consumer components concise and gives a direct error if they render outside the provider."
+        }
+      ]
+    },
+    {
+      "id": "provider-boundaries",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Place a provider around the smallest subtree that genuinely shares the value; unrelated pages should not receive dependencies they do not use.",
+        "Separate contexts when values have different responsibilities or change at very different rates if that helps avoid unnecessary consumer updates. Do not split contexts mechanically before you understand the update pattern.",
+        "Use useState for simple independent values. Consider useReducer when the allowed actions and coordinated state transitions deserve one explicit place.",
+        "Neither Context nor useReducer automatically persists data, synchronizes server state, caches API responses, or enforces authorization. Those concerns belong to separate layers."
+      ]
+    },
+    {
+      "id": "context-auth-note",
+      "type": "callout",
+      "tone": "warning",
+      "title": "A client context is not an authorization system",
+      "text": "Putting a user or role in Context can change what the interface displays, but it does not secure API endpoints or database rows. Enforce access control on the server and data layer as well."
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "When is lifting state up a good fit?",
+      "options": [
+        {
+          "id": "a",
+          "text": "When sibling components need to read or update the same value",
+          "correct": true,
+          "feedback": "Moving state to the nearest common parent creates one source of truth that siblings can share through props."
+        },
+        {
+          "id": "b",
+          "text": "Whenever a component contains any state at all",
+          "correct": false,
+          "feedback": "State can remain local when the value is only needed by that component or its small subtree."
+        },
+        {
+          "id": "c",
+          "text": "Only after installing a global state library",
+          "correct": false,
+          "feedback": "Lifting state up uses ordinary React state and props; it does not require a library."
+        },
+        {
+          "id": "d",
+          "text": "When the value must be stored permanently in a database",
+          "correct": false,
+          "feedback": "Lifting state up decides component ownership; durable persistence requires a separate storage design."
+        }
+      ],
+      "explanation": "Lift state to the nearest common owner when multiple components need to coordinate around the same value."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "React Context automatically persists its value after a page reload.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "Context only distributes the value provided by the current React tree; persistence needs storage or a backend."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "After reload the React tree is recreated; restore durable values from storage or the server if needed."
+        }
+      ],
+      "explanation": "Context is a value-delivery mechanism, not a persistence layer."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Which statements about shared state and Context are accurate? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "A Context Provider makes its value available to descendants",
+          "correct": true,
+          "feedback": "useContext reads the nearest matching provider value in the component tree."
+        },
+        {
+          "id": "b",
+          "text": "A few levels of explicit props are always an architecture error",
+          "correct": false,
+          "feedback": "Explicit props can be clear and reusable; prop drilling is a trade-off rather than an automatic defect."
+        },
+        {
+          "id": "c",
+          "text": "Context can be useful for a theme or locale needed by many descendants",
+          "correct": true,
+          "feedback": "These cross-cutting values are typical Context use cases when multiple components need them."
+        },
+        {
+          "id": "d",
+          "text": "Context alone enforces backend authorization",
+          "correct": false,
+          "feedback": "Backend APIs and data policies must enforce permissions independently of the client UI."
+        }
+      ],
+      "explanation": "Context helps distribute values; choose its scope based on data ownership and access patterns."
+    },
+    {
+      "id": "knowledge-check-4",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "If two components call the same custom Hook with useState, do they share one state value?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Yes, React merges state because the Hook name is the same",
+          "correct": false,
+          "feedback": "Reusing code does not merge separate Hook calls."
+        },
+        {
+          "id": "b",
+          "text": "No, each call owns state unless there is a shared owner/Context",
+          "correct": true,
+          "feedback": "A custom Hook reuses logic, not a single state instance."
+        },
+        {
+          "id": "c",
+          "text": "Only if the Hook is in another file",
+          "correct": false,
+          "feedback": "The file does not change state ownership."
+        },
+        {
+          "id": "d",
+          "text": "Yes, if both components render together",
+          "correct": false,
+          "feedback": "Simultaneous rendering does not merge state."
+        }
+      ],
+      "explanation": "Shared values require a common owner or Context."
+    },
+    {
+      "id": "knowledge-check-5",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which value does useContext(SomeContext) read?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The closest matching provider above the component",
+          "correct": true,
+          "feedback": "Context reads the nearest matching provider ancestor."
+        },
+        {
+          "id": "b",
+          "text": "The last provider in the source file",
+          "correct": false,
+          "feedback": "Source text order does not determine lookup."
+        },
+        {
+          "id": "c",
+          "text": "A newly created independent state",
+          "correct": false,
+          "feedback": "Context reads a provided value."
+        },
+        {
+          "id": "d",
+          "text": "A value from localStorage",
+          "correct": false,
+          "feedback": "Persistence is separate."
+        }
+      ],
+      "explanation": "A consumer reads the nearest provider in the rendered ancestor tree."
+    },
+    {
+      "id": "knowledge-check-6",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does useReducer do when paired with Context?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Context defines transitions; reducer passes props",
+          "correct": false,
+          "feedback": "The reducer contains transition rules."
+        },
+        {
+          "id": "b",
+          "text": "Reducer calculates next state from previous state and action; Context distributes state/dispatch",
+          "correct": true,
+          "feedback": "This keeps transitions explicit and avoids repetitive prop passing."
+        },
+        {
+          "id": "c",
+          "text": "Automatically caches APIs and authorizes users",
+          "correct": false,
+          "feedback": "Caching and authorization are separate concerns."
+        },
+        {
+          "id": "d",
+          "text": "Mutates the array for shared updates",
+          "correct": false,
+          "feedback": "A reducer should return new state."
+        }
+      ],
+      "explanation": "The reducer owns transitions; Context distributes values."
+    },
+    {
+      "id": "practice-theme-user",
+      "type": "codingExercise",
+      "title": "Create shared theme and user state",
+      "language": "tsx",
+      "context": "Implement the example in your React project. The lesson editor stores your draft but does not compile or execute TSX.",
+      "instructions": [
+        "Create a ThemeContext with a typed value containing theme and toggleTheme.",
+        "Create a ThemeProvider that owns the theme via useState.",
+        "Create a custom useTheme hook that throws a clear error if used outside the provider.",
+        "Create a UserContext for a simple user object and a sign-in/sign-out or set-user action.",
+        "Use the providers in the app shell and consume the values in separate descendant components.",
+        "Explain which state belongs in local component state and why theme/user are shared here.",
+        "State where real authentication and authorization must be enforced beyond Context.",
+        "Avoid copying context values into duplicate local state without a specific reason."
+      ],
+      "requirements": [
+        "Context value types are explicit and accurate.",
+        "Provider components own the actual state and expose deliberate actions.",
+        "Consumers use useContext through clear hooks or components.",
+        "A missing provider produces an understandable failure or a documented fallback.",
+        "The example distinguishes state distribution from persistence and authorization.",
+        "The learner can explain when props are still preferable."
+      ],
+      "starterCode": "import { createContext, useContext, useState } from \"react\";\n\ntype Theme = \"light\" | \"dark\";\ntype ThemeContextValue = { theme: Theme; toggleTheme: () => void };\nconst ThemeContext = createContext<ThemeContextValue | null>(null);\n\nfunction ThemeProvider({ children }: { children: React.ReactNode }) {\n  // TODO: own the theme state and provide a toggle action.\n}\n\nfunction useTheme() {\n  // TODO: read context and handle missing provider.\n}\n\n// TODO: create a user context/provider and consume both contexts in two components.",
+      "hints": [
+        "Keep the state in the provider; Context distributes that state instead of replacing its owner.",
+        "Type the context value explicitly so consumer components know which values/actions are available.",
+        "Context does not survive reloads or secure server data; those concerns need separate layers."
+      ],
+      "successCriteria": [
+        "Theme changes are visible in components that consume the context.",
+        "User state can be read or updated by more than one descendant.",
+        "Context values have explicit types and a predictable provider boundary.",
+        "A missing provider is handled intentionally.",
+        "You can explain local state versus lifted state versus Context."
+      ]
+    },
+    {
+      "id": "practice-bookclub-shared-state",
+      "type": "codingExercise",
+      "language": "tsx",
+      "title": "Build the shared state layer for BookClub",
+      "context": "Use the existing routing/form patterns from Weeks 13–14. The lesson editor does not compile TSX.",
+      "instructions": [
+        "Define Book fields id, title, author, year, and isRead.",
+        "Define ADD_BOOK, TOGGLE_READ, DELETE_BOOK actions and implement a pure bookReducer.",
+        "Create BookContext, a BookProvider that owns useReducer, and a useBooks hook that throws a clear error outside the provider.",
+        "Create a stable ID in the submit handler before dispatching ADD_BOOK.",
+        "Build a list consumer that toggles/deletes books and a summary derived from that list.",
+        "Explain why there should be one source of truth for the list."
+      ],
+      "requirements": [
+        "The reducer returns new arrays/objects and never mutates prior state.",
+        "Each action has typed data and an explicit transition.",
+        "Context distributes reducer state; it does not own transition rules.",
+        "Read/unread counts derive from the shared list.",
+        "Multiple consumers see the same updated list."
+      ],
+      "starterCode": "type Book = { id: string; title: string; author: string; year: number; isRead: boolean };\ntype BookAction =\n  | { type: \"ADD_BOOK\"; book: Book }\n  | { type: \"TOGGLE_READ\"; id: string }\n  | { type: \"DELETE_BOOK\"; id: string };\n\n// TODO: implement a pure reducer.\n// TODO: expose state/dispatch through BookContext.\n// TODO: create a guarded useBooks hook and list consumers.",
+      "hints": [
+        "Use map to toggle a book and filter to delete it.",
+        "Spread the matched book instead of mutating it.",
+        "Generate the ID outside the reducer before dispatching ADD_BOOK.",
+        "Derive the read count with books.filter(book => book.isRead).length."
+      ],
+      "successCriteria": [
+        "ADD_BOOK appends without changing the old array.",
+        "TOGGLE_READ changes only the matching ID.",
+        "DELETE_BOOK removes only the selected ID.",
+        "The derived count updates without a second state value.",
+        "You can explain the roles of Context, reducer, and custom Hook."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Choose one clear owner for shared state; lift it to the nearest common ancestor when siblings coordinate.",
+        "Prop drilling is a trade-off, not always a bug; explicit props remain useful when dependencies are local.",
+        "Context delivers a value to descendants and can be useful for theme, locale, and current user state.",
+        "Context does not persist data, synchronize with a server, or enforce backend access permissions.",
+        "Use the simplest state tool that meets current requirements and improve it when actual complexity warrants."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "React: Sharing State Between Components",
+          "url": "https://react.dev/learn/sharing-state-between-components",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Passing Data Deeply with Context",
+          "url": "https://react.dev/learn/passing-data-deeply-with-context",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Scaling Up with Reducer and Context",
+          "url": "https://react.dev/learn/scaling-up-with-reducer-and-context",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: useContext",
+          "url": "https://react.dev/reference/react/useContext",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Notion notes: React ecosystem — sections 4.8–4.14",
+          "url": "https://app.notion.com/p/3ba855c6fbb08075a08ef30c3ac20d89",
+          "kind": "article"
+        },
+        {
+          "title": "Source lesson (legacy HTML): React Ecosystem",
+          "url": "https://github.com/Mardakhay/interactive-guides/blob/feat/learning-platform-foundation/public/lessons/react-ecosystem-course.html",
+          "kind": "article"
+        }
+      ]
+    }
+  ]
+}

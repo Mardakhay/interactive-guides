@@ -1,0 +1,435 @@
+{
+  "id": "js.collections-weakmaps",
+  "locale": "ru",
+  "version": 2,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-27",
+  "moduleId": "supplement-js-internals",
+  "supplementaryTrackId": "supplement-js-internals",
+  "order": 4,
+  "title": "Коллекции JavaScript: Map, Set и WeakMap",
+  "description": "Выбор коллекций по семантике ключей, уникальности, порядку и времени жизни данных.",
+  "estimatedMinutes": 70,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "js.functions-arrays-objects",
+    "js.object-prototypes"
+  ],
+  "tags": [
+    "javascript",
+    "collections",
+    "Map",
+    "Set",
+    "WeakMap",
+    "data structures",
+    "map-iteration",
+    "set-operations",
+    "symbols"
+  ],
+  "learningOutcomes": [
+    "Объяснять идентичность ключей Map и порядок вставки.",
+    "Применять Set для уникальных примитивных значений и замечать ограничения для объектов.",
+    "Выбирать WeakMap/WeakSet для объектных метаданных и учитывать отсутствие перебора.",
+    "Реализовывать агрегацию доменных данных без мутации входа.",
+    "Использовать методы/итерацию Map, выполнять операции Set и объяснять видимость символьных ключей."
+  ],
+  "blocks": [
+    {
+      "id": "collections-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Коллекции JavaScript: Map, Set и слабые ссылки"
+    },
+    {
+      "id": "collections-model",
+      "type": "paragraph",
+      "text": "Map и Set — это специализированные коллекции, а не методы массивов. Map хранит пары ключ–значение и допускает ключи любого типа; Set хранит уникальные значения. WeakMap и WeakSet подходят для данных, чья жизнь должна следовать за объектом-ключом. Выбирайте структуру по операциям и семантике данных, а не по предположению, что она автоматически быстрее."
+    },
+    {
+      "id": "map-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Map: ключи, порядок и намерение"
+    },
+    {
+      "id": "map-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const firstCard = { id: \"a\" };\nconst secondCard = { id: \"b\" };\nconst statusByCard = new Map();\n\nstatusByCard.set(firstCard, \"loading\");\nstatusByCard.set(secondCard, \"ready\");\nstatusByCard.set(firstCard, \"ready\");\n\nconsole.log(statusByCard.get(firstCard));\nconsole.log(statusByCard.size);\nconsole.log([...statusByCard.keys()].map((card) => card.id));",
+      "steps": [
+        {
+          "title": "Используйте объект как ключ",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "Map принимает ключи любого типа. Здесь объект-ключ связывает состояние с конкретной карточкой, а не со строкой."
+        },
+        {
+          "title": "Повторная установка обновляет значение",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "В Map одна запись на ключ. Повторный set для того же объекта не создаёт вторую запись."
+        },
+        {
+          "title": "Проверьте чтение, размер и порядок",
+          "lineStart": 9,
+          "lineEnd": 11,
+          "explanation": "Получим ready, размер 2 и ключи в порядке первой вставки. Новый объект { id: \"a\" } не является тем же ключом: объекты сравниваются по идентичности."
+        }
+      ]
+    },
+    {
+      "id": "map-methods-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Осознанно используй методы и итерацию Map"
+    },
+    {
+      "id": "map-methods-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const scores = new Map([\n  [\"Alice\", 95],\n  [\"Bob\", 87],\n  [\"Charlie\", 92],\n]);\n\nconsole.log(scores.has(\"Bob\"), scores.get(\"Bob\"));\nscores.set(\"Bob\", 90);\nscores.delete(\"Charlie\");\nconsole.log(scores.size);\n\nfor (const [name, score] of scores) {\n  console.log(`${name}: ${score}`);\n}\n\nconsole.log([...scores.keys()]);\nconsole.log([...scores.values()]);",
+      "steps": [
+        {
+          "title": "Создай Map",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Map допускает ключи разных типов и сохраняет порядок добавления. Здесь она создаётся из пар записей, чтобы исходные данные были очевидны."
+        },
+        {
+          "title": "Используй основные методы Map",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "`has` проверяет наличие ключа независимо от его значения; `get` может вернуть `undefined` для отсутствующего ключа. `set` добавляет или заменяет запись, `delete` удаляет её, а `size` показывает количество записей."
+        },
+        {
+          "title": "Перебери ключи и значения",
+          "lineStart": 12,
+          "lineEnd": 17,
+          "explanation": "Map итерируется парами `[key, value]`. `keys()` и `values()` дают итераторы соответствующих последовательностей; также можно использовать `forEach`."
+        }
+      ]
+    },
+    {
+      "id": "map-methods-model",
+      "type": "paragraph",
+      "text": "Используй `has`, когда нужно отличить отсутствующий ключ от ключа со значением `undefined`. Map сохраняет порядок добавления, а объектные ключи сравниваются по ссылке."
+    },
+    {
+      "id": "map-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что вернёт statusByCard.get({ id: \"a\" }), если Map был заполнен объектом firstCard с такими же полями?",
+      "options": [
+        {
+          "id": "a",
+          "text": "\"ready\", потому что свойства объектов совпадают.",
+          "correct": false,
+          "feedback": "Map сравнивает объектные ключи по идентичности, а не структурно."
+        },
+        {
+          "id": "b",
+          "text": "undefined, потому что это новый объект-ключ.",
+          "correct": true,
+          "feedback": "Верно: новый литерал — другая ссылка. Нужно передать firstCard либо использовать стабильный примитивный ключ."
+        },
+        {
+          "id": "c",
+          "text": "TypeError: Map принимает только строки.",
+          "correct": false,
+          "feedback": "Map допускает объектные ключи; проблема именно в другой идентичности ссылки."
+        },
+        {
+          "id": "d",
+          "text": "\"loading\", так как последнее значение не обновляется.",
+          "correct": false,
+          "feedback": "Повторный set для того же ключа обновил значение на ready."
+        }
+      ],
+      "explanation": "Новый объектный литерал не совпадает с ключом по ссылке; если смысл ключа — идентификатор товара, используйте строковый ID. Повторный set существующего ключа обновляет запись, сохраняя порядок её первой вставки."
+    },
+    {
+      "id": "set-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Set: уникальные значения — но не глубокая уникальность"
+    },
+    {
+      "id": "set-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const labels = new Set([\"urgent\", \"review\", \"urgent\"]);\nlabels.add(\"review\");\nlabels.add(\"done\");\n\nconsole.log([...labels]);\nconsole.log(labels.has(\"urgent\"));\nconsole.log(new Set([{ id: 1 }, { id: 1 }]).size);",
+      "steps": [
+        {
+          "title": "Создайте множество",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "Повторная строка схлопывается: Set использует семантику SameValueZero для примитивных значений."
+        },
+        {
+          "title": "Добавление идемпотентно для одинакового значения",
+          "lineStart": 2,
+          "lineEnd": 3,
+          "explanation": "Повтор review ничего не меняет; новая строка done добавляется в конец порядка вставки."
+        },
+        {
+          "title": "Учитывайте идентичность объектов",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "has вернёт true. Размер последнего Set равен 2: два объектных литерала — разные ссылки, даже если их поля равны."
+        }
+      ]
+    },
+    {
+      "id": "set-operations-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const first = new Set([1, 2, 3, 4]);\nconst second = new Set([3, 4, 5, 6]);\n\nconst union = new Set([...first, ...second]);\nconst intersection = new Set([...first].filter((value) => second.has(value)));\nconst difference = new Set([...first].filter((value) => !second.has(value)));\n\nconsole.log([...union]);\nconsole.log([...intersection]);\nconsole.log([...difference]);",
+      "steps": [
+        {
+          "title": "Создай исходные множества",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Set хранит по одной копии значения согласно правилам равенства JavaScript. Разные объекты с одинаковыми полями остаются разными значениями, потому что объекты сравниваются по ссылке."
+        },
+        {
+          "title": "Объедини значения",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "Union объединяет оба множества без повторов. Пример создаёт новый Set, не меняя исходные множества."
+        },
+        {
+          "title": "Сравни общие и различающиеся значения",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "explanation": "Intersection сохраняет значения первого множества, присутствующие во втором; difference оставляет значения первого, отсутствующие во втором. Порядок следует обходу первого множества."
+        }
+      ]
+    },
+    {
+      "id": "set-pitfall",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Set не заменяет сравнение по доменному ключу",
+      "text": "Set устраняет дубликаты значений согласно правилам JavaScript, но не объединяет разные объекты с одинаковым id. Для дедупликации записей по id сначала примените Map/Set к id либо явно задайте правило нормализации."
+    },
+    {
+      "id": "weak-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "WeakMap и WeakSet: привязанные к объектам метаданные"
+    },
+    {
+      "id": "weak-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const privateState = new WeakMap();\nconst dialog = { id: \"preferences\" };\n\nprivateState.set(dialog, { dirty: true });\nconsole.log(privateState.get(dialog).dirty);\nconsole.log(\"size\" in privateState);\nconsole.log([...privateState]);",
+      "steps": [
+        {
+          "title": "Привяжите служебное состояние к объекту",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "WeakMap не перечисляет ключи и не удерживает объект-ключ только из-за записи в коллекции. Пока dialog доступен программе, по нему можно получить метаданные."
+        },
+        {
+          "title": "Проверьте ограничения API",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "У WeakMap нет size и итератора: наблюдение не должно зависеть от недетерминированной работы сборщика мусора. Последняя строка выбросит TypeError, поскольку WeakMap не итерируем. Последняя строка пытается перебрать WeakMap и намеренно выбрасывает TypeError."
+        }
+      ]
+    },
+    {
+      "id": "weak-limits",
+      "type": "paragraph",
+      "text": "WeakSet аналогично отслеживает принадлежность объектов, например уже обработанные узлы DOM. «Слабый» не означает таймер очистки или надёжный кэш с наблюдаемым размером: момент сборки мусора недетерминирован. Если нужен перебор, подсчёт или гарантированное удаление, используйте обычную Map/Set и управляйте временем жизни явно."
+    },
+    {
+      "id": "symbols-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Symbols: уникальные ключи и известные протоколы"
+    },
+    {
+      "id": "symbols-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const id = Symbol(\"id\");\nconst duplicate = Symbol(\"id\");\nconst sharedA = Symbol.for(\"app.id\");\nconst sharedB = Symbol.for(\"app.id\");\nconst record = { name: \"Ada\", [id]: 42 };\n\nconsole.log(id === duplicate);\nconsole.log(sharedA === sharedB);\nconsole.log(Object.keys(record));\nconsole.log(Object.getOwnPropertySymbols(record));\n\nconst iterable = { values: [1, 2, 3], [Symbol.iterator]() { return this.values[Symbol.iterator](); } };\nconsole.log([...iterable]);",
+      "steps": [
+        {
+          "title": "Сравни локальные символы и реестр",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Новый `Symbol('id')` уникален даже при одинаковом описании. `Symbol.for('app.id')` использует глобальный реестр и возвращает один символ для одного ключа реестра."
+        },
+        {
+          "title": "Исследуй свойства с символьными ключами",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "`Object.keys` возвращает перечисляемые собственные строковые ключи, поэтому пропускает символьные свойства. Их можно получить через `Object.getOwnPropertySymbols`."
+        },
+        {
+          "title": "Используй протокол iterable",
+          "lineStart": 12,
+          "lineEnd": 13,
+          "explanation": "`Symbol.iterator` — протокол для `for...of` и spread. Этот объект делегирует итерацию вложенному массиву."
+        }
+      ]
+    },
+    {
+      "id": "symbols-security-note",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Символы не являются приватным хранилищем",
+      "text": "Символьные ключи помогают избежать случайных совпадений имён, но не делают данные секретными, не являются приватными и не создают границу безопасности. Их можно посмотреть через `Object.getOwnPropertySymbols` или `Reflect.ownKeys`."
+    },
+    {
+      "id": "symbols-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "У записи есть собственное свойство с символьным ключом. Что вернёт `Object.keys(record)`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Только имена перечисляемых собственных строковых ключей; символы пропускаются",
+          "correct": true,
+          "feedback": "Object.keys возвращает перечисляемые собственные строковые ключи. Для символов используй Object.getOwnPropertySymbols или Reflect.ownKeys."
+        },
+        {
+          "id": "b",
+          "text": "Все собственные ключи, включая символы и неперечисляемые свойства",
+          "correct": false,
+          "feedback": "Reflect.ownKeys возвращает все собственные строковые и символьные ключи, включая неперечисляемые."
+        },
+        {
+          "id": "c",
+          "text": "Никаких ключей, потому что символ делает всю запись приватной",
+          "correct": false,
+          "feedback": "Символ не делает объект или его свойства приватными; символьные свойства можно исследовать."
+        },
+        {
+          "id": "d",
+          "text": "Только унаследованные строковые свойства",
+          "correct": false,
+          "feedback": "Object.keys не перечисляет унаследованные свойства."
+        }
+      ],
+      "explanation": "Object.keys пропускает символьные ключи, потому что возвращает перечисляемые собственные строковые ключи. Символьные ключи можно обнаружить через API рефлексии; это не механизм безопасности."
+    },
+    {
+      "id": "collections-practice",
+      "type": "codingExercise",
+      "title": "Сгруппируйте строки корзины по товару",
+      "language": "javascript",
+      "context": "Корзина получает повторяющиеся строки товаров. Нужно суммировать количество по стабильному productId, сохранить первый порядок появления и отдельно получить уникальные категории.",
+      "instructions": [
+        "Реализуйте summarizeCart(items), используя Map для суммирования количества по productId.",
+        "Верните массив строк { productId, quantity } в порядке первого появления товара.",
+        "Соберите уникальные категории в Set и верните их в порядке первого появления.",
+        "Добавьте тесты для повторного товара, одинакового id у разных объектов, пустого ввода и повторяющейся категории.",
+        "Коротко объясните, почему Map по id здесь лучше, чем Map по объекту товара."
+      ],
+      "requirements": [
+        "Суммирование использует примитивный стабильный productId, не идентичность объекта.",
+        "Порядок первого появления сохраняется для товаров и категорий.",
+        "Входной массив и его элементы не мутируются.",
+        "Пустой ввод возвращает две пустые коллекции в согласованном формате.",
+        "Не применяются несуществующие у WeakMap размер и итерация."
+      ],
+      "starterCode": "function summarizeCart(items) {\n  const quantityById = new Map();\n  const categories = new Set();\n\n  for (const item of items) {\n    // TODO: sum item.quantity by item.productId.\n    // TODO: record item.category once.\n  }\n\n  return {\n    lines: [...quantityById].map(([productId, quantity]) => ({\n      productId,\n      quantity,\n    })),\n    categories: [...categories],\n  };\n}\n\nconst result = summarizeCart([\n  { productId: \"tea\", quantity: 2, category: \"grocery\" },\n  { productId: \"mug\", quantity: 1, category: \"home\" },\n  { productId: \"tea\", quantity: 3, category: \"grocery\" },\n]);\nconsole.log(result);",
+      "hints": [
+        "Сначала проверьте, есть ли productId в Map; затем добавьте количество к прежнему значению или начните с текущего quantity.",
+        "Map сохраняет порядок первой вставки ключа даже после обновления его значения.",
+        "Set сохраняет первое появление категории и игнорирует повтор той же строки.",
+        "Для проверки отсутствия ключа используйте has: значение 0 само по себе может быть допустимым."
+      ],
+      "successCriteria": [
+        "Для tea получается одна строка с quantity 5; mug остаётся отдельной строкой.",
+        "Категории возвращены как [\"grocery\", \"home\"] без повторов.",
+        "Две разные записи с одинаковым productId объединяются, даже если это разные объекты.",
+        "Пустой массив не вызывает ошибку и даёт пустые lines и categories.",
+        "Решение не мутирует вход и объясняет выбор ключа по смыслу данных."
+      ]
+    },
+    {
+      "id": "weak-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Какое требование является хорошим поводом выбрать WeakMap вместо Map?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Нужно перечислять ключи, получить size и показать все записи в UI.",
+          "correct": false,
+          "feedback": "WeakMap намеренно не итерируется и не имеет size; для наблюдаемого списка нужна Map."
+        },
+        {
+          "id": "b",
+          "text": "Служебные метаданные должны быть доступны по объекту, не продлевая его жизнь только ссылкой из коллекции.",
+          "correct": true,
+          "feedback": "Верно. WeakMap полезен для метаданных, привязанных к объекту, если перечисление не требуется."
+        },
+        {
+          "id": "c",
+          "text": "Ключи должны быть любыми строками и числами.",
+          "correct": false,
+          "feedback": "WeakMap принимает объектные ключи, а не произвольные примитивы."
+        },
+        {
+          "id": "d",
+          "text": "Нужно гарантировать, что запись будет удалена ровно через минуту.",
+          "correct": false,
+          "feedback": "Слабые ссылки не задают время очистки; сборка мусора недетерминирована."
+        }
+      ],
+      "explanation": "WeakMap привязывает значения к объектным ключам, не делая объект достижимым только из-за записи. Цена такого свойства — отсутствие перечисления и размера, а момент освобождения памяти не контролируется приложением."
+    },
+    {
+      "id": "collections-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Map: пары ключ–значение, ключи любого типа, порядок вставки; объектные ключи сравниваются по ссылке.",
+        "Set: уникальные значения по семантике JavaScript; объекты с одинаковыми полями остаются разными значениями.",
+        "WeakMap/WeakSet: неперечисляемые коллекции с объектными ключами/элементами и слабой достижимостью.",
+        "Выбор структуры определяет доступные операции и семантику; не делайте вывод о производительности без измерения."
+      ]
+    },
+    {
+      "id": "collections-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Keyed collections",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Keyed_collections",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Map",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Set",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: WeakMap",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Symbol",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Object.getOwnPropertySymbols",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertySymbols",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

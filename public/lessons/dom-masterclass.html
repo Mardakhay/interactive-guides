@@ -1335,7 +1335,7 @@ output('data-index=2: ' + gammaLi.textContent);</textarea>
   <div class="grid-3" style="margin-bottom:2rem">
     <div class="card">
       <h4 style="font-family:'JetBrains Mono',monospace;color:var(--accent);margin-bottom:0.5rem">textContent</h4>
-      <p style="font-size:0.85rem;color:var(--text2)">Gets/sets all text inside an element, including text in hidden elements. No HTML parsing — everything is treated as plain text. <strong>Safe from XSS.</strong></p>
+      <p style="font-size:0.85rem;color:var(--text2)">Gets/sets plain text inside an element, including text in hidden elements. The value is not parsed as HTML, so it is suitable for inserting untrusted strings as ordinary text. This does not replace context-specific handling for URLs, attributes, scripts, styles, or other sensitive output contexts.</p>
     </div>
     <div class="card">
       <h4 style="font-family:'JetBrains Mono',monospace;color:var(--accent2);margin-bottom:0.5rem">innerText</h4>
@@ -1369,7 +1369,7 @@ output('data-index=2: ' + gammaLi.textContent);</textarea>
     <div class="info-icon">🚨</div>
     <div class="info-content">
       <strong>XSS — Cross-Site Scripting Warning</strong>
-      <p>Never use <code>innerHTML</code> with content from users or external sources. An attacker can inject <code>&lt;script&gt;</code> tags or event handlers like <code>&lt;img onerror="steal()"&gt;</code> to run malicious code. Use <code>textContent</code> when inserting plain text, and sanitize HTML thoroughly before using <code>innerHTML</code>.</p>
+      <p>Avoid assigning untrusted strings directly to <code>innerHTML</code>. Script elements inserted through this API generally do not execute by that insertion alone, but other markup—such as event-handler attributes on an <code>img</code>—can execute code. Use <code>textContent</code> for plain text. If rich HTML is required, apply a reviewed, context-appropriate sanitization policy before inserting it.</p>
     </div>
   </div>
 
@@ -1562,7 +1562,7 @@ box.style.color = '#5de6d4';</textarea>
     <div class="info-icon">💡</div>
     <div class="info-content">
       <strong>Best Practice</strong>
-      <p>Prefer <code>classList</code> over direct <code>style</code> manipulation. It keeps your styling in CSS (where it belongs), makes state management cleaner, and is more performant since CSS class changes can be GPU-accelerated and animated.</p>
+      <p>Prefer <code>classList</code> when toggling UI states because it keeps appearance rules in CSS and makes state easier to reason about. Do not assume class changes are always faster than inline styles: performance depends on the properties changed and the resulting style, layout, paint, and compositing work. Measure the real bottleneck when performance matters.</p>
     </div>
   </div>
 
@@ -1641,7 +1641,7 @@ box.style.color = '#5de6d4';</textarea>
   <span class="var">li</span>.<span class="prop">textContent</span> = <span class="str">`Item </span><span class="punct">${</span><span class="var">i</span><span class="punct">}</span><span class="str">`</span>;
   <span class="var">frag</span>.<span class="fn">appendChild</span>(<span class="var">li</span>); <span class="cm">// building in memory</span>
 }
-<span class="var">list</span>.<span class="fn">appendChild</span>(<span class="var">frag</span>);   <span class="cm">// ONE DOM touch — fast!</span></pre>
+<span class="var">list</span>.<span class="fn">appendChild</span>(<span class="var">frag</span>);   <span class="cm">// insert the assembled children together</span></pre>
   </div>
 
   <!-- Fragment Benchmark Demo -->
@@ -1762,19 +1762,26 @@ output('Created 2 profile cards!');</textarea>
 <span class="var">btn</span>.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="fn">handleClick</span>);
 <span class="var">btn</span>.<span class="fn">removeEventListener</span>(<span class="str">'click'</span>, <span class="fn">handleClick</span>); <span class="cm">// same reference!</span>
 
-<span class="cm">// Options object</span>
+<span class="cm">// Options object: one-shot click listener</span>
 <span class="var">btn</span>.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="fn">handleClick</span>, {
   <span class="prop">once</span>: <span class="kw">true</span>,     <span class="cm">// fire only once, then auto-remove</span>
-  <span class="prop">capture</span>: <span class="kw">false</span>, <span class="cm">// use bubbling phase (default)</span>
-  <span class="prop">passive</span>: <span class="kw">true</span>   <span class="cm">// won't call preventDefault() — better scroll perf</span>
+  <span class="prop">capture</span>: <span class="kw">false</span>  <span class="cm">// use bubbling phase (default)</span>
+});
+
+<span class="cm">// Passive wheel listener: use only when this handler never needs preventDefault()</span>
+<span class="kw">function</span> <span class="fn">handleWheel</span>(<span class="var">event</span>) {
+  <span class="var">console</span>.<span class="fn">log</span>(<span class="var">event</span>.<span class="prop">deltaY</span>);
+}
+<span class="var">window</span>.<span class="fn">addEventListener</span>(<span class="str">'wheel'</span>, <span class="fn">handleWheel</span>, {
+  <span class="prop">passive</span>: <span class="kw">true</span> <span class="cm">// browser can proceed without waiting for cancellation</span>
 });
 
 <span class="cm">// The Event Object — key properties</span>
 <span class="var">e</span>.<span class="prop">target</span>          <span class="cm">// element that was CLICKED</span>
 <span class="var">e</span>.<span class="prop">currentTarget</span>   <span class="cm">// element the listener is ON</span>
 <span class="var">e</span>.<span class="prop">type</span>            <span class="cm">// "click", "keydown", etc.</span>
-<span class="var">e</span>.<span class="prop">preventDefault</span>()<span class="cm"> // stop default behavior (link navigation, form submit)</span>
-<span class="var">e</span>.<span class="prop">stopPropagation</span>()<span class="cm"> // stop bubbling/capturing</span>
+<span class="var">e</span>.<span class="prop">preventDefault</span>()<span class="cm"> // cancel a cancellable browser default action</span>
+<span class="var">e</span>.<span class="prop">stopPropagation</span>()<span class="cm"> // stop propagation to other nodes; does not cancel default behavior</span>
 <span class="var">e</span>.<span class="prop">key</span>             <span class="cm">// for keyboard events: "Enter", "Escape", etc.</span>
 <span class="var">e</span>.<span class="prop">clientX</span>, <span class="var">e</span>.<span class="prop">clientY</span> <span class="cm">// mouse position</span></pre>
   </div>

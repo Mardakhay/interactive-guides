@@ -1405,7 +1405,7 @@
     <div class="section-header">
       <div class="section-label">Section 03</div>
       <h2>Axios Client Setup</h2>
-      <p>Axios is a library that makes HTTP requests easier than the built-in <code>fetch()</code>. Let's see why, then configure it properly.</p>
+      <p>Axios is an optional HTTP client. This project uses the built-in <code>fetch()</code> and does not install Axios; the service and hook boundaries shown here work with either choice. Add a library only when its behavior is useful to the project.</p>
     </div>
 
     <h3 style="margin-bottom: 16px;">fetch() vs Axios — Side by Side</h3>
@@ -1704,10 +1704,10 @@ apiClient.interceptors.response.<span class="fn">use</span>(
     <span class="kw">return</span> data;
   },
 
-  <span class="cmt">// UPDATE — replace user data (full update)</span>
+  <span class="cmt">// PATCH — partially update user data</span>
   <span class="cmt">// Partial&lt;User&gt; means: any subset of User fields is OK</span>
   <span class="fn">update</span>: <span class="kw">async</span> (id: <span class="typ">number</span>, user: <span class="typ">Partial</span>&lt;<span class="typ">User</span>&gt;): <span class="typ">Promise</span>&lt;<span class="typ">User</span>&gt; <span class="op">=></span> {
-    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">put</span>&lt;<span class="typ">User</span>&gt;(<span class="str">`/users/</span><span class="op">${</span>id<span class="op">}</span><span class="str">`</span>, user);
+    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">patch</span>&lt;<span class="typ">User</span>&gt;(<span class="str">`/users/</span><span class="op">${</span>id<span class="op">}</span><span class="str">`</span>, user);
     <span class="kw">return</span> data;
   },
 
@@ -2029,7 +2029,7 @@ apiClient.interceptors.response.<span class="fn">use</span>(
         <div class="callout-icon">⚡</div>
         <div class="callout-body">
           <h4>Why Debounce Matters</h4>
-          <p>If you type "john" (4 letters) in a search box, <em>without</em> debounce you make 4 API calls: "j", "jo", "joh", "john". With a 300ms debounce, you make just 1 — only when you pause typing.</p>
+          <p>If you type "john" (4 letters) in a search box, <em>without</em> debounce you make 4 API calls: "j", "jo", "joh", "john". With a 300ms debounce, the example sends one request after the user pauses. This reduces request volume, but does not make a response arrive faster; cancel or ignore stale responses when a newer query starts.</p>
         </div>
       </div>
 
@@ -2278,11 +2278,12 @@ apiClient.interceptors.response.<span class="fn">use</span>(
     </div>
 
     <h3 style="margin-bottom: 16px; margin-top: 28px;">Retry with Exponential Backoff</h3>
+    <div class="callout warning"><strong>Retry boundaries:</strong> Retry only transient failures and operations that are safe to repeat. Do not retry validation, authorization or not-found errors. A production policy should cap delay, add jitter, honor <code>Retry-After</code> when present, and support cancellation.</div>
     <div class="callout callout-info">
       <div class="callout-icon">📈</div>
       <div class="callout-body">
         <h4>What is Exponential Backoff?</h4>
-        <p>Instead of retrying immediately (which could overwhelm a struggling server), you wait longer between each attempt: 1s → 2s → 4s → 8s. This gives the server time to recover.</p>
+        <p>Instead of retrying immediately (which could overwhelm a struggling server), wait longer between retries. A capped exponential backoff gives a server time to recover; with three retries, the first request can be followed by at most three more attempts.</p>
       </div>
     </div>
     <div class="code-wrapper">
@@ -2290,40 +2291,48 @@ apiClient.interceptors.response.<span class="fn">use</span>(
         <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>utils/retry.ts</div>
         <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       </div>
-      <pre><code><span class="kw">async function</span> <span class="fn">withRetry</span>&lt;<span class="typ">T</span>&gt;(
-  fn: () <span class="op">=></span> <span class="typ">Promise</span>&lt;<span class="typ">T</span>&gt;,
-  maxRetries: <span class="typ">number</span> <span class="op">=</span> <span class="num">3</span>,
-  delay: <span class="typ">number</span> <span class="op">=</span> <span class="num">1000</span>
-): <span class="typ">Promise</span>&lt;<span class="typ">T</span>&gt; {
-  <span class="kw">let</span> lastError: <span class="typ">Error</span>;
+      <pre><code>type RetryOptions = {
+  maxRetries?: number;
+  baseDelayMs?: number;
+  maxDelayMs?: number;
+  shouldRetry: (error: unknown) =&gt; boolean;
+};
 
-  <span class="kw">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="num">0</span>; i <span class="op"><</span> maxRetries; i++) {
-    <span class="kw">try</span> {
-      <span class="kw">return await</span> <span class="fn">fn</span>();                        <span class="cmt">// ✅ success → return immediately</span>
-    } <span class="kw">catch</span> (error) {
-      lastError <span class="op">=</span> error <span class="kw">as</span> <span class="typ">Error</span>;
-      console.<span class="fn">log</span>(<span class="str">`Attempt </span><span class="op">${</span>i <span class="op">+</span> <span class="num">1</span><span class="op">}</span><span class="str">/</span><span class="op">${</span>maxRetries<span class="op">}</span><span class="str"> failed`</span>);
+async function withRetry&lt;T&gt;(
+  operation: () =&gt; Promise&lt;T&gt;,
+  options: RetryOptions
+): Promise&lt;T&gt; {
+  const {
+    maxRetries = 3,
+    baseDelayMs = 1000,
+    maxDelayMs = 8000,
+    shouldRetry
+  } = options;
+  let retries = 0;
 
-      <span class="kw">if</span> (i <span class="op"><</span> maxRetries <span class="op">-</span> <span class="num">1</span>) {
-        <span class="cmt">// Exponential backoff: 1000ms → 2000ms → 4000ms</span>
-        <span class="kw">const</span> waitTime <span class="op">=</span> delay <span class="op">*</span> Math.<span class="fn">pow</span>(<span class="num">2</span>, i);
-        console.<span class="fn">log</span>(<span class="str">`Waiting </span><span class="op">${</span>waitTime<span class="op">}</span><span class="str">ms before retry...`</span>);
-        <span class="kw">await new</span> <span class="fn">Promise</span>(r <span class="op">=></span> <span class="fn">setTimeout</span>(r, waitTime));
-      }
+  while (true) {
+    try {
+      return await operation();
+    } catch (error) {
+      // Do not retry validation, auth, not-found, or unsafe mutations.
+      if (!shouldRetry(error) || retries &gt;= maxRetries) throw error;
+
+      const waitMs = Math.min(baseDelayMs * 2 ** retries, maxDelayMs);
+      console.log(`Retry ${retries + 1}/${maxRetries} in ${waitMs}ms`);
+      await new Promise(resolve =&gt; setTimeout(resolve, waitMs));
+      retries++;
     }
   }
-
-  <span class="kw">throw</span> lastError!;  <span class="cmt">// all retries exhausted</span>
 }
 
-<span class="cmt">// Usage in a service:</span>
-<span class="kw">const</span> <span class="fn">getAll</span> <span class="op">=</span> <span class="kw">async</span> (): <span class="typ">Promise</span>&lt;<span class="typ">User</span>[]&gt; <span class="op">=></span> {
-  <span class="kw">return</span> <span class="fn">withRetry</span>(
-    () <span class="op">=></span> apiClient.<span class="fn">get</span>&lt;<span class="typ">User</span>[]&gt;(<span class="str">'/users'</span>).<span class="fn">then</span>(r <span class="op">=></span> r.data),
-    <span class="num">3</span>,    <span class="cmt">// max 3 attempts</span>
-    <span class="num">1000</span>  <span class="cmt">// start with 1s delay</span>
-  );
-};</code></pre>
+// Example: retry only transient failures for an idempotent GET.
+const users = await withRetry(
+  () =&gt; apiClient.get&lt;User[]&gt;('/users').then(response =&gt; response.data),
+  {
+    maxRetries: 3, // up to 4 total attempts: initial request + 3 retries
+    shouldRetry: isRetryable
+  }
+);</code></pre>
     </div>
 
     <h3 style="margin-bottom: 16px; margin-top: 28px;">Error + Loading UI Components</h3>
@@ -2593,7 +2602,7 @@ apiClient.interceptors.response.<span class="fn">use</span>(
       </div>
       <div class="task-body">
         <p><strong>Goal:</strong> Create <code>api/todoService.ts</code> for the <code>/todos</code> endpoint.</p>
-        <p>JSONPlaceholder has a <code>/todos</code> endpoint. Each todo has: <code>id</code>, <code>userId</code>, <code>title</code>, <code>completed</code>.</p>
+        <p>JSONPlaceholder has a <code>/todos</code> endpoint. Each todo has: <code>id</code>, <code>userId</code>, <code>title</code>, <code>completed</code>. It is a demo API: writes return simulated responses and are not durably saved, so keep optimistic UI examples local to the exercise.</p>
         <p><strong>Implement these functions:</strong></p>
         <ul style="color:var(--text2);font-size:14px;padding-left:20px;line-height:2;">
           <li><code>getAll()</code> — fetch all todos</li>
@@ -2723,7 +2732,7 @@ apiClient.interceptors.response.<span class="fn">use</span>(
             <div><span class="kw">Response interceptor</span> → <span class="fn">apiClient.interceptors.response.use(ok, err)</span></div>
             <div><span class="kw">GET</span> → <span class="fn">apiClient.get&lt;T&gt;('/path')</span></div>
             <div><span class="kw">POST</span> → <span class="fn">apiClient.post&lt;T&gt;('/path', body)</span></div>
-            <div><span class="kw">PUT</span> → <span class="fn">apiClient.put&lt;T&gt;('/path/id', body)</span></div>
+            <div><span class="kw">PATCH</span> → <span class="fn">apiClient.patch&lt;T&gt;('/path/id', partialBody)</span></div>
             <div><span class="kw">DELETE</span> → <span class="fn">apiClient.delete('/path/id')</span></div>
             <div><span class="kw">Query params</span> → <span class="fn">apiClient.get('/path', { params: { q: 'x' } })</span></div>
           </div>

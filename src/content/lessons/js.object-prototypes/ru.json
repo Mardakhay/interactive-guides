@@ -1,0 +1,825 @@
+{
+  "id": "js.object-prototypes",
+  "locale": "ru",
+  "version": 3,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-26",
+  "moduleId": "supplement-js-internals",
+  "supplementaryTrackId": "supplement-js-internals",
+  "order": 2,
+  "title": "Модель объектов JavaScript: прототипы, new, классы и this",
+  "description": "Прослеживай поиск свойств по цепочке прототипов, объясняй поведение конструктора/new и выбирай правильную привязку this.",
+  "estimatedMinutes": 105,
+  "difficulty": "advanced",
+  "prerequisites": [
+    "js.functions-arrays-objects"
+  ],
+  "learningOutcomes": [
+    "Различать внутреннюю ссылку на прототип и Constructor.prototype.",
+    "Прослеживать поиск свойства и определять собственные/унаследованные свойства.",
+    "Объяснять new и размещение методов классов в прототипах.",
+    "Предсказывать this и сравнивать call/apply/bind.",
+    "Осознанно использовать private fields и наследование.",
+    "Объяснять конструкторы классов, методы прототипа, наследование, static members, private fields и правила классов.",
+    "Объяснять fluent API, контракт возвращаемого значения и различия mutable, array/string и Promise chaining."
+  ],
+  "tags": [
+    "javascript",
+    "objects",
+    "prototypes",
+    "classes",
+    "this",
+    "inheritance",
+    "method-chaining",
+    "fluent-api"
+  ],
+  "blocks": [
+    {
+      "id": "object-model-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Объекты делегируют поиск свойств через прототипы"
+    },
+    {
+      "id": "object-model-paragraph",
+      "type": "paragraph",
+      "text": "Объект может читать свойства, которыми не владеет напрямую, следуя внутренней ссылке [[Prototype]]. Эта ссылка отличается от Constructor.prototype: последнее — объект, к которому могут делегировать поиск экземпляры, созданные через new Constructor(). Классы JavaScript используют эту прототипную модель, а не заменяют её отдельной классической системой."
+    },
+    {
+      "id": "object-model-callout",
+      "type": "callout",
+      "tone": "important",
+      "title": "Не путай эти значения",
+      "text": "obj — экземпляр. Object.getPrototypeOf(obj) возвращает ссылку на его прототип. Constructor.prototype обычно связан с экземплярами, созданными через new Constructor(). Эти значения часто связаны, но не являются одним и тем же объектом во всех случаях."
+    },
+    {
+      "id": "object-model-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const animal = { speak() { return 'sound'; } };\nconst dog = Object.create(animal);\ndog.name = 'Milo';\n\nconsole.log(Object.hasOwn(dog, 'name'));  // true\nconsole.log(Object.hasOwn(dog, 'speak')); // false\nconsole.log(dog.speak());                 // 'sound'",
+      "steps": [
+        {
+          "title": "Создай объект со ссылкой на прототип",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "У dog есть собственное свойство name, а поиск делегируется animal. Свойства animal не копируются в dog."
+        },
+        {
+          "title": "Различай собственные и унаследованные свойства",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "name — собственное свойство, а speak находится через цепочку прототипов. Object.hasOwn проверяет владение, а обычный доступ может найти унаследованное свойство."
+        },
+        {
+          "title": "Проследи цепочку для поиска метода",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "dog.speak находится на animal, так как собственное свойство speak у dog отсутствует."
+        }
+      ]
+    },
+    {
+      "id": "object-model-new",
+      "type": "heading",
+      "level": 2,
+      "text": "Что концептуально делает new"
+    },
+    {
+      "id": "object-model-new-text",
+      "type": "paragraph",
+      "text": "При обычном вызове конструктора через new создаётся объект, его прототип связывается с Constructor.prototype, конструктор вызывается с this, указывающим на новый объект, а затем возвращается явно возвращённый объект, если он есть, иначе — созданный экземпляр. Конструкторы class добавляют более строгие правила, в том числе обязательный new."
+    },
+    {
+      "id": "object-model-this",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "При obj.method() this обычно относится к obj в этом вызове.",
+        "Если извлечь const method = obj.method и позже вызвать method(), связь с объектом теряется; не ожидай, что this останется obj.",
+        "Стрелочные функции не создают собственного this, а лексически захватывают его.",
+        "call/apply сразу вызывают функцию с заданным this; bind возвращает новую привязанную функцию.",
+        "Методы класса обычно хранятся в прототипе; поля со стрелочными функциями создают функцию для каждого экземпляра и имеют другие затраты памяти/ссылок."
+      ]
+    },
+    {
+      "id": "object-model-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Для const child = Object.create(parent), где будет найдено свойство, если у child его нет, но оно есть у parent?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Оно автоматически копируется из parent в child",
+          "correct": false,
+          "feedback": "Object.create связывает прототип, а не копирует свойства parent."
+        },
+        {
+          "id": "b",
+          "text": "Поиск следует по цепочке прототипов к parent",
+          "correct": true,
+          "feedback": "Обычный доступ сначала ищет собственное свойство, затем при необходимости следует по прототипам."
+        },
+        {
+          "id": "c",
+          "text": "JavaScript создаёт глобальную привязку с таким именем",
+          "correct": false,
+          "feedback": "Поиск свойства объекта не создаёт глобальные переменные."
+        },
+        {
+          "id": "d",
+          "text": "Его можно найти только через JSON.parse",
+          "correct": false,
+          "feedback": "JSON parsing не связан с поиском свойств по прототипам."
+        }
+      ],
+      "explanation": "Проверка собственных свойств и обычный поиск свойства отвечают на разные вопросы."
+    },
+    {
+      "id": "object-model-practice",
+      "type": "codingExercise",
+      "title": "Проследи prototype lookup и исправь отсоединённый метод",
+      "language": "javascript",
+      "context": "Запусти примеры в JavaScript runtime и объясни результаты правилами модели объектов.",
+      "instructions": [
+        "Создай объект, делегирующий прототипу, и докажи, какие свойства собственные, а какие унаследованные.",
+        "Создай конструктор, экземпляры которого используют общий метод greet из Constructor.prototype.",
+        "Исправь отсоединённый callback, чтобы он использовал нужный объект; выбери bind, явный параметр или подходящую стрелочную обёртку.",
+        "Объясни отличие приватного поля класса #value от свойства с именем _value."
+      ],
+      "requirements": [
+        "Поиск свойства прослежен по цепочке прототипов.",
+        "Экземпляры конструктора используют общий метод прототипа без его копирования в каждый экземпляр.",
+        "Привязка this в callback предсказуема и намеренна.",
+        "Объяснение различает приватные поля языка и соглашения именования."
+      ],
+      "starterCode": "const base = { describe() { return this.name; } };\nconst item = Object.create(base);\nitem.name = 'Ada';\n\nconst detached = item.describe;\n// TODO: сделай так, чтобы вызов надёжно вернул 'Ada', и объясни почему.\n\nfunction Person(name) {\n  // TODO: инициализируй this.name\n}\n// TODO: добавь greet через Person.prototype",
+      "hints": [
+        "Object.create связывает объект с прототипом, а не копирует свойства.",
+        "this обычного метода обычно определяется местом вызова.",
+        "bind возвращает новую функцию, а call вызывает сразу."
+      ],
+      "successCriteria": [
+        "Собственные и унаследованные свойства различаются.",
+        "Экземпляры конструктора используют общий метод прототипа.",
+        "Отсоединённый метод использует намеренное значение this.",
+        "Модели приватности объяснены корректно."
+      ]
+    },
+    {
+      "id": "prototype-shadowing-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Затенение, мутация и место записи"
+    },
+    {
+      "id": "prototype-shadowing-text",
+      "type": "paragraph",
+      "text": "Чтение и запись асимметричны: при чтении значение может быть найдено выше по цепочке, но `child.status = ...` обычно создаёт или обновляет собственное свойство `child`. Свойство прототипа не меняется. Это удобно для переопределений отдельного экземпляра, но опасно, если общее значение на прототипе — объект: изменение `child.settings.theme` может затронуть один вложенный объект, общий для всех экземпляров. Изменяемые данные размещайте на каждом экземпляре отдельно."
+    },
+    {
+      "id": "prototype-shadowing-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const defaults = { status: 'idle', settings: { theme: 'light' } };\nconst first = Object.create(defaults);\nconst second = Object.create(defaults);\n\nfirst.status = 'ready';\nfirst.settings.theme = 'dark';\n\nconsole.log(Object.hasOwn(first, 'status')); // true\nconsole.log(second.status);                  // 'idle'\nconsole.log(second.settings.theme);          // 'dark'",
+      "steps": [
+        {
+          "title": "Чтение может найти унаследованное значение",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "Ни у одного экземпляра нет собственного status или settings; оба читают значения через defaults."
+        },
+        {
+          "title": "Прямое присваивание создаёт затеняющее свойство",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "explanation": "Присваивание создаёт first.status. У second значение по-прежнему читается из defaults.status."
+        },
+        {
+          "title": "Вложенная мутация меняет общую ссылку",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "explanation": "first.settings разрешается в объект defaults, после чего меняется именно этот объект. second видит новую тему. Чтобы избежать такой связи, копируйте или инициализируйте изменяемые данные для каждого экземпляра."
+        }
+      ]
+    },
+    {
+      "id": "prototype-shadowing-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что произойдёт после `const child = Object.create(base); child.count++`, если у base есть обычное доступное для записи свойство count, а у child его нет?",
+      "options": [
+        {
+          "id": "a",
+          "text": "base.count увеличится, потому что исходное значение унаследовано",
+          "correct": false,
+          "feedback": "Чтение находит унаследованное число, но обычная последующая запись адресована child."
+        },
+        {
+          "id": "b",
+          "text": "У child появится count с увеличенным значением, а base.count не изменится",
+          "correct": true,
+          "feedback": "Чтение унаследовано; запись создаёт собственное свойство (для обычного доступного для записи свойства)."
+        },
+        {
+          "id": "c",
+          "text": "Изменится ссылка на прототип",
+          "correct": false,
+          "feedback": "Обновление значения свойства не заменяет [[Prototype]]."
+        },
+        {
+          "id": "d",
+          "text": "Любая запись унаследованного свойства вызывает исключение",
+          "correct": false,
+          "feedback": "Доступные для записи унаследованные свойства могут затеняться. Accessor и дескрипторы без записи ведут себя иначе."
+        }
+      ],
+      "explanation": "Рассматривайте фазы чтения и записи отдельно; accessors и дескрипторы могут изменить поведение присваивания."
+    },
+    {
+      "id": "prototype-descriptors-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Дескрипторы и безопасные словари"
+    },
+    {
+      "id": "prototype-descriptors-text",
+      "type": "paragraph",
+      "text": "Дескриптор определяет, можно ли записывать, перечислять и перенастраивать свойство, либо задаёт getter/setter. Поиск по прототипу может вызвать унаследованный getter, а присваивание — setter. Для пользовательских ключей вроде `__proto__`, `constructor` или `prototype` не объединяйте произвольные входные данные с обычным объектом конфигурации без проверки. Используйте список разрешённых ключей или `Map`; словарь без прототипа через `Object.create(null)` тоже не наследует имена, но у него отсутствуют обычные методы объектов."
+    },
+    {
+      "id": "prototype-descriptors-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Нужен словарь с ключами из недоверенного пользовательского ввода. Какой вариант безопаснее по умолчанию?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Объединить все ключи с `{}` через Object.assign",
+          "correct": false,
+          "feedback": "Обычные объекты наследуются от Object.prototype; небезопасное объединение может затронуть специальные ключи."
+        },
+        {
+          "id": "b",
+          "text": "Использовать allowlist или Map и проверять значения перед сохранением",
+          "correct": true,
+          "feedback": "Явный набор ключей снижает сюрпризы цепочки прототипов; Map предназначен для коллекций ключ/значение, а allowlist ограничивает ввод."
+        },
+        {
+          "id": "c",
+          "text": "Применить `for...in` и считать каждое перечисленное свойство собственным",
+          "correct": false,
+          "feedback": "for...in может перечислять унаследованные свойства; при необходимости проверяйте принадлежность."
+        },
+        {
+          "id": "d",
+          "text": "Отключить strict mode",
+          "correct": false,
+          "feedback": "Strict mode не делает обработку произвольных ключей безопасной."
+        }
+      ],
+      "explanation": "Цепочка прототипов влияет на обычную семантику свойств, поэтому обработка входных ключей должна учитывать унаследованные имена и особенности объединения."
+    },
+    {
+      "id": "prototype-debug-practice",
+      "type": "codingExercise",
+      "title": "Найдите ошибку общего состояния в прототипе",
+      "language": "javascript",
+      "context": "После изменения настроек одного профиля меняются настройки всех профилей. Проследите владение свойствами и исправьте модель данных.",
+      "instructions": [
+        "Запустите walkthrough с затенением и запишите результаты проверок собственных свойств до и после присваиваний.",
+        "Создайте Profile-конструктор или класс, который выдаёт каждому экземпляру независимые вложенные настройки.",
+        "Добавьте тест: изменение одного экземпляра не должно менять второй.",
+        "Проверьте источник свойства через Object.getPrototypeOf и Object.getOwnPropertyDescriptor."
+      ],
+      "requirements": [
+        "Объяснена разница между унаследованным чтением и записью собственного свойства.",
+        "До исправления показана ошибка общей вложенной ссылки.",
+        "После исправления у каждого экземпляра собственный изменяемый объект настроек.",
+        "Тест проверяет значения и владение свойством, а не только вывод в консоль."
+      ],
+      "starterCode": "const defaults = { settings: { theme: 'light' } };\nconst first = Object.create(defaults);\nconst second = Object.create(defaults);\n\n// TODO: воспроизведите общую вложенную мутацию.\n// TODO: создайте экземпляры с независимыми настройками.\n// TODO: проверьте, что изменение first не меняет second.",
+      "hints": [
+        "Object.create связывает объект с прототипом, но не копирует вложенные данные.",
+        "Поверхностное копирование может сохранить общую ссылку на вложенный объект.",
+        "Проверьте Object.hasOwn(instance, 'settings') и идентичность объектов."
+      ],
+      "successCriteria": [
+        "Воспроизводится и объясняется ошибка общей вложенной ссылки.",
+        "У профилей независимые вложенные объекты настроек.",
+        "Есть проверка, подтверждающая изоляцию экземпляров.",
+        "Диагноз подтверждён проверкой прототипа или дескриптора."
+      ]
+    },
+    {
+      "id": "method-chaining-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Method chaining: определи контракт возвращаемого значения"
+    },
+    {
+      "id": "method-chaining-contract",
+      "type": "paragraph",
+      "text": "Method chaining — это синтаксический паттерн, а не особая функция движка JavaScript: результат каждого вызова становится объектом для следующего вызова. Mutable fluent API обычно возвращает `this` из промежуточных методов, а терминальный метод вроде `value()` возвращает результат. Методы массива `filter()` и `map()` возвращают новые массивы; `reduce()` возвращает накопленное значение. Методы строк возвращают новые строки, потому что строки неизменяемы. Promise chaining — отдельный async-контракт: `.then()` возвращает Promise, а не тот же объект."
+    },
+    {
+      "id": "method-chaining-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "class PriceBuilder {\n  #price = 0;\n\n  add(amount) {\n    if (!Number.isFinite(amount)) throw new TypeError('amount must be finite');\n    this.#price += amount;\n    return this;\n  }\n\n  multiply(factor) {\n    if (!Number.isFinite(factor) || factor < 0) throw new RangeError('factor must be finite and non-negative');\n    this.#price *= factor;\n    return this;\n  }\n\n  discount(percent) {\n    if (!Number.isFinite(percent) || percent < 0 || percent > 100) throw new RangeError('discount must be 0..100');\n    this.#price *= (100 - percent) / 100;\n    return this;\n  }\n\n  value() {\n    return this.#price;\n  }\n}\n\nconst price = new PriceBuilder().add(100).discount(10).multiply(2).value(); // 180\n\nconst total = [1, 2, 3, 4].filter((n) => n % 2 === 0).map((n) => n * 2).reduce((sum, n) => sum + n, 0); // 12\nconst label = '  Hello WORLD  '.trim().toLowerCase().replace('world', 'JS'); // 'hello js'",
+      "steps": [
+        {
+          "title": "Возвращай текущий экземпляр из промежуточных методов",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "`add`, `multiply` и `discount` возвращают `this`, поэтому следующий вызов получает тот же экземпляр builder. Если забыть `return this`, следующий поиск метода сломается на `undefined`."
+        },
+        {
+          "title": "Проверяй входные данные на границе API",
+          "lineStart": 10,
+          "lineEnd": 19,
+          "explanation": "Проверяй аргументы до изменения состояния. Fluent-синтаксис не делает всю цепочку атомарной: ошибка после предыдущего шага может оставить тот же объект частично изменённым. Реши, нужен ли rollback или immutable API."
+        },
+        {
+          "title": "Используй терминальный метод для результата",
+          "lineStart": 22,
+          "lineEnd": 27,
+          "explanation": "`value()` намеренно возвращает число, а не builder: это терминальная операция. После неё нельзя ожидать продолжения цепочки методов builder с другим типом результата."
+        },
+        {
+          "title": "Различай разные контракты цепочек",
+          "lineStart": 29,
+          "lineEnd": 30,
+          "explanation": "Array и string chaining зависят от типа результата каждого встроенного метода. Здесь `reduce()` возвращает число 12, а цепочка строк создаёт новую строку. Promise `.then()` соединяет будущие значения и ошибки и разбирается в async-уроке."
+        }
+      ]
+    },
+    {
+      "id": "method-chaining-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В mutable builder метод `add()` меняет состояние, но забывает `return this`. Что произойдёт в `builder.add(2).multiply(3)`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Движок JavaScript автоматически возвращает builder из методов",
+          "correct": false,
+          "feedback": "Обычный метод без явного return возвращает `undefined`; движок не добавляет автоматическое chaining."
+        },
+        {
+          "id": "b",
+          "text": "Первый вызов возвращает `undefined`, поэтому у результата нельзя прочитать `.multiply`",
+          "correct": true,
+          "feedback": "Следующий вызов выполняется на результате предыдущего метода. Отсутствие `return this` нарушает контракт fluent API."
+        },
+        {
+          "id": "c",
+          "text": "Вызов `multiply` пропускается, но `add` всё равно возвращает экземпляр",
+          "correct": false,
+          "feedback": "Неявный return не возвращает receiver; JavaScript не пропускает обращение к следующему свойству."
+        },
+        {
+          "id": "d",
+          "text": "Это только ошибка компиляции TypeScript",
+          "correct": false,
+          "feedback": "В JavaScript ошибка происходит во время выполнения, когда метод ищется на результате предыдущего вызова."
+        }
+      ],
+      "explanation": "Fluent-метод должен явно возвращать receiver, если таков контракт API. Используй терминальный метод, когда нужен результат другого типа."
+    },
+    {
+      "id": "method-chaining-practice",
+      "type": "codingExercise",
+      "title": "Реализуй проверяемый fluent price builder",
+      "language": "javascript",
+      "context": "Для оценки заказа нужно применять добавления, множители и скидку в заданном порядке. Черновой код меняет число, но один метод ничего не возвращает, а неверные параметры могут испортить оценку.",
+      "instructions": [
+        "Реализуй `add(amount)`, `multiply(factor)` и `discount(percent)`: каждый метод проверяет аргументы, меняет состояние builder и возвращает тот же экземпляр.",
+        "Добавь терминальный `value()`, который возвращает число, а не builder.",
+        "Напиши тесты для корректной цепочки и результата, включая скидку 0% и 100%.",
+        "Отклоняй не конечные суммы, отрицательные множители и проценты вне 0–100 понятными ошибками.",
+        "Объясни, почему mutable fluent API зависит от порядка вызовов и когда immutable-преобразования проще проверять."
+      ],
+      "requirements": [
+        "Все промежуточные методы после успешной проверки и изменения возвращают `this`.",
+        "`value()` возвращает число и завершает цепочку.",
+        "Корректные вызовы дают ожидаемое значение в документированном порядке.",
+        "Неверные параметры отклоняются до мутации состояния внутри текущего шага.",
+        "Объяснение описывает изменение общего экземпляра и immutable-альтернативу."
+      ],
+      "starterCode": "class PriceBuilder {\n  #price = 0;\n\n  add(amount) {\n    // TODO: проверь amount, обнови #price и верни this.\n  }\n\n  multiply(factor) {\n    // TODO: проверь factor, обнови #price и верни this.\n  }\n\n  discount(percent) {\n    // TODO: проверь диапазон 0..100, обнови #price и верни this.\n  }\n\n  value() {\n    // TODO: верни вычисленное число.\n  }\n}\n\nconst result = new PriceBuilder().add(100).discount(10).multiply(2).value();\n// Ожидается: 180",
+      "hints": [
+        "Каждый промежуточный метод должен вернуть тот же экземпляр после обновления состояния.",
+        "Проверяй аргументы до изменения `#price`; `Number.isFinite` отклоняет NaN и бесконечности.",
+        "Терминальный `value()` возвращает число, поэтому после него не нужно вызывать методы builder."
+      ],
+      "successCriteria": [
+        "Корректная цепочка возвращает ожидаемое значение.",
+        "Скидки 0% и 100% обрабатываются корректно.",
+        "Неверные значения вызывают ошибку до изменения состояния этим шагом.",
+        "Каждый промежуточный метод соблюдает fluent return contract.",
+        "Объяснение различает mutable builder, цепочки преобразования массивов и Promise chaining."
+      ]
+    },
+    {
+      "id": "classes-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Классы добавляют синтаксис и правила к модели прототипов"
+    },
+    {
+      "id": "classes-model",
+      "type": "paragraph",
+      "text": "Объявление класса создаёт constructor-функцию с особыми правилами; делегирование через прототипы сохраняется. Методы экземпляра находятся на Constructor.prototype и разделяются между объектами, а static members принадлежат самой constructor-функции. Тело класса работает в strict mode, объявление класса нельзя использовать до инициализации, а constructor класса требует вызова через new. extends создаёт цепочку методов экземпляра и цепочку constructor-функций для унаследованных static members. Private fields с префиксом # защищаются языком и доступны только коду с соответствующим private brand."
+    },
+    {
+      "id": "classes-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "class Account {\n  #balance = 0;\n\n  constructor(owner, opening = 0) {\n    if (!Number.isFinite(opening) || opening < 0) throw new RangeError(\"opening must be non-negative\");\n    this.owner = owner;\n    this.#balance = opening;\n  }\n\n  get balance() { return this.#balance; }\n  deposit(amount) {\n    if (!Number.isFinite(amount) || amount <= 0) throw new RangeError(\"invalid amount\");\n    this.#balance += amount;\n    return this;\n  }\n\n  static createStarter(owner) { return new this(owner, 0); }\n}\n\nclass SavingsAccount extends Account {\n  constructor(owner, opening, rate) {\n    super(owner, opening); // must run before using this\n    this.rate = rate;\n  }\n  addMonthlyInterest() { this.deposit(this.balance * this.rate); }\n}\n\nconst account = new SavingsAccount(\"Mina\", 100, 0.02);\naccount.addMonthlyInterest();\nconsole.log(account.balance); // 102\nconsole.log(Object.hasOwn(account, \"deposit\")); // false\nconsole.log(Object.hasOwn(Account.prototype, \"deposit\")); // true\nconsole.log(SavingsAccount.createStarter(\"Ada\") instanceof SavingsAccount); // true",
+      "steps": [
+        {
+          "title": "Скройте состояние и проверьте данные на границе",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "Поле #balance — не обычное свойство: его нельзя прочитать или изменить, угадав строковый ключ. Constructor проверяет начальное значение до присваивания."
+        },
+        {
+          "title": "Сохраняйте инварианты методами и accessor-ом",
+          "lineStart": 10,
+          "lineEnd": 15,
+          "explanation": "balance даёт доступ только для чтения. deposit отвергает нечисловые, бесконечные и неположительные значения, меняет только private-поле и возвращает this для цепочки вызовов."
+        },
+        {
+          "title": "Отличайте static member от метода экземпляра",
+          "lineStart": 17,
+          "lineEnd": 17,
+          "explanation": "createStarter вызывается у класса, а не у экземпляра. new this сохраняет constructor подкласса, если унаследованный static-метод вызван через SavingsAccount."
+        },
+        {
+          "title": "Сначала настройте родителя, затем состояние подкласса",
+          "lineStart": 19,
+          "lineEnd": 25,
+          "explanation": "В constructor производного класса вызовите super() до чтения или записи this. Метод экземпляра расширяет поведение Account без дублирования логики баланса."
+        },
+        {
+          "title": "Проверьте lookup и результат",
+          "lineStart": 27,
+          "lineEnd": 32,
+          "explanation": "Процент равен 2% от 100, поэтому баланс становится 102. deposit находится в Account.prototype, а не копируется как собственное свойство. Static factory возвращает экземпляр SavingsAccount."
+        }
+      ]
+    },
+    {
+      "id": "classes-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Классы — не просто взаимозаменяемый синтаксис",
+      "text": "Методы класса — non-enumerable свойства прототипа, класс нужно вызывать через new, а код класса всегда работает в strict mode. У constructor-функций иные правила hoisting и вызова. Private-поле # — не то же самое, что соглашение об имени _balance; подкласс не может напрямую обращаться к private-полю родителя. Если отношение типов не означает взаимозаменяемость, предпочитайте композицию наследованию."
+    },
+    {
+      "id": "classes-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Где обычно находится унаследованный метод `deposit` после `const account = new SavingsAccount(...)`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Он скопирован как собственное свойство каждого экземпляра account.",
+          "correct": false,
+          "feedback": "Методы экземпляра класса обычно разделяются, а не создаются заново как собственные методы."
+        },
+        {
+          "id": "b",
+          "text": "В Account.prototype, куда lookup приходит через SavingsAccount.prototype.",
+          "correct": true,
+          "feedback": "Верно. Цепочка экземпляра: account → SavingsAccount.prototype → Account.prototype."
+        },
+        {
+          "id": "c",
+          "text": "Только у constructor-функции SavingsAccount.",
+          "correct": false,
+          "feedback": "На constructor-функции находятся static members; методы экземпляра расположены в объектах прототипов."
+        },
+        {
+          "id": "d",
+          "text": "В таблице private fields глобального объекта.",
+          "correct": false,
+          "feedback": "Private-поля — скрытое состояние экземпляра, но методы не хранятся в глобальной таблице."
+        }
+      ],
+      "explanation": "extends связывает прототип подкласса с прототипом родителя, поэтому унаследованные методы находятся обычным поиском свойств."
+    },
+    {
+      "id": "classes-practice",
+      "type": "codingExercise",
+      "title": "Реализуйте и протестируйте наследуемый класс",
+      "language": "javascript",
+      "context": "Создайте базовый класс Vehicle и подкласс ElectricCar. Инкапсулируйте состояние, проверяйте входные значения и докажите, какие методы унаследованы, а не дублируются.",
+      "instructions": [
+        "Реализуйте Vehicle с полем make и проверяемым методом accelerate(amount), который меняет speed.",
+        "Реализуйте ElectricCar extends Vehicle с приватным зарядом батареи и методом charge(amount).",
+        "Вызовите super до обращения к this в constructor подкласса; отклоняйте некорректные и выходящие за границы значения.",
+        "Добавьте унаследованный static factory или объясните, почему static members расположены в цепочке constructor-функций.",
+        "Проверьте instanceof, собственность методов и отсутствие изменения состояния после отклонённого перехода."
+      ],
+      "requirements": [
+        "Размещайте общие методы экземпляра в прототипах классов, а не создавайте функцию заново в constructor.",
+        "Используйте private field # и не открывайте его как публичное изменяемое свойство.",
+        "Вызовите super до использования this в constructor подкласса.",
+        "Проверяйте конечность и заданные границы чисел до изменения состояния.",
+        "Тестами или результатами отличайте собственные методы от унаследованных."
+      ],
+      "starterCode": "class Vehicle {\n  constructor(make) {\n    // TODO: initialize valid state\n  }\n  accelerate(amount) {\n    // TODO: validate and update speed\n  }\n}\n\nclass ElectricCar extends Vehicle {\n  #charge = 0;\n  constructor(make, capacity) {\n    // TODO: call super before using this\n  }\n  charge(amount) {\n    // TODO: keep charge within the documented range\n  }\n}\n",
+      "hints": [
+        "В производном constructor нельзя использовать this до вызова super().",
+        "Унаследованный метод ищется в цепочке прототипов; Object.hasOwn(instance, 'method') должен вернуть false.",
+        "Используйте Number.isFinite и проверьте границы до изменения состояния.",
+        "Private-имена вроде #charge проверяются синтаксисом и не доступны как обычные строковые ключи."
+      ],
+      "successCriteria": [
+        "Некорректные аргументы конструктора и метода отклоняются без частичного изменения состояния.",
+        "Экземпляр проходит instanceof для обоих классов.",
+        "Общие методы находятся в прототипах и не сохранены как собственные функции экземпляра.",
+        "Private-заряд нельзя прочитать или изменить извне.",
+        "super вызывается до обращения к состоянию подкласса.",
+        "Тесты проверяют обычные переходы, границы, наследование и ошибки."
+      ]
+    },
+    {
+      "id": "invocation-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Вызов функции, thisArg и bound functions"
+    },
+    {
+      "id": "invocation-model",
+      "type": "paragraph",
+      "text": "У обычной функции this определяется способом вызова, а не местом объявления. Выражение obj.method() передаёт obj как получателя; извлечённая функция больше не получает этот объект автоматически. call и apply вызывают функцию сразу с указанным thisArg, а bind создаёт новую функцию для будущего вызова."
+    },
+    {
+      "id": "invocation-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function formatGreeting(prefix, punctuation) {\n  return prefix + this.name + punctuation;\n}\nconst user = { name: \"Ayla\" };\n\nconsole.log(formatGreeting.call(user, \"Hi, \", \"!\"));\nconsole.log(formatGreeting.apply(user, [\"Hello, \", \".\"]));\nconst sayHey = formatGreeting.bind(user, \"Hey, \");\nconsole.log(sayHey(\"?\"));",
+      "steps": [
+        {
+          "title": "Посмотрите на call-site",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "formatGreeting не хранит объект user. Контекст receiver передаётся при вызове; здесь создана простая запись с именем."
+        },
+        {
+          "title": "Вызовите сразу с аргументами",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "call получает аргументы по одному, apply получает массив или array-like набор. Оба немедленно вызывают функцию с user как this."
+        },
+        {
+          "title": "Подготовьте отложенный вызов",
+          "lineStart": 8,
+          "lineEnd": 9,
+          "explanation": "bind не выполняет форматирование: он возвращает новую функцию, частично фиксируя receiver и первый аргумент. sayHey можно вызвать позднее."
+        }
+      ]
+    },
+    {
+      "id": "invocation-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что происходит в `const later = formatGreeting.bind(user, \"Hello \")`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "formatGreeting немедленно вызывается и результат сохраняется в later.",
+          "correct": false,
+          "feedback": "Вызов сейчас происходит с call/apply; bind возвращает функцию для будущего выполнения."
+        },
+        {
+          "id": "b",
+          "text": "Создаётся новая функция с закреплёнными this и первым аргументом.",
+          "correct": true,
+          "feedback": "Верно. Позже переданные параметры дополняют заранее закреплённые аргументы."
+        },
+        {
+          "id": "c",
+          "text": "Исходная функция навсегда получает новый this при всех вызовах.",
+          "correct": false,
+          "feedback": "bind не меняет исходную функцию; он возвращает отдельную bound function."
+        },
+        {
+          "id": "d",
+          "text": "JavaScript автоматически клонирует объект user.",
+          "correct": false,
+          "feedback": "Закрепляется ссылка receiver, а не копия объекта."
+        }
+      ],
+      "explanation": "bind создаёт новый вызываемый объект и не вызывает исходную функцию. call и apply вызывают её сразу; разница между ними — форма передачи аргументов."
+    },
+    {
+      "id": "arrow-this-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const panel = {\n  label: \"settings\",\n  makeReader() {\n    return () => this.label;\n  },\n};\nconst read = panel.makeReader();\nconsole.log(read.call({ label: \"other\" }));",
+      "steps": [
+        {
+          "title": "Создайте arrow внутри метода",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "makeReader вызывается как panel.makeReader(), поэтому this метода — panel. Стрелочная функция захватывает этот this лексически."
+        },
+        {
+          "title": "Попробуйте переопределить контекст",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "call на стрелке не меняет её лексический this. Результат остаётся settings, а не other."
+        }
+      ]
+    },
+    {
+      "id": "bind-lifecycle",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Сохраняйте bound callback, если нужно снять listener",
+      "text": "Каждый вызов bind создаёт новую функцию. addEventListener('click', handler.bind(this)) и removeEventListener('click', handler.bind(this)) получают разные ссылки; сохраните bound callback в переменной. У bound constructor при вызове через new закреплённый this игнорируется, но заранее переданные аргументы сохраняются."
+    },
+    {
+      "id": "strict-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Strict mode делает ошибки явными"
+    },
+    {
+      "id": "strict-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "\"use strict\";\nfunction readReceiver() {\n  return this;\n}\nconsole.log(readReceiver() === undefined);\n\nconst user = Object.freeze({ count: 0 });\ntry {\n  user.count = 1;\n} catch (error) {\n  console.log(error instanceof TypeError);\n}",
+      "steps": [
+        {
+          "title": "Обычный вызов в strict mode",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Без receiver this обычной функции остаётся undefined. В sloppy classic script браузер может подставлять globalThis; это способно скрыть ошибку."
+        },
+        {
+          "title": "Обнаружьте запрещённую мутацию",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "explanation": "Object.freeze делает свойство неизменяемым. В strict mode попытка присваивания бросает TypeError вместо тихого игнорирования."
+        }
+      ]
+    },
+    {
+      "id": "strict-context",
+      "type": "paragraph",
+      "text": "Файл ES module и тело class автоматически используют strict mode; в обычном classic script можно включить его директивой в начале функции или скрипта. Он также запрещает некоторые устаревшие конструкции и помогает не маскировать ошибки. Не включайте strict mode как замену тестам или проверке входных данных."
+    },
+    {
+      "id": "strict-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В каком случае обычный вызов `read()` даёт `this === undefined` для функции без собственного receiver?",
+      "options": [
+        {
+          "id": "a",
+          "text": "В strict mode или в функции/модуле со strict semantics.",
+          "correct": true,
+          "feedback": "Верно. В ES modules и class bodies strict mode включён автоматически."
+        },
+        {
+          "id": "b",
+          "text": "Только если функция объявлена как стрелка.",
+          "correct": false,
+          "feedback": "Стрелка вообще не создаёт собственный this; это другой механизм."
+        },
+        {
+          "id": "c",
+          "text": "Всегда во всех browser scripts.",
+          "correct": false,
+          "feedback": "Classic scripts без strict mode могут подставить globalThis."
+        },
+        {
+          "id": "d",
+          "text": "Когда функция использует bind.",
+          "correct": false,
+          "feedback": "bind фиксирует receiver для bound function; strict mode здесь не является причиной."
+        }
+      ],
+      "explanation": "Обычный function call без receiver даёт undefined в strict mode; sloppy classic scripts исторически подставляют globalThis."
+    },
+    {
+      "id": "invocation-practice",
+      "type": "codingExercise",
+      "title": "Сравните call, apply и bind для счета",
+      "language": "javascript",
+      "context": "Рендерер получает функцию форматирования счета отдельно от заказа. Три способа передачи receiver должны дать одинаковый текст; bound вариант вызывается позже.",
+      "instructions": [
+        "Реализуйте formatInvoice(currency, taxRate), используя this.customer и this.subtotal.",
+        "Вычислите итоги через call и apply с одним объектом заказа.",
+        "Создайте bound функцию с bind, зафиксируйте currency и вызовите её позже с taxRate.",
+        "Проверьте, что три результата совпадают и округлены до двух знаков.",
+        "Объясните, почему bind создаёт новую функцию, и как сохранить ссылку для event listener."
+      ],
+      "requirements": [
+        "call/apply сразу вызывают исходную функцию с order как receiver.",
+        "call передаёт аргументы по одному; apply получает array-like список.",
+        "bind возвращает функцию, не выполняя форматирование до последующего вызова.",
+        "Все способы возвращают один и тот же корректный итог.",
+        "Решение не меняет исходную функцию и не клонирует order."
+      ],
+      "starterCode": "function formatInvoice(currency, taxRate) {\n  // TODO: use this.customer and this.subtotal.\n}\n\nconst order = { customer: \"Ayla\", subtotal: 20 };\nconst byCall = formatInvoice.call(order, \"$\", 0.1);\nconst byApply = formatInvoice.apply(order, [\"$\", 0.1]);\nconst later = formatInvoice.bind(order, \"$\");\nconst byBind = later(0.1);\n\nconsole.log(byCall, byApply, byBind);\n// Expected: \"Ayla: $22.00\" three times",
+      "hints": [
+        "Inside a normal function, this comes from the call expression. Pass order explicitly to call/apply/bind.",
+        "`apply` получает список аргументов в array-like формате, тогда как `call` принимает каждый аргумент по отдельности.",
+        "Bind fixes order and currency now, but you still supply taxRate when you call later.",
+        "Форматируй числовой результат через `toFixed(2)`; не изменяй `order.subtotal`."
+      ],
+      "successCriteria": [
+        "Все три результата должны иметь вид `Ayla: $22.00`.",
+        "`call` и `apply` немедленно вызывают функцию с нужным receiver.",
+        "Связанная (bound) функция откладывает выполнение до `later(0.1)`.",
+        "Order remains unchanged and the original function is reusable with another receiver.",
+        "Объяснение должно отличать привязку `this` от копирования или изменения объекта."
+      ]
+    },
+    {
+      "id": "invocation-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Ordinary function this follows its call-site; arrow this is lexical.",
+        "`call`/`apply` вызывают функцию немедленно; `call` принимает аргументы отдельно, а `apply` — список аргументов в array-like формате.",
+        "bind returns a new function and may pre-fill receiver/arguments; keep its identity when adding/removing listeners.",
+        "Strict mode makes an unbound ordinary this undefined and surfaces some silent failures; modules/classes are strict automatically."
+      ]
+    },
+    {
+      "id": "object-model-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Поиск свойств делегирует через [[Prototype]]; Constructor.prototype — отдельное понятие.",
+        "new создаёт экземпляр, связанный с Constructor.prototype, и инициализирует this конструктора.",
+        "У обычного метода this зависит от места вызова; стрелки лексически захватывают this, call/apply вызывают, bind возвращает привязанную функцию.",
+        "Используй private fields и наследование осознанно — исходя из требований инкапсуляции и взаимозаменяемости.",
+        "call/apply вызывают сразу; bind создаёт новую функцию. Strict mode различает this при простом вызове."
+      ]
+    },
+    {
+      "id": "object-model-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Inheritance and the prototype chain",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Inheritance_and_the_prototype_chain",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Классы",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function.prototype.bind()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function.prototype.call()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Function.prototype.apply()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Strict mode",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Private elements",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_elements",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: super",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/super",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Object.freeze",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Array.prototype.reduce()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

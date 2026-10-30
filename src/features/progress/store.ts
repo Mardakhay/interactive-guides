@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { loadJSON, saveJSON } from '@/lib/storage';
+import { readVersionedJSON, saveVersionedJSON } from '@/lib/versionedStorage';
 import { STORAGE_KEYS } from '@/lib/constants';
 import type { LessonStatus } from '@/types/common';
 import { progressStateSchema } from './schemas';
@@ -12,13 +12,11 @@ const DEFAULT_STATE: ProgressState = {
 };
 
 function loadInitialState(): ProgressState {
-  const raw = loadJSON<ProgressState>(STORAGE_KEYS.PROGRESS, DEFAULT_STATE);
-  const parsed = progressStateSchema.safeParse(raw);
-  return parsed.success ? parsed.data : DEFAULT_STATE;
+  return readVersionedJSON(STORAGE_KEYS.PROGRESS, progressStateSchema, DEFAULT_STATE).data;
 }
 
 function persist(state: ProgressState): void {
-  saveJSON(STORAGE_KEYS.PROGRESS, state);
+  saveVersionedJSON(STORAGE_KEYS.PROGRESS, state, progressStateSchema);
 }
 
 interface ProgressStore extends ProgressState {

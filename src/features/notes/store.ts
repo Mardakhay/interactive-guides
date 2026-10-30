@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { loadJSON, saveJSON } from '@/lib/storage';
+import { readVersionedJSON, saveVersionedJSON } from '@/lib/versionedStorage';
 import { STORAGE_KEYS } from '@/lib/constants';
 import { notesStateSchema } from './schemas';
 import type { NoteEntry, NotesState } from './types';
@@ -9,13 +9,11 @@ const DEFAULT_STATE: NotesState = {
 };
 
 function loadInitialState(): NotesState {
-  const raw = loadJSON<NotesState>(STORAGE_KEYS.NOTES, DEFAULT_STATE);
-  const parsed = notesStateSchema.safeParse(raw);
-  return parsed.success ? parsed.data : DEFAULT_STATE;
+  return readVersionedJSON(STORAGE_KEYS.NOTES, notesStateSchema, DEFAULT_STATE).data;
 }
 
 function persist(state: NotesState): void {
-  saveJSON(STORAGE_KEYS.NOTES, state);
+  saveVersionedJSON(STORAGE_KEYS.NOTES, state, notesStateSchema);
 }
 
 interface NoteStore extends NotesState {

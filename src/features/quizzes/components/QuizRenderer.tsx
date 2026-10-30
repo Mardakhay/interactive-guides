@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ClipboardCheck, CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
 import { useQuizResultsStore } from '../store';
 import { Button, Badge, Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { translate, useUiLocale } from '@/features/localization';
 import type { Quiz, QuizAttempt } from '../types';
 
 interface QuizRendererProps {
@@ -16,9 +17,17 @@ function scoreBadgeVariant(percent: number): 'success' | 'warning' | 'error' {
 }
 
 export function QuizRenderer({ quiz }: QuizRendererProps) {
+  const locale = useUiLocale();
   const attempt = useQuizResultsStore((s) => s.quizzes[quiz.id]);
   const saveAttempt = useQuizResultsStore((s) => s.saveAttempt);
   const clearAttempt = useQuizResultsStore((s) => s.clearAttempt);
+  const resultSummaryRef = useRef<HTMLDivElement | null>(null);
+  const hadAttemptRef = useRef(Boolean(attempt));
+
+  useEffect(() => {
+    if (attempt && !hadAttemptRef.current) resultSummaryRef.current?.focus();
+    hadAttemptRef.current = Boolean(attempt);
+  }, [attempt]);
 
   const [answers, setAnswers] = useState<Record<string, number>>({});
 
@@ -61,12 +70,21 @@ export function QuizRenderer({ quiz }: QuizRendererProps) {
             {quiz.title}
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant={scoreBadgeVariant(percent)}>
-              {attempt.score} / {attempt.total} correct &middot; {percent}%
-            </Badge>
+            <div
+              ref={resultSummaryRef}
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              tabIndex={-1}
+              className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+            >
+              <Badge variant={scoreBadgeVariant(percent)}>
+                {translate(locale, 'quizScore', { score: attempt.score, total: attempt.total, percent })}
+              </Badge>
+            </div>
             <Button variant="outline" size="sm" onClick={handleRetry}>
               <RotateCcw className="h-4 w-4" />
-              Retry Quiz
+              {translate(locale, 'retryQuiz')}
             </Button>
           </div>
         </div>
@@ -108,7 +126,7 @@ export function QuizRenderer({ quiz }: QuizRendererProps) {
                       >
                         {option}
                         {isSelected && !isCorrectOption && (
-                          <span className="ml-2 text-xs font-medium">Your answer</span>
+                          <span className="ml-2 text-xs font-medium">{translate(locale, 'yourAnswer')}</span>
                         )}
                       </li>
                     );
@@ -174,10 +192,10 @@ export function QuizRenderer({ quiz }: QuizRendererProps) {
 
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs text-neutral-500">
-          {Object.keys(answers).length} / {quiz.questions.length} answered
+          {translate(locale, 'answeredCount', { answered: Object.keys(answers).length, total: quiz.questions.length })}
         </p>
         <Button variant="primary" size="sm" onClick={handleSubmit} disabled={!allAnswered}>
-          Submit Quiz
+          {translate(locale, 'submitQuiz')}
         </Button>
       </div>
     </div>

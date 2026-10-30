@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { loadJSON, saveJSON } from '@/lib/storage';
+import { readVersionedJSON, saveVersionedJSON } from '@/lib/versionedStorage';
 import { STORAGE_KEYS } from '@/lib/constants';
 import { bookmarksStateSchema } from './schemas';
 import type { BookmarkEntry, BookmarksState } from './types';
@@ -9,13 +9,11 @@ const DEFAULT_STATE: BookmarksState = {
 };
 
 function loadInitialState(): BookmarksState {
-  const raw = loadJSON<BookmarksState>(STORAGE_KEYS.BOOKMARKS, DEFAULT_STATE);
-  const parsed = bookmarksStateSchema.safeParse(raw);
-  return parsed.success ? parsed.data : DEFAULT_STATE;
+  return readVersionedJSON(STORAGE_KEYS.BOOKMARKS, bookmarksStateSchema, DEFAULT_STATE).data;
 }
 
 function persist(state: BookmarksState): void {
-  saveJSON(STORAGE_KEYS.BOOKMARKS, state);
+  saveVersionedJSON(STORAGE_KEYS.BOOKMARKS, state, bookmarksStateSchema);
 }
 
 interface BookmarkStore extends BookmarksState {

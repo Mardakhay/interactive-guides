@@ -1,0 +1,475 @@
+{
+  "id": "frontend.auth-security",
+  "locale": "en",
+  "version": 5,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-29",
+  "moduleId": "supplement-auth",
+  "supplementaryTrackId": "supplement-auth",
+  "order": 1,
+  "title": "Authentication and Authorization for Frontend Developers",
+  "description": "Understand sessions, browser credential risks, OAuth/OIDC roles, and why API authorization cannot live only in the UI.",
+  "estimatedMinutes": 95,
+  "difficulty": "advanced",
+  "prerequisites": [
+    "react.router-spa",
+    "react.api-custom-hooks"
+  ],
+  "learningOutcomes": [
+    "Distinguish authentication from authorization.",
+    "Explain session, cookie and token risks relevant to browser applications.",
+    "Describe OAuth authorization-code + PKCE and the role of OpenID Connect.",
+    "Compare SPA token handling with a BFF architecture.",
+    "Build a test matrix that exercises server-side authorization rather than only route guards."
+  ],
+  "tags": [
+    "security",
+    "authentication",
+    "authorization",
+    "oauth",
+    "oidc",
+    "sessions"
+  ],
+  "blocks": [
+    {
+      "id": "auth-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Authentication, authorization, and the frontend trust boundary"
+    },
+    {
+      "id": "auth-model",
+      "type": "paragraph",
+      "text": "Authentication answers 'who are you?'; authorization answers 'may this identity perform this action on this resource?'. A frontend can guide navigation and hide unavailable actions, but client code is controlled by the user. The API/data layer must enforce access on every protected operation. A route guard improves user experience; it is not a security boundary."
+    },
+    {
+      "id": "auth-callout",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Never trust a client-only permission check",
+      "text": "A user can alter JavaScript, replay a request or call an endpoint outside the UI. Do not ship privileged API keys in a browser bundle. Enforce authorization at the trusted server/data layer and test direct requests as well as the normal screen flow."
+    },
+    {
+      "id": "auth-http-status-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Handle 401 and 403 as different states"
+    },
+    {
+      "id": "auth-http-status-model",
+      "type": "paragraph",
+      "text": "A `401` response means the request lacks acceptable authentication credentials under the API contract; a refresh attempt may be appropriate when the architecture supports it. A `403` means the server understood the request but the caller lacks permission, so re-authentication normally will not help. Show an access-denied state for a forbidden user instead of redirecting them through a login loop. Some APIs deliberately return `404` when revealing a resource would expose sensitive information, so follow the documented contract."
+    },
+    {
+      "id": "auth-http-status-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A signed-in user requests an admin report, and the API returns `403` because the account lacks the required role. What should the frontend do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Send the user to login and repeat the same request until it succeeds",
+          "correct": false,
+          "feedback": "A 403 represents an authorization decision, so logging in again does not grant the missing permission and can create a redirect loop."
+        },
+        {
+          "id": "b",
+          "text": "Show a clear access-denied state and keep the server-side permission check",
+          "correct": true,
+          "feedback": "The user is authenticated but not allowed to perform this action; the trusted API must continue to enforce that policy."
+        },
+        {
+          "id": "c",
+          "text": "Decode the JWT payload in the browser and override the server result if it says admin",
+          "correct": false,
+          "feedback": "Client-decoded claims are not an authority for access control and cannot override a denial from the trusted resource server."
+        },
+        {
+          "id": "d",
+          "text": "Treat every 403 as an expired token and run the refresh flow repeatedly",
+          "correct": false,
+          "feedback": "Refresh is for an expired or invalid credential only when supported by the API contract; permission failures should not create endless retries."
+        }
+      ],
+      "explanation": "Handle authentication failures and permission failures separately. A 401 may start a bounded credential-recovery flow, while a 403 normally calls for access-denied UX."
+    },
+    {
+      "id": "auth-sessions-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Sessions, cookies, and browser threats"
+    },
+    {
+      "id": "auth-sessions",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "A server-backed session typically keeps session state on the server and gives the browser an opaque session identifier; the identifier is a credential and must be protected.",
+        "Cookie attributes such as Secure, HttpOnly and SameSite reduce specific risks, but they are not a complete security design. Cookie-authenticated state-changing requests need an explicit CSRF strategy appropriate to the application.",
+        "Tokens are credentials, not just strings to decode. A JWT payload is commonly readable by its holder; decoding the payload does not verify the signature or decide whether the token should be trusted.",
+        "Any credential readable by frontend JavaScript can be exposed by an XSS compromise. Avoid universal 'always use localStorage' or 'cookies solve everything' rules; make the storage choice against the threat model, framework and server architecture.",
+        "Logout, expiration, rotation/revocation, session fixation, XSS and CSRF belong in the threat model—not only login-form validation."
+      ]
+    },
+    {
+      "id": "auth-storage-tradeoffs",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "localStorage and sessionStorage are readable by same-origin JavaScript; a successful XSS can steal or alter their contents. Their different lifetimes do not make them safe places for sensitive credentials by default.",
+        "In-memory access tokens disappear on refresh, but malicious JavaScript executing in the page can still read or use them. Memory reduces persistence; it is not an XSS defense.",
+        "HttpOnly prevents JavaScript from reading a cookie. Secure limits the cookie to HTTPS, and SameSite changes when cross-site requests carry it; cookie-authenticated state changes still need a deliberate CSRF analysis and appropriate controls.",
+        "A BFF can hold OAuth tokens on the server and expose a browser session instead. This reduces direct token exposure to JavaScript but adds server/session operations and still requires CSRF-aware cookie handling.",
+        "Logout should invalidate the server session or revoke credentials where supported, clear client-side auth state, and leave protected navigation. Clearing React state alone does not end a server session.",
+        "CORS is a browser cross-origin policy, not authentication. The resource server must validate credentials and authorize each protected operation regardless of CORS configuration."
+      ]
+    },
+    {
+      "id": "auth-jwt-validation-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Decoding a JWT is not verifying it"
+    },
+    {
+      "id": "auth-jwt-validation-model",
+      "type": "paragraph",
+      "text": "A JWT's Base64URL-encoded header and payload are readable by anyone who has the token; encoding is not encryption. Decoding can help the UI display a non-authoritative hint such as an expiry time, but a future `exp` claim does not prove the token is valid. Treat missing or malformed expiry claims explicitly. A local learning decoder should use synthetic/example tokens only—never paste a live access, ID, refresh or session token into a demo. Decoding does not verify the signature, issuer, audience, expiry policy, revocation state or permissions. The resource server must validate the token according to its contract and authorize the requested operation. Never put passwords, API secrets or sensitive personal data in a readable token payload."
+    },
+    {
+      "id": "auth-jwt-validation-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A developer decodes a JWT in the browser, sees `role: \"admin\"` and an `exp` value in the future. What does this prove?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The signature and issuer are valid, so the browser can authorize admin API requests",
+          "correct": false,
+          "feedback": "Base64URL decoding only reads the payload; it does not validate the signature, issuer, audience or the API's permission policy."
+        },
+        {
+          "id": "b",
+          "text": "Only that the token payload is readable; the trusted resource server must validate the token and access policy",
+          "correct": true,
+          "feedback": "The UI may use decoded values as hints, but the API is the authority for token validation and authorization."
+        },
+        {
+          "id": "c",
+          "text": "The token is encrypted because the payload is not ordinary JSON in the URL",
+          "correct": false,
+          "feedback": "JWT payloads are normally Base64URL-encoded, not encrypted; anyone holding the token can decode the claims."
+        },
+        {
+          "id": "d",
+          "text": "No server-side validation is needed as long as the expiry timestamp is in the future",
+          "correct": false,
+          "feedback": "A future expiry claim alone says nothing about signature authenticity, issuer, audience, revocation policy or required permissions."
+        }
+      ],
+      "explanation": "A decoder is a display/debugging aid, not a verifier. Validate token properties and permissions at the trusted resource boundary."
+    },
+    {
+      "id": "auth-flow",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Browser / SPA -> Authorization Server\n  1. Start authorization-code flow with PKCE\n  2. User authenticates and grants access\n  3. Client exchanges code + PKCE verifier\n  4. Client uses access token for API requests\nAPI -> validates credential + permissions -> returns data\n\nOIDC adds an identity layer on top of OAuth 2.0.\nAn ID token and an access token serve different purposes.",
+      "steps": [
+        {
+          "title": "Separate the roles in the flow",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The authorization server authenticates the user and issues protocol responses; the API/resource server still validates the credential and enforces authorization. PKCE binds code redemption to the client instance that initiated the flow."
+        },
+        {
+          "title": "Do not confuse OAuth with sign-in identity",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "OAuth 2.0 is an authorization framework. OpenID Connect adds an authentication/identity layer. An ID token describes authentication to the client; an access token is presented to a resource server according to that API's token contract."
+        }
+      ]
+    },
+    {
+      "id": "auth-oauth-flow-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A new browser-based app needs user sign-in through an OpenID Connect provider. Which statement is the soundest starting point?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use the Implicit flow because it returns tokens directly in the URL fragment",
+          "correct": false,
+          "feedback": "Returning tokens in the browser URL exposes them to more leakage paths; the Implicit flow is not the recommended choice for new browser apps."
+        },
+        {
+          "id": "b",
+          "text": "Use Authorization Code with PKCE for a public SPA, or evaluate a BFF; send access tokens to APIs, not ID tokens",
+          "correct": true,
+          "feedback": "PKCE binds code redemption to the initiating client, and access tokens and ID tokens have different intended audiences and purposes."
+        },
+        {
+          "id": "c",
+          "text": "Put the OAuth client secret in the Vite environment so it is hidden from browser users",
+          "correct": false,
+          "feedback": "Build-time variables embedded into a browser bundle are public; a confidential client secret must remain on a trusted server such as a BFF."
+        },
+        {
+          "id": "d",
+          "text": "Use the ID token as a general-purpose credential for every backend API",
+          "correct": false,
+          "feedback": "An ID token communicates authentication claims to the client; APIs should receive the access credential defined by their token contract."
+        }
+      ],
+      "explanation": "Use current provider guidance for Authorization Code with PKCE in a public SPA; a BFF is another architecture option that moves token handling to the server."
+    },
+    {
+      "id": "auth-oauth-security-guidance",
+      "type": "callout",
+      "tone": "warning",
+      "title": "OAuth 2.0 Security BCP (RFC 9700)",
+      "text": "For public clients, use Authorization Code with PKCE and the S256 challenge method. Authorization servers must exactly match registered web redirect URIs. Do not use the Implicit or Resource Owner Password Credentials grant for new applications, and do not expose open redirectors. Public-client refresh tokens must be sender-constrained or rotated. PKCE does not replace redirect validation, transaction-specific CSRF protection, or mix-up defenses; follow the provider's documented profile."
+    },
+    {
+      "id": "auth-oauth-security-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A public SPA uses Authorization Code with PKCE. Which additional controls align with the OAuth 2.0 Security BCP (RFC 9700)?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Allow wildcard redirect URIs because PKCE prevents authorization-code interception",
+          "correct": false,
+          "feedback": "PKCE protects code redemption, but it does not make arbitrary redirect destinations safe; registered web redirect URIs still need exact matching."
+        },
+        {
+          "id": "b",
+          "text": "Switch to the Implicit grant when the provider supports it, so the app does not need PKCE",
+          "correct": false,
+          "feedback": "The security BCP discourages the Implicit grant for new deployments and requires PKCE for public clients using Authorization Code."
+        },
+        {
+          "id": "c",
+          "text": "Treat decoded JWT claims and frontend route guards as substitutes for protocol validation",
+          "correct": false,
+          "feedback": "Browser-decoded claims and route guards are not trusted protocol checks or resource-server authorization."
+        },
+        {
+          "id": "d",
+          "text": "Use exact registered redirect URIs, PKCE with S256, and refresh-token rotation or sender-constraining for public clients",
+          "correct": true,
+          "feedback": "This combines redirect validation with the public-client PKCE and refresh-token protections described by RFC 9700."
+        }
+      ],
+      "explanation": "PKCE is one control in a secure flow, not a substitute for redirect validation or other protocol defenses. RFC 9700 describes current OAuth security requirements and recommendations for clients and authorization servers."
+    },
+    {
+      "id": "auth-options-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "SPA token handling versus a Backend-for-Frontend (BFF)"
+    },
+    {
+      "id": "auth-options",
+      "type": "paragraph",
+      "text": "A pure SPA can use an authorization-code flow with PKCE, following the identity provider's current guidance and carefully handling token lifetime, storage and refresh. A BFF keeps OAuth tokens on the server and exposes a browser session to the SPA, reducing direct token exposure to JavaScript but adding server/session and CSRF responsibilities. This is an architecture choice, not a universal winner; choose it based on sensitivity, deployment constraints, identity-provider support and team operations."
+    },
+    {
+      "id": "auth-refresh-race-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Prevent concurrent token-refresh races"
+    },
+    {
+      "id": "auth-refresh-race-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "// Token-based SPA sketch; transport and response types are project-specific.\nlet refreshInFlight: Promise<string> | null = null;\n\nfunction getFreshAccessToken(): Promise<string> {\n  if (!refreshInFlight) {\n    refreshInFlight = requestRefreshToken()\n      .then(({ accessToken }) => accessToken)\n      .finally(() => {\n        refreshInFlight = null;\n      });\n  }\n  return refreshInFlight;\n}\n\nasync function sendWithOneRefresh(\n  request: ApiRequest,\n): Promise<ApiResponse> {\n  const first = await send(request);\n  if (first.status !== 401 || request.authRetry || request.skipRefresh) {\n    return first;\n  }\n\n  try {\n    const accessToken = await getFreshAccessToken();\n    return send({ ...request, accessToken, authRetry: true });\n  } catch {\n    clearClientAuthState();\n    return { status: 401, body: { error: 'reauthentication-required' } };\n  }\n}",
+      "steps": [
+        {
+          "title": "Share one in-flight refresh",
+          "lineStart": 1,
+          "lineEnd": 13,
+          "explanation": "Concurrent 401 responses can reuse one pending refresh promise instead of starting several refresh calls. The promise is cleared after it settles so a later expiry can use a new request."
+        },
+        {
+          "title": "Do not retry every failure",
+          "lineStart": 15,
+          "lineEnd": 21,
+          "explanation": "Only consider refresh when the API contract says a 401 can be recovered this way. Skip the refresh endpoint itself and requests already retried; a 403 is not an expired-token signal."
+        },
+        {
+          "title": "Retry once and recover on failure",
+          "lineStart": 23,
+          "lineEnd": 30,
+          "explanation": "Reuse the new access token for the original request at most once. If refresh fails, clear client auth state and guide the user to sign in again; a BFF/cookie session needs its own matching contract and CSRF policy."
+        }
+      ]
+    },
+    {
+      "id": "auth-refresh-race-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Five parallel API requests receive `401` at nearly the same time. Which client strategy best avoids refresh races and retry loops?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Start five refresh calls and accept whichever response finishes last",
+          "correct": false,
+          "feedback": "Parallel refresh calls may invalidate or rotate the same credential concurrently and leave requests with inconsistent token state."
+        },
+        {
+          "id": "b",
+          "text": "Share one in-flight refresh promise, retry eligible original requests once, and recover to sign-in if refresh fails",
+          "correct": true,
+          "feedback": "A shared promise avoids duplicate refresh operations; a one-retry guard prevents loops and a failed refresh needs a clear recovery path."
+        },
+        {
+          "id": "c",
+          "text": "Refresh on every response, including 403, until the API returns 200",
+          "correct": false,
+          "feedback": "A 403 usually means insufficient permission, and unlimited retries can loop or repeat operations without solving the cause."
+        },
+        {
+          "id": "d",
+          "text": "Keep the request retrying in the background without clearing state if refresh fails",
+          "correct": false,
+          "feedback": "Silent retries can leave the UI inconsistent; a failed refresh must transition the client into an explicit recovery or signed-out state."
+        }
+      ],
+      "explanation": "Deduplicate concurrent refresh work and bound retries. The exact flow depends on the API contract; BFF session designs may not expose a refresh token to browser JavaScript."
+    },
+    {
+      "id": "auth-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A React route hides an admin page from non-admin users. What still must happen before an admin API returns protected data?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Nothing: a hidden route makes the endpoint private",
+          "correct": false,
+          "feedback": "Users can call an API directly, regardless of the rendered route."
+        },
+        {
+          "id": "b",
+          "text": "The trusted API/data layer validates the credential and authorizes the requested operation",
+          "correct": true,
+          "feedback": "Authorization is enforced at the resource boundary; the UI guard only improves the navigation experience."
+        },
+        {
+          "id": "c",
+          "text": "The frontend decodes a JWT and trusts its payload",
+          "correct": false,
+          "feedback": "Decoding alone does not verify token authenticity, expiry, audience or the API's authorization rules."
+        },
+        {
+          "id": "d",
+          "text": "The page must use a longer random URL",
+          "correct": false,
+          "feedback": "An obscure URL is not access control."
+        }
+      ],
+      "explanation": "Keep client navigation checks and server authorization distinct."
+    },
+    {
+      "id": "auth-practice",
+      "type": "codingExercise",
+      "title": "Threat-model a protected frontend feature",
+      "language": "text",
+      "context": "Review a hypothetical dashboard using sign-in, browser credentials and protected API operations.",
+      "instructions": [
+        "Identify the identity provider/client, the API resource server, and which layer owns each authentication and authorization decision.",
+        "Compare an Authorization Code + PKCE SPA design with a BFF session design; state why the selected architecture fits the threat model.",
+        "Explain how XSS and CSRF risks differ for JavaScript-readable credentials and HttpOnly cookies.",
+        "Specify distinct frontend behavior for 401, 403 and an intentionally concealed 404 response.",
+        "Define expiry, refresh, bounded retry, logout, server-session invalidation and credential-revocation behavior.",
+        "Explain why decoding a JWT payload cannot validate its signature or grant API access.",
+        "Write tests for unauthenticated, authenticated-but-forbidden and authorized requests, parallel 401 responses, refresh failure, and direct API calls that bypass the UI."
+      ],
+      "requirements": [
+        "Authentication and authorization are explicitly distinguished.",
+        "No privileged client secret or server credential is bundled into browser JavaScript.",
+        "The selected storage/transport model has a threat-model rationale and an explicit CSRF/XSS plan.",
+        "Trusted server/data-layer authorization is required regardless of UI guards or decoded JWT claims.",
+        "401, 403 and concealed 404 responses have distinct and contract-aware UX.",
+        "Refresh operations are deduplicated, retry is bounded, and failure transitions into explicit recovery.",
+        "Logout covers the server session or credential lifecycle as well as client state."
+      ],
+      "starterCode": "Feature: admin dashboard\n\nIdentity provider / client type:\nResource server and authorization rules:\nSPA PKCE vs BFF decision and trade-off:\nCredential transport/storage:\nXSS / CSRF mitigations:\n401 vs 403 vs concealed 404 behavior:\nRefresh concurrency / retry guard:\nLogout / expiry / revocation:\n\nTest cases:\n- no session / invalid credentials:\n- authenticated but forbidden:\n- authorized:\n- parallel 401 responses:\n- refresh request fails:\n- direct API request bypassing UI:",
+      "hints": [
+        "A route guard improves UX but the API must authorize every protected request.",
+        "Decoding a JWT is not signature validation; do not trust client claims to grant permissions.",
+        "HttpOnly limits JavaScript reads but not all requests; cookie-authenticated changes need CSRF controls.",
+        "Share refresh work across concurrent failures and retry each eligible request at most once."
+      ],
+      "successCriteria": [
+        "Defines roles for the identity provider, client and resource server.",
+        "Explains the chosen credential model and its XSS/CSRF risks.",
+        "Requires authorization at the trusted API/data boundary.",
+        "Distinguishes 401, 403 and any intentionally concealed 404 according to the API contract.",
+        "Uses a shared refresh operation and a bounded retry policy.",
+        "Tests credential lifecycle, direct-request bypass and explicit recovery after refresh/logout failure."
+      ]
+    },
+    {
+      "id": "auth-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Authentication proves identity; authorization evaluates a specific operation against policy.",
+        "Frontend guards are not security boundaries; validate credentials and permissions at the API/data layer.",
+        "HTTP 401 and 403 represent different recovery paths; follow the API contract and avoid login/refresh loops.",
+        "JWT decoding does not verify authenticity, issuer, audience or access permissions.",
+        "Cookie and token designs have trade-offs; plan for XSS, CSRF, expiry, logout and revocation.",
+        "OAuth authorization and OpenID Connect identity are related but distinct; use current provider guidance for SPA/BFF flows.",
+        "Concurrent refresh requests should share work, retries should be bounded, and failure should lead to explicit recovery."
+      ]
+    },
+    {
+      "id": "auth-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "OWASP Authentication Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "OWASP Session Management Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "OAuth 2.0 Security Best Current Practice (RFC 9700)",
+          "url": "https://datatracker.ietf.org/doc/html/rfc9700",
+          "kind": "standard"
+        },
+        {
+          "title": "OpenID Connect Core 1.0",
+          "url": "https://openid.net/specs/openid-connect-core-1_0.html",
+          "kind": "standard"
+        },
+        {
+          "title": "OWASP Cross-Site Request Forgery Prevention Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "OWASP HTML5 Security Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: 401 Unauthorized",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/401",
+          "kind": "article"
+        },
+        {
+          "title": "RFC 7519: JSON Web Token (JWT)",
+          "url": "https://www.rfc-editor.org/rfc/rfc7519.html",
+          "kind": "standard"
+        }
+      ]
+    }
+  ]
+}
