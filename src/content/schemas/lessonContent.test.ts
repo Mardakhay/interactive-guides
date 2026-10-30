@@ -400,7 +400,7 @@ describe('Git fundamentals lesson translation', () => {
       expect(undoText).toContain('git reset --soft <commit>');
       expect(undoText).toContain('git reset --mixed <commit>');
       expect(undoText).toContain('git reset --hard <commit>');
-      expect(undoText).toContain(locale === 'en' ? 'default commit-reset mode' : 'режимом сброса по умолчанию');
+      expect(undoText).toContain(lesson.locale === 'en' ? 'default commit-reset mode' : 'режимом сброса по умолчанию');
       expect(undoText).toContain('git restore --staged <file>');
 
       const duplicateCommandIds = structuredClone(lesson);
