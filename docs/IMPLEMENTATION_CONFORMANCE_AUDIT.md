@@ -1,7 +1,7 @@
 # Code-to-requirements conformance audit
 
 **Audit date:** 2026-10-30  
-**Audit baseline:** `867c86f67a562bed3f803a92aae55a088337dfcb`  
+**Audit baseline:** `80240230d09253cc3f58b8406d7e4e081e3f17cb`  
 **Working branch:** `feat/learning-platform-foundation`
 
 This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md`, `CURRICULUM_AND_CONTENT.md`, `ROADMAP.md`, persistence/PWA documents and source-parity checklists. It is not native browser, mobile, screen-reader, production-deployment or editorial acceptance.
@@ -39,9 +39,18 @@ Search includes classic lesson metadata, notes, structured lesson titles/descrip
 - Supabase auth, SQL migrations, RLS and cloud sync remain unimplemented and gated by reconciliation/security decisions.
 - Native browser/device install, offline, backup file picker/download, responsive, keyboard, screen-reader and mobile acceptance remains open.
 
+## Accessibility and localization continuation — 2026-10-30
+
+The six commits after the previous code audit baseline add and test these app-wide refinements:
+
+- Preserve the active locale for internal navigation from course, lesson, dashboard, bookmark, note and learning-path surfaces.
+- Respect reduced-motion preferences in shared transitions and animations; provide localized route error/recovery copy.
+- Give loading feedback an accessible name, expose invalid field state through `aria-invalid`, keep placeholder contrast readable, and expose the current breadcrumb item semantically.
+- Add regression coverage for route error rendering, breadcrumb semantics, loading status and invalid Input/Textarea states. These are automated DOM/component checks; real browser and assistive-technology acceptance is still required.
+
 ## Verification boundary
 
-Exact-head CI on this audit baseline passed 56 test files / 338 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, 14 generated index assets and PWA files ([run #41045918696](https://github.com/Mardakhay/interactive-guides/actions/runs/41045918696)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
+Exact-head CI on this audit baseline passed 62 test files / 344 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, 14 generated index assets and PWA files ([run #41053104167, run #862](https://github.com/Mardakhay/interactive-guides/actions/runs/41053104167)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
 
 ## Safe continuation order
 

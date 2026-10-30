@@ -114,6 +114,16 @@ These cases are partly exercised with deterministic Storage API mocks in Vitest;
 | A11Y-LEARN-04 | Expand/collapse HTML preview, hints and example solution using keyboard. | Each disclosure exposes expanded state, controls a stable panel, and hidden content is not exposed while collapsed. | Pass in Vitest component test; native browser not run |
 | A11Y-LEARN-05 | Use a structured code editor and self-review checklist with keyboard at 200% zoom. | The editor has a programmatic label; checkbox names are available; focus is visible and horizontal overflow stays contained to code/preview where intended. | Not run |
 
+## M. Recent localization and accessibility refinements
+
+| ID | Procedure | Expected result | Outcome / notes |
+|---|---|---|---|
+| A11Y-ROUTE-01 | Trigger a route-loading failure in English and Russian. | Error heading, explanation and recovery action use the active locale; recovery navigation remains within that locale. | Not run in a native browser |
+| A11Y-ROUTE-02 | Navigate between dashboard, courses, learning paths, lesson, bookmarks and notes from both locale prefixes. | Internal links preserve the active `/en` or `/ru` prefix; breadcrumbs identify the current page with `aria-current="page"`. | Not run in a native browser |
+| A11Y-FORM-03 | Submit invalid Input and Textarea controls, then focus each with a keyboard. | Controls expose `aria-invalid="true"`, invalid focus styling is visible, and placeholders remain readable. | Pass in Vitest component tests; native browser and screen reader not run |
+| A11Y-STATUS-01 | Inspect loading feedback and route errors with a screen reader. | Loading feedback has an accessible name; route error announcements and recovery controls are understandable and localized. | Not run with a screen reader |
+| A11Y-MOTION-01 | Enable the operating-system reduced-motion preference and navigate/expand app UI. | Non-essential transitions and animations are reduced or removed without hiding state changes or blocking interaction. | Not run in a native browser |
+
 ## Execution record
 
 Create one row per tested environment. Do not fill a result unless the procedure was actually run.
