@@ -232,6 +232,30 @@ const branchFlowSimulationBlockSchema = z.object({
   }
 });
 
+const tabbedContentTabSchema = z.object({
+  id: z.enum(['why-strategy', 'branches', 'git-flow', 'merge-requests', 'code-review', 'ci-cd', 'quiz']),
+  label: z.string().min(1),
+  blockIds: z.array(z.string().min(1)).min(1),
+});
+
+const tabbedContentBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal('tabbedContent'),
+  title: z.string().min(1),
+  description: z.string().min(1),
+  tabs: z.array(tabbedContentTabSchema).length(7),
+}).superRefine((block, ctx) => {
+  const expected = ['why-strategy', 'branches', 'git-flow', 'merge-requests', 'code-review', 'ci-cd', 'quiz'];
+  const actual = block.tabs.map((tab) => tab.id);
+  if (actual.some((id, index) => id !== expected[index])) {
+    ctx.addIssue({ code: 'custom', path: ['tabs'], message: 'Git Workflow tabs must preserve the seven source sections in order' });
+  }
+  const blockIds = block.tabs.flatMap((tab) => tab.blockIds);
+  if (new Set(blockIds).size !== blockIds.length) {
+    ctx.addIssue({ code: 'custom', path: ['tabs'], message: 'A lesson block can only belong to one source tab' });
+  }
+});
+
 const sequentialQuizBlockSchema = z.object({
   ...blockBase,
   type: z.literal('sequentialQuiz'),
@@ -278,6 +302,7 @@ export const lessonContentBlockSchema = z.discriminatedUnion('type', [
   pipelineSimulationBlockSchema,
   branchFlowSimulationBlockSchema,
   sequentialQuizBlockSchema,
+  tabbedContentBlockSchema,
 ]);
 
 export const lessonTranslationSchema = z.object({
@@ -345,6 +370,51 @@ export const lessonTranslationSchema = z.object({
       sequentialQuestionIds.add(questionId);
     });
   });
+
+  const tabbedBlocks = lesson.blocks.filter((block) => block.type === 'tabbedContent');
+  if (tabbedBlocks.length > 1) {
+    ctx.addIssue({ code: 'custom', path: ['blocks'], message: 'A lesson can have only one tabbed content block' });
+  }
+  if (tabbedBlocks.length === 1) {
+    const tabbedBlock = tabbedBlocks[0];
+    if (tabbedBlock?.type === 'tabbedContent') {
+      const assignedIds = tabbedBlock.tabs.flatMap((tab) => tab.blockIds);
+      const assignedSet = new Set(assignedIds);
+      assignedIds.forEach((blockId, blockIndex) => {
+        const target = lesson.blocks.find((candidate) => candidate.id === blockId);
+        if (!target || target.type === 'tabbedContent' || target.type === 'references') {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['blocks', 'tabbedContent', 'tabs', blockIndex],
+            message: 'A source tab must reference an existing renderable lesson block',
+          });
+        }
+        if (sequentialQuestionIds.has(blockId)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['blocks', 'tabbedContent', 'tabs', blockIndex],
+            message: 'Sequential quiz question blocks must only render inside their quiz',
+          });
+        }
+      });
+      const expectedIds = lesson.blocks
+        .filter((candidate) =>
+          candidate.id !== tabbedBlock.id &&
+          candidate.type !== 'references' &&
+          !(candidate.type === 'knowledgeCheck' && sequentialQuestionIds.has(candidate.id)),
+        )
+        .map((candidate) => candidate.id);
+      const missingTabIds = expectedIds.filter((blockId) => !assignedSet.has(blockId));
+      const unknownTabIds = assignedIds.filter((blockId) => !expectedIds.includes(blockId));
+      if (missingTabIds.length > 0 || unknownTabIds.length > 0) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['blocks', 'tabbedContent', 'tabs'],
+          message: 'The seven source tabs must cover every renderable lesson block exactly once',
+        });
+      }
+    }
+  }
 
   const hasReferences = lesson.blocks.some((block) => block.type === 'references');
   if (!hasReferences) {

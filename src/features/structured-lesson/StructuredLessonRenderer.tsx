@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Check, Clipboard, ExternalLink, Lightbulb, RotateCcw } from 'lucide-react';
 import type { SupportedLocale } from '@/content/repository';
 import { useStructuredLearningStore } from './store';
@@ -9,6 +9,7 @@ import type { LessonContentBlock, LessonTranslation } from '@/content/schemas/le
 
 type KnowledgeCheckBlock = Extract<LessonContentBlock, { type: 'knowledgeCheck' }>;
 type SequentialQuizBlock = Extract<LessonContentBlock, { type: 'sequentialQuiz' }>;
+type TabbedContentBlock = Extract<LessonContentBlock, { type: 'tabbedContent' }>;
 
 interface StructuredLessonRendererProps {
   lesson: LessonTranslation;
@@ -812,7 +813,96 @@ export function SequentialKnowledgeQuiz({
 }
 
 
-function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonId: string, sequentialQuestionIds: ReadonlySet<string>, questionBlocksById: ReadonlyMap<string, KnowledgeCheckBlock>) {
+function StructuredLessonTabs({
+  block,
+  locale,
+  renderBlocks,
+}: {
+  block: TabbedContentBlock;
+  locale: SupportedLocale;
+  renderBlocks: (blockIds: string[]) => ReactNode;
+}) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const activeTab = block.tabs[activeIndex];
+
+  const activateTab = (index: number, moveFocus: boolean) => {
+    const nextIndex = (index + block.tabs.length) % block.tabs.length;
+    setActiveIndex(nextIndex);
+    if (moveFocus) tabRefs.current[nextIndex]?.focus();
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      activateTab(index + 1, true);
+    } else if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      activateTab(index - 1, true);
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      activateTab(0, true);
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      activateTab(block.tabs.length - 1, true);
+    }
+  };
+
+  if (!activeTab) return null;
+
+  const panelId = block.id + '-' + activeTab.id + '-panel';
+  const tabId = block.id + '-' + activeTab.id + '-tab';
+
+  return (
+    <section className="my-8 min-w-0" aria-labelledby={block.id + '-title'}>
+      <h2 id={block.id + '-title'} className="text-2xl font-semibold tracking-tight text-neutral-950">{block.title}</h2>
+      <p className="mt-2 text-sm leading-6 text-neutral-700">{block.description}</p>
+      <div className="mt-5 overflow-x-auto border-b border-neutral-200" data-testid="git-workflow-tab-scroll">
+        <div
+          role="tablist"
+          aria-label={locale === 'ru' ? 'Темы Git Workflow' : 'Git Workflow topics'}
+          aria-orientation="horizontal"
+          className="flex min-w-max gap-1"
+        >
+          {block.tabs.map((tab, index) => {
+            const selected = index === activeIndex;
+            const ownTabId = block.id + '-' + tab.id + '-tab';
+            const ownPanelId = block.id + '-' + tab.id + '-panel';
+            return (
+              <button
+                key={tab.id}
+                ref={(element) => { tabRefs.current[index] = element; }}
+                id={ownTabId}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                aria-controls={ownPanelId}
+                tabIndex={selected ? 0 : -1}
+                onClick={() => setActiveIndex(index)}
+                onKeyDown={(event) => handleKeyDown(event, index)}
+                className={'min-h-11 whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary-700 ' +
+                  (selected ? 'border-primary-700 text-primary-800' : 'border-transparent text-neutral-600 hover:border-neutral-300 hover:text-neutral-950')}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <div
+        id={panelId}
+        role="tabpanel"
+        aria-labelledby={tabId}
+        tabIndex={0}
+        className="min-w-0 pt-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+      >
+        {renderBlocks(activeTab.blockIds)}
+      </div>
+    </section>
+  );
+}
+
+function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonId: string, sequentialQuestionIds: ReadonlySet<string>, questionBlocksById: ReadonlyMap<string, KnowledgeCheckBlock>, lessonBlocksById: ReadonlyMap<string, LessonContentBlock>) {
   switch (block.type) {
     case 'heading':
       if (block.level === 2) return <SectionHeading key={block.id} block={block} lessonId={lessonId} locale={locale} />;
@@ -875,6 +965,18 @@ function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonI
       const questions = block.questionBlockIds.map((id) => questionBlocksById.get(id)).filter((question): question is KnowledgeCheckBlock => Boolean(question));
       return <SequentialKnowledgeQuiz key={block.id} block={block} questions={questions} locale={locale} lessonId={lessonId} />;
     }
+    case 'tabbedContent':
+      return (
+        <StructuredLessonTabs
+          key={block.id}
+          block={block}
+          locale={locale}
+          renderBlocks={(blockIds) => blockIds.map((blockId) => {
+            const child = lessonBlocksById.get(blockId);
+            return child ? renderBlock(child, locale, lessonId, sequentialQuestionIds, questionBlocksById, lessonBlocksById) : null;
+          })}
+        />
+      );
     case 'codingExercise':
       return <CodingExercise key={block.id} block={block} locale={locale} lessonId={lessonId} />;
     case 'pipelineSimulation':
@@ -906,16 +1008,23 @@ function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonI
 export function StructuredLessonRenderer({ lesson }: StructuredLessonRendererProps) {
   const locale = lesson.locale as SupportedLocale;
   const questionBlocksById = new Map<string, KnowledgeCheckBlock>();
+  const lessonBlocksById = new Map<string, LessonContentBlock>();
   for (const block of lesson.blocks) {
+    lessonBlocksById.set(block.id, block);
     if (block.type === 'knowledgeCheck') questionBlocksById.set(block.id, block);
   }
   const sequentialQuestionIds = new Set(
     lesson.blocks.flatMap((block) => block.type === 'sequentialQuiz' ? block.questionBlockIds : []),
   );
+  const tabbedChildIds = new Set(
+    lesson.blocks.flatMap((block) => block.type === 'tabbedContent' ? block.tabs.flatMap((tab) => tab.blockIds) : []),
+  );
 
   return (
     <article className="structured-lesson min-w-0">
-      {lesson.blocks.map((block) => renderBlock(block, locale, lesson.id, sequentialQuestionIds, questionBlocksById))}
+      {lesson.blocks.map((block) => tabbedChildIds.has(block.id)
+        ? null
+        : renderBlock(block, locale, lesson.id, sequentialQuestionIds, questionBlocksById, lessonBlocksById))}
     </article>
   );
 }

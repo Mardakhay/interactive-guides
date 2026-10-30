@@ -94,6 +94,8 @@ export function getSearchableContentBlockText(block: LessonContentBlock): string
       return block.title + ' ' + block.description + ' ' + block.actions.map((action) => action.label + ' ' + action.description).join(' ');
     case 'sequentialQuiz':
       return block.title + ' ' + block.description;
+    case 'tabbedContent':
+      return block.title + ' ' + block.description + ' ' + block.tabs.map((tab) => tab.label).join(' ');
     default:
       return '';
   }

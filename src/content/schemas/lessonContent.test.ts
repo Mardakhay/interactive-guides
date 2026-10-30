@@ -1332,12 +1332,21 @@ describe('Git workflow lesson translation', () => {
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
-    expect(englishGitWorkflow.version).toBe(13);
-    expect(russianGitWorkflow.version).toBe(13);
+    expect(englishGitWorkflow.version).toBe(14);
+    expect(russianGitWorkflow.version).toBe(14);
     for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
       expect(lesson.updatedAt).toBe('2026-10-30');
 
-      const sequentialQuiz = lesson.blocks.find((block) => block.id === 'git-workflow-sequential-quiz');
+      const sourceTabs = lesson.blocks.find((block) => block.id === 'git-workflow-source-tabs');
+      expect(sourceTabs?.type).toBe('tabbedContent');
+      if (sourceTabs?.type !== 'tabbedContent') throw new Error('Seven Git Workflow source tabs are missing');
+      expect(sourceTabs.tabs.map((tab) => tab.id)).toEqual(['why-strategy', 'branches', 'git-flow', 'merge-requests', 'code-review', 'ci-cd', 'quiz']);
+      const assignedTabIds = sourceTabs.tabs.flatMap((tab) => tab.blockIds);
+      expect(new Set(assignedTabIds).size).toBe(61);
+      const excludedQuestionIds = new Set(['hotfix-origin-check', 'branch-protection-check', 'git-flow-feature-target-check', 'ci-basics-check', 'review-comment-specificity-check', 'hotfix-back-merge-check', 'git-semver-minor-check', 'continuous-deployment-check', 'small-pr-review-check', 'npm-ci-lockfile-check']);
+      const expectedTabIds = lesson.blocks.filter((block) => block.id !== sourceTabs.id && block.type !== 'references' && !(block.type === 'knowledgeCheck' && excludedQuestionIds.has(block.id))).map((block) => block.id);
+      expect(assignedTabIds.slice().sort()).toEqual(expectedTabIds.slice().sort());
+            const sequentialQuiz = lesson.blocks.find((block) => block.id === 'git-workflow-sequential-quiz');
       expect(sequentialQuiz?.type).toBe('sequentialQuiz');
       if (sequentialQuiz?.type !== 'sequentialQuiz') throw new Error('Sequential Git workflow quiz is missing');
       expect(sequentialQuiz.questionBlockIds).toEqual(["hotfix-origin-check","branch-protection-check","git-flow-feature-target-check","ci-basics-check","review-comment-specificity-check","hotfix-back-merge-check","git-semver-minor-check","continuous-deployment-check","small-pr-review-check","npm-ci-lockfile-check"]);
