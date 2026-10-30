@@ -1332,8 +1332,8 @@ describe('Git workflow lesson translation', () => {
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
-    expect(englishGitWorkflow.version).toBe(11);
-    expect(russianGitWorkflow.version).toBe(11);
+    expect(englishGitWorkflow.version).toBe(12);
+    expect(russianGitWorkflow.version).toBe(12);
     for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
       expect(lesson.updatedAt).toBe('2026-10-30');
 

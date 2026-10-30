@@ -5,6 +5,7 @@ import type { SupportedLocale } from '@/content/repository';
 import { useStructuredLearningStore } from './store';
 import { JavaScriptRunner } from './JavaScriptRunner';
 import { PipelineSimulation } from './PipelineSimulation';
+import { BranchFlowSimulation } from './BranchFlowSimulation';
 
 interface StructuredLessonRendererProps {
   lesson: LessonTranslation;
@@ -665,6 +666,8 @@ function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonI
       return <CodingExercise key={block.id} block={block} locale={locale} lessonId={lessonId} />;
     case 'pipelineSimulation':
       return <PipelineSimulation key={block.id} block={block} locale={locale} />;
+    case 'branchFlowSimulation':
+      return <BranchFlowSimulation key={block.id} block={block} locale={locale} />;
     case 'references':
       return (
         <section key={block.id} className="mt-10 border-t border-neutral-200 pt-6">

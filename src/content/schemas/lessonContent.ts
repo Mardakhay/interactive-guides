@@ -211,6 +211,27 @@ const pipelineStageSchema = z.object({
   gate: z.enum(['required', 'informational', 'post-merge']),
 });
 
+
+const branchFlowActionSchema = z.object({
+  id: z.enum(['create-develop', 'create-feature', 'commit', 'merge-feature', 'create-hotfix', 'merge-hotfix', 'back-merge-hotfix', 'release']),
+  label: z.string().min(1),
+  description: z.string().min(1),
+});
+
+const branchFlowSimulationBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal('branchFlowSimulation'),
+  title: z.string().min(1),
+  description: z.string().min(1),
+  actions: z.array(branchFlowActionSchema).length(8),
+}).superRefine((block, ctx) => {
+  const expected = ['create-develop', 'create-feature', 'commit', 'merge-feature', 'create-hotfix', 'merge-hotfix', 'back-merge-hotfix', 'release'];
+  const actual = block.actions.map((action) => action.id);
+  if (actual.some((id, index) => id !== expected[index])) {
+    ctx.addIssue({ code: 'custom', path: ['actions'], message: 'Branch flow actions must preserve the documented order' });
+  }
+});
+
 const pipelineSimulationBlockSchema = z.object({
   ...blockBase,
   type: z.literal('pipelineSimulation'),
@@ -243,6 +264,7 @@ export const lessonContentBlockSchema = z.discriminatedUnion('type', [
   codingExerciseBlockSchema,
   referencesBlockSchema,
   pipelineSimulationBlockSchema,
+  branchFlowSimulationBlockSchema,
 ]);
 
 export const lessonTranslationSchema = z.object({

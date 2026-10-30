@@ -1,7 +1,7 @@
 {
   "id": "git.workflow-ci",
   "locale": "en",
-  "version": 11,
+  "version": 12,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-30",
@@ -918,6 +918,54 @@
         "States review/status branch protection behavior.",
         "Selects and explains a production trigger without conflating delivery and deployment.",
         "Defines artifact tracking and rollback responsibility."
+      ]
+    },
+    {
+      "id": "git-workflow-branch-canvas-simulation",
+      "type": "branchFlowSimulation",
+      "title": "Explore a Git Flow branch graph",
+      "description": "Use the actions to create branches and commits, merge a feature, ship a hotfix, back-merge it into develop, and create a release. The graph and commit history are local to this exercise; these controls do not execute real Git commands.",
+      "actions": [
+        {
+          "id": "create-develop",
+          "label": "Create / switch to develop",
+          "description": "Create the develop branch at the current main commit, or switch to the existing develop head."
+        },
+        {
+          "id": "create-feature",
+          "label": "Create / switch to feature",
+          "description": "Create a feature branch at the current develop head, or switch to the existing feature head."
+        },
+        {
+          "id": "commit",
+          "label": "Commit on active branch",
+          "description": "Add a new commit to the active branch and advance that branch pointer."
+        },
+        {
+          "id": "merge-feature",
+          "label": "Merge feature into develop",
+          "description": "Create a merge commit on develop with both the current develop and feature heads as parents."
+        },
+        {
+          "id": "create-hotfix",
+          "label": "Create / switch to hotfix",
+          "description": "Create an urgent hotfix branch at the current production main head, or switch to the existing hotfix head."
+        },
+        {
+          "id": "merge-hotfix",
+          "label": "Merge hotfix into main",
+          "description": "Merge the hotfix into production main and tag the simulated release as v1.0.1."
+        },
+        {
+          "id": "back-merge-hotfix",
+          "label": "Back-merge hotfix into develop",
+          "description": "Merge the production hotfix back into develop so the next release does not reintroduce the fixed bug."
+        },
+        {
+          "id": "release",
+          "label": "Release develop to main",
+          "description": "Merge the current develop head into main and tag the simulated release as v2.0.0."
+        }
       ]
     },
     {

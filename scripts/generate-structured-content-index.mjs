@@ -38,6 +38,8 @@ function searchableBlockText(block) {
       return block.items.map((item) => item.title + ' ' + item.url).join(' ');
     case 'pipelineSimulation':
       return block.title + ' ' + block.description + ' ' + block.stages.map((stage) => stage.label + ' ' + stage.description + ' ' + stage.successMessage + ' ' + stage.failureMessage).join(' ');
+    case 'branchFlowSimulation':
+      return block.title + ' ' + block.description + ' ' + block.actions.map((action) => action.label + ' ' + action.description).join(' ');
     default:
       return '';
   }

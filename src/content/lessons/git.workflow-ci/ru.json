@@ -1,7 +1,7 @@
 {
   "id": "git.workflow-ci",
   "locale": "ru",
-  "version": 11,
+  "version": 12,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-30",
@@ -918,6 +918,54 @@
         "Описано поведение review/status branch protection.",
         "Выбран и обоснован production trigger без смешения delivery и deployment.",
         "Определены отслеживание artifact и ответственность за rollback."
+      ]
+    },
+    {
+      "id": "git-workflow-branch-canvas-simulation",
+      "type": "branchFlowSimulation",
+      "title": "Исследуй граф ветвления Git Flow",
+      "description": "Используй действия, чтобы создавать ветки и коммиты, сливать feature, выпускать hotfix, возвращать его в develop и создавать релиз. Граф и история локальны для этого упражнения: кнопки не выполняют настоящие команды Git.",
+      "actions": [
+        {
+          "id": "create-develop",
+          "label": "Создать / переключиться на develop",
+          "description": "Создать ветку develop на текущем коммите main или переключиться на существующий head develop."
+        },
+        {
+          "id": "create-feature",
+          "label": "Создать / переключиться на feature",
+          "description": "Создать feature-ветку на текущем head develop или переключиться на существующий head feature."
+        },
+        {
+          "id": "commit",
+          "label": "Создать commit в активной ветке",
+          "description": "Добавить commit в активную ветку и передвинуть её указатель."
+        },
+        {
+          "id": "merge-feature",
+          "label": "Слить feature в develop",
+          "description": "Создать merge commit в develop с текущими head develop и feature в качестве родителей."
+        },
+        {
+          "id": "create-hotfix",
+          "label": "Создать / переключиться на hotfix",
+          "description": "Создать срочную hotfix-ветку на текущем production head main или переключиться на существующий head hotfix."
+        },
+        {
+          "id": "merge-hotfix",
+          "label": "Слить hotfix в main",
+          "description": "Слить hotfix в production main и поставить симулируемый тег релиза v1.0.1."
+        },
+        {
+          "id": "back-merge-hotfix",
+          "label": "Вернуть hotfix в develop",
+          "description": "Слить production hotfix обратно в develop, чтобы следующая версия не вернула исправленную ошибку."
+        },
+        {
+          "id": "release",
+          "label": "Выпустить develop в main",
+          "description": "Слить текущий head develop в main и поставить симулируемый тег релиза v2.0.0."
+        }
       ]
     },
     {
