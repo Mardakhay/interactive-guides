@@ -1,7 +1,7 @@
 # Code-to-requirements conformance audit
 
 **Audit date:** 2026-10-30  
-**Audit baseline:** `42950849ea63f83fd0f3f290d2a7dd185a8add81`  
+**Audit baseline:** `24b28b8a9adc02314525976f708ec83d0a6a0f89`  
 **Working branch:** `feat/learning-platform-foundation`
 
 This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md`, `CURRICULUM_AND_CONTENT.md`, `ROADMAP.md`, persistence/PWA documents and source-parity checklists. It is not native browser, mobile, screen-reader, production-deployment or editorial acceptance.
@@ -38,7 +38,7 @@ Search includes classic lesson metadata, notes, structured lesson titles/descrip
 
 ## Verification boundary
 
-Exact-head CI on this audit baseline passed 49 test files / 327 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for six deep routes, 14 generated index assets and PWA files ([run #41036830648](https://github.com/Mardakhay/interactive-guides/actions/runs/41036830648)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
+Exact-head CI on this audit baseline passed 52 test files / 334 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, 14 generated index assets and PWA files ([run #41042986202](https://github.com/Mardakhay/interactive-guides/actions/runs/41042986202)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
 
 ## Safe continuation order
 

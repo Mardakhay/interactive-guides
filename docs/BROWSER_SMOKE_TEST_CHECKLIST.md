@@ -1,6 +1,6 @@
 # Browser and device smoke-test checklist
 
-**Status as of 2026-10-30: automated preview HTTP smoke passes; native browser/device acceptance has not been run.** Exact-head CI at `42950849ea63f83fd0f3f290d2a7dd185a8add81` passed [run #41036830648](https://github.com/Mardakhay/interactive-guides/actions/runs/41036830648): 49 test files / 327 tests, lint, typecheck, production build, bundle budgets across 141 JavaScript chunks, and HTTP smoke for six deep routes including `/practice` and `/settings`, the entry bundle, manifest, service worker, five PWA assets and all 14 generated search/practice index assets. npm audit reported zero advisories. The preview smoke checks HTTP routes/assets only; it does not establish install, offline, storage, accessibility or mobile acceptance.
+**Status as of 2026-10-30: automated preview HTTP smoke passes; native browser/device acceptance has not been run.** Exact-head CI at `24b28b8a9adc02314525976f708ec83d0a6a0f89` passed [run #41042986202](https://github.com/Mardakhay/interactive-guides/actions/runs/41042986202): 52 test files / 334 tests, lint, typecheck, production build, bundle budgets across 141 JavaScript chunks and HTTP smoke for 13 deep routes (locale-prefixed routes plus legacy aliases), the entry bundle, manifest, service worker, five PWA assets and all 14 generated search/practice index assets. npm audit reported zero advisories. The preview smoke verifies HTTP routes/assets only; native browser, install, offline, storage, accessibility and mobile acceptance remain open.
 
 ## Safe setup and evidence
 
