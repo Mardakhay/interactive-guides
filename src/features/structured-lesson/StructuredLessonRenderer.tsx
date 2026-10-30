@@ -475,16 +475,18 @@ function KnowledgeCheck({
   locale,
   lessonId,
   onAnswered,
+  initialAnswer,
   focusPrompt = false,
 }: {
   block: KnowledgeCheckBlock;
   locale: SupportedLocale;
   lessonId: string;
-  onAnswered?: (isCorrect: boolean) => void;
+  onAnswered?: (isCorrect: boolean, selectedOptionIds: string[]) => void;
+  initialAnswer?: { selectedOptionIds: string[]; isCorrect: boolean };
   focusPrompt?: boolean;
 }) {
-  const [selected, setSelected] = useState<string[]>([]);
-  const [submitted, setSubmitted] = useState(false);
+  const [selected, setSelected] = useState<string[]>(initialAnswer?.selectedOptionIds ?? []);
+  const [submitted, setSubmitted] = useState(Boolean(initialAnswer));
   const feedbackRef = useRef<HTMLDivElement | null>(null);
   const promptRef = useRef<HTMLHeadingElement | null>(null);
 
@@ -588,7 +590,7 @@ function KnowledgeCheck({
             onClick={() => {
               recordQuizAttempt(lessonId, block.id, selected, isSelectionCorrect);
               setSubmitted(true);
-              onAnswered?.(isSelectionCorrect);
+              onAnswered?.(isSelectionCorrect, selected);
             }}
             className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-800 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
           >
@@ -642,8 +644,7 @@ export function SequentialKnowledgeQuiz({
   lessonId: string;
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [score, setScore] = useState(0);
-  const [answered, setAnswered] = useState(false);
+  const [answers, setAnswers] = useState<Record<string, { selectedOptionIds: string[]; isCorrect: boolean }>>({});
   const [finished, setFinished] = useState(false);
   const [runNumber, setRunNumber] = useState(0);
   const resultRef = useRef<HTMLDivElement | null>(null);
@@ -652,10 +653,12 @@ export function SequentialKnowledgeQuiz({
   const labels = isRu ? {
     question: 'Вопрос',
     of: 'из',
+    previous: 'Предыдущий вопрос',
     next: 'Следующий вопрос',
     finish: 'Завершить тест',
     restart: 'Начать заново',
     score: 'Итоговый результат',
+    currentScore: 'Счёт',
     correct: 'верных ответов',
     excellent: 'Отличный результат! Продолжай применять знания на практике.',
     good: 'Хорошая основа. Повтори темы вопросов, в которых ошибся.',
@@ -666,10 +669,12 @@ export function SequentialKnowledgeQuiz({
   } : {
     question: 'Question',
     of: 'of',
+    previous: 'Previous question',
     next: 'Next question',
     finish: 'Finish quiz',
     restart: 'Restart quiz',
     score: 'Final score',
+    currentScore: 'Score',
     correct: 'correct answers',
     excellent: 'Excellent result! Keep applying these concepts in practice.',
     good: 'Good foundation. Review the topics behind missed answers.',
@@ -680,30 +685,35 @@ export function SequentialKnowledgeQuiz({
   };
 
   const activeQuestion = questions[currentIndex];
+  const activeAnswer = activeQuestion ? answers[activeQuestion.id] : undefined;
+  const score = Object.values(answers).filter((answer) => answer.isCorrect).length;
+
   useEffect(() => {
     if (finished) resultRef.current?.focus();
   }, [finished]);
 
-  const handleAnswered = (isCorrect: boolean) => {
-    if (answered) return;
-    if (isCorrect) setScore((value) => value + 1);
-    setAnswered(true);
+  const handleAnswered = (questionId: string, isCorrect: boolean, selectedOptionIds: string[]) => {
+    setAnswers((current) => current[questionId]
+      ? current
+      : { ...current, [questionId]: { selectedOptionIds: [...selectedOptionIds], isCorrect } });
   };
 
-  const advance = () => {
-    if (!answered) return;
+  const goPrevious = () => {
+    if (currentIndex > 0) setCurrentIndex((value) => value - 1);
+  };
+
+  const goNext = () => {
+    if (!activeAnswer) return;
     if (currentIndex === questions.length - 1) {
       setFinished(true);
       return;
     }
     setCurrentIndex((value) => value + 1);
-    setAnswered(false);
   };
 
   const restart = () => {
     setCurrentIndex(0);
-    setScore(0);
-    setAnswered(false);
+    setAnswers({});
     setFinished(false);
     setRunNumber((value) => value + 1);
   };
@@ -717,7 +727,7 @@ export function SequentialKnowledgeQuiz({
   }
 
   const percent = Math.round((score / questions.length) * 100);
-  const progressValue = finished ? questions.length : currentIndex + (answered ? 1 : 0);
+  const progressValue = finished ? questions.length : currentIndex + 1;
   const resultMessage = percent >= 80 ? labels.excellent : percent >= 50 ? labels.good : labels.review;
 
   return (
@@ -725,9 +735,9 @@ export function SequentialKnowledgeQuiz({
       <h3 id={block.id + '-title'} className="text-xl font-semibold text-neutral-950">{block.title}</h3>
       <p className="mt-2 text-sm leading-6 text-neutral-700">{block.description}</p>
       <div className="mt-5">
-        <div className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-neutral-600">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-3 text-xs font-semibold text-neutral-600">
           <span>{labels.question} {currentIndex + 1} {labels.of} {questions.length}</span>
-          <span>{progressValue} / {questions.length}</span>
+          <span>{labels.currentScore}: {score} / {questions.length}</span>
         </div>
         <div
           role="progressbar"
@@ -743,26 +753,34 @@ export function SequentialKnowledgeQuiz({
 
       {!finished && (
         <>
-          <p className="mt-4 text-xs font-medium text-neutral-500">{labels.question} {currentIndex + 1} / {questions.length}</p>
           <KnowledgeCheck
             key={runNumber + ':' + activeQuestion.id}
             block={activeQuestion}
             locale={locale}
             lessonId={lessonId}
-            onAnswered={handleAnswered}
-            focusPrompt
+            onAnswered={(isCorrect, selectedOptionIds) => handleAnswered(activeQuestion.id, isCorrect, selectedOptionIds)}
+            initialAnswer={activeAnswer}
+            focusPrompt={!activeAnswer}
           />
-          {answered && (
-            <div className="mt-4 flex justify-end">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={goPrevious}
+              disabled={currentIndex === 0}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-neutral-300 bg-white px-5 py-2.5 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+            >
+              {labels.previous}
+            </button>
+            {activeAnswer && (
               <button
                 type="button"
-                onClick={advance}
+                onClick={goNext}
                 className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
               >
                 {currentIndex === questions.length - 1 ? labels.finish : labels.next}
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </>
       )}
 
@@ -792,6 +810,7 @@ export function SequentialKnowledgeQuiz({
     </section>
   );
 }
+
 
 function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonId: string, sequentialQuestionIds: ReadonlySet<string>, questionBlocksById: ReadonlyMap<string, KnowledgeCheckBlock>) {
   switch (block.type) {

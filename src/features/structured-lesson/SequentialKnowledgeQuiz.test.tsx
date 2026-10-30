@@ -47,6 +47,35 @@ describe('SequentialKnowledgeQuiz', () => {
     expect(screen.getByText(questions[1].prompt)).toBeTruthy();
   });
 
+  it('supports previous/next navigation and restores a submitted answer without recording it twice', async () => {
+    const { lesson, block, questions } = await getQuiz('en');
+    render(<SequentialKnowledgeQuiz block={block} questions={questions} locale="en" lessonId={lesson.id} />);
+
+    chooseCorrect(questions[0]);
+    fireEvent.click(screen.getByRole('button', { name: 'Check answer' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next question' }));
+
+    chooseCorrect(questions[1]);
+    fireEvent.click(screen.getByRole('button', { name: 'Check answer' }));
+    expect(screen.getByText('Score: 2 / 10')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Next question' }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Previous question' }));
+    expect(screen.getByText(questions[1].prompt)).toBeTruthy();
+    const restoredCorrect = screen.getByText(questions[1].options.find((option) => option.correct)?.text ?? '').closest('button');
+    expect(restoredCorrect?.getAttribute('aria-pressed')).toBe('true');
+    expect(restoredCorrect?.hasAttribute('disabled')).toBe(true);
+    expect(screen.getByRole('status', { name: 'Knowledge check feedback' })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Previous question' }));
+    expect(screen.getByText(questions[0].prompt)).toBeTruthy();
+    expect(screen.getByText('Score: 2 / 10')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Next question' }));
+    expect(screen.getByText(questions[1].prompt)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Next question' }));
+    expect(screen.getByText(questions[2].prompt)).toBeTruthy();
+  });
+
   it('shows the final score and restarts the same sequence while retaining existing attempts', async () => {
     const { lesson, block, questions } = await getQuiz('en');
     render(<SequentialKnowledgeQuiz block={block} questions={questions} locale="en" lessonId={lesson.id} />);
