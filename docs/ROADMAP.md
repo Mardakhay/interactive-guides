@@ -8,7 +8,7 @@ This is the one authoritative task list. Dated progress notes and superseded che
 
 ## Verified baseline
 
-- Last validated code checkpoint: `94d8358502e9dbcb6456b2efbe86c7d03d5fb5a6`; [exact feature-branch CI run #41043651915](https://github.com/Mardakhay/interactive-guides/actions/runs/41043651915) passed install, ESLint, TypeScript, **53 test files / 335 tests**, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, entry bundle, manifest, service worker, 5 PWA assets and 14 generated content chunks. npm audit reported zero advisories.
+- Last validated code checkpoint: `a40c28f263869c93bf662b5d3597945c5d9daf31`; [exact feature-branch CI run #41044423286](https://github.com/Mardakhay/interactive-guides/actions/runs/41044423286) passed install, ESLint, TypeScript, **55 test files / 337 tests**, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, entry bundle, manifest, service worker, 5 PWA assets and 14 generated content chunks. npm audit reported zero advisories.
 - The preview smoke covers 13 deep routes, including `/en`, `/ru`, locale-prefixed application routes and legacy aliases, as well as the entry bundle, manifest, service worker, five PWA assets and all 14 generated content chunks. The generated search data totals 269,738 bytes gzip EN / 340,328 bytes gzip RU; Practice has a separate 59,527-byte EN / 75,293-byte RU payload. Native browser latency and mobile transfer remain unmeasured. Structured lesson outline search also now matches authored section text and command-reference examples, including Git commands.
 - Current branch also contains documentation reconciliation after that code checkpoint. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
 - Curriculum inventory: 27 core + 17 supplementary = 44 bilingual lesson pairs (88 locale JSON records).
@@ -31,6 +31,8 @@ This is the one authoritative task list. Dated progress notes and superseded che
 - [x] Current implementation audit, content inventory, handoff and manual acceptance checklist reconciled with the feature branch.
 - [x] Make every application route locale-prefixed, preserve legacy root aliases, query/hash on language switch, and sync browser language preference from direct locale routes.
 - [x] Add keyboard-managed mobile navigation drawer behavior (initial focus, Tab/Shift+Tab trap, Escape close and focus restoration) plus visible focus rings in the shared shell. Native screen-reader/device acceptance remains open.
+- [x] Upgrade the reusable Modal to a labelled dialog with initial focus, Tab/Shift+Tab containment, Escape/backdrop dismissal, focus restoration and body-scroll restoration.
+- [x] Make Search filter controls a correctly labelled group of mutually exclusive pressed buttons instead of tabs without associated tab panels; add visible focus to the clear-search button.
 
 ## P0 — Content parity, publication and migration safety
 
