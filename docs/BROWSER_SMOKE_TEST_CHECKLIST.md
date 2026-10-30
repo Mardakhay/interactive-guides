@@ -1,6 +1,6 @@
 # Browser and device smoke-test checklist
 
-**Status as of 2026-10-30: automated preview HTTP smoke passes; native browser/device acceptance has not been run.** Exact-head CI at `a40c28f263869c93bf662b5d3597945c5d9daf31` passed [run #41044423286](https://github.com/Mardakhay/interactive-guides/actions/runs/41044423286): 55 test files / 337 tests, lint, typecheck, production build, budgets across 141 JavaScript chunks and HTTP smoke for 13 deep routes, entry bundle, manifest, service worker, five PWA assets and 14 generated search/practice index assets. npm audit reported zero advisories. Keyboard component tests cover drawer/Modal focus containment and restoration; these do not replace native browser, screen-reader, install/offline, storage, accessibility or mobile acceptance.
+**Status as of 2026-10-30: automated preview HTTP smoke passes; native browser/device acceptance has not been run.** Exact-head CI at `867c86f67a562bed3f803a92aae55a088337dfcb` passed [run #41045918696](https://github.com/Mardakhay/interactive-guides/actions/runs/41045918696): 56 test files / 338 tests, lint, typecheck, production build, budgets across 141 JavaScript chunks and HTTP smoke for 13 deep routes, entry bundle, manifest, service worker, five PWA assets and 14 generated search/practice index assets. npm audit reported zero advisories. Automated tests cover mobile drawer/Modal focus, quiz-result announcements, note autosave status and structured disclosures; native browser, screen-reader and device acceptance remain open.
 
 ## Safe setup and evidence
 
@@ -103,6 +103,16 @@ These cases are partly exercised with deterministic Storage API mocks in Vitest;
 | A11Y-MODAL-03 | Use NVDA/Firefox or VoiceOver/Safari with a dialog open. | The dialog name, close button and dialog controls are announced in a coherent order; background content is not navigated as part of the modal task. | Not run |
 | A11Y-FILTER-01 | Navigate Search result filters by keyboard and inspect with a screen reader. | Each filter is exposed as a button with pressed/not-pressed state in a named group; Space/Enter changes the filter. | Pass in Vitest component test; native screen reader not run |
 | A11Y-FILTER-02 | Clear a non-empty Search query using keyboard. | Clear-search is focusable, visibly focused, labelled and clears the query without taking focus unexpectedly. | Not run |
+
+## J. Learning feedback and autosave announcements
+
+| ID | Procedure | Expected result | Outcome / notes |
+|---|---|---|---|
+| A11Y-LEARN-01 | Complete a classic quiz using keyboard only. | After Submit, the score summary is announced and receives focus; result correctness and explanation remain readable. | Pass in Vitest component test; native screen reader not run |
+| A11Y-LEARN-02 | Submit an English and Russian structured knowledge check. | Correct/incorrect feedback and explanation are announced as a polite status; focus moves to the feedback, and Retry remains reachable next. | Pass in Vitest component test; native screen reader not run |
+| A11Y-LEARN-03 | Edit a lesson note, wait for autosave, and inspect with a screen reader. | The saved timestamp/status is announced after debounce, not on every keystroke; existing note content persists after reload. | Pass in Vitest fake-timer/store test; native screen reader not run |
+| A11Y-LEARN-04 | Expand/collapse HTML preview, hints and example solution using keyboard. | Each disclosure exposes expanded state, controls a stable panel, and hidden content is not exposed while collapsed. | Pass in Vitest component test; native browser not run |
+| A11Y-LEARN-05 | Use a structured code editor and self-review checklist with keyboard at 200% zoom. | The editor has a programmatic label; checkbox names are available; focus is visible and horizontal overflow stays contained to code/preview where intended. | Not run |
 
 ## Execution record
 

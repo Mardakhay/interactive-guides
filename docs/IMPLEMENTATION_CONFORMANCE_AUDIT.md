@@ -1,7 +1,7 @@
 # Code-to-requirements conformance audit
 
 **Audit date:** 2026-10-30  
-**Audit baseline:** `a40c28f263869c93bf662b5d3597945c5d9daf31`  
+**Audit baseline:** `867c86f67a562bed3f803a92aae55a088337dfcb`  
 **Working branch:** `feat/learning-platform-foundation`
 
 This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md`, `CURRICULUM_AND_CONTENT.md`, `ROADMAP.md`, persistence/PWA documents and source-parity checklists. It is not native browser, mobile, screen-reader, production-deployment or editorial acceptance.
@@ -15,6 +15,7 @@ This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md
 - A bilingual Settings page exposes persisted UI language, the browser online/offline signal, actual local learner-data counts, backup access and an explicit no-cloud-sync notice.
 - All application routes are locale-prefixed; legacy unprefixed paths redirect to the saved language while preserving query/hash. Unsupported two/three-letter locale prefixes are repaired to the saved locale. The shared shell has explicit keyboard focus rings, and the mobile sidebar acts as a keyboard-managed dialog with focus trap, Escape close and focus restoration.
 - The reusable Modal provides labelled dialog semantics, initial focus, Tab/Shift+Tab containment, Escape/backdrop dismissal, focus restoration and body-scroll restoration. Search filters use a labelled group of mutually exclusive `aria-pressed` buttons rather than incomplete tab semantics.
+- Classic quiz result summaries and structured knowledge-check feedback are polite status regions; focus moves to newly rendered result feedback. Note autosave updates a polite status region after the existing debounce. Exercise preview/hints/solution disclosures have stable `aria-controls` targets and hidden/expanded states.
 - Separate classic/structured learner identities; local progress, bookmarks, notes, quiz results, structured activity, versioned storage, backup export/import and best-effort rollback.
 - PWA manifest/icons, app-shell precache, scoped asset runtime caching, SPA fallback and learner-approved update prompt.
 - CI coverage for lint, typecheck, unit/component tests, production build, bundle budgets and production-preview HTTP smoke.
@@ -40,7 +41,7 @@ Search includes classic lesson metadata, notes, structured lesson titles/descrip
 
 ## Verification boundary
 
-Exact-head CI on this audit baseline passed 55 test files / 337 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, 14 generated index assets and PWA files ([run #41044423286](https://github.com/Mardakhay/interactive-guides/actions/runs/41044423286)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
+Exact-head CI on this audit baseline passed 56 test files / 338 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, 14 generated index assets and PWA files ([run #41045918696](https://github.com/Mardakhay/interactive-guides/actions/runs/41045918696)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
 
 ## Safe continuation order
 
