@@ -202,7 +202,7 @@ async function main() {
 
   await mkdir(OUTPUT_ROOT, { recursive: true });
   const staleFiles = (await readdir(OUTPUT_ROOT)).filter((filename) =>
-    /^structured-(content|search|practice)-index\\.(en|ru)(?:\\.\\d+)?\\.json$/.test(filename),
+    /^structured-(content|search|practice)-index\.(en|ru)(?:\.\d+)?\.json$/.test(filename),
   );
   await Promise.all(staleFiles.map((filename) => unlink(join(OUTPUT_ROOT, filename))));
 
@@ -237,9 +237,8 @@ async function main() {
 
   process.stdout.write('Generated bounded bilingual search/practice indexes from ' + lessonIds.length + ' lesson folders.\n');
 }
-}
 
-main().catch((error) => {
+void main().catch((error) => {
   process.stderr.write((error instanceof Error ? error.stack : String(error)) + '\n');
   process.exitCode = 1;
 });
