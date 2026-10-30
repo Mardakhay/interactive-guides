@@ -23,7 +23,7 @@ The lesson schema carried `draft`, `review` and `published`, but the original re
 
 ## Search coverage
 
-Search includes classic lesson metadata, notes, structured lesson titles/descriptions/tags/outcomes and authored block text, plus 24-week month/week topics, practice descriptions, projects and supplementary-track topics. The structured index loads on the first meaningful query per locale and is cached in memory for the session. Knowledge-check answers/feedback and exercise hints/solutions are excluded from snippets. This is a local in-memory index, not a server search service.
+Search includes classic lesson metadata, notes, structured lesson titles/descriptions/tags/outcomes and authored block text, plus 24-week month/week topics, practice descriptions, projects and supplementary-track topics. The structured search index loads all registered lesson bodies for the selected locale on the first meaningful query and is cached in memory for the session. The Practice Center also reads the selected locale's lesson bodies to aggregate coding exercise blocks. This preserves a single source of truth and excludes hidden answer/solution fields, but cold-load transfer and latency should be measured before the curriculum grows further. Knowledge-check answers/feedback and exercise hints/solutions are excluded from snippets. This is a local in-memory index, not a server search service.
 
 ## Known functional gaps
 
@@ -44,7 +44,7 @@ Exact-head CI on this audit baseline passed the workflow's install, lint, typech
 
 1. Complete source parity and editorial review while retaining all legacy routes.
 2. Define and test learner-state retention before any cutover.
-3. Build a Practice Center and a separate evidence-based mastery/review model.
+3. Extend the Practice Center with an evidence-based mastery/review model only after an independent exercise-evaluation contract exists; benchmark and optimize the current search/practice content index.
 4. Complete app-wide locale, Settings, responsive/accessibility and native-browser acceptance.
 5. Approve Supabase reconciliation/security scope, then implement migrations, RLS and sync.
 6. Perform final review and production acceptance before changing PR #1 from Draft.

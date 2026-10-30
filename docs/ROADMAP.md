@@ -48,6 +48,7 @@ This is the one authoritative task list. Dated progress notes and superseded che
 - [ ] **Execute native browser acceptance for persistence and backup.** Test downloads, file picker/import, size limit, confirmation, replacement semantics, storage-denial/quota behavior and rollback messaging with synthetic learner data.
 - [ ] **Execute native PWA acceptance.** Test clean install, localized deep-link refresh, revisit of a previously loaded lesson offline, behavior for never-visited lessons, update defer/activation and mobile reflow. Record browser/OS/device and tested SHA.
 - [ ] **Review every 24-week learning outcome.** Map each requirement to evidence in a core lesson/practice task and record uncovered or duplicated outcomes.
+- [ ] **Measure and optimize structured content indexing.** Search and Practice currently load the selected locale's full structured lesson bodies on first use (up to 44 lazy chunks per locale). Record transferred bytes and cold/warm latency; if the cost is material, generate a lightweight localized index containing only approved searchable fields and exercise summaries, and test that hidden feedback/solutions remain excluded.
 - [ ] **Finish user-facing QA.** Audit uncommon strings, broken/stale references, keyboard/accessibility edge states, screenshots/README and learner journey from onboarding through practice/backup.
 
 ## P2 — Cloud and account capabilities
