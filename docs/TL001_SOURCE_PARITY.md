@@ -49,6 +49,18 @@ The legacy file has 12 sidebar navigation items, one command-search input, 20 in
 - Tests assert unrelated commands disappear, and a no-result state is announced and recoverable by clearing the query.
 - Full CI and the latest production-preview route smoke are still required after this change.
 
+## Bilingual structure and command-safety review — 2026-10-30
+
+A focused verification pass checked the actual structured JSON and existing regression coverage, not only the earlier crosswalk:
+
+- `git.fundamentals` EN/RU v13 contains 72 blocks per locale: 19 headings, 16 paragraphs, 2 callouts, 9 lists, 9 walkthroughs, 1 code block, 11 knowledge checks, 3 coding exercises, 1 command reference and 1 references block. Ordered block IDs and types align across locales; all 11 checks have the same option IDs and the same correct-answer IDs in EN/RU. Both records remain editorial status `review`.
+- `git.workflow-ci` EN/RU v10 contains 69 blocks per locale, including 19 checks, 5 walkthroughs and 5 coding exercises. Ordered block IDs/types and every check's option/correct-answer IDs align across locales. Both records remain editorial status `review`.
+- The Git Fundamentals quick reference contains 25 uniquely identified commands in four categories. It includes inspection-first commands, safe unstage/revert/fetch flows and explicit cautions for destructive `restore`, unpublished-only `commit --amend`, and fast-forward-only pull. It does not promote `git reset --hard` or `git push --force`.
+- Walkthroughs distinguish local Git commands from hosting-platform actions, warn that `.gitignore` does not revoke an exposed credential or remove historical commits, instruct token revocation/rotation before cleanup, preserve the local `.env` with `git rm --cached`, and limit rebase guidance to a learner's own unpublished branch with an abort path.
+- Existing regression coverage in `src/content/schemas/lessonContent.test.ts` and `src/content/gitReferenceParity.test.ts` checks locale block alignment, the 25-command inventory and unique IDs, absence of hard reset guidance, secret-leak response, least-privilege roles, safe rebase, fetch-vs-pull, Markdown, GitHub Pages and their assessed feedback.
+
+This verifies the current structured pair's structural alignment and selected high-risk concepts. It is **not** a full sentence-by-sentence editorial sign-off for every legacy paragraph, screenshot, code fragment or hosted-platform UI. The two lessons remain in review status, and no cutover is approved.
+
 ## Remaining release blockers
 
 1. Complete claim-by-claim and example-by-example technical review of both target lessons against all legacy sections; this focused crosswalk is an inventory, not an editorial sign-off.
