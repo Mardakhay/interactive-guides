@@ -9,6 +9,7 @@ Read these documents in order:
 3. [Full source content audit](./FULL_SOURCE_CONTENT_AUDIT.md) — Notion/HTML inventory, source-to-lesson mapping, coverage depth and open gaps.
 4. [Structured content audit](./CONTENT_AUDIT.md) — registered lesson catalog and schema guarantees versus editorial limits.
 5. [Git Reference source-to-block review](./TL001_SOURCE_PARITY.md) — focused content and interaction crosswalk; cutover remains blocked.
+6. [Git Workflow & CI/CD source-to-block review](./TL002_SOURCE_PARITY.md) — bilingual quiz and pipeline simulator crosswalk; branch canvas, tabs and sequential quiz parity remain open.
 6. [Legacy HTML inventory](./LEGACY_CONTENT_INVENTORY.md) — all original HTML source files and migration notes.
 7. [Week 14–15 source parity review](./CONTENT_PARITY_REVIEW_WEEK14-15.md) — focused React forms/shared-state review.
 8. [Product requirements](./PRODUCT_REQUIREMENTS.md), [architecture](./ARCHITECTURE.md), [persistence](./PERSISTENCE_AND_SUPABASE.md), [PWA/mobile](./PWA_AND_MOBILE.md), and [current roadmap](./ROADMAP.md). Historical dated roadmap/checkpoint notes are preserved in [ROADMAP_HISTORY.md](./ROADMAP_HISTORY.md).

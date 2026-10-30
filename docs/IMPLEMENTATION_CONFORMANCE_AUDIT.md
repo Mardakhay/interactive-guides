@@ -1,7 +1,7 @@
 # Code-to-requirements conformance audit
 
 **Audit date:** 2026-10-30  
-**Audit baseline:** `288cabb506ebc3a94a7f05a0e7073545a4d69c91`  
+**Audit baseline:** `d955e4478676acd5bd6588434f6eafce930e7354`  
 **Working branch:** `feat/learning-platform-foundation`
 
 This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md`, `CURRICULUM_AND_CONTENT.md`, `ROADMAP.md`, persistence/PWA documents and source-parity checklists. It is not native browser, mobile, screen-reader, production-deployment or editorial acceptance.
@@ -54,6 +54,15 @@ The six commits after the previous code audit baseline add and test these app-wi
 - The expanded undo guide distinguishes path-form `git reset`, `--soft`, default `--mixed`, and destructive `--hard`; it also explains the different index/working-tree effects of legacy `git checkout HEAD -- <file>` and modern `git restore` commands. Official `git-reset` and `git-log` references are included.
 - EN/RU regression assertions check the new version, inventory size and uniqueness, the documented reset modes, the default mixed behavior, and both official references. Exact-head CI passed all 344 tests in 62 files.
 - This improves source-concept/command parity but does not recreate the legacy sidebar accordion, fixed dark presentation or responsive source navigation. `tl-001` remains blocked.
+
+## Git Workflow pipeline simulator — 2026-10-30
+
+- `git.workflow-ci` EN/RU v11 adds one schema-validated `pipelineSimulation` block to the existing 69-block pair, preserving 70 aligned block IDs/types and all 19 source-concept knowledge checks in each locale.
+- The deterministic accessible interaction supports injection at checkout, install, lint, build, tests, security audit and deployment. Required pre-merge failure stops subsequent stages; informational dependency audit marks a warning and continues; post-merge deployment failure is reported as a release incident with a rollback action, not misrepresented as a failing pre-merge PR check.
+- A required-gate failure offers a simulated fix/new-commit action before rerunning, demonstrating that an old green/red result belongs to its original SHA. The stage controls expose pressed state; stage outcomes and recovery are announced in a localized live status.
+- Four component tests cover required failure/stop/new commit/rerun, informational audit continuation, post-merge rollback and Russian labels. The lesson schema validates the seven-stage order and gate classification; repository and generated-index search include the simulator's public text.
+- Exact-head [Actions #41057274229 (run #872)](https://github.com/Mardakhay/interactive-guides/actions/runs/41057274229) passed 63 test files / 348 tests, lint, typecheck, production build, 141 bundle budgets, 0 npm audit advisories and preview smoke for 13 routes and 14 generated content assets.
+- The legacy animated branch canvas, seven-tab navigation and sequential quiz/result/restart experience remain absent. This is meaningful pipeline-interaction parity, not complete source-widget parity; `tl-002` remains blocked.
 
 ## Verification boundary
 
