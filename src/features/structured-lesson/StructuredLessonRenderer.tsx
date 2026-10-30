@@ -889,14 +889,25 @@ function StructuredLessonTabs({
           })}
         </div>
       </div>
-      <div
-        id={panelId}
-        role="tabpanel"
-        aria-labelledby={tabId}
-        tabIndex={0}
-        className="min-w-0 pt-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
-      >
-        {renderBlocks(activeTab.blockIds)}
+      <div className="min-w-0">
+        {block.tabs.map((tab, index) => {
+          const selected = index === activeIndex;
+          const ownTabId = block.id + '-' + tab.id + '-tab';
+          const ownPanelId = block.id + '-' + tab.id + '-panel';
+          return (
+            <div
+              key={tab.id}
+              id={ownPanelId}
+              role="tabpanel"
+              aria-labelledby={ownTabId}
+              tabIndex={selected ? 0 : -1}
+              hidden={!selected}
+              className="min-w-0 pt-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+            >
+              {selected ? renderBlocks(tab.blockIds) : null}
+            </div>
+          );
+        })}
       </div>
     </section>
   );

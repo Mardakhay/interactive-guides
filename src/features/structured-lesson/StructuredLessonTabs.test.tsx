@@ -19,6 +19,11 @@ describe('Structured Git Workflow source tabs', () => {
     const tablist = screen.getByRole('tablist', { name: 'Git Workflow topics' });
     expect(tablist).toBeTruthy();
     expect(screen.getAllByRole('tab')).toHaveLength(7);
+    for (const tab of screen.getAllByRole('tab')) {
+      const panelId = tab.getAttribute('aria-controls');
+      expect(panelId).toBeTruthy();
+      expect(document.getElementById(panelId ?? '')).toBeTruthy();
+    }
     expect(screen.getByRole('tab', { name: 'Why Strategy' }).getAttribute('aria-selected')).toBe('true');
     expect(screen.getByText(/A branch strategy should make collaboration/i)).toBeTruthy();
     expect(screen.queryByRole('img', { name: 'Branch and commit graph' })).toBeNull();
