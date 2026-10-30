@@ -232,6 +232,18 @@ const branchFlowSimulationBlockSchema = z.object({
   }
 });
 
+const sequentialQuizBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal('sequentialQuiz'),
+  title: z.string().min(1),
+  description: z.string().min(1),
+  questionBlockIds: z.array(z.string().min(1)).length(10),
+}).superRefine((block, ctx) => {
+  if (new Set(block.questionBlockIds).size !== block.questionBlockIds.length) {
+    ctx.addIssue({ code: 'custom', path: ['questionBlockIds'], message: 'A sequential quiz must reference ten distinct questions' });
+  }
+});
+
 const pipelineSimulationBlockSchema = z.object({
   ...blockBase,
   type: z.literal('pipelineSimulation'),
@@ -265,6 +277,7 @@ export const lessonContentBlockSchema = z.discriminatedUnion('type', [
   referencesBlockSchema,
   pipelineSimulationBlockSchema,
   branchFlowSimulationBlockSchema,
+  sequentialQuizBlockSchema,
 ]);
 
 export const lessonTranslationSchema = z.object({
@@ -309,6 +322,29 @@ export const lessonTranslationSchema = z.object({
       message: 'Block IDs must be unique within a lesson translation',
     });
   }
+
+  const knowledgeCheckIds = new Set(lesson.blocks.filter((block) => block.type === 'knowledgeCheck').map((block) => block.id));
+  const sequentialQuestionIds = new Set<string>();
+  lesson.blocks.forEach((block, blockIndex) => {
+    if (block.type !== 'sequentialQuiz') return;
+    block.questionBlockIds.forEach((questionId, questionIndex) => {
+      if (!knowledgeCheckIds.has(questionId)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['blocks', blockIndex, 'questionBlockIds', questionIndex],
+          message: 'Sequential quiz references must resolve to a knowledgeCheck block in the same lesson',
+        });
+      }
+      if (sequentialQuestionIds.has(questionId)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['blocks', blockIndex, 'questionBlockIds', questionIndex],
+          message: 'A knowledgeCheck block can belong to only one sequential quiz',
+        });
+      }
+      sequentialQuestionIds.add(questionId);
+    });
+  });
 
   const hasReferences = lesson.blocks.some((block) => block.type === 'references');
   if (!hasReferences) {

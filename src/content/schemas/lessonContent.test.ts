@@ -1332,12 +1332,17 @@ describe('Git workflow lesson translation', () => {
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
-    expect(englishGitWorkflow.version).toBe(12);
-    expect(russianGitWorkflow.version).toBe(12);
+    expect(englishGitWorkflow.version).toBe(13);
+    expect(russianGitWorkflow.version).toBe(13);
     for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
       expect(lesson.updatedAt).toBe('2026-10-30');
 
-      const pipelineSimulation = lesson.blocks.find((block) => block.id === 'git-workflow-pipeline-simulation-ui');
+      const sequentialQuiz = lesson.blocks.find((block) => block.id === 'git-workflow-sequential-quiz');
+      expect(sequentialQuiz?.type).toBe('sequentialQuiz');
+      if (sequentialQuiz?.type !== 'sequentialQuiz') throw new Error('Sequential Git workflow quiz is missing');
+      expect(sequentialQuiz.questionBlockIds).toEqual(["hotfix-origin-check","branch-protection-check","git-flow-feature-target-check","ci-basics-check","review-comment-specificity-check","hotfix-back-merge-check","git-semver-minor-check","continuous-deployment-check","small-pr-review-check","npm-ci-lockfile-check"]);
+      expect(new Set(sequentialQuiz.questionBlockIds).size).toBe(10);
+            const pipelineSimulation = lesson.blocks.find((block) => block.id === 'git-workflow-pipeline-simulation-ui');
       expect(pipelineSimulation?.type).toBe('pipelineSimulation');
       if (pipelineSimulation?.type !== 'pipelineSimulation') throw new Error('Git workflow pipeline simulator is missing');
       expect(pipelineSimulation.stages.map((stage) => stage.id)).toEqual(['checkout', 'install', 'lint', 'build', 'test', 'security', 'deploy']);

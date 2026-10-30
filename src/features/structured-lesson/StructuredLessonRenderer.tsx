@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, Clipboard, ExternalLink, Lightbulb, RotateCcw } from 'lucide-react';
-import type { LessonContentBlock, LessonTranslation } from '@/content/schemas/lessonContent';
 import type { SupportedLocale } from '@/content/repository';
 import { useStructuredLearningStore } from './store';
 import { JavaScriptRunner } from './JavaScriptRunner';
 import { PipelineSimulation } from './PipelineSimulation';
 import { BranchFlowSimulation } from './BranchFlowSimulation';
+import type { LessonContentBlock, LessonTranslation } from '@/content/schemas/lessonContent';
+
+type KnowledgeCheckBlock = Extract<LessonContentBlock, { type: 'knowledgeCheck' }>;
+type SequentialQuizBlock = Extract<LessonContentBlock, { type: 'sequentialQuiz' }>;
 
 interface StructuredLessonRendererProps {
   lesson: LessonTranslation;
@@ -258,143 +261,6 @@ function SectionHeading({
   );
 }
 
-function KnowledgeCheck({
-  block,
-  locale,
-  lessonId,
-}: {
-  block: Extract<LessonContentBlock, { type: 'knowledgeCheck' }>;
-  locale: SupportedLocale;
-  lessonId: string;
-}) {
-  const [selected, setSelected] = useState<string[]>([]);
-  const [submitted, setSubmitted] = useState(false);
-  const feedbackRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    if (submitted) feedbackRef.current?.focus();
-  }, [submitted]);
-  const correctIds = block.options.filter((option) => option.correct).map((option) => option.id);
-  const isSelectionCorrect =
-    selected.length === correctIds.length &&
-    selected.every((id) => correctIds.includes(id));
-  const isCorrect = submitted && isSelectionCorrect;
-  const attemptKey = lessonId + '::' + block.id;
-  const attemptHistory = useStructuredLearningStore((state) => state.quizAttempts[attemptKey]);
-  const recordQuizAttempt = useStructuredLearningStore((state) => state.recordQuizAttempt);
-
-  const choose = (id: string) => {
-    if (submitted) return;
-    if (block.questionType === 'multi-select') {
-      setSelected((current) =>
-        current.includes(id) ? current.filter((value) => value !== id) : [...current, id],
-      );
-      return;
-    }
-    setSelected([id]);
-  };
-
-  const checkLabel = locale === 'ru' ? 'Проверить ответ' : 'Check answer';
-  const retryLabel = locale === 'ru' ? 'Попробовать ещё раз' : 'Try again';
-  const correctLabel = locale === 'ru' ? 'Верно' : 'Correct';
-  const reviewLabel = locale === 'ru' ? 'Нужно проверить ещё раз' : 'Not quite';
-  const multiLabel = locale === 'ru' ? 'Выбери все подходящие варианты' : 'Select all that apply';
-  const savedAttemptsLabel = locale === 'ru' ? 'Сохранено попыток:' : 'Saved attempts:';
-
-  return (
-    <section className="my-7 rounded-2xl border border-primary-200 bg-primary-50/70 p-4 sm:p-5" aria-labelledby={`${block.id}-prompt`}>
-      <div className="flex items-start gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-primary-700 shadow-subtle">
-          <Lightbulb className="h-4 w-4" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-primary-700">
-            {locale === 'ru' ? 'Проверь себя' : 'Knowledge check'}
-          </p>
-          <h3 id={`${block.id}-prompt`} className="mt-2 text-base font-semibold leading-6 text-neutral-950">
-            {block.prompt}
-          </h3>
-          <p className="mt-1 text-xs text-neutral-500">{savedAttemptsLabel} {attemptHistory?.length ?? 0}</p>
-          {block.questionType === 'multi-select' && (
-            <p className="mt-1 text-sm text-neutral-600">{multiLabel}</p>
-          )}
-        </div>
-      </div>
-      <div className="mt-4 space-y-2">
-        {block.options.map((option) => {
-          const active = selected.includes(option.id);
-          const revealed = submitted && (active || option.correct);
-          return (
-            <button
-              key={option.id}
-              type="button"
-              onClick={() => choose(option.id)}
-              aria-pressed={active}
-              className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700 ${
-                active ? 'border-primary-500 bg-white shadow-subtle' : 'border-neutral-200 bg-white hover:border-primary-300'
-              } ${submitted && option.correct ? 'ring-1 ring-emerald-400' : ''} ${submitted && active && !option.correct ? 'ring-1 ring-rose-400' : ''}`}
-            >
-              <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${
-                active ? 'border-primary-600 bg-primary-600 text-white' : 'border-neutral-300 text-neutral-500'
-              }`}>
-                {option.id.toUpperCase()}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium text-neutral-800">{option.text}</span>
-                {revealed && (
-                  <span className="mt-1.5 block text-sm leading-5 text-neutral-600">{option.feedback}</span>
-                )}
-              </span>
-              {submitted && option.correct && <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />}
-            </button>
-          );
-        })}
-      </div>
-      <div className="mt-4 flex flex-wrap items-center gap-3">
-        {!submitted ? (
-          <button
-            type="button"
-            disabled={selected.length === 0}
-            onClick={() => {
-              recordQuizAttempt(lessonId, block.id, selected, isSelectionCorrect);
-              setSubmitted(true);
-            }}
-            className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-800 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
-          >
-            {checkLabel}
-          </button>
-        ) : (
-          <>
-            <div
-              ref={feedbackRef}
-              role="status"
-              aria-live="polite"
-              aria-atomic="true"
-              aria-label={locale === 'ru' ? 'Обратная связь по ответу' : 'Knowledge check feedback'}
-              tabIndex={-1}
-              className="rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
-            >
-              <p className={`text-sm font-semibold ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>
-                {isCorrect ? correctLabel : reviewLabel}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-neutral-700">{block.explanation}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                setSelected([]);
-                setSubmitted(false);
-              }}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
-            >
-              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-              {retryLabel}
-            </button>
-          </>
-        )}
-      </div>
-    </section>
-  );
-}
 
 function CodingExercise({
   block,
@@ -604,7 +470,170 @@ function CodingExercise({
   );
 }
 
-function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonId: string) {
+export function SequentialKnowledgeQuiz({
+  block,
+  questions,
+  locale,
+  lessonId,
+}: {
+  block: SequentialQuizBlock;
+  questions: KnowledgeCheckBlock[];
+  locale: SupportedLocale;
+  lessonId: string;
+}) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [answered, setAnswered] = useState(false);
+  const [finished, setFinished] = useState(false);
+  const [runNumber, setRunNumber] = useState(0);
+  const resultRef = useRef<HTMLDivElement | null>(null);
+  const isRu = locale === 'ru';
+
+  const labels = isRu ? {
+    question: 'Вопрос',
+    of: 'из',
+    next: 'Следующий вопрос',
+    finish: 'Завершить тест',
+    restart: 'Начать заново',
+    score: 'Итоговый результат',
+    correct: 'верных ответов',
+    excellent: 'Отличный результат! Продолжай применять знания на практике.',
+    good: 'Хорошая основа. Повтори темы вопросов, в которых ошибся.',
+    review: 'Повтори основные разделы и попробуй ещё раз.',
+    completion: 'Тест завершён.',
+    progress: 'Прогресс теста',
+    error: 'Не удалось загрузить все вопросы теста.',
+  } : {
+    question: 'Question',
+    of: 'of',
+    next: 'Next question',
+    finish: 'Finish quiz',
+    restart: 'Restart quiz',
+    score: 'Final score',
+    correct: 'correct answers',
+    excellent: 'Excellent result! Keep applying these concepts in practice.',
+    good: 'Good foundation. Review the topics behind missed answers.',
+    review: 'Revisit the core sections and try again.',
+    completion: 'Quiz completed.',
+    progress: 'Quiz progress',
+    error: 'The quiz questions could not all be loaded.',
+  };
+
+  const activeQuestion = questions[currentIndex];
+  useEffect(() => {
+    if (finished) resultRef.current?.focus();
+  }, [finished]);
+
+  const handleAnswered = (isCorrect: boolean) => {
+    if (answered) return;
+    if (isCorrect) setScore((value) => value + 1);
+    setAnswered(true);
+  };
+
+  const advance = () => {
+    if (!answered) return;
+    if (currentIndex === questions.length - 1) {
+      setFinished(true);
+      return;
+    }
+    setCurrentIndex((value) => value + 1);
+    setAnswered(false);
+  };
+
+  const restart = () => {
+    setCurrentIndex(0);
+    setScore(0);
+    setAnswered(false);
+    setFinished(false);
+    setRunNumber((value) => value + 1);
+  };
+
+  if (questions.length !== block.questionBlockIds.length || !activeQuestion) {
+    return (
+      <section className="my-7 rounded-2xl border border-rose-200 bg-rose-50 p-4" role="alert">
+        {labels.error}
+      </section>
+    );
+  }
+
+  const percent = Math.round((score / questions.length) * 100);
+  const progressValue = finished ? questions.length : currentIndex + (answered ? 1 : 0);
+  const resultMessage = percent >= 80 ? labels.excellent : percent >= 50 ? labels.good : labels.review;
+
+  return (
+    <section className="my-8 rounded-2xl border border-neutral-200 bg-white p-4 shadow-subtle sm:p-6" aria-labelledby={block.id + '-title'}>
+      <h3 id={block.id + '-title'} className="text-xl font-semibold text-neutral-950">{block.title}</h3>
+      <p className="mt-2 text-sm leading-6 text-neutral-700">{block.description}</p>
+      <div className="mt-5">
+        <div className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-neutral-600">
+          <span>{labels.question} {currentIndex + 1} {labels.of} {questions.length}</span>
+          <span>{progressValue} / {questions.length}</span>
+        </div>
+        <div
+          role="progressbar"
+          aria-label={labels.progress}
+          aria-valuemin={0}
+          aria-valuemax={questions.length}
+          aria-valuenow={progressValue}
+          className="h-2 overflow-hidden rounded-full bg-neutral-100"
+        >
+          <div className="h-full rounded-full bg-primary-700 transition-[width]" style={{ width: (progressValue / questions.length) * 100 + '%' }} />
+        </div>
+      </div>
+
+      {!finished && (
+        <>
+          <p className="mt-4 text-xs font-medium text-neutral-500">{labels.question} {currentIndex + 1} / {questions.length}</p>
+          <KnowledgeCheck
+            key={runNumber + ':' + activeQuestion.id}
+            block={activeQuestion}
+            locale={locale}
+            lessonId={lessonId}
+            onAnswered={handleAnswered}
+            focusPrompt
+          />
+          {answered && (
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                onClick={advance}
+                className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+              >
+                {currentIndex === questions.length - 1 ? labels.finish : labels.next}
+              </button>
+            </div>
+          )}
+        </>
+      )}
+
+      {finished && (
+        <div
+          ref={resultRef}
+          tabIndex={-1}
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="mt-6 rounded-xl border border-primary-200 bg-primary-50 p-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+        >
+          <p className="text-xs font-semibold uppercase tracking-wide text-primary-800">{labels.completion}</p>
+          <h4 className="mt-2 text-2xl font-bold text-neutral-950">{labels.score}: {score} / {questions.length} ({percent}%)</h4>
+          <p className="mt-2 text-sm font-medium text-neutral-800">{labels.correct}</p>
+          <p className="mt-3 text-sm leading-6 text-neutral-700">{resultMessage}</p>
+          <button
+            type="button"
+            onClick={restart}
+            className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl border border-neutral-300 bg-white px-5 py-2.5 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+          >
+            <RotateCcw className="h-4 w-4" aria-hidden="true" />
+            {labels.restart}
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonId: string, sequentialQuestionIds: ReadonlySet<string>, questionBlocksById: ReadonlyMap<string, KnowledgeCheckBlock>) {
   switch (block.type) {
     case 'heading':
       if (block.level === 2) return <SectionHeading key={block.id} block={block} lessonId={lessonId} locale={locale} />;
@@ -661,7 +690,12 @@ function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonI
         </div>
       );
     case 'knowledgeCheck':
+      if (sequentialQuestionIds.has(block.id)) return null;
       return <KnowledgeCheck key={block.id} block={block} locale={locale} lessonId={lessonId} />;
+    case 'sequentialQuiz': {
+      const questions = block.questionBlockIds.map((id) => questionBlocksById.get(id)).filter((question): question is KnowledgeCheckBlock => Boolean(question));
+      return <SequentialKnowledgeQuiz key={block.id} block={block} questions={questions} locale={locale} lessonId={lessonId} />;
+    }
     case 'codingExercise':
       return <CodingExercise key={block.id} block={block} locale={locale} lessonId={lessonId} />;
     case 'pipelineSimulation':
@@ -692,10 +726,17 @@ function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonI
 
 export function StructuredLessonRenderer({ lesson }: StructuredLessonRendererProps) {
   const locale = lesson.locale as SupportedLocale;
+  const questionBlocksById = new Map<string, KnowledgeCheckBlock>();
+  for (const block of lesson.blocks) {
+    if (block.type === 'knowledgeCheck') questionBlocksById.set(block.id, block);
+  }
+  const sequentialQuestionIds = new Set(
+    lesson.blocks.flatMap((block) => block.type === 'sequentialQuiz' ? block.questionBlockIds : []),
+  );
 
   return (
     <article className="structured-lesson min-w-0">
-      {lesson.blocks.map((block) => renderBlock(block, locale, lesson.id))}
+      {lesson.blocks.map((block) => renderBlock(block, locale, lesson.id, sequentialQuestionIds, questionBlocksById))}
     </article>
   );
 }

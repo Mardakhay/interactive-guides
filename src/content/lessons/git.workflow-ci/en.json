@@ -1,7 +1,7 @@
 {
   "id": "git.workflow-ci",
   "locale": "en",
-  "version": 12,
+  "version": 13,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-30",
@@ -677,6 +677,24 @@
       "id": "hotfix-back-merge-guidance",
       "type": "paragraph",
       "text": "In Git Flow, a hotfix usually starts from the production branch (`main` or `master`) so unfinished work in `develop` is not accidentally released. After the fix is reviewed and merged into production, back-merge it into `develop` and any maintained release branch that also needs the fix. Otherwise the next release cut from `develop` can reintroduce the same bug. This is specific to workflows with a long-lived integration branch: a team using short-lived GitHub Flow branches may not have a `develop` branch at all, so follow the repository's agreed branch and release policy."
+    },
+    {
+      "id": "git-workflow-sequential-quiz",
+      "type": "sequentialQuiz",
+      "title": "Git Workflow knowledge quiz",
+      "description": "Answer the ten source-aligned questions one at a time. Each answer is recorded under its existing knowledge-check ID; the final score summarizes this run without creating a second learner record.",
+      "questionBlockIds": [
+        "hotfix-origin-check",
+        "branch-protection-check",
+        "git-flow-feature-target-check",
+        "ci-basics-check",
+        "review-comment-specificity-check",
+        "hotfix-back-merge-check",
+        "git-semver-minor-check",
+        "continuous-deployment-check",
+        "small-pr-review-check",
+        "npm-ci-lockfile-check"
+      ]
     },
     {
       "id": "hotfix-back-merge-check",

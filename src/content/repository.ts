@@ -92,6 +92,8 @@ export function getSearchableContentBlockText(block: LessonContentBlock): string
       return block.title + ' ' + block.description + ' ' + block.stages.map((stage) => stage.label + ' ' + stage.description + ' ' + stage.successMessage + ' ' + stage.failureMessage).join(' ');
     case 'branchFlowSimulation':
       return block.title + ' ' + block.description + ' ' + block.actions.map((action) => action.label + ' ' + action.description).join(' ');
+    case 'sequentialQuiz':
+      return block.title + ' ' + block.description;
     default:
       return '';
   }

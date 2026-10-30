@@ -1,7 +1,7 @@
 {
   "id": "git.workflow-ci",
   "locale": "ru",
-  "version": 12,
+  "version": 13,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-30",
@@ -677,6 +677,24 @@
       "id": "hotfix-back-merge-guidance",
       "type": "paragraph",
       "text": "В Git Flow hotfix обычно создаётся от production-ветки (`main` или `master`), чтобы незавершённая работа из `develop` случайно не попала в выпуск. После ревью и слияния исправления в production его нужно обратно влить в `develop` и в поддерживаемые release-ветки, которым тоже нужен этот фикс. Иначе следующий релиз, созданный из `develop`, может вернуть ту же ошибку. Это правило относится к workflow с долгоживущей интеграционной веткой: в GitHub Flow с короткоживущими ветками `develop` может вообще не существовать, поэтому следуй согласованным правилам ветвления и релизов репозитория."
+    },
+    {
+      "id": "git-workflow-sequential-quiz",
+      "type": "sequentialQuiz",
+      "title": "Итоговый тест по Git Workflow",
+      "description": "Ответь на десять вопросов по очереди. Каждый ответ сохраняется под существующим ID knowledge check; итоговый балл суммирует текущую попытку и не создаёт отдельную запись результата.",
+      "questionBlockIds": [
+        "hotfix-origin-check",
+        "branch-protection-check",
+        "git-flow-feature-target-check",
+        "ci-basics-check",
+        "review-comment-specificity-check",
+        "hotfix-back-merge-check",
+        "git-semver-minor-check",
+        "continuous-deployment-check",
+        "small-pr-review-check",
+        "npm-ci-lockfile-check"
+      ]
     },
     {
       "id": "hotfix-back-merge-check",
