@@ -823,12 +823,19 @@ function StructuredLessonTabs({
   renderBlocks: (blockIds: string[]) => ReactNode;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [visitedTabs, setVisitedTabs] = useState<ReadonlySet<number>>(() => new Set([0]));
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const activeTab = block.tabs[activeIndex];
 
   const activateTab = (index: number, moveFocus: boolean) => {
     const nextIndex = (index + block.tabs.length) % block.tabs.length;
     setActiveIndex(nextIndex);
+    setVisitedTabs((current) => {
+      if (current.has(nextIndex)) return current;
+      const next = new Set(current);
+      next.add(nextIndex);
+      return next;
+    });
     if (moveFocus) tabRefs.current[nextIndex]?.focus();
   };
 
@@ -875,7 +882,7 @@ function StructuredLessonTabs({
                 aria-selected={selected}
                 aria-controls={ownPanelId}
                 tabIndex={selected ? 0 : -1}
-                onClick={() => setActiveIndex(index)}
+                onClick={() => activateTab(index, false)}
                 onKeyDown={(event) => handleKeyDown(event, index)}
                 className={'min-h-11 whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary-700 ' +
                   (selected ? 'border-primary-700 text-primary-800' : 'border-transparent text-neutral-600 hover:border-neutral-300 hover:text-neutral-950')}
@@ -901,7 +908,7 @@ function StructuredLessonTabs({
               hidden={!selected}
               className="min-w-0 pt-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
             >
-              {selected ? renderBlocks(tab.blockIds) : null}
+              {visitedTabs.has(index) ? renderBlocks(tab.blockIds) : null}
             </div>
           );
         })}
