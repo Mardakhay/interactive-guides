@@ -43,6 +43,57 @@ const curricula = {
   ru: bootcampCurriculumSchema.parse(russianCurriculum),
 } as const;
 
+/** Returns a lightweight lesson summary without loading its full content body. */
+export function getStructuredLessonMetadata(id: string, locale: SupportedLocale): StructuredLessonMetadata | undefined {
+  const entry = lessonFilesByKey.get(`${locale}:${id}`);
+  if (!entry) return undefined;
+  return { id: entry.id, locale: entry.locale, title: entry.title, status: entry.status };
+}
+
+/** Loads and validates one lesson body on demand so opening one lesson does not download all lessons. */
+export async function getStructuredLesson(id: string, locale: SupportedLocale): Promise<LessonTranslation | undefined> {
+  const entry = lessonFilesByKey.get(`${locale}:${id}`);
+  if (!entry) return undefined;
+  if (entry.status === 'draft') return undefined;
+  const load = lessonBodies[entry.filePath];
+  if (!load) return undefined;
+  const lesson = lessonTranslationSchema.parse(await load());
+  if (lesson.id !== id || lesson.locale !== locale) {
+    throw new Error(`Lesson manifest mismatch for ${locale}:${id}`);
+  }
+  if (lesson.status !== entry.status) {
+    throw new Error(`Publication status mismatch for ${locale}:${id}; update lessonManifest.ts with the reviewed status.`);
+  }
+  return lesson;
+}
+
+export function getSearchableContentBlockText(block: LessonContentBlock): string {
+  switch (block.type) {
+    case 'heading':
+    case 'paragraph':
+      return block.text;
+    case 'list':
+      return block.items.join(' ');
+    case 'commandReference':
+      return block.categories.map((category) => category.title + ' ' + category.items.map((item) => item.command + ' ' + item.description).join(' ')).join(' ');
+    case 'callout':
+      return block.title + ' ' + block.text;
+    case 'code':
+      return block.language + ' ' + (block.caption ?? '') + ' ' + block.code;
+    case 'codeWalkthrough':
+      return block.language + ' ' + block.code + ' ' + block.steps.map((step) => step.title + ' ' + step.explanation).join(' ');
+    case 'knowledgeCheck':
+      return block.prompt;
+    case 'codingExercise':
+      return block.title + ' ' + block.context + ' ' + block.instructions.join(' ') + ' ' + block.requirements.join(' ') + ' ' + block.successCriteria.join(' ');
+    case 'references':
+      return block.items.map((item) => item.title + ' ' + item.url).join(' ');
+    default:
+      return '';
+  }
+}
+
+
 export interface StructuredPracticeExercise {
   readonly lessonId: string;
   readonly lessonTitle: string;

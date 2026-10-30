@@ -1,5 +1,6 @@
 import { readdir, readFile, mkdir, writeFile } from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
+import process from 'node:process';
 import { gzipSync } from 'node:zlib';
 import { join, resolve } from 'node:path';
 
@@ -161,7 +162,7 @@ async function main() {
     const gzipBytes = gzipSync(serialized, { level: 9 }).byteLength;
     process.stdout.write(
       'Generated ' + locale.toUpperCase() + ' structured index: '
-      + index.searchDocuments.length + ' lesson documents, '
+      + index.searchDocuments.length + ' lesson documents from ' + indexedLessonCount + ' paired lesson folders, '
       + index.practiceExercises.length + ' exercises, '
       + rawBytes.toLocaleString('en-US') + ' bytes raw / '
       + gzipBytes.toLocaleString('en-US') + ' bytes gzip.\n',
