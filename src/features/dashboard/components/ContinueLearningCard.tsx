@@ -4,7 +4,7 @@ import { getCategoryById, getCategoryIcon } from '@/features/content';
 import { getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
 import { Card, Badge, Button } from '@/components/ui';
 import { EmptyState } from '@/components/feedback';
-import { coursePath } from '@/app/router/routes';
+import { coursePath, localizedPath } from '@/app/router/routes';
 import type { ContinueLearningInfo } from '../types';
 
 interface ContinueLearningCardProps {
@@ -21,7 +21,7 @@ export function ContinueLearningCard({ continueLearning }: ContinueLearningCardP
         message={translate(locale, 'noLessonsStartedMessage')}
         icon={Compass}
         action={
-          <Link to={coursePath('start-here')}>
+          <Link to={localizedPath(coursePath('start-here'), locale)}>
             <Button variant="primary" size="sm">
               {translate(locale, 'startHere')}
             </Button>
@@ -38,7 +38,7 @@ export function ContinueLearningCard({ continueLearning }: ContinueLearningCardP
     : continueLearning.categoryName;
 
   return (
-    <Link to={continueLearning.href}>
+    <Link to={localizedPath(continueLearning.href, locale)}>
       <Card interactive className="group flex items-center gap-4 p-5">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
           <CategoryIcon className="h-6 w-6" />

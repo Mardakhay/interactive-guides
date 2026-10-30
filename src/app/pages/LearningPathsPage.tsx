@@ -5,7 +5,7 @@ import { getLearningPaths } from '@/features/learning-paths';
 import { getLearningPathLessonIds } from '@/features/learning-paths';
 import { useProgressStore, computeProgressStats } from '@/features/progress';
 import { Card, Badge, ProgressBar } from '@/components/ui';
-import { learningPathDetailPath } from '@/app/router/routes';
+import { learningPathDetailPath, localizedPath } from '@/app/router/routes';
 import { DIFFICULTY_COLORS } from '@/lib/constants';
 import { formatLessonCount, getLocalizedDifficulty, getLocalizedLearningPathCopy, translate, useUiLocale } from '@/features/localization';
 
@@ -33,7 +33,7 @@ export default function LearningPathsPage() {
           const lessonIds = getLearningPathLessonIds(path.id);
           const stats = computeProgressStats(progressLessons, lessonIds);
           return (
-            <Link key={path.id} to={learningPathDetailPath(path.id)}>
+            <Link key={path.id} to={localizedPath(learningPathDetailPath(path.id), locale)}>
               <Card interactive className="group flex h-full flex-col p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600">

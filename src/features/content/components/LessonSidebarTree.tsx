@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, FileText } from 'lucide-react';
 import { getCategories, getLessonsByCategory, getCategoryIcon } from '@/features/content';
-import { lessonPath } from '@/app/router/routes';
+import { lessonPath, localizedPath } from '@/app/router/routes';
 import { cn } from '@/lib/utils';
 import { getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
 
@@ -74,7 +74,7 @@ export function LessonSidebarTree({ currentLessonId, currentCategoryId }: Lesson
                   return (
                     <li key={lesson.id}>
                       <Link
-                        to={lessonPath(lesson.id)}
+                        to={localizedPath(lessonPath(lesson.id), locale)}
                         aria-current={isCurrent ? 'page' : undefined}
                         className={cn(
                           'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors',

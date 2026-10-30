@@ -3,6 +3,7 @@ import { Bookmark, StickyNote } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { EmptyState } from '@/components/feedback';
 import { getCategoryById } from '@/features/content';
+import { localizedPath } from '@/app/router/routes';
 import { getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
 import type { ActivityItem } from '../types';
 
@@ -27,7 +28,7 @@ export function RecentActivity({ items }: RecentActivityProps) {
     <ul className="space-y-2">
       {items.map((item) => (
         <li key={`${item.kind}-${item.lessonId}`}>
-          <Link to={item.href}>
+          <Link to={localizedPath(item.href, locale)}>
             <Card interactive className="group flex items-start gap-3 p-4">
               <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500">
                 {item.kind === 'bookmark' ? (

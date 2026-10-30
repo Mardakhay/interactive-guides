@@ -8,7 +8,7 @@ import { Card, Badge, ProgressBar } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { EmptyState } from '@/components/feedback';
 import { DIFFICULTY_COLORS } from '@/lib/constants';
-import { ROUTE_PATHS, lessonPath } from '@/app/router/routes';
+import { ROUTE_PATHS, lessonPath, localizedPath } from '@/app/router/routes';
 import { cn } from '@/lib/utils';
 import { formatLessonCount, getLocalizedCategoryCopy, getLocalizedDifficulty, translate, useUiLocale } from '@/features/localization';
 
@@ -33,7 +33,7 @@ export default function CourseDetailPage() {
           title={translate(locale, 'categoryNotFound')}
           message={translate(locale, 'categoryNotFoundMessage')}
           action={
-            <Link to={ROUTE_PATHS.COURSES} className="text-sm font-medium text-primary-600 hover:text-primary-700">
+            <Link to={localizedPath(ROUTE_PATHS.COURSES, locale)} className="text-sm font-medium text-primary-600 hover:text-primary-700">
               {translate(locale, 'backToCatalog')}
             </Link>
           }
@@ -79,7 +79,7 @@ export default function CourseDetailPage() {
         {lessons.map((lesson, index) => {
           const status = progressLessons[lesson.id]?.status ?? 'not-started';
           return (
-            <Link key={lesson.id} to={lessonPath(lesson.id)}>
+            <Link key={lesson.id} to={localizedPath(lessonPath(lesson.id), locale)}>
               <Card interactive className="group flex items-center gap-4 p-4">
                 <div
                   className={cn(
