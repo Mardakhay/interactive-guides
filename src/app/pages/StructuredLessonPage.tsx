@@ -78,8 +78,10 @@ export default function StructuredLessonPage() {
     };
   }, [lesson]);
 
+  const currentLessonId = lesson?.id;
+
   useEffect(() => {
-    if (!lesson || !window.location.hash) return;
+    if (!currentLessonId || !window.location.hash) return;
     let anchorId: string;
     try {
       anchorId = decodeURIComponent(window.location.hash.slice(1));
@@ -87,7 +89,7 @@ export default function StructuredLessonPage() {
       return;
     }
     document.getElementById(anchorId)?.scrollIntoView?.({ block: 'start' });
-  }, [lesson?.id]);
+  }, [currentLessonId]);
 
   const week = lesson ? getWeekForLesson(lesson.id, locale) : undefined;
   const supplementaryTrack = lesson && !week ? getSupplementaryTrackForLesson(lesson.id, locale) : undefined;
