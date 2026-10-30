@@ -34,7 +34,7 @@ describe('SequentialKnowledgeQuiz', () => {
     render(<SequentialKnowledgeQuiz block={block} questions={questions} locale="en" lessonId={lesson.id} />);
 
     expect(questions).toHaveLength(10);
-    expect(screen.getByRole('progressbar', { name: 'Quiz progress' }).getAttribute('aria-valuenow')).toBe('0');
+    expect(screen.getByRole('progressbar', { name: 'Quiz progress' }).getAttribute('aria-valuenow')).toBe('1');
     expect(screen.getByText(questions[0].prompt)).toBeTruthy();
 
     chooseCorrect(questions[0]);
@@ -95,7 +95,7 @@ describe('SequentialKnowledgeQuiz', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Restart quiz' }));
     expect(screen.getByText(questions[0].prompt)).toBeTruthy();
-    expect(screen.getByRole('progressbar', { name: 'Quiz progress' }).getAttribute('aria-valuenow')).toBe('0');
+    expect(screen.getByRole('progressbar', { name: 'Quiz progress' }).getAttribute('aria-valuenow')).toBe('1');
   });
 
   it('localizes progress, navigation and feedback in Russian', async () => {
