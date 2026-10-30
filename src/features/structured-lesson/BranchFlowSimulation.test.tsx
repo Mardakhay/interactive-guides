@@ -26,7 +26,7 @@ describe('BranchFlowSimulation', () => {
 
     expect(screen.getByRole('status', { name: 'Commit history status' })).toHaveTextContent('The feature branch was merged into develop.');
     expect(screen.getByRole('img', { name: 'Branch and commit graph' })).toBeTruthy();
-    expect(screen.getByText('feature')).toBeTruthy();
+    expect(screen.getAllByText('feature')).toHaveLength(2);
   });
 
   it('requires a hotfix back-merge before a new release', async () => {
