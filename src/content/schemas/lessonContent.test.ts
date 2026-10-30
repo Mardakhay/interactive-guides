@@ -1337,6 +1337,7 @@ describe('Git workflow lesson translation', () => {
     for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
       expect(lesson.updatedAt).toBe('2026-10-30');
 
+      expect(lesson.blocks.filter((block) => block.type === 'tabbedContent')).toHaveLength(1);
       const sourceTabs = lesson.blocks.find((block) => block.id === 'git-workflow-source-tabs');
       expect(sourceTabs?.type).toBe('tabbedContent');
       if (sourceTabs?.type !== 'tabbedContent') throw new Error('Seven Git Workflow source tabs are missing');

@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type KeyboardEvent, type ReactNode, useEffect, useRef, useState } from 'react';
 import { Check, Clipboard, ExternalLink, Lightbulb, RotateCcw } from 'lucide-react';
 import type { SupportedLocale } from '@/content/repository';
 import { useStructuredLearningStore } from './store';
@@ -832,7 +832,7 @@ function StructuredLessonTabs({
     if (moveFocus) tabRefs.current[nextIndex]?.focus();
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (event.key === 'ArrowRight') {
       event.preventDefault();
       activateTab(index + 1, true);
