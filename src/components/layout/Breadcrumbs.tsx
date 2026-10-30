@@ -21,7 +21,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
                 {item.label}
               </Link>
             ) : (
-              <span className={isLast ? 'font-medium text-neutral-900' : 'text-neutral-500'}>
+              <span aria-current={isLast ? 'page' : undefined} className={isLast ? 'font-medium text-neutral-900' : 'text-neutral-500'}>
                 {item.label}
               </span>
             )}

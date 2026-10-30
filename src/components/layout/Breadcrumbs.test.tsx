@@ -25,5 +25,6 @@ describe('Breadcrumbs locale-aware links', () => {
     expect(nav.querySelector('a[href="/ru/courses"]')).toBeInTheDocument();
     expect(nav.querySelector('a[href="/ru/paths/frontend"]')).toBeInTheDocument();
     expect(nav.querySelector('a[href="/courses"]')).toBeNull();
+    expect(screen.getByText('Current lesson')).toHaveAttribute('aria-current', 'page');
   });
 });

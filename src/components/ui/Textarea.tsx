@@ -6,7 +6,7 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, invalid = false, ...props }, ref) => {
+  ({ className, invalid = false, 'aria-invalid': ariaInvalid, ...props }, ref) => {
     return (
       <textarea
         ref={ref}
@@ -21,6 +21,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           className,
         )}
         {...props}
+        aria-invalid={invalid || ariaInvalid || undefined}
       />
     );
   },
