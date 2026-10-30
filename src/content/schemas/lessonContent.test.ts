@@ -2158,3 +2158,13 @@ describe('React forms cross-field validation source coverage', () => {
     }
   });
 });
+describe('lesson publication status policy', () => {
+  it('rejects publishing a translation that is still marked review-needed', () => {
+    const candidate = {
+      ...englishLesson,
+      status: 'published',
+      translationStatus: 'review-needed',
+    };
+    expect(lessonTranslationSchema.safeParse(candidate).success).toBe(false);
+  });
+});

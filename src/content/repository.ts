@@ -16,9 +16,9 @@ export interface StructuredLessonMetadata {
 
 export interface StructuredLessonSearchDocument extends StructuredLessonMetadata {
   readonly description: string;
-  readonly difficulty: string;
+  readonly difficulty: LessonTranslation['difficulty'];
   readonly estimatedMinutes: number;
-  readonly tags: readonly string[];
+  readonly tags: LessonTranslation['tags'];
   readonly learningOutcomes: readonly string[];
   readonly searchText: string;
 }
