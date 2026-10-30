@@ -1,6 +1,6 @@
 # Browser and device smoke-test checklist
 
-**Status as of 2026-10-30: automated preview HTTP smoke passes; native browser/device acceptance has not been run.** Exact-head CI at `4a84793f340aa1d00471ff8265f83cfc1b2c1380` passed [run #41032390443](https://github.com/Mardakhay/interactive-guides/actions/runs/41032390443): 49 test files / 325 tests, lint, typecheck, production build, 127 JavaScript chunk budgets, and HTTP smoke for six deep routes including `/practice` and `/settings`, plus manifest, service worker and PWA assets. This automated smoke does not mark any native install/offline/storage/accessibility/mobile case as passed.
+**Status as of 2026-10-30: automated preview HTTP smoke passes; native browser/device acceptance has not been run.** Feature-branch CI at `f25e87e65fd05be5aa49fcde590489325f0bc40f` passed [run #41035799497](https://github.com/Mardakhay/interactive-guides/actions/runs/41035799497): install, lint, typecheck, 49 test files, production build, bundle budgets and HTTP smoke for six deep routes plus manifest, service worker and PWA assets. Production build emits six search chunks and one dedicated practice chunk per locale; the largest built chunk is about 276 KB raw / 69 KB gzip. The smoke checks HTTP routes/assets only; do not use it to mark install, offline, storage, accessibility or mobile cases as passed.
 
 ## Safe setup and evidence
 
@@ -64,6 +64,15 @@ These cases are partly exercised with deterministic Storage API mocks in Vitest;
 | S-03 | Use browser/DevTools controls or a supported test harness to switch the browser offline/online. | The network status follows `navigator.onLine`; the explanatory text does not promise that all lessons are cached or available offline. | Not run |
 | S-04 | Open backup and restore from Settings. | Navigation reaches the existing backup/restore flow; replacement confirmation and restore safeguards remain intact. | Not run |
 | S-05 | Inspect the cloud and appearance sections. | UI states that cloud account/sync is not configured and no theme toggle is currently implemented; no non-functional toggles are presented. | Not run |
+
+## F. Generated search/practice index transfer
+
+| ID | Procedure | Expected result | Outcome / notes |
+|---|---|---|---|
+| IDX-01 | In DevTools Network, open Search and enter a query in English, then repeat in Russian in a clean browser cache. | Search requests the six generated search parts for the active locale; it does not request the opposite locale or all 44 full lesson JSON chunks. Record transferred bytes and cold/warm timing. | Not run |
+| IDX-02 | In a separate clean browser cache, open `/practice` directly. | Practice requests only the locale's dedicated practice index, not the six full-text search parts or all lesson chunks. | Not run |
+| IDX-03 | Open a result/Practice exercise and then navigate to its lesson. | Only the selected lesson's full lesson chunk is fetched on demand; the generated index does not replace or eagerly download lesson bodies. | Not run |
+| IDX-04 | Inspect generated network payloads/search results for a quiz and coding exercise. | Quiz options/answer feedback/explanations and exercise hints/starter code/solutions are absent from the generated index and UI snippets. | Not run |
 
 ## Execution record
 

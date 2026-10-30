@@ -22,6 +22,17 @@ At feature HEAD `8b450e8890c2598bf23aee26d8d3acf1cda262a5`, the application incl
 
 The same checkpoint passed [Actions run #41029890527](https://github.com/Mardakhay/interactive-guides/actions/runs/41029890527): 48 test files / 319 tests, lint, typecheck, production build, 126 JavaScript chunk budgets, zero npm audit advisories and production-preview smoke covering five deep routes. This does not close source parity, editorial review, native browser/device acceptance or legacy-state migration.
 
+## Generated search/practice index delivery — 2026-10-30
+
+At feature checkpoint `f25e87e65fd05be5aa49fcde590489325f0bc40f`, the build-time index generator creates six bounded search chunks plus one dedicated practice-exercise index for each locale. It validates EN/RU stable IDs, publication status and ordered block ID/type parity; search text excludes quiz options/answers/feedback/explanations and coding exercise hints/starter code/solutions. Practice summaries retain only task instructions, requirements and public success criteria.
+
+Production build size evidence from [CI run #41035799497](https://github.com/Mardakhay/interactive-guides/actions/runs/41035799497):
+- EN search: six chunks, 272 KB gzip total; separate 118-exercise Practice index: 60 KB gzip.
+- RU search: six chunks, 341 KB gzip total; separate 118-exercise Practice index: 75 KB gzip.
+- Largest generated JavaScript chunk: about 276 KB raw / 69 KB gzip, below the existing 512 KB raw budget.
+
+This separates the Practice first-load payload from the larger search corpus while keeping full lesson bodies lazy. Native cold/warm timing, mobile transfer and browser cache behavior remain untested.
+
 ## Source parity status
 
 This file does not claim complete parity. The full source inventory and Notion/HTML evidence matrix are maintained in [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md). At the latest repository checkpoint, 21 Notion pages had been fetched (all marked unverified by the connector) and 25 HTML files were inventoried and structurally surveyed. Two React HTML sources were read in full in an earlier pass; the API material received targeted factual review; and the CSS reference plus Git reference/workflow pages received focused source-content, heading/control and structured-target comparisons. Most other HTML bodies, code samples, hidden answers and interactions still require full review against the structured blocks.

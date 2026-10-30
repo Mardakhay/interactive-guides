@@ -8,7 +8,7 @@ This is the one authoritative task list. Dated progress notes and superseded che
 
 ## Verified baseline
 
-- Last validated code checkpoint: `4a84793f340aa1d00471ff8265f83cfc1b2c1380`; [exact-head CI run #41032390443](https://github.com/Mardakhay/interactive-guides/actions/runs/41032390443) completed successfully: 49 test files / 325 tests, ESLint, TypeScript, production build, bundle budgets across 127 JS chunks and production-preview smoke.
+- Last validated code checkpoint: `f25e87e65fd05be5aa49fcde590489325f0bc40f`; [exact feature-branch CI run #41035799497](https://github.com/Mardakhay/interactive-guides/actions/runs/41035799497) passed install, ESLint, TypeScript, 49 test files, production build/bundle budgets and preview smoke. Generated locale indexes use six bounded search chunks and one dedicated practice chunk per locale; largest built chunk is approximately 276 KB raw / 69 KB gzip.
 - The preview smoke covers six deep routes, including `/practice` and `/settings`, as well as the entry bundle, manifest, service worker and PWA assets. Structured lesson outline search also now matches authored section text and command-reference examples, including Git commands.
 - Current branch also contains documentation reconciliation after that code checkpoint. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
 - Curriculum inventory: 27 core + 17 supplementary = 44 bilingual lesson pairs (88 locale JSON records).
@@ -48,7 +48,7 @@ This is the one authoritative task list. Dated progress notes and superseded che
 - [ ] **Execute native browser acceptance for persistence and backup.** Test downloads, file picker/import, size limit, confirmation, replacement semantics, storage-denial/quota behavior and rollback messaging with synthetic learner data.
 - [ ] **Execute native PWA acceptance.** Test clean install, localized deep-link refresh, revisit of a previously loaded lesson offline, behavior for never-visited lessons, update defer/activation and mobile reflow. Record browser/OS/device and tested SHA.
 - [ ] **Review every 24-week learning outcome.** Map each requirement to evidence in a core lesson/practice task and record uncovered or duplicated outcomes.
-- [ ] **Measure the generated structured-content index in real browsers.** Search and Practice now load one compact generated index per selected locale rather than requesting all 44 full lesson chunks. Record transferred bytes, cold/warm latency and mobile performance; keep full lesson bodies lazy and verify hidden feedback/solutions are absent.
+- [ ] **Measure generated structured-content indexes in real browsers.** CI confirms six bounded search chunks per locale (about 272 KB gzip EN / 341 KB RU total) and a separate Practice payload (about 60 KB EN / 75 KB RU). Record actual transfer, cold/warm latency and mobile performance; verify Practice does not request the search chunks, full lesson bodies remain lazy, and hidden feedback/solutions are absent.
 - [ ] **Finish user-facing QA.** Audit uncommon strings, broken/stale references, keyboard/accessibility edge states, screenshots/README and learner journey from onboarding through practice/backup.
 
 ## P2 — Cloud and account capabilities
