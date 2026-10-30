@@ -470,6 +470,166 @@ function CodingExercise({
   );
 }
 
+function KnowledgeCheck({
+  block,
+  locale,
+  lessonId,
+  onAnswered,
+  focusPrompt = false,
+}: {
+  block: KnowledgeCheckBlock;
+  locale: SupportedLocale;
+  lessonId: string;
+  onAnswered?: (isCorrect: boolean) => void;
+  focusPrompt?: boolean;
+}) {
+  const [selected, setSelected] = useState<string[]>([]);
+  const [submitted, setSubmitted] = useState(false);
+  const feedbackRef = useRef<HTMLDivElement | null>(null);
+  const promptRef = useRef<HTMLHeadingElement | null>(null);
+
+  useEffect(() => {
+    if (focusPrompt) promptRef.current?.focus();
+  }, [focusPrompt]);
+
+  useEffect(() => {
+    if (submitted) feedbackRef.current?.focus();
+  }, [submitted]);
+
+  const correctIds = block.options.filter((option) => option.correct).map((option) => option.id);
+  const isSelectionCorrect =
+    selected.length === correctIds.length &&
+    selected.every((id) => correctIds.includes(id));
+  const isCorrect = submitted && isSelectionCorrect;
+  const attemptKey = lessonId + '::' + block.id;
+  const attemptHistory = useStructuredLearningStore((state) => state.quizAttempts[attemptKey]);
+  const recordQuizAttempt = useStructuredLearningStore((state) => state.recordQuizAttempt);
+
+  const choose = (id: string) => {
+    if (submitted) return;
+    if (block.questionType === 'multi-select') {
+      setSelected((current) =>
+        current.includes(id) ? current.filter((value) => value !== id) : [...current, id],
+      );
+      return;
+    }
+    setSelected([id]);
+  };
+
+  const checkLabel = locale === 'ru' ? 'Проверить ответ' : 'Check answer';
+  const retryLabel = locale === 'ru' ? 'Попробовать ещё раз' : 'Try again';
+  const correctLabel = locale === 'ru' ? 'Верно' : 'Correct';
+  const reviewLabel = locale === 'ru' ? 'Нужно проверить ещё раз' : 'Not quite';
+  const multiLabel = locale === 'ru' ? 'Выбери все подходящие варианты' : 'Select all that apply';
+  const savedAttemptsLabel = locale === 'ru' ? 'Сохранено попыток:' : 'Saved attempts:';
+
+  return (
+    <section className="my-7 rounded-2xl border border-primary-200 bg-primary-50/70 p-4 sm:p-5" aria-labelledby={block.id + '-prompt'}>
+      <div className="flex items-start gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-primary-700 shadow-subtle">
+          <Lightbulb className="h-4 w-4" aria-hidden="true" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary-700">
+            {locale === 'ru' ? 'Проверь себя' : 'Knowledge check'}
+          </p>
+          <h3
+            ref={promptRef}
+            tabIndex={focusPrompt ? -1 : undefined}
+            id={block.id + '-prompt'}
+            className="mt-2 text-base font-semibold leading-6 text-neutral-950"
+          >
+            {block.prompt}
+          </h3>
+          <p className="mt-1 text-xs text-neutral-500">{savedAttemptsLabel} {attemptHistory?.length ?? 0}</p>
+          {block.questionType === 'multi-select' && (
+            <p className="mt-1 text-sm text-neutral-600">{multiLabel}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {block.options.map((option) => {
+          const active = selected.includes(option.id);
+          const revealed = submitted && (active || option.correct);
+          return (
+            <button
+              key={option.id}
+              type="button"
+              onClick={() => choose(option.id)}
+              aria-pressed={active}
+              disabled={submitted}
+              className={'flex w-full items-start gap-3 rounded-xl border p-3 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700 ' +
+                (active ? 'border-primary-500 bg-white shadow-subtle' : 'border-neutral-200 bg-white hover:border-primary-300') +
+                (submitted && option.correct ? ' ring-1 ring-emerald-400' : '') +
+                (submitted && active && !option.correct ? ' ring-1 ring-rose-400' : '')}
+            >
+              <span className={'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-xs font-semibold ' +
+                (active ? 'border-primary-600 bg-primary-600 text-white' : 'border-neutral-300 text-neutral-500')}>
+                {option.id.toUpperCase()}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-neutral-800">{option.text}</span>
+                {revealed && (
+                  <span className="mt-1.5 block text-sm leading-5 text-neutral-600">{option.feedback}</span>
+                )}
+              </span>
+              {submitted && option.correct && <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        {!submitted ? (
+          <button
+            type="button"
+            disabled={selected.length === 0}
+            onClick={() => {
+              recordQuizAttempt(lessonId, block.id, selected, isSelectionCorrect);
+              setSubmitted(true);
+              onAnswered?.(isSelectionCorrect);
+            }}
+            className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-800 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+          >
+            {checkLabel}
+          </button>
+        ) : (
+          <>
+            <div
+              ref={feedbackRef}
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              aria-label={locale === 'ru' ? 'Обратная связь по ответу' : 'Knowledge check feedback'}
+              tabIndex={-1}
+              className="rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+            >
+              <p className={'text-sm font-semibold ' + (isCorrect ? 'text-emerald-700' : 'text-rose-700')}>
+                {isCorrect ? correctLabel : reviewLabel}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-neutral-700">{block.explanation}</p>
+            </div>
+            {!onAnswered && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelected([]);
+                  setSubmitted(false);
+                }}
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+              >
+                <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                {retryLabel}
+              </button>
+            )}
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export function SequentialKnowledgeQuiz({
   block,
   questions,
