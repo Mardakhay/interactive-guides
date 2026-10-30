@@ -33,6 +33,8 @@ describe('SequentialKnowledgeQuiz', () => {
     const { lesson, questions } = await getQuiz('en');
     render(<StructuredLessonRenderer lesson={lesson} />);
 
+    expect(screen.queryByText(questions[0].prompt)).toBeNull();
+    fireEvent.click(screen.getByRole('tab', { name: 'Quiz' }));
     expect(screen.getAllByText(questions[0].prompt)).toHaveLength(1);
     for (const question of questions.slice(1)) {
       expect(screen.queryByText(question.prompt)).toBeNull();
