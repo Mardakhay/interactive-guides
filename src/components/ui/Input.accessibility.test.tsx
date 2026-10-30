@@ -8,7 +8,7 @@ describe('Input accessibility', () => {
     const input = screen.getByRole('textbox', { name: 'Email address' });
     expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(input).toHaveClass('placeholder:text-neutral-500');
-    expect(input).toHaveClass('focus:border-primary-500');
+    expect(input).toHaveClass('focus:border-error-500');
     expect(input).not.toHaveClass('placeholder:text-neutral-400');
   });
 });

@@ -8,7 +8,7 @@ describe('Textarea accessibility', () => {
     const textarea = screen.getByRole('textbox', { name: 'Lesson note' });
     expect(textarea).toHaveAttribute('aria-invalid', 'true');
     expect(textarea).toHaveClass('placeholder:text-neutral-500');
-    expect(textarea).toHaveClass('focus:border-primary-500');
+    expect(textarea).toHaveClass('focus:border-error-500');
     expect(textarea).not.toHaveClass('placeholder:text-neutral-400');
   });
 });
