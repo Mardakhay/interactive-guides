@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Check, Clipboard, ExternalLink, Lightbulb, RotateCcw } from 'lucide-react';
 import type { LessonContentBlock, LessonTranslation } from '@/content/schemas/lessonContent';
 import type { SupportedLocale } from '@/content/repository';
@@ -267,6 +267,10 @@ function KnowledgeCheck({
 }) {
   const [selected, setSelected] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  const feedbackRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (submitted) feedbackRef.current?.focus();
+  }, [submitted]);
   const correctIds = block.options.filter((option) => option.correct).map((option) => option.id);
   const isSelectionCorrect =
     selected.length === correctIds.length &&
@@ -352,30 +356,40 @@ function KnowledgeCheck({
               recordQuizAttempt(lessonId, block.id, selected, isSelectionCorrect);
               setSubmitted(true);
             }}
-            className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-800 disabled:cursor-not-allowed disabled:opacity-45"
+            className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-800 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
           >
             {checkLabel}
           </button>
         ) : (
           <>
-            <span className={`text-sm font-semibold ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>
-              {isCorrect ? correctLabel : reviewLabel}
-            </span>
+            <div
+              ref={feedbackRef}
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              aria-label={locale === 'ru' ? 'Обратная связь по ответу' : 'Knowledge check feedback'}
+              tabIndex={-1}
+              className="rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+            >
+              <p className={`text-sm font-semibold ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>
+                {isCorrect ? correctLabel : reviewLabel}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-neutral-700">{block.explanation}</p>
+            </div>
             <button
               type="button"
               onClick={() => {
                 setSelected([]);
                 setSubmitted(false);
               }}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
             >
-              <RotateCcw className="h-3.5 w-3.5" />
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
               {retryLabel}
             </button>
           </>
         )}
       </div>
-      {submitted && <p className="mt-3 text-sm leading-6 text-neutral-700">{block.explanation}</p>}
     </section>
   );
 }
@@ -444,7 +458,7 @@ function CodingExercise({
             <button
               type="button"
               onClick={() => resetCodeDraft(lessonId, block.id)}
-              className="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-xs font-medium text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
+              className="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-xs font-medium text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
             >
               <RotateCcw className="h-3.5 w-3.5" />
               {locale === 'ru' ? 'Сбросить черновик' : 'Reset draft'}
@@ -471,28 +485,31 @@ function CodingExercise({
               <button
                 type="button"
                 aria-expanded={previewOpen}
+                aria-controls={`${block.id}-preview-panel`}
                 onClick={() => setPreviewOpen((open) => !open)}
-                className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
               >
                 {previewOpen
                   ? (locale === 'ru' ? 'Скрыть предпросмотр' : 'Hide preview')
                   : (locale === 'ru' ? 'Предпросмотр результата' : 'Preview result')}
               </button>
-              {previewOpen && (
-                <div className="mt-3 overflow-hidden rounded-xl border border-neutral-200 bg-white">
-                  <p className="border-b border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-600">
-                    {locale === 'ru'
-                      ? 'Изолированный предпросмотр HTML. Скрипты отключены; код не получает доступ к приложению.'
-                      : 'Isolated HTML preview. Scripts are disabled and the code cannot access the application.'}
-                  </p>
-                  <iframe
-                    title={locale === 'ru' ? 'Предпросмотр HTML-кода' : 'HTML code preview'}
-                    srcDoc={code}
-                    sandbox=""
-                    className="h-72 w-full bg-white"
-                  />
-                </div>
-              )}
+              <div id={`${block.id}-preview-panel`} hidden={!previewOpen}>
+                {previewOpen && (
+                  <div className="mt-3 overflow-hidden rounded-xl border border-neutral-200 bg-white">
+                    <p className="border-b border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-600">
+                      {locale === 'ru'
+                        ? 'Изолированный предпросмотр HTML. Скрипты отключены; код не получает доступ к приложению.'
+                        : 'Isolated HTML preview. Scripts are disabled and the code cannot access the application.'}
+                    </p>
+                    <iframe
+                      title={locale === 'ru' ? 'Предпросмотр HTML-кода' : 'HTML code preview'}
+                      srcDoc={code}
+                      sandbox=""
+                      className="h-72 w-full bg-white"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -506,6 +523,7 @@ function CodingExercise({
             <button
               type="button"
               aria-expanded={solutionOpen}
+              aria-controls={`${block.id}-solution-panel`}
               onClick={() => setSolutionOpen((open) => !open)}
               className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-xl border border-primary-200 bg-white px-3 py-2 text-sm font-semibold text-primary-800 transition hover:bg-primary-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
             >
@@ -513,8 +531,9 @@ function CodingExercise({
                 ? (locale === 'ru' ? 'Скрыть пример решения' : 'Hide example solution')
                 : (locale === 'ru' ? 'Показать пример решения' : 'Reveal example solution')}
             </button>
-            {solutionOpen && (
-              <div className="mt-4" >
+            <div id={`${block.id}-solution-panel`} hidden={!solutionOpen}>
+              {solutionOpen && (
+              <div className="mt-4">
                 <h4 className="text-sm font-semibold text-neutral-900">
                   {locale === 'ru' ? 'Пример решения' : 'Example solution'}
                 </h4>
@@ -528,7 +547,8 @@ function CodingExercise({
                   />
                 </div>
               </div>
-            )}
+              )}
+            </div>
           </section>
         )}
         {block.hints.length > 0 && (
@@ -536,19 +556,22 @@ function CodingExercise({
             <button
               type="button"
               aria-expanded={hintsOpen}
+              aria-controls={`${block.id}-hints-panel`}
               onClick={() => setHintsOpen((open) => !open)}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
             >
               <Lightbulb className="h-4 w-4" />
               {hintsOpen
                 ? (locale === 'ru' ? 'Скрыть подсказки' : 'Hide hints')
                 : (locale === 'ru' ? 'Открыть подсказки' : 'Reveal hints')}
             </button>
-            {hintsOpen && (
-              <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-neutral-700">
-                {block.hints.map((hint, index) => <li key={`${block.id}-hint-${index}`}>{hint}</li>)}
-              </ul>
-            )}
+            <div id={`${block.id}-hints-panel`} hidden={!hintsOpen}>
+              {hintsOpen && (
+                <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-neutral-700">
+                  {block.hints.map((hint, index) => <li key={`${block.id}-hint-${index}`}>{hint}</li>)}
+                </ul>
+              )}
+            </div>
           </div>
         )}
         <div className="rounded-xl border border-dashed border-neutral-300 p-3">
@@ -561,7 +584,7 @@ function CodingExercise({
                     type="checkbox"
                     checked={checked.includes(index)}
                     onChange={(event) => setPracticeCriterion(lessonId, block.id, index, event.target.checked)}
-                    className="mt-1 h-4 w-4 shrink-0 rounded border-neutral-300 text-primary-700 focus:ring-primary-600"
+                    className="mt-1 h-4 w-4 shrink-0 rounded border-neutral-300 text-primary-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700 focus:ring-primary-600"
                   />
                   <span>{criterion}</span>
                 </label>
