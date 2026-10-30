@@ -10,7 +10,7 @@ interface FilterTabsProps {
   locale?: Locale;
 }
 
-interface TabDef {
+interface FilterOption {
   key: SearchFilter;
   label: TranslationKey;
   icon: typeof BookOpen;
@@ -18,7 +18,7 @@ interface TabDef {
 }
 
 export function FilterTabs({ filter, counts, onChange, locale = 'en' }: FilterTabsProps) {
-  const tabs: TabDef[] = [
+  const options: FilterOption[] = [
     { key: 'all', label: 'allResults', icon: LayoutGrid, count: null },
     { key: 'lesson', label: 'lessons', icon: BookOpen, count: counts.lesson },
     { key: 'course', label: 'courses', icon: FolderOpen, count: counts.course },
@@ -26,27 +26,27 @@ export function FilterTabs({ filter, counts, onChange, locale = 'en' }: FilterTa
   ];
 
   return (
-    <div className="flex flex-wrap gap-1.5" role="tablist" aria-label={translate(locale, 'filterResultsByType')}>
-      {tabs.map((tab) => {
-        const isActive = filter === tab.key;
+    <div className="flex flex-wrap gap-1.5" role="group" aria-label={translate(locale, 'filterResultsByType')}>
+      {options.map((option) => {
+        const isActive = filter === option.key;
         return (
           <button
-            key={tab.key}
-            role="tab"
-            aria-selected={isActive}
-            onClick={() => onChange(tab.key)}
+            key={option.key}
+            type="button"
+            aria-pressed={isActive}
+            onClick={() => onChange(option.key)}
             className={cn(
-              'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
+              'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700',
               isActive
                 ? 'bg-primary-50 text-primary-700'
                 : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700',
             )}
           >
-            <tab.icon className="h-4 w-4" />
-            {translate(locale, tab.label)}
-            {tab.count !== null && tab.count > 0 && (
+            <option.icon className="h-4 w-4" aria-hidden="true" />
+            {translate(locale, option.label)}
+            {option.count !== null && option.count > 0 && (
               <span className={cn('rounded-full px-1.5 text-xs', isActive ? 'bg-primary-200 text-primary-800' : 'bg-neutral-200 text-neutral-600')}>
-                {tab.count}
+                {option.count}
               </span>
             )}
           </button>
