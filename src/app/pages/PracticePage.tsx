@@ -4,7 +4,7 @@ import { ArrowRight, Code2, FileCode2, Search } from 'lucide-react';
 import { getStructuredPracticeExercises, type StructuredPracticeExercise } from '@/content';
 import { useStructuredLearningStore } from '@/features/structured-lesson/store';
 import { EmptyState } from '@/components/feedback';
-import { useUiLocale } from '@/features/localization';
+import { translate, useUiLocale } from '@/features/localization';
 
 type PracticeFilter = 'all' | 'drafts' | 'self-review';
 
@@ -71,69 +71,36 @@ export default function PracticePage() {
   const reviewedCriteriaCount = activity.reduce((total, item) => total + item.checkedCount, 0);
   const criteriaTotal = activity.reduce((total, item) => total + item.exercise.successCriteria.length, 0);
 
-  const copy = locale === 'ru'
-    ? {
-        title: 'Практика',
-        description: 'Собранные в одном месте задания из структурированной программы. Черновики и критерии самопроверки синхронизированы с соответствующими уроками на этом устройстве.',
-        activityNote: 'Сохранённый черновик и отмеченные критерии отражают активность и самооценку. Они не запускают автоматическую проверку и не подтверждают mastery.',
-        pilotTitle: 'Пилотный контент',
-        pilotNote: 'Учебные материалы всё ещё проходят редакционную проверку. Используй задания для практики, но не считай отметки самопроверки официальной оценкой.',
-        loading: 'Загружаем задания…',
-        loadError: 'Не удалось загрузить каталог практики.',
-        retry: 'Повторить',
-        totalExercises: 'Заданий',
-        savedDrafts: 'Сохранено черновиков',
-        reviewedCriteria: 'Критерии самопроверки',
-        search: 'Поиск заданий',
-        searchPlaceholder: 'Название, тема, язык или требование…',
-        filter: 'Показать',
-        all: 'Все задания',
-        drafts: 'Есть черновик',
-        selfReview: 'Есть отметки самопроверки',
-        lesson: 'Урок',
-        instructions: 'Задание',
-        requirements: 'Требования',
-        language: 'Язык',
-        draftSaved: 'Черновик сохранён',
-        noDraft: 'Черновик ещё не сохранён',
-        criteria: 'Критерии отмечены',
-        open: 'Открыть упражнение',
-        noResultsTitle: 'Задания не найдены',
-        noResultsMessage: 'Измени запрос или фильтр. Все упражнения остаются доступны из соответствующих уроков.',
-        noExercisesTitle: 'Пока нет упражнений',
-        noExercisesMessage: 'Структурированные coding exercises появятся здесь после загрузки учебного контента.',
-      }
-    : {
-        title: 'Practice Center',
-        description: 'Coding exercises from the structured curriculum in one place. Drafts and self-review criteria stay connected to the corresponding lesson on this device.',
-        activityNote: 'Saved drafts and checked criteria describe activity and self-review. They do not run automated grading or establish mastery.',
-        pilotTitle: 'Pilot content',
-        pilotNote: 'The learning materials are still under editorial review. Use these exercises for practice, but do not treat self-review marks as an official assessment.',
-        loading: 'Loading exercises…',
-        loadError: 'The practice catalog could not be loaded.',
-        retry: 'Retry',
-        totalExercises: 'Exercises',
-        savedDrafts: 'Saved drafts',
-        reviewedCriteria: 'Self-review criteria',
-        search: 'Search exercises',
-        searchPlaceholder: 'Title, topic, language or requirement…',
-        filter: 'Show',
-        all: 'All exercises',
-        drafts: 'Has a saved draft',
-        selfReview: 'Has self-review marks',
-        lesson: 'Lesson',
-        instructions: 'Task',
-        requirements: 'Requirements',
-        language: 'Language',
-        draftSaved: 'Draft saved',
-        noDraft: 'No draft saved yet',
-        criteria: 'Criteria checked',
-        open: 'Open exercise',
-        noResultsTitle: 'No exercises found',
-        noResultsMessage: 'Change the query or filter. Every exercise is still available from its lesson.',
-        noExercisesTitle: 'No exercises yet',
-        noExercisesMessage: 'Structured coding exercises will appear here when learning content is available.',
-      };
+  const copy = {
+    title: translate(locale, 'practiceTitle'),
+    description: translate(locale, 'practiceDescription'),
+    activityNote: translate(locale, 'practiceActivityNote'),
+    pilotTitle: translate(locale, 'practicePilotTitle'),
+    pilotNote: translate(locale, 'practicePilotNote'),
+    loading: translate(locale, 'practiceLoading'),
+    loadError: translate(locale, 'practiceLoadError'),
+    retry: translate(locale, 'practiceRetry'),
+    totalExercises: translate(locale, 'practiceTotalExercises'),
+    savedDrafts: translate(locale, 'practiceSavedDrafts'),
+    reviewedCriteria: translate(locale, 'practiceReviewedCriteria'),
+    search: translate(locale, 'practiceSearch'),
+    searchPlaceholder: translate(locale, 'practiceSearchPlaceholder'),
+    filter: translate(locale, 'practiceFilter'),
+    all: translate(locale, 'practiceAll'),
+    drafts: translate(locale, 'practiceDrafts'),
+    selfReview: translate(locale, 'practiceSelfReview'),
+    instructions: translate(locale, 'practiceInstructions'),
+    requirements: translate(locale, 'practiceRequirements'),
+    language: translate(locale, 'practiceLanguage'),
+    draftSaved: translate(locale, 'practiceDraftSaved'),
+    noDraft: translate(locale, 'practiceNoDraft'),
+    criteria: translate(locale, 'practiceCriteria'),
+    open: translate(locale, 'practiceOpenExercise'),
+    noResultsTitle: translate(locale, 'practiceNoResultsTitle'),
+    noResultsMessage: translate(locale, 'practiceNoResultsMessage'),
+    noExercisesTitle: translate(locale, 'practiceEmptyTitle'),
+    noExercisesMessage: translate(locale, 'practiceEmptyMessage'),
+  };
 
   if (exercises === null && !loadError) {
     return <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6"><p role="status" className="rounded-xl border border-neutral-200 bg-white p-6 text-sm text-neutral-600">{copy.loading}</p></main>;
