@@ -29,7 +29,7 @@ Search includes classic lesson metadata, notes, structured lesson titles/descrip
 
 - No evidence-based mastery status or review queue. Completion, quiz submissions, self-reviewed criteria and drafts remain separate activity signals.
 - Settings exposes the currently implemented local controls/status. A theme switch, cloud account/sync and comprehensive offline availability controls are not implemented.
-- Explicit locale URLs exist for structured lessons, not every legacy/application route.
+- All application screens now support explicit `/:locale/...` URLs. Legacy unprefixed app routes redirect to the saved preference while preserving query/hash; native browser deep-link/refresh acceptance remains open.
 - Structured content remains editorially marked `review`; it must not be represented as approved production curriculum.
 - 21 fetched/mapped Notion sources remain connector-unverified.
 - All 25 legacy route cutover rows remain blocked. Preserve HTML sources and classic routes; no lesson-ID migration, redirects or learner-state fan-out is authorized.

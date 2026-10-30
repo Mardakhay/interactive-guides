@@ -42,7 +42,7 @@ This is the one authoritative task list. Dated progress notes and superseded che
 ## P1 — Product completeness and learner experience
 
 - [ ] **Add evidence-based mastery and a review queue.** Define lesson-specific completion policy and independent assessment/rubrics first. Keep self-review, drafts, quiz activity and verified mastery as separate states; do not infer mastery from opened lessons or checked boxes.
-- [ ] **Finish app-wide locale routing.** Structured lessons already use explicit `/:locale/...` URLs; decide and implement shareable locale URLs for the remaining application routes without breaking classic deep links or saved language preference.
+- [x] **Finish app-wide locale routing.** All application screens now have shareable `/:locale/...` URLs; legacy unprefixed routes redirect using the saved preference, locale switching preserves the current route/query/hash, and classic lesson URLs remain supported.
 - [ ] **Complete Settings/theme scope.** Decide whether theme switching is in the release scope; if yes, implement complete light/dark tokens and verify contrast rather than adding a decorative toggle. Cloud/account controls remain absent until Supabase scope is approved.
 - [ ] **Finish accessibility and responsive review.** Test focus order, skip links, keyboard operation, screen-reader labels/status updates, contrast, reduced motion, touch targets, zoom/reflow and narrow viewport layouts on the full app.
 - [ ] **Execute native browser acceptance for persistence and backup.** Test downloads, file picker/import, size limit, confirmation, replacement semantics, storage-denial/quota behavior and rollback messaging with synthetic learner data.

@@ -11,6 +11,7 @@ Interactive Guides is a bilingual (English/Russian), local-first learning platfo
 - Structured search across lesson text, curriculum topics and notes, with section-outline search that can match body content and Git command references. Search uses six bounded generated EN/RU index chunks; Practice downloads a separate compact exercise index. Full lesson bodies remain lazy-loaded when a learner opens a lesson.
 - A bilingual Practice Center that aggregates structured coding exercises and reconnects saved drafts/self-review to the original lesson exercise.
 - A bilingual Settings page for UI language, browser connectivity signal, local-data counts, and backup access; cloud sync and theme switching are not configured.
+- Locale-prefixed, shareable routes across the application (`/en/...`, `/ru/...`); older unprefixed URLs redirect to the saved language.
 - Versioned local learning data with JSON backup and restore. Restore replaces the current local learning-data snapshot; it is not a merge.
 - PWA manifest, icons, SPA deep-link fallback, and a service worker with scoped runtime asset caching and user-controlled updates.
 

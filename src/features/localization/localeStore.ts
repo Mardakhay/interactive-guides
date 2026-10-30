@@ -29,10 +29,10 @@ export const useLocaleStore = create<LocaleState>((set) => ({
   },
 }));
 
-/** Structured routes carry their own locale; other screens use the saved UI preference. */
+/** Every application route carries a locale; the saved preference is the fallback for legacy URLs. */
 export function useUiLocale(): Locale {
   const { pathname } = useLocation();
   const preferredLocale = useLocaleStore((state) => state.locale);
-  const match = /^\/(en|ru)\/structured-lessons(?:\/|$)/.exec(pathname);
+  const match = /^\/(en|ru)(?:\/|$)/.exec(pathname);
   return match?.[1] === 'ru' ? 'ru' : match?.[1] === 'en' ? 'en' : preferredLocale;
 }

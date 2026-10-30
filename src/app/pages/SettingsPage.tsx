@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, CloudOff, Database, Globe2, Monitor, Wifi, WifiOff } from 'lucide-react';
-import { ROUTE_PATHS } from '@/app/router/routes';
+import { ROUTE_PATHS, localizedPath } from '@/app/router/routes';
 import { useBookmarkStore } from '@/features/bookmarks/store';
 import { useNoteStore } from '@/features/notes/store';
 import { translate, useLocaleStore, useUiLocale } from '@/features/localization';
@@ -11,6 +11,8 @@ import { useStructuredLearningStore } from '@/features/structured-lesson/store';
 export default function SettingsPage() {
   const locale = useUiLocale();
   const preferredLocale = useLocaleStore((state) => state.locale);
+  const location = useLocation();
+  const navigate = useNavigate();
   const setLocale = useLocaleStore((state) => state.setLocale);
   const progress = useProgressStore((state) => state.lessons);
   const bookmarks = useBookmarkStore((state) => state.lessons);
@@ -38,6 +40,15 @@ export default function SettingsPage() {
     drafts: Object.keys(codeDrafts).length,
     attempts: Object.values(quizAttempts).reduce((total, entries) => total + entries.length, 0),
   }), [progress, bookmarks, notes, codeDrafts, quizAttempts]);
+
+  function changeLocale(option: 'en' | 'ru') {
+    setLocale(option);
+    navigate({
+      pathname: localizedPath(location.pathname, option),
+      search: location.search,
+      hash: location.hash,
+    });
+  }
 
   const copy = {
     english: translate(locale, 'settingsEnglish'),
@@ -75,7 +86,7 @@ export default function SettingsPage() {
                     key={option}
                     type="button"
                     aria-pressed={selected}
-                    onClick={() => setLocale(option)}
+                    onClick={() => changeLocale(option)}
                     className={selected
                       ? 'inline-flex min-h-10 items-center gap-2 rounded-lg border border-primary-700 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-800'
                       : 'inline-flex min-h-10 items-center gap-2 rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700'}
@@ -130,7 +141,7 @@ export default function SettingsPage() {
           <div className="min-w-0 flex-1">
             <h2 id="settings-backup-heading" className="text-lg font-semibold text-neutral-950">{translate(locale, 'settingsBackupTitle')}</h2>
             <p className="mt-1 text-sm leading-6 text-neutral-600">{translate(locale, 'settingsBackupDescription')}</p>
-            <Link to={ROUTE_PATHS.BACKUP} className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary-700 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700">
+            <Link to={localizedPath(ROUTE_PATHS.BACKUP, locale)} className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary-700 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700">
               {translate(locale, 'settingsOpenBackup')}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>

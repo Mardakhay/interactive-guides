@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import SettingsPage from './SettingsPage';
 import { useLocaleStore } from '@/features/localization/localeStore';
 import { useProgressStore } from '@/features/progress/store';
@@ -8,8 +8,13 @@ import { useBookmarkStore } from '@/features/bookmarks/store';
 import { useNoteStore } from '@/features/notes/store';
 import { useStructuredLearningStore } from '@/features/structured-lesson/store';
 
-function renderSettings() {
-  return render(<MemoryRouter><SettingsPage /></MemoryRouter>);
+function CurrentPath() {
+  const location = useLocation();
+  return <output data-testid="current-path">{location.pathname}</output>;
+}
+
+function renderSettings(path = '/en/settings') {
+  return render(<MemoryRouter initialEntries={[path]}><SettingsPage /><CurrentPath /></MemoryRouter>);
 }
 
 afterEach(() => {
@@ -55,7 +60,7 @@ describe('SettingsPage', () => {
     expect(screen.getByText('Notes').nextElementSibling).toHaveTextContent('1');
     expect(screen.getByText('Exercise drafts').nextElementSibling).toHaveTextContent('1');
     expect(screen.getByText('Structured quiz attempts').nextElementSibling).toHaveTextContent('1');
-    expect(screen.getByRole('link', { name: 'Open backup settings' }).getAttribute('href')).toBe('/backup');
+    expect(screen.getByRole('link', { name: 'Open backup settings' }).getAttribute('href')).toBe('/en/backup');
     expect(screen.getByText(/remains local to this browser/i)).toBeTruthy();
   });
 
@@ -65,6 +70,7 @@ describe('SettingsPage', () => {
 
     expect(useLocaleStore.getState().locale).toBe('ru');
     expect(localStorage.getItem('interactive-guides.ui-locale')).toBe('ru');
+    expect(screen.getByTestId('current-path')).toHaveTextContent('/ru/settings');
     expect(screen.getByRole('heading', { name: 'Настройки' })).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Сетевое подключение' })).toBeTruthy();
   });

@@ -74,6 +74,16 @@ These cases are partly exercised with deterministic Storage API mocks in Vitest;
 | IDX-03 | Open a result/Practice exercise and then navigate to its lesson. | Only the selected lesson's full lesson chunk is fetched on demand; the generated index does not replace or eagerly download lesson bodies. | Not run |
 | IDX-04 | Inspect generated network payloads/search results for a quiz and coding exercise. | Quiz options/answer feedback/explanations and exercise hints/starter code/solutions are absent from the generated index and UI snippets. | Not run |
 
+## G. App-wide locale routing
+
+| ID | Procedure | Expected result | Outcome / notes |
+|---|---|---|---|
+| LOC-01 | Open `/en/courses`, `/ru/courses`, `/en/practice` and `/ru/settings` directly, then refresh each URL. | The selected route and UI language remain stable after refresh; URLs stay shareable and the document language matches the route locale. | Not run |
+| LOC-02 | In a profile with Russian saved as the UI preference, open the legacy `/courses?category=html#results` URL. Repeat with English saved. | The app redirects to the same path under `/ru` or `/en`, preserving query and hash; the destination page remains usable. | Not run |
+| LOC-03 | Switch language from Search, Settings, a course detail page and a structured lesson with a query/hash. | The route remains the same logical screen/resource under the new locale, the query/hash are preserved, and structured lessons retain their stable lesson ID. | Not run |
+| LOC-04 | Open an unsupported prefix such as `/xx/courses`. | The app repairs it to the saved supported locale without losing the requested route path, or presents a localized not-found state; it must not loop. | Not run |
+| LOC-05 | Follow desktop Sidebar and mobile bottom-navigation links while on Russian routes. | All generated links retain the `/ru` prefix and the current route is visibly marked active. | Not run |
+
 ## Execution record
 
 Create one row per tested environment. Do not fill a result unless the procedure was actually run.

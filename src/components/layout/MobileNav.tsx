@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, BookOpen, Bookmark, StickyNote, Search, Code2 } from 'lucide-react';
-import { ROUTE_PATHS } from '@/app/router/routes';
+import { ROUTE_PATHS, localizedPath } from '@/app/router/routes';
 import { cn } from '@/lib/utils';
 import { translate, useUiLocale, type TranslationKey } from '@/features/localization';
 
@@ -21,7 +21,7 @@ export function MobileNav() {
       {navItems.map((item) => (
         <NavLink
           key={item.path}
-          to={item.path}
+          to={localizedPath(item.path, locale)}
           className={({ isActive }) =>
             cn(
               'flex flex-1 flex-col items-center gap-1 py-2 text-2xs font-medium transition-colors',

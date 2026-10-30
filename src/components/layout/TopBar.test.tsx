@@ -7,7 +7,7 @@ import { useLocaleStore } from '@/features/localization';
 
 function CurrentPath() {
   const location = useLocation();
-  return <output data-testid="current-path">{location.pathname}</output>;
+  return <output data-testid="current-path">{location.pathname}{location.search}{location.hash}</output>;
 }
 
 function renderTopBar(initialPath: string) {
@@ -28,17 +28,24 @@ describe('TopBar locale switch', () => {
     const user = userEvent.setup();
     renderTopBar('/courses');
     await user.click(screen.getByRole('button', { name: 'Settings' }));
-    expect(screen.getByTestId('current-path')).toHaveTextContent('/settings');
+    expect(screen.getByTestId('current-path')).toHaveTextContent('/en/settings');
   });
 
-  it('persists UI language preference without changing regular routes', async () => {
+  it('switches regular routes to a shareable locale URL', async () => {
     const user = userEvent.setup();
     renderTopBar('/courses');
     await user.click(screen.getByRole('button', { name: 'Switch language to Russian' }));
-    expect(screen.getByTestId('current-path')).toHaveTextContent('/courses');
+    expect(screen.getByTestId('current-path')).toHaveTextContent('/ru/courses');
     expect(screen.getByRole('button', { name: 'Переключить язык на английский' })).toHaveTextContent('EN');
     expect(useLocaleStore.getState().locale).toBe('ru');
     expect(localStorage.getItem('interactive-guides.ui-locale')).toBe('ru');
+  });
+
+  it('preserves query and hash when switching a regular route locale', async () => {
+    const user = userEvent.setup();
+    renderTopBar('/en/search?q=semantic#results');
+    await user.click(screen.getByRole('button', { name: 'Switch language to Russian' }));
+    expect(screen.getByTestId('current-path')).toHaveTextContent('/ru/search?q=semantic#results');
   });
 
   it('switches locale segment when a structured lesson is open', async () => {

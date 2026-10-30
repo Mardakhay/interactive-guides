@@ -62,12 +62,19 @@ try {
   assert.match(entryResponse.headers.get('content-type') ?? '', /javascript/i);
 
   const deepRoutes = [
+    '/en',
+    '/ru',
+    '/en/courses',
+    '/ru/lessons/legacy-example',
     '/en/structured-lessons',
     '/ru/structured-lessons',
     '/ru/structured-lessons/capstone.requirements-discovery',
+    '/en/practice',
+    '/ru/settings',
+    '/en/paths/structured-capstone',
+    '/courses',
     '/practice',
     '/settings',
-    '/paths/structured-capstone',
   ];
   for (const route of deepRoutes) {
     const response = await fetchOk(route);

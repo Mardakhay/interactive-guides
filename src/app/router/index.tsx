@@ -1,8 +1,7 @@
 import { lazy } from 'react';
-import { createBrowserRouter } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { createBrowserRouter, Outlet, type RouteObject } from 'react-router-dom';
 import { RouteErrorBoundary } from '@/components/feedback';
-import { ROUTES } from './routes';
+import { LegacyPathRedirect, LocalizedAppLayout } from './LocalizedRouteLayout';
 
 /* eslint-disable react-refresh/only-export-components -- This module intentionally exports a router made from lazy page components. */
 const DashboardPage = lazy(() => import('@/app/pages/DashboardPage'));
@@ -21,33 +20,47 @@ const BackupPage = lazy(() => import('@/app/pages/BackupPage'));
 const SettingsPage = lazy(() => import('@/app/pages/SettingsPage'));
 const NotFoundPage = lazy(() => import('@/app/pages/NotFoundPage'));
 
+const localizedChildren: RouteObject[] = [
+  { index: true, element: <DashboardPage />, errorElement: <RouteErrorBoundary /> },
+  { path: 'courses', element: <CoursesPage />, errorElement: <RouteErrorBoundary /> },
+  { path: 'courses/:categoryId', element: <CourseDetailPage />, errorElement: <RouteErrorBoundary /> },
+  { path: 'lessons/:lessonId', element: <LessonViewerPage />, errorElement: <RouteErrorBoundary /> },
+  { path: 'structured-lessons', element: <StructuredCurriculumPage />, errorElement: <RouteErrorBoundary /> },
+  { path: 'structured-lessons/:lessonId', element: <StructuredLessonPage />, errorElement: <RouteErrorBoundary /> },
+  { path: 'paths', element: <LearningPathsPage />, errorElement: <RouteErrorBoundary /> },
+  { path: 'paths/:pathId', element: <LearningPathDetailPage />, errorElement: <RouteErrorBoundary /> },
+  { path: 'bookmarks', element: <BookmarksPage />, errorElement: <RouteErrorBoundary /> },
+  { path: 'notes', element: <NotesPage />, errorElement: <RouteErrorBoundary /> },
+  { path: 'practice', element: <PracticePage />, errorElement: <RouteErrorBoundary /> },
+  { path: 'search', element: <SearchPage />, errorElement: <RouteErrorBoundary /> },
+  { path: 'backup', element: <BackupPage />, errorElement: <RouteErrorBoundary /> },
+  { path: 'settings', element: <SettingsPage />, errorElement: <RouteErrorBoundary /> },
+  { path: '*', element: <NotFoundPage /> },
+];
+
 export const router = createBrowserRouter([
   {
-    element: <AppLayout />,
-    // Fallback for errors thrown outside any child route (e.g. inside the
-    // layout chrome itself). Individual routes below have their own
-    // errorElement so the sidebar/topbar stay visible for in-page errors.
+    element: <Outlet />,
     errorElement: <RouteErrorBoundary />,
     children: [
-      { path: ROUTES.DASHBOARD, element: <DashboardPage />, errorElement: <RouteErrorBoundary /> },
-      { path: ROUTES.COURSES, element: <CoursesPage />, errorElement: <RouteErrorBoundary /> },
-      { path: ROUTES.COURSE_DETAIL, element: <CourseDetailPage />, errorElement: <RouteErrorBoundary /> },
-      { path: ROUTES.LESSON_VIEWER, element: <LessonViewerPage />, errorElement: <RouteErrorBoundary /> },
-      { path: '/:locale/structured-lessons', element: <StructuredCurriculumPage />, errorElement: <RouteErrorBoundary /> },
-      { path: '/:locale/structured-lessons/:lessonId', element: <StructuredLessonPage />, errorElement: <RouteErrorBoundary /> },
-      { path: ROUTES.LEARNING_PATHS, element: <LearningPathsPage />, errorElement: <RouteErrorBoundary /> },
-      {
-        path: ROUTES.LEARNING_PATH_DETAIL,
-        element: <LearningPathDetailPage />,
-        errorElement: <RouteErrorBoundary />,
-      },
-      { path: ROUTES.BOOKMARKS, element: <BookmarksPage />, errorElement: <RouteErrorBoundary /> },
-      { path: ROUTES.NOTES, element: <NotesPage />, errorElement: <RouteErrorBoundary /> },
-      { path: ROUTES.PRACTICE, element: <PracticePage />, errorElement: <RouteErrorBoundary /> },
-      { path: ROUTES.SEARCH, element: <SearchPage />, errorElement: <RouteErrorBoundary /> },
-      { path: ROUTES.BACKUP, element: <BackupPage />, errorElement: <RouteErrorBoundary /> },
-      { path: ROUTES.SETTINGS, element: <SettingsPage />, errorElement: <RouteErrorBoundary /> },
-      { path: '*', element: <NotFoundPage /> },
+      { path: '/', element: <LegacyPathRedirect /> },
+      { path: '/courses', element: <LegacyPathRedirect /> },
+      { path: '/courses/:categoryId', element: <LegacyPathRedirect /> },
+      { path: '/lessons/:lessonId', element: <LegacyPathRedirect /> },
+      { path: '/paths', element: <LegacyPathRedirect /> },
+      { path: '/paths/:pathId', element: <LegacyPathRedirect /> },
+      { path: '/bookmarks', element: <LegacyPathRedirect /> },
+      { path: '/notes', element: <LegacyPathRedirect /> },
+      { path: '/practice', element: <LegacyPathRedirect /> },
+      { path: '/search', element: <LegacyPathRedirect /> },
+      { path: '/backup', element: <LegacyPathRedirect /> },
+      { path: '/settings', element: <LegacyPathRedirect /> },
     ],
+  },
+  {
+    path: '/:locale',
+    element: <LocalizedAppLayout />,
+    errorElement: <RouteErrorBoundary />,
+    children: localizedChildren,
   },
 ]);

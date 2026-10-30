@@ -1,7 +1,7 @@
 import { Search, Menu, Settings2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUIStore } from '@/stores/uiStore';
-import { ROUTE_PATHS } from '@/app/router/routes';
+import { ROUTE_PATHS, localizedPath } from '@/app/router/routes';
 import { translate, useLocaleStore, useUiLocale } from '@/features/localization';
 
 export function TopBar() {
@@ -14,8 +14,11 @@ export function TopBar() {
   function switchLanguage() {
     const nextLocale = locale === 'en' ? 'ru' : 'en';
     setLocale(nextLocale);
-    const structuredRoute = /^\/(en|ru)(\/structured-lessons(?:\/.*)?)$/.exec(location.pathname);
-    if (structuredRoute) navigate(`/${nextLocale}${structuredRoute[2]}`);
+    navigate({
+      pathname: localizedPath(location.pathname, nextLocale),
+      search: location.search,
+      hash: location.hash,
+    });
   }
 
   return (
@@ -30,7 +33,7 @@ export function TopBar() {
 
       <button
         className="flex flex-1 items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-500 hover:bg-neutral-100"
-        onClick={() => navigate(ROUTE_PATHS.SEARCH)}
+        onClick={() => navigate(localizedPath(ROUTE_PATHS.SEARCH, locale))}
         aria-label={translate(locale, 'search')}
       >
         <Search className="h-4 w-4" />
@@ -38,7 +41,7 @@ export function TopBar() {
       </button>
       <button
         type="button"
-        onClick={() => navigate(ROUTE_PATHS.SETTINGS)}
+        onClick={() => navigate(localizedPath(ROUTE_PATHS.SETTINGS, locale))}
         className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-neutral-200 text-neutral-700 hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
         aria-label={translate(locale, 'settings')}
         title={translate(locale, 'settings')}

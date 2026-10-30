@@ -14,7 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import { APP_NAME } from '@/lib/constants';
-import { ROUTE_PATHS } from '@/app/router/routes';
+import { ROUTE_PATHS, localizedPath } from '@/app/router/routes';
 import { useUIStore } from '@/stores/uiStore';
 import { cn } from '@/lib/utils';
 import { translate, useUiLocale, type TranslationKey } from '@/features/localization';
@@ -74,7 +74,7 @@ export function Sidebar() {
         aria-label={translate(locale, 'mainNavigation')}
       >
         <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-6">
-          <NavLink to={ROUTE_PATHS.DASHBOARD} className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
+          <NavLink to={localizedPath(ROUTE_PATHS.DASHBOARD, locale)} className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white">
               <GraduationCap className="h-5 w-5" />
             </div>
@@ -93,7 +93,7 @@ export function Sidebar() {
           {navItems.map((item) => (
             <NavLink
               key={item.path}
-              to={item.path}
+              to={localizedPath(item.path, locale)}
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
                 cn(
