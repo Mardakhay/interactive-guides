@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { Buffer } from 'node:buffer';
 import { once } from 'node:events';
+import { readdir } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import process from 'node:process';
 import { resolve } from 'node:path';
@@ -75,6 +76,21 @@ try {
     assert.match(html, /<div id="root"><\/div>/, `SPA fallback should return the app shell for ${route}`);
   }
 
+  const builtAssets = await readdir(resolve(process.cwd(), 'dist/assets'));
+  const generatedIndexAssets = builtAssets.filter((filename) =>
+    /^structured-search-index\.(en|ru)\.\d+-.*\.js$/.test(filename)
+    || /^structured-practice-index\.(en|ru)-.*\.js$/.test(filename),
+  );
+  assert.equal(generatedIndexAssets.length, 14, 'production build should contain six search chunks and one practice chunk per locale');
+
+  const generatedIndexResponses = await Promise.all(generatedIndexAssets.map(async (filename) => {
+    const response = await fetchOk('/assets/' + filename);
+    assert.match(response.headers.get('content-type') ?? '', /javascript/i);
+    const bytes = await response.arrayBuffer();
+    assert.ok(bytes.byteLength <= 512 * 1024, filename + ' must remain below the 512 KiB JavaScript chunk budget');
+    return bytes.byteLength;
+  }));
+
   const manifestResponse = await fetchOk('/manifest.webmanifest');
   assert.match(manifestResponse.headers.get('content-type') ?? '', /json/i);
   const manifest = await manifestResponse.json();
@@ -103,7 +119,7 @@ try {
   }
 
   process.stdout.write(
-    `Production preview smoke passed: ${deepRoutes.length} deep routes, entry bundle, manifest, service worker and ${assetPaths.length} PWA assets.\n`,
+    `Production preview smoke passed: ${deepRoutes.length} deep routes, entry bundle, manifest, service worker, ${assetPaths.length} PWA assets, and ${generatedIndexAssets.length} generated content chunks (max ${Math.max(...generatedIndexResponses)} bytes).\n`,
   );
 } finally {
   if (preview.pid && preview.exitCode === null) {
