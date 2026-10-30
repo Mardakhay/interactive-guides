@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { getStructuredLesson } from '@/content/repository';
-import { SequentialKnowledgeQuiz } from './StructuredLessonRenderer';
+import { SequentialKnowledgeQuiz, StructuredLessonRenderer } from './StructuredLessonRenderer';
 import type { LessonContentBlock } from '@/content/schemas/lessonContent';
 
 type KnowledgeCheckBlock = Extract<LessonContentBlock, { type: 'knowledgeCheck' }>;
@@ -28,6 +28,16 @@ describe('SequentialKnowledgeQuiz', () => {
     if (!optionButton) throw new Error('Correct option button not found');
     fireEvent.click(optionButton);
   }
+
+  it('renders referenced quiz questions only inside the sequence instead of duplicating them in the lesson flow', async () => {
+    const { lesson, questions } = await getQuiz('en');
+    render(<StructuredLessonRenderer lesson={lesson} />);
+
+    expect(screen.getAllByText(questions[0].prompt)).toHaveLength(1);
+    for (const question of questions.slice(1)) {
+      expect(screen.queryByText(question.prompt)).toBeNull();
+    }
+  });
 
   it('presents the ten existing questions one at a time and advances only after feedback', async () => {
     const { lesson, block, questions } = await getQuiz('en');
