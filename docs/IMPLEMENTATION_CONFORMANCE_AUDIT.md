@@ -11,6 +11,7 @@ This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md
 - React 18, TypeScript, Vite, React Router, Zustand, Zod, feature-oriented modules and lazy page loading.
 - Six-month / 24-week canonical curriculum; 27 core + 17 supplementary stable lesson IDs, each with EN/RU records.
 - Schema-validated lesson blocks rendered through reusable React components; knowledge checks, coding scaffolds, drafts, checklists, references and section-read state.
+- A bilingual Practice Center aggregates structured coding exercises, connects to existing per-exercise draft/self-review records, and links to the exact exercise anchor in its lesson. It explicitly distinguishes self-attested activity from automated grading/mastery.
 - Separate classic/structured learner identities; local progress, bookmarks, notes, quiz results, structured activity, versioned storage, backup export/import and best-effort rollback.
 - PWA manifest/icons, app-shell precache, scoped asset runtime caching, SPA fallback and learner-approved update prompt.
 - CI coverage for lint, typecheck, unit/component tests, production build, bundle budgets and production-preview HTTP smoke.
@@ -25,7 +26,6 @@ Search includes classic lesson metadata, notes, structured lesson titles/descrip
 
 ## Known functional gaps
 
-- No standalone Practice Center aggregating exercises across lessons.
 - No evidence-based mastery status or review queue. Completion, quiz submissions, self-reviewed criteria and drafts remain separate activity signals.
 - No dedicated Settings experience or complete theme/offline/account/sync preferences.
 - Explicit locale URLs exist for structured lessons, not every legacy/application route.

@@ -7,6 +7,7 @@ export const ROUTES = {
   LEARNING_PATH_DETAIL: '/paths/:pathId',
   BOOKMARKS: '/bookmarks',
   NOTES: '/notes',
+  PRACTICE: '/practice',
   SEARCH: '/search',
   BACKUP: '/backup',
 } as const;
@@ -17,6 +18,7 @@ export const ROUTE_PATHS = {
   LEARNING_PATHS: '/paths',
   BOOKMARKS: '/bookmarks',
   NOTES: '/notes',
+  PRACTICE: '/practice',
   SEARCH: '/search',
   BACKUP: '/backup',
 } as const;

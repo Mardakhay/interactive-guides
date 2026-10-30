@@ -117,6 +117,64 @@ export function getStructuredLessonSearchDocuments(locale: SupportedLocale): Pro
   return cachedPromise;
 }
 
+
+export interface StructuredPracticeExercise {
+  readonly lessonId: string;
+  readonly lessonTitle: string;
+  readonly locale: SupportedLocale;
+  readonly lessonStatus: LessonPublicationStatus;
+  readonly exerciseId: string;
+  readonly title: string;
+  readonly language: string;
+  readonly context: string;
+  readonly instructions: string[];
+  readonly requirements: string[];
+  readonly starterCode: string;
+  readonly successCriteria: string[];
+  readonly estimatedMinutes: number;
+  readonly difficulty: LessonTranslation['difficulty'];
+}
+
+const practiceExercisesByLocale = new Map<SupportedLocale, Promise<StructuredPracticeExercise[]>>();
+
+/**
+ * Lists authored coding exercises for the practice hub.
+ * Hints and worked solutions are deliberately not copied into this learner-facing index.
+ */
+export function getStructuredPracticeExercises(locale: SupportedLocale): Promise<StructuredPracticeExercise[]> {
+  const cached = practiceExercisesByLocale.get(locale);
+  if (cached) return cached;
+
+  const pending = Promise.all(getStructuredLessonIds().map(async (lessonId) => {
+    const lesson = await getStructuredLesson(lessonId, locale);
+    const metadata = getStructuredLessonMetadata(lessonId, locale);
+    if (!lesson || !metadata) return [];
+    return lesson.blocks.flatMap((block) => block.type === 'codingExercise' ? [{
+      lessonId: lesson.id,
+      lessonTitle: lesson.title,
+      locale,
+      lessonStatus: lesson.status,
+      exerciseId: block.id,
+      title: block.title,
+      language: block.language,
+      context: block.context,
+      instructions: block.instructions,
+      requirements: block.requirements,
+      starterCode: block.starterCode,
+      successCriteria: block.successCriteria,
+      estimatedMinutes: lesson.estimatedMinutes,
+      difficulty: lesson.difficulty,
+    } satisfies StructuredPracticeExercise] : []);
+  })).then((groups) => groups.flat());
+
+  const cachedPromise = pending.catch((error: unknown) => {
+    practiceExercisesByLocale.delete(locale);
+    throw error;
+  });
+  practiceExercisesByLocale.set(locale, cachedPromise);
+  return cachedPromise;
+}
+
 /** Returns the complete curriculum in the requested locale. */
 export function getBootcampCurriculum(locale: SupportedLocale) {
   return curricula[locale];

@@ -15,6 +15,7 @@ const LearningPathsPage = lazy(() => import('@/app/pages/LearningPathsPage'));
 const LearningPathDetailPage = lazy(() => import('@/app/pages/LearningPathDetailPage'));
 const BookmarksPage = lazy(() => import('@/app/pages/BookmarksPage'));
 const NotesPage = lazy(() => import('@/app/pages/NotesPage'));
+const PracticePage = lazy(() => import('@/app/pages/PracticePage'));
 const SearchPage = lazy(() => import('@/app/pages/SearchPage'));
 const BackupPage = lazy(() => import('@/app/pages/BackupPage'));
 const NotFoundPage = lazy(() => import('@/app/pages/NotFoundPage'));
@@ -41,6 +42,7 @@ export const router = createBrowserRouter([
       },
       { path: ROUTES.BOOKMARKS, element: <BookmarksPage />, errorElement: <RouteErrorBoundary /> },
       { path: ROUTES.NOTES, element: <NotesPage />, errorElement: <RouteErrorBoundary /> },
+      { path: ROUTES.PRACTICE, element: <PracticePage />, errorElement: <RouteErrorBoundary /> },
       { path: ROUTES.SEARCH, element: <SearchPage />, errorElement: <RouteErrorBoundary /> },
       { path: ROUTES.BACKUP, element: <BackupPage />, errorElement: <RouteErrorBoundary /> },
       { path: '*', element: <NotFoundPage /> },

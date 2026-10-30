@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, Bookmark, StickyNote, Search } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Bookmark, StickyNote, Search, Code2 } from 'lucide-react';
 import { ROUTE_PATHS } from '@/app/router/routes';
 import { cn } from '@/lib/utils';
 import { translate, useUiLocale, type TranslationKey } from '@/features/localization';
@@ -7,6 +7,7 @@ import { translate, useUiLocale, type TranslationKey } from '@/features/localiza
 const navItems: { label: TranslationKey; path: string; icon: typeof LayoutDashboard }[] = [
   { label: 'home', path: ROUTE_PATHS.DASHBOARD, icon: LayoutDashboard },
   { label: 'courses', path: ROUTE_PATHS.COURSES, icon: BookOpen },
+  { label: 'practice', path: ROUTE_PATHS.PRACTICE, icon: Code2 },
   { label: 'bookmarks', path: ROUTE_PATHS.BOOKMARKS, icon: Bookmark },
   { label: 'notes', path: ROUTE_PATHS.NOTES, icon: StickyNote },
   { label: 'search', path: ROUTE_PATHS.SEARCH, icon: Search },

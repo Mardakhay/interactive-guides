@@ -66,6 +66,7 @@ A task is not complete merely because a destination lesson is registered, the so
 - [x] Provide coding-practice scaffolding, locally persisted drafts/checklists, knowledge-check attempt history, hint toggles, and a script-disabled HTML preview; document JavaScript Worker and DOM limitations.
 - [x] Persist self-attested section-read markers separately from lesson completion; do not infer mastery from reading progress.
 - [x] Summarize quiz attempts, self-review criteria and saved exercise drafts as separate activity signals; explicitly state that these are not a mastery score.
+- [x] Add a bilingual Practice Center that aggregates structured coding exercises, displays saved-draft/self-review activity, and deep-links to the exact exercise without changing learner-state storage or claiming automated mastery.
 - [x] Regression-test that learning-signal counts are lesson-scoped and reset correctly when navigating to the next lesson; isolate the structured-learning store between page tests.
 - [x] Add an optional authored-example-solution field and explicit reveal/collapse UI. Solutions stay hidden until requested and are labelled as examples, not the only valid implementation; the HTML “About Me” pilot has bilingual authored solutions.
 - [ ] Extend optional solutions selectively after lesson-specific editorial review and verify disclosure behavior with assistive technology.

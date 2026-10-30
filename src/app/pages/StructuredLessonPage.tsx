@@ -78,6 +78,17 @@ export default function StructuredLessonPage() {
     };
   }, [lesson?.id]);
 
+  useEffect(() => {
+    if (!lesson || !window.location.hash) return;
+    let anchorId: string;
+    try {
+      anchorId = decodeURIComponent(window.location.hash.slice(1));
+    } catch {
+      return;
+    }
+    document.getElementById(anchorId)?.scrollIntoView?.({ block: 'start' });
+  }, [lesson?.id]);
+
   const week = lesson ? getWeekForLesson(lesson.id, locale) : undefined;
   const supplementaryTrack = lesson && !week ? getSupplementaryTrackForLesson(lesson.id, locale) : undefined;
   const curriculum = getBootcampCurriculum(locale);

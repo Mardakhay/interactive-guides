@@ -8,6 +8,7 @@ import {
   getStructuredLessonIds,
   getStructuredLessonMetadata,
   getStructuredLessonSearchDocuments,
+  getStructuredPracticeExercises,
   getWeekForLesson,
   getSupplementaryTrackForLesson,
   getSupplementaryTrackById,
@@ -110,6 +111,23 @@ describe('structured content repository', () => {
     expect(englishHtml?.searchText.toLowerCase()).toContain('doctype');
     expect(russianHtml?.searchText).toMatch(/[А-Яа-яЁё]/);
     expect(englishHtml?.searchText).toContain('semantic');
+  });
+
+  it('indexes coding exercises in both locales without exposing solution or hint fields', async () => {
+    const [english, russian] = await Promise.all([
+      getStructuredPracticeExercises('en'),
+      getStructuredPracticeExercises('ru'),
+    ]);
+    expect(english.length).toBeGreaterThan(0);
+    expect(russian).toHaveLength(english.length);
+    const aboutMe = english.find((exercise) => exercise.lessonId === 'html.document-structure' && exercise.exerciseId === 'practice-about-me');
+    const russianAboutMe = russian.find((exercise) => exercise.lessonId === 'html.document-structure' && exercise.exerciseId === 'practice-about-me');
+    expect(aboutMe?.title).toBe('Build an About Me page');
+    expect(russianAboutMe?.title).not.toBe(aboutMe?.title);
+    expect(aboutMe).toMatchObject({ language: 'html', lessonStatus: 'review' });
+    expect(aboutMe).not.toHaveProperty('solution');
+    expect(aboutMe).not.toHaveProperty('hints');
+    expect(aboutMe?.successCriteria.length).toBeGreaterThan(0);
   });
 
   it('keeps visible Russian metadata and learning outcomes localized across the full registry', async () => {

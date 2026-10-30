@@ -8,6 +8,7 @@ import {
   StickyNote,
   Search,
   Database,
+  Code2,
   GraduationCap,
   X,
 } from 'lucide-react';
@@ -29,6 +30,7 @@ const navItems: NavEntry[] = [
   { label: 'learningPaths', path: ROUTE_PATHS.LEARNING_PATHS, icon: Route },
   { label: 'bookmarks', path: ROUTE_PATHS.BOOKMARKS, icon: Bookmark },
   { label: 'notes', path: ROUTE_PATHS.NOTES, icon: StickyNote },
+  { label: 'practice', path: ROUTE_PATHS.PRACTICE, icon: Code2 },
   { label: 'search', path: ROUTE_PATHS.SEARCH, icon: Search },
   { label: 'dataBackup', path: ROUTE_PATHS.BACKUP, icon: Database },
 ];
