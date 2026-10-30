@@ -8,7 +8,7 @@ This is the one authoritative task list. Dated progress notes and superseded che
 
 ## Verified baseline
 
-- Last validated code checkpoint: `24b28b8a9adc02314525976f708ec83d0a6a0f89`; [exact feature-branch CI run #41042986202](https://github.com/Mardakhay/interactive-guides/actions/runs/41042986202) passed install, ESLint, TypeScript, **52 test files / 334 tests**, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, entry bundle, manifest, service worker, 5 PWA assets and 14 generated content chunks. npm audit reported zero advisories.
+- Last validated code checkpoint: `94d8358502e9dbcb6456b2efbe86c7d03d5fb5a6`; [exact feature-branch CI run #41043651915](https://github.com/Mardakhay/interactive-guides/actions/runs/41043651915) passed install, ESLint, TypeScript, **53 test files / 335 tests**, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, entry bundle, manifest, service worker, 5 PWA assets and 14 generated content chunks. npm audit reported zero advisories.
 - The preview smoke covers 13 deep routes, including `/en`, `/ru`, locale-prefixed application routes and legacy aliases, as well as the entry bundle, manifest, service worker, five PWA assets and all 14 generated content chunks. The generated search data totals 269,738 bytes gzip EN / 340,328 bytes gzip RU; Practice has a separate 59,527-byte EN / 75,293-byte RU payload. Native browser latency and mobile transfer remain unmeasured. Structured lesson outline search also now matches authored section text and command-reference examples, including Git commands.
 - Current branch also contains documentation reconciliation after that code checkpoint. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
 - Curriculum inventory: 27 core + 17 supplementary = 44 bilingual lesson pairs (88 locale JSON records).
@@ -29,6 +29,8 @@ This is the one authoritative task list. Dated progress notes and superseded che
 - [x] Bilingual Practice Center with 118 exercises, existing draft/self-review state and deep links to source exercise blocks.
 - [x] Bilingual Settings page for local language preference, browser online/offline signal, local-data counts and backup navigation; unsupported cloud/theme controls are explicitly disclosed.
 - [x] Current implementation audit, content inventory, handoff and manual acceptance checklist reconciled with the feature branch.
+- [x] Make every application route locale-prefixed, preserve legacy root aliases, query/hash on language switch, and sync browser language preference from direct locale routes.
+- [x] Add keyboard-managed mobile navigation drawer behavior (initial focus, Tab/Shift+Tab trap, Escape close and focus restoration) plus visible focus rings in the shared shell. Native screen-reader/device acceptance remains open.
 
 ## P0 — Content parity, publication and migration safety
 

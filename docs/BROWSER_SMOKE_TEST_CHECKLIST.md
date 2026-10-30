@@ -1,6 +1,6 @@
 # Browser and device smoke-test checklist
 
-**Status as of 2026-10-30: automated preview HTTP smoke passes; native browser/device acceptance has not been run.** Exact-head CI at `24b28b8a9adc02314525976f708ec83d0a6a0f89` passed [run #41042986202](https://github.com/Mardakhay/interactive-guides/actions/runs/41042986202): 52 test files / 334 tests, lint, typecheck, production build, bundle budgets across 141 JavaScript chunks and HTTP smoke for 13 deep routes (locale-prefixed routes plus legacy aliases), the entry bundle, manifest, service worker, five PWA assets and all 14 generated search/practice index assets. npm audit reported zero advisories. The preview smoke verifies HTTP routes/assets only; native browser, install, offline, storage, accessibility and mobile acceptance remain open.
+**Status as of 2026-10-30: automated preview HTTP smoke passes; native browser/device acceptance has not been run.** Exact-head CI at `94d8358502e9dbcb6456b2efbe86c7d03d5fb5a6` passed [run #41043651915](https://github.com/Mardakhay/interactive-guides/actions/runs/41043651915): 53 test files / 335 tests, lint, typecheck, production build, budgets across 141 JavaScript chunks and HTTP smoke for 13 deep routes, entry bundle, manifest, service worker, five PWA assets and 14 generated search/practice index assets. npm audit reported zero advisories. Automated keyboard tests cover the mobile drawer focus trap and restoration; they do not replace native browser, screen-reader, install/offline, storage or mobile acceptance.
 
 ## Safe setup and evidence
 
@@ -83,6 +83,16 @@ These cases are partly exercised with deterministic Storage API mocks in Vitest;
 | LOC-03 | Switch language from Search, Settings, a course detail page and a structured lesson with a query/hash. | The route remains the same logical screen/resource under the new locale, the query/hash are preserved, and structured lessons retain their stable lesson ID. | Not run |
 | LOC-04 | Open an unsupported prefix such as `/xx/courses`. | The app repairs it to the saved supported locale without losing the requested route path, or presents a localized not-found state; it must not loop. | Not run |
 | LOC-05 | Follow desktop Sidebar and mobile bottom-navigation links while on Russian routes. | All generated links retain the `/ru` prefix and the current route is visibly marked active. | Not run |
+
+## H. Shared navigation keyboard and assistive-technology checks
+
+| ID | Procedure | Expected result | Outcome / notes |
+|---|---|---|---|
+| A11Y-NAV-01 | At a narrow viewport, focus **Open menu** and press Enter/Space. | The drawer opens as a labelled modal dialog, focus moves into it, and closed drawer links are not reachable by Tab. | Not run |
+| A11Y-NAV-02 | With the drawer open, press Tab repeatedly through the last link, then Shift+Tab from the first link. | Focus wraps within the drawer; it does not move into the obscured page. | Pass in Vitest keyboard component test; native browser not run |
+| A11Y-NAV-03 | Press Escape while the drawer is open. | The drawer closes and focus returns to the menu trigger. | Pass in Vitest keyboard component test; native browser not run |
+| A11Y-NAV-04 | Use VoiceOver (iOS/macOS) or NVDA/Firefox (Windows) to open and navigate the drawer. | The dialog/navigation label, link names, active route and close action are announced coherently; background content is not exposed as part of the modal interaction. | Not run |
+| A11Y-NAV-05 | Navigate TopBar, Sidebar and MobileNav using only keyboard at 200% zoom and narrow viewport. | Every interactive control has a visible focus indicator, logical focus order, usable target size and no horizontal overflow. | Not run |
 
 ## Execution record
 

@@ -1,7 +1,7 @@
 # Code-to-requirements conformance audit
 
 **Audit date:** 2026-10-30  
-**Audit baseline:** `24b28b8a9adc02314525976f708ec83d0a6a0f89`  
+**Audit baseline:** `94d8358502e9dbcb6456b2efbe86c7d03d5fb5a6`  
 **Working branch:** `feat/learning-platform-foundation`
 
 This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md`, `CURRICULUM_AND_CONTENT.md`, `ROADMAP.md`, persistence/PWA documents and source-parity checklists. It is not native browser, mobile, screen-reader, production-deployment or editorial acceptance.
@@ -13,6 +13,7 @@ This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md
 - Schema-validated lesson blocks rendered through reusable React components; knowledge checks, coding scaffolds, drafts, checklists, references and section-read state.
 - A bilingual Practice Center aggregates 118 structured coding exercises, connects to existing per-exercise draft/self-review records, and links to the exact exercise anchor in its lesson. It explicitly distinguishes self-attested activity from automated grading/mastery.
 - A bilingual Settings page exposes persisted UI language, the browser online/offline signal, actual local learner-data counts, backup access and an explicit no-cloud-sync notice.
+- All application routes are locale-prefixed; legacy unprefixed paths redirect to the saved language while preserving query/hash. The shared shell has explicit keyboard focus rings, and the mobile sidebar acts as a keyboard-managed dialog with focus trap, Escape close and focus restoration.
 - Separate classic/structured learner identities; local progress, bookmarks, notes, quiz results, structured activity, versioned storage, backup export/import and best-effort rollback.
 - PWA manifest/icons, app-shell precache, scoped asset runtime caching, SPA fallback and learner-approved update prompt.
 - CI coverage for lint, typecheck, unit/component tests, production build, bundle budgets and production-preview HTTP smoke.
@@ -38,7 +39,7 @@ Search includes classic lesson metadata, notes, structured lesson titles/descrip
 
 ## Verification boundary
 
-Exact-head CI on this audit baseline passed 52 test files / 334 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, 14 generated index assets and PWA files ([run #41042986202](https://github.com/Mardakhay/interactive-guides/actions/runs/41042986202)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
+Exact-head CI on this audit baseline passed 53 test files / 335 tests, lint, typecheck, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, 14 generated index assets and PWA files ([run #41043651915](https://github.com/Mardakhay/interactive-guides/actions/runs/41043651915)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
 
 ## Safe continuation order
 
