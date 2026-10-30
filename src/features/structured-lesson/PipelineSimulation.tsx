@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { AlertTriangle, CheckCircle2, Circle, Play, RotateCcw, XCircle } from 'lucide-react';
-import type { Extract } from 'typescript';
 import type { LessonContentBlock } from '@/content/schemas/lessonContent';
 import type { SupportedLocale } from '@/content/repository';
 
@@ -262,7 +261,7 @@ export function PipelineSimulation({ block, locale }: PipelineSimulationProps) {
 
       <div className="mt-4 rounded-xl bg-neutral-50 p-3">
         <h4 className="text-sm font-semibold text-neutral-900">{labels.result}</h4>
-        <p role="status" aria-live="polite" aria-atomic="true" className="mt-2 text-sm leading-6 text-neutral-700">{announcement || resultText}</p>
+        <p role="status" aria-label={labels.result} aria-live="polite" aria-atomic="true" className="mt-2 text-sm leading-6 text-neutral-700">{announcement || resultText}</p>
         {currentOutcome === 'deployment-failed' && (
           <p className="mt-2 text-xs leading-5 text-neutral-600">{labels.deployRollbackNote}</p>
         )}

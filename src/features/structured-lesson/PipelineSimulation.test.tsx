@@ -55,7 +55,7 @@ describe('PipelineSimulation', () => {
 
     expect(screen.getByRole('status', { name: 'Pipeline simulation result' })).toHaveTextContent(/pre-merge checks passed/i);
     fireEvent.click(screen.getByRole('button', { name: 'Simulate deployment rollback' }));
-    expect(screen.getByText(/rollback restored the last known good version/i)).toBeTruthy();
+    expect(screen.getAllByText(/rollback restored the last known good version/i).length).toBeGreaterThan(0);
   });
 
   it('localizes the simulator controls and stage labels in Russian', async () => {
