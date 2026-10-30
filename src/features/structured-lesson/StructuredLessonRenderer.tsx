@@ -850,9 +850,6 @@ function StructuredLessonTabs({
 
   if (!activeTab) return null;
 
-  const panelId = block.id + '-' + activeTab.id + '-panel';
-  const tabId = block.id + '-' + activeTab.id + '-tab';
-
   return (
     <section className="my-8 min-w-0" aria-labelledby={block.id + '-title'}>
       <h2 id={block.id + '-title'} className="text-2xl font-semibold tracking-tight text-neutral-950">{block.title}</h2>
