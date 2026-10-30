@@ -12,6 +12,7 @@ This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md
 - Six-month / 24-week canonical curriculum; 27 core + 17 supplementary stable lesson IDs, each with EN/RU records.
 - Schema-validated lesson blocks rendered through reusable React components; knowledge checks, coding scaffolds, drafts, checklists, references and section-read state.
 - A bilingual Practice Center aggregates 118 structured coding exercises, connects to existing per-exercise draft/self-review records, and links to the exact exercise anchor in its lesson. It explicitly distinguishes self-attested activity from automated grading/mastery.
+- A bilingual Settings page exposes persisted UI language, the browser online/offline signal, actual local learner-data counts, backup access and an explicit no-cloud-sync notice.
 - Separate classic/structured learner identities; local progress, bookmarks, notes, quiz results, structured activity, versioned storage, backup export/import and best-effort rollback.
 - PWA manifest/icons, app-shell precache, scoped asset runtime caching, SPA fallback and learner-approved update prompt.
 - CI coverage for lint, typecheck, unit/component tests, production build, bundle budgets and production-preview HTTP smoke.

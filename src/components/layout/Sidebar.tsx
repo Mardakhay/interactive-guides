@@ -9,6 +9,7 @@ import {
   Search,
   Database,
   Code2,
+  Settings2,
   GraduationCap,
   X,
 } from 'lucide-react';
@@ -33,6 +34,7 @@ const navItems: NavEntry[] = [
   { label: 'practice', path: ROUTE_PATHS.PRACTICE, icon: Code2 },
   { label: 'search', path: ROUTE_PATHS.SEARCH, icon: Search },
   { label: 'dataBackup', path: ROUTE_PATHS.BACKUP, icon: Database },
+  { label: 'settings', path: ROUTE_PATHS.SETTINGS, icon: Settings2 },
 ];
 
 export function Sidebar() {

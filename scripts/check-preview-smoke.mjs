@@ -65,6 +65,7 @@ try {
     '/ru/structured-lessons',
     '/ru/structured-lessons/capstone.requirements-discovery',
     '/practice',
+    '/settings',
     '/paths/structured-capstone',
   ];
   for (const route of deepRoutes) {

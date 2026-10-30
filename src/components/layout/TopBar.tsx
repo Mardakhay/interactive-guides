@@ -1,4 +1,4 @@
-import { Search, Menu } from 'lucide-react';
+import { Search, Menu, Settings2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUIStore } from '@/stores/uiStore';
 import { ROUTE_PATHS } from '@/app/router/routes';
@@ -35,6 +35,15 @@ export function TopBar() {
       >
         <Search className="h-4 w-4" />
         <span>{translate(locale, 'searchPlaceholder')}</span>
+      </button>
+      <button
+        type="button"
+        onClick={() => navigate(ROUTE_PATHS.SETTINGS)}
+        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-neutral-200 text-neutral-700 hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+        aria-label={translate(locale, 'settings')}
+        title={translate(locale, 'settings')}
+      >
+        <Settings2 className="h-4 w-4" aria-hidden="true" />
       </button>
       <button
         type="button"

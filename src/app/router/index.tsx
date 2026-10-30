@@ -18,6 +18,7 @@ const NotesPage = lazy(() => import('@/app/pages/NotesPage'));
 const PracticePage = lazy(() => import('@/app/pages/PracticePage'));
 const SearchPage = lazy(() => import('@/app/pages/SearchPage'));
 const BackupPage = lazy(() => import('@/app/pages/BackupPage'));
+const SettingsPage = lazy(() => import('@/app/pages/SettingsPage'));
 const NotFoundPage = lazy(() => import('@/app/pages/NotFoundPage'));
 
 export const router = createBrowserRouter([
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
       { path: ROUTES.PRACTICE, element: <PracticePage />, errorElement: <RouteErrorBoundary /> },
       { path: ROUTES.SEARCH, element: <SearchPage />, errorElement: <RouteErrorBoundary /> },
       { path: ROUTES.BACKUP, element: <BackupPage />, errorElement: <RouteErrorBoundary /> },
+      { path: ROUTES.SETTINGS, element: <SettingsPage />, errorElement: <RouteErrorBoundary /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

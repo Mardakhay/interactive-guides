@@ -10,6 +10,7 @@ export const ROUTES = {
   PRACTICE: '/practice',
   SEARCH: '/search',
   BACKUP: '/backup',
+  SETTINGS: '/settings',
 } as const;
 
 export const ROUTE_PATHS = {
@@ -21,6 +22,7 @@ export const ROUTE_PATHS = {
   PRACTICE: '/practice',
   SEARCH: '/search',
   BACKUP: '/backup',
+  SETTINGS: '/settings',
 } as const;
 
 export function coursePath(categoryId: string): string {
