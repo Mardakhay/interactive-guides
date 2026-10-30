@@ -4,7 +4,7 @@ import { ArrowRight, Code2, FileCode2, Search } from 'lucide-react';
 import { getStructuredPracticeExercises, type StructuredPracticeExercise } from '@/content';
 import { useStructuredLearningStore } from '@/features/structured-lesson/store';
 import { EmptyState } from '@/components/feedback';
-import { translate, useUiLocale } from '@/features/localization';
+import { useUiLocale } from '@/features/localization';
 
 type PracticeFilter = 'all' | 'drafts' | 'self-review';
 

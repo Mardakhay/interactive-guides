@@ -206,7 +206,7 @@ const en = {
   "practiceNoResultsTitle": "No exercises found",
   "practiceNoResultsMessage": "Change the query or filter. Every exercise is still available from its lesson.",
   "practiceEmptyTitle": "No exercises yet",
-  "practiceEmptyMessage": "Structured coding exercises will appear here when learning content is available."
+  "practiceEmptyMessage": "Structured coding exercises will appear here when learning content is available.",
   "storageErrorTitle": "A learning-data storage problem occurred",
   "storageReadFailed": "The app could not read some saved learning data. Some views may use fallback values; this does not mean your saved data is empty.",
   "storageWriteFailed": "The latest change could not be saved. It may remain only in memory and could be lost when this tab closes.",
@@ -420,7 +420,7 @@ const ru: Record<keyof typeof en, string> = {
   "practiceNoResultsTitle": "Задания не найдены",
   "practiceNoResultsMessage": "Измени запрос или фильтр. Все упражнения остаются доступны из соответствующих уроков.",
   "practiceEmptyTitle": "Пока нет упражнений",
-  "practiceEmptyMessage": "Структурированные coding exercises появятся здесь после загрузки учебного контента."
+  "practiceEmptyMessage": "Структурированные coding exercises появятся здесь после загрузки учебного контента.",
   "storageErrorTitle": "Возникла проблема с хранилищем учебных данных",
   "storageReadFailed": "Не удалось прочитать часть сохранённых учебных данных. Некоторые экраны могут использовать значения по умолчанию; это не означает, что сохранённые данные пусты.",
   "storageWriteFailed": "Последнее изменение не удалось сохранить. Оно может остаться только в памяти и потеряться при закрытии вкладки.",

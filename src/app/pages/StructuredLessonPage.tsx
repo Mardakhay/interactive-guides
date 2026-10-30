@@ -76,7 +76,7 @@ export default function StructuredLessonPage() {
       window.removeEventListener('resize', updateProgress);
       resizeObserver?.disconnect();
     };
-  }, [lesson?.id]);
+  }, [lesson]);
 
   useEffect(() => {
     if (!lesson || !window.location.hash) return;
