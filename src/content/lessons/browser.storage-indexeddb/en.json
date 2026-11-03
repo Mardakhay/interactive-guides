@@ -1,0 +1,545 @@
+{
+  "id": "browser.storage-indexeddb",
+  "locale": "en",
+  "version": 2,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-26",
+  "moduleId": "supplement-browser-storage",
+  "supplementaryTrackId": "supplement-browser-storage",
+  "order": 1,
+  "title": "Web Storage and IndexedDB",
+  "description": "Local browser storage, IndexedDB transactions, security, and storage boundaries.",
+  "estimatedMinutes": 100,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "js.async-fetch",
+    "js.functions-arrays-objects"
+  ],
+  "learningOutcomes": [
+    "Choose among localStorage, sessionStorage, and IndexedDB by requirements.",
+    "Serialize and validate stored values defensively.",
+    "Handle storage events, quota failures, and malformed JSON.",
+    "Explain IndexedDB schema versions and transaction boundaries.",
+    "Distinguish local persistence from server-backed learner progress."
+  ],
+  "tags": [
+    "browser APIs",
+    "Web Storage",
+    "IndexedDB",
+    "persistence",
+    "security"
+  ],
+  "blocks": [
+    {
+      "id": "storage-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Browser data storage: Web Storage and IndexedDB"
+    },
+    {
+      "id": "storage-model",
+      "type": "paragraph",
+      "text": "Choose storage by size, structure, access pattern, and reliability. localStorage and sessionStorage are synchronous key/value stores of small strings scoped to an origin; IndexedDB is an asynchronous transactional database for structured data. None of these options syncs data to a server by itself."
+    },
+    {
+      "id": "web-storage-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Web Storage: strings, keys, and lifetime"
+    },
+    {
+      "id": "storage-lifecycle",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "localStorage usually survives browser close/reopen until the user or browser clears it.",
+        "sessionStorage is scoped to a top-level page session and survives reloads; it is not a cross-tab shared store.",
+        "The API stores strings. Plain objects/arrays usually need JSON.stringify and cautious JSON.parse.",
+        "Use getItem/setItem/removeItem rather than storage properties: Storage has built-in methods and keys can collide with them."
+      ]
+    },
+    {
+      "id": "storage-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const defaults = { theme: \"light\" };\n\nfunction readTheme(storage) {\n  try {\n    const raw = storage.getItem(\"app:theme\");\n    return raw === \"dark\" || raw === \"light\" ? raw : defaults.theme;\n  } catch (error) {\n    return defaults.theme;\n  }\n}\n\nfunction saveTheme(storage, theme) {\n  try {\n    storage.setItem(\"app:theme\", theme);\n    return true;\n  } catch (error) {\n    return false;\n  }\n}",
+      "steps": [
+        {
+          "title": "Handle absence and validate the value",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "getItem returns null when the key is absent. Treat a stored value as untrusted and check it against the allowed set."
+        },
+        {
+          "title": "Fall back when reading fails",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "Storage access may be disabled by settings or context. This function keeps working with the default preference."
+        },
+        {
+          "title": "Handle a failed write",
+          "lineStart": 12,
+          "lineEnd": 19,
+          "explanation": "Quota or browser policy may prevent setItem. The UI can still work in memory and treat this optional persistence as best effort."
+        }
+      ]
+    },
+    {
+      "id": "storage-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does `localStorage.getItem(key)` return when the key is absent?",
+      "options": [
+        {
+          "id": "a",
+          "text": "An empty string.",
+          "correct": false,
+          "feedback": "A missing key is represented by null; an empty string is a separate stored value."
+        },
+        {
+          "id": "b",
+          "text": "null.",
+          "correct": true,
+          "feedback": "Correct. Compare explicitly with null if an empty string can be valid."
+        },
+        {
+          "id": "c",
+          "text": "undefined.",
+          "correct": false,
+          "feedback": "The Storage API returns null for a missing key."
+        },
+        {
+          "id": "d",
+          "text": "Automatically parsed JSON.",
+          "correct": false,
+          "feedback": "Web Storage returns strings; JSON.parse is separate and can throw."
+        }
+      ],
+      "explanation": "Storage values are strings, and a missing key is represented by null. Avoid truthiness when an empty string could be valid."
+    },
+    {
+      "id": "storage-security",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Do not store secrets in Web Storage",
+      "text": "Any JavaScript running on the same origin can read localStorage/sessionStorage. An XSS bug can steal tokens and personal data stored there. Keep only small, non-sensitive preferences; design authentication data around a threat model and appropriate server cookie/session practices."
+    },
+    {
+      "id": "storage-events-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "JSON, exceptions, and cross-tab changes"
+    },
+    {
+      "id": "storage-event-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const key = \"app:preferences\";\n\ntry {\n  localStorage.setItem(key, JSON.stringify({ theme: \"dark\" }));\n} catch (error) {\n  console.warn(\"Preference was not persisted\", error);\n}\n\nwindow.addEventListener(\"storage\", (event) => {\n  if (event.key === key && event.newValue !== null) {\n    console.log(JSON.parse(event.newValue).theme);\n  }\n});",
+      "steps": [
+        {
+          "title": "Serialize and catch failures",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "Storage accepts strings; JSON.stringify is suitable for simple data. setItem can fail, for example due to unavailable storage or quota."
+        },
+        {
+          "title": "Handle the event in another document",
+          "lineStart": 9,
+          "lineEnd": 13,
+          "explanation": "storage does not fire in the same window that made the change. For localStorage it notifies other same-origin browsing contexts; it is not a replacement for local UI updates or server sync."
+        }
+      ]
+    },
+    {
+      "id": "storage-event-detail",
+      "type": "paragraph",
+      "text": "JSON.parse throws on malformed or outdated data; validate the parsed shape too. Quotas depend on browser and storage policy, so do not rely on a fixed number of megabytes. Web Storage is synchronous: large read/write loops can block the main thread."
+    },
+    {
+      "id": "indexeddb-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "IndexedDB: schema, versions, and asynchronous open"
+    },
+    {
+      "id": "indexeddb-open-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const request = indexedDB.open(\"notes\", 1);\n\nrequest.onupgradeneeded = () => {\n  const db = request.result;\n  if (!db.objectStoreNames.contains(\"drafts\")) {\n    const store = db.createObjectStore(\"drafts\", { keyPath: \"id\" });\n    store.createIndex(\"by-updated\", \"updatedAt\");\n  }\n};\n\nrequest.onsuccess = () => {\n  const db = request.result;\n  db.onversionchange = () => db.close();\n  console.log(\"database is ready\");\n};\n\nrequest.onerror = () => console.error(request.error);",
+      "steps": [
+        {
+          "title": "Version schema changes",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "open returns an asynchronous request. On first open or a version increase, onupgradeneeded runs; create object stores and indexes there."
+        },
+        {
+          "title": "Close old connections for migration",
+          "lineStart": 10,
+          "lineEnd": 15,
+          "explanation": "A successful open gives you IDBDatabase. versionchange closes a connection so another tab can run a migration instead of remaining blocked."
+        },
+        {
+          "title": "Handle an open error",
+          "lineStart": 17,
+          "lineEnd": 17,
+          "explanation": "If opening fails, request.error gives the cause; the app should expose a fallback/error rather than assuming the database is ready."
+        }
+      ]
+    },
+    {
+      "id": "indexeddb-transaction-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function saveDraft(db, draft) {\n  const transaction = db.transaction(\"drafts\", \"readwrite\");\n  const store = transaction.objectStore(\"drafts\");\n  store.put(draft);\n\n  transaction.oncomplete = () => console.log(\"committed\");\n  transaction.onabort = () => console.error(transaction.error);\n  transaction.onerror = () => console.error(\"request or transaction failed\");\n}",
+      "steps": [
+        {
+          "title": "Choose a scope and mode",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "The transaction is scoped to drafts and uses readwrite mode. Choose readonly for simple reads."
+        },
+        {
+          "title": "Write through the object store",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "put inserts or replaces a record with the same keyPath; add instead rejects a duplicate key."
+        },
+        {
+          "title": "Wait for the transaction to finish",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "explanation": "An individual request succeeding does not mean the whole transaction committed. Tie app success to complete; handle abort/error and roll back UI on failure."
+        }
+      ]
+    },
+    {
+      "id": "indexeddb-crud-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Complete the record lifecycle: add, read, update, delete"
+    },
+    {
+      "id": "indexeddb-crud-intro",
+      "type": "paragraph",
+      "text": "IndexedDB stores records in object stores. Use `add()` when a record must be new; use `put()` for insert-or-replace. `get()` reads by primary key, `delete()` removes by key, and `getAll()` suits a small bounded result. Each operation runs in a transaction. A request's `success` event is not the commit boundary: report a successful write only after transaction `complete`, and handle `error`/`abort` as failure."
+    },
+    {
+      "id": "indexeddb-crud-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function addDraft(db, draft) {\n  const transaction = db.transaction(\"drafts\", \"readwrite\");\n  const store = transaction.objectStore(\"drafts\");\n  const request = store.add(draft); // insert only; duplicate keys can fail\n  request.onsuccess = () => console.log(\"Request succeeded\", request.result);\n  request.onerror = () => console.error(\"Add request failed\", request.error);\n  transaction.oncomplete = () => console.log(\"Draft committed\");\n  transaction.onabort = () => console.error(\"Transaction aborted\", transaction.error);\n}\n\nfunction readDraft(db, id) {\n  const transaction = db.transaction(\"drafts\", \"readonly\");\n  const request = transaction.objectStore(\"drafts\").get(id);\n  request.onsuccess = () => console.log(\"Draft result\", request.result);\n  request.onerror = () => console.error(\"Read failed\", request.error);\n}\n\nfunction saveDraft(db, draft) {\n  const transaction = db.transaction(\"drafts\", \"readwrite\");\n  const request = transaction.objectStore(\"drafts\").put(draft); // insert or replace\n  request.onerror = () => console.error(\"Save request failed\", request.error);\n  transaction.oncomplete = () => console.log(\"Save transaction committed\");\n  transaction.onabort = () => console.error(\"Save transaction aborted\", transaction.error);\n}\n\nfunction deleteDraft(db, id) {\n  const transaction = db.transaction(\"drafts\", \"readwrite\");\n  const request = transaction.objectStore(\"drafts\").delete(id);\n  request.onerror = () => console.error(\"Delete failed\", request.error);\n  transaction.oncomplete = () => console.log(\"Delete transaction committed\");\n  transaction.onabort = () => console.error(\"Delete transaction aborted\", transaction.error);\n}",
+      "steps": [
+        {
+          "title": "Insert a new record",
+          "lineStart": 1,
+          "lineEnd": 10,
+          "explanation": "`add()` is insert-only. If the key already exists, the request can fail with a constraint error and the transaction can abort."
+        },
+        {
+          "title": "Read by primary key",
+          "lineStart": 11,
+          "lineEnd": 17,
+          "explanation": "`get()` is a readonly request. Check its result before assuming that a record exists."
+        },
+        {
+          "title": "Insert or replace",
+          "lineStart": 18,
+          "lineEnd": 25,
+          "explanation": "`put()` inserts or replaces a record with the same key. Request success still does not prove the transaction committed."
+        },
+        {
+          "title": "Delete by key",
+          "lineStart": 26,
+          "lineEnd": 31,
+          "explanation": "`delete()` removes the record with that primary key. Handle request errors and transaction aborts."
+        }
+      ]
+    },
+    {
+      "id": "indexeddb-queries-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Use indexes and cursors for targeted reads"
+    },
+    {
+      "id": "indexeddb-queries-intro",
+      "type": "paragraph",
+      "text": "Create an index during `onupgradeneeded` and query it when the field is a real access path. `IDBKeyRange` scopes the query; a cursor walks matching entries incrementally. This example assumes `updatedAt` values are consistently normalized ISO date strings compatible with the `by-updated` index created during schema upgrade."
+    },
+    {
+      "id": "indexeddb-query-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function listDraftsByDate(db, fromIso, toIso) {\n  const transaction = db.transaction(\"drafts\", \"readonly\");\n  const index = transaction.objectStore(\"drafts\").index(\"by-updated\");\n  const range = IDBKeyRange.bound(fromIso, toIso);\n  const request = index.openCursor(range, \"prev\");\n  request.onsuccess = () => {\n    const cursor = request.result;\n    if (!cursor) return; // no more matching records\n    console.log(cursor.primaryKey, cursor.value);\n    cursor.continue();\n  };\n  request.onerror = () => console.error(\"Cursor failed\", request.error);\n}\n\n// getAll() is convenient when the complete result is small and needed at once.\n// A cursor processes entries incrementally and can stop early.",
+      "steps": [
+        {
+          "title": "Open the index and range",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The `by-updated` index comes from the schema-upgrade example. Range keys must use the same type/order as indexed values."
+        },
+        {
+          "title": "Process and advance the cursor",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "explanation": "A cursor is present while `request.result` is truthy. Call `continue()` to advance; no cursor means no more matching entries."
+        },
+        {
+          "title": "Choose an array or cursor",
+          "lineStart": 15,
+          "lineEnd": 16,
+          "explanation": "Use `getAll()` when a small result is needed all at once; a cursor avoids materializing every matching record in one array and can stop early."
+        }
+      ]
+    },
+    {
+      "id": "indexeddb-quota-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Estimate storage without promising a fixed quota"
+    },
+    {
+      "id": "indexeddb-quota-intro",
+      "type": "paragraph",
+      "text": "Browser quotas and eviction policies vary by browser, device, and storage conditions. Do not teach a universal “IndexedDB gives 5–10 MB” rule. `navigator.storage.estimate()` provides approximate origin-level usage/quota when supported; it does not guarantee the next write will succeed. Still handle transaction failures. `navigator.storage.persist()` may request persistence, but the request can be denied."
+    },
+    {
+      "id": "indexeddb-quota-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "async function readOriginStorageEstimate() {\n  if (!navigator.storage?.estimate) return null;\n  const { usage, quota } = await navigator.storage.estimate();\n  return {\n    usageBytes: usage ?? null,\n    quotaBytes: quota ?? null,\n    usageRatio: usage !== undefined && quota ? usage / quota : null,\n  };\n}",
+      "steps": [
+        {
+          "title": "Detect whether estimation is available",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Some contexts may not expose the estimate API. Return a fallback rather than assuming it exists."
+        },
+        {
+          "title": "Treat values as approximate",
+          "lineStart": 3,
+          "lineEnd": 7,
+          "explanation": "Usage and quota are estimates for the origin, not a fixed object-store limit. A failed write still needs error/abort handling."
+        }
+      ]
+    },
+    {
+      "id": "indexeddb-crud-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "For an object store with keyPath `id`, which operation is the normal insert-or-replace choice?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`add(record)` because it overwrites a record with the same key",
+          "correct": false,
+          "feedback": "`add()` is insert-only; an existing key can cause a constraint error rather than replacement."
+        },
+        {
+          "id": "b",
+          "text": "`put(record)` because it inserts or replaces by key",
+          "correct": true,
+          "feedback": "`put()` provides insert-or-update behavior for a record key; the surrounding transaction still determines commit success."
+        },
+        {
+          "id": "c",
+          "text": "`get(record)` because it writes only if missing",
+          "correct": false,
+          "feedback": "`get()` is a read request and does not insert or update a record."
+        },
+        {
+          "id": "d",
+          "text": "`openCursor(record)` because it commits the whole store",
+          "correct": false,
+          "feedback": "A cursor iterates records and does not replace a write operation or transaction lifecycle."
+        }
+      ],
+      "explanation": "Use `add()` for insert-only semantics and `put()` for insert-or-replace. Wait for transaction completion before reporting that a write committed."
+    },
+    {
+      "id": "indexeddb-crud-practice",
+      "type": "codingExercise",
+      "language": "javascript",
+      "context": "An offline notes view stores drafts in a `drafts` object store keyed by `id` with a `by-updated` index. It needs reliable CRUD operations and date-range listing.",
+      "instructions": [
+        "Implement create with `add()`, read with `get()`, update/upsert with `put()`, and delete with `delete()` against `drafts.",
+        "Query `by-updated` with `IDBKeyRange.bound()` and walk matching results with `openCursor()`/`continue()`.",
+        "Resolve a write Promise only after transaction `complete`; reject on abort/error and do not mistake request success for commit.",
+        "Create the object store and index idempotently inside `onupgradeneeded`, and close old connections on `versionchange`.",
+        "Feature-detect `navigator.storage.estimate()` and present usage/quota as approximate origin-level values rather than a guaranteed megabyte limit.",
+        "Describe a fallback if storage is unavailable or full without claiming local IndexedDB syncs drafts to another device."
+      ],
+      "requirements": [
+        "CRUD functions use the intended object store, transaction mode, primary key, and operation.",
+        "`add()` stays insert-only and `put()` is insert-or-replace.",
+        "Index queries use the named index and a compatible `IDBKeyRange`.",
+        "Cursor iteration advances with `continue()` and terminates when no cursor remains.",
+        "Write success is reported only on transaction completion; error/abort rejects.",
+        "Quota handling uses feature detection and avoids fixed cross-browser thresholds.",
+        "The plan includes a fallback and distinguishes local persistence from server sync."
+      ],
+      "starterCode": "function listDraftsByDate(db, fromIso, toIso) {\n  const transaction = db.transaction(\"drafts\", \"readonly\");\n  const index = transaction.objectStore(\"drafts\").index(\"by-updated\");\n  const range = IDBKeyRange.bound(fromIso, toIso);\n  const request = index.openCursor(range, \"prev\");\n\n  request.onsuccess = () => {\n    const cursor = request.result;\n    if (!cursor) return;\n    // TODO: collect/render cursor.value or cursor.primaryKey.\n    // TODO: advance the cursor.\n  };\n  request.onerror = () => {\n    // TODO: surface the read failure.\n  };\n}\n\nasync function readOriginStorageEstimate() {\n  // TODO: feature-detect navigator.storage.estimate().\n  // TODO: return approximate usage/quota without assuming a fixed limit.\n}",
+      "hints": [
+        "`add()` rejects duplicate keys; `put()` updates or inserts.",
+        "An index must exist in the upgraded schema before `store.index(name)` can be used.",
+        "`cursor.continue()` advances the request; no cursor means there are no further results.",
+        "Request success is not the commit boundary. Resolve only on `transaction.complete`.",
+        "Storage estimates are approximate and origin-scoped; failed writes still need explicit handling."
+      ],
+      "successCriteria": [
+        "Each CRUD operation uses the intended key and readonly/readwrite mode.",
+        "The indexed range returns only records in the requested time window.",
+        "Cursor processing advances and stops correctly.",
+        "Write promises cannot resolve before commit and reject on failure.",
+        "Quota estimation has a graceful unsupported path and is never described as a guaranteed cap.",
+        "The design has a fallback and does not mistake local data for server-backed sync."
+      ],
+      "title": "Build a small IndexedDB repository safely"
+    },
+    {
+      "id": "indexeddb-tradeoffs",
+      "type": "paragraph",
+      "text": "IndexedDB is asynchronous, same-origin, and uses structured clone, object stores, indexes, requests, cursors, and transactions. The browser controls quota and eviction; this is not a backup or account shared across devices. Do not keep a transaction open while awaiting unrelated network work or timers; create a short transaction near the operation."
+    },
+    {
+      "id": "storage-choice",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "A non-sensitive theme or compact preference: Web Storage, if synchronous writes are acceptable.",
+        "Offline drafts/structured data and indexed queries: IndexedDB.",
+        "Secrets, confirmed multi-device progress, and authoritative data: a server system with access checks; browser storage can only be an optional local layer.",
+        "Use DevTools Application/Storage to inspect keys, IndexedDB stores, transaction errors, and origin data."
+      ]
+    },
+    {
+      "id": "storage-practice",
+      "type": "codingExercise",
+      "title": "Save a draft transactionally",
+      "language": "javascript",
+      "context": "An editor stores drafts in IndexedDB. Implement a Promise wrapper to save one draft so the UI reports success only after transaction commit and can handle an abort.",
+      "instructions": [
+        "Implement saveDraft(db, draft) with a readwrite transaction on drafts and put for upsert by keyPath.",
+        "Resolve the Promise with draft.id only on transaction complete; reject on abort/error.",
+        "Validate draft.id before opening the transaction and do not mutate the object.",
+        "Describe a migration: on version increase create a store with keyPath id and a by-updated index for updatedAt, without recreating the store on repeated upgrade.",
+        "Add scenarios for complete, error/abort and invalid id; distinguish request success from transaction commit."
+      ],
+      "requirements": [
+        "Validates draft and uses a short readwrite transaction.",
+        "Calls put to support both insert and update by id.",
+        "Resolves only after transaction.oncomplete.",
+        "Abort/error rejects and never reports a false save.",
+        "Migration creates store/index idempotently only when missing.",
+        "Does not claim IndexedDB syncs a user to the server."
+      ],
+      "starterCode": "function saveDraft(db, draft) {\n  if (!draft || typeof draft.id !== \"string\" || draft.id.length === 0) {\n    return Promise.reject(new TypeError(\"draft.id is required\"));\n  }\n\n  return new Promise((resolve, reject) => {\n    const transaction = db.transaction(\"drafts\", \"readwrite\");\n    transaction.objectStore(\"drafts\").put(draft);\n\n    transaction.oncomplete = () => {\n      // TODO: resolve with the saved draft id.\n    };\n    transaction.onabort = () => {\n      // TODO: reject with the transaction error.\n    };\n    transaction.onerror = () => {\n      // TODO: reject, but do not report a commit here.\n    };\n  });\n}",
+      "hints": [
+        "Request success means that request succeeded within the transaction; only transaction complete means the transaction committed.",
+        "Prevent double settlement if both error and abort notifications occur; Promise ignores later settlements, but keep the intended error source clear.",
+        "Use put for insert-or-update by id; add has different duplicate-key behavior.",
+        "Create object stores and indexes inside onupgradeneeded, checking objectStoreNames/indexNames first."
+      ],
+      "successCriteria": [
+        "Invalid or missing id is rejected before a transaction is opened.",
+        "A valid draft uses drafts/readwrite and put.",
+        "The Promise resolves with draft.id only after transaction complete.",
+        "Abort/error rejects and never resolves as saved.",
+        "Migration can run again without throwing because the store/index already exists.",
+        "Explanation distinguishes local persistence from server-authoritative user progress."
+      ]
+    },
+    {
+      "id": "indexeddb-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "An IndexedDB put request fires success, but its transaction later aborts. What should the UI report?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Saved: request success is the commit boundary.",
+          "correct": false,
+          "feedback": "A request can succeed before the surrounding transaction aborts."
+        },
+        {
+          "id": "b",
+          "text": "Saved only after transaction complete; handle abort/error as failure.",
+          "correct": true,
+          "feedback": "Correct. The transaction is atomic; request success alone does not guarantee the overall commit."
+        },
+        {
+          "id": "c",
+          "text": "Retry forever until complete fires.",
+          "correct": false,
+          "feedback": "The transaction has aborted and cannot later complete; retry must be deliberate and bounded."
+        },
+        {
+          "id": "d",
+          "text": "The data is now synced to the user's other devices.",
+          "correct": false,
+          "feedback": "IndexedDB is local to the origin/device context, not a remote account sync service."
+        }
+      ],
+      "explanation": "IndexedDB request and transaction events represent different levels. A transaction may abort after a request succeeds, so app-level persistence success should follow transaction complete."
+    },
+    {
+      "id": "storage-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Web Storage is synchronous and string-only; JSON parsing, availability, and quota failures need defensive handling.",
+        "The storage event informs other documents; it does not fire in the writing window.",
+        "IndexedDB is asynchronous, same-origin, and transaction-based; use version upgrades for schema changes and await transaction completion.",
+        "Local persistence is not an authenticated server-backed progress database or a backup."
+      ]
+    },
+    {
+      "id": "storage-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Using the Web Storage API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Window storage event",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Window/storage_event",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: IndexedDB API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using IndexedDB",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: IDBObjectStore.add()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/add",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: IDBObjectStore.put()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/put",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: IDBObjectStore.openCursor()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/openCursor",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: StorageManager.estimate()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/estimate",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

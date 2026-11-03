@@ -1579,7 +1579,7 @@
     <div class="card">
       <div class="card-accent red"></div>
       <h4>🔒 Security</h4>
-      <p>Prevent attacks like SQL injection (malicious database commands) and XSS (malicious scripts). Validation is your first line of defence.</p>
+      <p>Validate business rules on the server. Use parameterized queries and output encoding for injection and XSS defenses; browser validation improves feedback but can be bypassed.</p>
     </div>
     <div class="card">
       <div class="card-accent green"></div>
@@ -1630,8 +1630,8 @@
     </div>
     <div class="timeline-item">
       <div class="timeline-dot purple"></div>
-      <div class="timeline-title">onBlur — On field exit (most popular)</div>
-      <p class="timeline-desc">Validates when the user leaves a field (clicks away or presses Tab). Feels natural — gives the user time to finish typing before showing an error.</p>
+      <div class="timeline-title">onBlur — On field exit (common option)</div>
+      <p class="timeline-desc">Validates when the user leaves a field (clicks away or presses Tab). This avoids checking every keystroke, but can still feel premature; use touched state so errors appear after a field has been visited.</p>
     </div>
     <div class="timeline-item">
       <div class="timeline-dot green"></div>
@@ -1705,7 +1705,7 @@
 
   <div class="callout warning">
     <span class="callout-icon">⚠️</span>
-    <div><strong>Limitation:</strong> HTML5 validation can be bypassed in React if you call <code>e.preventDefault()</code> without adding your own checks. You also can't easily customize the error message styling. That's why custom validation exists.</div>
+    <div><strong>Limitation:</strong> With native constraint validation enabled, the browser checks fields before dispatching a successful submit event. Calling <code>e.preventDefault()</code> prevents the default submission; it does not disable those checks. Native checks can still be bypassed through <code>noValidate</code>, script or direct requests, so validate on the server. Custom validation is useful when you need application-specific rules and accessible, consistent messages.</div>
   </div>
 </section>
 
@@ -1815,7 +1815,7 @@
   <div class="analogy">
     <div class="analogy-label">Why use it?</div>
     <p><strong>Without RHF:</strong> You write useState for every field, a handleChange function, a validate function, an errors state, and wire it all up manually. That's a lot of repetitive code.</p>
-    <p><strong>With RHF:</strong> You call <code>useForm()</code>, use <code>register()</code> on each field, and validation rules live right on the field. No boilerplate. No re-renders on every keystroke.</p>
+    <p><strong>With RHF:</strong> You call <code>useForm()</code>, use <code>register()</code> on each field, and validation rules live right on the field. Less boilerplate. Registered uncontrolled inputs generally avoid re-rendering the whole form on each keystroke, but subscribed values and controlled components can render.</p>
   </div>
 
   <h3>Core API</h3>
@@ -1923,7 +1923,7 @@
     <div class="card">
       <div class="card-accent green"></div>
       <h4>⚡ Uncontrolled Performance</h4>
-      <p>Internally, RHF uses refs (not state) for inputs. This means <strong>no re-render on every keystroke</strong> — much faster for large forms.</p>
+      <p>Registered inputs use an uncontrolled-by-default approach. This can reduce form-wide re-renders, while watched values, controlled components and error subscriptions may still cause renders.</p>
     </div>
     <div class="card">
       <div class="card-accent blue"></div>
@@ -1958,8 +1958,8 @@
     <div class="bp-item">
       <span class="bp-icon">👁️</span>
       <div class="bp-content">
-        <strong>Use <code>onBlur</code> for validation trigger</strong>
-        <p>Validate when the user leaves a field, not on every keystroke. Showing "invalid email" when someone has only typed two letters is frustrating.</p>
+        <strong>Choose a validation trigger that fits the field</strong>
+        <p>Choose onBlur, onChange or onSubmit based on the field and task. Track whether the user has interacted or submitted so errors are not shown prematurely, and validate again before sending data.</p>
       </div>
     </div>
     <div class="bp-item">
@@ -2067,7 +2067,7 @@
     <div class="summary-card">
       <div class="icon">✅</div>
       <h4>Validation</h4>
-      <p>HTML5 built-ins + custom React logic. Always validate server-side too. onBlur is the sweet spot.</p>
+      <p>Use native constraints and custom checks where they fit. Choose when feedback appears, track interaction state, and always validate on the server.</p>
     </div>
     <div class="summary-card">
       <div class="icon">📦</div>
@@ -2157,7 +2157,7 @@
     <!-- Q5 -->
     <div class="quiz-q" data-q="5">
       <div class="q-label">Question 05 / 10</div>
-      <div class="q-text">Which validation strategy is considered the most user-friendly for most fields?</div>
+      <div class="q-text">Which event runs when a focused field loses focus and may be used to defer validation until field exit?</div>
       <div class="quiz-options">
         <div class="quiz-option" data-correct="false" onclick="answer(this, 5)"><span class="opt-letter">A</span> onChange (validate on every keystroke)</div>
         <div class="quiz-option" data-correct="true"  onclick="answer(this, 5)"><span class="opt-letter">B</span> onBlur (validate when leaving the field)</div>
@@ -2450,7 +2450,7 @@
     2: { correct: "Correct! In controlled components, React state (useState) is the single source of truth.", wrong: "Not quite. In controlled components, the value lives in React state, bound via the value prop." },
     3: { correct: "Correct! useRef lets you grab a reference to a DOM element and read its value.", wrong: "Not quite. useRef is the hook used to reference DOM elements in uncontrolled components." },
     4: { correct: "Correct! Without this, the browser performs a full page reload, destroying all React state.", wrong: "Not quite. e.preventDefault() stops the browser's default behavior of reloading the page on form submit." },
-    5: { correct: "Correct! onBlur is the sweet spot — gives the user time to finish typing before showing an error.", wrong: "Not quite. onBlur (when leaving a field) is generally the most user-friendly approach." },
+    5: { correct: "Correct. onBlur fires after focus leaves a field and is one way to defer feedback; touched state and submit-time validation may also be used.", wrong: "Not quite. onBlur runs when focus leaves a field. It is one validation timing choice, not universally the most user-friendly." },
     6: { correct: "Correct! Client-side validation can be bypassed by anyone. Server-side validation is always mandatory.", wrong: "Not quite. Client-side validation can easily be bypassed with browser dev tools." },
     7: { correct: "Correct! undefined makes React treat the input as uncontrolled, causing a warning when you later set it to a string.", wrong: "Not quite. undefined causes React to treat the input as uncontrolled, then warn when switching to controlled." },
     8: { correct: "Correct! register() both connects the input to the form and allows you to define validation rules inline.", wrong: "Not quite. register() in React Hook Form registers the input with the form system and attaches validation." },

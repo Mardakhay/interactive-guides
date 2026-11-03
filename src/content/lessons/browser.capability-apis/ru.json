@@ -1,0 +1,416 @@
+{
+  "id": "browser.capability-apis",
+  "locale": "ru",
+  "version": 2,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-26",
+  "moduleId": "supplement-browser-platform",
+  "supplementaryTrackId": "supplement-browser-platform",
+  "order": 2,
+  "title": "API возможностей браузера",
+  "description": "Разрешения, возможности устройства, буфер обмена, уведомления, наблюдатели и видимость вкладки с progressive enhancement и очисткой ресурсов.",
+  "estimatedMinutes": 90,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "js.dom-events",
+    "js.async-fetch",
+    "browser.realtime-workers"
+  ],
+  "learningOutcomes": [
+    "Запрашивать чувствительные возможности только после ясного действия пользователя и объяснять отказ или ошибку.",
+    "Использовать geolocation и clipboard с проверкой поддержки, обработкой асинхронных ошибок и очисткой.",
+    "Считать уведомления и данные батареи необязательными возможностями с ограничениями совместимости и явным согласием.",
+    "Использовать ResizeObserver и Page Visibility без циклов обратной связи и лишней фоновой работы.",
+    "Запрашивать разрешение на уведомления после действия пользователя и обрабатывать desktop/mobile варианты с fallback внутри страницы."
+  ],
+  "tags": [
+    "browser APIs",
+    "permissions",
+    "geolocation",
+    "clipboard",
+    "notifications",
+    "observers",
+    "progressive enhancement",
+    "notification-permissions",
+    "capability-fallbacks"
+  ],
+  "blocks": [
+    {
+      "id": "capabilities-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Возможности браузера — это условные API, а не гарантия. Доступ может быть ограничен несколькими воротами: API отсутствует, страница не в защищённом контексте, пользователь отклонил разрешение, встроенный документ ограничен политикой или операция завершилась ошибкой. Считайте каждое такое состояние обычной веткой интерфейса, а не странностью браузера. Запрашивайте доступ, когда пользователь понимает пользу, давайте рабочий запасной вариант и не делайте чувствительную функцию единственным способом выполнить задачу."
+    },
+    {
+      "id": "capabilities-model",
+      "type": "paragraph",
+      "text": "Browser API — это запрос на использование возможностей, доступ к которым зависит от нескольких условий: API может отсутствовать, страница может не находиться в защищённом контексте, пользователь может отказать в разрешении, политика встраивания может заблокировать доступ или операция может завершиться ошибкой во время выполнения. Рассматривайте каждое такое условие как обычную ветку интерфейса, а не как странность браузера. Запрашивайте разрешение только тогда, когда пользователь понимает пользу; предусмотрите полезный запасной сценарий и никогда не делайте чувствительную возможность единственным способом выполнить задачу."
+    },
+    {
+      "id": "capability-gates",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Проверка поддержки говорит, доступен ли API; она не подтверждает разрешение и успешное выполнение.",
+        "Для нескольких чувствительных API нужен защищённый контекст (обычно HTTPS; для localhost есть исключения).",
+        "Запрашивайте разрешения после явного и понятного действия пользователя. Внезапные prompts при загрузке страницы подрывают доверие и могут блокироваться.",
+        "Permissions Policy может дополнительно ограничивать API во встроенном документе; проверяйте production-origin и настройки iframe, а не только localhost."
+      ]
+    },
+    {
+      "id": "geolocation-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Geolocation: разрешения, ошибки и очистка наблюдения"
+    },
+    {
+      "id": "geolocation-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const button = document.querySelector(\"#locate\");\nconst output = document.querySelector(\"#location\");\nlet watchId;\n\nbutton.addEventListener(\"click\", () => {\n  if (!navigator.geolocation) {\n    output.textContent = \"Location is not available in this browser.\";\n    return;\n  }\n  if (watchId !== undefined) return;\n  watchId = navigator.geolocation.watchPosition(\n    ({ coords }) => { output.textContent = `${coords.latitude}, ${coords.longitude}`; },\n    (error) => { output.textContent = `Location unavailable (${error.code}).`; },\n    { maximumAge: 30_000, timeout: 10_000 }\n  );\n});\n\nfunction stopWatching() {\n  if (watchId === undefined) return;\n  navigator.geolocation.clearWatch(watchId);\n  watchId = undefined;\n}",
+      "steps": [
+        {
+          "title": "Сделайте запрос следствием действия пользователя",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Клик — момент, когда пользователь просит определить местоположение. Сначала объясните пользу; не вызывайте prompt сразу при загрузке страницы."
+        },
+        {
+          "title": "Проверьте поддержку и покажите ошибку",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "explanation": "Geolocation может быть недоступен. Даже при наличии API вызов завершится ошибкой, если пользователь отказал, позиция недоступна или истёк тайм-аут."
+        },
+        {
+          "title": "Осознанно выберите один замер или наблюдение",
+          "lineStart": 11,
+          "lineEnd": 16,
+          "explanation": "watchPosition вызывает обработчик повторно и возвращает ID. Проверка не допускает несколько одновременных наблюдений; maximumAge разрешает кешированный результат, timeout ограничивает ожидание, но не гарантирует точность."
+        },
+        {
+          "title": "Остановите ненужную работу",
+          "lineStart": 18,
+          "lineEnd": 22,
+          "explanation": "Вызовите clearWatch с возвращённым ID, когда экран закрывается или пользователь останавливает передачу, затем сбросьте сохранённый ID. Для одного замера используйте getCurrentPosition."
+        }
+      ]
+    },
+    {
+      "id": "geo-privacy",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Местоположение — чувствительные данные",
+      "text": "Запрашивайте только необходимую точность, объясняйте хранение и передачу, не записывайте координаты в логи. Разрешение не означает согласие на бесконечную загрузку или хранение местоположения. Защищённый контекст и Permissions Policy могут запретить доступ."
+    },
+    {
+      "id": "geo-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Карта закрывается, пока watchPosition активен. Что должно сделать cleanup?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ничего: браузер автоматически останавливает наблюдение при исчезновении компонента.",
+          "correct": false,
+          "feedback": "Browser API не связан автоматически с жизненным циклом UI-компонента: наблюдение может продолжаться."
+        },
+        {
+          "id": "b",
+          "text": "Вызвать clearWatch с ID, который вернул watchPosition.",
+          "correct": true,
+          "feedback": "Верно. Сохраните ID и очистите наблюдение, когда функция больше не активна."
+        },
+        {
+          "id": "c",
+          "text": "Вызвать navigator.permissions.query и считать, что это отменяет наблюдение.",
+          "correct": false,
+          "feedback": "Проверка разрешения не останавливает наблюдение; для отмены используется clearWatch."
+        },
+        {
+          "id": "d",
+          "text": "Перезагрузить страницу, чтобы снова показать запрос разрешения.",
+          "correct": false,
+          "feedback": "Перезагрузка неудобна и не является очисткой ресурсов."
+        }
+      ],
+      "explanation": "Жизненным циклом watch управляет приложение. Очистка останавливает повторы и предотвращает устаревшее обновление интерфейса и лишнюю работу устройства."
+    },
+    {
+      "id": "clipboard-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Clipboard: асинхронный API в защищённом контексте"
+    },
+    {
+      "id": "clipboard-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const copyButton = document.querySelector(\"#copy-link\");\nconst status = document.querySelector(\"#copy-status\");\n\ncopyButton.addEventListener(\"click\", async () => {\n  const shareUrl = window.location.href;\n  if (!navigator.clipboard?.writeText) {\n    status.textContent = \"Copy is unavailable; select the address bar URL.\";\n    return;\n  }\n  try {\n    await navigator.clipboard.writeText(shareUrl);\n    status.textContent = \"Link copied.\";\n  } catch {\n    status.textContent = \"Copy was blocked; copy the link manually.\";\n  }\n});",
+      "steps": [
+        {
+          "title": "Начинайте с явного действия пользователя",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Обработчик клика выражает намерение. Требования к разрешениям и user activation различаются между браузерами, особенно при чтении буфера."
+        },
+        {
+          "title": "Проверьте наличие конкретного метода",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Clipboard API работает в защищённых контекстах и может быть недоступен. Optional chaining проверяет метод; ручной вариант сохраняет возможность выполнить задачу."
+        },
+        {
+          "title": "Дождитесь результата и обработайте отказ",
+          "lineStart": 9,
+          "lineEnd": 14,
+          "explanation": "writeText возвращает promise. Разрешения, фокус, политика или ограничения платформы могут привести к отказу; показывайте успех только после resolve."
+        }
+      ]
+    },
+    {
+      "id": "clipboard-limit",
+      "type": "callout",
+      "tone": "note",
+      "title": "Не используйте буфер обмена как скрытую фоновую функцию",
+      "text": "Чтение содержимого буфера чувствительнее, чем запись значения, которое пользователь попросил скопировать. Требования различаются между браузерами; читайте только по явному действию, связанному со вставкой, и обрабатывайте отказ. Не переносите старый execCommand без особой причины."
+    },
+    {
+      "id": "notification-flow-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Запрашивай и показывай уведомления с безопасным fallback"
+    },
+    {
+      "id": "notification-flow-model",
+      "type": "paragraph",
+      "text": "Запрашивай разрешение только после явного действия пользователя и только в secure context. Permission может быть `granted`, `denied` или `default`; при отказе или отсутствии API внутри страницы должен оставаться работающий status/fallback. В большинстве мобильных браузеров `new Notification()` выбрасывает исключение; для persistent notifications используй доступный `ServiceWorkerRegistration.showNotification()` и обрабатывай ошибки показа, не объявляя успех заранее. Это пример capability API, а не реализация push subscription или фоновой доставки."
+    },
+    {
+      "id": "notification-permission-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const notificationButton = document.querySelector(\"#enable-notifications\");\nconst notificationStatus = document.querySelector(\"#notification-status\");\n\nasync function requestSystemNotification() {\n  if (!(\"Notification\" in window) || !window.isSecureContext) {\n    notificationStatus.textContent = \"System notifications are unavailable; use in-page updates.\";\n    return;\n  }\n\n  let permission = Notification.permission;\n  if (permission === \"default\") {\n    try {\n      permission = await Notification.requestPermission();\n    } catch {\n      notificationStatus.textContent = \"Permission request failed; updates remain available in this page.\";\n      return;\n    }\n  }\n\n  if (permission !== \"granted\") {\n    notificationStatus.textContent = permission === \"denied\"\n      ? \"Notifications are blocked; check browser settings if you want them.\"\n      : \"No notification permission; updates remain available in this page.\";\n    return;\n  }\n\n  try {\n    const registration = await navigator.serviceWorker?.getRegistration();\n    if (registration) {\n      await registration.showNotification(\"Build completed\", {\n        body: \"Your lesson build is ready.\",\n        tag: \"build-status\",\n      });\n      notificationStatus.textContent = \"System notification shown.\";\n      return;\n    }\n\n    // Page notifications work on desktop; most mobile browsers require a Service Worker.\n    const notification = new Notification(\"Build completed\", { body: \"Your lesson build is ready.\" });\n    notification.addEventListener(\"click\", () => {\n      window.focus();\n      notification.close();\n    });\n    notificationStatus.textContent = \"System notification shown.\";\n  } catch {\n    notificationStatus.textContent = \"System notification unavailable here; check updates in this page.\";\n  }\n}\n\nif (notificationButton && notificationStatus) {\n  // Call permission only from this explicit user action.\n  notificationButton.addEventListener(\"click\", requestSystemNotification);\n}\n\nfunction disposeNotificationFeature() {\n  notificationButton?.removeEventListener(\"click\", requestSystemNotification);\n}",
+      "steps": [
+        {
+          "title": "Проверь доступность перед использованием API",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "Кнопка и область статуса могут отсутствовать на странице. Перед обращением к `Notification` проверь поддержку API и secure context; если возможности нет, объясни альтернативу внутри страницы."
+        },
+        {
+          "title": "Запрашивай разрешение в ответ на клик",
+          "lineStart": 10,
+          "lineEnd": 23,
+          "explanation": "Запрашивай permission только после действия пользователя. Различай granted/denied/default и обрабатывай отклонённый permission promise; до фактического показа не сообщай об успехе."
+        },
+        {
+          "title": "Предпочитай Service Worker, когда он зарегистрирован",
+          "lineStart": 25,
+          "lineEnd": 46,
+          "explanation": "Регистрация позволяет показывать persistent notifications и требуется в большинстве мобильных браузеров. Constructor используется как fallback, когда регистрации нет; показ всё равно может завершиться ошибкой, поэтому обрабатывай её и сохраняй status внутри страницы."
+        },
+        {
+          "title": "Подключай и снимай стабильный click handler",
+          "lineStart": 48,
+          "lineEnd": 55,
+          "explanation": "Явный клик по кнопке даёт user gesture для запроса permission. `disposeNotificationFeature()` удаляет ту же ссылку на функцию, чтобы завершённая функция не оставляла handler."
+        }
+      ]
+    },
+    {
+      "id": "notification-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Когда лучше вызывать Notification.requestPermission()?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Автоматически при загрузке каждой страницы.",
+          "correct": false,
+          "feedback": "Неожиданный запрос раздражает пользователей, и браузер может его подавить."
+        },
+        {
+          "id": "b",
+          "text": "После объяснённого добровольного действия пользователя, с запасным вариантом при отказе или отсутствии поддержки.",
+          "correct": true,
+          "feedback": "Верно. Запросите разрешение в контексте действия и учитывайте ограниченную поддержку уведомлений."
+        },
+        {
+          "id": "c",
+          "text": "После скрытого создания объекта Notification.",
+          "correct": false,
+          "feedback": "Для показа уведомлений нужно разрешение; создание объекта само по себе не заменяет запрос."
+        },
+        {
+          "id": "d",
+          "text": "Только из Service Worker, чтобы странице не требовалось разрешение.",
+          "correct": false,
+          "feedback": "Service Worker может показывать уведомления в поддерживаемом сценарии, но разрешение всё равно необходимо."
+        }
+      ],
+      "explanation": "Уведомления показываются вне страницы и требуют разрешения для origin. Сначала объясните, что именно пользователь будет получать, и сохраните альтернативу внутри приложения."
+    },
+    {
+      "id": "observation-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "API наблюдения и видимость страницы"
+    },
+    {
+      "id": "resize-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const card = document.querySelector(\".card\");\nconst observer = new ResizeObserver(([entry]) => {\n  const inlineSize = entry.contentBoxSize?.[0]?.inlineSize ?? entry.contentRect.width;\n  const compact = inlineSize < 360;\n  card.classList.toggle(\"card--compact\", compact);\n});\nobserver.observe(card);\n\n// Call when this card/view is removed:\nfunction disposeCard() {\n  observer.unobserve(card);\n  observer.disconnect();\n}",
+      "steps": [
+        {
+          "title": "Следите за размером элемента, а не только окна",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Компонент может менять размер из-за контейнера или соседней раскладки без изменения окна. ResizeObserver сообщает о размере самого элемента."
+        },
+        {
+          "title": "Читайте размер и вычисляйте представление",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "explanation": "При наличии используйте размер content box; contentRect служит запасным вариантом. Порог — продуктовое решение; при необходимости избегайте дрожания около границы."
+        },
+        {
+          "title": "Не создавайте цикл наблюдения",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "Обработчик меняет только класс оформления. Если записи обработчика меняют размер наблюдаемого элемента, возможны повторные уведомления; добейтесь сходимости или осторожно отложите изменение."
+        },
+        {
+          "title": "Отключите наблюдатель при завершении",
+          "lineStart": 7,
+          "lineEnd": 11,
+          "explanation": "Прекратите наблюдение, когда элемент или экран удаляется. disconnect освобождает все цели этого наблюдателя."
+        }
+      ]
+    },
+    {
+      "id": "visibility-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const video = document.querySelector(\"#preview-video\");\nconst controls = document.querySelector(\"#media-controls\");\n\nif (video) {\n  function syncAnimation() {\n    if (document.hidden) video.pause();\n    else video.play().catch(() => controls?.classList.add(\"needs-play\"));\n  }\n\n  function onVisibilityChange() { syncAnimation(); }\n  document.addEventListener(\"visibilitychange\", onVisibilityChange);\n  syncAnimation(); // also handle the initial state\n\n  function dispose() {\n    document.removeEventListener(\"visibilitychange\", onVisibilityChange);\n  }\n}",
+      "steps": [
+        {
+          "title": "Приостанавливай работу, когда страница скрыта",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "explanation": "Приостанавливай затратную или невидимую активность, когда документ скрыт. Promise от play() может отклониться из-за autoplay policy, поэтому показывай ручной вариант запуска."
+        },
+        {
+          "title": "Регистрируй один и тот же именованный callback",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "explanation": "Именованная функция onVisibilityChange регистрируется и затем удаляется по той же ссылке; первый вызов обрабатывает текущее состояние до события."
+        },
+        {
+          "title": "Снимай listener при завершении",
+          "lineStart": 14,
+          "lineEnd": 16,
+          "explanation": "Cleanup снимает ровно зарегистрированный callback. Новая анонимная стрелка была бы другой функцией и оставила бы старый listener."
+        }
+      ]
+    },
+    {
+      "id": "battery-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Данные батареи необязательны и поддерживаются не везде",
+      "text": "Поддержка Battery Status API ограничена, нужен защищённый контекст, а Web Workers его не предоставляют. Используйте проверку наличия только как progressive enhancement; не блокируйте основную функцию и не делайте выводы о поведении человека по уровню заряда."
+    },
+    {
+      "id": "capabilities-practice",
+      "type": "codingExercise",
+      "title": "Создайте панель возможностей для ссылки",
+      "language": "javascript",
+      "context": "Страница урока предлагает кнопку «Скопировать ссылку» и необязательную функцию «Использовать моё местоположение». Реализуйте их так, чтобы оба сценария оставались понятными, если API отсутствует или в разрешении отказано.",
+      "instructions": [
+        "Реализуйте копирование ссылки с проверкой поддержки, ожиданием успешного результата и ручным запасным вариантом.",
+        "Добавьте отдельную кнопку геолокации; объясните её пользу до запроса одноразовой позиции.",
+        "Покажите разные сообщения для отсутствия поддержки, отказа, тайм-аута/недоступности, успеха и ошибки clipboard.",
+        "Не запрашивайте местоположение или уведомления при загрузке; не отправляйте и не сохраняйте координаты.",
+        "Если вместо обязательного getCurrentPosition выберете watchPosition, добавьте очистку.",
+        "Реализуй опциональные уведомления только по отдельному действию пользователя; оставь fallback внутри страницы при отказе/отсутствии API и предпочитай service-worker showNotification на мобильных устройствах."
+      ],
+      "requirements": [
+        "Проверьте `navigator.clipboard?.writeText` и вызывайте метод только после клика пользователя.",
+        "Для одноразовой функции используйте `getCurrentPosition`; запрос делайте только по отдельному клику.",
+        "Сделайте ошибки понятными и не показывайте лишние точные координаты.",
+        "Отсутствие одной возможности не должно блокировать остальную панель.",
+        "Permission для уведомлений не запрашивается при setup; при отказе/отсутствии API/ошибке показа status внутри страницы остаётся доступным."
+      ],
+      "starterCode": "const copyButton = document.querySelector(\"#copy-link\");\nconst locationButton = document.querySelector(\"#use-location\");\nconst status = document.querySelector(\"#status\");\n\n// TODO: copy current URL after the user clicks.\n// TODO: request one location only after explaining the purpose.\n",
+      "hints": [
+        "API может быть доступен, но запрос всё равно отклонится из-за разрешений.",
+        "Учитывайте коды GeolocationPositionError, но не считайте, что каждое устройство вернёт полезную позицию.",
+        "Инструкция скопировать вручную — это полноценный запасной вариант, а не скрытая ошибка.",
+        "Если используете watchPosition, сохраните ID и вызывайте clearWatch после остановки.",
+        "Конструктор Notification не работает в большинстве мобильных браузеров; используй доступный ServiceWorkerRegistration, но всё равно обрабатывай ошибку promise показа."
+      ],
+      "successCriteria": [
+        "При начальной настройке страницы разрешения не запрашиваются.",
+        "Успех копирования показывается только после выполнения promise.",
+        "При отсутствии поддержки или отказе clipboard есть ручная альтернатива.",
+        "Местоположение запрашивается только после клика, ошибки объясняются.",
+        "Координаты не загружаются на сервер и не сохраняются.",
+        "При недоступности одной возможности остальные действия работают.",
+        "Permission запрашивается только после действия пользователя; desktop/mobile варианты и fallback внутри страницы обработаны без ложного сообщения об успехе."
+      ]
+    },
+    {
+      "id": "capabilities-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Geolocation API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Geolocation",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Clipboard API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Notifications API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: ResizeObserver",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Page Visibility API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Battery Status API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Battery_Status_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Notification requestPermission",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Notification/requestPermission_static",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Notification constructor и ограничения mobile",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Notification/Notification",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: использование Notifications API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

@@ -337,11 +337,11 @@
     <div class="card-grid">
       <div class="term-card"><h4>Packet</h4><p>A small unit of data transmitted over the internet</p></div>
       <div class="term-card"><h4>Router</h4><p>A device that directs packets between different networks</p></div>
-      <div class="term-card"><h4>IP Address</h4><p>A unique identifier assigned to each device on a network</p></div>
+      <div class="term-card"><h4>IP Address</h4><p>An address used to route traffic to a network interface; a host can have multiple addresses, and private/shared addresses are common.</p></div>
       <div class="term-card"><h4>Domain Name</h4><p>A human-readable name used to identify a website (e.g., <code>google.com</code>)</p></div>
       <div class="term-card"><h4>DNS</h4><p>Domain Name System; translates domain names into IP addresses</p></div>
       <div class="term-card"><h4>HTTP</h4><p>Hypertext Transfer Protocol; transfers data between clients and servers</p></div>
-      <div class="term-card"><h4>HTTPS</h4><p>An encrypted version of HTTP using SSL/TLS</p></div>
+      <div class="term-card"><h4>HTTPS</h4><p>HTTP secured with TLS; SSL is obsolete and should not be used as a current protocol.</p></div>
       <div class="term-card"><h4>SSL / TLS</h4><p>Protocols that provide secure, encrypted communication</p></div>
       <div class="term-card"><h4>Bandwidth</h4><p>The volume of data that can be transferred per second</p></div>
       <div class="term-card"><h4>Latency</h4><p>The time delay for data to travel between source and destination</p></div>
@@ -359,15 +359,15 @@
     <div class="proto-list">
       <div class="proto-item">
         <span class="proto-tag tag-purple">IP</span>
-        <div><h4>Internet Protocol</h4><p>Routes packets to their correct destination using IP addresses. Every device on the internet is assigned an IP address used to identify and locate it.</p></div>
+        <div><h4>Internet Protocol</h4><p>Routes packets using IP addresses. An interface can have multiple addresses; many devices use private addresses behind NAT, while a public address may be shared or dynamically assigned.</p></div>
       </div>
       <div class="proto-item">
         <span class="proto-tag tag-teal">TCP</span>
-        <div><h4>Transmission Control Protocol</h4><p>Ensures packets are delivered reliably, in the correct order, and without errors. Establishes a formal connection (via handshake) before data transfer begins.</p></div>
+        <div><h4>Transmission Control Protocol</h4><p>Provides a reliable, ordered byte stream with retransmission and congestion control. A connection normally starts with a handshake; reliability does not guarantee zero delay or preserve application message boundaries.</p></div>
       </div>
       <div class="proto-item">
         <span class="proto-tag tag-red">UDP</span>
-        <div><h4>User Datagram Protocol</h4><p>A faster but less reliable alternative to TCP. Suitable for real-time applications such as video streaming and online gaming where speed is prioritized over guaranteed delivery.</p></div>
+        <div><h4>User Datagram Protocol</h4><p>Carries datagrams without built-in delivery, ordering, or retransmission guarantees. It is not inherently faster than TCP; applications choose it when its simpler transport fits their needs and may implement additional reliability or congestion control.</p></div>
       </div>
       <div class="proto-item">
         <span class="proto-tag tag-yellow">DNS</span>
@@ -386,7 +386,7 @@
       <div class="section-icon icon-teal">🔢</div>
       <h2 class="sec-title">IP Addresses &amp; Domain Names</h2>
     </div>
-    <p>An <strong>IP address</strong> is a unique numerical identifier assigned to every device on a network. It ensures data packets are routed to the correct destination.</p>
+    <p>An <strong>IP address</strong> identifies a network interface for packet routing. A device can have several addresses; private addresses may be translated by NAT, and a public address does not always identify one individual device.</p>
     <div id="ipv4v6" class="ip-example">
       <div class="ip-box">
         <div class="label" style="color:var(--accent);">IPv4</div>
@@ -422,6 +422,7 @@
     </div>
 
     <h3 class="sub-title" id="dns-steps">The DNS Lookup: 8 Steps</h3>
+    <p style="font-size:.83rem;color:var(--muted);">This is a simplified cache-miss lookup for a common A/AAAA query. Cached answers, aliases and other record types can change the path.</p>
     <p style="font-size:.83rem;color:var(--muted);">Click each step to highlight it.</p>
     <div class="card">
       <div class="dns-steps">
@@ -461,7 +462,7 @@
     </div>
 
     <h3 class="sub-title" id="dns-cache">DNS Caching</h3>
-    <p>DNS records are cached at multiple levels to reduce lookup times. Each record is stored for a duration defined by a <strong>Time-to-Live (TTL)</strong> value set by the domain owner.</p>
+    <p>DNS answers may be cached at several levels to reduce repeated lookup work. The record’s <strong>Time-to-Live (TTL)</strong> indicates how long a resolver may cache that answer; the value is published with the DNS record, and caches may have their own policies.</p>
     <div class="cache-flow">
       <div class="cache-node" onclick="this.style.borderColor='var(--accent)'">
         <div class="cn-icon">🖥️</div><h5>Browser Cache</h5>
@@ -475,7 +476,7 @@
       <div class="cache-arrow">→</div>
       <div class="cache-node" onclick="this.style.borderColor='var(--accent)'">
         <div class="cn-icon">🔄</div><h5>ISP Resolver Cache</h5>
-        <p style="font-size:.7rem;color:var(--muted);margin:0;">Forwarded to ISP's recursive resolver if local caches miss.</p>
+        <p style="font-size:.7rem;color:var(--muted);margin:0;">Sent to the configured recursive resolver if local caches miss; it may be operated by an ISP, organization, public DNS provider, or local network.</p>
       </div>
       <div class="cache-arrow">→</div>
       <div class="cache-node" onclick="this.style.borderColor='var(--accent)'">
@@ -491,7 +492,7 @@
       <div class="section-icon icon-blue">🔗</div>
       <h2 class="sec-title">HTTP &amp; HTTPS</h2>
     </div>
-    <p><strong>HTTP (Hypertext Transfer Protocol)</strong> is a TCP/IP-based, application-layer protocol that standardizes how clients and servers communicate. By default, HTTP operates on <code>TCP port 80</code>.</p>
+    <p><strong>HTTP (Hypertext Transfer Protocol)</strong> defines application-layer request/response semantics. Cleartext HTTP commonly defaults to <code>TCP port 80</code>; HTTPS commonly defaults to port 443. HTTP/1.1 and HTTP/2 generally run over TCP, while HTTP/3 maps the same HTTP semantics onto QUIC over UDP.</p>
 
     <h3 class="sub-title" id="http-evo">Evolution of HTTP</h3>
     <p style="font-size:.83rem;color:var(--muted);">Click any version to expand its details.</p>
@@ -509,7 +510,7 @@
         <h4>HTTP/1.0</h4>
         <div class="expand-hint">▸ Click to expand</div>
         <div class="http-body">
-          <p>Introduced headers, status codes, multiple content types, and new methods (POST, HEAD). A major limitation: each request required a <strong>new TCP connection</strong> with a full three-way handshake — SYN → SYN-ACK → ACK.</p>
+          <p>Added headers, status codes, more content types and methods such as POST and HEAD. A common HTTP/1.0 pattern was to close a TCP connection after each response; keep-alive extensions and implementation behavior varied, so one resource did not always equal exactly one new connection.</p>
           <div class="handshake">
             <div class="hs-side"><h4>Client</h4></div>
             <div class="hs-middle">
@@ -519,7 +520,7 @@
             </div>
             <div class="hs-side"><h4>Server</h4></div>
           </div>
-          <p style="font-size:.8rem;color:var(--muted);">A page loading 20 resources required 20 separate TCP connections, each with this overhead.</p>
+          <p style="font-size:.8rem;color:var(--muted);">A page loading 20 resources could incur repeated connection setup under this short-lived-connection model; actual connection counts depended on browser behavior, reuse and parallel-fetch strategy.</p>
         </div>
       </div>
       <div class="http-entry" onclick="toggleHttp(this)">
@@ -534,7 +535,7 @@
             <span class="feat-pill">PUT / PATCH / DELETE</span>
             <span class="feat-pill">Host Header</span>
           </div>
-          <p style="margin-top:10px;">Connections remain open by default. A notable limitation: <strong>head-of-line blocking</strong> — a slow or large request blocks all subsequent requests queued behind it in the same pipeline.</p>
+          <p style="margin-top:10px;">Persistent connections are the default. HTTP/1.1 pipelining preserves response order, so a slow response can delay later pipelined responses; browsers also commonly use multiple persistent connections rather than one universal pipeline.</p>
         </div>
       </div>
       <div class="http-entry" onclick="toggleHttp(this)">
@@ -546,18 +547,22 @@
             <span class="feat-pill">Binary Protocol</span>
             <span class="feat-pill">Multiplexing</span>
             <span class="feat-pill">HPACK Header Compression</span>
-            <span class="feat-pill">Server Push</span>
+            <span class="feat-pill">Server Push (largely removed from browsers)</span>
             <span class="feat-pill">Request Prioritization</span>
             <span class="feat-pill">TLS Effectively Mandatory</span>
           </div>
-          <p style="margin-top:10px;">Data is transmitted as binary frames. Multiple requests and responses are <strong>interleaved asynchronously</strong> over a single TCP connection, eliminating head-of-line blocking.</p>
+          <p style="margin-top:10px;">Data is transmitted as binary frames. Multiple requests and responses can be multiplexed over a single TCP connection, reducing application-level queuing. However, all streams share TCP’s ordered byte stream, so packet loss can stall several streams until retransmission.</p>
         </div>
       </div>
     </div>
 
+    <div class="card" style="margin:14px 0;">
+      <p style="margin:0;"><strong>HTTP/3 and QUIC:</strong> HTTP/3 keeps HTTP methods, status codes and header semantics while using QUIC over UDP instead of TCP. QUIC integrates TLS 1.3 or later and provides independently ordered streams, reducing cross-stream transport head-of-line blocking. Congestion and loss affecting data shared by a stream can still delay delivery, and clients may fall back to TCP-based HTTP when UDP/QUIC cannot be established. See <a href="https://www.rfc-editor.org/rfc/rfc9114.html" target="_blank" rel="noopener noreferrer">RFC 9114</a> and <a href="https://developer.mozilla.org/en-US/docs/Glossary/HTTP_2" target="_blank" rel="noopener noreferrer">MDN’s HTTP/2 overview</a>.</p>
+    </div>
+
     <h3 class="sub-title">HTTPS</h3>
     <div class="card">
-      <p style="margin:0;"><strong>HTTPS (HTTP Secure)</strong> is the encrypted version of HTTP. It uses SSL/TLS to encrypt all data between client and server, protecting credentials, session tokens, and payment data from interception. HTTPS operates on <code>TCP port 443</code>. Browsers indicate a secure connection with a padlock icon in the address bar.</p>
+      <p style="margin:0;"><strong>HTTPS</strong> is HTTP secured with TLS. With certificate and hostname validation, TLS protects application data in transit for confidentiality and integrity and helps authenticate the server; it does not make a compromised endpoint or application safe. HTTPS URIs commonly use port <code>443</code>: HTTP/1.1 and HTTP/2 usually use TCP, while HTTP/3 uses QUIC over UDP. Browser security indicators vary and do not prove that a site is trustworthy.</p>
     </div>
   </section>
 
@@ -582,7 +587,7 @@
       <div class="tls-card">
         <div class="tls-num">STEP 3 — ENCRYPTION</div>
         <h4>Encrypted Data Transfer</h4>
-        <p>Once the handshake is complete, all data is encrypted using the agreed cipher. Content is unreadable to any third party intercepting the connection.</p>
+        <p>After traffic keys are established, application data is protected in transit against passive reading and tampering when TLS is correctly configured and validated. Some connection metadata may remain visible; TLS 1.3 early data can be replay-sensitive, and TLS does not protect compromised endpoints.</p>
       </div>
     </div>
     <div class="highlight-box">
@@ -603,7 +608,7 @@
         <thead><tr><th>Protocol</th><th>Port</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td><code>HTTP</code></td><td><strong>80</strong></td><td>Hypertext Transfer Protocol</td></tr>
-          <tr><td><code>HTTPS</code></td><td><strong>443</strong></td><td>HTTP over TLS encryption</td></tr>
+          <tr><td><code>HTTPS</code></td><td><strong>443</strong></td><td>Default HTTPS URI port; HTTP/1.1 and HTTP/2 usually use TCP, HTTP/3 uses QUIC over UDP</td></tr>
           <tr><td><code>FTP</code></td><td><strong>21</strong></td><td>File Transfer Protocol</td></tr>
           <tr><td><code>SMTP</code></td><td><strong>25</strong></td><td>Simple Mail Transfer Protocol</td></tr>
           <tr><td><code>SSH</code></td><td><strong>22</strong></td><td>Secure Shell — encrypted remote access</td></tr>
@@ -654,8 +659,8 @@
     <h3 class="sub-title">How a Browser Processes a Request</h3>
     <div class="proto-list">
       <div class="proto-item"><span class="proto-tag tag-purple">1</span><div><h4>DNS Lookup</h4><p>Browser checks its DNS cache; if no record exists, performs a full DNS lookup to resolve the domain to an IP address.</p></div></div>
-      <div class="proto-item"><span class="proto-tag tag-teal">2</span><div><h4>TCP + TLS Handshake</h4><p>Browser establishes a TCP connection with the server. For HTTPS, a TLS handshake is completed before any data is sent.</p></div></div>
-      <div class="proto-item"><span class="proto-tag tag-yellow">3</span><div><h4>HTTP GET Request</h4><p>Browser sends an HTTP GET request for the resource.</p></div></div>
+      <div class="proto-item"><span class="proto-tag tag-teal">2</span><div><h4>Secure transport setup or reuse</h4><p>For a common HTTP/1.1 or HTTP/2 path, the browser establishes or reuses TCP and negotiates TLS for HTTPS. HTTP/3 establishes or reuses a QUIC connection over UDP with TLS 1.3+. Some configurations can send replay-sensitive early data, so a full handshake is not a universal prerequisite for every byte.</p></div></div>
+      <div class="proto-item"><span class="proto-tag tag-yellow">3</span><div><h4>HTTP Request</h4><p>The browser sends an HTTP request (often GET for navigation) over the negotiated or reused connection. HTTP version changes framing/transport details, not the core method and status semantics.</p></div></div>
       <div class="proto-item"><span class="proto-tag tag-blue">4</span><div><h4>Server Response</h4><p>Server returns an HTTP response containing the HTML document.</p></div></div>
       <div class="proto-item"><span class="proto-tag tag-red">5</span><div><h4>Rendering Pipeline</h4><p>Rendering engine parses HTML → builds DOM. Processes CSS → builds CSSOM. Combines both into a render tree, calculates layout, and paints the final result to screen.</p></div></div>
       <div class="proto-item"><span class="proto-tag tag-purple">6</span><div><h4>JavaScript Execution</h4><p>JS files are fetched and executed by the JavaScript engine, which can modify the DOM and CSSOM dynamically after the initial page load.</p></div></div>
@@ -684,9 +689,9 @@
 
     <h3 class="sub-title" id="security">Browser Security</h3>
     <div class="proto-list">
-      <div class="proto-item"><span class="proto-tag tag-teal">HTTPS</span><div><h4>HTTPS Enforcement</h4><p>Modern browsers warn users on unencrypted HTTP connections and block mixed content — HTTP resources loaded within an HTTPS page.</p></div></div>
-      <div class="proto-item"><span class="proto-tag tag-purple">🏖️</span><div><h4>Sandboxing</h4><p>Each browser tab runs in an isolated process. Code in one tab cannot access the OS, other tabs, or other applications.</p></div></div>
-      <div class="proto-item"><span class="proto-tag tag-yellow">🔐</span><div><h4>Privacy Controls</h4><p>Block third-party cookies, manage per-site permissions, clear browsing data. Private browsing mode retains no history, cookies, or form data after the session ends.</p></div></div>
+      <div class="proto-item"><span class="proto-tag tag-teal">HTTPS</span><div><h4>HTTPS and mixed content</h4><p>Browsers label plain-HTTP pages as not secure in browser-specific ways. On HTTPS pages, active mixed content such as scripts and stylesheets is blocked; some passive media requests may be upgraded to HTTPS. See <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Mixed_content" target="_blank" rel="noopener noreferrer">MDN: Mixed content</a>.</p></div></div>
+      <div class="proto-item"><span class="proto-tag tag-purple">🏖️</span><div><h4>Sandboxing and site isolation</h4><p>Process allocation varies: a tab is not guaranteed to own one process. Browser sandboxes and site-isolation policies limit what web content can access; ordinary page JavaScript cannot freely read arbitrary local files or control the operating system, while granted browser APIs remain permission- and context-dependent.</p></div></div>
+      <div class="proto-item"><span class="proto-tag tag-yellow">🔐</span><div><h4>Privacy Controls</h4><p>Manage site permissions and browsing data; third-party cookie controls depend on browser and settings. In Chrome Incognito, local site data and visited-site history are removed after all Incognito windows close, but downloads and bookmarks remain. Websites and network administrators or ISPs may still observe activity, so private browsing is not anonymity. See <a href="https://support.google.com/chrome/answer/95464?hl=en" target="_blank" rel="noopener noreferrer">Chrome Help: Incognito mode</a>.</p></div></div>
     </div>
   </section>
 

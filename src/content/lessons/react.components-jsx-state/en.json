@@ -1,0 +1,630 @@
+{
+  "id": "react.components-jsx-state",
+  "locale": "en",
+  "version": 5,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-29",
+  "moduleId": "month-3-week-11",
+  "week": 11,
+  "order": 1,
+  "title": "React Components, JSX, Props, and State",
+  "description": "Learn to describe UI declaratively, compose reusable function components, pass read-only props, and update state with useState.",
+  "estimatedMinutes": 95,
+  "difficulty": "beginner",
+  "prerequisites": [
+    "typescript.fundamentals",
+    "tooling.node-npm-vite"
+  ],
+  "learningOutcomes": [
+    "Explain React's declarative rendering model.",
+    "Create function components and compose them into a page.",
+    "Read JSX expressions and conditionally render elements.",
+    "Pass data with props and treat props as read-only.",
+    "Use useState for values that change over time and should update the UI.",
+    "Update arrays and objects immutably and use functional state updates when appropriate.",
+    "Describe the value/setter pair returned by useState and how it requests updates.",
+    "Explain how parent-provided props configure a child and why child components should treat props as read-only."
+  ],
+  "tags": [
+    "react",
+    "components",
+    "jsx",
+    "props",
+    "state",
+    "useState"
+  ],
+  "blocks": [
+    {
+      "id": "react-declarative",
+      "type": "heading",
+      "level": 2,
+      "text": "React describes the UI for the current state"
+    },
+    {
+      "id": "react-declarative-body",
+      "type": "paragraph",
+      "text": "In imperative DOM code, an event handler often finds an element and changes its text or classes directly. React uses a declarative model: components describe the interface for the current props and state, and React reconciles that description with the DOM. Rather than manually patching the same DOM nodes, update the data that drives the UI and let React render the result."
+    },
+    {
+      "id": "react-mental-model",
+      "type": "callout",
+      "tone": "tip",
+      "title": "A component is a reusable UI unit",
+      "text": "A function component receives props, can read its own state, and returns React elements. React may call it again when its inputs change. Rendering should describe the UI, while event handlers request state changes in response to user interactions."
+    },
+    {
+      "id": "component-jsx",
+      "type": "heading",
+      "level": 2,
+      "text": "Function components and JSX"
+    },
+    {
+      "id": "component-jsx-body",
+      "type": "paragraph",
+      "text": "A function component has a name that starts with an uppercase letter and returns React elements. JSX lets you describe the element tree using markup-like syntax that the build tool transforms into JavaScript. Use curly braces to evaluate JavaScript expressions, className for CSS classes, and a parent element or Fragment when you need to return multiple siblings."
+    },
+    {
+      "id": "component-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type WelcomeProps = { name: string };\n\nfunction Welcome({ name }: WelcomeProps) {\n  return (\n    <section className=\"welcome\">\n      <h1>Hello, {name}!</h1>\n      <p>Choose a lesson to continue.</p>\n    </section>\n  );\n}\n\nexport function App() {\n  return <Welcome name=\"Mira\" />;\n}",
+      "steps": [
+        {
+          "title": "Define the input contract",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "WelcomeProps defines the required name property. TypeScript can flag a missing or incorrectly typed prop."
+        },
+        {
+          "title": "Receive props as function inputs",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "The component destructures name from its props. The parent provides this value; the child treats it as read-only."
+        },
+        {
+          "title": "Describe the markup with JSX",
+          "lineStart": 4,
+          "lineEnd": 9,
+          "explanation": "JSX describes a section and its children. Curly braces evaluate the name expression, while className supplies a CSS class."
+        },
+        {
+          "title": "Compose the page from a component",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "App uses Welcome as an element and passes a value. Reusing the same component with other props changes the output without duplicating its structure."
+        }
+      ]
+    },
+    {
+      "id": "jsx-expressions",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use {expression} to insert a JavaScript expression into JSX; arbitrary statements such as if cannot be placed directly in an expression slot.",
+        "Use condition ? <A /> : <B /> or ordinary if logic before return for conditional rendering.",
+        "Use map to render a collection and give each sibling a stable key.",
+        "Component names start with an uppercase letter; native HTML tags are lowercase.",
+        "Props are data or callbacks supplied by the parent and are not a place to mutate parent-owned values."
+      ]
+    },
+    {
+      "id": "props",
+      "type": "heading",
+      "level": 2,
+      "text": "Props configure child components"
+    },
+    {
+      "id": "props-body",
+      "type": "paragraph",
+      "text": "Props let a parent pass strings, numbers, booleans, objects, arrays, and callbacks to a child. Treat these values as read-only. If a child needs to ask for a change, it can invoke a callback supplied by the parent or manage appropriate local state. A component should render from current props, not assume the values never change."
+    },
+    {
+      "id": "react-props-contract-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What is the normal role of props in a React component?",
+      "options": [
+        {
+          "id": "parent-data",
+          "text": "They carry values or callbacks from a parent to configure a child; the child treats them as read-only.",
+          "correct": true,
+          "feedback": "Correct. Props describe the inputs supplied by the parent. When the child needs a change, it can call a callback supplied by the parent or update its own local state as appropriate."
+        },
+        {
+          "id": "child-owned",
+          "text": "They are local state owned and mutated directly by the child.",
+          "correct": false,
+          "feedback": "Local component state is a different mechanism. Mutating a prop can break assumptions about parent-driven rendering."
+        },
+        {
+          "id": "global",
+          "text": "They are globally shared values automatically visible to every component.",
+          "correct": false,
+          "feedback": "Props are passed through the component tree; global sharing requires an explicit shared-state mechanism."
+        },
+        {
+          "id": "immutable-state",
+          "text": "They can never change after the first render, even when the parent changes inputs.",
+          "correct": false,
+          "feedback": "Props are read-only from the child's perspective, but their values can change when the parent renders with different inputs."
+        }
+      ],
+      "explanation": "Props are parent-provided inputs, including data and callbacks. Components should not mutate them; the parent owns the inputs and decides how changes flow through the tree."
+    },
+    {
+      "id": "props-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Pass data and behavior into a reusable card",
+      "code": "type LessonCardProps = {\n  title: string;\n  durationMinutes: number;\n  onOpen: () => void;\n};\n\nfunction LessonCard({ title, durationMinutes, onOpen }: LessonCardProps) {\n  return (\n    <article>\n      <h2>{title}</h2>\n      <p>{durationMinutes} min</p>\n      <button onClick={onOpen}>Open lesson</button>\n    </article>\n  );\n}"
+    },
+    {
+      "id": "legacy-typed-list-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type Task = { id: string; title: string; completed: boolean };\n\ntype TaskListProps = { items: Task[] };\n\nfunction TaskList({ items }: TaskListProps) {\n  if (items.length === 0) return <p>No tasks yet.</p>;\n\n  return (\n    <ul>\n      {items.map((item) => (\n        <li key={item.id}>\n          <span>{item.title}</span>\n          {item.completed && <span> (completed)</span>}\n        </li>\n      ))}\n    </ul>\n  );\n}",
+      "steps": [
+        {
+          "title": "Describe task data and component props",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "A named Task type makes fields explicit, and TaskListProps describes the array accepted by the component."
+        },
+        {
+          "title": "Render empty and populated states",
+          "lineStart": 5,
+          "lineEnd": 18,
+          "explanation": "The component handles an empty list and uses each task's stable id as the key, preserving identity when the list changes."
+        }
+      ]
+    },
+    {
+      "id": "state",
+      "type": "heading",
+      "level": 2,
+      "text": "State persists between renders"
+    },
+    {
+      "id": "state-body",
+      "type": "paragraph",
+      "text": "A local variable inside a component function is recreated when React calls that function again. Changing such a variable does not notify React that the UI needs an update. useState gives React a value to retain between renders and a setter that schedules an update. The state value observed by the currently executing render is a snapshot; calling the setter does not change that snapshot in place."
+    },
+    {
+      "id": "react-usestate-return-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does `useState(initialValue)` return?",
+      "options": [
+        {
+          "id": "pair",
+          "text": "A pair containing the current state value and a setter function that requests an update.",
+          "correct": true,
+          "feedback": "Correct. The returned value belongs to the current render snapshot; calling the setter schedules a future render when React processes the update."
+        },
+        {
+          "id": "value",
+          "text": "Only the current state value; React detects any local-variable assignment automatically.",
+          "correct": false,
+          "feedback": "A local variable assignment does not notify React. `useState` returns both the value and a setter function."
+        },
+        {
+          "id": "ref",
+          "text": "A mutable ref object whose `.current` changes without rendering.",
+          "correct": false,
+          "feedback": "That describes `useRef` more closely. `useState` gives a value and a setter that can schedule rendering."
+        },
+        {
+          "id": "promise",
+          "text": "A Promise that resolves to the next state value after the DOM is updated.",
+          "correct": false,
+          "feedback": "The setter does not return a Promise for the next state. State updates are scheduled and the next render receives a new snapshot."
+        }
+      ],
+      "explanation": "`useState` returns the current value and its setter. The setter requests an update; it does not mutate the value captured by the currently executing render."
+    },
+    {
+      "id": "counter-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState } from \"react\";\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n  return (\n    <section>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount(count + 1)}>Increase</button>\n    </section>\n  );\n}",
+      "steps": [
+        {
+          "title": "Initialize the state value",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "useState(0) uses zero for the first render and returns the current value plus a setter."
+        },
+        {
+          "title": "Display the current snapshot",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "The count expression is evaluated for this render. After a state update, React calls the component again with the new state value."
+        },
+        {
+          "title": "Request an update from an event",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "The setter schedules a state update. React coordinates the next render and DOM changes; this is not a direct DOM mutation."
+        }
+      ]
+    },
+    {
+      "id": "legacy-toggle-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState } from \"react\";\n\nfunction Toggle() {\n  const [isOn, setIsOn] = useState(false);\n\n  return (\n    <button\n      type=\"button\"\n      aria-pressed={isOn}\n      onClick={() => setIsOn((current) => !current)}\n    >\n      {isOn ? \"On\" : \"Off\"}\n    </button>\n  );\n}",
+      "steps": [
+        {
+          "title": "Keep the toggle value in React state",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The boolean is the single source of truth for the visible label and pressed state."
+        },
+        {
+          "title": "Expose the state accessibly",
+          "lineStart": 6,
+          "lineEnd": 15,
+          "explanation": "A native button supports keyboard activation, aria-pressed communicates the state, and the functional updater flips the latest value."
+        }
+      ]
+    },
+    {
+      "id": "legacy-searchable-list-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type Item = { id: string; name: string };\n\ntype SearchableListProps = { items: Item[] };\n\nfunction SearchableList({ items }: SearchableListProps) {\n  const [query, setQuery] = useState(\"\");\n  const normalizedQuery = query.trim().toLocaleLowerCase();\n  const visibleItems = items.filter((item) =>\n    item.name.toLocaleLowerCase().includes(normalizedQuery),\n  );\n\n  return (\n    <section>\n      <label>\n        Search items\n        <input\n          value={query}\n          onChange={(event) => setQuery(event.currentTarget.value)}\n        />\n      </label>\n      <ul>\n        {visibleItems.map((item) => (\n          <li key={item.id}>{item.name}</li>\n        ))}\n      </ul>\n    </section>\n  );\n}",
+      "steps": [
+        {
+          "title": "Keep the input controlled by state",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "Items have stable IDs, while the query is the only changing state. The search string is normalized before filtering."
+        },
+        {
+          "title": "Derive the visible list and render stable keys",
+          "lineStart": 8,
+          "lineEnd": 28,
+          "explanation": "The visible list is derived during render rather than duplicated in state. Matching is case-insensitive and each row uses its item ID."
+        }
+      ]
+    },
+    {
+      "id": "immutable-updates",
+      "type": "heading",
+      "level": 2,
+      "text": "Update state immutably"
+    },
+    {
+      "id": "immutable-updates-body",
+      "type": "paragraph",
+      "text": "When state contains an array or object, return a new array or object to represent a change. Methods such as map, filter, and object spread help express the update while preserving unrelated items or properties. If the next state depends on the pending previous state—especially for multiple queued increments—use the functional updater form so each updater receives the latest queued value."
+    },
+    {
+      "id": "immutable-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "const [count, setCount] = useState(0);\n\nfunction addThree() {\n  setCount((current) => current + 1);\n  setCount((current) => current + 1);\n  setCount((current) => current + 1);\n}\n\nconst [user, setUser] = useState({ name: \"Mira\", role: \"learner\" });\nsetUser((current) => ({ ...current, role: \"admin\" }));",
+      "steps": [
+        {
+          "title": "Queue state updates based on pending state",
+          "lineStart": 3,
+          "lineEnd": 7,
+          "explanation": "Every updater receives the pending value produced by the previous updater. This reliably adds three even though all calls occur in one handler."
+        },
+        {
+          "title": "Represent object changes with a new value",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "Spread copies the top-level properties into a new object and then overrides role. The existing name is retained."
+        }
+      ]
+    },
+    {
+      "id": "hook-rules",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Follow the Rules of Hooks",
+      "text": "Call useState and other Hooks at the top level of a function component or custom Hook, not inside loops, conditions, or nested functions. A consistent call order lets React associate each Hook with the correct state/effect between renders."
+    },
+    {
+      "id": "react-quiz-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What happens when a useState setter receives a different next value?",
+      "options": [
+        {
+          "id": "a",
+          "text": "React schedules an update and renders again when appropriate",
+          "correct": true,
+          "feedback": "The setter informs React about changed state; React updates the rendered UI according to the new value."
+        },
+        {
+          "id": "b",
+          "text": "It directly edits the DOM node containing the value",
+          "correct": false,
+          "feedback": "React coordinates DOM updates from rendered output; the setter is not a direct DOM API."
+        },
+        {
+          "id": "c",
+          "text": "It reloads the browser document",
+          "correct": false,
+          "feedback": "A local state update normally causes a React render, not a full-page reload."
+        },
+        {
+          "id": "d",
+          "text": "The state variable changes immediately in the currently executing render",
+          "correct": false,
+          "feedback": "The current render keeps its snapshot; the new value is used in a subsequent render."
+        }
+      ],
+      "explanation": "State setters schedule state updates; the current render's captured state value remains a snapshot."
+    },
+    {
+      "id": "react-quiz-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "A child should mutate an object prop when the user clicks a button.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "Mutating a prop bypasses the intended owner-controlled data flow and may not trigger a React render."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "Props are read-only inputs; use a callback or appropriate local state to request a change."
+        }
+      ],
+      "explanation": "Props provide one-way data flow from parent to child."
+    },
+    {
+      "id": "react-quiz-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Which practices follow common React state guidance? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use a functional updater when the next value depends on prior state",
+          "correct": true,
+          "feedback": "Updater functions receive the pending previous value and compose correctly when updates are queued."
+        },
+        {
+          "id": "b",
+          "text": "Create a new array or object when updating structured state",
+          "correct": true,
+          "feedback": "Immutable updates make transitions explicit and preserve predictable references."
+        },
+        {
+          "id": "c",
+          "text": "Call useState conditionally inside an if statement",
+          "correct": false,
+          "feedback": "Hooks must be called in the same order at the top level on every render."
+        },
+        {
+          "id": "d",
+          "text": "Mutate the state object and pass the same reference back",
+          "correct": false,
+          "feedback": "In-place mutation hides the change and can cause React to treat the value as unchanged."
+        }
+      ],
+      "explanation": "Use predictable immutable updates and follow the Rules of Hooks."
+    },
+    {
+      "id": "react-practice",
+      "type": "codingExercise",
+      "title": "Build a counter and a task list with React state",
+      "language": "tsx",
+      "context": "Implement this in a React project. The lesson editor stores the draft but does not compile TSX in the browser.",
+      "instructions": [
+        "Create a Counter component using useState and an increment button.",
+        "Add a button that increments the counter by three with functional updaters.",
+        "Define a Task type with id, title, and completed.",
+        "Render tasks from state with stable keys and allow a task to be marked complete using map.",
+        "Add tasks by returning a new array rather than mutating the previous one.",
+        "Explain why changing a local variable does not cause a render while setting state does.",
+        "If extracting a TaskItem component, pass props and avoid mutating them.",
+        "Test repeated clicks and the addition of multiple tasks."
+      ],
+      "requirements": [
+        "Component functions return valid JSX and use PascalCase naming.",
+        "The count value comes from useState, not a mutable local variable.",
+        "Increment by three uses functional updates.",
+        "Task additions and completion updates are immutable.",
+        "Rendered tasks have stable keys.",
+        "The learner can explain props, state snapshots, and re-rendering."
+      ],
+      "starterCode": "import { useState } from \"react\";\n\ntype Task = { id: number; title: string; completed: boolean };\n\nexport function PracticePanel() {\n  const [count, setCount] = useState(0);\n  const [tasks, setTasks] = useState<Task[]>([]);\n\n  function addTask() {\n    // TODO: append one task using a new array.\n  }\n\n  function completeTask(id: number) {\n    // TODO: use map and update the matching task immutably.\n  }\n\n  return (\n    <section>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount((current) => current + 1)}>Increase</button>\n      <button onClick={() => {\n        // TODO: increase by three using functional updates.\n      }}>Increase by three</button>\n      <button onClick={addTask}>Add task</button>\n      <ul>{tasks.map((task) => (\n        <li key={task.id}>\n          <span>{task.completed ? \"✓ \" : \"\"}{task.title}</span>\n          <button onClick={() => completeTask(task.id)}>Complete</button>\n        </li>\n      ))}</ul>\n    </section>\n  );\n}",
+      "hints": [
+        "Return a new array from every task update rather than mutating the existing array.",
+        "Use map to preserve each task and change only the one with the matching ID.",
+        "Use updater functions for multiple increments that depend on the prior count."
+      ],
+      "successCriteria": [
+        "The count responds to every click.",
+        "The increment-by-three control adds exactly three.",
+        "Adding tasks preserves previous task data.",
+        "Completing one task leaves other tasks unchanged.",
+        "Every list item has a stable key.",
+        "You can explain why React state differs from a local variable."
+      ]
+    },
+    {
+      "id": "react-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Components describe the UI declaratively from props and state.",
+        "JSX describes elements and uses braces for JavaScript expressions.",
+        "Props are read-only inputs; state represents values that change over time.",
+        "useState setters schedule rendering; they do not directly mutate the DOM or current render snapshot.",
+        "Update arrays and objects immutably, and use functional updaters when the next value depends on previous state."
+      ]
+    },
+    {
+      "id": "deep-react-state-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: state snapshots, queued updates, and immutable objects"
+    },
+    {
+      "id": "deep-react-state-model",
+      "type": "paragraph",
+      "text": "A render observes a snapshot of state. Calling a setter schedules a future render; it does not mutate the state variable inside the currently running event handler. When the next value depends on the previous one, use the functional updater form. For objects and arrays, return a new reference instead of mutating the previous snapshot."
+    },
+    {
+      "id": "deep-react-state-trace",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "function Counter() {\n  const [count, setCount] = useState(0);\n\n  function addThree() {\n    setCount(count + 1);\n    setCount(count + 1);\n    setCount(count + 1);\n  }\n\n  function addThreeCorrectly() {\n    setCount(n => n + 1);\n    setCount(n => n + 1);\n    setCount(n => n + 1);\n  }\n\n  return <button onClick={addThreeCorrectly}>{count}</button>;\n}",
+      "steps": [
+        {
+          "title": "The handler captures the current render snapshot",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "If count is 0, all three `count + 1` expressions read 0 and request the value 1. These calls do not read a freshly mutated local variable after each setter."
+        },
+        {
+          "title": "Functional updaters are processed in the queue",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "explanation": "Each updater receives the result of the preceding queued update, so the three increments produce an increase of three."
+        },
+        {
+          "title": "Keep state updates immutable",
+          "lineStart": 16,
+          "lineEnd": 16,
+          "explanation": "The button renders the current snapshot and calls the event handler when clicked. For nested objects, copy the object levels you change so React receives a new reference."
+        }
+      ]
+    },
+    {
+      "id": "deep-react-state-patterns",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use `setCount(n => n + 1)` when the next state depends on the previous state, especially for multiple queued updates.",
+        "Treat state values as read-only snapshots. Do not call `push`, mutate an object in place, or rely on assigning to a local variable to trigger render.",
+        "Store the minimum source of truth. Derive filtered lists, totals and display labels during render unless measuring shows a computation is genuinely expensive.",
+        "Controlled inputs render their value from React state; update the state in `onChange`. Use a suitable initial value to avoid switching between uncontrolled and controlled modes.",
+        "Props are inputs from a parent, not a second copy of local state by default. If a value must remain shared, decide explicitly where its owner lives."
+      ]
+    },
+    {
+      "id": "deep-react-state-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "If count is 0 when `addThree()` runs, what value do three calls to `setCount(count + 1)` typically request in the same handler?",
+      "options": [
+        {
+          "id": "a",
+          "text": "3, because each setter updates count immediately",
+          "correct": false,
+          "feedback": "The local count variable is the snapshot from the current render and is not changed immediately by calling a setter."
+        },
+        {
+          "id": "b",
+          "text": "1, because each expression reads the same render snapshot",
+          "correct": true,
+          "feedback": "Each `count + 1` is evaluated against the same snapshot. Functional updaters are used when each queued update should build on the previous queued result."
+        },
+        {
+          "id": "c",
+          "text": "undefined, because React batches state",
+          "correct": false,
+          "feedback": "Batching does not make the state undefined; it schedules updates so React can process them together."
+        },
+        {
+          "id": "d",
+          "text": "The code always throws a runtime error",
+          "correct": false,
+          "feedback": "This code is valid. Its surprising behavior comes from state snapshots, not a runtime exception."
+        }
+      ],
+      "explanation": "A setter schedules a state update; it does not rewrite the variable captured by the current handler."
+    },
+    {
+      "id": "deep-react-state-practice",
+      "type": "codingExercise",
+      "title": "Fix a stale state update and immutable profile editor",
+      "language": "tsx",
+      "context": "Use this task in a React project because the lesson playground does not compile TSX.",
+      "instructions": [
+        "Implement a button that increments a counter three times in one event.",
+        "Use functional updater callbacks to make the three increments accumulate.",
+        "Implement a profile update that changes one nested field without mutating the original state.",
+        "Explain why the handler reads a snapshot and why a derived total need not be stored in state.",
+        "Initialize controlled inputs with a defined value and update them from onChange."
+      ],
+      "requirements": [
+        "One click increases the count by three.",
+        "Previous state is read through the updater callback for dependent updates.",
+        "Object updates preserve untouched fields and create new references along the changed path.",
+        "Derived values are computed from source state rather than synchronized redundantly.",
+        "Controlled input values do not switch between undefined and defined unexpectedly."
+      ],
+      "starterCode": "function Counter() {\n  const [count, setCount] = useState(0);\n\n  function addThree() {\n    // TODO: queue three increments based on previous state.\n  }\n\n  return <button onClick={addThree}>{count}</button>;\n}\n\nfunction updateCity(user, city) {\n  // TODO: return an immutable nested update for user.profile.city.\n}",
+      "hints": [
+        "The current handler sees the state values from the render that created it.",
+        "Use the callback form of the setter when calculating a new value from an old one.",
+        "Copy every nested object on the path to a property you change."
+      ],
+      "successCriteria": [
+        "One click increases count by exactly three.",
+        "The updater is based on previous state.",
+        "The original user/profile object is unchanged.",
+        "Derived state and controlled input ownership are explained."
+      ]
+    },
+    {
+      "id": "deep-react-state-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "React state is read as a render snapshot; setters schedule future work.",
+        "Functional updaters compose when next state depends on previous state.",
+        "Immutability and one clear owner for each piece of state simplify rendering and debugging."
+      ]
+    },
+    {
+      "id": "react-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "React: Your First Component",
+          "url": "https://react.dev/learn/your-first-component",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Passing Props to a Component",
+          "url": "https://react.dev/learn/passing-props-to-a-component",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: State as a Snapshot",
+          "url": "https://react.dev/learn/state-as-a-snapshot",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Queueing a Series of State Updates",
+          "url": "https://react.dev/learn/queueing-a-series-of-state-updates",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Updating Arrays in State",
+          "url": "https://react.dev/learn/updating-arrays-in-state",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React reference: useState",
+          "url": "https://react.dev/reference/react/useState",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

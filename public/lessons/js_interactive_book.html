@@ -1625,37 +1625,144 @@ clearInterval(intervalID); <span class="cmt">// Always clear!</span></pre>
     b.addEventListener('click',()=>goTo(b.dataset.next));
   });
 
-  // Run buttons
-  document.querySelectorAll('.editor-block').forEach(block=>{
-    const ta=block.querySelector('textarea.code-area');
-    const runBtn=block.querySelector('.btn-run');
-    const resetBtn=block.querySelector('.btn-reset');
-    const out=block.querySelector('.output-panel');
-    const original=ta.value;
-
-    function run(){
-      const logs=[];
-      const fakeConsole={
-        log:function(){logs.push(Array.from(arguments).map(v=>{
-          if(v===null)return'null';
-          if(Array.isArray(v))return JSON.stringify(v);
-          if(typeof v==='object')return JSON.stringify(v);
-          return String(v);
-        }).join(' '));},
-        error:function(){logs.push('ERROR: '+Array.from(arguments).map(String).join(' '));}
-      };
-      try{
-        const fn=new Function('console',ta.value);
-        fn(fakeConsole);
-        out.textContent=logs.length?logs.join('\n'):'(no output)';
-        out.className='output-panel';
-      }catch(e){
-        out.textContent='Error: '+e.message;
-        out.className='output-panel error';
+  // Execute learner code in an isolated worker, not in the page's main context.
+  const workerSource = `
+    let lineCount = 0;
+    const MAX_LINES = 500;
+    function stringify(value) {
+      if (value === null) return 'null';
+      if (value === undefined) return 'undefined';
+      if (typeof value === 'string') return value;
+      try {
+        const json = JSON.stringify(value);
+        return json === undefined ? String(value) : json;
+      } catch (_) {
+        try { return String(value); } catch (_) { return '[unprintable value]'; }
       }
     }
-    if(runBtn)runBtn.addEventListener('click',run);
-    if(resetBtn)resetBtn.addEventListener('click',()=>{ta.value=original;out.textContent='';out.className='output-panel empty';});
+    function emit(type, values) {
+      if (lineCount >= MAX_LINES) return;
+      lineCount += 1;
+      self.postMessage({ type, message: values.map(stringify).join(' ').slice(0, 2000) });
+    }
+    const isolatedConsole = {
+      log: (...values) => emit('log', values),
+      error: (...values) => emit('error', values)
+    };
+    self.addEventListener('error', event => {
+      self.postMessage({ type: 'error', message: 'Error: ' + event.message });
+    });
+    self.addEventListener('unhandledrejection', event => {
+      event.preventDefault();
+      const reason = event.reason;
+      const message = reason && reason.message ? reason.message : reason;
+      self.postMessage({ type: 'error', message: 'Unhandled promise rejection: ' + stringify(message) });
+    });
+    self.onmessage = event => {
+      try {
+        const runCode = new Function('console', event.data);
+        const result = runCode(isolatedConsole);
+        Promise.resolve(result).then(
+          () => self.postMessage({ type: 'done' }),
+          error => {
+            self.postMessage({ type: 'error', message: 'Error: ' + stringify(error && error.message ? error.message : error) });
+            self.postMessage({ type: 'done' });
+          }
+        );
+      } catch (error) {
+        self.postMessage({ type: 'error', message: 'Error: ' + stringify(error && error.message ? error.message : error) });
+        self.postMessage({ type: 'done' });
+      }
+    };
+  `;
+  const EXECUTION_WINDOW_MS = 2500;
+  const MAX_OUTPUT_CHARS = 12000;
+  const RUNNING_MESSAGE = 'Running isolated code (no DOM access)…';
+
+  document.querySelectorAll('.editor-block').forEach(block => {
+    const ta = block.querySelector('textarea.code-area');
+    const runBtn = block.querySelector('.btn-run');
+    const resetBtn = block.querySelector('.btn-reset');
+    const out = block.querySelector('.output-panel');
+    const original = ta.value;
+    let activeWorker = null;
+    let runTimeout = null;
+
+    function stopRunner() {
+      if (runTimeout !== null) {
+        window.clearTimeout(runTimeout);
+        runTimeout = null;
+      }
+      if (activeWorker) {
+        activeWorker.terminate();
+        activeWorker = null;
+      }
+    }
+
+    function appendOutput(message) {
+      const current = out.textContent === RUNNING_MESSAGE ? '' : (out.textContent || '');
+      const next = current ? current + '\\n' + message : message;
+      out.textContent = next.length > MAX_OUTPUT_CHARS
+        ? next.slice(0, MAX_OUTPUT_CHARS) + '\\n… output truncated'
+        : next;
+    }
+
+    function run() {
+      stopRunner();
+      out.textContent = RUNNING_MESSAGE;
+      out.className = 'output-panel';
+      let worker;
+      let settled = false;
+      try {
+        const workerUrl = URL.createObjectURL(new Blob([workerSource], { type: 'text/javascript' }));
+        worker = new Worker(workerUrl);
+        URL.revokeObjectURL(workerUrl);
+        activeWorker = worker;
+        worker.onmessage = event => {
+          if (activeWorker !== worker) return;
+          const data = event.data || {};
+          if (data.type === 'log') {
+            appendOutput(String(data.message || ''));
+          } else if (data.type === 'error') {
+            appendOutput(String(data.message || 'Execution error'));
+            out.className = 'output-panel error';
+          } else if (data.type === 'done') {
+            settled = true;
+            if (out.textContent === RUNNING_MESSAGE) out.textContent = '(no output)';
+          }
+        };
+        worker.onerror = event => {
+          if (activeWorker !== worker) return;
+          event.preventDefault();
+          stopRunner();
+          out.textContent = 'Worker error: ' + event.message;
+          out.className = 'output-panel error';
+        };
+        runTimeout = window.setTimeout(() => {
+          if (activeWorker !== worker) return;
+          worker.terminate();
+          activeWorker = null;
+          runTimeout = null;
+          if (!settled) {
+            appendOutput('Execution stopped after 2.5 seconds (time limit).');
+            out.className = 'output-panel error';
+          }
+        }, EXECUTION_WINDOW_MS);
+        worker.postMessage(ta.value);
+      } catch (error) {
+        stopRunner();
+        out.textContent = 'Runner unavailable: ' + (error && error.message ? error.message : String(error));
+        out.className = 'output-panel error';
+      }
+    }
+
+    if (runBtn) runBtn.addEventListener('click', run);
+    if (resetBtn) resetBtn.addEventListener('click', () => {
+      stopRunner();
+      ta.value = original;
+      out.textContent = '';
+      out.className = 'output-panel empty';
+    });
   });
 
   // Quiz buttons

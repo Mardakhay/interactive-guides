@@ -1,0 +1,416 @@
+{
+  "id": "browser.capability-apis",
+  "locale": "en",
+  "version": 2,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-26",
+  "moduleId": "supplement-browser-platform",
+  "supplementaryTrackId": "supplement-browser-platform",
+  "order": 2,
+  "title": "Browser Capability APIs",
+  "description": "Permissions, device capabilities, clipboard, notifications, observation, and page visibility with progressive enhancement and cleanup.",
+  "estimatedMinutes": 90,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "js.dom-events",
+    "js.async-fetch",
+    "browser.realtime-workers"
+  ],
+  "learningOutcomes": [
+    "Request sensitive capabilities only in response to a clear user action and explain denial/failure states.",
+    "Use geolocation and clipboard APIs with feature checks, asynchronous error handling, and cleanup.",
+    "Treat notifications and battery data as optional capabilities with user consent and compatibility limits.",
+    "Use ResizeObserver and Page Visibility without creating feedback loops or unnecessary background work.",
+    "Request notification permission after user intent and handle desktop/mobile display paths with an in-page fallback."
+  ],
+  "tags": [
+    "browser APIs",
+    "permissions",
+    "geolocation",
+    "clipboard",
+    "notifications",
+    "observers",
+    "progressive enhancement",
+    "notification-permissions",
+    "capability-fallbacks"
+  ],
+  "blocks": [
+    {
+      "id": "capabilities-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Browser capabilities are conditional, not guaranteed"
+    },
+    {
+      "id": "capabilities-model",
+      "type": "paragraph",
+      "text": "A browser API is a request to use a capability under several gates: the API may be absent, the page may not be a secure context, the user may deny permission, an embedding policy may block it, or the operation may fail at runtime. Treat each gate as a normal branch in the interface—not as an exceptional browser quirk. Ask only when the user understands the benefit, provide a useful fallback, and never make a sensitive capability the only way to complete a task."
+    },
+    {
+      "id": "capability-gates",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Feature detection answers whether an API is exposed; it does not prove permission or successful operation.",
+        "Secure context (normally HTTPS, with localhost exceptions) is required by several sensitive APIs.",
+        "Permission prompts should follow an explicit, contextual user action; prompting on page load surprises people and may be blocked by browsers.",
+        "Permissions Policy can further restrict APIs in embedded documents; test the deployed origin and iframe configuration, not only localhost."
+      ]
+    },
+    {
+      "id": "geolocation-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Geolocation: permission, error states, and watch cleanup"
+    },
+    {
+      "id": "geolocation-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const button = document.querySelector(\"#locate\");\nconst output = document.querySelector(\"#location\");\nlet watchId;\n\nbutton.addEventListener(\"click\", () => {\n  if (!navigator.geolocation) {\n    output.textContent = \"Location is not available in this browser.\";\n    return;\n  }\n  if (watchId !== undefined) return;\n  watchId = navigator.geolocation.watchPosition(\n    ({ coords }) => { output.textContent = `${coords.latitude}, ${coords.longitude}`; },\n    (error) => { output.textContent = `Location unavailable (${error.code}).`; },\n    { maximumAge: 30_000, timeout: 10_000 }\n  );\n});\n\nfunction stopWatching() {\n  if (watchId === undefined) return;\n  navigator.geolocation.clearWatch(watchId);\n  watchId = undefined;\n}",
+      "steps": [
+        {
+          "title": "Keep the request user-initiated",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "The click is the point where the user asks to use location. Explain the benefit before this action; do not prompt immediately on page load."
+        },
+        {
+          "title": "Check support and report failure",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "explanation": "The interface may not expose geolocation. A supported call can still fail because permission is denied, the position is unavailable, or the timeout elapses."
+        },
+        {
+          "title": "Choose one reading or a live watch deliberately",
+          "lineStart": 11,
+          "lineEnd": 16,
+          "explanation": "watchPosition repeatedly invokes callbacks and returns an ID. The guard prevents duplicate watches; maximumAge permits a cached fix and timeout bounds waiting, but neither guarantees accuracy."
+        },
+        {
+          "title": "Stop resources you no longer need",
+          "lineStart": 18,
+          "lineEnd": 22,
+          "explanation": "Call clearWatch with the returned ID when the view is disposed or the user stops sharing, then clear the stored ID. For a one-time location, use getCurrentPosition instead."
+        }
+      ]
+    },
+    {
+      "id": "geo-privacy",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Location is sensitive data",
+      "text": "Request the least precise data the feature needs, explain retention and sharing, and avoid logging coordinates. A permission grant is not consent to upload or retain location indefinitely. Secure context and Permissions Policy restrictions can prevent the API from working."
+    },
+    {
+      "id": "geo-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A map panel unmounts while watchPosition is active. What should cleanup do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Nothing; the browser stops every geolocation watch when a component disappears.",
+          "correct": false,
+          "feedback": "The browser API is not tied automatically to a UI component lifecycle; the watch can continue."
+        },
+        {
+          "id": "b",
+          "text": "Call clearWatch with the ID returned by watchPosition.",
+          "correct": true,
+          "feedback": "Correct. Retain the watch ID and clear it when the feature is no longer active."
+        },
+        {
+          "id": "c",
+          "text": "Call navigator.permissions.query and assume it cancels the reading.",
+          "correct": false,
+          "feedback": "Permission inspection does not stop a watch; cancellation uses clearWatch."
+        },
+        {
+          "id": "d",
+          "text": "Reload the page so the permission prompt appears again.",
+          "correct": false,
+          "feedback": "Reloading is disruptive and does not express lifecycle cleanup."
+        }
+      ],
+      "explanation": "The application owns the watch lifecycle. Cleanup stops repeated callbacks and prevents stale UI updates or unnecessary device work."
+    },
+    {
+      "id": "clipboard-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Clipboard: asynchronous, secure, and user-visible"
+    },
+    {
+      "id": "clipboard-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const copyButton = document.querySelector(\"#copy-link\");\nconst status = document.querySelector(\"#copy-status\");\n\ncopyButton.addEventListener(\"click\", async () => {\n  const shareUrl = window.location.href;\n  if (!navigator.clipboard?.writeText) {\n    status.textContent = \"Copy is unavailable; select the address bar URL.\";\n    return;\n  }\n  try {\n    await navigator.clipboard.writeText(shareUrl);\n    status.textContent = \"Link copied.\";\n  } catch {\n    status.textContent = \"Copy was blocked; copy the link manually.\";\n  }\n});",
+      "steps": [
+        {
+          "title": "Start from a direct user gesture",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The click handler provides clear intent. Clipboard permissions and user-activation requirements vary across browsers, especially for reads."
+        },
+        {
+          "title": "Feature-detect the exact method",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "The Clipboard API is exposed in secure contexts and may be unavailable. Optional chaining checks the method, then a manual fallback keeps the task possible."
+        },
+        {
+          "title": "Await and handle rejection",
+          "lineStart": 9,
+          "lineEnd": 14,
+          "explanation": "writeText returns a promise. Permission, focus, policy, or platform restrictions can reject it, so report success only after it resolves."
+        }
+      ]
+    },
+    {
+      "id": "clipboard-limit",
+      "type": "callout",
+      "tone": "note",
+      "title": "Do not treat clipboard access as silent background work",
+      "text": "Reading clipboard contents is more privacy-sensitive than writing a value the user asked to copy. Browser requirements differ; request reads only for an explicit paste-related action and handle denial. Avoid legacy execCommand-based examples except when deliberately documenting compatibility fallback."
+    },
+    {
+      "id": "notification-flow-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Request and show notifications with a safe fallback"
+    },
+    {
+      "id": "notification-flow-model",
+      "type": "paragraph",
+      "text": "Ask for permission only after an explicit user action and only in a secure context. Permission may be `granted`, `denied`, or `default`; denial or unsupported APIs must leave an in-page status path usable. On most mobile browsers, `new Notification()` throws; use an available `ServiceWorkerRegistration.showNotification()` for persistent notifications, and catch display failures rather than claiming success. This is a capability example, not a push subscription or background delivery implementation."
+    },
+    {
+      "id": "notification-permission-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const notificationButton = document.querySelector(\"#enable-notifications\");\nconst notificationStatus = document.querySelector(\"#notification-status\");\n\nasync function requestSystemNotification() {\n  if (!(\"Notification\" in window) || !window.isSecureContext) {\n    notificationStatus.textContent = \"System notifications are unavailable; use in-page updates.\";\n    return;\n  }\n\n  let permission = Notification.permission;\n  if (permission === \"default\") {\n    try {\n      permission = await Notification.requestPermission();\n    } catch {\n      notificationStatus.textContent = \"Permission request failed; updates remain available in this page.\";\n      return;\n    }\n  }\n\n  if (permission !== \"granted\") {\n    notificationStatus.textContent = permission === \"denied\"\n      ? \"Notifications are blocked; check browser settings if you want them.\"\n      : \"No notification permission; updates remain available in this page.\";\n    return;\n  }\n\n  try {\n    const registration = await navigator.serviceWorker?.getRegistration();\n    if (registration) {\n      await registration.showNotification(\"Build completed\", {\n        body: \"Your lesson build is ready.\",\n        tag: \"build-status\",\n      });\n      notificationStatus.textContent = \"System notification shown.\";\n      return;\n    }\n\n    // Page notifications work on desktop; most mobile browsers require a Service Worker.\n    const notification = new Notification(\"Build completed\", { body: \"Your lesson build is ready.\" });\n    notification.addEventListener(\"click\", () => {\n      window.focus();\n      notification.close();\n    });\n    notificationStatus.textContent = \"System notification shown.\";\n  } catch {\n    notificationStatus.textContent = \"System notification unavailable here; check updates in this page.\";\n  }\n}\n\nif (notificationButton && notificationStatus) {\n  // Call permission only from this explicit user action.\n  notificationButton.addEventListener(\"click\", requestSystemNotification);\n}\n\nfunction disposeNotificationFeature() {\n  notificationButton?.removeEventListener(\"click\", requestSystemNotification);\n}",
+      "steps": [
+        {
+          "title": "Detect availability before using the API",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "Both the button and status area are optional page elements. Check API support and secure context before touching `Notification`; if unavailable, explain the in-page alternative."
+        },
+        {
+          "title": "Request permission only after a click",
+          "lineStart": 10,
+          "lineEnd": 23,
+          "explanation": "Request permission only when the user activates the button. Preserve granted/denied/default distinctions and handle a rejected permission promise; do not report that a notification was shown yet."
+        },
+        {
+          "title": "Prefer the service-worker path when registered",
+          "lineStart": 25,
+          "lineEnd": 46,
+          "explanation": "A registration can show persistent notifications and is the required route for most mobile browsers. The constructor is only a fallback when no registration is available; display can still fail, so handle the error and keep the in-page status."
+        },
+        {
+          "title": "Attach and remove a stable click handler",
+          "lineStart": 48,
+          "lineEnd": 55,
+          "explanation": "The explicit button click is the permission user gesture. `disposeNotificationFeature()` removes the exact function reference so a disposed feature does not retain the handler."
+        }
+      ]
+    },
+    {
+      "id": "notification-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "When is the best time to call Notification.requestPermission()?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Automatically as soon as every page loads.",
+          "correct": false,
+          "feedback": "Unexpected permission prompts harm trust and browsers may suppress them."
+        },
+        {
+          "id": "b",
+          "text": "After a user chooses an explained opt-in action, with a fallback if permission is denied or unsupported.",
+          "correct": true,
+          "feedback": "Correct. Permission should be contextual and opt-in; notification support is not universal."
+        },
+        {
+          "id": "c",
+          "text": "After silently creating a Notification object.",
+          "correct": false,
+          "feedback": "Displaying notifications requires permission; constructing one does not replace the permission flow."
+        },
+        {
+          "id": "d",
+          "text": "Only from a Service Worker, so a page never needs permission.",
+          "correct": false,
+          "feedback": "A service worker can show notifications in supported flows, but permission is still required."
+        }
+      ],
+      "explanation": "Notifications display outside the page and require explicit origin permission. Ask only after explaining what the user will receive, and preserve an in-page alternative."
+    },
+    {
+      "id": "observation-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Observation APIs and page visibility"
+    },
+    {
+      "id": "resize-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const card = document.querySelector(\".card\");\nconst observer = new ResizeObserver(([entry]) => {\n  const inlineSize = entry.contentBoxSize?.[0]?.inlineSize ?? entry.contentRect.width;\n  const compact = inlineSize < 360;\n  card.classList.toggle(\"card--compact\", compact);\n});\nobserver.observe(card);\n\n// Call when this card/view is removed:\nfunction disposeCard() {\n  observer.unobserve(card);\n  observer.disconnect();\n}",
+      "steps": [
+        {
+          "title": "Observe the element, not just the viewport",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "A component can resize because its container or neighboring layout changes even when the window size does not. ResizeObserver reports element box changes."
+        },
+        {
+          "title": "Read the measured size and derive presentation",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "explanation": "The content box size is preferred when available; contentRect is a compatibility fallback. The threshold is a product decision and should avoid jitter near the boundary if necessary."
+        },
+        {
+          "title": "Avoid observer feedback loops",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "This callback changes only a class for styling. If callback writes change the observed dimensions, it can trigger repeated notifications; make the transformation converge or defer carefully."
+        },
+        {
+          "title": "Disconnect on teardown",
+          "lineStart": 7,
+          "lineEnd": 11,
+          "explanation": "Stop observing when the element/view is gone. Disconnect releases every observed target owned by this observer."
+        }
+      ]
+    },
+    {
+      "id": "visibility-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const video = document.querySelector(\"#preview-video\");\nconst controls = document.querySelector(\"#media-controls\");\n\nif (video) {\n  function syncAnimation() {\n    if (document.hidden) video.pause();\n    else video.play().catch(() => controls?.classList.add(\"needs-play\"));\n  }\n\n  function onVisibilityChange() { syncAnimation(); }\n  document.addEventListener(\"visibilitychange\", onVisibilityChange);\n  syncAnimation(); // also handle the initial state\n\n  function dispose() {\n    document.removeEventListener(\"visibilitychange\", onVisibilityChange);\n  }\n}",
+      "steps": [
+        {
+          "title": "Pause work while the page is hidden",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "explanation": "Pause expensive or user-invisible activity when the document is hidden. The play() promise can reject due to autoplay policy, so show a manual-play fallback instead of hiding the failure."
+        },
+        {
+          "title": "Register the same named callback",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "explanation": "The named onVisibilityChange function is registered and later removed by the same reference; the initial call handles current page state before an event fires."
+        },
+        {
+          "title": "Remove the listener on teardown",
+          "lineStart": 14,
+          "lineEnd": 16,
+          "explanation": "Cleanup removes the exact registered callback. A new anonymous arrow would be a different function and would leave the original listener attached."
+        }
+      ]
+    },
+    {
+      "id": "battery-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Battery data is optional and not broadly available",
+      "text": "Battery Status API support is limited, requires a secure context, and is not exposed in Web Workers. Feature-detect it and use it only as a progressive enhancement; never block core functionality or infer a person's behavior from battery level."
+    },
+    {
+      "id": "capabilities-practice",
+      "type": "codingExercise",
+      "title": "Build a capability-aware share panel",
+      "language": "javascript",
+      "context": "A lesson page offers a Copy link button and an optional “use my location” shortcut. Implement them so every path still works when browser capabilities or permission are unavailable.",
+      "instructions": [
+        "Implement the click handler for Copy link with feature detection, awaited success, and a manual-copy fallback.",
+        "Add a separate location button that explains why location is useful before requesting a one-time position.",
+        "Render distinct messages for unsupported, permission denied, timeout/unavailable, success, and clipboard rejection.",
+        "Do not request location or notifications on page load; do not send or persist coordinates.",
+        "Add cleanup if you choose watchPosition instead of the required one-time getCurrentPosition.",
+        "Implement optional notifications only from a dedicated user gesture; preserve an in-page update fallback for denied/unsupported APIs and prefer service-worker showNotification on mobile."
+      ],
+      "requirements": [
+        "Check `navigator.clipboard?.writeText` and call it only after the user's copy action.",
+        "Use `getCurrentPosition` for a one-time shortcut; request only on the location button click.",
+        "Keep all failure states actionable and avoid exposing precise coordinates beyond the UI requirement.",
+        "Keep optional APIs from blocking the rest of the share panel.",
+        "Notification permission is not requested during setup; denied/unsupported/display-failed paths keep the in-page status usable."
+      ],
+      "starterCode": "const copyButton = document.querySelector(\"#copy-link\");\nconst locationButton = document.querySelector(\"#use-location\");\nconst status = document.querySelector(\"#status\");\n\n// TODO: copy current URL after the user clicks.\n// TODO: request one location only after explaining the purpose.\n",
+      "hints": [
+        "The browser may expose the object but permission can still reject the call.",
+        "Check GeolocationPositionError codes, but do not assume every device returns a useful fix.",
+        "A manual-copy instruction is a real fallback, not a swallowed exception.",
+        "If you switch to watchPosition, store its ID and clear it when the user stops.",
+        "The Notification constructor fails on most mobile browsers; use an active ServiceWorkerRegistration when available, but still catch the display promise."
+      ],
+      "successCriteria": [
+        "No prompt is requested during initial page setup.",
+        "Clipboard success is shown only after the promise resolves.",
+        "Unsupported and rejected clipboard cases have a manual alternative.",
+        "Location is requested only from the location button and failures are explained.",
+        "No location is uploaded or persisted by the implementation.",
+        "Each action leaves the other capability usable when unavailable.",
+        "Notification permission is requested only from a user action; desktop/mobile display paths and in-page fallback are handled without false success feedback."
+      ]
+    },
+    {
+      "id": "capabilities-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Geolocation API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Geolocation",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Clipboard API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Notifications API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: ResizeObserver",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Page Visibility API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Battery Status API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Battery_Status_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Notification requestPermission",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Notification/requestPermission_static",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Notification constructor and mobile limitations",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Notification/Notification",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using the Notifications API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

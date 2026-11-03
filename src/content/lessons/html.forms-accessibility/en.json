@@ -1,0 +1,592 @@
+{
+  "id": "html.forms-accessibility",
+  "locale": "en",
+  "version": 3,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-28",
+  "moduleId": "month-1-week-2",
+  "week": 2,
+  "order": 2,
+  "title": "HTML Forms and Accessibility Basics",
+  "description": "Understand how browsers collect and submit form data, associate labels with controls, use native constraints, group related choices, and make forms operable with a keyboard and assistive technology.",
+  "estimatedMinutes": 70,
+  "difficulty": "beginner",
+  "prerequisites": [
+    "html.document-structure"
+  ],
+  "learningOutcomes": [
+    "Explain the roles of form, action, and method.",
+    "Associate a visible label with its control using for and id.",
+    "Distinguish id, name, placeholder, required, type, and autocomplete.",
+    "Choose appropriate controls and group related radio choices.",
+    "Build and keyboard-test an accessible registration form."
+  ],
+  "tags": [
+    "html",
+    "forms",
+    "accessibility",
+    "validation",
+    "semantics"
+  ],
+  "blocks": [
+    {
+      "id": "form-purpose",
+      "type": "heading",
+      "level": 2,
+      "text": "What a form does"
+    },
+    {
+      "id": "form-purpose-body",
+      "type": "paragraph",
+      "text": "A form is a browser-native way to collect related values and submit them as a request. Its controls are not simply styled boxes: each has a role, state, constraints, and a way its value is represented during submission. A login form, search form, and address form may look different, but they share the same model: controls collect values, constraints can prevent invalid submission, and the form defines where and how a successful submission is sent."
+    },
+    {
+      "id": "form-mental-model",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Keep four questions separate",
+      "text": "Which control collects the value? Which label explains that control? Which name identifies the value in submitted data? Which action receives the request? These are separate responsibilities. Confusing them often creates forms that look correct but are difficult to use or submit unexpected data."
+    },
+    {
+      "id": "form-contract",
+      "type": "heading",
+      "level": 2,
+      "text": "The form and its submission contract"
+    },
+    {
+      "id": "form-contract-body",
+      "type": "paragraph",
+      "text": "The example uses a hypothetical server route. It demonstrates HTML structure; it will not create an account unless a real server endpoint exists and implements the request. HTML defines the browser-side contract, not the backend behavior."
+    },
+    {
+      "id": "basic-form",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<form action=\"/signup\" method=\"post\">\n  <div>\n    <label for=\"full-name\">Full name</label>\n    <input id=\"full-name\" name=\"fullName\" type=\"text\" autocomplete=\"name\" required>\n  </div>\n  <div>\n    <label for=\"email\">Email</label>\n    <input id=\"email\" name=\"email\" type=\"email\" autocomplete=\"email\" required>\n  </div>\n  <div>\n    <label for=\"password\">Password</label>\n    <input id=\"password\" name=\"password\" type=\"password\" autocomplete=\"new-password\" minlength=\"12\" required>\n  </div>\n  <button type=\"submit\">Create account</button>\n</form>",
+      "steps": [
+        {
+          "title": "form, action, and method",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "The form groups controls into one submission. action names the destination URL and method defines how the request is sent. The /signup path is illustrative; a server must implement it before the form can create an account."
+        },
+        {
+          "title": "label and for",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "The label's for value matches the input's id. This explicit association makes the label clickable and gives the control an accessible name. The visible label remains available while the user types."
+        },
+        {
+          "title": "id versus name",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "id identifies the element in the document and participates in the label association. name identifies the value in submitted form data. A control can have an id and label but normally contributes no named value when it has no name."
+        },
+        {
+          "title": "type, required, and autocomplete",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "type=email gives the browser the intended input semantics and basic format validation. required prevents an empty value from passing native validation. autocomplete=email helps browsers and password managers recognize the field. These improvements do not replace server validation."
+        },
+        {
+          "title": "password constraints",
+          "lineStart": 12,
+          "lineEnd": 12,
+          "explanation": "type=password masks the visible characters; it does not encrypt the value. autocomplete=new-password signals a new credential field, while minlength adds a client-side constraint that must also be checked on the server."
+        },
+        {
+          "title": "explicit submit button",
+          "lineStart": 14,
+          "lineEnd": 14,
+          "explanation": "type=submit submits the form when native validation passes. Explicitly stating the type prevents ambiguity when additional buttons are later added."
+        }
+      ]
+    },
+    {
+      "id": "action-method",
+      "type": "paragraph",
+      "text": "GET places submitted values into the URL query string and is appropriate for repeatable requests without secrets, such as searches and filters. POST sends the form data in the request body and is commonly used when a request creates or changes server state. POST is not encryption: HTTPS protects data in transit, and server-side authorization and validation are still required. Never put passwords or other secrets in a GET URL."
+    },
+    {
+      "id": "form-data",
+      "type": "heading",
+      "level": 2,
+      "text": "How a control contributes submitted data"
+    },
+    {
+      "id": "form-data-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "name is the key used for a control's value in submitted form data; id is a document identifier and is not a substitute for name.",
+        "Disabled controls are not submitted. Read-only controls behave differently and may still be included.",
+        "Unchecked checkboxes and radio buttons are not submitted as selected values.",
+        "A select submits the value of the selected option. Specify option value if the transmitted value should differ from its visible label.",
+        "A textarea's content is its value. Placeholder is only a hint and should not carry essential instructions."
+      ]
+    },
+    {
+      "id": "labels",
+      "type": "heading",
+      "level": 2,
+      "text": "Labels are not decoration"
+    },
+    {
+      "id": "labels-body",
+      "type": "paragraph",
+      "text": "A label communicates what a field is for. A common explicit pattern is label for=\"email\" paired with input id=\"email\". The values must match, and an id should be unique in the document. A label can also wrap a control implicitly, but use one clear pattern consistently. Placeholder may show an optional example, but it usually disappears while typing and is not a replacement for a visible label."
+    },
+    {
+      "id": "placeholder-warning",
+      "type": "callout",
+      "tone": "warning",
+      "title": "A placeholder is not a label",
+      "text": "A field that only says “Email address” inside the control becomes unclear once the user starts typing. Keep a visible label, and use placeholder only for a supplementary example such as name@example.com."
+    },
+    {
+      "id": "input-types",
+      "type": "heading",
+      "level": 2,
+      "text": "Choose an input type for the data"
+    },
+    {
+      "id": "input-types-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "text collects one line of free text.",
+        "email gives the browser a semantic hint and basic native validation for an email-like value.",
+        "password masks the displayed characters but does not encrypt the value.",
+        "number is for numeric quantities; a phone number is an identifier, not a quantity, so number is usually inappropriate for it.",
+        "checkbox is an independently selectable option.",
+        "radio represents one choice from options sharing the same name.",
+        "select chooses from a constrained list; textarea collects multiline text."
+      ]
+    },
+    {
+      "id": "specialized-input-types-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Specialized input types: pick the right control"
+    },
+    {
+      "id": "specialized-input-types-body",
+      "type": "paragraph",
+      "text": "HTML offers more than text and email fields. Specialized controls can make input easier on desktop and mobile, but their exact picker UI varies by browser and operating system. Choose a type for the meaning of the value, keep a visible label, and validate important rules in the application/server rather than trusting the control."
+    },
+    {
+      "id": "specialized-input-types-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`date` and `time` can offer native pickers and standardized values, but their visual presentation depends on the browser and locale. Define meaningful min/max constraints where useful and validate business rules after submission.",
+        "`tel` signals a telephone-number field and may prompt a phone-friendly mobile keyboard. It does not provide a universal format validator; normalize and validate phone numbers according to the product's requirements.",
+        "`url` provides a URL-oriented keyboard and basic browser constraint validation, but does not establish that the destination is safe or reachable.",
+        "`search` semantically marks a search field and browsers may show a clear affordance. The application still needs to implement the actual search/filter behavior.",
+        "`range` is a slider suited to approximate choices within a bounded range. Pair it with a visible label and current value; use a number input or another control when precise entry matters.",
+        "`color` may display a native colour picker. If exact values matter, show the selected value and consider allowing text entry as an alternative.",
+        "`file` with `accept=\"image/*\"` suggests acceptable file types to the picker; it is not a security check. For traditional form submission use `enctype=\"multipart/form-data\"`, and validate file size, detected content/type, and authorization on the server.",
+        "`hidden` values are not visible in the page but are still submitted and can be modified by the user. Never trust a hidden field for permissions, price, account ID, or other security-sensitive values.",
+        "`submit` triggers form submission; `reset` restores default control values and can surprise users. Prefer explicit button types and include reset only when there is a clear user benefit."
+      ]
+    },
+    {
+      "id": "file-accept-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A form uses `<input type=\"file\" accept=\"image/*\">`. Which statement is correct?",
+      "options": [
+        {
+          "id": "filter",
+          "text": "The accept attribute is a picker hint, not a security validation boundary.",
+          "correct": true,
+          "feedback": "Users and clients can bypass the hint. The server must verify uploaded content, size, and the user's authorization."
+        },
+        {
+          "id": "guarantee",
+          "text": "The browser guarantees that only valid image files can reach the server.",
+          "correct": false,
+          "feedback": "Accept influences file-picker selection in supporting browsers; it does not guarantee trustworthy file content."
+        },
+        {
+          "id": "encrypt",
+          "text": "The browser encrypts the selected file automatically.",
+          "correct": false,
+          "feedback": "File input selection does not itself encrypt uploads; transport security and server handling are separate concerns."
+        },
+        {
+          "id": "readonly",
+          "text": "The selected file path becomes a safe authorization token.",
+          "correct": false,
+          "feedback": "A selected file path is not a trusted identity or permission token."
+        }
+      ],
+      "explanation": "Treat client-side input attributes as usability hints. Enforce file type/content, size limits, and authorization on the server."
+    },
+    {
+      "id": "grouping",
+      "type": "heading",
+      "level": 2,
+      "text": "Group related controls with fieldset and legend"
+    },
+    {
+      "id": "grouping-body",
+      "type": "paragraph",
+      "text": "When several controls form one question—such as choosing a contact preference—group them with fieldset and describe the group with legend. Each control still needs its own id and label. Radio options in one group share a name so the browser treats them as mutually exclusive choices."
+    },
+    {
+      "id": "radio-group-example",
+      "type": "code",
+      "language": "html",
+      "caption": "An accessible radio group",
+      "code": "<fieldset>\n  <legend>Preferred contact method</legend>\n  <div>\n    <input id=\"contact-email\" name=\"contactMethod\" type=\"radio\" value=\"email\" checked>\n    <label for=\"contact-email\">Email</label>\n  </div>\n  <div>\n    <input id=\"contact-phone\" name=\"contactMethod\" type=\"radio\" value=\"phone\">\n    <label for=\"contact-phone\">Phone</label>\n  </div>\n</fieldset>"
+    },
+    {
+      "id": "buttons",
+      "type": "heading",
+      "level": 2,
+      "text": "Buttons inside forms"
+    },
+    {
+      "id": "buttons-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "button type=\"submit\" submits the associated form.",
+        "button type=\"button\" has no built-in submission behavior; it is for another interaction, often implemented with JavaScript.",
+        "button type=\"reset\" restores controls to their initial values. Use it only when resetting is genuinely useful, because it can surprise users.",
+        "When a button is inside a form and its type is omitted, its default behavior is commonly submission. Set type explicitly to document intent."
+      ]
+    },
+    {
+      "id": "native-validation",
+      "type": "heading",
+      "level": 2,
+      "text": "Native validation and accessible error feedback"
+    },
+    {
+      "id": "native-validation-body",
+      "type": "paragraph",
+      "text": "Attributes such as required, type=email, minlength, maxlength, min, max, and pattern let the browser check some constraints before submitting. The browser can focus an invalid control and expose a message. These checks can be bypassed, so the server must repeat important validation. In custom validation, explain the problem in text, associate a message with its field using aria-describedby, and expose dynamic errors accessibly when they are added or removed."
+    },
+    {
+      "id": "keyboard-review",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Give each input a visible label and an appropriate name.",
+        "Mark required fields and explain non-obvious constraints in visible text.",
+        "Do not communicate errors through color alone.",
+        "After validation fails, identify the field and say how to fix it, for example: “Enter an email address in the format name@example.com.”",
+        "Test using Tab, Shift+Tab, Space, arrow keys for radio groups, and Enter to submit."
+      ]
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which attribute supplies the key used for an input's value in submitted form data?",
+      "options": [
+        {
+          "id": "a",
+          "text": "name",
+          "correct": true,
+          "feedback": "The name attribute supplies the control's key in submitted form data."
+        },
+        {
+          "id": "b",
+          "text": "id",
+          "correct": false,
+          "feedback": "The id identifies an element in the document and can associate it with a label."
+        },
+        {
+          "id": "c",
+          "text": "placeholder",
+          "correct": false,
+          "feedback": "Placeholder provides a hint inside a control; it does not identify the submitted value."
+        },
+        {
+          "id": "d",
+          "text": "autocomplete",
+          "correct": false,
+          "feedback": "Autocomplete helps the browser recognize or fill a value, but it is not the submitted field key."
+        }
+      ],
+      "explanation": "Keep the document identifier (id), submitted-data key (name), hint (placeholder), and autofill hint (autocomplete) separate."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "Adding type=\"password\" to an input encrypts its value before the browser sends the form.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "Password inputs visually mask characters; the input type does not encrypt the value."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "The input type changes presentation and semantics, not transport encryption. Use HTTPS and appropriate server-side security."
+        }
+      ],
+      "explanation": "Visual masking, transport encryption, and server-side credential handling solve different problems."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Which practices improve a form's semantics and usability? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Associate a visible label with each control",
+          "correct": true,
+          "feedback": "An associated label communicates the control's purpose."
+        },
+        {
+          "id": "b",
+          "text": "Use placeholder as the only description of a field",
+          "correct": false,
+          "feedback": "Placeholder disappears during typing and is not a reliable replacement for a label."
+        },
+        {
+          "id": "c",
+          "text": "Group related radio choices with fieldset and legend",
+          "correct": true,
+          "feedback": "Fieldset and legend establish a semantic group and its shared question."
+        },
+        {
+          "id": "d",
+          "text": "Rely on browser validation instead of server checks",
+          "correct": false,
+          "feedback": "Client-side checks help usability but are not the sole validation or security boundary."
+        }
+      ],
+      "explanation": "Good form UX combines semantic labels and groups with validation on both client and server boundaries."
+    },
+    {
+      "id": "practice-registration-form",
+      "type": "codingExercise",
+      "title": "Build an accessible registration form",
+      "language": "html",
+      "context": "Create a registration form for a fictional learning platform. Focus on labels, native browser behavior, and semantic grouping. No backend is needed; the action URL is illustrative.",
+      "instructions": [
+        "Create fields for full name, email, and password.",
+        "Give each field a visible label, a unique id, and a meaningful name.",
+        "Choose appropriate input types and autocomplete values; mark required fields.",
+        "Add a fieldset/legend group for a preferred contact method with two radio choices.",
+        "Add a terms checkbox with a visible associated label.",
+        "Add a submit button with an explicit type.",
+        "Open the page and test each control using only the keyboard."
+      ],
+      "requirements": [
+        "The form has action and an explicit method; if there is no backend, the endpoint is clearly illustrative.",
+        "Every control has an accessible name.",
+        "Radio options share one name but have different values and ids.",
+        "Labels are associated with controls and are not replaced by placeholders.",
+        "Native validation blocks empty required values and checks email format.",
+        "Keyboard focus is visible and controls can be operated without a mouse."
+      ],
+      "starterCode": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>Create an account</title>\n  </head>\n  <body>\n    <main>\n      <h1>Create an account</h1>\n      <!-- Build your form here. -->\n    </main>\n  </body>\n</html>",
+      "hints": [
+        "Decide each control's id, name, type, and visible label before styling it.",
+        "Mutually exclusive radio options share a name and have different values.",
+        "Press Tab from the start of the page to verify a logical focus order."
+      ],
+      "successCriteria": [
+        "The document has a complete HTML shell and a semantic main region.",
+        "Every control has an explicit label association and a submitted-data name.",
+        "required and email fields trigger native validation when invalid.",
+        "Radio options are semantically grouped and behave as one choice.",
+        "The form can be understood and operated using a keyboard.",
+        "You can explain what the browser validates and what the server must validate."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Form defines the submission destination and method; controls collect values.",
+        "Label and id associate the visible label with the control; name is the key in submitted data.",
+        "Placeholder is a hint, not a label. Native constraints improve usability but do not secure a server.",
+        "Use fieldset/legend for related controls and explicit button types for predictable behavior.",
+        "Accessibility includes accessible names, group context, keyboard operation, visible focus, and understandable errors."
+      ]
+    },
+    {
+      "id": "deep-html-forms-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: native form behavior, labels, and accessible error feedback"
+    },
+    {
+      "id": "deep-html-forms-model",
+      "type": "paragraph",
+      "text": "HTML forms provide more than input boxes: they define how values are named, submitted, validated and exposed to assistive technology. A label should be programmatically associated with its control; `name` determines the key used in a traditional form submission; button type decides whether a button submits a form. Native constraints improve usability, but submitted data must still be validated by the server because browser code and requests can be changed."
+    },
+    {
+      "id": "deep-html-forms-trace",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<form action=\"/subscribe\" method=\"post\">\n  <fieldset>\n    <legend>Newsletter subscription</legend>\n    <label for=\"email\">Email address</label>\n    <input id=\"email\" name=\"email\" type=\"email\" required aria-describedby=\"email-help email-error\">\n    <p id=\"email-help\">We'll send one update per month.</p>\n    <p id=\"email-error\" aria-live=\"polite\"></p>\n  </fieldset>\n  <button type=\"submit\">Subscribe</button>\n  <button type=\"button\">Cancel</button>\n</form>",
+      "steps": [
+        {
+          "title": "Give the group and control meaningful names",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "fieldset/legend group related controls. The label's for value matches the input id, so clicking the label focuses the input and assistive technology can announce its name."
+        },
+        {
+          "title": "Use native type and constraints",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "explanation": "type=email and required enable browser validation and appropriate mobile keyboard behavior. They improve client-side feedback but are not security controls."
+        },
+        {
+          "title": "Connect help and error feedback to the field",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "aria-describedby associates supplementary instructions/errors with the input. aria-live can announce an updated error; don't rely on color alone, and ensure the error text is actually updated and understandable."
+        },
+        {
+          "title": "Choose each button's submit behavior deliberately",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "A button inside a form defaults to submit if type is omitted. Mark non-submit actions type=button to prevent accidental submissions."
+        }
+      ]
+    },
+    {
+      "id": "deep-html-forms-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why should a non-submit button inside a form usually specify `type=\"button\"`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It prevents the button from receiving keyboard focus",
+          "correct": false,
+          "feedback": "type=button does not remove keyboard focus; it changes the button's form-submission behavior."
+        },
+        {
+          "id": "b",
+          "text": "Without a type, a button in a form defaults to submit",
+          "correct": true,
+          "feedback": "A button that only cancels, opens a dialog or changes local UI should not accidentally submit the form."
+        },
+        {
+          "id": "c",
+          "text": "It makes the button accessible without a label",
+          "correct": false,
+          "feedback": "Button type and accessible name are different concerns."
+        },
+        {
+          "id": "d",
+          "text": "It sends the button value as a password",
+          "correct": false,
+          "feedback": "Button type does not determine data sensitivity or password encoding."
+        }
+      ],
+      "explanation": "Native HTML behavior is powerful; specify intent when using form-associated controls."
+    },
+    {
+      "id": "deep-html-forms-guidance",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use label-for/id (or wrap the input in a label) so the visible name is programmatically associated with the field; placeholder is not a substitute.",
+        "Use name for form submission data; id is for document identity and label/reference wiring.",
+        "Use fieldset/legend for related groups and appropriate input types/required/minlength/pattern constraints when they express genuine requirements.",
+        "Connect errors to fields, announce dynamic feedback appropriately, and never communicate invalidity by color alone.",
+        "Client-side validation improves UX but is bypassable; enforce data validity and authorization on the server as well."
+      ]
+    },
+    {
+      "id": "deep-html-forms-practice",
+      "type": "codingExercise",
+      "title": "Build an accessible native signup form",
+      "language": "html",
+      "context": "Create a semantic form that works with keyboard and assistive technology before layering custom React validation on top.",
+      "instructions": [
+        "Create name and email inputs with associated labels, stable ids and submission names.",
+        "Use native type/required constraints where appropriate.",
+        "Group related fields with fieldset and legend.",
+        "Add an error container connected to its field with aria-describedby and use a suitable live announcement strategy for dynamic errors.",
+        "Make Cancel a non-submit button and explain why client validation cannot replace server validation."
+      ],
+      "requirements": [
+        "Every input has an accessible name associated programmatically.",
+        "Submission fields have meaningful name attributes.",
+        "Native constraints match the intended requirement.",
+        "Errors are perceivable without relying only on color.",
+        "Non-submit actions do not trigger form submission accidentally.",
+        "The solution distinguishes client UX validation from server trust."
+      ],
+      "starterCode": "<form action=\"/signup\" method=\"post\">\n  <!-- TODO: add labeled name and email fields -->\n  <!-- TODO: associate help/error text with the relevant input -->\n  <button>Cancel</button>\n  <button>Sign up</button>\n</form>",
+      "hints": [
+        "A button inside a form defaults to submit unless its type says otherwise.",
+        "Use for/id to associate a label; use name to identify submitted data.",
+        "aria-describedby references the id of help/error text already present in the document."
+      ],
+      "successCriteria": [
+        "Keyboard users can reach and identify every field and button.",
+        "Form fields submit meaningful names and use appropriate native constraints.",
+        "Error/help text is connected to the relevant control.",
+        "Cancel does not submit the form.",
+        "Explains the need to validate submitted data on the server."
+      ]
+    },
+    {
+      "id": "deep-html-forms-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Forms define semantics, validation and submission—not only visual input fields.",
+        "Labels, fieldsets, names, native constraints and associated errors improve robust accessible behavior.",
+        "Browser validation is user experience, not a security boundary."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Your first form",
+          "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Your_first_form",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: label element",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/label",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: input element",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: fieldset element",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/fieldset",
+          "kind": "official-docs"
+        },
+        {
+          "title": "W3C WAI: Forms Concepts",
+          "url": "https://www.w3.org/WAI/tutorials/forms/",
+          "kind": "standard"
+        },
+        {
+          "title": "MDN: Form enctype",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#enctype",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

@@ -7,11 +7,26 @@
     "icon": "Globe",
     "estimatedHours": 3,
     "steps": [
-      { "lessonId": "sh-001", "note": "Start with a bird's-eye view of the entire frontend landscape." },
-      { "lessonId": "wb-001", "note": "Understand how the internet and browsers actually work." },
-      { "lessonId": "wb-002", "note": "Learn the structure of every web page." },
-      { "lessonId": "wb-003", "note": "Style your pages and master layout." },
-      { "lessonId": "wb-004", "note": "Bring pages to life by manipulating the DOM." }
+      {
+        "lessonId": "sh-001",
+        "note": "Start with a bird's-eye view of the entire frontend landscape."
+      },
+      {
+        "lessonId": "wb-001",
+        "note": "Understand how the internet and browsers actually work."
+      },
+      {
+        "lessonId": "wb-002",
+        "note": "Learn the structure of every web page."
+      },
+      {
+        "lessonId": "wb-003",
+        "note": "Style your pages and master layout."
+      },
+      {
+        "lessonId": "wb-004",
+        "note": "Bring pages to life by manipulating the DOM."
+      }
     ]
   },
   {
@@ -22,10 +37,22 @@
     "icon": "Code2",
     "estimatedHours": 4,
     "steps": [
-      { "lessonId": "js-001", "note": "Build a solid foundation in JS syntax and fundamentals." },
-      { "lessonId": "js-002", "note": "Understand objects, the prototype chain, and classes." },
-      { "lessonId": "js-003", "note": "Go under the hood with memory, stack, and heap." },
-      { "lessonId": "js-004", "note": "Master the event loop, Promises, and async/await." }
+      {
+        "lessonId": "js-001",
+        "note": "Build a solid foundation in JS syntax and fundamentals."
+      },
+      {
+        "lessonId": "js-002",
+        "note": "Understand objects, the prototype chain, and classes."
+      },
+      {
+        "lessonId": "js-003",
+        "note": "Go under the hood with memory, stack, and heap."
+      },
+      {
+        "lessonId": "js-004",
+        "note": "Master the event loop, Promises, and async/await."
+      }
     ]
   },
   {
@@ -36,12 +63,30 @@
     "icon": "Atom",
     "estimatedHours": 5,
     "steps": [
-      { "lessonId": "re-001", "note": "Start with the most essential hook — useState." },
-      { "lessonId": "re-002", "note": "Master the full hooks API and common patterns." },
-      { "lessonId": "re-003", "note": "Learn to build and validate forms effectively." },
-      { "lessonId": "re-004", "note": "Integrate APIs with custom hooks and error handling." },
-      { "lessonId": "re-005", "note": "Add routing and navigation to your SPA." },
-      { "lessonId": "re-006", "note": "Optimize performance and build accessible apps." }
+      {
+        "lessonId": "re-001",
+        "note": "Start with the most essential hook — useState."
+      },
+      {
+        "lessonId": "re-002",
+        "note": "Master the full hooks API and common patterns."
+      },
+      {
+        "lessonId": "re-003",
+        "note": "Learn to build and validate forms effectively."
+      },
+      {
+        "lessonId": "re-004",
+        "note": "Integrate APIs with custom hooks and error handling."
+      },
+      {
+        "lessonId": "re-005",
+        "note": "Add routing and navigation to your SPA."
+      },
+      {
+        "lessonId": "re-006",
+        "note": "Optimize performance and build accessible apps."
+      }
     ]
   },
   {
@@ -52,10 +97,22 @@
     "icon": "Wrench",
     "estimatedHours": 4,
     "steps": [
-      { "lessonId": "tl-003", "note": "Set up your dev environment from scratch." },
-      { "lessonId": "tl-001", "note": "Master Git — the version control system every developer uses." },
-      { "lessonId": "tl-002", "note": "Learn branching strategies and CI/CD with GitHub Actions." },
-      { "lessonId": "tl-004", "note": "Deploy your app to production with hosting and DNS." }
+      {
+        "lessonId": "tl-003",
+        "note": "Set up your dev environment from scratch."
+      },
+      {
+        "lessonId": "tl-001",
+        "note": "Master Git — the version control system every developer uses."
+      },
+      {
+        "lessonId": "tl-002",
+        "note": "Learn branching strategies and CI/CD with GitHub Actions."
+      },
+      {
+        "lessonId": "tl-004",
+        "note": "Deploy your app to production with hosting and DNS."
+      }
     ]
   },
   {
@@ -66,9 +123,154 @@
     "icon": "ShieldCheck",
     "estimatedHours": 4,
     "steps": [
-      { "lessonId": "qa-001", "note": "Learn how to plan and architect scalable frontends." },
-      { "lessonId": "qa-002", "note": "Write tests at every level — unit, integration, and E2E." },
-      { "lessonId": "sec-001", "note": "Master authentication, JWT, OAuth, and route protection." }
+      {
+        "lessonId": "qa-001",
+        "note": "Learn how to plan and architect scalable frontends."
+      },
+      {
+        "lessonId": "qa-002",
+        "note": "Write tests at every level — unit, integration, and E2E."
+      },
+      {
+        "lessonId": "sec-001",
+        "note": "Master authentication, JWT, OAuth, and route protection."
+      }
+    ]
+  },
+  {
+    "id": "structured-frontend-foundations",
+    "title": "Structured Frontend Foundations",
+    "description": "Follow the in-app bilingual curriculum through web fundamentals, semantic HTML, accessible forms, CSS layout, and browser DOM events. This path uses canonical structured lesson IDs and stays separate from the classic HTML catalog.",
+    "level": "beginner",
+    "icon": "Globe",
+    "estimatedHours": 4,
+    "steps": [
+      {
+        "lessonId": "web.internet-http",
+        "note": "Understand URLs, HTTP requests, and the browser's role in the web."
+      },
+      {
+        "lessonId": "html.document-structure",
+        "note": "Build well-formed pages with meaningful semantic regions."
+      },
+      {
+        "lessonId": "html.forms-accessibility",
+        "note": "Design forms with labels, native constraints, and accessible errors."
+      },
+      {
+        "lessonId": "css.fundamentals",
+        "note": "Learn selectors, cascade, visual rules, and accessibility-aware styling."
+      },
+      {
+        "lessonId": "css.flexbox-grid-responsive",
+        "note": "Choose layout techniques and adapt interfaces across viewports."
+      },
+      {
+        "lessonId": "js.dom-events",
+        "note": "Connect markup to browser events and intentional DOM updates."
+      }
+    ]
+  },
+  {
+    "id": "structured-react-developer",
+    "title": "Structured React Developer",
+    "description": "Learn React through the canonical structured lesson series: components and state, effects and composition, forms, shared state, routing, and reliable API loading. Existing classic React paths remain unchanged.",
+    "level": "intermediate",
+    "icon": "Atom",
+    "estimatedHours": 5,
+    "steps": [
+      {
+        "lessonId": "react.components-jsx-state",
+        "note": "Build components and reason about props, rendering, and state."
+      },
+      {
+        "lessonId": "react.effects-lists-composition",
+        "note": "Use effects for synchronization, compose components, and render lists safely."
+      },
+      {
+        "lessonId": "react.forms-validation",
+        "note": "Build validated forms and accessible error feedback."
+      },
+      {
+        "lessonId": "react.context-shared-state",
+        "note": "Choose when to lift state and when Context is appropriate."
+      },
+      {
+        "lessonId": "react.router-spa",
+        "note": "Model client-side routes and navigation with React Router."
+      },
+      {
+        "lessonId": "react.api-custom-hooks",
+        "note": "Separate data access into API layers and reusable hooks."
+      }
+    ]
+  },
+  {
+    "id": "structured-javascript-mastery",
+    "title": "Structured JavaScript Mastery",
+    "description": "Work through the in-app bilingual JavaScript sequence from core language mechanics to object identity, memory, asynchronous requests, and browser interaction. This route uses canonical structured lesson IDs and does not replace the classic JavaScript path.",
+    "level": "intermediate",
+    "icon": "Code2",
+    "estimatedHours": 5,
+    "steps": [
+      {
+        "lessonId": "js.basics-types-control-flow",
+        "note": "Understand values, operators, branching, loops, and the core execution model."
+      },
+      {
+        "lessonId": "js.functions-arrays-objects",
+        "note": "Compose behavior with functions and model data with arrays and objects."
+      },
+      {
+        "lessonId": "js.object-prototypes",
+        "note": "Explore property lookup, prototypes, classes, and method binding."
+      },
+      {
+        "lessonId": "js.runtime-memory",
+        "note": "Reason about references, stack frames, garbage collection, and async cache behavior."
+      },
+      {
+        "lessonId": "js.async-fetch",
+        "note": "Work with Promises, async/await, request states, and failure handling."
+      },
+      {
+        "lessonId": "js.dom-events",
+        "note": "Connect language fundamentals to DOM updates and browser event handling."
+      }
+    ]
+  },
+  {
+    "id": "structured-capstone",
+    "title": "Frontend Capstone: From Requirements to Demo",
+    "description": "Build a coherent frontend project from problem discovery through architecture, implementation, automated tests, deployment, and a final review/demo.",
+    "level": "intermediate",
+    "icon": "Rocket",
+    "estimatedHours": 14,
+    "steps": [
+      {
+        "lessonId": "capstone.requirements-discovery",
+        "note": "Turn the problem space into explicit users, constraints, and acceptance criteria."
+      },
+      {
+        "lessonId": "capstone.design-architecture-planning",
+        "note": "Shape the requirements into a maintainable architecture before coding."
+      },
+      {
+        "lessonId": "capstone.implementation",
+        "note": "Deliver the smallest coherent vertical slice and document key trade-offs."
+      },
+      {
+        "lessonId": "testing.react-testing-library",
+        "note": "Build automated checks around important behavior and regression risks."
+      },
+      {
+        "lessonId": "deployment.production-hosting",
+        "note": "Publish the project with a repeatable build and a clear deployment checklist."
+      },
+      {
+        "lessonId": "capstone.review-demo",
+        "note": "Review the product against its goals, present evidence, and explain next steps."
+      }
     ]
   }
 ]
