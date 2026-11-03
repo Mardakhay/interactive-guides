@@ -1238,3 +1238,12 @@ At feature code/test checkpoint `4a84793f340aa1d00471ff8265f83cfc1b2c1380`, the 
 
 Exact-head [Actions run #41032390443](https://github.com/Mardakhay/interactive-guides/actions/runs/41032390443) passed 49 test files / 325 tests, lint, typecheck, production build, 127 bundle budgets and production-preview smoke over six deep routes. This closes only the outline body/command search gap. `tl-001` remains **Blocked**: the classic sidebar accordion, exact responsive layout, remaining copy/navigation interactions, learner-state disposition and native browser/accessibility acceptance are still open.
 
+
+
+## js-002 Object static-methods source gap closed in structured v4 — 2026-11-03
+
+A targeted re-read found that `js-deep-dive.html` has a distinct Object Built-in Methods example for `Object.keys`, `Object.values`, `Object.entries`, `Object.assign` and shallow `Object.freeze`. The related core functions/objects lesson covered shallow spread, but did not replace this source-specific API example.
+
+The `js.object-prototypes` EN/RU pair is now v4 with 47 aligned blocks. New block IDs: `object-static-methods-heading`, `object-static-methods-text`, `object-static-methods-walkthrough`, `object-static-methods-check` and `object-static-methods-practice`. Coverage records own enumerable string-key semantics (not inherited or symbol keys), `Object.fromEntries`, target mutation by `Object.assign`, new-outer-object behavior of spread, shallow aliasing, shallow freeze, and an allowlist-based public-config exercise.
+
+Regression coverage in `src/content/legacyJsDeepDive.test.ts` now verifies the v4 block count, method inventory, semantic walkthrough, quiz feedback and exercise requirements in the EN/RU-validated lesson. This closes the identified Object static-methods content/example gap only; prototype playgrounds, class interaction details, the other legacy editors, classic learner-state handling and native browser acceptance remain separate open gates.
