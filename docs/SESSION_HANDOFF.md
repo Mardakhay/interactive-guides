@@ -1,27 +1,26 @@
 # Session Handoff
 
-**Last updated:** 2026-10-30  
+**Last updated:** 2026-11-03  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Base branch:** `main`  
-**Working branch:** `feat/learning-platform-foundation`
+**Working branch:** `feat/learning-platform-foundation`  
+**Working HEAD:** [`66bdcb81d524a82a9b8dfed12c831c8890c57a11`](https://github.com/Mardakhay/interactive-guides/commit/66bdcb81d524a82a9b8dfed12c831c8890c57a11)
 
-## Authoritative continuation checkpoint — 2026-10-30
+## Authoritative continuation checkpoint — 2026-11-03
 
-This section is authoritative for the current continuation. Earlier dated entries below are a historical work log and must not be mistaken for current head/status.
+This section is the source of truth for the next session. Sections below are dated implementation history unless explicitly labelled current.
 
-- **Latest validated source/content/test checkpoint:** `0b2eeac35454290c1a2b95ba3551dfc523e55bbd`; exact [Actions run #41063587947 (run #883)](https://github.com/Mardakhay/interactive-guides/actions/runs/41063587947) passed install, ESLint, TypeScript, **65 test files / 357 tests**, production build, 141 JavaScript chunk budgets, zero npm audit advisories, and preview smoke for 13 deep routes, entry bundle, manifest, service worker, five PWA assets and all 14 generated content assets. Git Fundamentals EN/RU is v14 with 26 copyable commands; Git Workflow/CI EN/RU is v13 with 72 aligned blocks, an accessible seven-stage pipeline simulator, interactive Git Flow branch graph and the ten-question sequential quiz.
-- **Main HEAD observed:** `b13af92576e8a73753a6e3f3d26765d9f9c44397`. Do not commit changes to `main`; work through the feature branch and PR #1.
-- **PR:** [#1 — Deepen structured lessons and prepare HTML-to-JSON cutover](https://github.com/Mardakhay/interactive-guides/pull/1) remains open as Draft against `main`.
-- **Manual-acceptance limitation:** green CI and production-preview smoke do not establish real-browser/device, screen-reader, install/offline or mobile acceptance. Locale-prefixed refresh, legacy redirects, Settings, Practice Center, Modal/drawer focus behavior, quiz announcements, note autosave, disclosures, filter controls and generated-index transfer are still not exercised in native browsers/assistive technology. Add cold/warm network measurements for the generated search/practice chunks to the browser checklist.
-- **Structured content:** 27 core and 17 supplementary lesson IDs (44 EN/RU pairs, 88 JSON records); `ui.bootstrap-mui` is core week 17 and `css.sass-scss` is supplementary. The new `/practice` page indexes 118 coding exercises, persists no new learner data, and links into the source lesson by block ID. The `/settings` page exposes the persisted UI locale, browser connectivity signal, local-data counts and backup workflow; no cloud or theme control is fabricated. All application routes now use shareable `/:locale/...` URLs; legacy root paths remain redirects that preserve query/hash.
-- **Legacy parity gate:** `docs/LEGACY_ROUTE_CUTOVER_MATRIX.md` has 25 classic-ID rows and all 25 are **Blocked**. Keep all `/lessons/:lessonId` routes and source HTML. `docs/LEARNER_STATE_MIGRATION_INVENTORY.md` inventories progress, bookmarks, notes, last-opened state, classic quiz results and structured exercise state; format-envelope migration is distinct from lesson-ID migration. Do not redirect or rewrite learner data without explicit per-store rules and failure/recovery tests.
-- **Source verification:** the source inventory says 25/25 legacy HTML files received a content/code/interaction review. That is not claim-level or widget parity. The 21 fetched/mapped Notion records are still marked `verification.state=unverified`.
-- **Manual acceptance:** every native browser/device checklist case is still unrun, including new Practice Center responsive/deep-link checks. HTTP smoke in CI confirms the app shell/routes/assets only.
-- **Notion re-fetch:** all 21 pages in the source ledger were fetched again on 2026-10-30. All 21 still report `verification.state=unverified`; no page was upgraded to verified. The connector returned no populated truncation/unknown-block fields, so complete extraction remains unconfirmed and requires editorial/source-owner sign-off.
-
-- **Cloud sync:** Supabase auth, RLS and sync are not implemented. Continue treating them as gated scope until reconciliation and security requirements are approved.
-
-
+- **Exact-head validation:** [Actions run #41066740505 (run #890)](https://github.com/Mardakhay/interactive-guides/actions/runs/41066740505) passed on `66bdcb81d524a82a9b8dfed12c831c8890c57a11`: dependency installation, ESLint, TypeScript, Vitest, production build, JavaScript bundle budgets and production-preview HTTP smoke. The exact HEAD was tested; no test-count claim is made here.
+- **Latest code change:** `fix(git): preserve interactive state across source tabs`. The seven Git Workflow tab panels are source-aligned in EN/RU; keyboard navigation supports ArrowLeft/ArrowRight/Home/End. Once a panel is visited, its subtree remains mounted while hidden, so an in-progress sequential quiz retains its current question, answer feedback and score when the learner changes tabs and returns.
+- **Current Git content:** `git.fundamentals` v14 (72 blocks; 26 copyable commands); `git.workflow-ci` v14 (73 blocks; 19 checks, 5 walkthroughs, 5 exercises, seven tabs, branch graph, pipeline simulator and ten-question sequential quiz). Both locales remain editorially marked `review`.
+- **Main/PR safety:** `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`. PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) remains open as Draft against `main`. Continue only on `feat/learning-platform-foundation`; do not merge or push application work to `main`.
+- **Structured content:** 27 core + 17 supplementary lesson IDs (44 EN/RU pairs; 88 JSON records). Practice Center aggregates 118 coding exercises. Settings currently provides local language/network/data/backup controls; theme switching and cloud/account functions are not implemented.
+- **Legacy gate:** all 25 rows in `docs/LEGACY_ROUTE_CUTOVER_MATRIX.md` remain **Blocked**. The inventory/review trail for 25 HTML sources does not equal complete line-by-line parity. Preserve all classic lesson routes and HTML sources.
+- **Notion source status:** all 21 fetched/mapped records remain `verification.state=unverified`; source-owner/editorial verification is outstanding.
+- **Learner data:** classic progress, bookmarks, notes and quiz results have separate identities from structured lesson/block activity. No broad one-to-many mapping, classic aggregate quiz migration or route cutover is approved.
+- **Manual acceptance:** browser/device, responsive, keyboard, screen-reader, PWA install/offline, native backup import/export and mobile performance checks remain not run. HTTP smoke is not a substitute.
+- **Cloud:** Supabase auth, SQL/RLS and sync are not implemented. First approve reconciliation, conflict, deletion/tombstone and cross-user isolation requirements.
+- **Next sequence:** (1) complete source-to-block/editorial review, (2) settle learner-state retention/migration policy, (3) execute the browser/device checklist, (4) decide the remaining product scope, then (5) review deployment and PR acceptance. Keep PR #1 Draft until its gates are evidenced.
 ## Git source-parity continuation — 2026-10-29
 
 - `git.fundamentals` EN/RU v14 has 72 aligned blocks, 11 knowledge checks and 9 walkthroughs per locale. Its 26-command/four-category copyable reference adds `git log -S`/`-G`, documents `reset --soft`/`--mixed`/`--hard` and path forms, and links official Git reset/log manuals; safe rebase, Markdown/Pages, GitHub Flow, secret-remediation and least-privilege content remain. Section-title search remains limited to headings; the original sidebar accordion/responsive layout are non-equivalent and `tl-001` remains blocked.
