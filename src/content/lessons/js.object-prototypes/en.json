@@ -1,10 +1,10 @@
 {
   "id": "js.object-prototypes",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-11-03",
   "moduleId": "supplement-js-internals",
   "supplementaryTrackId": "supplement-js-internals",
   "order": 2,
@@ -279,6 +279,115 @@
         }
       ],
       "explanation": "The prototype chain is part of normal property semantics, so input-key handling must account for inherited names and special merge behavior."
+    },
+    {
+      "id": "object-static-methods-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Inspect, transform, and freeze objects"
+    },
+    {
+      "id": "object-static-methods-text",
+      "type": "paragraph",
+      "text": "Object.keys(), Object.values(), and Object.entries() inspect an object's own enumerable string-keyed properties; they do not walk the prototype chain, and they omit symbol keys. Object.fromEntries() builds an object from key/value pairs. Object.assign(target, source) copies enumerable own properties into and mutates target, while object spread creates a new outer object. Both are shallow: nested object values remain shared references. Object.freeze() prevents extensions and freezes the object's own property descriptors, but it does not recursively freeze nested objects."
+    },
+    {
+      "id": "object-static-methods-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const profile = { name: 'Ada', role: 'editor', preferences: { theme: 'dark' } };\\n\\nconsole.log(Object.keys(profile));\\n// ['name', 'role', 'preferences']\\nconsole.log(Object.values(profile));\\n// ['Ada', 'editor', { theme: 'dark' }]\\nconsole.log(Object.entries(profile));\\n// [['name', 'Ada'], ['role', 'editor'], ['preferences', { theme: 'dark' }]]\\n\\nconst publicProfile = Object.fromEntries(\\n  Object.entries(profile).filter(([key]) => key !== 'preferences'),\\n);\\nconst assigned = Object.assign({}, profile, { role: 'admin' });\\nconst spread = { ...profile, role: 'admin' };\\nconsole.log(assigned.preferences === profile.preferences); // true\\nconsole.log(spread.preferences === profile.preferences);   // true\\n\\nconst frozen = Object.freeze({ settings: { theme: 'dark' } });\\nfrozen.settings.theme = 'light'; // nested object is still mutable\\nconsole.log(frozen.settings.theme); // 'light'",
+      "steps": [
+        {
+          "title": "Inspect only own enumerable string keys",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "keys(), values(), and entries() inspect profile's own enumerable string-keyed properties. They do not include inherited properties or symbol keys."
+        },
+        {
+          "title": "Build a new object from selected entries",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "explanation": "Object.entries() creates key/value pairs; filter selects the allowed keys, and Object.fromEntries() turns those pairs into a new object."
+        },
+        {
+          "title": "Compare assignment and spread",
+          "lineStart": 13,
+          "lineEnd": 16,
+          "explanation": "Object.assign writes into the target object passed as its first argument. Spread creates a new outer object. Both copy nested object values as references, so preferences stays shared."
+        },
+        {
+          "title": "Remember that freeze is shallow",
+          "lineStart": 18,
+          "lineEnd": 20,
+          "explanation": "The outer object is frozen, but its settings value points to a separate mutable object. Deep immutability requires an explicit strategy for nested data."
+        }
+      ]
+    },
+    {
+      "id": "object-static-methods-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which statement correctly compares Object.assign({}, source) with { ...source }?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Both recursively clone every nested object and array.",
+          "correct": false,
+          "feedback": "Neither API performs a deep clone; nested object values can still point to the original references."
+        },
+        {
+          "id": "b",
+          "text": "Both make shallow copies; Object.assign mutates its target, while spread creates a new outer object.",
+          "correct": true,
+          "feedback": "Object.assign copies into its first argument. Object spread creates a new object literal; both preserve nested references unless you copy them separately."
+        },
+        {
+          "id": "c",
+          "text": "Object.assign copies inherited enumerable properties, but spread copies only own properties.",
+          "correct": false,
+          "feedback": "Both copy own enumerable properties; inherited properties are not copied."
+        },
+        {
+          "id": "d",
+          "text": "Object.freeze recursively freezes all nested objects.",
+          "correct": false,
+          "feedback": "Object.freeze is shallow. Nested objects remain mutable unless they are frozen separately."
+        }
+      ],
+      "explanation": "Choose a copy operation by its target and depth. A new outer object does not imply independent nested data."
+    },
+    {
+      "id": "object-static-methods-practice",
+      "type": "codingExercise",
+      "title": "Create a public configuration without leaking internal fields",
+      "language": "javascript",
+      "context": "A UI needs a public configuration derived from an internal settings object. The internal object may grow new fields, so the public projection must expose only an explicit allowlist.",
+      "instructions": [
+        "Create an internal settings object with `theme`, `locale`, `apiToken`, and a nested `preferences` object.",
+        "Use Object.entries() with an explicit allowlist, then Object.fromEntries(), to build the public configuration.",
+        "Show that the public result does not contain `apiToken` or unapproved future properties.",
+        "Explain why the nested preferences object is still shared when copied shallowly, and choose whether to copy it separately.",
+        "Compare the result with Object.assign() and object spread; state which object each operation mutates or creates."
+      ],
+      "requirements": [
+        "Only explicitly allowed top-level keys appear in the public object.",
+        "The original settings object is not mutated.",
+        "The nested preferences copy policy is explicit and tested.",
+        "The explanation distinguishes own enumerable properties, shallow copies, and Object.freeze()."
+      ],
+      "starterCode": "const settings = {\\n  theme: 'dark',\\n  locale: 'en',\\n  apiToken: 'do-not-expose',\\n  preferences: { density: 'compact' },\\n};\\n\\nconst allowedKeys = new Set(['theme', 'locale', 'preferences']);\\n// TODO: create the public object from Object.entries(settings)\\n// TODO: copy preferences separately only if the UI must mutate it independently\\n\\nconsole.log(publicSettings);\\nconsole.log(Object.hasOwn(publicSettings, 'apiToken')); // false",
+      "hints": [
+        "Object.entries(settings) produces the top-level key/value pairs; filter them before calling Object.fromEntries().",
+        "An allowlist should decide which keys are included, rather than trying to enumerate every key that must be removed.",
+        "If the UI may mutate preferences independently, copy that nested object explicitly; one outer spread or assign call is shallow."
+      ],
+      "successCriteria": [
+        "The public object contains theme, locale and preferences but not apiToken.",
+        "Adding an unapproved key to settings does not expose it automatically.",
+        "The source settings object remains unchanged.",
+        "The nested preferences aliasing/copy decision is demonstrated.",
+        "The write-up correctly contrasts Object.assign(), spread and shallow Object.freeze()."
+      ]
     },
     {
       "id": "prototype-debug-practice",
@@ -817,6 +926,11 @@
         {
           "title": "MDN: Array.prototype.reduce()",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Object static methods",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
           "kind": "official-docs"
         }
       ]
