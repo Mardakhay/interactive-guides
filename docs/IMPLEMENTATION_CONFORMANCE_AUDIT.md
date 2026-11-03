@@ -1,7 +1,7 @@
 # Code-to-requirements conformance audit
 
-**Audit date:** 2026-10-30  
-**Audit baseline:** `0b2eeac35454290c1a2b95ba3551dfc523e55bbd`  
+**Audit date:** 2026-11-03  
+**Audit baseline:** `66bdcb81d524a82a9b8dfed12c831c8890c57a11`  
 **Working branch:** `feat/learning-platform-foundation`
 
 This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md`, `CURRICULUM_AND_CONTENT.md`, `ROADMAP.md`, persistence/PWA documents and source-parity checklists. It is not native browser, mobile, screen-reader, production-deployment or editorial acceptance.
@@ -82,7 +82,15 @@ The six commits after the previous code audit baseline add and test these app-wi
 - Focus moves to each new question, then to its feedback after submission and to the final result after completion. The progress/status labels and navigation are localized in EN/RU.
 - Five `SequentialKnowledgeQuiz` component tests cover one-question-at-a-time behavior, duplicate suppression in the full lesson renderer, Previous/Next with restored answers, final score/restart and Russian localization. The schema test verifies v13 and the exact ten question IDs.
 - Exact-head [Actions run #41063587947 (run #883)](https://github.com/Mardakhay/interactive-guides/actions/runs/41063587947) passed 65 test files / 357 tests, lint, typecheck, production build, 141 bundle budgets, zero npm audit advisories and preview smoke for 13 routes plus 14 generated content assets.
-- The seven legacy top-level tabs and their exact active-tab transitions remain non-equivalent. `tl-002` remains blocked pending that decision, full editorial review, learner-state disposition and native acceptance.
+- The seven source-aligned tabs and keyboard navigation are now implemented. Remaining non-equivalence is primarily presentation/detail parity for the animated legacy canvas and full source/UI review; `tl-002` remains blocked on editorial review, classic learner-state disposition and native acceptance.
+
+## Current Git Workflow tabs and interaction state — 2026-11-03
+
+At exact feature HEAD `66bdcb81d524a82a9b8dfed12c831c8890c57a11`, `git.workflow-ci` is v14 with 73 aligned EN/RU blocks. It includes the seven source-aligned topic tabs (Why Strategy, Branches, Git Flow, Merge Requests, Code Review, CI/CD and Quiz; localized labels in Russian), a seven-stage pipeline simulator, a Git Flow branch graph and the ten-question sequential quiz.
+
+The tab renderer uses tablist/tab/tabpanel semantics and supports ArrowLeft/ArrowRight/Home/End navigation with focus movement. It records visited panels and keeps their rendered subtrees mounted while hidden. This preserves the sequential quiz's current question, submitted answer/feedback and in-memory run score when a learner switches to another topic and returns. `StructuredLessonTabs.test.tsx` covers the seven tabs, panel visibility, keyboard navigation, EN/RU quiz rendering and state continuity across tab switches.
+
+Exact-head [Actions run #41066740505 (run #890)](https://github.com/Mardakhay/interactive-guides/actions/runs/41066740505) passed the configured dependency-install, lint, typecheck, test, build, bundle-budget and preview-smoke steps. This does not close editorial/source parity, classic learner-state disposition or native-browser/accessibility acceptance.
 
 ## Verification boundary
 
