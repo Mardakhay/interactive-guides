@@ -8,11 +8,11 @@ This is the one authoritative task list. Dated progress notes and superseded che
 
 ## Verified baseline
 
-- Latest validated code HEAD: [`66bdcb81d524a82a9b8dfed12c831c8890c57a11`](https://github.com/Mardakhay/interactive-guides/commit/66bdcb81d524a82a9b8dfed12c831c8890c57a11); exact [Actions run #41066740505 (run #890)](https://github.com/Mardakhay/interactive-guides/actions/runs/41066740505) passed dependency installation, ESLint, TypeScript, Vitest, production build, bundle-budget checks and production-preview HTTP smoke. No test count or native-browser acceptance is inferred from that run. Git Fundamentals EN/RU is v14 (72 blocks); Git Workflow/CI is v14 (73 blocks) with seven source-aligned tabs, pipeline and branch-flow simulators, and the sequential ten-question quiz.
-- The preview smoke covers 13 deep routes, including `/en`, `/ru`, locale-prefixed application routes and legacy aliases, as well as the entry bundle, manifest, service worker, five PWA assets and all 14 generated content chunks. The generated search data totals 269,738 bytes gzip EN / 340,328 bytes gzip RU; Practice has a separate 59,527-byte EN / 75,293-byte RU payload. Native browser latency and mobile transfer remain unmeasured. Structured lesson outline search also now matches authored section text and command-reference examples, including Git commands.
+- Latest validated code HEAD: [`f2492533aa5f159aa2642287e2e35d53746cc9e1`](https://github.com/Mardakhay/interactive-guides/commit/f2492533aa5f159aa2642287e2e35d53746cc9e1); exact [Actions run #41709617431 (run #901)](https://github.com/Mardakhay/interactive-guides/actions/runs/41709617431) passed dependency installation, ESLint, TypeScript, **66 test files / 362 tests**, production build, 141 JavaScript bundle budgets and preview smoke for 13 deep routes, manifest, service worker, five PWA assets and all 14 generated content chunks. This is automated preview acceptance only; native browser/device testing remains open. Git Fundamentals EN/RU is v14 (72 blocks); Git Workflow/CI is v14 (73 blocks) with seven source-aligned tabs, pipeline and branch-flow simulators, and the sequential ten-question quiz.
+- The preview smoke covers 13 deep routes, including `/en`, `/ru`, locale-prefixed application routes and legacy aliases, as well as the entry bundle, manifest, service worker, five PWA assets and all 14 generated content chunks. The generated six-part search data totals 272,355 bytes gzip EN / 343,746 bytes gzip RU. The separate 119-exercise Practice index is 59,994 bytes gzip EN / 75,869 bytes gzip RU. Native browser latency and mobile transfer remain unmeasured. Structured lesson outline search also now matches authored section text and command-reference examples, including Git commands.
 - Current branch also contains documentation reconciliation after that code checkpoint. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
 - Curriculum inventory: 27 core + 17 supplementary = 44 bilingual lesson pairs (88 locale JSON records).
-- Practice Center indexes 118 coding exercises. Settings exposes the persisted UI language, browser connectivity signal, local-data counts and backup access.
+- Practice Center indexes 119 coding exercises. Settings exposes the persisted UI language, browser connectivity signal, local-data counts and backup access.
 - All 25 legacy route cutover rows remain **Blocked**. No redirects, HTML deletions or learner-ID/state migration are authorized.
 - Native browser/device, keyboard, screen-reader, PWA install/offline and production acceptance remain unrecorded.
 
@@ -26,7 +26,7 @@ This is the one authoritative task list. Dated progress notes and superseded che
 - [x] PWA manifest, icons, app shell, scoped runtime asset cache and learner-controlled service-worker updates.
 - [x] Shared publication-status manifest; draft content excluded from learner-facing surfaces; EN/RU status parity enforced.
 - [x] Structured search across lesson content, tags, outcomes, curriculum topics and notes; answer feedback and hidden exercise solutions are excluded from search text.
-- [x] Bilingual Practice Center with 118 exercises, existing draft/self-review state and deep links to source exercise blocks.
+- [x] Bilingual Practice Center with 119 exercises, existing draft/self-review state and deep links to source exercise blocks.
 - [x] Bilingual Settings page for local language preference, browser online/offline signal, local-data counts and backup navigation; unsupported cloud/theme controls are explicitly disclosed.
 - [x] Current implementation audit, content inventory, handoff and manual acceptance checklist reconciled with the feature branch.
 - [x] Make every application route locale-prefixed, preserve legacy root aliases, query/hash on language switch, and sync browser language preference from direct locale routes.
@@ -39,6 +39,7 @@ This is the one authoritative task list. Dated progress notes and superseded che
 - [x] Add a bilingual interactive Git Flow branch graph with develop/feature/hotfix pointers, commit parents, feature merge, hotfix production merge/back-merge and release tags.
 - [x] Add the seven source-aligned Git Workflow tabs in EN/RU with tab/tabpanel semantics, ArrowLeft/ArrowRight/Home/End keyboard navigation and visited-panel retention so in-progress quiz state survives tab switches.
 - [x] Add a localized ten-question Git Workflow quiz using existing knowledge-check blocks and per-question persistence, with Previous/Next, answer restoration, progress, live score, final percentage and restart; preserve its in-progress component state when switching between visited topic tabs.
+- [x] Map the legacy JavaScript Object Built-in Methods example into `js.object-prototypes` v4 (47 aligned EN/RU blocks) with a walkthrough, knowledge check, allowlist-based coding practice and regression coverage.
 
 ## P0 — Content parity, publication and migration safety
 
