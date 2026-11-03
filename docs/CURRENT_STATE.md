@@ -3,19 +3,20 @@
 **Audit date:** 2026-11-03  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Working branch:** `feat/learning-platform-foundation`  
-**Working branch HEAD:** [`66bdcb81d524a82a9b8dfed12c831c8890c57a11`](https://github.com/Mardakhay/interactive-guides/commit/66bdcb81d524a82a9b8dfed12c831c8890c57a11)  
+**Working branch HEAD:** [`f2492533aa5f159aa2642287e2e35d53746cc9e1`](https://github.com/Mardakhay/interactive-guides/commit/f2492533aa5f159aa2642287e2e35d53746cc9e1)  
 **Default branch:** `main`
 
 ## Authoritative status snapshot — 2026-11-03
 
 This snapshot was reconciled against the current feature-branch tree and its exact-head GitHub Actions run. Dated entries below are historical checkpoints and must not override this section.
 
-- **Latest code HEAD:** `66bdcb81d524a82a9b8dfed12c831c8890c57a11` — `fix(git): preserve interactive state across source tabs` (2026-10-30). Exact-head [Actions run #41066740505 (run #890)](https://github.com/Mardakhay/interactive-guides/actions/runs/41066740505) completed successfully. The run passed dependency installation, ESLint, TypeScript, Vitest, production build, bundle-budget checks and production-preview HTTP smoke. Do not infer native-browser/device acceptance from this run.
+- **Latest validated code HEAD:** [`f2492533aa5f159aa2642287e2e35d53746cc9e1`](https://github.com/Mardakhay/interactive-guides/commit/f2492533aa5f159aa2642287e2e35d53746cc9e1) — `test(content): update object model lesson v4 contract` (2026-11-03). Exact-head [Actions run #41709617431 (run #901)](https://github.com/Mardakhay/interactive-guides/actions/runs/41709617431) passed dependency installation, ESLint, TypeScript, **66 test files / 362 tests**, production build, all 141 JavaScript bundle budgets and production-preview HTTP smoke for 13 deep routes plus the manifest, service worker, five PWA assets and 14 generated content chunks. Native browser/device acceptance remains separate.
 - **Branch policy:** all project work remains on `feat/learning-platform-foundation`. `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397` and was not changed by this continuation.
 - **PR #1:** [open Draft PR against main](https://github.com/Mardakhay/interactive-guides/pull/1). Keep it Draft until the release gates below have evidence; no merge is implied.
 - **Application foundation:** React 18, TypeScript, Vite 8, React Router 7, Zustand, Zod, feature-oriented modules, generated content indexes, local-first persistence and a PWA shell are implemented.
-- **Curriculum registry:** 27 core + 17 supplementary lesson IDs = 44 bilingual EN/RU pairs and 88 locale JSON records. The Practice Center indexes 118 coding exercises. Settings exposes local language preference, browser connectivity, local-data counts and backup access; theme switching, accounts and cloud sync are not implemented.
+- **Curriculum registry:** 27 core + 17 supplementary lesson IDs = 44 bilingual EN/RU pairs and 88 locale JSON records. The Practice Center indexes 119 coding exercises. Settings exposes local language preference, browser connectivity, local-data counts and backup access; theme switching, accounts and cloud sync are not implemented.
 - **Git Fundamentals:** EN/RU `git.fundamentals` v14, 72 aligned blocks, 11 knowledge checks, 9 walkthroughs and 3 coding exercises. Its command reference contains 26 copyable commands.
+- **JavaScript object model:** EN/RU `js.object-prototypes` v4, 47 aligned blocks each. The latest source-parity increment adds Object static methods, a copy/freeze walkthrough, an assessed check and an allowlist-based public-configuration exercise; both locales remain `review`.
 - **Git Workflow & CI:** EN/RU `git.workflow-ci` v14, 73 aligned blocks, 19 knowledge checks, 5 walkthroughs and 5 coding exercises. It includes seven source-aligned tabs, the branch-flow simulator, seven-stage pipeline simulator and sequential ten-question quiz. The tab renderer supports keyboard navigation and keeps a visited panel mounted while hidden, preserving in-progress quiz state when switching topics.
 - **Content/migration gate:** all 25 legacy cutover rows remain **Blocked**. The 25 HTML source files have an inventory and documented content/code/interaction review trail; this is not a claim of complete claim-by-claim, example-by-example or widget parity. Keep classic `/lessons/:lessonId` routes and `public/lessons/*.html` sources.
 - **Notion evidence:** 21 fetched/mapped source records still report `verification.state=unverified`; retrieval is not formal verification or editorial approval.
