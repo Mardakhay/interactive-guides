@@ -643,8 +643,8 @@ describe('method chaining and fluent API contracts', () => {
   it('distinguishes return-this builders from collection and Promise chaining', () => {
     expect(lessonTranslationSchema.safeParse(englishPrototypes).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianPrototypes).success).toBe(true);
-    expect(englishPrototypes.version).toBe(3);
-    expect(englishPrototypes.blocks).toHaveLength(42);
+    expect(englishPrototypes.version).toBe(4);
+    expect(englishPrototypes.blocks).toHaveLength(47);
     expect(englishPrototypes.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianPrototypes.blocks.map(({ id, type }) => ({ id, type })),
     );
