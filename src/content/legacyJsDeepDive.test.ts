@@ -66,16 +66,43 @@ describe('js-002 legacy objects, prototypes and classes source accuracy', () => 
     expect(legacyObjectModelHtml).toContain('Custom Symbol.hasInstance behavior can change that default test.');
   });
 
+  it('covers the legacy Object static-methods example with a safe allowlist task', () => {
+    const walkthrough = englishObjectModel.blocks.find(block => block.id === 'object-static-methods-walkthrough');
+    expect(walkthrough?.type).toBe('codeWalkthrough');
+    if (walkthrough?.type === 'codeWalkthrough') {
+      for (const method of ['Object.keys', 'Object.values', 'Object.entries', 'Object.fromEntries', 'Object.assign', 'Object.freeze']) {
+        expect(walkthrough.code).toContain(method);
+      }
+      expect(walkthrough.code).toContain('nested object is still mutable');
+      expect(walkthrough.steps).toHaveLength(4);
+    }
+
+    const check = englishObjectModel.blocks.find(block => block.id === 'object-static-methods-check');
+    expect(check?.type).toBe('knowledgeCheck');
+    if (check?.type === 'knowledgeCheck') {
+      expect(check.options.filter(option => option.correct)).toHaveLength(1);
+      expect(check.options.every(option => option.feedback.trim().length > 0)).toBe(true);
+    }
+
+    const practice = englishObjectModel.blocks.find(block => block.id === 'object-static-methods-practice');
+    expect(practice?.type).toBe('codingExercise');
+    if (practice?.type === 'codingExercise') {
+      expect(practice.requirements).toContain('The original settings object is not mutated.');
+      expect(practice.instructions.join(' ')).toContain('Object.fromEntries()');
+      expect(practice.successCriteria.length).toBeGreaterThanOrEqual(4);
+    }
+  });
+
   it('validates the structured EN/RU object-model lesson and its safety/semantics evidence', () => {
     expect(lessonTranslationSchema.safeParse(englishObjectModel).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianObjectModel).success).toBe(true);
     expect(englishObjectModel.id).toBe('js.object-prototypes');
-    expect(englishObjectModel.version).toBe(3);
-    expect(englishObjectModel.blocks).toHaveLength(42);
+    expect(englishObjectModel.version).toBe(4);
+    expect(englishObjectModel.blocks).toHaveLength(47);
     expect(englishObjectModel.blocks.map(({ id, type }) => [id, type])).toEqual(
       russianObjectModel.blocks.map(({ id, type }) => [id, type]),
     );
-    for (const id of ['object-model-new-text', 'classes-model', 'classes-limits', 'prototype-descriptors-text', 'object-model-references']) {
+    for (const id of ['object-model-new-text', 'classes-model', 'classes-limits', 'prototype-descriptors-text', 'object-static-methods-heading', 'object-static-methods-text', 'object-static-methods-walkthrough', 'object-static-methods-check', 'object-static-methods-practice', 'object-model-references']) {
       expect(englishObjectModel.blocks.some(block => block.id === id)).toBe(true);
       expect(russianObjectModel.blocks.some(block => block.id === id)).toBe(true);
     }
