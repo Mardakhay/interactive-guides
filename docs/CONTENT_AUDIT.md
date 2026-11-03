@@ -485,3 +485,8 @@ The current quality suite goes beyond schema/structure parity: it compares long 
 GitHub Actions [run #40689939570](https://github.com/Mardakhay/interactive-guides/actions/runs/40689939570) passed on exact code/content SHA `12059fd51069df3f3126db470cd2f4744cc157ff`: `npm ci`, lint, typecheck, **222 tests across 35 files**, production build, and bundle budgets across 125 JavaScript chunks. `npm audit` reported zero vulnerabilities.
 
 The new check is a detector for obvious untranslated copy, not a human translation review or proof of semantic source parity. That broader audit stays open.
+
+
+## js-002 Object static-methods source gap — 2026-11-03
+
+The focused `js-002` read identified a missing dedicated structured example for `Object.keys`, `Object.values`, `Object.entries`, `Object.assign` and `Object.freeze`. Added the bilingual `js.object-prototypes` v4 section with an assessed copy-contract check and allowlist-based public-configuration task (47 aligned blocks per locale). Source crosswalk: [JS002_SOURCE_PARITY.md](./JS002_SOURCE_PARITY.md). This is a scoped content parity increment, not approval of the lesson or its legacy route.
