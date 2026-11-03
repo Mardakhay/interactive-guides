@@ -295,7 +295,7 @@
       "id": "object-static-methods-walkthrough",
       "type": "codeWalkthrough",
       "language": "javascript",
-      "code": "const profile = { name: 'Ada', role: 'editor', preferences: { theme: 'dark' } };\\n\\nconsole.log(Object.keys(profile));\\n// ['name', 'role', 'preferences']\\nconsole.log(Object.values(profile));\\n// ['Ada', 'editor', { theme: 'dark' }]\\nconsole.log(Object.entries(profile));\\n// [['name', 'Ada'], ['role', 'editor'], ['preferences', { theme: 'dark' }]]\\n\\nconst publicProfile = Object.fromEntries(\\n  Object.entries(profile).filter(([key]) => key !== 'preferences'),\\n);\\nconst assigned = Object.assign({}, profile, { role: 'admin' });\\nconst spread = { ...profile, role: 'admin' };\\nconsole.log(assigned.preferences === profile.preferences); // true\\nconsole.log(spread.preferences === profile.preferences);   // true\\n\\nconst frozen = Object.freeze({ settings: { theme: 'dark' } });\\nfrozen.settings.theme = 'light'; // nested object is still mutable\\nconsole.log(frozen.settings.theme); // 'light'",
+      "code": "const profile = { name: 'Ada', role: 'editor', preferences: { theme: 'dark' } };\n\nconsole.log(Object.keys(profile));\n// ['name', 'role', 'preferences']\nconsole.log(Object.values(profile));\n// ['Ada', 'editor', { theme: 'dark' }]\nconsole.log(Object.entries(profile));\n// [['name', 'Ada'], ['role', 'editor'], ['preferences', { theme: 'dark' }]]\n\nconst publicProfile = Object.fromEntries(\n  Object.entries(profile).filter(([key]) => key !== 'preferences'),\n);\nconst assigned = Object.assign({}, profile, { role: 'admin' });\nconst spread = { ...profile, role: 'admin' };\nconsole.log(assigned.preferences === profile.preferences); // true\nconsole.log(spread.preferences === profile.preferences);   // true\n\nconst frozen = Object.freeze({ settings: { theme: 'dark' } });\nfrozen.settings.theme = 'light'; // nested object is still mutable\nconsole.log(frozen.settings.theme); // 'light'",
       "steps": [
         {
           "title": "Inspect only own enumerable string keys",
@@ -375,7 +375,7 @@
         "The nested preferences copy policy is explicit and tested.",
         "The explanation distinguishes own enumerable properties, shallow copies, and Object.freeze()."
       ],
-      "starterCode": "const settings = {\\n  theme: 'dark',\\n  locale: 'en',\\n  apiToken: 'do-not-expose',\\n  preferences: { density: 'compact' },\\n};\\n\\nconst allowedKeys = new Set(['theme', 'locale', 'preferences']);\\n// TODO: create the public object from Object.entries(settings)\\n// TODO: copy preferences separately only if the UI must mutate it independently\\n\\nconsole.log(publicSettings);\\nconsole.log(Object.hasOwn(publicSettings, 'apiToken')); // false",
+      "starterCode": "const settings = {\n  theme: 'dark',\n  locale: 'en',\n  apiToken: 'do-not-expose',\n  preferences: { density: 'compact' },\n};\n\nconst allowedKeys = new Set(['theme', 'locale', 'preferences']);\n// TODO: create the public object from Object.entries(settings)\n// TODO: copy preferences separately only if the UI must mutate it independently\n\nconsole.log(publicSettings);\nconsole.log(Object.hasOwn(publicSettings, 'apiToken')); // false",
       "hints": [
         "Object.entries(settings) produces the top-level key/value pairs; filter them before calling Object.fromEntries().",
         "An allowlist should decide which keys are included, rather than trying to enumerate every key that must be removed.",
