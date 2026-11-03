@@ -1,10 +1,10 @@
 # Source parity review: Git Workflow & CI/CD
 
-**Review date:** 2026-10-30  
+**Review date:** 2026-11-03  
 **Legacy source:** `public/lessons/git-workflow-cicd-guide.html` (94,686 bytes; 1 inline script; 20 buttons)  
-**Structured target:** `git.workflow-ci` EN/RU v13 (72 blocks per locale)  
+**Structured target:** `git.workflow-ci` EN/RU v14 (73 blocks per locale)  
 **Related target:** `deployment.production-hosting` for provider rollback and post-merge recovery concepts  
-**Cutover:** **Blocked** — the pipeline simulator, branch graph and sequential ten-question quiz are interactive, but the source seven top-level tabs and exact active-tab transitions are not reproduced.
+**Cutover:** **Blocked** — the seven source-aligned tabs, branch graph, pipeline simulator and sequential ten-question quiz are implemented in EN/RU. Cutover remains blocked by full source/editorial parity, classic learner-state disposition and native browser/accessibility acceptance.
 
 ## Source interaction inventory
 
@@ -56,11 +56,11 @@ The former missing branch-canvas interaction is now partially implemented as the
 
 This closes the core interactive branch-flow mechanism, but not all source UI parity: it is deterministic rather than animated, has no source-style seven-tab navigation, and does not reproduce the original quiz's one-question-at-a-time progress and final score/restart screen.
 
-## Sequential ten-question quiz — v13
+## Sequential ten-question quiz — v14
 
 The original Git Workflow page has a `questions` array and `initQuiz`, `renderQuestion`, `selectAnswer` and `quizNav` flows. It displays one question at a time, locks the answer after selection, shows explanatory feedback, exposes Previous/Next/Finish, reports question position and live score, calculates a final percentage/result, and offers restart.
 
-The structured v13 lesson now reproduces that interaction using the existing ten knowledge-check blocks rather than maintaining a second question bank:
+The structured v14 lesson reproduces that interaction using the existing ten knowledge-check blocks rather than maintaining a second question bank:
 
 1. The new `git-workflow-sequential-quiz` block references the existing question IDs in the original order: `hotfix-origin-check`, `branch-protection-check`, `git-flow-feature-target-check`, `ci-basics-check`, `review-comment-specificity-check`, `hotfix-back-merge-check`, `git-semver-minor-check`, `continuous-deployment-check`, `small-pr-review-check` and `npm-ci-lockfile-check`.
 2. Schema validation requires ten distinct IDs and validates that each resolves to a `knowledgeCheck` in the same lesson. The renderer creates a lookup by ID, displays the active question inside the sequence and suppresses its standalone block occurrence so the quiz is not duplicated.
@@ -71,19 +71,27 @@ The structured v13 lesson now reproduces that interaction using the existing ten
 
 **Persistence boundary:** only individual question attempts are persisted under the existing lesson/block keys. The aggregate run score is ephemeral and is not written to a new store. No classic HTML quiz-result identity is migrated or overwritten.
 
+## Source-aligned seven-tab navigation and visited-panel state — v14
+
+The v14 `tabbedContent` block exposes the seven source-aligned topics in the original order: Why Strategy, Branches, Git Flow, Merge Requests, Code Review, CI/CD and Quiz. Russian labels are localized. The renderer uses semantic tablist/tab/tabpanel relationships, roving tab focus, ArrowLeft/ArrowRight navigation and Home/End shortcuts.
+
+A visited tab's panel subtree stays mounted while the panel is hidden. This avoids unmounting the sequential quiz when a learner changes topics and preserves its in-memory current question, answer feedback and score on return. The regression test selects and checks the first quiz answer, advances to question two, switches to Git Flow, returns to Quiz and verifies that the second-question position and score remain intact.
+
+The seven-tab interaction is now implemented; this does not claim pixel-identical styling or animation to the standalone HTML page. Native browser, keyboard and screen-reader acceptance is still outstanding.
+
 ## Locale and test evidence
 
-- `git.workflow-ci` EN/RU v13: 72 blocks per locale; 19 knowledge checks, 5 walkthroughs and 5 coding exercises per locale; ordered block IDs/types stay aligned.
+- `git.workflow-ci` EN/RU v14: 73 blocks per locale; 19 knowledge checks, 5 walkthroughs and 5 coding exercises per locale; ordered block IDs/types stay aligned.
 - The seven simulation stages have the same IDs/order and gate classification in EN/RU: five required pre-merge gates, one informational audit stage and one post-merge deployment stage.
 - `src/features/structured-lesson/PipelineSimulation.test.tsx` has four tests for pre-merge stop/new-commit rerun, informational audit continuation, post-merge rollback and Russian localization.
 - `src/content/schemas/lessonContent.test.ts` verifies the seven-stage order and gate semantics.
-- Exact-head [Actions run #41063587947 (run #883)](https://github.com/Mardakhay/interactive-guides/actions/runs/41063587947) passed 65 test files / 357 tests, lint, typecheck, production build, 141 JavaScript budgets, zero npm audit advisories and preview smoke for 13 routes plus 14 generated content assets.
+- Exact-head [Actions run #41066740505 (run #890)](https://github.com/Mardakhay/interactive-guides/actions/runs/41066740505) passed dependency installation, lint, typecheck, tests, production build, bundle-budget checks and preview smoke on `66bdcb81d524a82a9b8dfed12c831c8890c57a11`.
 
 ## Interaction disposition
 
 | Legacy interaction | Structured target / disposition |
 |---|---|
-| Seven top-level tabs | Replaced by the structured lesson outline/flow; no exact tab state or transition parity. |
+| Seven top-level tabs | Implemented as seven source-aligned EN/RU tabs with tab/tabpanel semantics, keyboard navigation and visited-panel state retention. Pixel-identical styling/animation is not claimed. |
 | Animated Git Flow branch canvas and eight actions | Partially implemented as a deterministic branch-flow graph with four lanes, HEAD pointers, commit-parent edges, eight actions plus reset, merge/tag history and required hotfix back-merge. The original animation and surrounding seven-tab layout are not reproduced. |
 | Seven-stage failure-injection simulator | Implemented as a localized accessible block; gate semantics are corrected as documented above. |
 | Sequential 10-question quiz with score/progress/restart | Implemented using the ten existing check blocks: one question at a time, Previous/Next/Finish, locked/restored answers and feedback, live score/progress, final percentage/result and restart. Only per-question attempts persist; no aggregate run record is added. |
@@ -91,10 +99,9 @@ The structured v13 lesson now reproduces that interaction using the existing ten
 
 ## Remaining release blockers
 
-1. Decide whether the legacy canvas animation and seven-tab navigation need a closer visual/interaction match; the core branch state machine and eight actions are implemented.
-2. Decide whether the seven source-level tabs and exact active-tab transitions must be recreated; the sequential quiz interaction is implemented.
-3. Complete full claim/code/example/reference review and editorial sign-off for both locales.
-4. Define learner-state retention for classic `tl-002` quiz results before changing route identity.
-5. Execute keyboard, screen-reader, responsive and native browser checks for the new simulator and all other app routes.
+1. Decide whether the deterministic branch graph needs closer visual/animation parity with the legacy canvas; its branch-state model and actions are implemented.
+2. Complete full claim/code/example/answer-feedback/reference review and editorial sign-off for both locales.
+3. Define the retention/disposition of classic `tl-002` quiz results before any route-identity change.
+4. Execute keyboard, screen-reader, responsive and native browser checks for the tabs, simulator, quiz and the rest of the application.
 
-**Current disposition: Blocked.** The pipeline simulator, branch graph and sequential ten-question quiz are implemented as bilingual accessible interactions. The seven source-level tabs, full editorial sign-off, classic-result retention/migration decision and manual-acceptance gates remain open.
+**Current disposition: Blocked.** Seven source-aligned tabs, the pipeline simulator, branch graph and sequential ten-question quiz are implemented as bilingual interactions. Full source/editorial parity, classic-result retention policy and manual-acceptance gates remain open.
