@@ -54,7 +54,7 @@ The former missing branch-canvas interaction is now partially implemented as the
 - Four `BranchFlowSimulation` component tests cover feature branch/commit/merge, hotfix → main → develop back-merge and release gating, reset, and Russian localization. Schema tests assert the eight action IDs and their order.
 - Exact-head [Actions run #41059019377 (run #877)](https://github.com/Mardakhay/interactive-guides/actions/runs/41059019377) passed 64 test files / 352 tests, lint, typecheck, production build, 141 bundle budgets, zero npm audit advisories, and preview smoke for 13 routes plus 14 generated content assets.
 
-This closes the core interactive branch-flow mechanism, but not all source UI parity: it is deterministic rather than animated, has no source-style seven-tab navigation, and does not reproduce the original quiz's one-question-at-a-time progress and final score/restart screen.
+This paragraph records the v12 branch-graph checkpoint, before the seven-tab renderer and sequential quiz were added. At v12 the branch graph was deterministic rather than animated and the source tabs/quiz were still outstanding; their later v14 implementation is documented below.
 
 ## Sequential ten-question quiz — v14
 
@@ -92,7 +92,7 @@ The seven-tab interaction is now implemented; this does not claim pixel-identica
 | Legacy interaction | Structured target / disposition |
 |---|---|
 | Seven top-level tabs | Implemented as seven source-aligned EN/RU tabs with tab/tabpanel semantics, keyboard navigation and visited-panel state retention. Pixel-identical styling/animation is not claimed. |
-| Animated Git Flow branch canvas and eight actions | Partially implemented as a deterministic branch-flow graph with four lanes, HEAD pointers, commit-parent edges, eight actions plus reset, merge/tag history and required hotfix back-merge. The original animation and surrounding seven-tab layout are not reproduced. |
+| Animated Git Flow branch canvas and eight actions | Partially implemented as a deterministic branch-flow graph with four lanes, HEAD pointers, commit-parent edges, eight actions plus reset, merge/tag history and required hotfix back-merge. The legacy canvas animation and exact visual presentation are not reproduced; the seven source-aligned tabs are implemented separately. |
 | Seven-stage failure-injection simulator | Implemented as a localized accessible block; gate semantics are corrected as documented above. |
 | Sequential 10-question quiz with score/progress/restart | Implemented using the ten existing check blocks: one question at a time, Previous/Next/Finish, locked/restored answers and feedback, live score/progress, final percentage/result and restart. Only per-question attempts persist; no aggregate run record is added. |
 | Learner state on classic lesson route | Retain classic route and quiz-result identity; no automatic result migration is authorized. |
