@@ -295,7 +295,7 @@
       "id": "object-static-methods-walkthrough",
       "type": "codeWalkthrough",
       "language": "javascript",
-      "code": "const profile = { name: 'Ада', role: 'editor', preferences: { theme: 'dark' } };\\n\\nconsole.log(Object.keys(profile));\\n// ['name', 'role', 'preferences']\\nconsole.log(Object.values(profile));\\n// ['Ада', 'editor', { theme: 'dark' }]\\nconsole.log(Object.entries(profile));\\n// [['name', 'Ада'], ['role', 'editor'], ['preferences', { theme: 'dark' }]]\\n\\nconst publicProfile = Object.fromEntries(\\n  Object.entries(profile).filter(([key]) => key !== 'preferences'),\\n);\\nconst assigned = Object.assign({}, profile, { role: 'admin' });\\nconst spread = { ...profile, role: 'admin' };\\nconsole.log(assigned.preferences === profile.preferences); // true\\nconsole.log(spread.preferences === profile.preferences);   // true\\n\\nconst frozen = Object.freeze({ settings: { theme: 'dark' } });\\nfrozen.settings.theme = 'light'; // вложенный объект всё ещё изменяем\\nconsole.log(frozen.settings.theme); // 'light'",
+      "code": "const profile = { name: 'Ада', role: 'editor', preferences: { theme: 'dark' } };\n\nconsole.log(Object.keys(profile));\n// ['name', 'role', 'preferences']\nconsole.log(Object.values(profile));\n// ['Ада', 'editor', { theme: 'dark' }]\nconsole.log(Object.entries(profile));\n// [['name', 'Ада'], ['role', 'editor'], ['preferences', { theme: 'dark' }]]\n\nconst publicProfile = Object.fromEntries(\n  Object.entries(profile).filter(([key]) => key !== 'preferences'),\n);\nconst assigned = Object.assign({}, profile, { role: 'admin' });\nconst spread = { ...profile, role: 'admin' };\nconsole.log(assigned.preferences === profile.preferences); // true\nconsole.log(spread.preferences === profile.preferences);   // true\n\nconst frozen = Object.freeze({ settings: { theme: 'dark' } });\nfrozen.settings.theme = 'light'; // вложенный объект всё ещё изменяем\nconsole.log(frozen.settings.theme); // 'light'",
       "steps": [
         {
           "title": "Просматриваем только собственные перечисляемые строковые ключи",
@@ -375,7 +375,7 @@
         "Политика копирования вложенного preferences явная и проверена.",
         "Объяснение различает собственные перечисляемые свойства, поверхностное копирование и Object.freeze()."
       ],
-      "starterCode": "const settings = {\\n  theme: 'dark',\\n  locale: 'ru',\\n  apiToken: 'do-not-expose',\\n  preferences: { density: 'compact' },\\n};\\n\\nconst allowedKeys = new Set(['theme', 'locale', 'preferences']);\\n// TODO: создай публичный объект из Object.entries(settings)\\n// TODO: отдельно скопируй preferences, только если интерфейсу нужна независимая копия\\n\\nconsole.log(publicSettings);\\nconsole.log(Object.hasOwn(publicSettings, 'apiToken')); // false",
+      "starterCode": "const settings = {\n  theme: 'dark',\n  locale: 'ru',\n  apiToken: 'do-not-expose',\n  preferences: { density: 'compact' },\n};\n\nconst allowedKeys = new Set(['theme', 'locale', 'preferences']);\n// TODO: создай публичный объект из Object.entries(settings)\n// TODO: отдельно скопируй preferences, только если интерфейсу нужна независимая копия\n\nconsole.log(publicSettings);\nconsole.log(Object.hasOwn(publicSettings, 'apiToken')); // false",
       "hints": [
         "Object.entries(settings) возвращает пары верхнеуровневых ключей и значений; сначала отфильтруй их, затем вызови Object.fromEntries().",
         "Allowlist должен определять разрешённые поля, а не перечислять все поля, которые нужно удалить.",
