@@ -5,11 +5,21 @@
 **PR:** [#1](https://github.com/Mardakhay/interactive-guides/pull/1)  
 **Result:** the source inventory is reconciled, but source-to-course parity is not complete.
 
+## Current continuation status — 2026-11-03
+
+The current project branch is `feat/learning-platform-foundation` at [`66bdcb81d524a82a9b8dfed12c831c8890c57a11`](https://github.com/Mardakhay/interactive-guides/commit/66bdcb81d524a82a9b8dfed12c831c8890c57a11). Exact-head [Actions run #41066740505 (run #890)](https://github.com/Mardakhay/interactive-guides/actions/runs/41066740505) passed the configured install, lint, typecheck, test, build, bundle-budget and production-preview HTTP smoke steps.
+
+The 25 legacy HTML files have an inventory and documented content/code/interaction review trail. That means each source has received a review pass; it does **not** mean every claim, code example, hidden answer, feedback message and interactive widget has been mapped and approved line by line. Complete source-to-block parity and EN/RU editorial sign-off remain open. All 25 route-cutover rows remain **Blocked**.
+
+The 21 fetched/mapped Notion source records still report `verification.state=unverified`. A successful fetch or topic map is not formal source verification. Keep the original HTML files and classic routes until the content, learner-state and native-acceptance gates are closed.
+
+The current Git Workflow target is EN/RU `git.workflow-ci` v14 with 73 blocks per locale and seven source-aligned tabs. The tab panels, branch-flow simulator, pipeline simulator and sequential quiz are implemented; the latest renderer change keeps visited panels mounted while hidden so quiz state survives tab switches. See [TL002_SOURCE_PARITY.md](./TL002_SOURCE_PARITY.md) for the current focused crosswalk.
+
 ## Scope and repository facts
 
-This paragraph records a historical snapshot before structured content was restored. It is superseded by the current embedded-curriculum checkpoint below; the source matrices retain their initial target labels and must be interpreted with that mapping correction.
+This paragraph records a historical snapshot before structured content was restored. It is superseded by the current continuation status above; source matrices retain historical target labels and must be read together with the current branch-level cutover matrix and focused parity reviews.
 
-The Notion search returned 21 unique pages. Twenty are instructional/curriculum sources or an instructional-format specification; the English interview assessment is not frontend curriculum. The 25 HTML files in the repository agree with the filenames in `docs/LEGACY_CONTENT_INVENTORY.md`. The inventory previously described them as sampled and not fully reviewed. This report does not upgrade that to “migrated”: two interactive React HTML files were read in full, all 25 documents were structurally inspected for headings and interactive controls, and the remaining HTML body/code still needs line-by-line parity and accuracy review. Every Notion page fetched reported `unverified`; a successful fetch is not a content-authority check.
+The Notion search returned 21 unique pages. Twenty are instructional/curriculum sources or an instructional-format specification; the English interview assessment is not frontend curriculum. The 25 HTML files in the repository agree with the filenames in `docs/LEGACY_CONTENT_INVENTORY.md`. The review trail now covers all 25 source files at the content/code/interaction review-pass level. This does not upgrade the work to “migrated” or approved parity: complete claim-by-claim and example-by-example source mapping, answer/feedback verification, widget equivalence and EN/RU editorial sign-off remain open. Every Notion page fetched reported `unverified`; a successful fetch is not a content-authority check.
 
 ## Notion source matrix
 
