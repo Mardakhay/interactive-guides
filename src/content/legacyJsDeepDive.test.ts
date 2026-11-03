@@ -98,12 +98,12 @@ describe('js-002 legacy objects, prototypes and classes source accuracy', () => 
       const walkthrough = lesson.blocks.find(block => block.id === 'object-model-new-algorithm-walkthrough');
       expect(walkthrough?.type).toBe('codeWalkthrough');
       if (walkthrough?.type === 'codeWalkthrough') {
-        expect(walkthrough.code.split('\\n')).toHaveLength(34);
+        expect(walkthrough.code.split('\n')).toHaveLength(34);
         expect(walkthrough.code).toContain('return { name:');
         expect(walkthrough.code).toContain('return function replacement()');
         expect(walkthrough.code).toContain('return 7;');
         expect(walkthrough.code).toContain('NonObjectPrototype.prototype = 42');
-        expect(walkthrough.steps.every(step => step.lineStart >= 1 && step.lineEnd <= walkthrough.code.split('\\n').length)).toBe(true);
+        expect(walkthrough.steps.every(step => step.lineStart >= 1 && step.lineEnd <= walkthrough.code.split('\n').length)).toBe(true);
       }
       const check = lesson.blocks.find(block => block.id === 'object-model-new-algorithm-check');
       expect(check?.type).toBe('knowledgeCheck');
