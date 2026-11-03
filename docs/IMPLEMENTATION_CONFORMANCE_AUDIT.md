@@ -1,7 +1,7 @@
 # Code-to-requirements conformance audit
 
 **Audit date:** 2026-11-03  
-**Audit baseline:** `66bdcb81d524a82a9b8dfed12c831c8890c57a11`  
+**Audit baseline:** `f2492533aa5f159aa2642287e2e35d53746cc9e1`  
 **Working branch:** `feat/learning-platform-foundation`
 
 This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md`, `CURRICULUM_AND_CONTENT.md`, `ROADMAP.md`, persistence/PWA documents and source-parity checklists. It is not native browser, mobile, screen-reader, production-deployment or editorial acceptance.
@@ -11,7 +11,7 @@ This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md
 - React 18, TypeScript, Vite, React Router, Zustand, Zod, feature-oriented modules and lazy page loading.
 - Six-month / 24-week canonical curriculum; 27 core + 17 supplementary stable lesson IDs, each with EN/RU records.
 - Schema-validated lesson blocks rendered through reusable React components; knowledge checks, coding scaffolds, drafts, checklists, references and section-read state.
-- A bilingual Practice Center aggregates 118 structured coding exercises, connects to existing per-exercise draft/self-review records, and links to the exact exercise anchor in its lesson. It explicitly distinguishes self-attested activity from automated grading/mastery.
+- A bilingual Practice Center aggregates 119 structured coding exercises, connects to existing per-exercise draft/self-review records, and links to the exact exercise anchor in its lesson. It explicitly distinguishes self-attested activity from automated grading/mastery.
 - A bilingual Settings page exposes persisted UI language, the browser online/offline signal, actual local learner-data counts, backup access and an explicit no-cloud-sync notice.
 - All application routes are locale-prefixed; legacy unprefixed paths redirect to the saved language while preserving query/hash. Unsupported two/three-letter locale prefixes are repaired to the saved locale. The shared shell has explicit keyboard focus rings, and the mobile sidebar acts as a keyboard-managed dialog with focus trap, Escape close and focus restoration.
 - The reusable Modal provides labelled dialog semantics, initial focus, Tab/Shift+Tab containment, Escape/backdrop dismissal, focus restoration and body-scroll restoration. Search filters use a labelled group of mutually exclusive `aria-pressed` buttons rather than incomplete tab semantics.
@@ -26,7 +26,7 @@ The lesson schema carried `draft`, `review` and `published`, but the original re
 
 ## Search coverage
 
-Search includes classic lesson metadata, notes, structured lesson titles/descriptions/tags/outcomes and authored block text, plus 24-week month/week topics, practice descriptions, projects and supplementary-track topics. The structured lesson outline also searches safe section-body text, walkthrough examples and command-reference items, so a Git command query can highlight the section containing that command. Search and Practice now load a generated per-locale index built from the canonical lesson JSON rather than fetching all 44 full lesson chunks. The generator validates EN/RU IDs, statuses and block ID/type parity, and emits only approved search fields plus exercise task/rubric summaries. Full lesson bodies remain independently lazy-loaded. The generator produces six bounded search chunks and one separate exercise-summary payload per locale. In the production build, the six search JSON parts total 269,738 bytes gzip for EN / 340,328 bytes for RU, while Practice loads only its dedicated 59,527-byte EN / 75,293-byte RU payload. The largest generated JSON part is 276,641 bytes raw / 69,033 bytes gzip; the largest emitted JavaScript asset is 313,972 bytes raw, below the 512 KiB budget. Exact-head preview smoke verifies all 14 generated assets. Native browser cold/warm latency and mobile transfer still require measurement. Knowledge-check answers/feedback and exercise hints/solutions are excluded from snippets. This is a local in-memory index, not a server search service.
+Search includes classic lesson metadata, notes, structured lesson titles/descriptions/tags/outcomes and authored block text, plus 24-week month/week topics, practice descriptions, projects and supplementary-track topics. The structured lesson outline also searches safe section-body text, walkthrough examples and command-reference items, so a Git command query can highlight the section containing that command. Search and Practice now load a generated per-locale index built from the canonical lesson JSON rather than fetching all 44 full lesson chunks. The generator validates EN/RU IDs, statuses and block ID/type parity, and emits only approved search fields plus exercise task/rubric summaries. Full lesson bodies remain independently lazy-loaded. The generator produces six bounded search chunks and one separate exercise-summary payload per locale. In the production build, the six search JSON parts total 272,355 bytes gzip for EN / 343,746 bytes for RU, while Practice loads only its dedicated 59,994-byte EN / 75,869-byte RU payload for 119 exercises. The largest generated search JSON part is 276,901 bytes raw / 69,549 bytes gzip; the largest emitted JavaScript asset is 316,733 bytes raw, below the 512 KiB budget. Exact-head preview smoke verifies all 14 generated assets. Native browser cold/warm latency and mobile transfer still require measurement. Knowledge-check answers/feedback and exercise hints/solutions are excluded from snippets. This is a local in-memory index, not a server search service.
 
 ## Known functional gaps
 
@@ -84,13 +84,17 @@ The six commits after the previous code audit baseline add and test these app-wi
 - Exact-head [Actions run #41063587947 (run #883)](https://github.com/Mardakhay/interactive-guides/actions/runs/41063587947) passed 65 test files / 357 tests, lint, typecheck, production build, 141 bundle budgets, zero npm audit advisories and preview smoke for 13 routes plus 14 generated content assets.
 - The seven source-aligned tabs and keyboard navigation are now implemented. Remaining non-equivalence is primarily presentation/detail parity for the animated legacy canvas and full source/UI review; `tl-002` remains blocked on editorial review, classic learner-state disposition and native acceptance.
 
+## JavaScript Object static-methods source-parity increment — 2026-11-03
+
+The canonical `js.object-prototypes` EN/RU pair is v4 with 47 aligned blocks. It now includes the legacy Object Built-in Methods example and a practical extension: `Object.keys`, `Object.values`, `Object.entries`, `Object.fromEntries`, `Object.assign`, and shallow `Object.freeze`; a walkthrough, single-choice feedback check, and allowlist-based public-configuration exercise. Regression tests assert block count/ID parity, API inventory, copy contracts and the correct assessment answer. Practice Center count is 119.
+
 ## Current Git Workflow tabs and interaction state — 2026-11-03
 
 At exact feature HEAD `66bdcb81d524a82a9b8dfed12c831c8890c57a11`, `git.workflow-ci` is v14 with 73 aligned EN/RU blocks. It includes the seven source-aligned topic tabs (Why Strategy, Branches, Git Flow, Merge Requests, Code Review, CI/CD and Quiz; localized labels in Russian), a seven-stage pipeline simulator, a Git Flow branch graph and the ten-question sequential quiz.
 
 The tab renderer uses tablist/tab/tabpanel semantics and supports ArrowLeft/ArrowRight/Home/End navigation with focus movement. It records visited panels and keeps their rendered subtrees mounted while hidden. This preserves the sequential quiz's current question, submitted answer/feedback and in-memory run score when a learner switches to another topic and returns. `StructuredLessonTabs.test.tsx` covers the seven tabs, panel visibility, keyboard navigation, EN/RU quiz rendering and state continuity across tab switches.
 
-Exact-head [Actions run #41066740505 (run #890)](https://github.com/Mardakhay/interactive-guides/actions/runs/41066740505) passed the configured dependency-install, lint, typecheck, test, build, bundle-budget and preview-smoke steps. This does not close editorial/source parity, classic learner-state disposition or native-browser/accessibility acceptance.
+Exact-head [Actions run #41709617431 (run #901)](https://github.com/Mardakhay/interactive-guides/actions/runs/41709617431) passed dependency installation, lint, typecheck, 66 test files / 362 tests, production build, 141 bundle budgets and production-preview smoke for 13 routes plus PWA/generated assets. This does not close editorial/source parity, classic learner-state disposition or native-browser/accessibility acceptance.
 
 ## Verification boundary
 
