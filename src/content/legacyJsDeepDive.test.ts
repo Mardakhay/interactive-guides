@@ -93,16 +93,37 @@ describe('js-002 legacy objects, prototypes and classes source accuracy', () => 
     }
   });
 
+  it('teaches constructor object/function return values, primitive fallback and prototype fallback', () => {
+    for (const lesson of [englishObjectModel, russianObjectModel]) {
+      const walkthrough = lesson.blocks.find(block => block.id === 'object-model-new-algorithm-walkthrough');
+      expect(walkthrough?.type).toBe('codeWalkthrough');
+      if (walkthrough?.type === 'codeWalkthrough') {
+        expect(walkthrough.code.split('\\n')).toHaveLength(34);
+        expect(walkthrough.code).toContain('return { name:');
+        expect(walkthrough.code).toContain('return function replacement()');
+        expect(walkthrough.code).toContain('return 7;');
+        expect(walkthrough.code).toContain('NonObjectPrototype.prototype = 42');
+        expect(walkthrough.steps.every(step => step.lineStart >= 1 && step.lineEnd <= walkthrough.code.split('\\n').length)).toBe(true);
+      }
+      const check = lesson.blocks.find(block => block.id === 'object-model-new-algorithm-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type === 'knowledgeCheck') {
+        expect(check.options.filter(option => option.correct).map(option => option.id)).toEqual(['b']);
+        expect(check.options.every(option => option.feedback.trim().length > 20)).toBe(true);
+      }
+    }
+  });
+
   it('validates the structured EN/RU object-model lesson and its safety/semantics evidence', () => {
     expect(lessonTranslationSchema.safeParse(englishObjectModel).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianObjectModel).success).toBe(true);
     expect(englishObjectModel.id).toBe('js.object-prototypes');
-    expect(englishObjectModel.version).toBe(4);
-    expect(englishObjectModel.blocks).toHaveLength(47);
+    expect(englishObjectModel.version).toBe(5);
+    expect(englishObjectModel.blocks).toHaveLength(51);
     expect(englishObjectModel.blocks.map(({ id, type }) => [id, type])).toEqual(
       russianObjectModel.blocks.map(({ id, type }) => [id, type]),
     );
-    for (const id of ['object-model-new-text', 'classes-model', 'classes-limits', 'prototype-descriptors-text', 'object-static-methods-heading', 'object-static-methods-text', 'object-static-methods-walkthrough', 'object-static-methods-check', 'object-static-methods-practice', 'object-model-references']) {
+    for (const id of ['object-model-new-text', 'classes-model', 'classes-limits', 'prototype-descriptors-text', 'object-static-methods-heading', 'object-static-methods-text', 'object-static-methods-walkthrough', 'object-static-methods-check', 'object-static-methods-practice', 'object-model-new-algorithm-heading', 'object-model-new-algorithm-text', 'object-model-new-algorithm-walkthrough', 'object-model-new-algorithm-check', 'object-model-references']) {
       expect(englishObjectModel.blocks.some(block => block.id === id)).toBe(true);
       expect(russianObjectModel.blocks.some(block => block.id === id)).toBe(true);
     }
@@ -111,6 +132,7 @@ describe('js-002 legacy objects, prototypes and classes source accuracy', () => 
     if (refs?.type === 'references') {
       expect(refs.items.some(item => item.url === 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Inheritance_and_the_prototype_chain')).toBe(true);
       expect(refs.items.some(item => item.url === 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze')).toBe(true);
+      expect(refs.items.some(item => item.url === 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new')).toBe(true);
     }
   });
 });
