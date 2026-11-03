@@ -1,7 +1,7 @@
 {
   "id": "js.object-prototypes",
   "locale": "ru",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-11-03",
@@ -89,6 +89,82 @@
       "id": "object-model-new-text",
       "type": "paragraph",
       "text": "При обычном вызове конструктора через new создаётся объект, его прототип связывается с Constructor.prototype, конструктор вызывается с this, указывающим на новый объект, а затем возвращается явно возвращённый объект, если он есть, иначе — созданный экземпляр. Конструкторы class добавляют более строгие правила, в том числе обязательный new."
+    },
+    {
+      "id": "object-model-new-algorithm-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Возвращаемые значения конструктора и fallback прототипа"
+    },
+    {
+      "id": "object-model-new-algorithm-text",
+      "type": "paragraph",
+      "text": "Для обычной конструируемой функции `new` возвращает созданный экземпляр, если конструктор явно не вернул ненулевой объект. Возвращённый объект, включая функцию, заменяет этот экземпляр; примитивное возвращаемое значение игнорируется. Обычно новый экземпляр связывается с объектом `Constructor.prototype`. Если это свойство не является объектом (в том числе равно `null`), прототипом нового экземпляра становится `Object.prototype`. Это правила обычных функций-конструкторов; у конструкторов производных классов есть дополнительные ограничения для `super()` и возвращаемых значений."
+    },
+    {
+      "id": "object-model-new-algorithm-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function User(name) {\\n  this.name = name;\\n  this.createdByConstructor = true;\\n}\\n\\nfunction ReturnObject() {\\n  this.keptOnCreatedInstance = true;\\n  return { name: 'replacement' };\\n}\\n\\nfunction ReturnFunction() {\\n  this.keptOnCreatedInstance = true;\\n  return function replacement() {};\\n}\\n\\nfunction ReturnPrimitive() {\\n  this.keptOnCreatedInstance = true;\\n  return 7;\\n}\\n\\nconst normal = new User('Ада');\\nconst objectResult = new ReturnObject();\\nconst functionResult = new ReturnFunction();\\nconst primitiveResult = new ReturnPrimitive();\\n\\nconsole.log(normal.name, normal.createdByConstructor); // Ада true\\nconsole.log(objectResult.name, objectResult.keptOnCreatedInstance); // replacement undefined\\nconsole.log(typeof functionResult); // function\\nconsole.log(primitiveResult.keptOnCreatedInstance); // true\\n\\nfunction NonObjectPrototype() {}\\nNonObjectPrototype.prototype = 42;\\nconst fallback = new NonObjectPrototype();\\nconsole.log(Object.getPrototypeOf(fallback) === Object.prototype); // true",
+      "steps": [
+        {
+          "title": "Обычный экземпляр возвращается по умолчанию",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Если конструктор не возвращает объект, результатом new становится созданный экземпляр со свойствами, назначенными через this."
+        },
+        {
+          "title": "Явно возвращённый объект заменяет экземпляр",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "explanation": "ReturnObject сначала получает созданный экземпляр, а затем возвращает другой объект. Свойство name берётся из возвращённого объекта, а свойство отброшенного экземпляра недоступно."
+        },
+        {
+          "title": "Функция тоже считается возвращённым объектом",
+          "lineStart": 11,
+          "lineEnd": 14,
+          "explanation": "В JavaScript функция является объектом. Если обычный конструктор возвращает функцию, результатом new становится эта функция."
+        },
+        {
+          "title": "Примитив игнорируется; для прототипа используется fallback",
+          "lineStart": 16,
+          "lineEnd": 34,
+          "explanation": "Число 7 не заменяет созданный экземпляр. Если Constructor.prototype не является объектом, прототипом экземпляра становится Object.prototype. У конструкторов производных классов действуют дополнительные правила."
+        }
+      ]
+    },
+    {
+      "id": "object-model-new-algorithm-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Обычная функция-конструктор возвращает `function replacement() {}`. Что станет результатом `new Constructor()`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Экземпляр, созданный перед выполнением тела конструктора",
+          "correct": false,
+          "feedback": "Экземпляр по умолчанию возвращается, только если конструктор явно не вернул ненулевой объект."
+        },
+        {
+          "id": "b",
+          "text": "Возвращённый объект-функция",
+          "correct": true,
+          "feedback": "Функции являются объектами, поэтому явно возвращённая функция заменяет экземпляр, созданный через new для обычной функции-конструктора."
+        },
+        {
+          "id": "c",
+          "text": "Примитивное значение `undefined`",
+          "correct": false,
+          "feedback": "Возврат функции — это возврат объекта, а не отсутствие результата или примитивное значение."
+        },
+        {
+          "id": "d",
+          "text": "TypeError, потому что конструкторы не могут возвращать функции",
+          "correct": false,
+          "feedback": "Обычная функция-конструктор может вернуть любой объект, включая функцию. У производных class-конструкторов есть дополнительные ограничения."
+        }
+      ],
+      "explanation": "Правило возврата обычного конструктора различает объекты (включая функции) и примитивы. Возвращённый объект заменяет экземпляр по умолчанию, а примитив игнорируется."
     },
     {
       "id": "object-model-this",
@@ -931,6 +1007,11 @@
         {
           "title": "MDN: Статические методы Object",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Оператор new",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new",
           "kind": "official-docs"
         }
       ]
