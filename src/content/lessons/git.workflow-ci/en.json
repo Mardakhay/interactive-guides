@@ -1,16 +1,16 @@
 {
   "id": "git.workflow-ci",
   "locale": "en",
-  "version": 1,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-5-week-20",
   "week": 20,
   "order": 1,
   "title": "Git Branching, Pull Requests, Code Review, and CI",
   "description": "Work safely in feature branches, keep pull requests reviewable, resolve conflicts deliberately, and use continuous integration as a repeatable quality gate.",
-  "estimatedMinutes": 65,
+  "estimatedMinutes": 110,
   "difficulty": "intermediate",
   "prerequisites": [
     "git.fundamentals",
@@ -22,7 +22,8 @@
     "Prepare a reviewable pull request with context, testing evidence, and a small logical diff.",
     "Review code for correctness, readability, accessibility, testing, and regressions.",
     "Resolve merge conflicts deliberately and understand merge versus rebase at a high level.",
-    "Explain how CI runs automated checks and why a green check is not a substitute for review."
+    "Explain how CI runs automated checks and why a green check is not a substitute for review.",
+    "Compare common branch strategies and apply Semantic Versioning to compatible and breaking changes."
   ],
   "tags": [
     "git",
@@ -291,6 +292,320 @@
       ]
     },
     {
+      "id": "deep-workflow-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: branch strategy, conflict resolution, and CI as a merge gate"
+    },
+    {
+      "id": "deep-workflow-model",
+      "type": "paragraph",
+      "text": "A branch strategy should make collaboration and release risk manageable, not create ceremony for its own sake. Short-lived feature branches work well when changes are small and continuously integrated; release/hotfix branches can help when a team has explicit release trains. A pull request is a reviewable proposal, while CI is repeatable evidence that selected checks passed on a specific commit—not proof that every product requirement is correct."
+    },
+    {
+      "id": "deep-workflow-pr-checklist",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "State the user problem and observable outcome in the PR description; link the issue or acceptance criteria.",
+        "Keep the diff focused. Remove accidental formatting churn and unrelated cleanup.",
+        "Review your own diff first; inspect deleted code, generated files, secrets and unexpected dependencies.",
+        "Require appropriate automated checks: install, lint, typecheck, unit/component tests and production build where the project supports them.",
+        "Ask reviewers to check correctness, edge cases, accessibility, error/loading/empty states and maintainability—not just formatting.",
+        "Resolve requested changes, rerun checks after the final code update, then merge according to branch protection and release policy."
+      ]
+    },
+    {
+      "id": "deep-workflow-conflict",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "<<<<<<< HEAD\nconst pageTitle = 'Dashboard';\n=======\nconst pageTitle = 'Overview';\n>>>>>>> feature/rename-page",
+      "steps": [
+        {
+          "title": "Recognize conflict markers",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "HEAD and the incoming branch edited overlapping lines that Git could not safely combine automatically. The file is intentionally left in a conflicted state."
+        },
+        {
+          "title": "Choose the intended behavior, not just one side",
+          "lineStart": 2,
+          "lineEnd": 4,
+          "explanation": "Inspect the surrounding code and product requirement. The right result might be either title or a third deliberate value; blindly choosing ours or theirs may discard needed behavior."
+        },
+        {
+          "title": "Verify the resolved file",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Remove all conflict markers, run the relevant tests and inspect the resulting diff. Mark the file resolved by staging it only after reviewing the final content."
+        }
+      ]
+    },
+    {
+      "id": "deep-workflow-callout",
+      "type": "callout",
+      "tone": "warning",
+      "title": "A green CI run is commit-specific",
+      "text": "A check result applies to the commit and workflow that ran it. If you push another commit after a green run, confirm that required checks ran again on the new head. CI does not replace code review, product acceptance, security review, or a runtime test the pipeline does not perform."
+    },
+    {
+      "id": "deep-workflow-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You resolve a merge conflict locally and then make one more edit before pushing. What should you verify before merging the PR?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The previous green CI run is sufficient because the branch already passed once",
+          "correct": false,
+          "feedback": "That run tested an earlier commit. The final edit may introduce a new failure."
+        },
+        {
+          "id": "b",
+          "text": "The conflict markers are gone, the diff is reviewed, and required checks passed for the current head",
+          "correct": true,
+          "feedback": "The final content and the exact commit awaiting merge must both be reviewed and checked."
+        },
+        {
+          "id": "c",
+          "text": "Only the number of changed lines matters",
+          "correct": false,
+          "feedback": "Diff size can aid review, but it does not establish correctness or validate the latest commit."
+        },
+        {
+          "id": "d",
+          "text": "Delete the failing test until merge succeeds",
+          "correct": false,
+          "feedback": "Removing a test to bypass a failure hides evidence rather than addressing the cause."
+        }
+      ],
+      "explanation": "Review the final diff and verify status on the exact commit to be merged."
+    },
+    {
+      "id": "deep-workflow-practice",
+      "type": "codingExercise",
+      "title": "Write a merge-ready PR and resolve a conflict",
+      "language": "text",
+      "context": "Simulate the final steps of a team change: resolve overlapping edits, produce a clear PR, and verify the exact commit.",
+      "instructions": [
+        "Resolve the sample conflict to match the intended product requirement and explain why.",
+        "Write a PR summary with problem, solution, manual verification, tests and known limitations.",
+        "List the CI gates that this project should run before merge.",
+        "Explain why a green run from an earlier commit is not sufficient after the final edit.",
+        "Compare a short-lived feature-branch workflow with trunk-based development and describe one trade-off."
+      ],
+      "requirements": [
+        "No conflict markers remain in the resolved example.",
+        "The solution is justified from requirements rather than chosen by branch name alone.",
+        "The PR summary includes observable behavior and verification details.",
+        "CI, review, and runtime limitations are kept distinct.",
+        "The current commit SHA is considered when checking required CI results."
+      ],
+      "starterCode": "<<<<<<< HEAD\nconst pageTitle = 'Dashboard';\n=======\nconst pageTitle = 'Overview';\n>>>>>>> feature/rename-page\n\nPR title:\nProblem:\nChange:\nVerification:\nKnown limitations:",
+      "hints": [
+        "Conflict markers delimit two incompatible edits; inspect context and acceptance criteria.",
+        "Write verification steps that someone else can repeat.",
+        "Confirm that checks apply to the exact commit at the current branch head."
+      ],
+      "successCriteria": [
+        "Produces a valid resolved snippet without conflict markers.",
+        "Documents problem, change, and repeatable verification.",
+        "Explains that CI must cover the latest commit.",
+        "States a realistic branch-strategy trade-off."
+      ]
+    },
+    {
+      "id": "git-branch-strategies",
+      "type": "heading",
+      "level": 2,
+      "text": "Choose a branch strategy to fit the team's release rhythm"
+    },
+    {
+      "id": "git-branch-strategies-body",
+      "type": "paragraph",
+      "text": "A branch model is a collaboration policy, not a Git feature that every project must adopt identically. Prefer the smallest process that lets a team integrate frequently, protect the default branch, test changes, and release safely. Long-lived branches accumulate divergence and make merges harder; short-lived branches still need tests and review."
+    },
+    {
+      "id": "git-branch-strategy-choices",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Trunk-based development keeps branches very short-lived and integrates to a shared trunk frequently, often with feature flags and strong automated checks.",
+        "GitHub Flow normally uses a protected main branch, a short-lived feature branch, a pull request, checks, review, and merge.",
+        "Git Flow adds long-lived develop and purpose-specific release/hotfix branches. It can help with scheduled or parallel release maintenance, but it introduces more coordination and branch management.",
+        "A release branch stabilizes a candidate for a release; a hotfix branch isolates an urgent correction. Their source, target and back-merge policy should be explicit.",
+        "Choose based on release cadence, team size, support obligations and the maturity of CI. Do not adopt extra branches just because a diagram contains them."
+      ]
+    },
+    {
+      "id": "git-semantic-versioning",
+      "type": "heading",
+      "level": 2,
+      "text": "Semantic Versioning communicates compatibility"
+    },
+    {
+      "id": "git-semantic-versioning-body",
+      "type": "paragraph",
+      "text": "For a public versioned API that follows Semantic Versioning, the release shape is MAJOR.MINOR.PATCH. At version 1.4.2, a backwards-compatible bug fix can become 1.4.3; a backwards-compatible feature can become 1.5.0; and an incompatible public API change generally requires 2.0.0. Pre-1.0.0 software may change its public API more freely under the SemVer specification, so document your project's policy."
+    },
+    {
+      "id": "git-semver-example",
+      "type": "code",
+      "language": "text",
+      "caption": "Illustrative changes from version 1.4.2",
+      "code": "1.4.2 -> 1.4.3  # backwards-compatible bug fix (PATCH)\n1.4.2 -> 1.5.0  # backwards-compatible feature (MINOR)\n1.4.2 -> 2.0.0  # incompatible public API change (MAJOR)"
+    },
+    {
+      "id": "git-semver-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A library is at version 1.4.2 and releases a backwards-incompatible public API change. Under Semantic Versioning, which version is the expected next release?",
+      "options": [
+        {
+          "id": "a",
+          "text": "1.4.3",
+          "correct": false,
+          "feedback": "PATCH is for backwards-compatible bug fixes, not a breaking public API change."
+        },
+        {
+          "id": "b",
+          "text": "1.5.0",
+          "correct": false,
+          "feedback": "MINOR is for backwards-compatible new functionality, not a breaking public API change."
+        },
+        {
+          "id": "c",
+          "text": "2.0.0",
+          "correct": true,
+          "feedback": "A backwards-incompatible public API change increments MAJOR."
+        },
+        {
+          "id": "d",
+          "text": "1.4.2+1",
+          "correct": false,
+          "feedback": "Build metadata does not communicate a breaking compatibility change."
+        }
+      ],
+      "explanation": "For a public stable API, SemVer uses MAJOR for incompatible changes, MINOR for backwards-compatible features, and PATCH for backwards-compatible fixes."
+    },
+    {
+      "id": "git-cd-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Continuous delivery and continuous deployment differ at release"
+    },
+    {
+      "id": "git-cd-body",
+      "type": "paragraph",
+      "text": "Continuous integration (CI) repeatedly integrates changes and runs checks. In continuous delivery, the pipeline keeps a tested candidate deployable, but a person or release policy may still approve production. In continuous deployment, every change that passes the required gates is automatically released to production. Teams use these terms differently, so document the actual trigger. Branch protection is a repository-hosting rule that can require CI status and review before merge; CI reports evidence, while branch protection enforces the gate."
+    },
+    {
+      "id": "git-cd-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Feature commit pushed\n        ↓\nCI: install → lint → typecheck → tests → build\n        ↓\nChecks green? ── no → inspect failure, fix, push new commit\n        │ yes\n        ↓\nBranch protection: required review + required checks\n        ↓\nMerge to protected main\n        ↓\nBuild immutable release artifact\n        ↓\nContinuous delivery: approval/release trigger → production\nContinuous deployment: automatic gate → production",
+      "steps": [
+        {
+          "title": "Run checks against the proposed commit",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "CI produces evidence for one tested SHA. A red check blocks progress until its cause is understood, corrected, and rerun on a new commit."
+        },
+        {
+          "title": "Enforce policy at the merge boundary",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Branch protection can require human review and check statuses before accepting a merge. CI itself does not prevent a merge unless repository rules enforce the result."
+        },
+        {
+          "title": "Name the production trigger accurately",
+          "lineStart": 9,
+          "lineEnd": 12,
+          "explanation": "Continuous delivery keeps a release ready but can require approval. Continuous deployment automatically releases qualifying changes after gates. Keep the artifact and release process explicit so the same tested build is promoted."
+        }
+      ]
+    },
+    {
+      "id": "git-cd-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A pipeline runs all checks and creates a production-ready artifact, but an authorized person must approve the release. Which term most closely describes this release model?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Continuous delivery",
+          "correct": true,
+          "feedback": "The change remains deployable, but a human or release-policy trigger still starts production release."
+        },
+        {
+          "id": "b",
+          "text": "Continuous deployment",
+          "correct": false,
+          "feedback": "Continuous deployment automatically releases every change that satisfies its gates."
+        },
+        {
+          "id": "c",
+          "text": "Continuous integration only",
+          "correct": false,
+          "feedback": "The pipeline also prepares a release candidate; CI describes frequent integration and automated checks."
+        },
+        {
+          "id": "d",
+          "text": "Branch protection",
+          "correct": false,
+          "feedback": "Branch protection governs merge conditions, not whether production release is manual or automatic."
+        }
+      ],
+      "explanation": "Ask what triggers production: an approval/release action indicates delivery; automatic production release after gates indicates deployment."
+    },
+    {
+      "id": "git-pipeline-simulation",
+      "type": "codingExercise",
+      "title": "Simulate a protected CI and release pipeline",
+      "language": "text",
+      "context": "A feature branch has one failing test. The team requires CI and review before merging, then must choose a delivery or deployment policy.",
+      "instructions": [
+        "Trace the proposed commit through install, lint, typecheck, tests and build, and mark the first failing gate.",
+        "Write the diagnosis and fix as a new commit; explain why the old green/red status does not apply to the new SHA.",
+        "Define which review and status checks branch protection requires and what it blocks.",
+        "Choose whether production requires a manual approval (delivery) or is automatic after gates (deployment), and justify the risk tradeoff.",
+        "Record how the exact tested release artifact is promoted and how rollback is initiated."
+      ],
+      "requirements": [
+        "CI result is tied to an exact commit SHA and is rerun after changes.",
+        "Failure is diagnosed from logs instead of bypassed or hidden.",
+        "Branch protection enforcement is distinguished from CI reporting.",
+        "Delivery and deployment production triggers are defined accurately.",
+        "Artifact promotion and rollback are included in the release plan."
+      ],
+      "starterCode": "Proposed commit SHA:\nFailing gate and evidence:\nRoot cause:\nFix commit SHA:\nRequired CI/review branch rules:\nProduction trigger: manual approval / automatic after gates\nArtifact promotion:\nRollback trigger and owner:",
+      "hints": [
+        "A required-check status is evidence; a protected branch rule is what rejects merges without it.",
+        "After fixing code, require checks on the new commit rather than reusing the old run.",
+        "Continuous delivery may pause for approval; continuous deployment does not require a release click for every successful change.",
+        "Keep artifact provenance visible so you know what is running in each environment."
+      ],
+      "successCriteria": [
+        "Identifies the failure from a named check/log and describes a concrete fix.",
+        "Confirms checks rerun on the fix commit before merge.",
+        "States review/status branch protection behavior.",
+        "Selects and explains a production trigger without conflating delivery and deployment.",
+        "Defines artifact tracking and rollback responsibility."
+      ]
+    },
+    {
+      "id": "deep-workflow-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Branch strategy balances reviewability, integration frequency, and release needs.",
+        "Resolve conflicts based on desired behavior, then review and test the final file.",
+        "Treat CI results as evidence tied to an exact commit, not as blanket proof of product quality.",
+        "Choose GitHub Flow, trunk-based development, or Git Flow based on release cadence and team needs; minimize unnecessary long-lived branches.",
+        "For stable public APIs, SemVer uses MAJOR for breaking changes, MINOR for backwards-compatible features, and PATCH for backwards-compatible fixes."
+      ]
+    },
+    {
       "id": "git-workflow-references",
       "type": "references",
       "items": [
@@ -318,6 +633,11 @@
           "title": "GitHub Actions: Understanding workflows",
           "url": "https://docs.github.com/en/actions/about-github-actions/understanding-github-actions",
           "kind": "official-docs"
+        },
+        {
+          "title": "Semantic Versioning 2.0.0",
+          "url": "https://semver.org/spec/v2.0.0.html",
+          "kind": "standard"
         }
       ]
     }

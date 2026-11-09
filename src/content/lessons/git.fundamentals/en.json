@@ -1,16 +1,16 @@
 {
   "id": "git.fundamentals",
   "locale": "en",
-  "version": 1,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-2-week-8",
   "week": 8,
   "order": 2,
   "title": "Git Fundamentals: Track, Commit, and Publish Your Work",
   "description": "Understand Git's three local areas, record focused changes as commits, connect a local repository to a remote, publish a branch, and keep generated or secret files out of version control.",
-  "estimatedMinutes": 55,
+  "estimatedMinutes": 100,
   "difficulty": "beginner",
   "prerequisites": [
     "js.basics-types-control-flow",
@@ -22,7 +22,8 @@
     "Explain why staging allows one commit to contain selected changes rather than every changed file.",
     "Create a useful .gitignore and identify files that should not be committed.",
     "Read the outcome of Git commands and recover from common beginner mistakes without deleting work.",
-    "Publish a small project to a remote repository using a focused commit history."
+    "Publish a small project to a remote repository using a focused commit history.",
+    "Use stash, aliases and amend with an explicit understanding of what is local and what has been shared."
   ],
   "tags": [
     "git",
@@ -162,7 +163,7 @@
       "id": "remote-example",
       "type": "codeWalkthrough",
       "language": "bash",
-      "code": "git remote add origin https://github.com/USERNAME/PROJECT.git\ngit remote -v\ngit branch --show-current\ngit push -u origin main",
+      "code": "git remote add origin https://github.com/USERNAME/PROJECT.git\ngit remote -v\ngit branch --show-current\ngit push -u origin HEAD",
       "steps": [
         {
           "title": "Add the remote under a memorable name",
@@ -180,13 +181,13 @@
           "title": "Confirm the current branch",
           "lineStart": 3,
           "lineEnd": 3,
-          "explanation": "The push command names main explicitly. If the current branch has another name, either push the intended branch name or deliberately rename it first."
+          "explanation": "Check that the checked-out branch is the intended branch to publish. If the team requires review before integration, create/use a feature branch and open a pull request instead of pushing directly to a protected default branch."
         },
         {
           "title": "Publish local commits",
           "lineStart": 4,
           "lineEnd": 4,
-          "explanation": "git push transfers commits to the remote branch. The -u option sets upstream tracking for this branch after the first successful push; remote authentication and permissions must already work."
+          "explanation": "After confirming the current branch and team policy, `git push -u origin HEAD` publishes the checked-out branch under the same name on origin and sets upstream tracking. It does not mean 'push main' unless you are currently on main; do not bypass a required PR workflow."
         }
       ]
     },
@@ -217,6 +218,57 @@
         "Trying to commit when nothing is staged: use status to see whether files are unchanged, unstaged, or ignored.",
         "Pushing before setting a remote or upstream: inspect git remote -v and git branch -vv, then configure the intended remote/branch.",
         "Accidentally staging a secret: unstage it and make sure the secret is not committed. If a secret has already been pushed, removing the file is not enough—rotate/revoke the credential and follow the host's incident guidance."
+      ]
+    },
+    {
+      "id": "git-local-history-tools",
+      "type": "heading",
+      "level": 2,
+      "text": "Stash, amend, and aliases: three tools with different scope"
+    },
+    {
+      "id": "git-local-history-tools-body",
+      "type": "paragraph",
+      "text": "Use stash when you need to temporarily set aside uncommitted work without creating a commit. `git stash apply` reapplies a saved change and keeps the stash entry; `git stash pop` applies it and removes the entry if successful. By default, untracked files are not included unless you pass `-u`. `git commit --amend` recreates the latest commit, changing its hash and possibly its message; use it for a local, unpublished commit unless the team explicitly coordinates a rewrite. Git aliases are local configuration shortcuts: a `--global` alias applies to your user account on this machine and is not shared automatically with the repository."
+    },
+    {
+      "id": "git-stash-amend-aliases-example",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "git status\ngit stash push -u -m \"wip: navbar\"\ngit stash list\ngit stash apply stash@{0}\ngit config --global alias.st status\ngit config --global alias.lg \"log --oneline --graph --decorate\"\ngit st\ngit lg\n# Only amend a local commit that has not been shared\ngit commit --amend -m \"fix: describe the updated change\"",
+      "steps": [
+        {
+          "title": "Check the current state",
+          "explanation": "Read git status before moving work. Stash is for uncommitted changes, not a replacement for a meaningful checkpoint commit."
+        },
+        {
+          "title": "Save work without committing it",
+          "explanation": "The -u flag includes untracked files. The message helps identify the saved work later. Avoid stashing files that contain secrets you do not want to handle indirectly."
+        },
+        {
+          "title": "List and reapply a stash",
+          "explanation": "git stash list shows stored entries. apply replays the selected changes but keeps the stash entry, which can be useful until you confirm the work is restored correctly."
+        },
+        {
+          "title": "Define shortcuts for this user",
+          "explanation": "The --global aliases persist in your user configuration on this machine. They do not automatically become part of a teammate's Git configuration."
+        },
+        {
+          "title": "Amend only unpublished history",
+          "explanation": "--amend creates a replacement commit with a different hash. Do not amend a commit already pushed to a shared branch without explicit team coordination."
+        }
+      ]
+    },
+    {
+      "id": "git-repository-hygiene",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use a README to explain what a repository does, how to install dependencies, how to run checks, and how to contribute.",
+        "GitHub Pages can publish a static site from a configured branch or a GitHub Actions workflow; verify the source and base-path settings before publishing.",
+        "Review repository visibility, collaborator permissions, branch protection, and required checks deliberately; grant only the access each contributor needs.",
+        "A .gitignore rule does not remove a tracked secret or erase it from history. If a credential was exposed, rotate or revoke it; removing the file alone is not enough.",
+        "Write README content in Markdown: use headings to define hierarchy, fenced code blocks for commands, and links for supporting documentation. Preview the rendered file and keep instructions reproducible and free of secrets."
       ]
     },
     {
@@ -318,7 +370,7 @@
         "Stage the intended project files and inspect git diff --cached.",
         "Create a focused commit message describing the API mini-project.",
         "Check whether origin is configured; add the correct remote only if it is missing.",
-        "Confirm the current branch and push it to the remote, using upstream tracking if this is the first push.",
+        "Confirm the current branch and repository/team policy before pushing. Use a feature branch and pull request where review is required; set upstream tracking on the branch you intend to publish.",
         "Open the hosted repository and verify that the expected files and commit are visible.",
         "Write down the difference between working tree, staging area, local repository, and remote repository."
       ],
@@ -328,9 +380,10 @@
         "Generated dependencies/build output and secret files are not committed.",
         "The remote URL points to the intended repository.",
         "The push publishes the commit to the expected branch.",
-        "The learner can explain which Git area changes after each command."
+        "The learner can explain which Git area changes after each command.",
+        "Does not bypass branch protection or a required pull-request review."
       ],
-      "starterCode": "# Inspect the current state\n\ngit status\n\n# Check the staged diff before committing\n\ngit diff --cached\n\n# Example flow (replace the message and branch as appropriate):\n# git add index.html src .gitignore\n# git commit -m \"feat: add API-driven posts page\"\n# git remote -v\n# git push -u origin main",
+      "starterCode": "# Inspect the current state\n\ngit status\n\n# Check the staged diff before committing\n\ngit diff --cached\n\n# Example flow (replace the message and branch as appropriate):\n# git add index.html src .gitignore\n# git commit -m \"feat: add API-driven posts page\"\n# git remote -v\n# git push -u origin HEAD # only after checking the current branch and team policy",
       "hints": [
         "Use git status before and after staging; the output tells you what Git believes is staged and unstaged.",
         "Check git diff --cached before making a commit to avoid including unrelated changes.",
@@ -341,7 +394,8 @@
         "The commit records only the intended change.",
         "The remote and branch are the ones you intended to publish to.",
         "The hosted repository shows your commit after pushing.",
-        "No real secret is stored in a committed file or remote URL."
+        "No real secret is stored in a committed file or remote URL.",
+        "The push targets the intended branch, and a required review workflow is followed."
       ]
     },
     {
@@ -353,7 +407,141 @@
         "Use status to inspect, add to stage selected content, commit a coherent checkpoint, and push to exchange commits with a remote.",
         "A .gitignore rule only ignores untracked paths; it does not remove a file that is already tracked.",
         "Use focused messages and inspect the staged diff before committing.",
-        "Never commit secrets; if a credential has been pushed, rotate/revoke it rather than relying on deleting the file."
+        "Never commit secrets; if a credential has been pushed, rotate/revoke it rather than relying on deleting the file.",
+        "Stash shelves uncommitted work, amend replaces the latest commit ID, and global aliases stay in this user's local configuration.",
+        "README/Pages and repository access settings should be deliberate; .gitignore does not revoke or erase an exposed credential."
+      ]
+    },
+    {
+      "id": "deep-git-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: Git's three areas and choosing a safe undo"
+    },
+    {
+      "id": "deep-git-model",
+      "type": "paragraph",
+      "text": "Think of Git as separate snapshots and places where changes can live: the working tree contains your current edits, the index (staging area) records what the next commit will contain, and commits are saved snapshots connected by history. `git add` copies selected changes into the index; it does not commit them. Before undoing anything, inspect `git status` and `git diff` so you know which area contains the work."
+    },
+    {
+      "id": "deep-git-trace",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "git status\ngit diff\ngit diff --staged\ngit add src/App.tsx\ngit diff --staged\ngit commit -m \"fix: handle empty search results\"\ngit log --oneline --decorate -5",
+      "steps": [
+        {
+          "title": "Inspect unstaged edits",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "status shows the state of tracked/untracked files; diff shows edits in the working tree that are not staged."
+        },
+        {
+          "title": "Inspect the proposed commit",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "diff --staged shows the index—the exact content selected for the next commit. A file can contain both staged and unstaged changes at once."
+        },
+        {
+          "title": "Create a snapshot only after review",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "commit records the staged snapshot, and log helps confirm where HEAD now points. Commit messages should describe the intent, not just the file edited."
+        }
+      ]
+    },
+    {
+      "id": "deep-git-undo-guide",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`git restore file` discards unstaged working-tree changes for that file; inspect them first because the discarded work may be hard to recover.",
+        "`git restore --staged file` removes a file from the index but keeps the working-tree edits.",
+        "`git revert <commit>` creates a new commit that reverses a previous commit; it is usually safer on shared branches.",
+        "`git reset` moves the current branch/HEAD and changes the index or working tree depending on flags; `--hard` discards tracked work and rewrites the branch position. Avoid it until you understand the target and have checked whether work is shared.",
+        "`git stash` temporarily shelves selected uncommitted changes; `git stash list` and `git stash apply` let you inspect/reapply them. `git reflog` can help find recent local HEAD positions after a mistaken reset, but it is not a substitute for remote backup."
+      ]
+    },
+    {
+      "id": "deep-git-warning",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Undo commands are not interchangeable",
+      "text": "Use status/diff before changing state. For private, not-yet-committed work, restore or stash may fit. To undo a committed change already shared with the team, prefer revert unless your team explicitly coordinates history rewriting. Never run a destructive reset blindly to make a status screen look clean."
+    },
+    {
+      "id": "deep-git-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You pushed a commit to a shared feature branch and discover it introduced a bug. What is usually the safest undo approach?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Run git reset --hard HEAD~1 and force-push immediately",
+          "correct": false,
+          "feedback": "That rewrites shared history and may erase teammates' references or commits; it should not be done blindly."
+        },
+        {
+          "id": "b",
+          "text": "Create a git revert commit for the bad commit",
+          "correct": true,
+          "feedback": "Revert records an inverse change as a new commit, preserving published history and making the correction visible to collaborators."
+        },
+        {
+          "id": "c",
+          "text": "Delete the .git directory",
+          "correct": false,
+          "feedback": "This destroys local repository metadata and does not safely undo a shared remote commit."
+        },
+        {
+          "id": "d",
+          "text": "Run git restore on the repository root",
+          "correct": false,
+          "feedback": "Restore works on working-tree/index paths; it does not reverse a commit already published to the remote."
+        }
+      ],
+      "explanation": "Choose the undo operation by identifying where the change lives and whether its history is shared."
+    },
+    {
+      "id": "deep-git-practice",
+      "type": "codingExercise",
+      "title": "Diagnose the index and choose an undo command",
+      "language": "bash",
+      "context": "A realistic team scenario: one file has staged and unstaged edits, and a previous change has already been pushed.",
+      "instructions": [
+        "Use git status, git diff and git diff --staged to identify which changes would enter the next commit.",
+        "Unstage a file without discarding its working-tree edits.",
+        "Describe how you would safely discard only an unwanted unstaged edit after reviewing its diff.",
+        "Choose a safe approach to undo a published commit and explain why reset is different.",
+        "Explain what stash and reflog can help recover, and what they do not guarantee."
+      ],
+      "requirements": [
+        "The index is distinguished from the working tree and commit history.",
+        "The proposed commit content is checked with diff --staged.",
+        "An unstage operation is not described as deleting the file's edits.",
+        "Shared history is preserved when choosing the default correction.",
+        "Destructive commands are accompanied by preconditions and warnings."
+      ],
+      "starterCode": "# Run these commands in a disposable practice repository.\ngit status\ngit diff\ngit diff --staged\n\n# TODO: choose a safe unstage command, then inspect status again.\n# TODO: explain how you would undo a published commit without rewriting shared history.",
+      "hints": [
+        "The index is the content Git will put into the next commit.",
+        "Unstage and discard are different operations; inspect status and diff after each.",
+        "Revert adds a corrective commit; reset moves the branch/HEAD and can rewrite shared history."
+      ],
+      "successCriteria": [
+        "Correctly identifies staged versus unstaged changes.",
+        "Can unstage without losing working-tree edits.",
+        "Chooses an undo action based on whether a commit was shared.",
+        "Explains the limits and purpose of stash and reflog."
+      ]
+    },
+    {
+      "id": "deep-git-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Git status/diff inspection should precede a state-changing command.",
+        "The index represents the exact content planned for the next commit.",
+        "Prefer preserving published history; only rewrite shared history with explicit coordination."
       ]
     },
     {
@@ -383,6 +571,21 @@
         {
           "title": "GitHub Docs: Adding locally hosted code",
           "url": "https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Documentation: git-stash",
+          "url": "https://git-scm.com/docs/git-stash",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Documentation: git-commit",
+          "url": "https://git-scm.com/docs/git-commit",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: GitHub Pages",
+          "url": "https://docs.github.com/en/pages",
           "kind": "official-docs"
         }
       ]

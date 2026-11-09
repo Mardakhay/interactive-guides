@@ -1,23 +1,24 @@
 {
   "id": "html.document-structure",
   "locale": "en",
-  "version": 1,
+  "version": 6,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-1-week-1",
   "week": 1,
   "order": 1,
   "title": "HTML document structure and semantic page regions",
   "description": "Learn how a complete HTML document is organized, why metadata belongs in the head, how the browser treats the body, and how semantic elements communicate the purpose of page regions.",
-  "estimatedMinutes": 35,
+  "estimatedMinutes": 90,
   "difficulty": "beginner",
   "prerequisites": [],
   "learningOutcomes": [
     "Explain the purpose of the doctype, html, head, and body parts of an HTML document.",
     "Distinguish document metadata from content intended to appear in the page.",
     "Choose between header, nav, main, section, article, and footer based on meaning rather than appearance.",
-    "Build a small, correctly structured About Me page and inspect it with browser DevTools."
+    "Build a small, correctly structured About Me page and inspect it with browser DevTools.",
+    "Embed third-party or user-authored content with an accessible name and a least-privilege sandbox boundary."
   ],
   "tags": [
     "html",
@@ -266,6 +267,443 @@
       ]
     },
     {
+      "id": "html-text-markup-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Choose text elements for meaning, not default appearance"
+    },
+    {
+      "id": "html-text-markup-body",
+      "type": "paragraph",
+      "text": "Use `strong` for importance and `em` for emphasis; `b` and `i` can draw attention or mark a different voice without adding the same importance/emphasis meaning. `mark` highlights content relevant to the current context. `code` marks a code fragment. `br` is a line break within content such as an address or verse, not a spacing tool; `hr` marks a thematic break. Keep heading levels in a logical content hierarchy instead of selecting them for their default font size."
+    },
+    {
+      "id": "html-text-markup-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<h1>HTML text with meaning</h1>\n<p>Follow the <strong>required</strong> steps and <em>carefully</em> review the <mark>updated</mark> notice.</p>\n\n<p><b>Product label</b> and <i>a phrase in another voice</i> may be stylistic.</p>\n\n<p>Address line one<br>Address line two</p>\n<hr>\n<p>Use <code>aria-describedby</code> to connect supporting text to a field.</p>",
+      "steps": [
+        {
+          "title": "Give important or emphasized words their meaning",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "`strong` conveys importance, `em` conveys emphasis, and `mark` calls out contextually relevant text. They may have visual styles, but the semantic meaning is the point."
+        },
+        {
+          "title": "Distinguish semantic emphasis from visual voice",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "`b` and `i` can indicate attention or an alternate voice without making the same claim as `strong` and `em`. Choose an element based on the content and intent."
+        },
+        {
+          "title": "Use line and thematic breaks appropriately",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "`br` creates a line break within content where the break is meaningful. `hr` indicates a thematic break. Neither should be used as a substitute for CSS layout and spacing."
+        },
+        {
+          "title": "Mark up inline code",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "The `code` element marks a code fragment; `pre` is commonly used when a preformatted block needs to preserve whitespace. Neither runs JavaScript by itself."
+        }
+      ]
+    },
+    {
+      "id": "html-text-markup-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A sentence describes a critical requirement. Which element most clearly marks the text as important, beyond making it bold?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`<strong>`",
+          "correct": true,
+          "feedback": "Strong marks content as having strong importance; browsers commonly render it bold, but its purpose is semantic."
+        },
+        {
+          "id": "b",
+          "text": "`<b>`",
+          "correct": false,
+          "feedback": "B draws attention without adding the same strong-importance meaning."
+        },
+        {
+          "id": "c",
+          "text": "`<span style=\"font-weight: bold\">`",
+          "correct": false,
+          "feedback": "A styled span changes appearance but does not communicate the same native meaning."
+        },
+        {
+          "id": "d",
+          "text": "`<br>`",
+          "correct": false,
+          "feedback": "Br creates a line break and does not mark a passage as important."
+        }
+      ],
+      "explanation": "Choose text markup according to the role of the content; CSS controls appearance independently."
+    },
+    {
+      "id": "html-links-metadata-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Links, metadata, and global attributes"
+    },
+    {
+      "id": "html-links-metadata-body",
+      "type": "paragraph",
+      "text": "An anchor's `href` determines its destination; use link text that explains where it goes instead of repeating vague labels such as “click here.” When a link opens a new tab, explain that behavior when it matters and use `rel=\"noopener\"` to prevent access through `window.opener`; add `noreferrer` when suppressing the referrer is also intended. In `head`, a description can be used as a search-result snippet but does not guarantee the snippet, while Open Graph metadata supports social-sharing previews. Global attributes have different jobs: `id` is a unique document identifier, `class` groups elements for styling, `data-*` stores application-specific data, and `lang` identifies the language of a content subtree. Use `hidden` only when content should be hidden from presentation and interaction, and avoid positive `tabindex` values that disrupt natural focus order."
+    },
+    {
+      "id": "html-links-metadata-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<!-- In the body -->\n<a href=\"/lessons/html\">HTML lessons</a>\n<a href=\"https://example.org/help\" target=\"_blank\" rel=\"noopener\">\n  Partner help (opens in a new tab)\n</a>\n\n<!-- In the head -->\n<meta name=\"description\" content=\"A reference to core HTML patterns.\">\n<meta property=\"og:title\" content=\"HTML Reference\">\n<meta property=\"og:image\" content=\"/images/social-card.png\">\n\n<!-- On a relevant body element -->\n<button id=\"search-toggle\" data-action=\"toggle-search\" type=\"button\">Search</button>",
+      "steps": [
+        {
+          "title": "Make the destination understandable",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "The href provides the destination and the text names the link purpose. `target=\"_blank\"` opens a new browsing context; `rel=\"noopener\"` blocks access to the opener. `noreferrer` is an additional choice when referrer information should not be sent."
+        },
+        {
+          "title": "Separate document and sharing metadata",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "The description meta element may be used as a result snippet, but search engines choose their displayed text. Open Graph properties provide metadata used by sharing platforms; they are not visible body content."
+        },
+        {
+          "title": "Use global attributes for their intended role",
+          "lineStart": 12,
+          "lineEnd": 13,
+          "explanation": "An id must be unique in the document; data attributes can expose application-specific values to scripts. Prefer native controls and natural tab order instead of using attributes as substitutes for semantics."
+        }
+      ]
+    },
+    {
+      "id": "html-global-attributes",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`id`: identifies one element in the document; keep it unique so labels, fragments and scripts resolve predictably.",
+        "`class`: groups elements for CSS and other class-based behavior; classes can be reused.",
+        "`data-*`: exposes custom data values on an element for scripts without inventing nonstandard attributes.",
+        "`hidden`: indicates that the element is not currently relevant for display; do not use it just to visually move content off-screen for accessibility.",
+        "`lang`: identifies the language of an element's text when it differs from the surrounding document language.",
+        "`tabindex=\"0\"` can place a custom focusable element in normal sequential focus order; `tabindex=\"-1\"` permits programmatic focus without adding it to that order. Avoid positive values.",
+        "`title` may provide advisory information but is not a replacement for a visible label, clear link text or instructions."
+      ]
+    },
+    {
+      "id": "html-data-tables-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Use tables for relationships between data"
+    },
+    {
+      "id": "html-data-tables-body",
+      "type": "paragraph",
+      "text": "A data table expresses row/column relationships; it is not a layout grid. Give the table a concise caption, mark column headers with `th scope=\"col\"`, and row headers with `th scope=\"row\"`. Keep each cell's relationship understandable when navigating by keyboard or screen reader. A table with complex multi-level headers may need explicit `id`/`headers` associations; do not add them to a simple table without a reason. For narrow screens, allow a deliberate scroll/reflow strategy instead of hiding columns or forcing tiny text."
+    },
+    {
+      "id": "html-data-table-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<table>\n  <caption>Study hours completed by module</caption>\n  <thead>\n    <tr>\n      <th scope=\"col\">Module</th>\n      <th scope=\"col\">Hours</th>\n      <th scope=\"col\">Status</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th scope=\"row\">HTML</th>\n      <td>4</td>\n      <td>Complete</td>\n    </tr>\n    <tr>\n      <th scope=\"row\">CSS</th>\n      <td>2</td>\n      <td>In progress</td>\n    </tr>\n  </tbody>\n</table>",
+      "steps": [
+        {
+          "title": "Name the dataset",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "The caption identifies what the table summarizes. It is visible to everyone and provides context when a user navigates directly into the table."
+        },
+        {
+          "title": "Mark the column headers",
+          "lineStart": 3,
+          "lineEnd": 9,
+          "explanation": "thead groups the header rows; th with scope=\"col\" tells assistive technology which column a cell describes."
+        },
+        {
+          "title": "Mark row headers and keep data cells simple",
+          "lineStart": 10,
+          "lineEnd": 21,
+          "explanation": "The first cell in each row is a row header, while td cells provide values associated with it. This simple table does not need explicit id/headers relationships."
+        }
+      ]
+    },
+    {
+      "id": "html-data-table-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "In a simple table where each row describes one module, which markup makes the module name a row header?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`<td><strong>HTML</strong></td>`",
+          "correct": false,
+          "feedback": "Bold styling does not define a header relationship."
+        },
+        {
+          "id": "b",
+          "text": "`<th scope=\"row\">HTML</th>`",
+          "correct": true,
+          "feedback": "A row-scoped header associates the label with data cells in that row."
+        },
+        {
+          "id": "c",
+          "text": "`<caption>HTML</caption>` inside every row",
+          "correct": false,
+          "feedback": "The caption names the whole table, not each row."
+        },
+        {
+          "id": "d",
+          "text": "A styled `<div>` with role omitted",
+          "correct": false,
+          "feedback": "A visual grid of divs does not provide the native tabular relationships."
+        }
+      ],
+      "explanation": "Use native table headers and scope for simple row/column associations; reserve complex explicit associations for genuinely complex tables."
+    },
+    {
+      "id": "html-data-table-practice",
+      "type": "codingExercise",
+      "title": "Turn a visual data grid into an accessible table",
+      "language": "html",
+      "context": "A course dashboard shows study progress in rows and columns. The current version uses divs and bold text, so assistive technology cannot identify the header relationships.",
+      "instructions": [
+        "Replace the visual grid with a native table because the content is tabular data.",
+        "Add a concise caption, column headings with scope=\"col\", and meaningful row headings with scope=\"row\".",
+        "Keep values in td cells and ensure the reading order remains logical.",
+        "Add a responsive strategy for narrow screens without hiding data or shrinking text to an unreadable size.",
+        "Use explicit headers/id associations only if the table actually contains multi-level or irregular headers."
+      ],
+      "requirements": [
+        "The table is used for data relationships, not page layout.",
+        "Caption names the dataset.",
+        "Column and row headers use appropriate th/scope semantics.",
+        "Values are associated with understandable headers.",
+        "Responsive behavior preserves access to all data and does not rely on color alone."
+      ],
+      "starterCode": "<div class=\"progress-grid\">\n  <!-- TODO: replace visual-only rows/cells with a native data table -->\n  <div class=\"row\"><strong>Module</strong><strong>Hours</strong></div>\n  <div class=\"row\"><span>HTML</span><span>4</span></div>\n</div>",
+      "hints": [
+        "Use caption for the whole dataset, not a heading repeated inside each cell.",
+        "Use scope=\"col\" for column labels and scope=\"row\" for row labels in a simple table.",
+        "Do not use table elements for visual page layout.",
+        "Test keyboard navigation and inspect the accessibility tree at a narrow viewport."
+      ],
+      "successCriteria": [
+        "Screen-reader users can identify the table and its caption.",
+        "Each value has a clear row and column header relationship.",
+        "The data remains available at narrow widths and at increased text size.",
+        "Native semantics replace visual-only bold styling."
+      ]
+    },
+    {
+      "id": "html-media-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Media needs a semantic and accessible alternative"
+    },
+    {
+      "id": "html-media-body",
+      "type": "paragraph",
+      "text": "An informative image needs concise alternative text that conveys its purpose in context; a decorative image should use an empty alt so assistive technology can skip it. Use figure/figcaption when a caption belongs to the media. Audio/video controls provide browser playback controls, but they do not create captions or transcripts for you. Video with meaningful speech or sound needs synchronized captions; provide a transcript when useful, and avoid autoplaying media that can surprise or distract users."
+    },
+    {
+      "id": "html-media-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<figure>\n  <img src=\"/images/layout-sketch.png\" alt=\"A wireframe showing a header, article, and sidebar\">\n  <figcaption>Initial layout sketch for the guide page.</figcaption>\n</figure>\n\n<video controls preload=\"metadata\" poster=\"/images/demo-poster.jpg\">\n  <source src=\"/media/layout-demo.mp4\" type=\"video/mp4\">\n  <track kind=\"captions\" src=\"/media/layout-demo.en.vtt\" srclang=\"en\" label=\"English captions\">\n  <p><a href=\"/media/layout-demo.mp4\">Download the video</a></p>\n</video>",
+      "steps": [
+        {
+          "title": "Describe the meaningful image, not its filename",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The alt communicates what the sketch shows. The caption adds context that is visible to everyone; if an image is purely decorative, use alt=\"\" instead."
+        },
+        {
+          "title": "Give the user playback control and a lightweight initial load",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "controls exposes native playback controls. preload=\"metadata\" hints that the browser can fetch basic media information without eagerly downloading the full video; it is a hint, not a guarantee."
+        },
+        {
+          "title": "Provide captions as a separate text resource",
+          "lineStart": 8,
+          "lineEnd": 9,
+          "explanation": "The track references a WebVTT captions file with a language label. Controls alone are not captions; verify timing, speaker identification and meaningful non-speech audio in the actual track."
+        }
+      ]
+    },
+    {
+      "id": "html-media-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A diagram conveys information that is not already explained in nearby text. What should its img alternative text do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Describe the diagram's relevant information concisely in context",
+          "correct": true,
+          "feedback": "Alternative text should communicate the image's purpose or essential content, not repeat its filename."
+        },
+        {
+          "id": "b",
+          "text": "Repeat the filename, including the .png extension",
+          "correct": false,
+          "feedback": "A filename rarely communicates the image's meaning to a reader."
+        },
+        {
+          "id": "c",
+          "text": "Always begin with the words 'image of'",
+          "correct": false,
+          "feedback": "Assistive technology already identifies an image; use the available text for its useful purpose."
+        },
+        {
+          "id": "d",
+          "text": "Be empty for every image",
+          "correct": false,
+          "feedback": "Empty alt is appropriate for decorative images, not informative content."
+        }
+      ],
+      "explanation": "Choose alt based on the image's role on the page; nearby text can change what information needs to be conveyed."
+    },
+    {
+      "id": "html-media-practice",
+      "type": "codingExercise",
+      "title": "Add accessible media to a semantic article",
+      "language": "html",
+      "context": "An article includes a meaningful diagram and a short video walkthrough. Improve the markup and document the media alternatives.",
+      "instructions": [
+        "Add the diagram with contextual alternative text and a figure caption that adds rather than duplicates information.",
+        "Add a video with browser controls, a poster, a source with media type, and an English captions track.",
+        "Provide a meaningful fallback link and write where a transcript can be found.",
+        "Check that the page does not autoplay media and that captions are synchronized and understandable.",
+        "Use an empty alt for a second image only if it is purely decorative."
+      ],
+      "requirements": [
+        "Informative and decorative image alternatives are distinguished correctly.",
+        "Figure/figcaption is used only when the caption belongs to the media.",
+        "Video controls and a correctly identified captions track are present.",
+        "Caption/transcript responsibility is not assumed to be automated by the browser.",
+        "Keyboard and screen-reader verification steps are recorded."
+      ],
+      "starterCode": "<article>\n  <h2>How the layout works</h2>\n  <!-- TODO: add an informative or decorative image correctly -->\n  <!-- TODO: add controlled video with captions and fallback -->\n</article>",
+      "hints": [
+        "Ask what information the image adds that nearby text does not.",
+        "Captions synchronize spoken dialogue and relevant sound with playback; a transcript is a separate alternative.",
+        "Native controls help with playback but do not supply caption content.",
+        "Do not autoplay a video with sound; make playback a user choice."
+      ],
+      "successCriteria": [
+        "Image alternative text matches its informative or decorative role.",
+        "Video can be controlled and has a language-labeled captions track.",
+        "A fallback/download and transcript path are documented.",
+        "Markup remains semantic and all media can be reached and used from the keyboard."
+      ]
+    },
+    {
+      "id": "html-iframe-security-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Embed content with an explicit trust boundary"
+    },
+    {
+      "id": "html-iframe-security-body",
+      "type": "paragraph",
+      "text": "An iframe embeds a separate browsing context. Give it a descriptive `title` so assistive-technology users can identify the frame, and treat the URL as a trust decision: third-party content can still display misleading UI even when cross-origin rules limit script access to the parent. The `sandbox` attribute starts with restrictions; add only the tokens the embedded feature needs. `allow-scripts` permits the frame's scripts. `allow-same-origin` preserves its origin instead of assigning an opaque origin. If same-origin untrusted content receives both tokens, it can access the embedding document and remove the sandbox, defeating the boundary. For user-provided or untrusted content, prefer a separate origin and the smallest permissions. Offer a normal link as a fallback when embedding fails."
+    },
+    {
+      "id": "html-iframe-security-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<iframe\n  src=\"https://reports.example.net/summary\"\n  title=\"Partner report summary\"\n  loading=\"lazy\"\n  sandbox\n></iframe>\n\n<a href=\"https://reports.example.net/summary\">Open the report</a>",
+      "steps": [
+        {
+          "title": "Name the embedded browsing context",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "A descriptive title distinguishes the frame from the parent page in assistive-technology navigation. The external origin is a deliberate trust boundary, not proof that the content is harmless."
+        },
+        {
+          "title": "Begin with sandbox restrictions",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "An empty sandbox value applies the restrictions by default. Add a specific token only after confirming the provider needs that capability; do not copy a permission list as a magic preset."
+        },
+        {
+          "title": "Keep a usable fallback",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "The ordinary link gives users a path if the embed is blocked, unavailable, or unsuitable on their device. Lazy loading is useful for offscreen content, not a security control."
+        }
+      ]
+    },
+    {
+      "id": "html-iframe-security-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "An untrusted same-origin iframe must run scripts. Why is adding both `allow-scripts` and `allow-same-origin` to its sandbox dangerous?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The iframe will always be blocked by the browser.",
+          "correct": false,
+          "feedback": "The tokens grant capabilities; they do not automatically block the frame. The risk comes from combining them for same-origin content."
+        },
+        {
+          "id": "b",
+          "text": "The frame can access its same-origin parent and remove the sandbox, defeating the restrictions.",
+          "correct": true,
+          "feedback": "With both capabilities and the same origin, the embedded document can reach the parent DOM and remove its own iframe's sandbox attribute."
+        },
+        {
+          "id": "c",
+          "text": "The frame becomes unable to load images.",
+          "correct": false,
+          "feedback": "Image loading is not the central consequence of this permission combination."
+        },
+        {
+          "id": "d",
+          "text": "The frame's title becomes hidden from screen readers.",
+          "correct": false,
+          "feedback": "The title provides an accessible name. It is independent of these sandbox capabilities."
+        }
+      ],
+      "explanation": "Sandbox tokens are individual privilege grants. Keep untrusted content on a separate origin and allow only what its job requires."
+    },
+    {
+      "id": "html-iframe-security-practice",
+      "type": "codingExercise",
+      "title": "Review an embedded-content boundary",
+      "language": "html",
+      "context": "A page embeds a partner report and a user-authored preview. The first needs JavaScript for its viewer; the second renders markup supplied by learners.",
+      "instructions": [
+        "For each frame, identify the content owner, origin, required capabilities, and impact if it is malicious.",
+        "Choose a separate origin and the minimum sandbox tokens for the partner viewer; explain whether scripts are actually necessary.",
+        "For the user-authored preview, explain why same-origin script execution is unsafe and select a stronger isolation boundary.",
+        "Add a descriptive title and a link fallback for each embedded document.",
+        "Review the final permissions against the feature requirements instead of copying a broad token list."
+      ],
+      "requirements": [
+        "The partner viewer and user-authored preview are treated as different trust levels.",
+        "The same-origin `allow-scripts` plus `allow-same-origin` risk is correctly explained.",
+        "Only required sandbox capabilities are granted, with a separate origin for untrusted content.",
+        "Both frames have descriptive accessible titles and fallback links."
+      ],
+      "starterCode": "<!-- TODO: embed a partner report with the smallest necessary permissions -->\n\n<!-- TODO: isolate user-authored preview content from the application origin -->\n\n<!-- TODO: add a meaningful title and a normal-link fallback for each -->",
+      "hints": [
+        "An iframe is a browsing context, so ask whether its content can execute scripts, submit forms, open windows, or navigate the top page.",
+        "A sandbox token removes one restriction; grant permissions one at a time from a documented requirement.",
+        "Same-origin access is powerful: do not mix it with script execution for untrusted content."
+      ],
+      "successCriteria": [
+        "The partner frame's requested capabilities have an explicit reason.",
+        "The learner preview cannot script the application origin.",
+        "The permission list does not include unnecessary broad capabilities.",
+        "Titles and fallback links communicate what each frame contains and where it opens."
+      ]
+    },
+    {
       "id": "summary",
       "type": "list",
       "ordered": false,
@@ -275,6 +713,132 @@
         "Semantic elements communicate purpose; CSS controls appearance.",
         "Use main for primary page content, section for thematic groups, article for self-contained compositions, nav for major navigation, and header/footer for introductory or concluding information.",
         "A browser rendering a page successfully does not prove that its structure is intentional or accessible."
+      ]
+    },
+    {
+      "id": "deep-html-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: semantic structure, landmarks, and accessible names"
+    },
+    {
+      "id": "deep-html-model",
+      "type": "paragraph",
+      "text": "HTML semantics describe the role of content, not its visual appearance. A `nav` element communicates a navigation landmark; `main` identifies the page's primary content; `article` represents a self-contained composition. Semantic elements help assistive technology and make a page's structure easier to navigate. Use the element whose meaning fits the content instead of choosing a generic `div` only because it looks easier to style."
+    },
+    {
+      "id": "deep-html-trace",
+      "type": "codeWalkthrough",
+      "language": "html",
+      "code": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>Frontend Notes</title>\n  </head>\n  <body>\n    <header><a href=\"/\">Frontend Notes</a></header>\n    <nav aria-label=\"Primary\"><a href=\"/lessons\">Lessons</a></nav>\n    <main>\n      <article>\n        <h1>Understanding HTML</h1>\n        <p>HTML gives content structure and meaning.</p>\n      </article>\n    </main>\n    <footer>Updated regularly</footer>\n  </body>\n</html>",
+      "steps": [
+        {
+          "title": "Declare the language and document metadata",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "The document declaration selects standards mode; the language helps assistive technology choose pronunciation; charset and viewport metadata are practical basics for a modern page."
+        },
+        {
+          "title": "Use a real link and a named navigation landmark",
+          "lineStart": 8,
+          "lineEnd": 10,
+          "explanation": "A link provides native keyboard behavior and a destination. The label distinguishes the primary navigation landmark when a page has multiple nav regions."
+        },
+        {
+          "title": "Represent the page hierarchy with semantics",
+          "lineStart": 11,
+          "lineEnd": 18,
+          "explanation": "main, article, heading, and footer each communicate a role. Do not add a landmark merely to obtain styling, and keep a clear primary heading for the page content."
+        }
+      ]
+    },
+    {
+      "id": "deep-html-guidance",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Keep heading levels meaningful and in a logical hierarchy; don't choose an h2 because its default font size looks right.",
+        "Write link text that makes sense out of context. Repeated links all named 'Click here' give screen-reader users little information.",
+        "Choose alternative text based on the image's purpose: informative images need a concise equivalent; decorative images should not create noisy redundant descriptions.",
+        "Use native HTML controls before building custom widgets. Buttons, links, headings, forms and tables already provide behavior and semantics that custom div-based controls would need to recreate.",
+        "HTML parsing can repair malformed markup in ways different from the source author's intent; use valid nesting and inspect the resulting DOM in DevTools when rendered structure surprises you."
+      ]
+    },
+    {
+      "id": "deep-html-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which is the best reason to use a semantic `nav` element instead of a styled `div` for primary site navigation?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It automatically makes every link secure",
+          "correct": false,
+          "feedback": "HTML semantics do not enforce network security or authorization."
+        },
+        {
+          "id": "b",
+          "text": "It communicates a navigation landmark and uses native link semantics for navigation",
+          "correct": true,
+          "feedback": "Assistive technology can identify navigation regions, while anchor elements preserve native navigation behavior."
+        },
+        {
+          "id": "c",
+          "text": "It guarantees the page has perfect SEO",
+          "correct": false,
+          "feedback": "Semantic markup helps communicate structure but cannot guarantee search ranking or overall page quality."
+        },
+        {
+          "id": "d",
+          "text": "It always renders faster than a div",
+          "correct": false,
+          "feedback": "The main reason here is meaning and accessibility, not a reliable performance difference."
+        }
+      ],
+      "explanation": "Prefer elements for their semantics and behavior, then style them with CSS."
+    },
+    {
+      "id": "deep-html-practice",
+      "type": "codingExercise",
+      "title": "Refactor a generic page into semantic HTML",
+      "language": "html",
+      "context": "Improve a static article page by making structure and accessible names explicit.",
+      "instructions": [
+        "Build a valid document shell with language, charset, viewport and title.",
+        "Replace generic wrapper divs with appropriate header/nav/main/article/footer landmarks.",
+        "Create one clear h1 and a sensible subordinate heading hierarchy.",
+        "Give links meaningful accessible names and choose alt text based on the purpose of each image.",
+        "Inspect the rendered DOM and verify keyboard operation of links and controls."
+      ],
+      "requirements": [
+        "The document uses valid nesting and a declared language.",
+        "Landmarks correspond to the content roles rather than being used as style hooks.",
+        "Heading hierarchy describes structure and does not skip levels just for visual size.",
+        "Informative and decorative image handling is intentional.",
+        "Links and buttons preserve native semantics and keyboard behavior."
+      ],
+      "starterCode": "<div class=\"top\"><div onclick=\"goHome()\">Home</div></div>\n<div class=\"menu\"><div>Click here</div></div>\n<div class=\"content\">\n  <div class=\"big-title\">Page title</div>\n  <img src=\"chart.png\">\n  <div>Article body</div>\n</div>",
+      "hints": [
+        "A clickable div is not a link or button; choose the native element that fits the action.",
+        "Use alt=\"\" when an image is decorative and its information is already redundant.",
+        "Semantic landmarks should describe the information structure independently of visual layout."
+      ],
+      "successCriteria": [
+        "Refactored page has semantic landmarks and valid nesting.",
+        "Navigation and actions are keyboard accessible with native elements.",
+        "Headings reflect a logical page outline.",
+        "Images have purposeful alternative-text treatment.",
+        "The learner can explain the semantics of each replaced element."
+      ]
+    },
+    {
+      "id": "deep-html-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Choose HTML elements for meaning and native behavior, not for their default visual styling.",
+        "Landmarks, headings, links and image alternatives help users understand and navigate content.",
+        "Validate markup and inspect the rendered DOM when browser parsing creates surprising structure."
       ]
     },
     {
@@ -305,6 +869,31 @@
           "title": "WHATWG HTML Standard: Sections",
           "url": "https://html.spec.whatwg.org/multipage/sections.html",
           "kind": "standard"
+        },
+        {
+          "title": "MDN: <iframe> element and sandbox security",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Strong importance element",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/strong",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: The anchor element",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Meta element",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: HTML global attributes",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes",
+          "kind": "official-docs"
         }
       ]
     }

@@ -111,4 +111,3 @@ function workerMain() {
 export function buildWorkerSource(): string {
   return '(' + workerMain.toString() + ')()';
 }
-

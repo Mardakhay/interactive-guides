@@ -56,18 +56,6 @@ const featureBoundaryConfigs = featureNames.map((featureName) => ({
 export default tseslint.config(
   { ignores: ['dist', 'node_modules', 'vite.config.js'] },
   js.configs.recommended,
-  {
-    files: ['public/sw.js'],
-    languageOptions: {
-      globals: {
-        caches: 'readonly',
-        fetch: 'readonly',
-        Response: 'readonly',
-        self: 'readonly',
-        URL: 'readonly',
-      },
-    },
-  },
   ...tseslint.configs.recommended,
   {
     files: ['src/**/*.{ts,tsx}'],

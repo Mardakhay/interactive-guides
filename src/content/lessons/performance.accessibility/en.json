@@ -1,16 +1,16 @@
 {
   "id": "performance.accessibility",
   "locale": "en",
-  "version": 1,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-5-week-18",
   "week": 18,
   "order": 1,
   "title": "React Performance and Web Accessibility",
   "description": "Measure before optimizing, understand memoization and code splitting, and apply semantic and keyboard-friendly accessibility patterns to real interfaces.",
-  "estimatedMinutes": 70,
+  "estimatedMinutes": 115,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -23,7 +23,8 @@
     "Use lazy loading and Suspense to defer large code that is not needed immediately.",
     "Build interfaces with semantic elements, accessible names, keyboard operation, and visible focus.",
     "Explain contrast, reduced-motion preferences, and status announcements.",
-    "Audit a React screen for performance and accessibility and record before/after evidence."
+    "Audit a React screen for performance and accessibility and record before/after evidence.",
+    "Choose contextual image alternatives and expose accessible names and toggle state for icon-only controls."
   ],
   "tags": [
     "react",
@@ -33,7 +34,8 @@
     "lazy-loading",
     "accessibility",
     "keyboard",
-    "aria"
+    "aria",
+    "image-alt"
   ],
   "blocks": [
     {
@@ -116,6 +118,11 @@
       "code": "import { lazy, Suspense } from \"react\";\n\nconst AnalyticsPage = lazy(() => import(\"./AnalyticsPage\"));\n\nfunction AnalyticsRoute() {\n  return (\n    <Suspense fallback={<p>Loading analytics…</p>}>\n      <AnalyticsPage />\n    </Suspense>\n  );\n}"
     },
     {
+      "id": "performance-lazy-export-note",
+      "type": "paragraph",
+      "text": "`React.lazy` expects the imported module to provide a component as its `default` export. A named export can still be used by adapting the module promise, for example `lazy(() => import(\"./AnalyticsPage\").then((module) => ({ default: module.AnalyticsPage })))`. The loading fallback belongs to `Suspense`; a rejected chunk import needs error handling (commonly an Error Boundary) and a recovery path. Avoid turning one snippet's export style into a universal rule."
+    },
+    {
       "id": "semantic-html",
       "type": "heading",
       "level": 2,
@@ -166,6 +173,102 @@
         "Inspect contrast for normal text, controls, focus, disabled states, and dark mode.",
         "Test narrow viewports, zoom, and reduced-motion preferences.",
         "Use automated checks as a signal, then manually test real workflows and assistive-technology output."
+      ]
+    },
+    {
+      "id": "image-alt-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Choose image alternatives by purpose"
+    },
+    {
+      "id": "image-alt-explanation",
+      "type": "paragraph",
+      "text": "An image needs an alternative that preserves the information a learner would otherwise miss. If the image adds meaningful information—such as a chart trend, product color, or diagram relationship—write a concise description of that information. If it is purely decorative or repeats the adjacent text, use alt=\"\" so assistive technology can skip it. Do not omit the alt attribute: an empty alternative is an intentional decision, while a missing one may expose a filename or an unhelpful fallback. For an icon-only control, give the control an accessible name and expose toggle state; the glyph itself is not a reliable label."
+    },
+    {
+      "id": "image-alt-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type Product = {\n  id: string;\n  name: string;\n  imageUrl: string;\n  imageAlt: string; // Empty only when the image adds no information\n  isFavorite: boolean;\n};\n\nexport function ProductCard({ product, onToggleFavorite }: {\n  product: Product;\n  onToggleFavorite: () => void;\n}) {\n  return (\n    <article>\n      <h2>{product.name}</h2>\n      <img src={product.imageUrl} alt={product.imageAlt} />\n      <button\n        type=\"button\"\n        aria-label={`Favorite ${product.name}`}\n        aria-pressed={product.isFavorite}\n        onClick={onToggleFavorite}\n      >\n        ♥\n      </button>\n    </article>\n  );\n}",
+      "steps": [
+        {
+          "title": "Decide whether the image adds information",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "imageAlt is content data: use a useful concise description when the image communicates something not available in nearby text. Use an empty string only when the image is decorative or entirely redundant; do not describe every visual detail."
+        },
+        {
+          "title": "Give the icon button a stable accessible name",
+          "lineStart": 14,
+          "lineEnd": 20,
+          "explanation": "The heart glyph is visual, so aria-label names the control in context. aria-pressed exposes its on/off state to assistive technology. Keep the toggle's name stable while its pressed state changes."
+        }
+      ]
+    },
+    {
+      "id": "image-alt-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A product card shows a photo that only repeats the product name already written in its heading. Which image alternative is usually appropriate?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use alt=\"\" because this instance is decorative/redundant",
+          "correct": true,
+          "feedback": "An explicit empty alternative lets assistive technology skip an image that adds no new information."
+        },
+        {
+          "id": "b",
+          "text": "Omit alt so the browser can infer the best description",
+          "correct": false,
+          "feedback": "Missing alt is not the same as a deliberate empty alternative and can produce an unhelpful fallback."
+        },
+        {
+          "id": "c",
+          "text": "Use alt=\"image\"",
+          "correct": false,
+          "feedback": "This adds no useful information and forces the user to hear an irrelevant description."
+        },
+        {
+          "id": "d",
+          "text": "Copy the entire product-card text into alt",
+          "correct": false,
+          "feedback": "Repeating adjacent content creates redundant announcements; describe only information the image uniquely contributes."
+        }
+      ],
+      "explanation": "Choose alternative text based on the image's purpose in context. Empty alt is intentional for decorative/redundant images; informative images need a concise equivalent."
+    },
+    {
+      "id": "image-alt-practice",
+      "type": "codingExercise",
+      "title": "Repair image alternatives and a favorite control",
+      "language": "tsx",
+      "context": "Improve an existing product card so a screen-reader user receives useful image information and can understand and operate the favorite toggle.",
+      "instructions": [
+        "Inspect whether the product image adds information beyond the visible product name; choose a concise description or an intentional empty alternative.",
+        "Replace the clickable div with a native button and make its purpose clear without relying on the heart glyph.",
+        "Expose the favorite toggle state programmatically and keep the control's accessible name stable across state changes.",
+        "Test the control with Tab, Space/Enter, and the browser accessibility tree or a screen reader."
+      ],
+      "requirements": [
+        "Every informative image has a concise contextual alternative; decorative/redundant images use alt=\"\".",
+        "No image relies on a missing alt attribute or a filename fallback.",
+        "The favorite action is a native keyboard-operable button with an accessible name.",
+        "The toggle state is exposed with aria-pressed and changes with application state.",
+        "The test notes describe the observed name, pressed state, and keyboard behavior."
+      ],
+      "starterCode": "function ProductCard({ product, onToggleFavorite }) {\n  return <article>\n    <h2>{product.name}</h2>\n    <img src={product.imageUrl} />\n    <div onClick={onToggleFavorite}>♥</div>\n  </article>;\n}",
+      "hints": [
+        "An empty alt string is correct for a decorative image; do not omit the attribute.",
+        "For a toggle button, a stable name such as “Favorite {product.name}” plus aria-pressed communicates purpose and state.",
+        "Use the accessibility tree to inspect the computed role, name, and pressed state; then operate it without a mouse."
+      ],
+      "successCriteria": [
+        "The image alternative matches the image's purpose in context.",
+        "The action is announced as a button with a contextual name.",
+        "Pressed/unpressed state is perceivable and updates after activation.",
+        "Keyboard activation works and focus remains visible."
       ]
     },
     {
@@ -305,6 +408,217 @@
       ]
     },
     {
+      "id": "deep-performance-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: measure bottlenecks first, preserve keyboard behavior"
+    },
+    {
+      "id": "deep-performance-model",
+      "type": "paragraph",
+      "text": "Performance work should follow evidence. A slow page may be waiting on network resources, parsing/executing a large JavaScript bundle, rendering an expensive subtree, decoding images, or blocking the main thread. `memo`, `useMemo` and `useCallback` only address some render-related costs and can add complexity; they do not fix slow APIs or oversized assets. Accessibility is also behavior: a menu that looks right but cannot be opened, operated and closed with a keyboard is incomplete."
+    },
+    {
+      "id": "deep-performance-trace",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "const visibleProducts = products.filter(product => {\n  return product.name.toLowerCase().includes(query.toLowerCase());\n});\n\nreturn (\n  <ul>\n    {visibleProducts.map(product => (\n      <li key={product.id}>\n        <a href={`/products/${product.id}`}>{product.name}</a>\n      </li>\n    ))}\n  </ul>\n  // Before memoizing, measure the slow interaction with React Profiler.\n);",
+      "steps": [
+        {
+          "title": "Keep the simple derived list readable",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "Filtering from current props/state is derived data and does not need its own state plus Effect. For ordinary list sizes, this straightforward code may be fast enough."
+        },
+        {
+          "title": "Use stable keys and semantic navigation",
+          "lineStart": 5,
+          "lineEnd": 12,
+          "explanation": "Stable product IDs preserve item identity, and real links support keyboard use, open-in-new-tab and copy-link behavior that a clickable div would need to recreate."
+        },
+        {
+          "title": "Measure before memoizing",
+          "lineStart": 13,
+          "lineEnd": 14,
+          "explanation": "Use React Profiler and browser performance/network tools to identify the actual bottleneck. Add memoization only when repeated work is measurable and its comparison/maintenance cost makes sense."
+        }
+      ]
+    },
+    {
+      "id": "deep-accessibility-guide",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Check the full user path with keyboard only: Tab/Shift+Tab, Enter/Space, Escape where appropriate, visible focus, and a sensible focus destination after closing overlays.",
+        "Use native controls and semantic links/buttons first; ARIA supplements semantics but does not supply keyboard behavior automatically.",
+        "Accessible controls need a programmatic name. Icon-only buttons require a text alternative such as an accessible label; labels should describe the action rather than repeat a decorative icon name.",
+        "Do not remove focus outlines without replacing them with a clearly visible focus style. Do not convey selected/error/success state by color alone.",
+        "For performance, inspect network waterfalls, bundle chunks and main-thread traces before deciding between code splitting, asset optimization or React memoization."
+      ]
+    },
+    {
+      "id": "performance-disclosure-nav-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Implement a keyboard-friendly navigation disclosure"
+    },
+    {
+      "id": "performance-disclosure-nav-intro",
+      "type": "paragraph",
+      "text": "For ordinary website navigation, native links inside a nav landmark are usually a better fit than the ARIA application menu pattern. Use a disclosure button with aria-expanded and aria-controls, remove closed links from interaction, and restore focus when Escape closes the panel. Only use role=menu/menuitem when the complete application-menu keyboard pattern is required and implemented."
+    },
+    {
+      "id": "performance-disclosure-nav-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useRef, useState, type KeyboardEvent } from \"react\";\n\nexport function ProductNavigation() {\n  const [open, setOpen] = useState(false);\n  const triggerRef = useRef<HTMLButtonElement>(null);\n\n  function handleKeyDown(event: KeyboardEvent<HTMLElement>) {\n    if (event.key !== \"Escape\" || !open) return;\n    setOpen(false);\n    triggerRef.current?.focus();\n  }\n\n  return (\n    <nav aria-label=\"Product navigation\" onKeyDown={handleKeyDown}>\n      <button\n        ref={triggerRef}\n        type=\"button\"\n        aria-expanded={open}\n        aria-controls=\"product-navigation-links\"\n        onClick={() => setOpen((current) => !current)}\n      >\n        Products\n      </button>\n      <div id=\"product-navigation-links\" hidden={!open}>\n        <a href=\"/products/new\">New arrivals</a>\n        <a href=\"/products/sale\">Sale</a>\n      </div>\n    </nav>\n  );\n}",
+      "steps": [
+        {
+          "title": "Keep open state and focus target",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "The disclosure state controls whether links are visible. The ref points to the trigger so Escape can return keyboard focus to the control that opened the links."
+        },
+        {
+          "title": "Close from the keyboard intentionally",
+          "lineStart": 7,
+          "lineEnd": 11,
+          "explanation": "Escape closes the disclosure and restores focus. A real implementation should also test focus order, clicking outside if designed, and how route navigation closes the disclosure."
+        },
+        {
+          "title": "Expose state with native disclosure semantics",
+          "lineStart": 13,
+          "lineEnd": 24,
+          "explanation": "The native button exposes the action; aria-expanded communicates open/closed state, and aria-controls identifies the controlled region. The hidden attribute removes closed links from interaction and the accessibility tree."
+        },
+        {
+          "title": "Keep navigation links natively operable",
+          "lineStart": 25,
+          "lineEnd": 26,
+          "explanation": "Ordinary site navigation usually needs a nav landmark, links, predictable Tab order, and a disclosure trigger—not application-menu roles. role=menu/menuitem implies a richer keyboard interaction pattern that must be implemented and tested."
+        }
+      ]
+    },
+    {
+      "id": "performance-disclosure-nav-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You are building a site-navigation disclosure that reveals two ordinary page links. Which implementation is the safest default?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use a button with aria-expanded/aria-controls, keep normal links in a nav landmark, and support Escape close/focus return",
+          "correct": true,
+          "feedback": "Native controls and links provide familiar keyboard behavior; the state and controlled region are exposed, and Escape returns focus to the trigger."
+        },
+        {
+          "id": "b",
+          "text": "Add role=menu to a div and rely on ARIA to implement the missing keyboard behavior",
+          "correct": false,
+          "feedback": "ARIA roles communicate semantics but do not implement arrow-key navigation, focus management, or activation behavior."
+        },
+        {
+          "id": "c",
+          "text": "Make every item tabindex=0 and use clickable divs so all elements receive focus",
+          "correct": false,
+          "feedback": "Adding tab stops to every element creates noisy focus order and does not give a div native link/button behavior."
+        },
+        {
+          "id": "d",
+          "text": "Use aria-label on the icon and omit open/closed state",
+          "correct": false,
+          "feedback": "An accessible name alone does not communicate whether the disclosure is expanded or which region it controls."
+        }
+      ],
+      "explanation": "For ordinary site navigation, prefer native links and a disclosure button. Use the ARIA application menu pattern only when the complete expected keyboard and focus behavior is implemented."
+    },
+    {
+      "id": "deep-performance-warning",
+      "type": "callout",
+      "tone": "important",
+      "title": "Memoization is an optimization, not a correctness guarantee",
+      "text": "A memoized component can still render because its own state or consumed Context changes. `useMemo` and `useCallback` also have comparison and mental overhead. First simplify data flow and measure; keep an optimization when profiling shows it helps the real interaction."
+    },
+    {
+      "id": "deep-performance-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A product page is slow because it downloads and parses a very large initial bundle. Which investigation or fix should generally come before adding useCallback to many handlers?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Profile network and bundle chunks, then consider route-level code splitting or asset reduction",
+          "correct": true,
+          "feedback": "This matches the suspected cost. Callback identity does not reduce the bytes or parse work in the initial bundle."
+        },
+        {
+          "id": "b",
+          "text": "Wrap every component in React.memo without measuring",
+          "correct": false,
+          "feedback": "Memoization targets some rendering costs, not download or JavaScript parse cost."
+        },
+        {
+          "id": "c",
+          "text": "Add tabindex=0 to every element",
+          "correct": false,
+          "feedback": "That harms keyboard navigation and does not address performance."
+        },
+        {
+          "id": "d",
+          "text": "Replace every button with a clickable div",
+          "correct": false,
+          "feedback": "It removes native semantics without reducing the underlying bundle or execution bottleneck."
+        }
+      ],
+      "explanation": "Match the optimization to the measured bottleneck and preserve semantic interaction behavior."
+    },
+    {
+      "id": "deep-performance-practice",
+      "type": "codingExercise",
+      "title": "Audit a slow and mouse-only product screen",
+      "language": "tsx",
+      "context": "Prepare an evidence-led plan for a product page that renders slowly and has a keyboard-inaccessible menu.",
+      "instructions": [
+        "List how you would distinguish network delay, large bundle/parse time, expensive rendering and large assets using browser tools.",
+        "Choose one measurable performance hypothesis and describe the before/after measurement.",
+        "Decide whether route-level code splitting, asset optimization or React memoization best matches the hypothesis.",
+        "Make the menu operable by keyboard with visible focus and appropriate open/close behavior.",
+        "Ensure all controls have accessible names and state is not communicated by color alone.",
+        "For ordinary site navigation, prefer a native button and links rather than adding role=menu; if you choose an application menu, document and test the full expected keyboard pattern."
+      ],
+      "requirements": [
+        "The plan starts with measurement and identifies a concrete bottleneck.",
+        "The chosen optimization targets the identified cost rather than using memoization by habit.",
+        "Keyboard interaction has predictable focus/open/close behavior.",
+        "Native semantics and accessible names are preserved.",
+        "Success is defined by both performance evidence and user-observable behavior."
+      ],
+      "starterCode": "// Review this interaction rather than blindly memoizing it.\nfunction MenuButton() {\n  const [open, setOpen] = useState(false);\n  return <div onClick={() => setOpen(!open)}>\n    <span>☰</span>\n    {open && <div className=\"menu\">...</div>}\n  </div>;\n}\n\n// TODO: define a profiling plan and refactor the interaction accessibly.",
+      "hints": [
+        "Start by observing network and Performance panels, then check the React Profiler if render cost is implicated.",
+        "Use a native button for the menu trigger and expose its state with aria-expanded and aria-controls where applicable.",
+        "Define a keyboard interaction checklist before adjusting styling."
+      ],
+      "successCriteria": [
+        "Proposes a way to isolate the real performance cost.",
+        "Chooses an optimization aligned to evidence.",
+        "Menu trigger is keyboard-operable and semantically correct.",
+        "Focus and accessible names are handled.",
+        "Defines an observable before/after outcome.",
+        "The disclosure exposes its expanded state, supports Escape/focus return, and does not claim that ARIA alone supplies keyboard behavior."
+      ]
+    },
+    {
+      "id": "deep-performance-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Measure the network, bundle, main thread and render path to find the actual performance bottleneck.",
+        "Use memoization selectively when it reduces a measured render cost.",
+        "Keyboard interaction, semantics, focus and accessible names are part of a complete UI, not optional decoration."
+      ]
+    },
+    {
       "id": "performance-references",
       "type": "references",
       "items": [
@@ -347,6 +661,16 @@
           "title": "MDN: prefers-reduced-motion",
           "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion",
           "kind": "official-docs"
+        },
+        {
+          "title": "W3C WAI: Images Tutorial",
+          "url": "https://www.w3.org/WAI/tutorials/images/",
+          "kind": "guide"
+        },
+        {
+          "title": "W3C WAI-ARIA APG: Disclosure Pattern",
+          "url": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
+          "kind": "guide"
         }
       ]
     }

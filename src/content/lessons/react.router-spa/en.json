@@ -1,16 +1,16 @@
 {
   "id": "react.router-spa",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-4-week-13",
   "week": 13,
   "order": 1,
   "title": "Single-Page Applications and React Router",
   "description": "Understand client-side routing, map URL patterns to React components, navigate without full-page reloads, read route parameters, and handle unknown routes.",
-  "estimatedMinutes": 60,
+  "estimatedMinutes": 85,
   "difficulty": "beginner",
   "prerequisites": [
     "react.components-jsx-state",
@@ -302,6 +302,139 @@
         "Nested routes and Outlet allow a shared layout to render changing child pages.",
         "Route parameters are strings and need validation if a stricter type or identifier is required.",
         "Direct deep links need host fallback configuration, and security permissions must be enforced outside the client router."
+      ]
+    },
+    {
+      "id": "deep-router-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: URL state, nested layouts, and navigation semantics"
+    },
+    {
+      "id": "deep-router-model",
+      "type": "paragraph",
+      "text": "A client-side router maps URL state to a rendered view; it does not make the server forget that direct navigation and refresh still start with an HTTP request. Path parameters identify a resource, query parameters often represent shareable filters/sorting, and navigation state is better kept local when it should not survive refresh or be encoded in a link. Use router links for in-app navigation so the router can manage transitions."
+    },
+    {
+      "id": "deep-router-trace",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "function AppLayout() {\n  return (\n    <div>\n      <nav><Link to=\"/users\">Users</Link></nav>\n      <Outlet />\n    </div>\n  );\n}\n\n<Routes>\n  <Route element={<AppLayout />}>\n    <Route path=\"users\" element={<UsersPage />} />\n    <Route path=\"users/:userId\" element={<UserPage />} />\n    <Route path=\"*\" element={<NotFoundPage />} />\n  </Route>\n</Routes>",
+      "steps": [
+        {
+          "title": "Keep shared layout outside the child route",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "The parent route renders common navigation and Outlet. The matched child route appears at Outlet without duplicating the surrounding layout."
+        },
+        {
+          "title": "Use path parameters for resource identity",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "explanation": "users/:userId matches URLs such as /users/42. The page reads the parameter through the router API; it should still validate its shape before using it in a request."
+        },
+        {
+          "title": "Provide a not-found route",
+          "lineStart": 15,
+          "lineEnd": 15,
+          "explanation": "The wildcard handles URLs that do not match a known route. Hosting also needs SPA fallback configuration so a direct refresh can reach the app shell."
+        }
+      ]
+    },
+    {
+      "id": "deep-router-url-state",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use `Link`/`NavLink` for in-app navigation; a normal `<a href>` tells the browser to navigate as a document request.",
+        "Read a resource identifier from a path parameter such as `/users/:userId`; treat it as untrusted string input and handle invalid/missing records.",
+        "Use query parameters for shareable filters, sorting, pagination, or search state that should survive refresh and be copyable as a URL.",
+        "A client-side protected route can improve navigation UX, but it is not an authorization boundary. The server/API must authorize each protected data operation.",
+        "A not-found route and host-level history fallback solve different situations: the router handles an unknown path after app load, while the host must serve the SPA entry point for a direct deep-link request."
+      ]
+    },
+    {
+      "id": "deep-router-callout",
+      "type": "callout",
+      "tone": "warning",
+      "title": "A hidden link is not security",
+      "text": "Do not trust a route guard to protect API data. A user can call the endpoint directly or modify client code. Authorization must be enforced by the server or data layer; client guards only shape the user experience."
+    },
+    {
+      "id": "deep-router-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which information is usually the best fit for a query parameter rather than local component state?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A filter that should survive refresh and can be shared as a URL",
+          "correct": true,
+          "feedback": "Query parameters make the filter state bookmarkable and shareable."
+        },
+        {
+          "id": "b",
+          "text": "A temporary hover state for a button",
+          "correct": false,
+          "feedback": "Hover state is transient UI state and does not need to be encoded in a URL."
+        },
+        {
+          "id": "c",
+          "text": "A private authorization decision that the client can trust",
+          "correct": false,
+          "feedback": "The URL is not a security boundary and the client must not be the authority for access decisions."
+        },
+        {
+          "id": "d",
+          "text": "Every state value, regardless of purpose",
+          "correct": false,
+          "feedback": "Only URL-relevant state belongs in the URL; encoding everything makes navigation and links harder to manage."
+        }
+      ],
+      "explanation": "Choose state location based on whether it should be shareable, survive refresh, or stay local to the current interaction."
+    },
+    {
+      "id": "deep-router-practice",
+      "type": "codingExercise",
+      "title": "Design a nested route and shareable filter URL",
+      "language": "tsx",
+      "context": "Implement in the project's React Router version. The code is a lesson exercise and is not compiled by the lesson reader.",
+      "instructions": [
+        "Create a shared layout route that renders navigation and an Outlet.",
+        "Add a detail route with a dynamic userId path parameter and a wildcard NotFound route.",
+        "Move a shareable search/filter value into query parameters and restore it on refresh.",
+        "Use a router Link for in-app navigation rather than a normal anchor.",
+        "Explain why a client-side route guard cannot replace API authorization and why hosting needs SPA fallback support."
+      ],
+      "requirements": [
+        "Nested child content appears at Outlet under the shared layout.",
+        "Detail pages read and validate the dynamic route parameter.",
+        "Shareable query state is represented in the URL.",
+        "Unknown paths render a not-found view.",
+        "Security and host fallback responsibilities are explained separately."
+      ],
+      "starterCode": "function Layout() {\n  return <><nav>{/* TODO: add router Links */}</nav><Outlet /></>;\n}\n\n<Routes>\n  {/* TODO: nest list/detail routes under Layout */}\n  {/* TODO: add a wildcard not-found route */}\n</Routes>",
+      "hints": [
+        "Outlet is where the matched nested route renders.",
+        "Path params identify a route resource; query params represent optional shareable view state.",
+        "Server/API authorization and client route guards protect different things."
+      ],
+      "successCriteria": [
+        "The route tree has shared layout and nested content.",
+        "Detail path parameter and query filters behave intentionally.",
+        "Unknown URLs show a fallback view after the app loads.",
+        "Navigation uses router links for internal routes.",
+        "Explains server authorization and host-level SPA fallback."
+      ]
+    },
+    {
+      "id": "deep-router-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Path params identify resources; query params suit shareable URL state.",
+        "Nested routes and Outlet share layout without repeating it.",
+        "Client route guards improve UX but do not enforce authorization, and direct deep links require hosting fallback."
       ]
     },
     {

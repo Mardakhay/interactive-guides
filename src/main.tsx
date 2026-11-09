@@ -3,9 +3,6 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { router } from '@/app/router';
 import '@/styles/index.css';
-import { registerServiceWorker } from '@/lib/registerServiceWorker';
-
-registerServiceWorker();
 
 const container = document.getElementById('root');
 if (!container) {
@@ -17,3 +14,4 @@ createRoot(container).render(
     <RouterProvider router={router} />
   </StrictMode>,
 );
+

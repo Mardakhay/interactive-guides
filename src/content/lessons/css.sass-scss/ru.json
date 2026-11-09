@@ -1,0 +1,359 @@
+{
+  "id": "css.sass-scss",
+  "locale": "ru",
+  "version": 2,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-26",
+  "moduleId": "supplement-ui-ecosystem",
+  "supplementaryTrackId": "supplement-ui-ecosystem",
+  "order": 1,
+  "title": "Sass/SCSS: модули, mixins и поддерживаемый CSS",
+  "description": "Осознанно используй возможности Sass, понимай результат компиляции и выбирай между переменными Sass и runtime CSS custom properties.",
+  "estimatedMinutes": 90,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "css.fundamentals"
+  ],
+  "learningOutcomes": [
+    "Объяснять компиляцию Sass и её границы.",
+    "Осознанно использовать модули, переменные, maps и mixins.",
+    "Сравнивать compile-time Sass variables и runtime CSS custom properties.",
+    "Отлаживать итоговый CSS и избегать глубокой вложенности."
+  ],
+  "tags": [
+    "sass",
+    "scss",
+    "css",
+    "design-tokens",
+    "tooling"
+  ],
+  "blocks": [
+    {
+      "id": "sass-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Что добавляет Sass — и что остаётся CSS"
+    },
+    {
+      "id": "sass-model",
+      "type": "paragraph",
+      "text": "SCSS — синтаксис стилей, компилируемый в CSS. Он добавляет переменные, модули, mixins, функции, maps и управляемую генерацию, но не заменяет каскад CSS или движок layout браузера. Переменные Sass вычисляются во время сборки; CSS custom properties остаются в браузере и могут меняться во время выполнения или внутри theme-селектора. Выбирай механизм в зависимости от жизненного цикла значения."
+    },
+    {
+      "id": "sass-vars",
+      "type": "codeWalkthrough",
+      "language": "scss",
+      "code": "@use 'sass:color';\n@use 'sass:map';\n\n$brand: #3451b2;\n$space: (\n  sm: 0.5rem,\n  md: 1rem,\n  lg: 1.5rem\n);\n\n.card {\n  color: $brand;\n  padding: map.get($space, md);\n  &__title { margin-bottom: map.get($space, sm); }\n  &:hover { border-color: color.scale($brand, $lightness: -12%); }\n}",
+      "steps": [
+        {
+          "title": "Загрузите модули до обычных правил",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "@use располагают перед обычными правилами стилей. Namespace явно показывает, откуда взялись map.get и color.scale."
+        },
+        {
+          "title": "Задайте значения для этапа компиляции",
+          "lineStart": 4,
+          "lineEnd": 9,
+          "explanation": "Map объединяет значения под именами, но не передаётся браузеру как Sass-map."
+        },
+        {
+          "title": "Проверьте созданные селекторы и итоговый цвет",
+          "lineStart": 11,
+          "lineEnd": 16,
+          "explanation": "Браузер получает обычный CSS. color.scale имеет namespace и заменяет устаревший глобальный вызов darken() из старых примеров."
+        }
+      ]
+    },
+    {
+      "id": "sass-modules",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Используй partial-файлы, например _tokens.scss, и подключай через @use с namespace; @forward помогает сформировать осознанный публичный API модуля.",
+        "Mixins полезны для повторяющихся паттернов объявлений с аргументами. Если нужны только значения, переменные/maps обычно проще.",
+        "Функции должны вычислять и возвращать значения; не прячь большие объёмы несвязанного сгенерированного CSS внутри абстракций.",
+        "В legacy HTML есть примеры @import. В Dart Sass 1.80.0 Sass @import был объявлен deprecated; следуй современной модульной модели вместо слепого копирования старого подхода.",
+        "Используй CSS custom properties для runtime-темизации и значений, меняемых селекторами/JavaScript после загрузки CSS; Sass variables — для compile-time организации."
+      ]
+    },
+    {
+      "id": "sass-css-output",
+      "type": "callout",
+      "tone": "important",
+      "title": "Отлаживай и сгенерированный CSS",
+      "text": "DevTools браузера показывает CSS, который реально получил браузер, а не Sass-абстракции. Если вложенный селектор или mixin ведёт себя неожиданно, изучи compiled output, подходящий селектор, source order и specificity до добавления новой вложенности."
+    },
+    {
+      "id": "sass-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Когда CSS custom property обычно предпочтительнее Sass-переменной?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Когда значение должно меняться во время выполнения в зависимости от темы или селектора",
+          "correct": true,
+          "feedback": "CSS custom properties остаются в браузере и участвуют в каскаде, поэтому тема может переопределить их во время выполнения."
+        },
+        {
+          "id": "b",
+          "text": "Каждый раз, когда значение используется несколько раз, независимо от жизненного цикла",
+          "correct": false,
+          "feedback": "Повторное использование важно, но выбор также зависит от compile-time/runtime поведения."
+        },
+        {
+          "id": "c",
+          "text": "Когда браузеру нужно напрямую выполнить синтаксис Sass",
+          "correct": false,
+          "feedback": "Браузеры не выполняют SCSS; его нужно компилировать в CSS."
+        },
+        {
+          "id": "d",
+          "text": "Только при использовании Bootstrap",
+          "correct": false,
+          "feedback": "CSS custom properties — возможность CSS, не привязанная к конкретному фреймворку."
+        }
+      ],
+      "explanation": "Думай о том, когда и где значение должно меняться, а не только о повторном использовании."
+    },
+    {
+      "id": "sass-practice",
+      "type": "codingExercise",
+      "title": "Вынеси повторяющиеся стили в небольшой Sass-модуль",
+      "language": "scss",
+      "context": "Преобразуй дублирующиеся стили в осознанные tokens/modules и изучи генерируемый CSS.",
+      "instructions": [
+        "Создай модуль _tokens.scss с именованными цветами и spacing.",
+        "Подключи модуль через @use, а не legacy @import.",
+        "Используй mixin только для повторяющегося паттерна, которому нужны параметры.",
+        "Замени глубокую вложенность неглубокими селекторами и объясни resulting specificity.",
+        "Создай CSS custom property для значения, которое должно меняться между light/dark во время выполнения."
+      ],
+      "requirements": [
+        "Зависимости модулей явны и имеют namespace.",
+        "Сгенерированный CSS соответствует задумке.",
+        "Вложенность не создаёт случайно высокую specificity.",
+        "Sass-переменные compile-time и CSS custom properties runtime используются осознанно.",
+        "Решение следует современной модульной модели Sass."
+      ],
+      "starterCode": "$brand: #3451b2;\n\n// TODO: вынеси значения в _tokens.scss и подключи через @use.\n.page {\n  .panel {\n    .title { color: $brand; }\n  }\n}\n\n// TODO: реши, какое theme-значение оставить CSS custom property.",
+      "hints": [
+        "@use создаёт namespace; используй его при обращении к exported variable.",
+        "Делай вложенность неглубокой и проверяй compiled selector.",
+        "CSS-переменную вроде --color-surface можно переопределять theme-селектором во время выполнения."
+      ],
+      "successCriteria": [
+        "Shared tokens хранятся в namespaced Sass-модуле.",
+        "Сгенерированный CSS проверен на соответствие задумке.",
+        "Вложенность неглубокая и сопровождаемая.",
+        "Runtime и compile-time значения различаются."
+      ]
+    },
+    {
+      "id": "sass-module-order",
+      "type": "heading",
+      "level": 2,
+      "text": "Модули — это зависимости на этапе компиляции"
+    },
+    {
+      "id": "sass-module-order-text",
+      "type": "paragraph",
+      "text": "Правило Sass @use размещают в начале таблицы стилей, до обычных правил и объявлений. Оно загружает модуль один раз и предоставляет его элементы через namespace: читателю видно, откуда взялись map.get или color.scale. Переменные Sass вычисляются при компиляции; браузер получает CSS, а не Sass-map, цикл или mixin. Если компиляция падает, сначала изучите вывод Sass-сборки. Если правило скомпилировалось, но не действует на странице, откройте DevTools и проверьте каскад, специфичность и порядок исходных правил."
+    },
+    {
+      "id": "sass-generation-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "scss",
+      "code": "$space: (sm: 0.5rem, md: 1rem);\n\n@mixin focus-ring($color) {\n  &:focus-visible {\n    outline: 3px solid $color;\n    outline-offset: 2px;\n  }\n}\n\n@each $name, $value in $space {\n  .gap-#{$name} { gap: $value; }\n}\n\n.button { @include focus-ring(#3451b2); }",
+      "steps": [
+        {
+          "title": "Передавайте осмысленный параметр в mixin",
+          "lineStart": 3,
+          "lineEnd": 8,
+          "explanation": "Этот mixin выдаёт контур при фокусе с клавиатуры там, где его подключили. Он полезен, если нескольким элементам нужен одинаковый набор объявлений с выбранным цветом; для единственного места отдельное правило может быть проще."
+        },
+        {
+          "title": "Цикл создаёт по селектору на элемент map",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "explanation": "Map хранит имена и значения на этапе сборки. Компилятор создаст правила .gap-sm и .gap-md; дополнительные значения увеличивают CSS, поэтому генерируйте только нужные дизайн-системе классы."
+        },
+        {
+          "title": "Изучайте и исходник, и скомпилированный CSS",
+          "lineStart": 14,
+          "lineEnd": 14,
+          "explanation": "@include раскрывает объявления mixin внутри правила кнопки. DevTools показывает готовый селектор и вычисленные стили фокуса, а не абстракцию Sass."
+        }
+      ]
+    },
+    {
+      "id": "sass-generation-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что создаст @each из walkthrough при map `(sm: 0.5rem, md: 1rem)`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Одно CSS-свойство, которое меняется в браузере при выборе темы",
+          "correct": false,
+          "feedback": "Map и цикл обрабатываются при сборке; они не создают управляющее темой значение в браузере."
+        },
+        {
+          "id": "b",
+          "text": "Два CSS-правила .gap-sm и .gap-md с соответствующими значениями gap",
+          "correct": true,
+          "feedback": "Цикл проходит по двум элементам map и подставляет ключ каждого в селектор."
+        },
+        {
+          "id": "c",
+          "text": "Цикл JavaScript во время каждого рендера элемента",
+          "correct": false,
+          "feedback": "Sass выполняется при компиляции, а не во время выполнения браузерного JavaScript."
+        },
+        {
+          "id": "d",
+          "text": "Один селектор .gap-* со значением Sass-переменной",
+          "correct": false,
+          "feedback": "Интерполяция создаёт конкретные имена селекторов; CSS не получает переменную цикла Sass."
+        }
+      ],
+      "explanation": "Генерация Sass превращает compile-time данные в обычный CSS. Набор генерируемых селекторов должен оставаться ограниченным и осмысленным."
+    },
+    {
+      "id": "sass-abstraction-choice",
+      "type": "heading",
+      "level": 2,
+      "text": "Выбирайте mixin и @extend с учётом результата"
+    },
+    {
+      "id": "sass-abstraction-choice-text",
+      "type": "paragraph",
+      "text": "Mixin копирует объявления в каждое место подключения и может принимать аргументы; вызов наглядный, но CSS может повторяться. @extend связывает селекторы так, чтобы они использовали общее правило, и может создавать неожиданные комбинации селекторов. Placeholder (%name) не попадает в результат сам по себе, но тоже участвует в объединении селекторов. Выбирайте mixin для параметризованного поведения и явного локального вывода. @extend применяйте, только если селекторы действительно взаимозаменяемы, и проверяйте скомпилированный CSS."
+    },
+    {
+      "id": "sass-extend-mixin-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "scss",
+      "code": "%surface {\n  border: 1px solid currentColor;\n  border-radius: 0.5rem;\n}\n\n.notice {\n  @extend %surface;\n  color: #17406b;\n}\n\n@mixin panel($background) {\n  border: 1px solid currentColor;\n  background: $background;\n}\n\n.alert {\n  @include panel(#fff1f0);\n}",
+      "steps": [
+        {
+          "title": "Placeholder не создаёт отдельный селектор",
+          "lineStart": 1,
+          "lineEnd": 9,
+          "explanation": "В скомпилированном CSS правило объединится с селекторами, которые расширяют %surface; сам placeholder не станет классом. Другие расширяющие селекторы могут попасть в общий список."
+        },
+        {
+          "title": "Mixin выдаёт объявления в месте подключения",
+          "lineStart": 11,
+          "lineEnd": 18,
+          "explanation": "Параметр делает фоновый цвет явным на каждом месте вызова. Объявления повторяются для .alert вместо общего списка селекторов; проверяйте размер вывода и поведение селекторов в конкретном проекте."
+        }
+      ]
+    },
+    {
+      "id": "sass-legacy-api-callout",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Не копируйте старые глобальные Sass API без проверки",
+      "text": "В Dart Sass 1.80.0 устаревшими объявлены Sass @import и глобальные встроенные функции, например darken() и adjust-hue(). Для новых примеров используйте модульную систему (например, @use 'sass:color' и color.scale()). Старые примеры Notion показывают исторический синтаксис: идеи полезны, но API следует обновить. Не скрывайте предупреждение, пока не выяснили, создаёт его ваш код или зависимость."
+    },
+    {
+      "id": "sass-module-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Почему @use 'sass:map' и @use 'sass:color' располагают до обычных правил таблицы стилей?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Модули Sass являются зависимостями компиляции, а @use должно идти перед обычными правилами",
+          "correct": true,
+          "feedback": "Модульная система делает зависимости явными и именованными; @use размещают ближе к началу таблицы стилей."
+        },
+        {
+          "id": "b",
+          "text": "Браузер должен загружать Sass-модули во время работы страницы",
+          "correct": false,
+          "feedback": "Sass компилирует модули в CSS до того, как браузер загрузит страницу."
+        },
+        {
+          "id": "c",
+          "text": "@use автоматически превращает Sass-переменные в CSS custom properties",
+          "correct": false,
+          "feedback": "Переменные Sass вычисляются при сборке; runtime custom properties нужно объявить как CSS-свойства."
+        },
+        {
+          "id": "d",
+          "text": "@use требуется только для CSS-файлов с другого домена",
+          "correct": false,
+          "feedback": "@use — правило загрузки модулей Sass, а не браузерный импорт с другого домена."
+        }
+      ],
+      "explanation": "Явная загрузка модулей показывает, где определён каждый элемент, и избегает глобальной модели пространства имён устаревшего Sass @import."
+    },
+    {
+      "id": "sass-output-practice",
+      "type": "codingExercise",
+      "title": "Создайте небольшой набор Sass-утилит и проверьте итоговый CSS",
+      "language": "scss",
+      "context": "Команда повторяет стили отступов и использует непоследовательную клавиатурную индикацию фокуса. Переработайте только те значения, которым подходит build-time map, и создайте общий видимый стиль фокуса.",
+      "instructions": [
+        "Создайте namespaced Sass-модуль отступов и подключите его через @use; оставьте @use в начале основного файла.",
+        "Используйте небольшую map и цикл @each, чтобы создать только три класса отступов, нужных дизайн-системе.",
+        "Напишите mixin :focus-visible с понятным параметром и подключите его к двум элементам управления.",
+        "Используйте color.scale или другую функцию из sass:color вместо старой глобальной функции цвета.",
+        "Скомпилируйте стили и сравните готовый CSS с ожидаемыми селекторами; проверьте фокус и каскад в DevTools."
+      ],
+      "requirements": [
+        "Модуль использует @use, а namespace заметен при каждом обращении к элементу.",
+        "Создаются только запрошенные селекторы; случайной неограниченной генерации нет.",
+        "У обоих элементов управления виден индикатор клавиатурного фокуса.",
+        "Описаны скомпилированный CSS и компромисс повторных объявлений от mixin."
+      ],
+      "starterCode": "// _tokens.scss\n$space: (\n  sm: 0.5rem,\n  md: 1rem,\n  lg: 1.5rem\n);\n\n// app.scss\n@use 'tokens';\n// TODO: создайте .gap-sm / .gap-md / .gap-lg из tokens.$space\n// TODO: определите один параметризованный mixin для :focus-visible\n// TODO: подключите его для .button и .link-button\n// TODO: проверьте готовый CSS и клавиатурный фокус",
+      "hints": [
+        "Помните, что @use создаёт namespace; обращайтесь к map через этот namespace.",
+        "В цикле должны появиться ровно три известных класса, потому что в map три элемента.",
+        "Используйте :focus-visible, чтобы клавиатурный фокус был заметен; не нужно предполагать, что каждое указание мышью требует такого же кольца."
+      ],
+      "successCriteria": [
+        "Сборка проходит без Sass deprecation warning, вызванного новым кодом.",
+        "Созданы ровно три класса отступов с ожидаемыми значениями.",
+        "У обоих контролов есть видимый и не обрезанный индикатор фокуса.",
+        "Ученик объясняет: переменные и циклы Sass исчезают в готовом CSS, а CSS custom properties доступны во время выполнения."
+      ]
+    },
+    {
+      "id": "sass-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Sass компилирует удобства авторинга в обычный CSS; браузер всё равно применяет каскад CSS.",
+        "Предпочитай @use/@forward с явными границами модулей; не копируй legacy @import без проверки.",
+        "Sass variables подходят для сборки, CSS custom properties — для runtime-темизации."
+      ]
+    },
+    {
+      "id": "sass-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "Sass: @use",
+          "url": "https://sass-lang.com/documentation/at-rules/use/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Sass: @import deprecation",
+          "url": "https://sass-lang.com/documentation/breaking-changes/import/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Using CSS custom properties",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}
