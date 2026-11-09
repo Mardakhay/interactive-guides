@@ -5,6 +5,14 @@
 The supplied ABB bootcamp syllabus is the canonical core-track order. It covers six months and 24 weeks. The application may include optional supplementary modules, but must label them as extensions rather than silently placing them inside the original syllabus.
 
 ### Month 1 — Web Fundamentals & Layout
+
+Structured pilot lessons now present in the application (both locales, status `review`):
+- Week 1: `html.document-structure`
+- Week 2: `html.forms-accessibility`
+- Week 3: `css.fundamentals`
+- Week 4: `css.flexbox-grid-responsive`
+
+These are pilot lessons, not marked fully editorially approved/published.
 - Week 1: internet, browser, HTTP, URL, request/response; HTML document structure and semantic elements. Practice: About Me page and DevTools.
 - Week 2: forms, input attributes, labels, accessibility basics. Practice: login/register layout.
 - Week 3: CSS authoring, selectors/specificity, box model, display. Practice: landing page.
