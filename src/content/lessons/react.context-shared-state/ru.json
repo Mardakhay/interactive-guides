@@ -315,7 +315,7 @@
       "id": "knowledge-check-1",
       "type": "knowledgeCheck",
       "questionType": "single-choice",
-      "prompt": "When is lifting state up a good fit?",
+      "prompt": "Когда имеет смысл поднимать состояние к общему родителю (lifting state up)?",
       "options": [
         {
           "id": "a",

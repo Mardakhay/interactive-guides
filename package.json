@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "smoke:preview": "node scripts/check-preview-smoke.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",

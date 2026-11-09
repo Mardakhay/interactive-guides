@@ -567,7 +567,7 @@
           "kind": "official-docs"
         },
         {
-          "title": "MDN: input element",
+          "title": "MDN: Типы input",
           "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input",
           "kind": "official-docs"
         },
@@ -580,11 +580,6 @@
           "title": "W3C WAI: Forms Concepts",
           "url": "https://www.w3.org/WAI/tutorials/forms/",
           "kind": "standard"
-        },
-        {
-          "title": "MDN: Типы input",
-          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input",
-          "kind": "official-docs"
         },
         {
           "title": "MDN: Атрибут enctype формы",

@@ -5,9 +5,8 @@
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-26",
-  "moduleId": "supplement-ui-ecosystem",
-  "supplementaryTrackId": "supplement-ui-ecosystem",
-  "order": 1,
+  "moduleId": "month-5-week-17",
+  "order": 2,
   "title": "UI-библиотеки: Bootstrap Grid, Material UI и выбор build-versus-buy",
   "description": "Сравни CSS-фреймворк с React-библиотекой компонентов и выбирай по ограничениям продукта, а не популярности.",
   "estimatedMinutes": 95,
@@ -494,5 +493,6 @@
         }
       ]
     }
-  ]
+  ],
+  "week": 17
 }

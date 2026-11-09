@@ -246,7 +246,7 @@
       "id": "knowledge-check-1",
       "type": "knowledgeCheck",
       "questionType": "single-choice",
-      "prompt": "В чём ключевая разница по безопасности между unknown и any?",
+      "prompt": "В чём ключевое различие между unknown и any с точки зрения безопасности?",
       "options": [
         {
           "id": "a",
@@ -300,7 +300,7 @@
       "id": "knowledge-check-3",
       "type": "knowledgeCheck",
       "questionType": "multi-select",
-      "prompt": "Which statements about TypeScript types are correct? Select all that apply.",
+      "prompt": "Какие утверждения о типах TypeScript верны? Выбери все подходящие варианты.",
       "options": [
         {
           "id": "a",

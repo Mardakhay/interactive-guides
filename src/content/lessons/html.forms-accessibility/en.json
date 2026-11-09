@@ -582,11 +582,6 @@
           "kind": "standard"
         },
         {
-          "title": "MDN: Input types",
-          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input",
-          "kind": "official-docs"
-        },
-        {
           "title": "MDN: Form enctype",
           "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#enctype",
           "kind": "official-docs"

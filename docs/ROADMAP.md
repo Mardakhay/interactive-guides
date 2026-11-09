@@ -2,6 +2,28 @@
 
 Follow this sequence. Each phase should land as a small reviewed change; avoid one giant rewrite.
 
+## Authoritative current status — 2026-10-29
+
+This section replaces older status summaries below where they conflict. Chronological checkpoint notes remain a history, not a unique-task count.
+
+- Feature HEAD before this update: `af953df222b108e380da87a38d5862d4363bc922`.
+- `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 is open Draft against `main`.
+- Exact-head Actions run [#40717844032](https://github.com/Mardakhay/interactive-guides/actions/runs/40717844032) passed on `af953df222b108e380da87a38d5862d4363bc922`: install, lint, typecheck, tests, production build/bundle checks and HTTP preview smoke. It is not a native browser/device pass.
+- Registry: 27 core + 17 supplementary = 44 EN/RU lesson pairs (88 JSON locale records).
+- 25 legacy HTML source reviews are documented, but all 25 route-cutover rows remain **Blocked**. Source-to-block parity, interaction dispositions and learner-state retention are still release gates.
+- 21 mapped Notion sources remain `verification.state=unverified`.
+- Browser/device, keyboard/screen-reader, install/offline and mobile acceptance remain unrecorded. Supabase/auth/sync remains gated behind approved reconciliation policy, migrations/RLS and direct cross-user isolation tests.
+
+### Remaining work, by dependency
+
+1. **Source parity and cutover:** verify each legacy source against its actual English and Russian target content, including examples, code, quizzes, answer feedback, references and interaction behavior. Record reviewed keep-classic/defer decisions where equivalence is incomplete; do not infer readiness from mappings or CI.
+2. **Learner-state safety:** define and test retention for progress, bookmarks, notes, last-opened state and classic quiz keys before redirects or source removal.
+3. **Native acceptance:** run the documented browser/device checklist with synthetic data and record SHA, browser/version, OS/device, network mode and evidence.
+4. **Curriculum and UX sign-off:** map all 24-week outcomes, review bilingual semantics, uncommon UI strings, keyboard/accessibility, responsive layout, and exercise solution disclosure.
+5. **Release and cloud scope:** verify actual deployment/screenshot evidence. Implement Supabase only after scope, local/cloud reconciliation, RLS and account-isolation behavior are approved.
+
+A task is not complete merely because a destination lesson is registered, the source was read, or CI is green.
+
 ## Phase 0 — Baseline and safeguards
 - [x] Create working branch `feat/learning-platform-foundation`.
 - [ ] Run the commands in a local checkout and record the local result. The remote exact-head CI run is green; do not describe it as a local test run.
@@ -53,18 +75,15 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
   - `feat(progress): separate completion from demonstrated mastery`
 
 ## Phase 4 — Content migration
-- [x] Build a first-pass inventory and structural survey of all 25 current HTML files; detailed parity review is still pending.
-- [ ] Extract and rewrite one pilot topic; validate the translation and content depth.
-- [ ] Run source/technical review and update the pilot in both locales.
-- [ ] Migrate the remaining lessons in small topic batches in syllabus order.
-- [ ] Keep all legacy HTML until replacements are reviewed and regression checked.
-- Acceptance: no lesson is labelled migrated until both locales, exercises and source links pass review.
-- Suggested commits:
-  - `content(html): migrate semantic HTML and forms lessons`
-  - `content(css): migrate layout and responsive design lessons`
-  - `content(javascript): migrate core language lesson series`
-  - `content(react): migrate component and hooks lessons`
-  - `content(tooling): migrate Git, package and deployment lessons`
+
+- [x] Inventory all 25 legacy HTML sources and document a full content/code/interaction review for each in `FULL_SOURCE_CONTENT_AUDIT.md`.
+- [x] Build the bilingual structured content repository and migrate substantial topic-specific material in reviewed batches; add schema, lesson-shape, curriculum, localization and source-specific regression tests.
+- [ ] Complete source-to-block equivalence review for each candidate destination: sections, technical claims, code/examples, quizzes, answer feedback, references, and EN/RU semantic parity.
+- [ ] Formally verify relevant Notion source claims; 21 pages are currently fetched/mapped but still marked `verification.state=unverified`.
+- [ ] Review every row in `LEGACY_ROUTE_CUTOVER_MATRIX.md` and assign a reviewed disposition: cutover-ready destination, keep classic, or explicitly defer non-equivalent behavior. All 25 rows are currently **Blocked**.
+- [ ] Specify and test learner-state retention/migration for progress, bookmarks, notes, last-opened pointers and classic quiz-result keys before redirects.
+- [x] Keep all classic `/lessons/:lessonId` routes and the 25 legacy HTML files available during migration; do not remove them until the per-row content and state gates are signed off.
+- Acceptance: no legacy ID is cut over because a candidate ID exists or because CI is green; both locales, interaction dispositions and learner-data behavior require evidence.
 
 ## Phase 5 — Local-first data foundations
 - [x] Add a versioned JSON backup format and explicit export/restore for current learning datasets; validation, preview, replace confirmation and best-effort multi-key rollback are implemented.
@@ -92,20 +111,24 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - [x] Add PNG app icons and the web app manifest.
 - [x] Add a service worker with scoped static-asset caching, an app-shell fallback and an explicit user-approved update lifecycle.
 - [x] Add a host-side SPA rewrite for client-side deep-link reloads (`public/_redirects`).
-- [ ] Configure/review the actual production deployment and add post-deploy smoke checks.
+- [x] Add an automated production-preview HTTP smoke stage after the production build; it validates four deep-route app-shell responses, the entry bundle, manifest/service-worker markers and PWA assets.
+- [ ] Review actual production deployment and record post-deploy behavior; a successful Netlify Deploy Preview and CI HTTP smoke are not production or real-browser acceptance.
 - [ ] Test clean install, deep-link refresh, offline revisit, update activation and external-font fallback in supported desktop/mobile browsers; record browser/OS versions using [the browser/device checklist](./BROWSER_SMOKE_TEST_CHECKLIST.md).
 - **Status:** technical foundation implemented; not release-accepted until real-browser/device checks are recorded.
 
 ## Phase 8 — Capstone and release readiness
-- [ ] Build capstone-like guided project path with requirements, user stories, architecture, implementation, tests and deployment.
-- [ ] Review all learning outcomes against syllabus.
-- [ ] Audit keyboard access, contrast, mobile, bundle size, broken links and stale content.
-- [ ] Update project README, screenshots and contributor/content authoring guide.
-- Acceptance: complete learning path is usable from a fresh browser, bilingual coverage is measured, and release notes describe limitations honestly.
-- Suggested commits:
-  - `feat(curriculum): add frontend capstone learning path`
-  - `test(e2e): cover core learning and account flows`
-  - `docs: document authoring deployment and learner data portability`
+- [x] Build a bilingual capstone-like guided project path with requirements discovery, architecture, implementation, automated tests, deployment, and final review/demo. Automated tests protect lesson resolution, route locale, and the six-step sequence.
+- [ ] Review all learning outcomes against the 24-week syllabus and document any uncovered or duplicate outcomes.
+- [ ] Audit keyboard access, contrast, mobile, bundle size, broken links, and stale content.
+- [x] Update the project README and add a contributor/content authoring guide for the current JSON/manifest/schema workflow.
+- [x] Add full-registry localization guards for EN/RU metadata and outcome shape, duplicate reference URLs, selected audited Russian prose, and long user-facing prose copied verbatim from EN into RU; remove 20 duplicate URL entries and translate 52 copied-English strings across eight RU lesson files.
+- [ ] Capture and verify current application screenshots for the README.
+- [ ] Run and record real-browser, screen-reader, and mobile acceptance; automated tests are not a substitute.
+- Acceptance: the complete path resolves in both locales, every step note is localized, a fresh-browser flow is checked, and release notes describe remaining limitations honestly.
+- Remaining suggested work:
+  - `test(e2e): cover core learner flows in a real browser`
+  - `docs: record source parity and release acceptance evidence`
+
 
 ## Commit style
 
@@ -615,3 +638,62 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Verify exact-head CI on `ccf839c806369d9e151e4f24b430ac24f3c4c936`: [run #40653842673](https://github.com/Mardakhay/interactive-guides/actions/runs/40653842673) passed 215 tests / 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
 - [ ] Review the remaining legacy animated branch canvas and failure-injection simulator; this educational diagnosis matrix is not a one-to-one interaction replica.
 
+
+
+## Bilingual capstone and learning-path localization — 2026-10-28
+
+- Added `structured-capstone` as a six-step path over registered lessons: requirements discovery, architecture planning, implementation, Testing Library checks, production deployment, and review/demo. Existing lesson IDs and classic paths are unchanged.
+- Localized all 46 configured step notes into Russian using the composite `<path-id>.<lesson-id>` key, so the same lesson can carry a path-specific explanation. Regression tests iterate every configured step and reject English-note fallback.
+- Fixed the bottom continuation link in the learning-path detail view to use the already resolved destination, preventing structured paths from linking to the classic `/lessons/:id` route.
+- README and the authoring guide now describe the bilingual structured-content workflow and clearly document that offline support and source parity still have open acceptance gates.
+- CI for the exact resulting HEAD must be checked in the current pull-request run before treating this checkpoint as verified. Real-browser/device, screen-reader, source-parity, and syllabus coverage gates remain open.
+
+
+## Content quality and Russian localization checkpoint — 2026-10-28
+
+- [x] Add `src/content/lessonQuality.test.ts`: every registered structured lesson is loaded in both locales and every `references` block is checked for duplicate URLs.
+- [x] Remove 20 duplicate reference URL entries across the EN/RU pairs for `js.object-prototypes`, `browser.realtime-workers`, `html.forms-accessibility`, `js.collections-weakmaps`, `js.regex-text-processing`, and `testing.react-testing-library`. Preserve localized reference titles where present.
+- [x] Fix repeated-value React keys in the structured content renderer so repeated prompts, criteria, list items, or reference URLs do not collide.
+- [x] Translate 23 specifically audited prose fields across nine Russian lesson files and add a regression check for those fields. This is targeted coverage, not a claim that every sentence in every Russian lesson has undergone editorial localization review.
+- [x] Exact-head CI on `1631c1fc9ed8377ebb5194dc1da78b702c981716` passed: 35 test files / 219 tests, lint, typecheck, production build and bundle budgets. `npm audit` reported zero vulnerabilities. See [run #40679724796](https://github.com/Mardakhay/interactive-guides/actions/runs/40679724796).
+- [ ] Keep the broader bilingual editorial/source-parity review open. The automated test protects the audited fields and duplicate-reference invariant; it is not a general translation-quality detector.
+- [ ] Real-browser/PWA/offline, screen-reader and mobile acceptance remain unrun and must be recorded from actual target browsers/devices.
+
+
+## Canonical week-17 UI-library coverage correction — 2026-10-28
+
+- [x] Reconciled the core syllabus with its lesson registry: `ui.bootstrap-mui` covers the week-17 requirement for UI libraries (Bootstrap's responsive grid and Material UI component theming), and its EN/RU lesson records now belong to `month-5-week-17`.
+- [x] Kept `css.sass-scss` supplementary. The bilingual supplementary metadata no longer claims Bootstrap/MUI as optional-only core topics; core and supplementary lesson references remain unique.
+- [x] Added repository regression coverage: both locales include design-system and UI-library lessons in week 17 in order, UI-library content resolves as core week 17, and Sass/SCSS remains supplementary.
+- [ ] The full outcome-by-outcome syllabus review remains open. This change closes one verified mapping gap; it does not certify complete objective coverage, editorial quality, source parity, or browser/device acceptance.
+
+
+## Registry count update — 2026-10-28
+
+Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 17 supplementary lesson IDs = 44 IDs total (EN/RU pairs). The previous 26/18 split is superseded. Keep the full learning-outcome audit and legacy route-cutover gates open; one corrected mapping is not full curriculum sign-off.
+
+
+## Full-registry localization and code verification — 2026-10-28
+
+- [x] Add a full-registry regression for RU titles/descriptions and learning outcomes: all 44 EN/RU lesson pairs must have matching learning-outcome counts, Russian visible metadata and non-identical RU outcome text.
+- [x] Translate the two English-only `js.runtime-memory` outcomes and bump both locale files to v5; update the lesson version assertion.
+- [x] Exact code/content HEAD `cc68eaa8c28cb9e96a1f348a163fdaa44768b873` passed [CI run #40688503193](https://github.com/Mardakhay/interactive-guides/actions/runs/40688503193): install, lint, typecheck, 221 tests / 35 files, production build, 125 JavaScript chunks within budgets, zero npm audit findings.
+- [ ] Keep the full outcome-by-outcome syllabus and source-to-block review open. The guard verifies metadata translation invariants; it does not judge semantic completeness, pedagogy, or every paragraph.
+- [ ] Real browser/device, offline/PWA, screen-reader, mobile and legacy-state retention acceptance remain open.
+
+
+## Cross-locale prose QA follow-up — 2026-10-28
+
+- [x] Add a full-registry regression that compares long user-facing prose in corresponding EN/RU lesson blocks and catches verbatim English left in Russian. Code blocks/references, starter code, CSS property-list references, event-loop traces and code-shaped quiz answers are excluded by design.
+- [x] Translate 52 exact-copy English prose strings across eight RU lesson files (workers, IndexedDB, auth/security, modern JS practice/summaries, object invocation, React effects walkthrough, npm/Vite and TypeScript quiz prompts).
+- [x] Exact code/content SHA `12059fd51069df3f3126db470cd2f4744cc157ff` passes [CI run #40689939570](https://github.com/Mardakhay/interactive-guides/actions/runs/40689939570): 222 tests / 35 files, lint, typecheck, production build, 125 JS chunk budgets, zero npm audit findings.
+- [ ] Keep semantic/editorial RU review and source-to-block parity open: exact-copy detection is not a translation-quality oracle.
+- [ ] Real browser/device, offline/PWA, screen-reader, mobile and learner-state cutover acceptance remains open.
+
+
+## Production preview smoke coverage — 2026-10-28
+
+- [x] Add `npm run smoke:preview` to start the production Vite preview and assert HTTP fallback for four deep routes, built entry JavaScript, manifest/service-worker behavior markers, SVG icon consistency and 180/192/512px PNG asset headers/dimensions.
+- [x] Add the smoke stage after `npm run build` in GitHub Actions. Exact code/content SHA `28b5c53afd967d2a2488840b494b197398fe467d` passed [CI run #40691049972](https://github.com/Mardakhay/interactive-guides/actions/runs/40691049972): 223 tests across 35 files, lint, typecheck, production build, 125-chunk bundle budgets, smoke stage, and zero npm audit findings.
+- [ ] Keep real-browser/device acceptance open: this check only makes HTTP requests and inspects built artifacts; it does not execute React in a browser, verify real installability, exercise offline caches or confirm assistive-technology/mobile behavior.
+- [ ] Review production deployment behavior and record browser/device evidence before release.
