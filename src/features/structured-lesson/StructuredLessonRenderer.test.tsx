@@ -40,3 +40,23 @@ describe('StructuredLessonRenderer', () => {
     expect(screen.getByRole('heading', { name: 'Создай страницу «Обо мне»' })).toBeTruthy();
   });
 });
+
+  it('offers a restricted Worker runner for JavaScript without DOM requirements', () => {
+    const lesson = getStructuredLesson('js.basics-types-control-flow', 'en');
+    if (!lesson) throw new Error('JavaScript lesson is missing');
+
+    render(<StructuredLessonRenderer lesson={lesson} />);
+
+    expect(screen.getAllByRole('heading', { name: 'Run JavaScript' }).length).toBeGreaterThan(0);
+    expect(screen.getByText(/common network APIs are deliberately blocked/i)).toBeTruthy();
+  });
+
+  it('explains that DOM-dependent exercises need a local browser project', () => {
+    const lesson = getStructuredLesson('js.dom-events', 'en');
+    if (!lesson) throw new Error('DOM lesson is missing');
+
+    render(<StructuredLessonRenderer lesson={lesson} />);
+
+    expect(screen.getByText(/This exercise requires the browser DOM/)).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Run JavaScript' })).toBeNull();
+  });

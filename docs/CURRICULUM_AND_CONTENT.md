@@ -55,7 +55,7 @@ The current app registers 25 canonical lesson IDs across the 24-week core syllab
 | 3 | `css.fundamentals` | Selectors, cascade, specificity, box model and display |
 | 4 | `css.flexbox-grid-responsive` | Flexbox, Grid and responsive design |
 | 5 | `js.basics-types-control-flow` | Variables, primitives, operators and control flow |
-| 6 | `js.functions-arrays-objects` | Functions, callbacks, arrays, objects, destructuring and spread |
+| 6 | `js.functions-arrays-objects` | Functions, callbacks, array methods, objects, destructuring and spread; optional deep dive into lexical scope, environment records, name shadowing and independent closures |
 | 7 | `js.dom-events` | DOM APIs, events, forms and event delegation |
 | 8 | `js.async-fetch` | Promise, async/await, Fetch and request states |
 | 8 | `git.fundamentals` | Staging, commit history, remotes, push and .gitignore |

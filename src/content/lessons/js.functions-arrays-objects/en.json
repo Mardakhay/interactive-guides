@@ -147,8 +147,8 @@
         },
         {
           "title": "Resolve name from where greet was created",
-          "lineStart": 18,
-          "lineEnd": 18,
+          "lineStart": 17,
+          "lineEnd": 17,
           "explanation": "The output is \"John\". Variable lookup uses greet's lexical environment, not the call site and not simply the nearest name in the current call stack."
         }
       ]
