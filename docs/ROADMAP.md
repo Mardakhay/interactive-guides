@@ -59,9 +59,10 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 
 ## Phase 5 — Local-first data foundations
 - [x] Add a versioned JSON backup format and explicit export/restore for current learning datasets; validation, preview, replace confirmation and best-effort multi-key rollback are implemented.
-- [ ] Introduce versioned local repositories independently of the backup format and migrate all legacy progress, notes, bookmarks and quiz records without silent loss.
-- [x] Test malformed backup files, unsupported versions, legacy structured-learning reads, restore replacement and rollback after a write failure.
-- [ ] Expand tests for storage unavailable, rollback failure and migration retry across all stores; run browser/device download and file-picker smoke checks.
+- [x] Introduce schema-v1 envelopes for progress, bookmarks, notes and classic quiz results, including read-through migration from valid legacy raw JSON. A failed migration write preserves the raw value for a later retry.
+- [x] Test malformed/unsupported backup files, current and legacy store records, invalid/future versions, storage read/write failures, migration retry, restore replacement and rollback (including rollback failure).
+- [x] Add focused action-level integration tests for progress, bookmarks, notes and classic quiz actions; CI covers the store envelopes and common update/delete paths.
+- [ ] Run real-browser/device download/import smoke checks for the file picker, downloaded filename, large-file guard, confirmation and restore success/failure feedback using [the execution checklist](./BROWSER_SMOKE_TEST_CHECKLIST.md).
 - Acceptance: existing saved state survives update or export/import recovery.
 - Suggested commit: `refactor(storage): add versioned local repositories`
 
@@ -69,7 +70,7 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - [ ] Create SQL migrations and RLS policies.
 - [ ] Add environment validation and a no-cloud mode.
 - [ ] Implement auth screens, session handling, repository adapters and sync states.
-- [ ] Design and test local/cloud conflict reconciliation.
+- [ ] Review and implement the draft policy in [`LOCAL_CLOUD_RECONCILIATION.md`](./LOCAL_CLOUD_RECONCILIATION.md), then test local/cloud conflict reconciliation.
 - [ ] Verify cross-user isolation and account cleanup.
 - Acceptance: two users cannot read or modify each other's data; local learning works without Supabase settings.
 - Suggested commits:
@@ -83,7 +84,7 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - [x] Add a service worker with scoped static-asset caching, an app-shell fallback and an explicit user-approved update lifecycle.
 - [x] Add a host-side SPA rewrite for client-side deep-link reloads (`public/_redirects`).
 - [ ] Configure/review the actual production deployment and add post-deploy smoke checks.
-- [ ] Test clean install, deep-link refresh, offline revisit, update activation and external-font fallback in supported desktop/mobile browsers; record browser/OS versions.
+- [ ] Test clean install, deep-link refresh, offline revisit, update activation and external-font fallback in supported desktop/mobile browsers; record browser/OS versions using [the browser/device checklist](./BROWSER_SMOKE_TEST_CHECKLIST.md).
 - **Status:** technical foundation implemented; not release-accepted until real-browser/device checks are recorded.
 
 ## Phase 8 — Capstone and release readiness
@@ -439,3 +440,48 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Import validates the format and dataset schemas before writing, previews record counts, requires explicit confirmation, replaces rather than merges data, writes the canonical structured-learning v2 record, and removes the legacy record after successful writes. On a failed write it attempts to restore prior raw values and reports if rollback itself fails.
 - Exact-head CI passed for code commit `73a47b96b1c0fc00d454c0cd955f24514bb32024` in run [40487424471](https://github.com/Mardakhay/interactive-guides/actions/runs/40487424471). This documentation sync is separate from that already validated code commit.
 - Phase 5 is still partial: repositories are not all independently versioned, migration/retry behavior needs broader tests, and browser-specific download/import smoke tests are outstanding. Supabase remains gated.
+
+## Versioned local-store checkpoint — 2026-10-27
+
+- Added `src/lib/versionedStorage.ts`; progress, bookmarks, notes and classic quiz results now store `format: interactive-guides-local-store`, `schemaVersion: 1`, `data` envelopes.
+- Valid legacy raw JSON is read and then migrated through a single-key replace. If the write fails, the old raw value is preserved and the state is returned in memory; the next read retries. Invalid data and unknown schema versions are not overwritten.
+- The portable backup file remains its own v1 format. Export accepts current envelopes and old raw data; restore writes current store envelopes plus the structured-learning v2 envelope, removing the legacy structured key only at the end.
+- Exact-head CI passed on code commit `3b6bb04caf338282f1f8f52d8724d11f7792b7a3`, run [40489627861](https://github.com/Mardakhay/interactive-guides/actions/runs/40489627861). Phase 5 remains partial until action-level store tests and browser/device smoke checks are done.
+
+## Learner-store action test checkpoint — 2026-10-27
+
+- Added `src/features/persistence/storePersistence.test.ts`: store actions persist versioned envelopes for progress, bookmarks, notes and classic quiz results; tests exercise progress status transitions, duplicate bookmark avoidance/toggle removal, blank-note deletion, and quiz save/clear.
+- The shared versioned-storage tests separately cover legacy migration, failed migration writes and retry, malformed/future version records, and storage read/write errors. Backup tests cover current/legacy input and restore envelopes.
+- Exact-head CI passed on code commit `0fd1b488a2a6ea1b1c7c54eda5194b3bb3f4393c` in run [40490205475](https://github.com/Mardakhay/interactive-guides/actions/runs/40490205475). Browser/device file picker and download smoke checks remain open.
+
+## Local/cloud reconciliation design checkpoint — 2026-10-27
+
+A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`. It inventories current local record shapes and missing metadata (per-record revisions, mutation IDs and deletion tombstones), proposes conservative entity-by-entity conflict rules, and lists unit/RLS/integration acceptance scenarios. This is design work only: Phase 6 remains unchecked, Supabase/auth/sync remain unimplemented, and product decisions such as note opt-in and classic quiz history still require review.
+
+## Local-first recovery test checkpoint — 2026-10-27
+
+- [x] Test the `/backup` page when a restore write fails but the previous raw values roll back successfully.
+- [x] Test the `/backup` page when both a restore write and rollback of a previously written key fail, including the urgent recovery message and unchanged in-memory stores.
+- [ ] Perform native-browser/device smoke tests for storage privacy/quota, file picker, downloaded file, and restore recovery.
+- Exact-head CI passed on `c3208ddac964003dd6c119e9fb41a8b78c601435` (run [40497324096](https://github.com/Mardakhay/interactive-guides/actions/runs/40497324096)). Phase 5 remains not release-accepted until manual browser/device results are recorded.
+
+## Backup export and rollback test checkpoint — 2026-10-27
+
+- [x] Verify exported Blob contents: backup format/version, included note data and exact dataset surface, with UI preferences excluded.
+- [x] Verify corrupt stored state refuses to export a partial backup and presents the error alert.
+- [x] Verify failure while removing the legacy structured-learning key rolls back all previous raw keys.
+- Exact-head CI passed on `814c4d6f51deefb8f8904a4a3a15321aa537d233` (run [40497807964](https://github.com/Mardakhay/interactive-guides/actions/runs/40497807964)). The export test reads Blob contents through `FileReader` because the configured jsdom Blob does not implement `.text()`.
+- [ ] Native desktop/mobile browser acceptance is still open for real quota/privacy restrictions, system file picker and the resulting downloaded JSON file. Phase 5 is not release-accepted until those results are recorded.
+
+## Structured-learning migration cleanup validation — 2026-10-27
+
+- [x] Verify legacy structured-learning data is preserved if the new v2 record write fails.
+- [x] Verify if writing succeeds but removing the legacy key fails, the new envelope remains valid, the legacy source is preserved and a storage-removal error is reported.
+- Exact-head CI passed on `9fb38aa1252e6a8f9191b777889b3c8cbe1229dc` (run [40498451420](https://github.com/Mardakhay/interactive-guides/actions/runs/40498451420)).
+- [ ] Run native browser/device checks for privacy/quota restrictions, file picker/download and recovery. Automated Storage mocks do not close these acceptance items.
+
+## Restore snapshot-read guard — 2026-10-27
+
+- [x] Verify that a read failure while snapshotting pre-restore storage aborts before any writes/removals and preserves every raw key.
+- Exact-head CI passed on `b9f500ee8509a986c12b0babd25a2c9947183a90` (run [40498940471](https://github.com/Mardakhay/interactive-guides/actions/runs/40498940471)).
+- [ ] Actual desktop/mobile browser tests for storage privacy/quota and native file picker/download remain open. Storage API mocks do not close these acceptance items.

@@ -7,6 +7,7 @@ import { Spinner } from '@/components/ui';
 import { useRouteFocus } from '@/hooks/useRouteFocus';
 import { translate, useUiLocale } from '@/features/localization';
 import { ServiceWorkerUpdatePrompt } from '@/pwa/ServiceWorkerUpdatePrompt';
+import { StorageErrorNotice } from '@/components/feedback';
 
 export function AppLayout() {
   const locale = useUiLocale();
@@ -22,6 +23,7 @@ export function AppLayout() {
       <Sidebar />
       <div className="lg:pl-64">
         <TopBar />
+        <div className="px-4 pt-3 lg:px-6"><StorageErrorNotice /></div>
         <main id="main-content" className="min-h-[calc(100vh-4rem)] p-4 pb-20 lg:p-6 lg:pb-6">
           <div className="mx-auto max-w-6xl">
             <Suspense

@@ -1,4 +1,5 @@
 export const STORAGE_ERROR_EVENT = 'interactive-guides:storage-error' as const;
+export const STORAGE_ERROR_CLEARED_EVENT = 'interactive-guides:storage-error-cleared' as const;
 
 export type StorageOperation = 'read' | 'write' | 'remove';
 
@@ -15,6 +16,12 @@ export function getLastStorageError(): StorageErrorDetail | null {
 
 export function clearLastStorageError(): void {
   lastStorageError = null;
+  if (typeof window === 'undefined' || typeof window.dispatchEvent !== 'function') return;
+  try {
+    window.dispatchEvent(new Event(STORAGE_ERROR_CLEARED_EVENT));
+  } catch {
+    // Clearing a notice must never crash the application.
+  }
 }
 
 /** Keeps an error visible to the app shell even if it happens before the banner mounts. */

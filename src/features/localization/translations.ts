@@ -172,7 +172,13 @@ const en = {
   "backupStorageUnavailable": "Browser storage is unavailable. Check browser privacy settings and try again.",
   "backupRestoreFailed": "The restore could not be saved. Existing local data has been kept.",
   "backupRollbackFailed": "A storage write and the automatic rollback both failed. Do not close this tab; immediately download whatever data is still readable and check browser storage.",
-  "backupUnexpectedError": "The backup operation failed unexpectedly. Your existing local data has not intentionally been cleared."
+  "backupUnexpectedError": "The backup operation failed unexpectedly. Your existing local data has not intentionally been cleared.",
+  "storageErrorTitle": "A learning-data storage problem occurred",
+  "storageReadFailed": "The app could not read some saved learning data. Some views may use fallback values; this does not mean your saved data is empty.",
+  "storageWriteFailed": "The latest change could not be saved. It may remain only in memory and could be lost when this tab closes.",
+  "storageRemoveFailed": "A saved record could not be removed; its previous copy may still exist in browser storage.",
+  "storageErrorAdvice": "Check browser privacy settings and available storage. Retry the action after storage is available, and verify the result.",
+  "dismissStorageWarning": "Dismiss storage warning"
 } as const;
 const ru: Record<keyof typeof en, string> = {
   "skipToContent": "Перейти к содержимому",
@@ -346,7 +352,13 @@ const ru: Record<keyof typeof en, string> = {
   "backupStorageUnavailable": "Хранилище браузера недоступно. Проверьте настройки приватности браузера и повторите попытку.",
   "backupRestoreFailed": "Не удалось сохранить восстановленные данные. Исходные локальные данные сохранены.",
   "backupRollbackFailed": "Не удалось выполнить запись и автоматический откат. Не закрывайте вкладку; немедленно скачайте всё ещё читаемое и проверьте хранилище браузера.",
-  "backupUnexpectedError": "Во время операции произошла непредвиденная ошибка. Приложение не пыталось намеренно удалять существующие данные."
+  "backupUnexpectedError": "Во время операции произошла непредвиденная ошибка. Приложение не пыталось намеренно удалять существующие данные.",
+  "storageErrorTitle": "Возникла проблема с хранилищем учебных данных",
+  "storageReadFailed": "Не удалось прочитать часть сохранённых учебных данных. Некоторые экраны могут использовать значения по умолчанию; это не означает, что сохранённые данные пусты.",
+  "storageWriteFailed": "Последнее изменение не удалось сохранить. Оно может остаться только в памяти и потеряться при закрытии вкладки.",
+  "storageRemoveFailed": "Не удалось удалить сохранённую запись; её старая копия может оставаться в хранилище браузера.",
+  "storageErrorAdvice": "Проверь настройки приватности браузера и доступное место. После восстановления доступа повтори действие и проверь результат.",
+  "dismissStorageWarning": "Скрыть предупреждение о хранилище"
 };
 
 export const translations: Record<Locale, Record<keyof typeof en, string>> = { en, ru };

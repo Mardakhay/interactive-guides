@@ -53,7 +53,7 @@ const backupDataSchema = z.object({
 export const backupPayloadSchema = z.object({
   format: z.literal(BACKUP_FORMAT),
   schemaVersion: z.literal(BACKUP_SCHEMA_VERSION),
-  createdAt: z.string().min(1),
+  createdAt: z.string().datetime(),
   data: backupDataSchema,
 }).strict();
 
@@ -251,6 +251,6 @@ export function getBackupSummary(backup: BackupPayload): BackupSummary {
     structuredQuizAttempts: Object.values(data.structuredLearning.quizAttempts).reduce((total, attempts) => total + attempts.length, 0),
     codeDrafts: Object.keys(data.structuredLearning.codeDrafts).length,
     practiceChecklists: Object.keys(data.structuredLearning.practiceChecklists).length,
-    sectionProgress: Object.keys(data.structuredLearning.sectionProgress).length,
+    sectionProgress: Object.values(data.structuredLearning.sectionProgress).reduce((total, entry) => total + entry.completedBlockIds.length, 0),
   };
 }

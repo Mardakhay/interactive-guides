@@ -14,8 +14,8 @@ class MemoryStorage implements Storage {
 }
 
 class FailWritesStorage extends MemoryStorage {
-  override setItem(_key: string, _value: string): void {
-    throw new DOMException('Quota exceeded', 'QuotaExceededError');
+  override setItem(key: string, value: string): void {
+    throw new DOMException(`Quota exceeded while writing ${key} (${value.length} chars)`, 'QuotaExceededError');
   }
 }
 
@@ -67,5 +67,42 @@ describe('versioned local JSON storage', () => {
     expect(saveVersionedJSON('ig:versioned-test', { count: 2 }, stateSchema, storage)).toBe(true);
     expect(JSON.parse(storage.getItem('ig:versioned-test') ?? '{}').schemaVersion).toBe(1);
     expect(saveVersionedJSON('ig:versioned-test', { count: -3 }, stateSchema, storage)).toBe(false);
+  });
+  it('reports storage read failures instead of silently claiming that the saved state is empty', () => {
+    class ReadFailStorage extends MemoryStorage {
+      override getItem(key: string): string | null {
+        throw new DOMException(`Storage denied for ${key}`, 'SecurityError');
+      }
+    }
+    const result = readVersionedJSON('ig:versioned-test', stateSchema, fallback, new ReadFailStorage());
+    expect(result).toEqual({ data: fallback, source: 'empty', invalid: false });
+    expect(getLastStorageError()).toEqual({ key: 'ig:versioned-test', operation: 'read' });
+  });
+
+  it('reports failed writes while leaving the in-memory state usable', () => {
+    const storage = new FailWritesStorage();
+    expect(saveVersionedJSON('ig:versioned-test', { count: 5 }, stateSchema, storage)).toBe(false);
+    expect(getLastStorageError()).toEqual({ key: 'ig:versioned-test', operation: 'write' });
+  });
+  it('retries a legacy migration successfully after a transient write failure', () => {
+    class FailFirstWriteStorage extends MemoryStorage {
+      private shouldFail = true;
+      override setItem(key: string, value: string): void {
+        if (this.shouldFail) {
+          this.shouldFail = false;
+          throw new DOMException(`Transient write failure for ${key} (${value.length} chars)`, 'QuotaExceededError');
+        }
+        super.setItem(key, value);
+      }
+    }
+    const storage = new FailFirstWriteStorage();
+    const raw = JSON.stringify({ count: 6 });
+    MemoryStorage.prototype.setItem.call(storage, 'ig:versioned-test', raw);
+    const first = readVersionedJSON('ig:versioned-test', stateSchema, fallback, storage);
+    expect(first.source).toBe('legacy');
+    expect(storage.getItem('ig:versioned-test')).toBe(raw);
+    const second = readVersionedJSON('ig:versioned-test', stateSchema, fallback, storage);
+    expect(second).toEqual({ data: { count: 6 }, source: 'migrated-legacy', invalid: false });
+    expect(JSON.parse(storage.getItem('ig:versioned-test') ?? '{}').schemaVersion).toBe(1);
   });
 });

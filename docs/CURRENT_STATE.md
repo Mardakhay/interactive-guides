@@ -8,15 +8,16 @@ This audit is based on the repository root, source directory listings, current p
 
 ## Authoritative implementation snapshot — 2026-10-27
 
-- **Latest validated application/content snapshot before this documentation sync:** `73a47b96b1c0fc00d454c0cd955f24514bb32024` (the local-data backup/restore implementation).
-- **Validation:** GitHub Actions [run #40487424471](https://github.com/Mardakhay/interactive-guides/actions/runs/40487424471) passed the CI workflow, including install, lint, typecheck, tests and production build, on this exact code SHA. This doc-only sync needs its own exact-head CI check.
-- **Branch safety:** PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) remains open and Draft. `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; this implementation work targets `feat/learning-platform-foundation`.
-- **Structured curriculum:** 26 core and 11 supplementary lesson IDs are registered in English and Russian (74 JSON files). The React reader and curriculum routes are integrated. All 25 legacy HTML files remain as source material; registration/schema validation does not mean source parity or editorial review is complete.
-- **Recent source-focused content work:** `css.fundamentals` is version 3 (53 blocks, 110 minutes, 5 knowledge checks, 5 walkthroughs, 3 coding exercises per locale); `git.fundamentals` is version 3 (38 blocks, 95 minutes per locale); `git.workflow-ci` is version 3 (37 blocks, 110 minutes per locale). EN/RU structures are checked in CI, while all three remain in editorial review and their legacy interaction parity is incomplete.
-- **UI localization:** English/Russian preference and route-aware locale support are implemented. Localization covers the shared shell, dashboard, catalog/category views, learning paths, bookmarks, notes, lesson metadata/navigation, quiz controls, search and common feedback states. This is broad partial coverage—not a guarantee that every string, source lesson body, edge state or legacy HTML page has been translated.
-- **PWA:** manifest, PNG icons, Netlify-compatible SPA fallback, scoped asset caching and a learner-approved service-worker update flow are implemented. Real-browser/device install/offline/update acceptance is still outstanding.
-- **Persistence/cloud:** local-first progress, notes, bookmarks, quiz results and structured-lesson state remain the source of truth. Versioned JSON backup/restore v1 is available at `/backup`, with schema validation, preview, explicit replace confirmation and best-effort rollback. Full repository versioning/migration and browser download/import smoke tests remain open. Supabase auth/sync is not implemented or listed as a package dependency.
-- **Release warnings:** the latest `npm ci` reported 13 dependency audit findings (8 moderate, 3 high, 2 critical). The CI build also emits the existing large-chunk warning, and React Router prints v7 future-flag warnings. These did not fail the workflow but should be triaged.
+- **Current feature head:** `cb24724b5b1c5317c24cf3adf6af5f40f944afda`; exact-head GitHub Actions [run #40500504527](https://github.com/Mardakhay/interactive-guides/actions/runs/40500504527) passed install, lint, typecheck, all tests and production build. This is remote CI evidence, not a local checkout/test run.
+- **Branch safety:** PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) remains open Draft, base `main`, head `feat/learning-platform-foundation`. `main` remains unchanged at `b13af92576e8a73753a6e3f3d26765d9f9c44397`.
+- **Structured curriculum:** 26 core and 11 supplementary lesson IDs are registered in English and Russian (74 JSON files). The React reader/curriculum routes are integrated. Lesson registration and schema checks do not mean editorial approval or full source/interaction parity.
+- **Content review:** full content/code/interaction reviews for 25/25 legacy HTML sources are documented. Source-to-block claim-by-claim parity, exact old-widget parity, and a formal factual review of every Notion claim remain incomplete. 21 Notion pages have been fetched/mapped, but each still reports `verification.state=unverified`; reading is not formal source verification.
+- **Recent bilingual content improvements:** `html.document-structure` v6 (50 aligned blocks), `ui.design-systems` v3 (32), `performance.accessibility` v4 (41), `data.sql-postgresql` v2 (46) and `testing.react-testing-library` v4 (39) have source-derived additions and regression checks. Source inventory and section-level parity remain open.
+- **UI localization:** EN/RU preference and route-aware locale support exist across the shell and major learner routes. Uncommon strings, all legacy bodies, responsive/keyboard/touch and screen-reader announcement audits are still open.
+- **Local-first persistence:** progress/bookmarks/notes/classic quiz results use schema-v1 local-store envelopes; structured learning uses a v2 envelope with legacy migration. The v1 JSON backup/restore route validates and previews replacement, includes learner data, excludes UI preferences, and has test coverage for snapshot-read failure, write failure, rollback success/failure, legacy-key cleanup failure, exported payload and corrupt state. Browser/device acceptance of native storage restrictions/file picker/download is still unrun.
+- **PWA/deployment:** manifest/icons, scoped static-asset cache, SPA fallback and user-approved service-worker update flow are implemented. Actual install/offline/deep-link/update tests on supported desktop/mobile browsers are not recorded.
+- **Cloud/release:** Supabase auth/sync is not implemented and remains gated behind local/cloud conflict decisions and RLS/account-isolation work. Capstone, full accessibility/localization, bundle-size/performance, dependency review and release acceptance remain open.
+- **CI/dependency warning:** a recent `npm ci` reported 12 dependency audit findings (6 moderate, 4 high, 2 critical). The build also emits the existing large-chunk warning and React Router v7 future-flag warnings; these do not currently fail CI and should be triaged separately.
 
 This snapshot is the authoritative status for this document; earlier checkpoint sections below are chronological history and should not override it.
 
@@ -676,3 +677,85 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Export refuses to silently omit malformed stored records. Import validates the entire payload before mutation, previews counts and requires explicit replacement confirmation. The restore writes canonical structured-learning v2 data and removes the legacy record only after the earlier writes succeed; failed writes trigger best-effort rollback of all affected keys.
 - Unit tests cover data round-trip, missing datasets/defaults, non-mutating legacy reads, invalid stored JSON, unsupported format, replacement behavior, canonical record writing, rollback and preview summary.
 - Code commit `73a47b96b1c0fc00d454c0cd955f24514bb32024` passed exact-head CI run [40487424471](https://github.com/Mardakhay/interactive-guides/actions/runs/40487424471). The documentation-only follow-up needs its own exact-head CI check. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397` and PR #1 remains Draft.
+
+## Versioned local-store continuation — 2026-10-27
+
+- Added `src/lib/versionedStorage.ts`; four learner stores now write `format: interactive-guides-local-store`, `schemaVersion: 1`, and `data`. Reads validate the envelope and its dataset schema, migrate valid raw legacy JSON, preserve raw values when migration writes fail, and leave malformed or unknown-version records untouched.
+- Backup export accepts both old raw records and schema-v1 envelopes; restore writes versioned envelopes for progress/bookmarks/notes/classic quiz results plus the existing structured-learning v2 envelope.
+- New helper tests cover raw-to-envelope migration, current record validation, unknown future version, invalid data, schema-invalid writes, unavailable reads/writes and retry after a transient migration-write failure. Backup tests verify legacy/current export compatibility and current-format restore for all four stores.
+- Code HEAD `3b6bb04caf338282f1f8f52d8724d11f7792b7a3` passed exact-head CI run [40489627861](https://github.com/Mardakhay/interactive-guides/actions/runs/40489627861); docs sync needs its own exact-head CI. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`, PR #1 remains Draft.
+
+## Learner-store action test checkpoint — 2026-10-27
+
+- `src/features/persistence/storePersistence.test.ts` verifies progress open/complete transitions, bookmark add/dedup/toggle, note set/delete-on-blank and quiz save/clear against the schema-v1 persisted envelopes.
+- Exact-head CI passed for code SHA `0fd1b488a2a6ea1b1c7c54eda5194b3bb3f4393c` in run [40490205475](https://github.com/Mardakhay/interactive-guides/actions/runs/40490205475). The browser download/file-picker restore workflow has not yet been verified in a real browser/device.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains open Draft.
+
+## Backup UI interaction coverage — 2026-10-27
+
+- `BackupPage.test.tsx` now covers valid import preview and disabled-by-default restore, explicit replace confirmation, restore-to-active-store behavior, malformed JSON, rejection of files over 10 MiB before reading, and download filename/status/object-URL cleanup.
+- Automated Vitest/jsdom coverage does not replace actual browser/device smoke checks. Phase 5 browser acceptance stays open until file-picker/download behavior and recovery feedback are checked in supported browsers.
+
+
+## Backup read-race hardening — 2026-10-27
+
+- Added a request-generation guard around asynchronous backup file reads. A previous slow or rejected file read cannot overwrite the state of a newer selection, and a pending read is invalidated on page unmount. Regression coverage resolves an invalid first file after a valid second file.
+- This improves application-level behavior only. Native file picker/download and mobile/browser storage acceptance still require real-browser/device smoke checks.
+
+
+## Local/cloud reconciliation proposal — 2026-10-27
+
+- Added `docs/LOCAL_CLOUD_RECONCILIATION.md` as a proposal only. It inventories current data shapes and per-record revision, tombstone, attempt-ID and concurrency gaps before cloud sync.
+- It proposes optimistic concurrency, idempotent mutations, explicit deletions, preserving concurrent note/code changes, and direct RLS testing. Phase 6 remains not started; product decisions and implementation/acceptance tests remain open.
+- Exact-head CI for backup UI and file-read race hardening: [40492871900](https://github.com/Mardakhay/interactive-guides/actions/runs/40492871900) succeeded on `36f9ee744b20ee14c9d3ac0b2b63e05eba1d0b76` (lint, typecheck, tests, build).
+
+
+## Global storage-error notice — 2026-10-27
+
+- Added `StorageErrorNotice` to the application shell. It uses the last reported error to catch failures that happen before mount, subscribes to read/write/remove storage failures, displays EN/RU recovery guidance, and can be dismissed without suppressing later failures.
+- `StorageErrorNotice.test.tsx` covers pre-mount error, live error, dismissal/cleared state and Russian copy. Exact-head CI for code commit `011379483d21de82387c07f9de8248e7efedf200` is run [40494213854](https://github.com/Mardakhay/interactive-guides/actions/runs/40494213854); check its final conclusion before marking the change validated.
+
+
+## Storage-error notice CI resolution — 2026-10-27
+
+- Final implementation adds `StorageErrorNotice` to `AppLayout`, localized read/write/remove failure explanations, and a dismiss-state notification from the storage helper. The component reads pre-existing storage errors and reacts to new events.
+- Exact-head CI passed on `56197eb6a903d6f808ea5944d01627f7dfc00381`: run [40494779602](https://github.com/Mardakhay/interactive-guides/actions/runs/40494779602). The intermediate test failures were test harness issues and have been corrected.
+- Real-browser localStorage privacy/quota validation and `/backup` file-picker/download smoke checks remain open; this notice improves error visibility but does not itself guarantee persistence.
+
+
+## Storage notice app-shell integration — 2026-10-27
+
+- Added an `AppLayout` integration test to assert that a storage write error reported before the layout mounts becomes a visible alert in the running shell, not merely when `StorageErrorNotice` is tested in isolation.
+- Previous component implementation/test suite passed exact-head CI on `e509bf66cd3d50d3a40629520f07a2f07f6873fd` in run [40495155044](https://github.com/Mardakhay/interactive-guides/actions/runs/40495155044); this shell integration test needs its own exact-head run.
+
+
+## Storage-error app-shell integration accepted — 2026-10-27
+
+- `AppLayout.test.tsx` now exercises the actual shell and proves that a write failure reported before mounting the layout appears in its accessible alert. The component suite also covers read/write/remove copy, event updates, dismissal/reopening and Russian localization.
+- Exact-head CI passed on `d2e9fc961b01a28353d72772b8d4d95b5cd1b13b` in run [40495501752](https://github.com/Mardakhay/interactive-guides/actions/runs/40495501752) (npm ci, lint, typecheck, tests, production build).
+- Browser/device storage privacy/quota validation and `/backup` native file-picker/download smoke checks remain open acceptance gates.
+
+## Backup failure-path validation — 2026-10-27
+
+- `BackupPage.test.tsx` covers restore write failure with successful rollback (old raw keys intact; active Zustand state unchanged) and rollback failure (recovery alert shown, imported data not published into active stores).
+- Exact-head CI passed on `c3208ddac964003dd6c119e9fb41a8b78c601435`: [40497324096](https://github.com/Mardakhay/interactive-guides/actions/runs/40497324096).
+- Manual acceptance remains: actual browser/device tests of localStorage privacy/quota, native file picker/download, and restore failure recovery. `main` remains unchanged.
+
+## Backup export and rollback test checkpoint — 2026-10-27
+
+- Export coverage now inspects the generated JSON payload with `FileReader`, verifies included learner note content, expected data groups, and omission of UI preferences. A corrupt stored-note record prevents Blob creation and yields a visible error.
+- Restore coverage now simulates legacy-key removal failing after writes and verifies raw-key rollback; prior tests also cover successful rollback and failed rollback UI.
+- Exact-head CI passed on `814c4d6f51deefb8f8904a4a3a15321aa537d233`: [40497807964](https://github.com/Mardakhay/interactive-guides/actions/runs/40497807964). `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`.
+- Remaining acceptance is explicitly manual: real browser/device quota/privacy modes, native download/file picker, and recovery behavior with native storage restrictions.
+
+## Structured-learning migration cleanup test — 2026-10-27
+
+- `readStructuredLearningState` has test coverage for the case where writing the current v2 envelope succeeds but deletion of the legacy key fails: current state is recoverable, legacy raw data is retained, and a removal-error snapshot is reported.
+- Exact-head CI passed on `9fb38aa1252e6a8f9191b777889b3c8cbe1229dc`: [40498451420](https://github.com/Mardakhay/interactive-guides/actions/runs/40498451420).
+- Outstanding Phase 5 acceptance remains manual: native browser/device storage privacy/quota and actual download/import/file-picker behavior.
+
+## Backup snapshot-read safety test — 2026-10-27
+
+- Added pre-write restore protection coverage: if any original value cannot be read while collecting the rollback snapshot, restore aborts before the first write/removal. The test confirms all prior raw keys remain intact.
+- Exact-head CI passed on `b9f500ee8509a986c12b0babd25a2c9947183a90`: [40498940471](https://github.com/Mardakhay/interactive-guides/actions/runs/40498940471).
+- Real-browser/device storage privacy/quota, file picker and download remain explicit manual acceptance gates.
