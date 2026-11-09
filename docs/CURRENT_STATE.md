@@ -82,11 +82,11 @@ The sections above record the original audit of `main` and remain useful as a ba
 
 ### Structured bilingual course
 
-- The canonical JSON curriculum still represents six months and 24 weeks. The current structured repository registers 25 lesson IDs, each with an English and a Russian JSON translation (50 translation files in total).
-- Week 8 is split into two clear lessons: async JavaScript/Fetch and Git fundamentals. Every other week currently has one main structured lesson.
+- The canonical JSON curriculum still represents six months and 24 weeks. The current structured repository registers 26 lesson IDs, each with an English and a Russian JSON translation (52 translation files in total).
+- Week 1 is split into web fundamentals/HTTP and HTML structure; Week 8 is split into async JavaScript/Fetch and Git fundamentals. Every other week currently has one main structured lesson.
 - The repository imports and schema-validates all lesson translations. `getStructuredLesson`, `getWeekForLesson`, `getCurriculumWeek`, and `getAdjacentStructuredLessons` expose content and canonical navigation.
 - Lessons use stable IDs and typed blocks for prose, lists, callouts, code, code walkthroughs, knowledge checks, coding exercises and references.
-- Content covers the entire core sequence from HTML/CSS through JS/Git, tooling, TypeScript, React, Router, forms, Context, API/custom Hooks, UI systems, accessibility/performance, testing, CI/workflow and capstone.
+- Content covers the entire core sequence from Internet/URL/HTTP/DevTools, HTML/CSS, JS/Git, tooling, TypeScript, React, Router, forms, Context, API/custom Hooks, UI systems, accessibility/performance, testing, CI/workflow and capstone.
 - All translations are still `review`, not fully editorial-approved/published. The 25 legacy HTML files remain migration inputs. A first-pass mapping exists, but source-by-source extraction/parity checks against Notion notes and legacy HTML are not complete.
 
 ### Application integration
@@ -110,8 +110,8 @@ The sections above record the original audit of `main` and remain useful as a ba
 
 ### Verification status
 
-- GitHub Actions run [#136](https://github.com/Mardakhay/interactive-guides/actions/runs/39772951754) passed for commit `11b149e6ca867717fcee7e3f53312241026a306d`: `npm ci`, lint, TypeScript typecheck, tests and production build succeeded.
-- Documentation-only commits were made after that code/test checkpoint. Verify the latest workflow run for the exact branch HEAD before making a current-green-CI claim.
+- The latest known successful CI before the Week 1 web lesson is run [#141](https://github.com/Mardakhay/interactive-guides/actions/runs/39773846222) for commit `d7fe944359468862394130dd117fb4c069646e81`.
+- The Week 1 web lesson, curriculum registration and navigation assertions were added after that checkpoint. Verify GitHub Actions for the exact latest branch HEAD before making a current-green-CI claim.
 - This is remote repository/CI evidence; no local `npm ci` or browser/device testing was executed in this environment.
 
 ### Next highest-value work
