@@ -6,9 +6,9 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 
 This section replaces older status summaries below where they conflict. Chronological checkpoint notes remain a history, not a unique-task count.
 
-- Feature HEAD before this update: `af953df222b108e380da87a38d5862d4363bc922`.
+- Latest validated code/content checkpoint: `6a0f9dbc888d713762096aac6074ed01a928336c`.
 - `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 is open Draft against `main`.
-- Exact-head Actions run [#40717844032](https://github.com/Mardakhay/interactive-guides/actions/runs/40717844032) passed on `af953df222b108e380da87a38d5862d4363bc922`: install, lint, typecheck, tests, production build/bundle checks and HTTP preview smoke. It is not a native browser/device pass.
+- Exact-head Actions run [#40837078455](https://github.com/Mardakhay/interactive-guides/actions/runs/40837078455) passed on `6a0f9dbc888d713762096aac6074ed01a928336c`: lint, typecheck, 36 test files / 227 tests, production build/bundle checks, informational audit report and production preview smoke. It is not a native browser/device pass.
 - Registry: 27 core + 17 supplementary = 44 EN/RU lesson pairs (88 JSON locale records).
 - 25 legacy HTML source reviews are documented, but all 25 route-cutover rows remain **Blocked**. Source-to-block parity, interaction dispositions and learner-state retention are still release gates.
 - 21 mapped Notion sources remain `verification.state=unverified`.
@@ -697,3 +697,10 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 - [x] Add the smoke stage after `npm run build` in GitHub Actions. Exact code/content SHA `28b5c53afd967d2a2488840b494b197398fe467d` passed [CI run #40691049972](https://github.com/Mardakhay/interactive-guides/actions/runs/40691049972): 223 tests across 35 files, lint, typecheck, production build, 125-chunk bundle budgets, smoke stage, and zero npm audit findings.
 - [ ] Keep real-browser/device acceptance open: this check only makes HTTP requests and inspects built artifacts; it does not execute React in a browser, verify real installability, exercise offline caches or confirm assistive-technology/mobile behavior.
 - [ ] Review production deployment behavior and record browser/device evidence before release.
+
+## intro.dev focused parity continuation — 2026-10-29
+
+- [x] In `tooling.node-npm-vite` EN/RU v4, add the exact npm 7+ React + TypeScript Vite command (`npm create vite@latest my-app -- --template react-ts`) and a scored question for the `react-ts` template. Add the HMR behavior and valid full-reload fallback with official Vite references.
+- [x] Update tooling tests to validate both locale schemas and identical block ordering, version/date, seven knowledge checks, the CLI walkthrough line ranges, correct `react-ts` and HMR answers, and npm/Vite reference URLs.
+- [x] Exact code/content SHA `0b20e7cf499c21d8ca3a879a104e11c11d1882f5` passed [CI #40832351304](https://github.com/Mardakhay/interactive-guides/actions/runs/40832351304): 36 test files / 226 tests, lint, typecheck, production build, 125 JS chunk budgets, zero npm audit advisories and preview smoke over four routes and five PWA assets.
+- [ ] `tl-003` remains blocked on full bilingual source/interaction parity; the legacy 20-question / 10-exercise interaction set is not recreated one-for-one. Preserve the source and classic route pending content, state-migration and browser/device acceptance.
