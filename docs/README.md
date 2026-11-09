@@ -9,11 +9,12 @@ This folder is the handoff point for future work. Read documents in this order:
 3. [Architecture](./ARCHITECTURE.md) — proposed application/content architecture and important boundaries.
 4. [Curriculum and lesson model](./CURRICULUM_AND_CONTENT.md) — syllabus mapping, lesson structure, bilingual content, and quality standards.
 5. [Content audit](./CONTENT_AUDIT.md) — structural checks, limitations, and remaining editorial validation.
-6. [Persistence and Supabase](./PERSISTENCE_AND_SUPABASE.md) — local-first storage, account model, data schema, synchronization, and security.
-7. [PWA and mobile](./PWA_AND_MOBILE.md) — installability, offline behavior, caching, and responsive UX.
-8. [Roadmap](./ROADMAP.md) — incremental delivery plan with acceptance criteria and commit messages.
-9. [Decision log](./DECISIONS.md) — important decisions and the rationale behind them.
-10. [Session handoff](./SESSION_HANDOFF.md) — latest verified checkpoint, open questions, and exact next action.
+6. [Editorial review checklist](./EDITORIAL_REVIEW_CHECKLIST.md) — repeatable human review and publishing gate for EN/RU lessons.
+7. [Persistence and Supabase](./PERSISTENCE_AND_SUPABASE.md) — local-first storage, account model, data schema, synchronization, and security.
+8. [PWA and mobile](./PWA_AND_MOBILE.md) — installability, offline behavior, caching, and responsive UX.
+9. [Roadmap](./ROADMAP.md) — incremental delivery plan with acceptance criteria and commit messages.
+10. [Decision log](./DECISIONS.md) — important decisions and the rationale behind them.
+11. [Session handoff](./SESSION_HANDOFF.md) — latest verified checkpoint, open questions, and exact next action.
 
 ## Working rules
 

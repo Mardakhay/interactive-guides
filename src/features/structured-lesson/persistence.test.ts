@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { clearLastStorageError } from '@/lib/storage';
 import {
   LEGACY_STRUCTURED_LEARNING_STORAGE_KEY,
   STRUCTURED_LEARNING_STORAGE_KEY,
@@ -21,6 +22,8 @@ class FailingStorage extends MemoryStorage {
     super.setItem(key, value);
   }
 }
+
+afterEach(() => clearLastStorageError());
 
 describe('structured learning persistence migration', () => {
   it('starts with an empty record when neither current nor legacy data exists', () => {

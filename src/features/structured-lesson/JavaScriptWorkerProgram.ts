@@ -92,7 +92,7 @@ function workerMain() {
     void (async () => {
       try {
         const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor as new (body: string) => () => Promise<unknown>;
-        const result = await new AsyncFunction('"use strict";\\n' + message.code)();
+        const result = await new AsyncFunction('"use strict";\n' + message.code)();
         if (result !== undefined) send('output', 'result', formatValue(result));
         send('finished', 'system', '');
       } catch (error) {

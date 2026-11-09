@@ -2,47 +2,62 @@
 
 **Inventory date:** 2026-10-22  
 **Source directory:** `public/lessons/`  
-**Purpose:** migration tracking, not a declaration that any lesson is already migrated.
+**Purpose:** connect each legacy file to its destination in the new curriculum and track what remains to be reviewed.
 
-## Inventory
+## Source-to-curriculum mapping
 
-| Legacy HTML | Proposed subject area | Canonical track mapping | Notes |
+A mapping is a destination proposal, not proof that the old page has been fully migrated. Structured destinations below exist as bilingual EN/RU JSON unless marked **future/TBD**. A source file remains in the legacy folder until its full content has been audited and the replacement has passed the editorial checklist.
+
+| Legacy HTML | Main subject | Proposed canonical destination(s) | Migration note |
 |---|---|---|---|
-| `internet-fundamentals.html` | Browser, network, HTTP, DNS, TLS | Month 1 / Week 1 | Structured bilingual lesson `web.internet-http` now covers the Week 1 foundation; line-by-line parity review of this legacy source remains pending |
-| `html-reference.html` | HTML structure, semantics, forms and accessibility | Month 1 / Weeks 1–2 | Split reference depth into sequential lessons |
-| `css-reference.html` | CSS syntax, selectors, box model, layout | Month 1 / Weeks 3–4 | Split foundational CSS from advanced reference sections |
-| `dom-masterclass.html` | DOM, events, browser APIs | Month 2 / Week 7 | Practical DOM module |
-| `js_interactive_book.html` | JavaScript core syntax | Month 2 / Weeks 5–6 | Audit ordering and depth; split into concepts |
-| `js-deep-dive.html` | Objects, prototypes, classes | Supplementary JavaScript track | Place after core object/function foundations |
-| `js-memory-mastery.html` | Execution, stack/heap, memory | Supplementary JavaScript internals | Connect to the user's Notion source A |
-| `interactive-async-js.html` | Promises, async/await, event loop, fetch | Month 2 / Week 8 | Divide into mental models, network use, failure handling |
-| `git-reference.html` | Git commands and concepts | Month 2 / Week 8 | Reference plus retrieval tasks |
-| `git-workflow-cicd-guide.html` | Branching, PR/MR, review, CI/CD | Month 5 / Week 20 | Some deployment content also overlaps Month 6 |
-| `intro.dev.html` | Development environment, Node and package tooling | Month 3 / Week 9 | Clarify current Node/npm versions during rewrite |
-| `react-usestate-guide.html` | React state and useState | Month 3 / Week 11 | Core React |
-| `react-hooks-guide.html` | Hooks and composition | Month 3 / Week 12 + extension | Use effect rules and current React docs |
-| `react-forms-tutorial.html` | Forms and validation | Month 4 / Week 14 | Include accessible errors and form semantics |
-| `react-api-hooks-lesson.html` | API layer and custom hooks | Month 4 / Week 16 | Keep core fetch concepts separate from library choices |
-| `react-ecosystem-course.html` | SPA, React Router and ecosystem | Month 4 / Week 13 | Match route concepts to current installed major version |
-| `react-performance-a11y.html` | Rendering performance, lazy loading, accessibility | Month 5 / Week 18 | Teach profiling/measurement before memoization |
-| `ui-design-system-learn.html` | UI systems, tokens, components | Month 5 / Week 17 | Use one coherent system in examples |
-| `material-ui-masterclass.html` | MUI library practice | Month 5 / Week 17 extension | Keep library-specific material supplementary |
-| `frontend-architecture-and-planning.html` | Requirements, architecture and project planning | Months 6 / Weeks 21–23 + extension | Connect to the capstone |
-| `test.guide.html` | Unit, integration and component testing | Month 5 / Week 19 | Align examples with selected test stack |
-| `frontend-auth.html` | Authentication and authorization | Month 6 / Week 23 extension | Security review required; distinguish UI guards from data authorization |
-| `deployment-learning.html` | Build output, environments, hosting and release | Month 6 / Week 24 extension | Include platform differences and current deployment docs |
-| `sql-learning-page.html` | SQL and database fundamentals | Supplementary track | Outside the supplied 24-week core sequence |
-| `frontend-bootcamp-notes.html` | Broad course handbook | Orientation / cross-links | Do not keep as a competing canonical curriculum |
+| `internet-fundamentals.html` | Browser, network, HTTP, DNS, TLS | `web.internet-http` | Week 1 structured bilingual lesson exists; line-by-line source parity remains pending |
+| `html-reference.html` | HTML structure, metadata, semantics, forms and accessibility | `html.document-structure`, `html.forms-accessibility` | Split the reference by learning goal; retain accurate reference details in the appropriate lesson |
+| `css-reference.html` | CSS syntax, selectors, cascade, box model and layout | `css.fundamentals`, `css.flexbox-grid-responsive` | Core split exists; map advanced/reference-only sections before marking source migrated |
+| `dom-masterclass.html` | DOM, events and browser APIs | `js.dom-events` | Week 7 structured lesson exists; preserve useful browser/API edge cases after review |
+| `js_interactive_book.html` | JavaScript core syntax and data processing | `js.basics-types-control-flow`, `js.functions-arrays-objects` | Split core language and functions/collections; check the source's exact order and exercise coverage |
+| `js-deep-dive.html` | Objects, prototypes and classes | **Future/TBD:** supplementary JavaScript object model lesson | Supplementary track; define a stable ID after full source extraction |
+| `js-memory-mastery.html` | Execution, stack/heap and memory | **Future/TBD:** supplementary JavaScript internals lesson | Cross-reference relevant Notion notes; no canonical supplementary ID assigned yet |
+| `interactive-async-js.html` | Promises, async/await, event loop and Fetch | `js.async-fetch` | Week 8 structured lesson exists; event-loop depth may require a separate supplementary lesson after source review |
+| `git-reference.html` | Git commands and concepts | `git.fundamentals` | Week 8 lesson exists; full comparison of commands, diagrams and exercises remains pending |
+| `git-workflow-cicd-guide.html` | Branching, PR/MR, review and CI/CD | `git.workflow-ci` | Week 20 structured lesson exists; check hosting-specific details and source links |
+| `intro.dev.html` | Node.js and development tooling | `tooling.node-npm-vite` | Week 9 lesson exists; verify tool versions and separate stable concepts from version-specific instructions |
+| `react-usestate-guide.html` | React components, props and useState | `react.components-jsx-state` | Week 11 lesson exists; check code samples and state-snapshot explanation against current docs |
+| `react-hooks-guide.html` | Effects, hooks and component composition | `react.effects-lists-composition`, relevant sections of `react.api-custom-hooks` | Split fundamental effects/list composition from API/custom-hook patterns; do not duplicate whole sections |
+| `react-forms-tutorial.html` | Forms and validation | `react.forms-validation` | Week 14 lesson exists; preserve semantic HTML and accessible error behavior |
+| `react-api-hooks-lesson.html` | API service layer and custom hooks | `react.api-custom-hooks` | Week 16 lesson exists; distinguish custom-hook reuse from shared state |
+| `react-ecosystem-course.html` | SPA and React Router | `react.router-spa` | Week 13 lesson exists; verify source examples against the installed React Router major version |
+| `react-performance-a11y.html` | Rendering performance, lazy loading and accessibility | `performance.accessibility` | Week 18 lesson exists; require measurement/profiling before advocating memoization |
+| `ui-design-system-learn.html` | Design tokens, UI systems and reusable components | `ui.design-systems` | Week 17 lesson exists; use a consistent design-system vocabulary |
+| `material-ui-masterclass.html` | Material UI library practice | `ui.design-systems` extension; separate **future/TBD** MUI-specific lesson if needed | Keep library-specific instructions supplementary and version-checked |
+| `frontend-architecture-and-planning.html` | Requirements, architecture and capstone planning | `capstone.requirements-discovery`, `capstone.design-architecture-planning`, `capstone.implementation`, `capstone.review-demo` | Map individual source sections to the capstone phase instead of copying the entire source into every lesson |
+| `test.guide.html` | Unit/component testing | `testing.react-testing-library` | Week 19 lesson exists; align examples with the selected Vitest/Testing Library stack |
+| `frontend-auth.html` | Authentication and authorization | `capstone.implementation` security extension; separate **future/TBD** auth lesson if needed | Supplementary scope; security review must distinguish UI guards from server/data authorization |
+| `deployment-learning.html` | Build output, environments, hosting and release | `capstone.review-demo` deployment context; separate **future/TBD** deployment lesson if needed | Keep platform-specific steps up to date and clearly mark environment assumptions |
+| `sql-learning-page.html` | SQL and database fundamentals | **Future/TBD:** supplementary SQL track | Outside the supplied 24-week core; define an independent supplemental curriculum ID |
+| `frontend-bootcamp-notes.html` | Broad course handbook | Orientation and cross-links; no duplicate canonical lesson ID | Treat as an index/reference source, not as a competing curriculum |
 
-## Migration status vocabulary
+## Migration states
 
-- `not-started`: source file has not been analyzed in full.
-- `extracted`: outline, examples, exercises, answers, links and claims have been inventoried.
-- `review-needed`: content has been rewritten but needs technical/instructional review.
-- `translated`: both locales are present; this alone does not imply review passed.
-- `validated`: source accuracy, content schema, language parity, navigation, exercises and tests passed.
-- `published`: linked in the canonical curriculum and usable through the new lesson reader.
+Use these statuses in the migration tracker. A translation or a schema-valid file is not enough to claim source migration.
 
-## Important limitation
+- `not-started`: the complete source file has not been analyzed.
+- `extracted`: headings, examples, exercises, answers, links, diagrams/interactions and claims have been inventoried.
+- `rewritten`: replacement structured content exists.
+- `translated`: both locales exist; this alone does not mean the translation passed review.
+- `validated`: source accuracy, content schema, language parity, navigation, examples, exercises and tests passed.
+- `published`: approved content is available through the canonical reader.
 
-The table is an initial subject mapping based on filenames and sampled content, not a full line-by-line audit of all 25 large HTML files. Before each file is rewritten, inspect its complete content and preserve useful examples and nuanced explanations where they are accurate. The migration should be curriculum-driven: split a legacy file when it contains several separate learnable concepts.
+## What is complete versus still open
+
+**Complete:** all 25 legacy filenames have an explicit proposed destination or a marked future/TBD supplemental disposition. The 26 core lesson IDs are registered in the structured curriculum in English and Russian.
+
+**Not complete:** there has not yet been a line-by-line comparison of every legacy HTML file against its replacement. Some legacy pages contain multiple topics and must be split; some supplementary destinations do not have a stable lesson ID yet. Keep every source HTML file until all relevant replacements pass the editorial checklist.
+
+## Required source audit before a legacy file can be called migrated
+
+1. Read the complete HTML file, including content below tabs/accordions, hidden answers, diagrams, code samples and interactive behavior.
+2. Record every teachable claim and useful example; mark outdated or inaccurate items instead of copying them blindly.
+3. Map each extracted unit to a canonical lesson block or an explicit future supplement.
+4. Verify claims using current primary documentation/standards, then adapt code and test it where practical.
+5. Compare English and Russian teaching value, not just block count/order.
+6. Run CI and finish the human review checklist before updating the migration status.
