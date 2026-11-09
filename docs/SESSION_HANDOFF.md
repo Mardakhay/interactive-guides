@@ -4,17 +4,17 @@
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Base branch:** `main`  
 **Working branch:** `feat/learning-platform-foundation`  
-**Working HEAD:** [`66bdcb81d524a82a9b8dfed12c831c8890c57a11`](https://github.com/Mardakhay/interactive-guides/commit/66bdcb81d524a82a9b8dfed12c831c8890c57a11)
+**Working HEAD:** [`f2492533aa5f159aa2642287e2e35d53746cc9e1`](https://github.com/Mardakhay/interactive-guides/commit/f2492533aa5f159aa2642287e2e35d53746cc9e1)
 
-## Authoritative continuation checkpoint — 2026-11-03
+## Historical checkpoint — 2026-11-03 (superseded by the 2026-11-10 scope decision)
 
 This section is the source of truth for the next session. Sections below are dated implementation history unless explicitly labelled current.
 
-- **Exact-head validation:** [Actions run #41066740505 (run #890)](https://github.com/Mardakhay/interactive-guides/actions/runs/41066740505) passed on `66bdcb81d524a82a9b8dfed12c831c8890c57a11`: dependency installation, ESLint, TypeScript, Vitest, production build, JavaScript bundle budgets and production-preview HTTP smoke. The exact HEAD was tested; no test-count claim is made here.
-- **Latest code change:** `fix(git): preserve interactive state across source tabs`. The seven Git Workflow tab panels are source-aligned in EN/RU; keyboard navigation supports ArrowLeft/ArrowRight/Home/End. Once a panel is visited, its subtree remains mounted while hidden, so an in-progress sequential quiz retains its current question, answer feedback and score when the learner changes tabs and returns.
-- **Current Git content:** `git.fundamentals` v14 (72 blocks; 26 copyable commands); `git.workflow-ci` v14 (73 blocks; 19 checks, 5 walkthroughs, 5 exercises, seven tabs, branch graph, pipeline simulator and ten-question sequential quiz). Both locales remain editorially marked `review`.
+- **Exact-head validation:** [Actions run #41709617431 (run #901)](https://github.com/Mardakhay/interactive-guides/actions/runs/41709617431) passed on `f2492533aa5f159aa2642287e2e35d53746cc9e1`: dependency installation, ESLint, TypeScript, **66 test files / 362 tests**, production build, 141 JavaScript bundle budgets and preview smoke for 13 deep routes plus PWA/assets and generated content. Native device/browser acceptance is not inferred from CI.
+- **Latest code change:** `test(content): update object model lesson v4 contract`; the preceding content commit adds the Object static-methods section to `js.object-prototypes` in both locales.. The seven Git Workflow tab panels are source-aligned in EN/RU; keyboard navigation supports ArrowLeft/ArrowRight/Home/End. Once a panel is visited, its subtree remains mounted while hidden, so an in-progress sequential quiz retains its current question, answer feedback and score when the learner changes tabs and returns.
+- **Current Git content:** `git.fundamentals` v14 (72 blocks; 26 copyable commands); `git.workflow-ci` v14 (73 blocks; 19 checks, 5 walkthroughs, 5 exercises, seven tabs, branch graph, pipeline simulator and ten-question sequential quiz); `js.object-prototypes` v4 (47 blocks per locale). Both lesson pairs remain editorially marked `review`.
 - **Main/PR safety:** `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`. PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) remains open as Draft against `main`. Continue only on `feat/learning-platform-foundation`; do not merge or push application work to `main`.
-- **Structured content:** 27 core + 17 supplementary lesson IDs (44 EN/RU pairs; 88 JSON records). Practice Center aggregates 118 coding exercises. Settings currently provides local language/network/data/backup controls; theme switching and cloud/account functions are not implemented.
+- **Structured content:** 27 core + 17 supplementary lesson IDs (44 EN/RU pairs; 88 JSON records). Practice Center aggregates 119 coding exercises. Settings currently provides local language/network/data/backup controls; theme switching and cloud/account functions are not implemented.
 - **Legacy gate:** all 25 rows in `docs/LEGACY_ROUTE_CUTOVER_MATRIX.md` remain **Blocked**. The inventory/review trail for 25 HTML sources does not equal complete line-by-line parity. Preserve all classic lesson routes and HTML sources.
 - **Notion source status:** all 21 fetched/mapped records remain `verification.state=unverified`; source-owner/editorial verification is outstanding.
 - **Learner data:** classic progress, bookmarks, notes and quiz results have separate identities from structured lesson/block activity. No broad one-to-many mapping, classic aggregate quiz migration or route cutover is approved.
@@ -72,10 +72,21 @@ These commands must be run on the target feature-branch checkout. The current ev
 
 # Session Handoff
 
-**Last updated:** 2026-10-29  
+**Last updated:** 2026-11-10  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
+
+## Current handoff — 2026-11-10 (approved merge scope)
+
+- Project owner decision: merge the bilingual structured **local-first** platform into `main`. No backend, Supabase, accounts or cloud sync are planned.
+- Preserve all classic HTML lesson files, routes and current learner records. No redirects, legacy route cutover, HTML deletion or cross-ID learner-state migration is part of this merge.
+- Final pre-merge HEAD: [`2bf8d15`](https://github.com/Mardakhay/interactive-guides/commit/2bf8d15de30817ae82e2bf05d7b75d03a3ab78ed). Exact [Actions #42702879533](https://github.com/Mardakhay/interactive-guides/actions/runs/42702879533) passed: npm ci, production-only audit (0 vulnerabilities), lint, typecheck, **66 test files / 363 tests**, production build, 141 bundle budgets and 13-route/PWA HTTP smoke.
+- Netlify Preview for that exact HEAD is Ready. Main-branch CI and production deploy must be checked after the merge.
+- The feature branch has 35 chronological, reworded commits. The original 961-commit history is retained on `backup/feat-learning-platform-foundation-pre-squash-2026-11-10`; the intermediate one-commit version on `backup/feat-learning-platform-foundation-pre-35-commit-2026-11-10`; and the pre-scope-update 35-commit version on `backup/feat-learning-platform-foundation-pre-local-first-merge-scope-2026-11-10`.
+- Post-merge follow-up: 25 legacy route rows remain Blocked; 44 EN/RU lesson pairs need editorial approval; 21 Notion sources remain `unverified`; native browser/device, screen-reader, PWA install/offline and file-picker acceptance have not run.
+- Full dev-tool audit reports 10 moderate findings (0 high/critical); production-only audit reports 0 vulnerabilities. Do not apply an unchecked major-version override.
+- Preserve the local-first scope; track manual acceptance, source review and any future legacy cutover as separate work.
 
 
 ## Focused js-003 memory source review — 2026-10-29

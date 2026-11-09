@@ -1,10 +1,10 @@
 {
   "id": "js.object-prototypes",
   "locale": "ru",
-  "version": 3,
+  "version": 5,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-11-03",
   "moduleId": "supplement-js-internals",
   "supplementaryTrackId": "supplement-js-internals",
   "order": 2,
@@ -89,6 +89,82 @@
       "id": "object-model-new-text",
       "type": "paragraph",
       "text": "При обычном вызове конструктора через new создаётся объект, его прототип связывается с Constructor.prototype, конструктор вызывается с this, указывающим на новый объект, а затем возвращается явно возвращённый объект, если он есть, иначе — созданный экземпляр. Конструкторы class добавляют более строгие правила, в том числе обязательный new."
+    },
+    {
+      "id": "object-model-new-algorithm-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Возвращаемые значения конструктора и fallback прототипа"
+    },
+    {
+      "id": "object-model-new-algorithm-text",
+      "type": "paragraph",
+      "text": "Для обычной конструируемой функции `new` возвращает созданный экземпляр, если конструктор явно не вернул ненулевой объект. Возвращённый объект, включая функцию, заменяет этот экземпляр; примитивное возвращаемое значение игнорируется. Обычно новый экземпляр связывается с объектом `Constructor.prototype`. Если это свойство не является объектом (в том числе равно `null`), прототипом нового экземпляра становится `Object.prototype`. Это правила обычных функций-конструкторов; у конструкторов производных классов есть дополнительные ограничения для `super()` и возвращаемых значений."
+    },
+    {
+      "id": "object-model-new-algorithm-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function User(name) {\n  this.name = name;\n  this.createdByConstructor = true;\n}\n\nfunction ReturnObject() {\n  this.keptOnCreatedInstance = true;\n  return { name: 'replacement' };\n}\n\nfunction ReturnFunction() {\n  this.keptOnCreatedInstance = true;\n  return function replacement() {};\n}\n\nfunction ReturnPrimitive() {\n  this.keptOnCreatedInstance = true;\n  return 7;\n}\n\nconst normal = new User('Ада');\nconst objectResult = new ReturnObject();\nconst functionResult = new ReturnFunction();\nconst primitiveResult = new ReturnPrimitive();\n\nconsole.log(normal.name, normal.createdByConstructor); // Ада true\nconsole.log(objectResult.name, objectResult.keptOnCreatedInstance); // replacement undefined\nconsole.log(typeof functionResult); // function\nconsole.log(primitiveResult.keptOnCreatedInstance); // true\n\nfunction NonObjectPrototype() {}\nNonObjectPrototype.prototype = 42;\nconst fallback = new NonObjectPrototype();\nconsole.log(Object.getPrototypeOf(fallback) === Object.prototype); // true",
+      "steps": [
+        {
+          "title": "Обычный экземпляр возвращается по умолчанию",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Если конструктор не возвращает объект, результатом new становится созданный экземпляр со свойствами, назначенными через this."
+        },
+        {
+          "title": "Явно возвращённый объект заменяет экземпляр",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "explanation": "ReturnObject сначала получает созданный экземпляр, а затем возвращает другой объект. Свойство name берётся из возвращённого объекта, а свойство отброшенного экземпляра недоступно."
+        },
+        {
+          "title": "Функция тоже считается возвращённым объектом",
+          "lineStart": 11,
+          "lineEnd": 14,
+          "explanation": "В JavaScript функция является объектом. Если обычный конструктор возвращает функцию, результатом new становится эта функция."
+        },
+        {
+          "title": "Примитив игнорируется; для прототипа используется fallback",
+          "lineStart": 16,
+          "lineEnd": 34,
+          "explanation": "Число 7 не заменяет созданный экземпляр. Если Constructor.prototype не является объектом, прототипом экземпляра становится Object.prototype. У конструкторов производных классов действуют дополнительные правила."
+        }
+      ]
+    },
+    {
+      "id": "object-model-new-algorithm-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Обычная функция-конструктор возвращает `function replacement() {}`. Что станет результатом `new Constructor()`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Экземпляр, созданный перед выполнением тела конструктора",
+          "correct": false,
+          "feedback": "Экземпляр по умолчанию возвращается, только если конструктор явно не вернул ненулевой объект."
+        },
+        {
+          "id": "b",
+          "text": "Возвращённый объект-функция",
+          "correct": true,
+          "feedback": "Функции являются объектами, поэтому явно возвращённая функция заменяет экземпляр, созданный через new для обычной функции-конструктора."
+        },
+        {
+          "id": "c",
+          "text": "Примитивное значение `undefined`",
+          "correct": false,
+          "feedback": "Возврат функции — это возврат объекта, а не отсутствие результата или примитивное значение."
+        },
+        {
+          "id": "d",
+          "text": "TypeError, потому что конструкторы не могут возвращать функции",
+          "correct": false,
+          "feedback": "Обычная функция-конструктор может вернуть любой объект, включая функцию. У производных class-конструкторов есть дополнительные ограничения."
+        }
+      ],
+      "explanation": "Правило возврата обычного конструктора различает объекты (включая функции) и примитивы. Возвращённый объект заменяет экземпляр по умолчанию, а примитив игнорируется."
     },
     {
       "id": "object-model-this",
@@ -279,6 +355,115 @@
         }
       ],
       "explanation": "Цепочка прототипов влияет на обычную семантику свойств, поэтому обработка входных ключей должна учитывать унаследованные имена и особенности объединения."
+    },
+    {
+      "id": "object-static-methods-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Просмотр, преобразование и заморозка объектов"
+    },
+    {
+      "id": "object-static-methods-text",
+      "type": "paragraph",
+      "text": "Object.keys(), Object.values() и Object.entries() рассматривают собственные перечисляемые свойства объекта со строковыми ключами: они не обходят цепочку прототипов и не включают символьные ключи. Object.fromEntries() создаёт объект из пар ключ/значение. Object.assign(target, source) копирует перечисляемые собственные свойства в target и изменяет его, а object spread создаёт новый внешний объект. Оба способа копирования поверхностные: вложенные объекты остаются общими ссылками. Object.freeze() запрещает расширять объект и замораживает его собственные дескрипторы свойств, но не замораживает вложенные объекты рекурсивно."
+    },
+    {
+      "id": "object-static-methods-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const profile = { name: 'Ада', role: 'editor', preferences: { theme: 'dark' } };\n\nconsole.log(Object.keys(profile));\n// ['name', 'role', 'preferences']\nconsole.log(Object.values(profile));\n// ['Ада', 'editor', { theme: 'dark' }]\nconsole.log(Object.entries(profile));\n// [['name', 'Ада'], ['role', 'editor'], ['preferences', { theme: 'dark' }]]\n\nconst publicProfile = Object.fromEntries(\n  Object.entries(profile).filter(([key]) => key !== 'preferences'),\n);\nconst assigned = Object.assign({}, profile, { role: 'admin' });\nconst spread = { ...profile, role: 'admin' };\nconsole.log(assigned.preferences === profile.preferences); // true\nconsole.log(spread.preferences === profile.preferences);   // true\n\nconst frozen = Object.freeze({ settings: { theme: 'dark' } });\nfrozen.settings.theme = 'light'; // вложенный объект всё ещё изменяем\nconsole.log(frozen.settings.theme); // 'light'",
+      "steps": [
+        {
+          "title": "Просматриваем только собственные перечисляемые строковые ключи",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "keys(), values() и entries() рассматривают собственные перечисляемые свойства profile со строковыми ключами. Они не включают унаследованные и символьные свойства."
+        },
+        {
+          "title": "Создаём новый объект из выбранных пар",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "explanation": "Object.entries() создаёт пары ключ/значение; filter оставляет разрешённые ключи, а Object.fromEntries() превращает пары в новый объект."
+        },
+        {
+          "title": "Сравниваем assign и spread",
+          "lineStart": 13,
+          "lineEnd": 16,
+          "explanation": "Object.assign записывает свойства в объект, переданный первым аргументом. Spread создаёт новый внешний объект. Оба способа сохраняют ссылки на вложенные объекты, поэтому preferences остаётся общей."
+        },
+        {
+          "title": "Помним, что freeze не рекурсивен",
+          "lineStart": 18,
+          "lineEnd": 20,
+          "explanation": "Внешний объект заморожен, но его settings указывает на отдельный изменяемый объект. Для глубокой неизменяемости нужна отдельная стратегия работы с вложенными данными."
+        }
+      ]
+    },
+    {
+      "id": "object-static-methods-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Какое утверждение правильно сравнивает Object.assign({}, source) и { ...source }?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Оба способа рекурсивно копируют все вложенные объекты и массивы.",
+          "correct": false,
+          "feedback": "Ни один из способов не выполняет глубокое клонирование; вложенные объекты могут продолжать ссылаться на исходные данные."
+        },
+        {
+          "id": "b",
+          "text": "Оба создают поверхностную копию; Object.assign изменяет target, а spread создаёт новый внешний объект.",
+          "correct": true,
+          "feedback": "Object.assign копирует свойства в первый аргумент. Object spread создаёт новый объектный литерал; в обоих случаях вложенные ссылки сохраняются, если их не скопировать отдельно."
+        },
+        {
+          "id": "c",
+          "text": "Object.assign копирует унаследованные перечисляемые свойства, а spread — только собственные.",
+          "correct": false,
+          "feedback": "Оба способа копируют собственные перечисляемые свойства; унаследованные свойства не копируются."
+        },
+        {
+          "id": "d",
+          "text": "Object.freeze рекурсивно замораживает все вложенные объекты.",
+          "correct": false,
+          "feedback": "Object.freeze действует поверхностно. Вложенные объекты остаются изменяемыми, если не заморозить их отдельно."
+        }
+      ],
+      "explanation": "Выбирай способ копирования с учётом того, куда записываются свойства и насколько глубокой должна быть копия. Новый внешний объект не означает независимость вложенных данных."
+    },
+    {
+      "id": "object-static-methods-practice",
+      "type": "codingExercise",
+      "title": "Создай публичную конфигурацию без внутренних полей",
+      "language": "javascript",
+      "context": "Интерфейсу нужна публичная конфигурация на основе внутреннего объекта настроек. Внутренний объект может расширяться, поэтому публичная проекция должна включать только явно разрешённые поля.",
+      "instructions": [
+        "Создай внутренний объект настроек с `theme`, `locale`, `apiToken` и вложенным объектом `preferences`.",
+        "Используй Object.entries() с явным allowlist, затем Object.fromEntries(), чтобы создать публичную конфигурацию.",
+        "Покажи, что в публичном результате нет `apiToken` и новых полей, которые не были разрешены.",
+        "Объясни, почему вложенный объект preferences остаётся общей ссылкой при поверхностном копировании, и реши, нужно ли копировать его отдельно.",
+        "Сравни результат с Object.assign() и object spread; укажи, какой объект изменяет или создаёт каждый способ."
+      ],
+      "requirements": [
+        "В публичном объекте присутствуют только явно разрешённые верхнеуровневые ключи.",
+        "Исходный объект настроек не изменяется.",
+        "Политика копирования вложенного preferences явная и проверена.",
+        "Объяснение различает собственные перечисляемые свойства, поверхностное копирование и Object.freeze()."
+      ],
+      "starterCode": "const settings = {\n  theme: 'dark',\n  locale: 'ru',\n  apiToken: 'do-not-expose',\n  preferences: { density: 'compact' },\n};\n\nconst allowedKeys = new Set(['theme', 'locale', 'preferences']);\n// TODO: создай публичный объект из Object.entries(settings)\n// TODO: отдельно скопируй preferences, только если интерфейсу нужна независимая копия\n\nconsole.log(publicSettings);\nconsole.log(Object.hasOwn(publicSettings, 'apiToken')); // false",
+      "hints": [
+        "Object.entries(settings) возвращает пары верхнеуровневых ключей и значений; сначала отфильтруй их, затем вызови Object.fromEntries().",
+        "Allowlist должен определять разрешённые поля, а не перечислять все поля, которые нужно удалить.",
+        "Если интерфейс будет изменять preferences независимо, скопируй этот вложенный объект отдельно; один spread или Object.assign выполняет только поверхностное копирование."
+      ],
+      "successCriteria": [
+        "Публичный объект содержит theme, locale и preferences, но не apiToken.",
+        "Добавление в settings нового неразрешённого ключа не приводит к его автоматической публикации.",
+        "Исходный объект настроек остаётся неизменным.",
+        "Решение о ссылке/копии preferences продемонстрировано.",
+        "Объяснение правильно сравнивает Object.assign(), spread и поверхностный Object.freeze()."
+      ]
     },
     {
       "id": "prototype-debug-practice",
@@ -817,6 +1002,16 @@
         {
           "title": "MDN: Array.prototype.reduce()",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Статические методы Object",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Оператор new",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new",
           "kind": "official-docs"
         }
       ]

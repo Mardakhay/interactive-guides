@@ -1,15 +1,14 @@
-# Persistence and Supabase Plan
+# Local Persistence and Backup Plan
 
-**Status:** versioned local learner stores and JSON backup/restore v1 are implemented on `feat/learning-platform-foundation`. A draft local/cloud reconciliation policy is in [`LOCAL_CLOUD_RECONCILIATION.md`](./LOCAL_CLOUD_RECONCILIATION.md); Supabase auth/sync remains proposed and is not a package dependency.
+**Status (2026-11-10):** versioned browser-local learner stores and JSON backup/restore v1 are implemented. The project owner has decided that no backend is planned: Supabase, accounts, authentication and cloud synchronization are out of scope. Keep this document focused on the active local persistence contract; cloud material below is retained only as historical proposal context and must not be treated as an implementation roadmap.
 
 ## Product decisions
 
-1. The app remains usable without sign-in.
-2. Public curriculum and lessons remain readable offline within the documented cache scope.
-3. Local persistence is the immediate source for anonymous learner state.
-4. Supabase is added only after local repository contracts and stable models exist.
-5. Cloud synchronization is scoped per authenticated user and protected by Row Level Security.
-6. A UI route guard is not an authorization boundary; the database/API must enforce access.
+1. The application remains usable without sign-in; there are no user accounts.
+2. Browser-local persistence is the source of learner state.
+3. Learners can export and restore a versioned JSON backup.
+4. Classic lesson IDs and structured lesson/block IDs remain separate; no automatic cross-ID migration or record fan-out is performed.
+5. Do not add remote learner storage, authentication or cloud sync; backend features are not planned.
 
 ## Local data backup/export-restore — v1 implementation checkpoint (2026-10-27)
 
@@ -27,7 +26,11 @@ Backup files are plain JSON and can contain private notes/code drafts. Users sho
 
 Still open: complete the remaining real-browser/device acceptance in [`BROWSER_SMOKE_TEST_CHECKLIST.md`](./BROWSER_SMOKE_TEST_CHECKLIST.md); finish a final inventory of persistence call sites/preferences; decide field-level merge semantics for future cloud sync; and implement/account-test Supabase only after those contracts stabilize. Progress, bookmarks, notes and classic quiz results use local-store schema-v1 envelopes; structured learning uses a v2 envelope. UI locale is a separate preference and is intentionally excluded from learner backup.
 
-## First cloud features worth implementing
+## Archived cloud concepts — not planned for this project
+
+The following sections are historical design exploration only. They are not approved scope and must not be implemented unless the project owner makes a new, explicit product decision.
+
+### Previously considered cloud features
 
 - Email/password and/or supported OAuth sign-in after auth requirements are reviewed.
 - Restore progress and bookmarks on another device.
@@ -37,7 +40,7 @@ Still open: complete the remaining real-browser/device acceptance in [`BROWSER_S
 - Account data export and account deletion flow.
 - A merge/restore path if an account starts with existing local data.
 
-## Candidate relational schema
+## Archived proposal: candidate relational schema
 
 These names are illustrative; finalize with migrations and queries before implementation.
 
@@ -105,13 +108,13 @@ These names are illustrative; finalize with migrations and queries before implem
 
 Add foreign keys to `auth.users` for every user-owned table and suitable indexes for user, lesson and updated_at access.
 
-## Row Level Security
+## Archived proposal: Row Level Security
 
 Enable RLS on every table containing user data. Policies should allow a signed-in user to select/insert/update/delete only rows where `user_id = auth.uid()` (and for `profiles`, `id = auth.uid()`). Validate policy behavior with tests and direct SQL checks. Do not rely on client-supplied IDs or frontend route guards.
 
 Never expose the Supabase service-role key to the browser. A Vite `VITE_*` variable is shipped to client code; only public project URL and anon/publishable key belong there. Keep server-only credentials in server-side secret storage if future server functions are added.
 
-## Local-to-cloud migration
+## Archived proposal: local-to-cloud migration
 
 1. Version the local storage format and export current user data.
 2. Add a migration/backup step before changing existing records.

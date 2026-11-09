@@ -1,8 +1,8 @@
 # Focused Source-to-Block Review: js-002 Objects, Prototypes and Classes
 
-**Audit date:** 2026-10-29  
+**Audit date:** 2026-11-03  
 **Classic source:** `public/lessons/js-deep-dive.html` (interactive object, prototype and class guide).  
-**Canonical destination:** `js.object-prototypes` (EN/RU v3, 42 aligned blocks), with related reference/memory concepts in `js.runtime-memory`.
+**Canonical destination:** `js.object-prototypes` (EN/RU v4, 47 aligned blocks), with related reference/memory concepts in `js.runtime-memory`.
 
 ## Scope and decision
 
@@ -20,6 +20,20 @@ This pass corrects JavaScript object-model terminology where memorable shorthand
 | Class syntax, inheritance, static members and private fields | `classes-model`, `classes-walkthrough`, `classes-limits`, `classes-check` | The source explains that classes use prototype delegation but add strict mode, new-only construction, private elements, `super` behavior and non-enumerable prototype methods. “Identical syntax sugar” claims and feedback were corrected. |
 | `instanceof`, `super`, and static inheritance | `classes-model`, `classes-limits`, `object-model-new-text` | The default prototype-chain explanation now notes that `Symbol.hasInstance` can customize `instanceof`; the interactive example remains for the default case. |
 
+## Additional Object static-methods source parity — v4
+
+The legacy source's **Object Built-in Methods** example lists `Object.keys`, `Object.values`, `Object.entries`, `Object.assign` and `Object.freeze`. The canonical pair previously covered shallow spread and freeze limitations elsewhere, but did not provide a dedicated walkthrough of this method set or an assessed transformation task. v4 adds:
+
+- exact own/enumerable/string-keyed scope for keys/values/entries, including the exclusion of inherited and symbol properties;
+- `Object.fromEntries` for building a new object from selected pairs;
+- `Object.assign` mutating its target versus object spread creating a new outer object;
+- shared nested references after either shallow copy, and the non-recursive behavior of `Object.freeze`;
+- a check that discriminates the copy contracts and an allowlist exercise that constructs a public configuration without internal fields.
+
+The lesson is now EN/RU v4 with 47 aligned blocks. The source's object/prototype/class playgrounds are not converted into arbitrary main-thread code execution; the new exercise is a scaffolded task in the existing lesson contract. Both locale JSON files remain `review` until editorial review is complete.
+
+| Object built-in methods: keys, values, entries, assign and freeze | `object-static-methods-heading`, `object-static-methods-text`, `object-static-methods-walkthrough`, `object-static-methods-check`, `object-static-methods-practice` | Added in v4: own enumerable string-keyed semantics, Object.fromEntries, assign-target mutation vs spread-created object, shallow-copy aliasing and shallow freeze; an allowlist-based public-config task makes safe property selection practical. |
+
 ## Corrections applied
 
 - **Pass-by-value:** JavaScript copies values. When the copied value is an object reference, both variables can refer to the same object; reassigning one variable does not change the other variable's binding.
@@ -36,6 +50,6 @@ The source still contains five main sections, object/prototype/class playgrounds
 
 ## Remaining release gates
 
-- Keep `/lessons/js-002` and `public/lessons/js-deep-dive.html` until the route's interaction decisions and learner-state handling are signed off.
+- Keep `/lessons/js-002` and `public/lessons/js-deep-dive.html` until the route's remaining interaction decisions, complete source parity, and learner-state handling are signed off.
 - Do not migrate progress, notes, bookmarks or quiz results from `js-002` to structured lesson/block keys based only on candidate mapping.
 - Validate prototype/class playground execution, keyboard use, quiz feedback, editable practice and responsive behavior in real browsers before any cutover.

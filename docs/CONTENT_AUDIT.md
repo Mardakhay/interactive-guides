@@ -6,9 +6,9 @@
 
 ## Authoritative feature-branch checkpoint — 2026-11-03
 
-The current working branch is `feat/learning-platform-foundation` at [`66bdcb81d524a82a9b8dfed12c831c8890c57a11`](https://github.com/Mardakhay/interactive-guides/commit/66bdcb81d524a82a9b8dfed12c831c8890c57a11). Exact-head [Actions run #41066740505 (run #890)](https://github.com/Mardakhay/interactive-guides/actions/runs/41066740505) passed dependency installation, lint, typecheck, tests, production build, bundle-budget checks and production-preview HTTP smoke.
+The current working branch is `feat/learning-platform-foundation` at [`f2492533aa5f159aa2642287e2e35d53746cc9e1`](https://github.com/Mardakhay/interactive-guides/commit/f2492533aa5f159aa2642287e2e35d53746cc9e1). Exact-head [Actions run #41709617431 (run #901)](https://github.com/Mardakhay/interactive-guides/actions/runs/41709617431) passed dependency installation, lint, typecheck, 66 test files / 362 tests, production build, 141 bundle-budget checks and production-preview HTTP smoke.
 
-The registry contains 27 core + 17 supplementary lesson IDs (44 EN/RU pairs, 88 locale JSON records). `git.fundamentals` is v14 with 72 blocks per locale. `git.workflow-ci` is v14 with 73 blocks per locale, including seven source-aligned tabs, tab keyboard navigation, visited-panel state retention, the branch-flow and pipeline simulators, and the ten-question sequential quiz. Both Git lesson pairs remain in editorial `review` status.
+The registry contains 27 core + 17 supplementary lesson IDs (44 EN/RU pairs, 88 locale JSON records). `git.fundamentals` is v14 with 72 blocks per locale; `git.workflow-ci` is v14 with 73 blocks per locale and its seven source-aligned tabs, simulators and sequential quiz; `js.object-prototypes` is v4 with 47 aligned blocks per locale and the new Object static-methods walkthrough, check and allowlist exercise. Practice Center now indexes 119 coding exercises. The Git and JavaScript object-model lesson pairs remain in editorial `review` status.
 
 All 25 classic route cutover rows remain **Blocked**. The 25 HTML files have an inventory and documented content/code/interaction review trail; that milestone does not certify line-by-line claim/example parity, complete widget equivalence or editorial approval. The 21 fetched/mapped Notion sources remain `verification.state=unverified`. Preserve classic routes and HTML sources until content, learner-state and manual-acceptance gates are closed.
 
@@ -35,9 +35,9 @@ The same checkpoint passed [Actions run #41029890527](https://github.com/Mardakh
 At feature checkpoint `f25e87e65fd05be5aa49fcde590489325f0bc40f`, the build-time index generator creates six bounded search chunks plus one dedicated practice-exercise index for each locale. It validates EN/RU stable IDs, publication status and ordered block ID/type parity; search text excludes quiz options/answers/feedback/explanations and coding exercise hints/starter code/solutions. Practice summaries retain only task instructions, requirements and public success criteria.
 
 Production build size evidence from [CI run #41035799497](https://github.com/Mardakhay/interactive-guides/actions/runs/41035799497):
-- EN search: six chunks, 272 KB gzip total; separate 118-exercise Practice index: 60 KB gzip.
-- RU search: six chunks, 341 KB gzip total; separate 118-exercise Practice index: 75 KB gzip.
-- Largest generated JavaScript chunk: about 276 KB raw / 69 KB gzip, below the existing 512 KB raw budget.
+- EN search: six chunks, 272,355 bytes gzip total; separate 119-exercise Practice index: 59,994 bytes gzip.
+- RU search: six chunks, 343,746 bytes gzip total; separate 119-exercise Practice index: 75,869 bytes gzip.
+- Largest generated search JSON part: 276,901 bytes raw / 69,549 bytes gzip; largest emitted JavaScript asset: 316,733 bytes raw, below the existing 512 KiB budget.
 
 This separates the Practice first-load payload from the larger search corpus while keeping full lesson bodies lazy. Native cold/warm timing, mobile transfer and browser cache behavior remain untested.
 
@@ -430,7 +430,7 @@ The Advanced JS Notion page remains connector-unverified; this is source-slice m
 
 ## Advanced JS method-chaining source pass — 2026-10-27
 
-`js.object-prototypes` v3 now explicitly covers the method-chaining section with a mutable fluent builder that returns `this`, terminal result extraction, argument validation, and contrasts with array/string return types. `js.async-fetch` remains the canonical home for Promise `.then()` chains. This avoids duplicating the same async content.
+`js.object-prototypes` v4 now explicitly covers the method-chaining section with a mutable fluent builder that returns `this`, terminal result extraction, argument validation, and contrasts with array/string return types. `js.async-fetch` remains the canonical home for Promise `.then()` chains. This avoids duplicating the same async content.
 
 The source's jQuery-style DOM wrapper is recorded as an illustration rather than a universal recommendation because production wrappers need missing-selector handling, semantic controls and event-listener lifecycle policy. The connector page remains unverified; full Advanced JS source parity and legacy playground parity remain open.
 
@@ -485,3 +485,8 @@ The current quality suite goes beyond schema/structure parity: it compares long 
 GitHub Actions [run #40689939570](https://github.com/Mardakhay/interactive-guides/actions/runs/40689939570) passed on exact code/content SHA `12059fd51069df3f3126db470cd2f4744cc157ff`: `npm ci`, lint, typecheck, **222 tests across 35 files**, production build, and bundle budgets across 125 JavaScript chunks. `npm audit` reported zero vulnerabilities.
 
 The new check is a detector for obvious untranslated copy, not a human translation review or proof of semantic source parity. That broader audit stays open.
+
+
+## js-002 Object static-methods source gap — 2026-11-03
+
+The focused `js-002` read identified a missing dedicated structured example for `Object.keys`, `Object.values`, `Object.entries`, `Object.assign` and `Object.freeze`. Added the bilingual `js.object-prototypes` v4 section with an assessed copy-contract check and allowlist-based public-configuration task (47 aligned blocks per locale). Source crosswalk: [JS002_SOURCE_PARITY.md](./JS002_SOURCE_PARITY.md). This is a scoped content parity increment, not approval of the lesson or its legacy route.

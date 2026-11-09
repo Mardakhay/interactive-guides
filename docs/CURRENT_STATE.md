@@ -1,32 +1,34 @@
 # Current-State Audit
 
-**Audit date:** 2026-11-03  
+**Audit date:** 2026-11-10  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Working branch:** `feat/learning-platform-foundation`  
-**Working branch HEAD:** [`66bdcb81d524a82a9b8dfed12c831c8890c57a11`](https://github.com/Mardakhay/interactive-guides/commit/66bdcb81d524a82a9b8dfed12c831c8890c57a11)  
 **Default branch:** `main`
 
-## Authoritative status snapshot — 2026-11-03
+## Authoritative status snapshot — 2026-11-10
 
-This snapshot was reconciled against the current feature-branch tree and its exact-head GitHub Actions run. Dated entries below are historical checkpoints and must not override this section.
+This snapshot separates automated evidence from editorial, migration-owner and native-device acceptance. Dated entries below are historical checkpoints and must not override this section.
 
-- **Latest code HEAD:** `66bdcb81d524a82a9b8dfed12c831c8890c57a11` — `fix(git): preserve interactive state across source tabs` (2026-10-30). Exact-head [Actions run #41066740505 (run #890)](https://github.com/Mardakhay/interactive-guides/actions/runs/41066740505) completed successfully. The run passed dependency installation, ESLint, TypeScript, Vitest, production build, bundle-budget checks and production-preview HTTP smoke. Do not infer native-browser/device acceptance from this run.
-- **Branch policy:** all project work remains on `feat/learning-platform-foundation`. `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397` and was not changed by this continuation.
-- **PR #1:** [open Draft PR against main](https://github.com/Mardakhay/interactive-guides/pull/1). Keep it Draft until the release gates below have evidence; no merge is implied.
+- **Latest exact-head CI checkpoint:** [35-commit HEAD `2bf8d15`](https://github.com/Mardakhay/interactive-guides/commit/2bf8d15de30817ae82e2bf05d7b75d03a3ab78ed), [Actions run #42702879533](https://github.com/Mardakhay/interactive-guides/actions/runs/42702879533) — all steps passed: `npm ci`, production-only audit (**0 vulnerabilities**), ESLint, TypeScript, **66 test files / 363 tests**, production build, 141 JavaScript bundle budgets and preview HTTP smoke for 13 deep routes, manifest, service worker, five PWA assets and 14 generated content chunks. Netlify Preview for this exact SHA is Ready; manual browser/device checks remain separate.
+- **Dependency security:** the exact run reported 10 moderate npm audit findings and zero high/critical findings. The primary actionable issue is `minimatch` below 11.0.1 in the ESLint / TypeScript-ESLint development toolchain ([GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249)). Do not force a major override without a regenerated lockfile and a full green CI run; remediation remains open.
+- **History safety:** the feature branch is now exactly **35 commits ahead of `main`**, rebuilt from chronological first-parent milestones with rewritten, topic-specific messages. The original 961-commit history remains on [`backup/feat-learning-platform-foundation-pre-squash-2026-11-10`](https://github.com/Mardakhay/interactive-guides/tree/backup/feat-learning-platform-foundation-pre-squash-2026-11-10); the intermediate one-commit version is also preserved on [`backup/feat-learning-platform-foundation-pre-35-commit-2026-11-10`](https://github.com/Mardakhay/interactive-guides/tree/backup/feat-learning-platform-foundation-pre-35-commit-2026-11-10).
+- **Merge scope:** the project owner approved merging the structured local-first platform now. The merge keeps all 25 legacy HTML routes/files and their existing learner data intact; no redirects, cutover, source deletion or learner-state migration are included. Manual/device and editorial work continue separately after merge.
+- **PR #1:** [approved local-first platform merge](https://github.com/Mardakhay/interactive-guides/pull/1); the project owner approved merging without backend or legacy cutover. Remaining content and native acceptance gates do not block this scoped merge.
 - **Application foundation:** React 18, TypeScript, Vite 8, React Router 7, Zustand, Zod, feature-oriented modules, generated content indexes, local-first persistence and a PWA shell are implemented.
-- **Curriculum registry:** 27 core + 17 supplementary lesson IDs = 44 bilingual EN/RU pairs and 88 locale JSON records. The Practice Center indexes 118 coding exercises. Settings exposes local language preference, browser connectivity, local-data counts and backup access; theme switching, accounts and cloud sync are not implemented.
+- **Curriculum registry:** 27 core + 17 supplementary lesson IDs = 44 bilingual EN/RU pairs and 88 locale JSON records. The Practice Center indexes 119 coding exercises. Settings exposes local language preference, browser connectivity, local-data counts and backup access; theme switching, accounts and cloud sync are not implemented.
 - **Git Fundamentals:** EN/RU `git.fundamentals` v14, 72 aligned blocks, 11 knowledge checks, 9 walkthroughs and 3 coding exercises. Its command reference contains 26 copyable commands.
+- **JavaScript object model:** EN/RU `js.object-prototypes` v4, 47 aligned blocks each. The latest source-parity increment adds Object static methods, a copy/freeze walkthrough, an assessed check and an allowlist-based public-configuration exercise; both locales remain `review`.
 - **Git Workflow & CI:** EN/RU `git.workflow-ci` v14, 73 aligned blocks, 19 knowledge checks, 5 walkthroughs and 5 coding exercises. It includes seven source-aligned tabs, the branch-flow simulator, seven-stage pipeline simulator and sequential ten-question quiz. The tab renderer supports keyboard navigation and keeps a visited panel mounted while hidden, preserving in-progress quiz state when switching topics.
 - **Content/migration gate:** all 25 legacy cutover rows remain **Blocked**. The 25 HTML source files have an inventory and documented content/code/interaction review trail; this is not a claim of complete claim-by-claim, example-by-example or widget parity. Keep classic `/lessons/:lessonId` routes and `public/lessons/*.html` sources.
 - **Notion evidence:** 21 fetched/mapped source records still report `verification.state=unverified`; retrieval is not formal verification or editorial approval.
 - **Learner-state safety:** classic progress/bookmarks/notes/quiz identities remain distinct from structured lesson/block identities. There is no approved one-to-many migration or aggregate classic-quiz result migration. Do not redirect routes, fan out records or delete source data before per-store retention rules and failure/recovery tests are approved.
 - **Native acceptance:** real-browser/device, responsive, keyboard, screen-reader, PWA install/offline, native backup download/file-picker, storage-denial/quota and mobile performance checks remain unrecorded. CI preview smoke validates HTTP routes/assets, not JavaScript execution or native browser behavior.
 - **PWA limitation:** dynamically loaded lesson chunks are cached only after a successful fetch; a lesson never opened online is not guaranteed to work offline.
-- **Supabase:** authentication, SQL migrations, RLS and cloud synchronization remain unimplemented and gated by approved reconciliation and security requirements.
+- **Backend scope:** Supabase, authentication, SQL/RLS, accounts and cloud synchronization are explicitly **not planned**. Local browser storage and JSON backup/restore are the intended persistence model.
 
 ## Verification boundary
 
-A green exact-head CI run verifies only the checks configured in GitHub Actions. It does not establish semantic bilingual parity, editorial approval, full legacy interaction equivalence, native browser/device acceptance, screen-reader behavior, PWA installation/offline readiness or production release readiness.
+A green exact-head CI run verifies only the checks configured in GitHub Actions. This merge explicitly excludes legacy route cutover, learner-state migration and backend work. It does not establish semantic bilingual parity, editorial approval, full legacy interaction equivalence, native browser/device acceptance, screen-reader behavior or PWA installation/offline readiness; those remain post-merge validation tasks.
 ## Source-parity continuation — 2026-10-29
 
 - `git.fundamentals` EN/RU v13: 72 aligned blocks, 11 checks and 9 walkthroughs. Includes 25 individually copyable commands, safe rebase/GitHub Flow, secret-leak remediation and least-privilege guidance.
