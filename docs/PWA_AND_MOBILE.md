@@ -15,6 +15,9 @@ A responsive application that can be installed on supported phones/desktops and 
 - [x] API/auth/functions/storage/realtime paths are excluded from service-worker caching.
 - [x] GitHub Actions validates PWA manifest/cache contract tests.
 
+## Current structured learning pilot
+The app currently has five structured bilingual lessons (Weeks 1–5) served by the shared React lesson reader. These lessons are content pilots in review, not fully editorially approved material.
+
 ## Remaining work before calling it production verified
 
 - Installability and offline navigation must still be tested on actual supported browsers/devices. CI static checks are not equivalent to a real PWA audit.
