@@ -1,0 +1,814 @@
+{
+  "id": "react.effects-lists-composition",
+  "locale": "en",
+  "version": 6,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-29",
+  "moduleId": "month-3-week-12",
+  "week": 12,
+  "order": 1,
+  "title": "React Effects, Component Composition, and Lists",
+  "description": "Understand when effects are needed, how dependencies control synchronization, why list keys matter, and how to compose a small API-driven posts list with loading and error states.",
+  "estimatedMinutes": 110,
+  "difficulty": "beginner",
+  "prerequisites": [
+    "react.components-jsx-state",
+    "js.async-fetch"
+  ],
+  "learningOutcomes": [
+    "Explain the difference between rendering UI and synchronizing with an external system.",
+    "UseEffect to synchronize with external resources and understand cleanup.",
+    "Explain the dependency array and why missing dependencies can cause stale values.",
+    "Compose parent and child components instead of putting all UI in one component.",
+    "Render arrays with stable keys that identify items across insertions, removals, and reordering.",
+    "Build an API-driven posts list with loading, success, empty, and error states.",
+    "Derive filtered and sorted list views without mutating source data.",
+    "Explain how a useEffect dependency array controls re-synchronization and why dependencies are not an optimization wish list."
+  ],
+  "tags": [
+    "react",
+    "useEffect",
+    "composition",
+    "lists",
+    "keys",
+    "api",
+    "loading",
+    "error"
+  ],
+  "blocks": [
+    {
+      "id": "render-vs-effect",
+      "type": "heading",
+      "level": 2,
+      "text": "Rendering describes UI; effects synchronize external systems"
+    },
+    {
+      "id": "render-vs-effect-body",
+      "type": "paragraph",
+      "text": "A React render calculates what the UI should look like from the current props and state. Rendering should stay pure: it should not subscribe to an event source, start a timer, or perform a request as an incidental side effect. useEffect is for synchronizing a component with something outside React, such as a browser API, a subscription, a timer, or a request whose lifecycle belongs to that component. Do not use an effect just to calculate a value that can be derived from props or state during render."
+    },
+    {
+      "id": "effect-lifecycle",
+      "type": "heading",
+      "level": 2,
+      "text": "useEffect setup, dependencies, and cleanup"
+    },
+    {
+      "id": "effect-lifecycle-body",
+      "type": "paragraph",
+      "text": "useEffect accepts a setup function and a dependency array. After React commits a render, the setup function runs. When a dependency changes, React runs the previous cleanup before setting up the effect again. When the component is removed, cleanup runs for the last effect. The dependencies should include the reactive values used by the effect; omitting one can leave the effect using a stale render's value. An empty dependency array means the effect does not re-synchronize because of changed reactive dependencies, not that it runs before the first paint."
+    },
+    {
+      "id": "effect-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useEffect, useState } from \"react\";\n\nfunction WindowWidth() {\n  const [width, setWidth] = useState(window.innerWidth);\n\n  useEffect(() => {\n    const updateWidth = () => setWidth(window.innerWidth);\n    window.addEventListener(\"resize\", updateWidth);\n    return () => window.removeEventListener(\"resize\", updateWidth);\n  }, []);\n\n  return <p>Width: {width}px</p>;\n}",
+      "steps": [
+        {
+          "title": "Keep the current measurement in state",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "The component displays width from React state. The browser's innerWidth is an external value that can change while the component is mounted."
+        },
+        {
+          "title": "Subscribe after commit",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "The effect registers one resize listener so the component can synchronize its state with the browser when the viewport changes."
+        },
+        {
+          "title": "Clean up the external subscription",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "The returned function removes the same listener. Cleanup prevents the effect from leaving a stale subscription when it is replaced or the component is removed."
+        },
+        {
+          "title": "Render from the updated value",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "explanation": "setWidth schedules a render with the new width. The JSX stays declarative rather than manually changing the paragraph's DOM text."
+        }
+      ]
+    },
+    {
+      "id": "effect-dependencies",
+      "type": "heading",
+      "level": 3,
+      "text": "Dependencies describe synchronization inputs"
+    },
+    {
+      "id": "effect-dependencies-body",
+      "type": "paragraph",
+      "text": "The dependency array is not a performance wish list. It describes the reactive values that determine the effect's setup. When an effect reads a prop or state value, include it in the dependency list unless the code is deliberately structured so it is not reactive. If adding a dependency causes repeated work, first inspect the effect's purpose and how values/functions are created rather than suppressing the lint rule without understanding why."
+    },
+    {
+      "id": "effect-dependency-array-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "For `useEffect(() => { ... }, [count])`, when does React normally run the setup function?",
+      "options": [
+        {
+          "id": "count",
+          "text": "After the initial commit and again when `count` changes.",
+          "correct": true,
+          "feedback": "Correct. The dependency array describes reactive inputs: the effect first sets up after mount, then re-synchronizes when the compared dependency changes. Cleanup for the prior setup runs first."
+        },
+        {
+          "id": "once",
+          "text": "Only one time in every environment, even if count changes.",
+          "correct": false,
+          "feedback": "A non-empty dependency array causes re-synchronization when one of its values changes. Development Strict Mode may also perform an extra setup/cleanup cycle."
+        },
+        {
+          "id": "every",
+          "text": "After every render no matter whether count changed.",
+          "correct": false,
+          "feedback": "That behavior is associated with omitting the dependency array entirely, not with `[count]`."
+        },
+        {
+          "id": "before",
+          "text": "During render before React commits the UI.",
+          "correct": false,
+          "feedback": "Effects synchronize after React commits the render; they are not executed as part of the pure render calculation."
+        }
+      ],
+      "explanation": "A dependency array lists the reactive values used by the effect. `[count]` means setup after the initial commit and re-synchronization when count changes; cleanup reverses the previous setup before the next one."
+    },
+    {
+      "id": "effects-not-derived",
+      "type": "callout",
+      "tone": "important",
+      "title": "Do not mirror derived state in an effect without a reason",
+      "text": "If fullName can be calculated from firstName and lastName during rendering, it usually does not need its own state plus an effect that updates it. Extra duplicated state creates timing and consistency problems. Use effects for synchronization with external systems, not as a default place to calculate values."
+    },
+    {
+      "id": "composition",
+      "type": "heading",
+      "level": 2,
+      "text": "Component composition and prop drilling"
+    },
+    {
+      "id": "composition-body",
+      "type": "paragraph",
+      "text": "Composition means combining small components that each express one coherent responsibility. A parent can own data and pass only the information or callbacks a child needs. Prop drilling describes passing props through several intermediate components that do not use them themselves. A few layers of props are normal and explicit; when many unrelated components need the same cross-cutting data, consider whether context or a state-management pattern is justified. Do not add global state just because passing a single prop feels inconvenient."
+    },
+    {
+      "id": "composition-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Separate page, list, and item responsibilities",
+      "code": "type Post = { id: number; title: string };\n\nfunction PostItem({ post }: { post: Post }) {\n  return <li>{post.title}</li>;\n}\n\nfunction PostList({ posts }: { posts: Post[] }) {\n  return (\n    <ul>\n      {posts.map((post) => <PostItem key={post.id} post={post} />)}\n    </ul>\n  );\n}"
+    },
+    {
+      "id": "lists-keys",
+      "type": "heading",
+      "level": 2,
+      "text": "Stable keys preserve item identity"
+    },
+    {
+      "id": "lists-keys-body",
+      "type": "paragraph",
+      "text": "When rendering an array, React needs a key to identify each sibling item across renders. A stable key lets React match the same logical item when the array changes. Use a stable ID from the data where possible. Array indexes can produce confusing state or DOM associations when items are inserted, removed, sorted, or reordered. Keys are for React's reconciliation; they are not automatically passed into the component as a prop."
+    },
+    {
+      "id": "keys-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Use a stable identifier as the key",
+      "code": "{posts.map((post) => (\n  <PostItem key={post.id} post={post} />\n))}\n\n// Avoid using the array position if the collection can change:\n// {posts.map((post, index) => <PostItem key={index} post={post} />)}"
+    },
+    {
+      "id": "api-list",
+      "type": "heading",
+      "level": 2,
+      "text": "An API-driven list has explicit request states"
+    },
+    {
+      "id": "api-list-body",
+      "type": "paragraph",
+      "text": "A list loaded from an API has more states than just “posts or no posts”. Before the response arrives it is loading. On success the result may have items or be empty. On failure the user needs an error state and a way to retry. Treat these states intentionally, and ensure a previous request cannot overwrite the result of a newer request after a query or component lifecycle changes."
+    },
+    {
+      "id": "posts-effect-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useEffect, useState } from \"react\";\n\ntype Post = { id: number; title: string };\n\ntype LoadState =\n  | { status: \"loading\" }\n  | { status: \"success\"; posts: Post[] }\n  | { status: \"error\"; message: string };\n\nfunction PostsPage() {\n  const [state, setState] = useState<LoadState>({ status: \"loading\" });\n\n  useEffect(() => {\n    const controller = new AbortController();\n    setState({ status: \"loading\" });\n\n    async function load() {\n      try {\n        const response = await fetch(\"https://jsonplaceholder.typicode.com/posts\", {\n          signal: controller.signal,\n        });\n        if (!response.ok) throw new Error(`HTTP ${response.status}`);\n        const posts = (await response.json()) as Post[];\n        setState({ status: \"success\", posts: posts.slice(0, 10) });\n      } catch (error) {\n        if (controller.signal.aborted) return;\n        setState({ status: \"error\", message: \"Could not load posts\" });\n      }\n    }\n\n    void load();\n    return () => controller.abort();\n  }, []);\n\n  if (state.status === \"loading\") return <p>Loading posts…</p>;\n  if (state.status === \"error\") return <p role=\"alert\">{state.message}</p>;\n  if (state.posts.length === 0) return <p>No posts yet.</p>;\n  return <PostList posts={state.posts} />;\n}",
+      "steps": [
+        {
+          "title": "Model request states as distinct alternatives",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "The discriminated union makes loading, success, and error separate states. TypeScript can narrow state by checking status and prevent using posts before success."
+        },
+        {
+          "title": "Start the request and prepare cancellation",
+          "lineStart": 13,
+          "lineEnd": 15,
+          "explanation": "The effect owns an AbortController for this request. It sets loading when setup runs and passes the signal to fetch."
+        },
+        {
+          "title": "Check HTTP and parse the body",
+          "lineStart": 19,
+          "lineEnd": 24,
+          "explanation": "The response status is checked before JSON parsing. A type assertion indicates what the example expects, but it does not validate an untrusted response body at runtime."
+        },
+        {
+          "title": "Ignore an intentional abort and handle other failures",
+          "lineStart": 25,
+          "lineEnd": 28,
+          "explanation": "Cleanup aborts the request. The catch handler avoids replacing state with an error after that abort; other failures move the UI to its error state."
+        },
+        {
+          "title": "Cleanup and render by state",
+          "lineStart": 31,
+          "lineEnd": 37,
+          "explanation": "The effect returns the abort cleanup. The component renders loading, error, empty, or success explicitly, and successful results render a list with stable keys."
+        }
+      ]
+    },
+    {
+      "id": "strictmode-note",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Development may run effects more than once",
+      "text": "React Strict Mode can re-run effect setup and cleanup in development to help expose unsafe side effects. Build effects with correct cleanup and idempotent behavior instead of relying on a particular number of development executions."
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What is the intended role of useEffect in a React component?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Synchronize with an external system after React commits UI",
+          "correct": true,
+          "feedback": "Effects are for synchronization with browser APIs, subscriptions, timers, network operations, or other external systems."
+        },
+        {
+          "id": "b",
+          "text": "Replace all event handlers and all ordinary calculations",
+          "correct": false,
+          "feedback": "Event handlers handle interactions, and values derived from props/state can usually be calculated during render."
+        },
+        {
+          "id": "c",
+          "text": "Guarantee that an API request happens exactly once in every environment",
+          "correct": false,
+          "feedback": "Effects can be re-run in development or when dependencies change; cleanup and idempotence matter."
+        },
+        {
+          "id": "d",
+          "text": "Allow a component to mutate DOM arbitrarily during render",
+          "correct": false,
+          "feedback": "Rendering should describe UI; useEffect synchronizes with external systems after commit when needed."
+        }
+      ],
+      "explanation": "Use effects for external synchronization, not as a general place to move every calculation or interaction."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "Using an array index as a key is always safe if a list is rendered with map.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "Indexes can identify the wrong logical item after insertion, removal, or reordering."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "A stable data identifier is preferred when the collection can change; keys help React preserve item identity across renders."
+        }
+      ],
+      "explanation": "The key represents item identity, not just its temporary position in an array."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Which practices are appropriate for an API-driven React list? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Represent loading, success, and failure explicitly",
+          "correct": true,
+          "feedback": "Separate states let the UI show the correct message and actions for each request outcome."
+        },
+        {
+          "id": "b",
+          "text": "Use stable item keys when rendering the returned list",
+          "correct": true,
+          "feedback": "Stable keys help React match logical items between renders."
+        },
+        {
+          "id": "c",
+          "text": "Use an effect to copy every derived value into separate state",
+          "correct": false,
+          "feedback": "Duplicating derivable data adds synchronization complexity; calculate derived values during render unless there is a specific reason not to."
+        },
+        {
+          "id": "d",
+          "text": "Ignore every request error because an empty list looks the same",
+          "correct": false,
+          "feedback": "An empty successful response and a failed request have different meanings and should be represented separately."
+        }
+      ],
+      "explanation": "Good API-driven interfaces preserve the distinction between pending, successful-but-empty, successful-with-data, and failed requests."
+    },
+    {
+      "id": "practice-posts-list",
+      "type": "codingExercise",
+      "title": "Build a posts list with loading and error states",
+      "language": "tsx",
+      "context": "Implement this exercise in your own React project. The lesson editor stores the code draft but does not compile or run TSX.",
+      "instructions": [
+        "Define a Post type for the fields the UI uses.",
+        "Create distinct loading, success, and error state representations, preferably with a discriminated union.",
+        "Load posts from the JSONPlaceholder API in an effect and check response.ok before parsing.",
+        "Cancel the request during cleanup and avoid showing an error for an intentional abort.",
+        "Render loading, error, empty, and success states explicitly.",
+        "Extract PostList and PostItem components and use stable post IDs as keys.",
+        "Explain which parts belong in state and which values can be derived during rendering.",
+        "Describe how your code behaves when the request fails or returns an empty array."
+      ],
+      "requirements": [
+        "The component does not perform a network request during render.",
+        "HTTP failures and network/body failures are handled in the error path.",
+        "The request lifecycle has cleanup and avoids applying results after abort.",
+        "Empty and failed results are not presented as the same state.",
+        "The list uses stable keys and separate components.",
+        "The learner can explain why useEffect dependencies matter and why derived values often do not need state."
+      ],
+      "starterCode": "type Post = { id: number; title: string };\n\ntype LoadState =\n  | { status: \"loading\" }\n  | { status: \"success\"; posts: Post[] }\n  | { status: \"error\"; message: string };\n\nfunction PostItem({ post }: { post: Post }) {\n  // TODO: render one post.\n}\n\nfunction PostList({ posts }: { posts: Post[] }) {\n  // TODO: map posts to PostItem with a stable key.\n}\n\nfunction PostsPage() {\n  // TODO: store request state and load posts in useEffect.\n  // Include response.ok, cleanup/cancellation and error handling.\n  // Render loading, error, empty and success states.\n}",
+      "hints": [
+        "Use a discriminated union so the type of state determines which data is available.",
+        "Create an AbortController inside the effect and abort it in cleanup.",
+        "Separate the network request from presentation by rendering from a single load state."
+      ],
+      "successCriteria": [
+        "The request starts in an effect, not during render.",
+        "Loading, error, empty and success outcomes have distinct render paths.",
+        "The effect can clean up an in-flight request.",
+        "Each rendered post uses a stable ID as the key.",
+        "Post list/item responsibilities are separated into reusable components.",
+        "You can explain what reruns the effect and what does not."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Rendering should stay pure; effects synchronize with external systems after commit.",
+        "The dependency array describes reactive values used by an effect, and cleanup ends the previous synchronization.",
+        "Compose components around clear responsibilities and pass only the props they need.",
+        "Stable keys identify list items across changes; they are not ordinary props.",
+        "Represent loading, success, empty and error states explicitly when fetching data."
+      ]
+    },
+    {
+      "id": "deep-effects-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: effect lifecycle, request races, and stable list identity"
+    },
+    {
+      "id": "deep-effects-model",
+      "type": "paragraph",
+      "text": "An Effect synchronizes a committed render with an external system; it is not a default place to calculate values that can be derived during render. React runs cleanup for the previous Effect before setting up the next one when dependencies change, and on unmount. Every reactive value read by the Effect belongs in its dependency model. For requests, cleanup/cancellation and stale-result protection prevent a slow response for an old prop from overwriting the current screen."
+    },
+    {
+      "id": "effect-cleanup-memory-leak-note",
+      "type": "callout",
+      "text": "Do not equate every state update that happens after unmount with a memory leak. React 18 removed the old development warning because a Promise that settles later is not necessarily a leak. Cleanup is still important: unsubscribe from external sources and timers, abort requests when appropriate, and prevent an obsolete response from overwriting current data. Use cancellation or freshness control for the concrete resource or race you need to handle—not a generic isMounted flag just to silence a warning.",
+      "title": "Cleanup is not just about unmount warnings",
+      "tone": "note"
+    },
+    {
+      "id": "deep-effects-trace",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "useEffect(() => {\n  const controller = new AbortController();\n  let ignore = false;\n\n  async function loadUser() {\n    setStatus('loading');\n    try {\n      const response = await fetch(`/api/users/${userId}`, { signal: controller.signal });\n      if (!response.ok) throw new Error(`HTTP ${response.status}`);\n      const data = await response.json();\n      if (!ignore) { setUser(data); setStatus('success'); }\n    } catch (error) {\n      const aborted = error instanceof Error && error.name === 'AbortError';\n      if (!ignore && !aborted) setStatus('error');\n    }\n  }\n\n  void loadUser();\n  return () => { ignore = true; controller.abort(); };\n}, [userId]);",
+      "steps": [
+        {
+          "title": "Create one controller for this Effect instance",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "When userId changes, React cleans up the old Effect instance and runs a new setup. The new controller represents the new request lifecycle."
+        },
+        {
+          "title": "Check HTTP status and parse the response",
+          "lineStart": 5,
+          "lineEnd": 11,
+          "explanation": "Fetch does not reject solely for status 404/500, so response.ok must be checked. The body is parsed asynchronously and state is updated only while this request is still current."
+        },
+        {
+          "title": "Ignore cancellation without hiding real failures",
+          "lineStart": 12,
+          "lineEnd": 15,
+          "explanation": "Abort is expected during cleanup and should not appear as a user-facing failure. Other errors still produce an error state while this Effect instance is current."
+        },
+        {
+          "title": "Clean up when inputs change or the component unmounts",
+          "lineStart": 18,
+          "lineEnd": 20,
+          "explanation": "Abort asks Fetch to stop and ignore prevents a stale continuation from updating state. Including userId expresses the reactive input that starts a new request."
+        }
+      ]
+    },
+    {
+      "id": "deep-effects-debugging",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Missing dependencies can leave an Effect using a stale closure; adding dependencies may reveal that the synchronization logic needs redesign rather than a lint suppression.",
+        "An empty dependency array means the Effect does not re-run for later prop changes; it does not mean the callback is guaranteed to run only once in every development environment.",
+        "Derived values such as `visibleItems = items.filter(...)` normally belong in render, not in state synchronized by an Effect.",
+        "List keys identify item identity across insertions, deletions, and reordering. Array indices are risky keys when items can move or be removed because component state can become attached to the wrong item."
+      ]
+    },
+    {
+      "id": "deep-effects-callout",
+      "type": "callout",
+      "tone": "important",
+      "title": "Cleanup does not mean every Effect is wrong",
+      "text": "Effects are appropriate for synchronizing subscriptions, timers, browser APIs and network requests. Avoid using them to mirror props into state or calculate a value that can be computed from current props/state. When setup is repeated in development, the setup/cleanup pair should remain correct and reversible."
+    },
+    {
+      "id": "deep-effects-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A user switches quickly from `/users/1` to `/users/2`. Which design prevents a late response for user 1 from replacing user 2 on screen?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Fetch during render so the latest render always wins",
+          "correct": false,
+          "feedback": "Fetching during render repeats work during rendering and does not provide a reliable race-control mechanism."
+        },
+        {
+          "id": "b",
+          "text": "Use Effect cleanup to abort/ignore the previous request and update state only for the current request",
+          "correct": true,
+          "feedback": "Cancellation reduces unnecessary work, while a freshness/ignore guard protects state from a late continuation."
+        },
+        {
+          "id": "c",
+          "text": "Remove userId from the dependency list",
+          "correct": false,
+          "feedback": "That can leave the Effect synchronized to an old user ID instead of the current route."
+        },
+        {
+          "id": "d",
+          "text": "Use array index as the key for the user page",
+          "correct": false,
+          "feedback": "Keys identify list items; they do not control network response ordering."
+        }
+      ],
+      "explanation": "Request lifecycle and rendering identity are different concerns; use cleanup/freshness control for asynchronous work."
+    },
+    {
+      "id": "deep-effects-practice",
+      "type": "codingExercise",
+      "title": "Fix an Effect race and an unstable list",
+      "language": "tsx",
+      "context": "Run this in a React project. The lesson sandbox does not compile TSX, so use the checklist to review your implementation in the app.",
+      "instructions": [
+        "Implement user loading that re-runs when userId changes.",
+        "Check response.ok and separate loading, success and error states.",
+        "Cancel or ignore the old request in Effect cleanup and do not surface AbortError as a normal failure.",
+        "Replace index keys with stable IDs in a list that can be sorted, filtered or deleted.",
+        "Move purely derived display data out of Effect-managed state."
+      ],
+      "requirements": [
+        "Every reactive dependency used by the Effect is declared.",
+        "Previous request work is cancelled/ignored during cleanup.",
+        "HTTP status failures and abort cancellations are handled differently.",
+        "List keys are stable identifiers from the data where available.",
+        "Derived display values are computed from current props/state instead of duplicated state."
+      ],
+      "starterCode": "useEffect(() => {\n  // TODO: request the current userId and guard against stale results.\n  // TODO: return cleanup when userId changes or the component unmounts.\n}, [userId]);\n\nconst visibleItems = items.filter(item => item.active);\nreturn visibleItems.map((item, index) => (\n  <Row key={index} item={item} />\n));",
+      "hints": [
+        "Read every variable referenced inside the Effect and decide whether it is reactive.",
+        "Use AbortController for Fetch and an ignore/freshness guard for state updates.",
+        "Use the item's stable id for key; index does not represent identity after reordering."
+      ],
+      "successCriteria": [
+        "Changing userId starts synchronization for the new user.",
+        "Old results cannot overwrite the current user's UI.",
+        "Loading/success/error and abort are distinguishable.",
+        "Reordered/deleted list items retain the correct component identity.",
+        "Derived data is not duplicated into state without a reason."
+      ]
+    },
+    {
+      "id": "effect-external-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Effects synchronize React with external systems"
+    },
+    {
+      "id": "effect-external-body",
+      "type": "paragraph",
+      "text": "Use an Effect when a component must synchronize with something React does not own: a browser subscription, timer, imperative widget, or external connection. Setup belongs in the effect; cleanup reverses that setup when dependencies change or the component unmounts. Do not use an Effect just to derive one piece of React state from another—calculate derived values during render. Keep imperative libraries inside a ref-owned host node so they do not compete with React for the same children."
+    },
+    {
+      "id": "effect-widget-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useEffect, useRef } from 'react';\n\nfunction ChartPanel({ createChart }: { createChart: (host: HTMLDivElement) => { destroy: () => void } }) {\n  const hostRef = useRef<HTMLDivElement>(null);\n\n  useEffect(() => {\n    const host = hostRef.current;\n    if (!host) return;\n\n    const chart = createChart(host);\n    return () => chart.destroy();\n  }, [createChart]);\n\n  return <div ref={hostRef} role=\"region\" aria-label=\"Embedded chart\" />;\n}",
+      "steps": [
+        {
+          "title": "Give the external system a dedicated host",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "The ref points to one DOM node owned as the widget's host. The chart library may manage descendants inside that node; React should not also render competing children there."
+        },
+        {
+          "title": "Create the widget after commit and guard a missing node",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "Effects run after React commits the DOM. The ref may still be null in a type/runtime edge case, so return before constructing the external resource."
+        },
+        {
+          "title": "Mirror setup with cleanup and declare reactive dependencies",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "If createChart changes, React cleans up the prior chart before setting up the replacement. The factory should have stable identity when recreation is not desired; use a module-level function or memoize at the owner where appropriate."
+        }
+      ]
+    },
+    {
+      "id": "effect-storage-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useEffect } from 'react';\n\nconst THEME_KEY = 'guide-theme';\n\nfunction useThemeFromOtherTabs(setTheme: (value: 'light' | 'dark') => void) {\n  useEffect(() => {\n    function handleStorage(event: StorageEvent) {\n      if (event.key !== THEME_KEY) return;\n      if (event.newValue === 'light' || event.newValue === 'dark') {\n        setTheme(event.newValue);\n      }\n    }\n\n    window.addEventListener('storage', handleStorage);\n    return () => window.removeEventListener('storage', handleStorage);\n  }, [setTheme]);\n}",
+      "steps": [
+        {
+          "title": "Subscribe to a browser event",
+          "lineStart": 3,
+          "lineEnd": 7,
+          "explanation": "The storage event reports a key change made by another document sharing the storage area. Validate the string before treating it as the narrow theme union."
+        },
+        {
+          "title": "Install once per stable callback and remove the same function",
+          "lineStart": 9,
+          "lineEnd": 11,
+          "explanation": "The cleanup must receive the exact listener reference used by addEventListener. If setTheme identity changes, React removes the old listener and registers the new one."
+        },
+        {
+          "title": "Know the event's boundary",
+          "lineStart": 11,
+          "lineEnd": 13,
+          "explanation": "The storage event does not fire in the same document that performed the write. The writing tab should update its own React state directly; storage is a cross-document notification, not a replacement for state ownership."
+        }
+      ]
+    },
+    {
+      "id": "effect-cleanup-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A chart widget connects to an external library in useEffect. Why can a missing cleanup appear to work normally but fail under React Strict Mode development checks?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Strict Mode may run an extra setup/cleanup cycle to expose effects that do not correctly undo subscriptions or resources",
+          "correct": true,
+          "feedback": "Correct cleanup makes setup safe to repeat and prevents duplicate listeners/widgets when dependencies change or a component unmounts."
+        },
+        {
+          "id": "b",
+          "text": "Strict Mode removes every DOM ref before the app starts",
+          "correct": false,
+          "feedback": "The purpose is not to permanently remove refs; the development checks help surface lifecycle bugs."
+        },
+        {
+          "id": "c",
+          "text": "Cleanup is only required for network requests, never for widgets or listeners",
+          "correct": false,
+          "feedback": "Subscriptions, timers, widgets and connections all own resources that may need release."
+        },
+        {
+          "id": "d",
+          "text": "Effects run during server rendering and must remove server-side DOM",
+          "correct": false,
+          "feedback": "Effects do not run during server rendering; cleanup reverses client-side synchronization."
+        }
+      ],
+      "explanation": "Treat each effect as a setup/cleanup pair; this makes it resilient to dependency changes, unmounts and development lifecycle checks."
+    },
+    {
+      "id": "effect-external-practice",
+      "type": "codingExercise",
+      "title": "Integrate an external widget with a leak-free lifecycle",
+      "language": "tsx",
+      "context": "A React screen embeds an imperative chart/map library and needs to respond to a cross-tab preference update.",
+      "instructions": [
+        "Create a dedicated ref host and initialize the external widget only after the host is committed.",
+        "Return cleanup that destroys the exact widget instance and test that dependency changes replace it without duplicates.",
+        "Subscribe to the storage event with a stable handler, validate the key/value, and remove that exact handler on cleanup.",
+        "Update the current tab's React state directly when it writes storage; use the storage event only for other documents.",
+        "Test mount/unmount and Strict Mode development behavior with spies, including repeated setup and teardown."
+      ],
+      "requirements": [
+        "React and the imperative library do not both manage the same widget descendants.",
+        "Every subscription/resource is paired with cleanup.",
+        "Effect dependencies include reactive values; unstable factories are stabilized intentionally rather than suppressed with lint disables.",
+        "Storage values are validated before entering typed application state.",
+        "Tests prove cleanup and no duplicate resource after repeated lifecycle cycles."
+      ],
+      "starterCode": "function MapPanel({ createMap, theme }) {\n  const hostRef = useRef(null);\n\n  useEffect(() => {\n    // TODO: create the map in the committed host node.\n    // TODO: synchronize the external widget with theme if needed.\n    // TODO: destroy subscriptions/widget in cleanup.\n  }, [createMap, theme]);\n\n  return <div ref={hostRef} />;\n}",
+      "hints": [
+        "Effects synchronize with external systems; derived JSX values usually do not need an Effect.",
+        "Cleanup runs before a changed effect is set up again and when the component unmounts.",
+        "React Strict Mode development checks can reveal non-idempotent setup; do not disable cleanup to hide duplicates.",
+        "The storage event is delivered to other same-origin documents, not the document that wrote the key."
+      ],
+      "successCriteria": [
+        "Widget is created only after its host exists and destroyed exactly once per setup.",
+        "Changing dependencies does not leak or duplicate the widget.",
+        "Storage listener is removed using the same callback reference.",
+        "Cross-tab updates are distinguished from same-tab state updates.",
+        "Verification includes a repeated mount/cleanup scenario."
+      ]
+    },
+    {
+      "id": "list-pipeline-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Derive a list view: filter → sort → map"
+    },
+    {
+      "id": "list-pipeline-model",
+      "type": "paragraph",
+      "text": "Filtering, sorting and rendered list items are usually a derived view of source data, not separate state. Compute them from props/state during render to avoid synchronization bugs. `filter()` returns a new array, so sorting that result does not mutate the input; calling `products.sort()` directly would mutate props/state. An empty search string normally matches every name. If the calculation is measurably expensive, profile first and then consider `useMemo`; memoization does not replace correctness."
+    },
+    {
+      "id": "list-pipeline-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "interface Product {\n  id: string;\n  name: string;\n  category: string;\n  price: number;\n}\n\nfunction ProductList({\n  products,\n  query,\n  category,\n  sortBy,\n}: {\n  products: Product[];\n  query: string;\n  category: string;\n  sortBy: 'name' | 'price';\n}) {\n  const normalizedQuery = query.trim().toLocaleLowerCase();\n\n  const visibleProducts = products\n    .filter((product) => {\n      const matchesQuery = product.name.toLocaleLowerCase().includes(normalizedQuery);\n      const matchesCategory = category === 'all' || product.category === category;\n      return matchesQuery && matchesCategory;\n    })\n    .sort((a, b) =>\n      sortBy === 'price' ? a.price - b.price : a.name.localeCompare(b.name),\n    );\n\n  return (\n    <ul>\n      {visibleProducts.map((product) => (\n        <li key={product.id}>{product.name} — {product.price}</li>\n      ))}\n    </ul>\n  );\n}",
+      "steps": [
+        {
+          "title": "Identify the inputs",
+          "lineStart": 1,
+          "lineEnd": 18,
+          "explanation": "The list receives records and display criteria as props. Sorting has only the explicitly selected alternatives, so its behavior stays predictable."
+        },
+        {
+          "title": "Normalize the search query",
+          "lineStart": 19,
+          "lineEnd": 19,
+          "explanation": "Trim surrounding whitespace and use one casing rule. An empty query is an empty substring and therefore matches every name."
+        },
+        {
+          "title": "Filter without changing the source",
+          "lineStart": 21,
+          "lineEnd": 26,
+          "explanation": "filter creates a new array. The two checks stay independent, and `&&` keeps only records matching both the query and selected category."
+        },
+        {
+          "title": "Sort the copy and keep stable item identity",
+          "lineStart": 27,
+          "lineEnd": 29,
+          "explanation": "sort mutates the array it is called on, but here that array is the result of filter—not the original props. `product.id` preserves row identity while ordering changes."
+        },
+        {
+          "title": "Check edge cases",
+          "lineStart": 31,
+          "lineEnd": 38,
+          "explanation": "An empty query can show all categories, and no matches still produce a valid empty list. For large lists, measure render cost before introducing useMemo."
+        }
+      ]
+    },
+    {
+      "id": "list-pipeline-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why does `products.filter(...).sort(...)` leave the original products array unchanged?",
+      "options": [
+        {
+          "id": "a",
+          "text": "sort never mutates an array.",
+          "feedback": "Array.prototype.sort mutates the array it is called on and returns the same reference.",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "filter creates a new array, so the later sort mutates that result.",
+          "feedback": "filter returns a fresh array, so the mutating sort operates on the copy rather than the original props.",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "React automatically freezes all props arrays.",
+          "feedback": "Do not rely on React freezing values. Mutating props/state is still a bug even if it is hard to notice immediately.",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "sort becomes pure when used in a method chain.",
+          "feedback": "Chaining does not change a method's semantics: sort still mutates its receiver array.",
+          "correct": false
+        }
+      ],
+      "explanation": "Array.prototype.sort mutates its receiver. filter returns a new array, so the copy is sorted; calling products.sort() directly would mutate the input."
+    },
+    {
+      "id": "list-pipeline-practice",
+      "type": "codingExercise",
+      "title": "Build a derived catalog list without mutation",
+      "language": "tsx",
+      "context": "Build a product list filtered by query/category and sorted by a selected field. The source array is shared with the parent view.",
+      "instructions": [
+        "Derive the visible list from props; do not store a second filtered list in state.",
+        "Make name matching case-insensitive and trim surrounding query whitespace; an empty query should match all names.",
+        "Combine text/category filters, then sort a copy by name or price.",
+        "Render rows with a stable ID key rather than their current index.",
+        "Explain why direct products.sort() mutates props and when it is worth measuring for useMemo."
+      ],
+      "requirements": [
+        "The source array and its objects are not mutated.",
+        "Empty and whitespace-only queries behave as no name filter.",
+        "Name and category matches are combined with logical AND.",
+        "Sorting is deterministic and leaves source order unchanged.",
+        "Stable IDs are used and the empty-list case is intentional."
+      ],
+      "starterCode": "type Product = { id: string; name: string; category: string; price: number };\n\nfunction selectProducts(\n  products: Product[], query: string, category: string, sortBy: 'name' | 'price'\n): Product[] {\n  // TODO: normalize query\n  // TODO: filter into a new array\n  // TODO: sort the copy without mutating products\n}",
+      "hints": [
+        "Every string includes the empty string, so an empty normalized query matches all names.",
+        "filter returns a new array; do not replace it with the source array before calling sort.",
+        "Do not add separate display-list state when it is fully derived from current inputs."
+      ],
+      "successCriteria": [
+        "The result updates when any input changes.",
+        "The original array keeps its order and is not mutated.",
+        "Search, category filtering and sorting follow the required order.",
+        "Each rendered item uses a stable ID.",
+        "No matches produce an intentional empty state."
+      ]
+    },
+    {
+      "id": "deep-effects-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Effects synchronize with external systems; derived values usually belong in render.",
+        "Cleanup is required when the old synchronization must stop or be undone.",
+        "Protect asynchronous state from stale results and use stable keys to preserve item identity."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "React: Synchronizing with Effects",
+          "url": "https://react.dev/learn/synchronizing-with-effects",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: You Might Not Need an Effect",
+          "url": "https://react.dev/learn/you-might-not-need-an-effect",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Rendering Lists",
+          "url": "https://react.dev/learn/rendering-lists",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Passing Data Deeply with Context",
+          "url": "https://react.dev/learn/passing-data-deeply-with-context",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: AbortController",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/AbortController",
+          "kind": "official-docs"
+        },
+        {
+          "title": "JSONPlaceholder public API",
+          "url": "https://jsonplaceholder.typicode.com/",
+          "kind": "guide"
+        },
+        {
+          "title": "React reference: useEffect",
+          "url": "https://react.dev/reference/react/useEffect",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React 18 Upgrade Guide: unmounted update warning",
+          "url": "https://react.dev/blog/2022/03/08/react-18-upgrade-guide",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

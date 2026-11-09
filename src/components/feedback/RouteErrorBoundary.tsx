@@ -1,6 +1,7 @@
 import { isRouteErrorResponse, useNavigate, useRouteError } from 'react-router-dom';
 import { ErrorState } from './ErrorState';
-import { ROUTE_PATHS } from '@/app/router/routes';
+import { ROUTE_PATHS, localizedPath } from '@/app/router/routes';
+import { translate, useUiLocale } from '@/features/localization';
 
 /**
  * Catches render/loader errors thrown within a route subtree and shows the
@@ -11,17 +12,16 @@ import { ROUTE_PATHS } from '@/app/router/routes';
 export function RouteErrorBoundary() {
   const error = useRouteError();
   const navigate = useNavigate();
+  const locale = useUiLocale();
 
   const isNotFound = isRouteErrorResponse(error) && error.status === 404;
 
-  const title = isNotFound ? 'Page not found' : 'Something went wrong';
-  const message = isNotFound
-    ? "The page you're looking for doesn't exist or was moved."
-    : 'This page ran into an unexpected error. You can try again or head back to the dashboard.';
+  const title = translate(locale, isNotFound ? 'pageNotFound' : 'somethingWentWrong');
+  const message = translate(locale, isNotFound ? 'pageNotFoundMessage' : 'routeErrorMessage');
 
   const handleRetry = () => {
     if (isNotFound) {
-      navigate(ROUTE_PATHS.DASHBOARD);
+      navigate(localizedPath(ROUTE_PATHS.DASHBOARD, locale));
     } else {
       window.location.reload();
     }
@@ -29,7 +29,7 @@ export function RouteErrorBoundary() {
 
   return (
     <div className="flex min-h-[50vh] items-center justify-center">
-      <ErrorState title={title} message={message} onRetry={handleRetry} />
+      <ErrorState title={title} message={message} retryLabel={translate(locale, 'tryAgain')} headingLevel="h1" announce onRetry={handleRetry} />
     </div>
   );
 }

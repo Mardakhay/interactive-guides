@@ -1065,19 +1065,19 @@ footer {
   </div>
 
   <div class="card" style="margin-bottom:1.5rem;">
-    <p>The <strong class="hl-blue">Stack</strong> is a fast, organized region of memory. It works like a stack of plates — the last plate you put on is the first one you take off. This is called <strong>LIFO</strong> (Last In, First Out).</p>
+    <p>The <strong class="hl-blue">stack</strong> is a useful model for understanding nested function calls: the most recent call returns first. This is called <strong>LIFO</strong> (Last In, First Out). A stack diagram helps explain call frames, but ECMAScript does not require every local variable or primitive value to occupy a particular physical stack slot.</p>
     <br>
-    <p style="color:var(--text-dim);font-size:0.9rem;">What goes in the stack: <span class="hl-blue">primitive values</span> (numbers, strings, booleans, undefined, null, symbols, BigInt), local variables, function call information.</p>
+    <p style="color:var(--text-dim);font-size:0.9rem;">Think of active calls and temporary execution state as stack-like in this model. The exact representation of variables and values is engine-dependent and may change with optimization.</p>
   </div>
 
   <div class="card-grid" style="margin-bottom:1.5rem;">
     <div class="card">
       <h3>⚡ Why is Stack so fast?</h3>
-      <p>Stack memory is allocated and freed with a single pointer movement. The CPU always knows exactly where the top of the stack is. No searching, no complex management — just move a number up or down.</p>
+      <p>A native call stack can often manage frames efficiently by adjusting a stack pointer. That is a low-level implementation model, not a promise that every JavaScript binding is stored there or that every JavaScript operation has a fixed cost. Engines may optimize or represent values differently.</p>
     </div>
     <div class="card">
       <h3>📏 Fixed Size Matters</h3>
-      <p>Everything on the stack has a <strong>known, fixed size</strong> at compile time. A number is always 8 bytes. A boolean is always 1 byte. This predictability is what makes stack lightning fast.</p>
+      <p>JavaScript values do not have a portable, source-level byte size. A number or boolean cannot be used to infer a physical stack layout, and JavaScript is not generally compiled with every local value assigned a fixed stack slot. Representation depends on the engine, runtime state and optimizations.</p>
     </div>
   </div>
 
@@ -1102,11 +1102,11 @@ footer {
   <div style="margin-top:1.5rem;">
     <div class="code-block">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-      <span class="keyword">let</span> <span class="var-name">age</span> = <span class="number">25</span>;       <span class="comment">// ← number 25 stored directly on stack</span>
-<span class="keyword">let</span> <span class="var-name">name</span> = <span class="string">"Alice"</span>;   <span class="comment">// ← string literal, value on stack (optimized)</span>
-<span class="keyword">let</span> <span class="var-name">isOk</span> = <span class="keyword">true</span>;     <span class="comment">// ← boolean true stored directly on stack</span>
+      <span class="keyword">let</span> <span class="var-name">age</span> = <span class="number">25</span>;       <span class="comment">// primitive value; physical storage is engine-dependent</span>
+<span class="keyword">let</span> <span class="var-name">name</span> = <span class="string">"Alice"</span>;   <span class="comment">// string primitive; representation is engine-dependent</span>
+<span class="keyword">let</span> <span class="var-name">isOk</span> = <span class="keyword">true</span>;     <span class="comment">// primitive value; do not infer a memory address</span>
 
-<span class="comment">// When this scope ends, all these are GONE instantly</span>
+<span class="comment">// When this scope ends, these bindings leave scope unless retained by closure/host state</span>
     </div>
   </div>
 </div>
@@ -1121,25 +1121,25 @@ footer {
   </div>
 
   <div class="card" style="margin-bottom:1.5rem;">
-    <p>The <strong class="hl-purple">Heap</strong> is a large, less organized region for data that is <strong>dynamic</strong> — things whose size we don't know ahead of time, or things that need to outlive a single function call. Objects, arrays, and functions live here.</p>
+    <p>The <strong class="hl-purple">heap</strong> is a useful model for dynamically allocated data such as objects, arrays and closures. These values may outlive the function that created them when other code still references them. The model does not expose an object’s physical address, and the JavaScript specification does not mandate a particular stack/heap layout.</p>
   </div>
 
   <div class="card-grid" style="margin-bottom:1.5rem;">
     <div class="card">
       <h3>🗃️ Why does Heap exist?</h3>
-      <p>Objects can grow — you can add properties any time. Arrays can change length. We can't predict their size, so they can't live on the fixed-size stack. The heap is like a big warehouse where you can store anything, any size.</p>
+      <p>Objects and arrays can have dynamic shapes or sizes, so engines need memory-management strategies beyond a simple fixed-size call frame. It is not correct to conclude that every object must occupy a particular heap layout or that the engine can never keep a value elsewhere; those are implementation details.</p>
     </div>
     <div class="card">
       <h3>🔗 References not values</h3>
-      <p>When you create an object, the <strong>actual data</strong> goes in the heap. But what the stack holds is a tiny <strong>reference</strong> (memory address) pointing to where in the heap the object lives.</p>
+      <p>When you assign an object to another variable, the variable receives the object value (a reference to the same object), not a deep clone. Diagrams often draw that reference as an arrow to a heap object, but JavaScript does not expose a portable numeric memory address or guarantee that exact physical layout.</p>
     </div>
     <div class="card">
       <h3>🐢 Why is Heap slower?</h3>
-      <p>The heap needs a complex allocator to find free space. Over time, allocations and deallocations leave "holes" (fragmentation). The GC also needs to scan it. All this adds overhead.</p>
+      <p>Allocation, object access and garbage collection have implementation- and workload-dependent costs. Fragmentation and collection work can matter in some runtimes, but there is no universal rule that every heap access is slower than every stack access. Diagnose performance with measurements rather than this picture alone.</p>
     </div>
     <div class="card">
       <h3>💥 Fragmentation</h3>
-      <p>After many alloc/free cycles, memory can look like swiss cheese — lots of small free holes between used blocks. Finding a contiguous block big enough for a new object takes real computation.</p>
+      <p>Some allocators can experience fragmentation, but the exact allocation strategy and its costs depend on the runtime and workload. This is a conceptual illustration, not a description of every JavaScript engine’s garbage collector or allocator.</p>
     </div>
   </div>
 
@@ -1188,16 +1188,16 @@ footer {
         </tr>
       </thead>
       <tbody>
-        <tr><td>Size</td><td>Fixed, small (1–8 MB)</td><td>Large, dynamic (GBs)</td></tr>
-        <tr><td>Speed</td><td>⚡ Very fast</td><td>🐢 Slower</td></tr>
-        <tr><td>Access</td><td>LIFO (top only)</td><td>Random access via address</td></tr>
-        <tr><td>Management</td><td>Automatic (pointer moves)</td><td>Garbage Collector</td></tr>
-        <tr><td>Stores</td><td>Primitives, references</td><td>Objects, arrays, functions</td></tr>
-        <tr><td>Memory size</td><td>Known at compile time</td><td>Dynamic, unknown</td></tr>
-        <tr><td>Scope</td><td>Tied to function scope</td><td>Can outlive functions</td></tr>
-        <tr><td>Fragmentation</td><td>None</td><td>Yes, can fragment</td></tr>
-        <tr><td>Overflow risk</td><td>Stack Overflow</td><td>Out Of Memory</td></tr>
-        <tr><td>Thread safety</td><td>Per-thread (safe)</td><td>Shared (needs management)</td></tr>
+        <tr><td>Purpose in this model</td><td>Track active calls / temporary execution state</td><td>Represent dynamically allocated, reachable data</td></tr>
+        <tr><td>Size</td><td>Limits are runtime-dependent</td><td>Limits depend on engine, host and available resources</td></tr>
+        <tr><td>Speed</td><td>No universal source-level speed guarantee</td><td>No universal source-level speed guarantee</td></tr>
+        <tr><td>Access</td><td>Call frames unwind in last-in, first-out order</td><td>Objects are accessed through JavaScript values and references</td></tr>
+        <tr><td>Management</td><td>Call frames return as execution proceeds</td><td>Unreachable objects become eligible for garbage collection</td></tr>
+        <tr><td>Stores</td><td>Exact value placement is engine-dependent</td><td>Often used for dynamic objects; exact layout is engine-dependent</td></tr>
+        <tr><td>Lifetime</td><td>Active calls usually have bounded lifetimes</td><td>Objects can outlive their creating function if still referenced</td></tr>
+        <tr><td>Fragmentation</td><td>Allocator/runtime-dependent</td><td>Allocator/runtime-dependent</td></tr>
+        <tr><td>Failure modes</td><td>Excessive call depth may cause a stack overflow</td><td>Excessive memory use may cause allocation failure or process limits</td></tr>
+        <tr><td>Portability</td><td>Illustrative implementation model, not a JavaScript memory map</td><td>Illustrative implementation model, not a JavaScript memory map</td></tr>
       </tbody>
     </table>
   </div>
@@ -1213,8 +1213,8 @@ footer {
   </div>
 
   <div class="card" style="margin-bottom:1.5rem;">
-    <p>The <strong class="hl-blue">Call Stack</strong> is a special region of the stack that tracks <strong>which function is running and where to return to</strong> when it finishes. Every time you call a function, a <em>stack frame</em> is pushed. When the function returns, that frame is popped.</p>
-    <br><p style="color:var(--text-dim);font-size:0.9rem;">Each frame contains: the function's local variables, its arguments, and the <strong>return address</strong> (where to continue execution after the function ends).</p>
+    <p>The <strong class="hl-blue">call stack</strong> is a model of nested function calls and their return order. Each call may add a frame; returning unwinds the active call sequence. The idea is useful for tracing recursion and stack overflow.</p>
+    <br><p style="color:var(--text-dim);font-size:0.9rem;">The exact contents of an engine’s frame (locals, arguments, return metadata, optimized values) are implementation details and may differ when the engine optimizes code.</p>
   </div>
 
   <div class="tabs">
@@ -1243,7 +1243,7 @@ footer {
   <div id="cs-tab2" class="tab-content">
     <div class="card" style="margin-bottom:1.25rem;">
       <h3 style="color:var(--neon-pink)">💥 Stack Overflow</h3>
-      <p>If functions keep calling each other endlessly (recursion without a base case), the call stack eventually runs out of space. This causes a <strong class="hl-pink">Stack Overflow</strong> error. Browsers typically allow 10,000–15,000 frames.</p>
+      <p>If functions keep calling each other endlessly (recursion without a base case), the call stack eventually runs out of space. This causes a <strong class="hl-pink">Stack Overflow</strong> error. The threshold varies by engine, host, code shape and runtime conditions; do not rely on a fixed number of frames.</p>
     </div>
     <div class="overflow-demo">
       <div class="overflow-header">⚠️ Stack Overflow Simulation</div>
@@ -1274,7 +1274,7 @@ footer {
     <div class="card-grid">
       <div class="card">
         <h3>🌐 Global Execution Context</h3>
-        <p>Created once when your script starts. Sets up the global scope, creates the <code>window</code> (browser) or <code>global</code> (Node) object. This is the bottom frame always present in the call stack.</p>
+        <p>Created according to the script/module and host environment. Browser and Node.js globals differ; <code>globalThis</code> is the portable way to refer to the global object where supported. Do not treat the global execution context as a guaranteed, permanently visible bottom frame in a physical call-stack diagram.</p>
       </div>
       <div class="card">
         <h3>📦 Function Execution Context</h3>
@@ -1283,7 +1283,7 @@ footer {
     </div>
     <div class="card" style="margin-top:1rem;">
       <h3>🔗 Scope Chain</h3>
-      <p>When JavaScript looks for a variable, it starts in the current function's scope. If not found, it goes up to the parent scope, then the parent's parent, all the way up to global. This chain of scopes is the <strong class="hl-green">Scope Chain</strong> — it's formed at creation time using closures.</p>
+      <p>Variable lookup follows lexical scope from the current environment outward. A function’s lexical relationships come from where it is defined; a closure lets a function continue to access the outer bindings it needs after the outer call has returned.</p>
     </div>
   </div>
 </div>
@@ -1298,8 +1298,8 @@ footer {
   </div>
 
   <div class="card" style="margin-bottom:1.5rem;">
-    <p><strong class="hl-blue">Primitive types</strong>: number, string, boolean, undefined, null, symbol, BigInt — stored <em>by value</em> directly on the stack.<br><br>
-    <strong class="hl-purple">Non-primitive types</strong>: objects, arrays, functions — stored <em>by reference</em>. The actual data lives in the heap, and the stack holds a pointer to it.</p>
+    <p><strong class="hl-blue">Primitive types</strong>: number, string, boolean, undefined, null, symbol and BigInt are copied by value.<br><br>
+    <strong class="hl-purple">Objects</strong>: when you assign an object value to another variable or pass it to a function, both bindings can refer to the same object. This explains aliasing and mutation; it does not mean JavaScript exposes pointers or mandates that primitives and objects live in particular physical memory regions.</p>
   </div>
 
   <div class="tabs">
@@ -1391,7 +1391,7 @@ footer {
     </div>
     <div class="card">
       <h3 style="color:var(--neon-green)">📚 Deep Copy</h3>
-      <p>Copies <strong>everything</strong> — including nested objects — creating completely new memory. Methods: <code>structuredClone()</code>, <code>JSON.parse(JSON.stringify())</code>.</p>
+      <p>A deep clone separates nested object identity for the data types it supports. <code>structuredClone()</code> supports more values and cycles than JSON serialization, but it still has limits. <code>JSON.parse(JSON.stringify())</code> is lossy for values such as <code>undefined</code>, functions and symbols, and it fails on cycles. Choose a method for the actual data shape.</p>
     </div>
   </div>
 
@@ -1440,7 +1440,7 @@ footer {
   </div>
 
   <div class="card" style="margin-bottom:1.5rem;">
-    <p><code class="hl-blue">const</code> does NOT mean the value can never change. It means the <strong class="hl-yellow">binding (the reference) cannot be reassigned</strong>. For primitives, this effectively freezes the value. For objects, you can still change the object's contents.</p>
+    <p><code class="hl-blue">const</code> prevents reassignment of the binding; it does not deep-freeze an object. Primitive values themselves are immutable, but that is a property of JavaScript’s primitive values—not an extra freeze performed by <code>const</code>. An object bound with <code>const</code> can still have mutable properties unless separately protected.</p>
   </div>
 
   <div class="analogy">
@@ -1487,17 +1487,17 @@ footer {
   </div>
 
   <div class="card" style="margin-bottom:1.5rem;">
-    <p>JavaScript (via V8) is smart about strings. When you write the same string literal in multiple places, the engine may <strong class="hl-yellow">intern</strong> it — storing it only once in a special "pool" and having all variables point to that same instance. This saves memory.</p>
+    <p>Engines may intern or deduplicate some strings as an implementation optimization, but this behavior and its memory savings are not a JavaScript language guarantee. Equal primitive strings compare by value, regardless of whether an engine shares internal storage.</p>
   </div>
 
   <div class="card-grid" style="margin-bottom:1.5rem;">
     <div class="card">
       <h3>📝 String Literals</h3>
-      <p>When you write <code>"hello"</code> directly in code, V8 can deduplicate. If two places have <code>"hello"</code>, they may share the same memory slot.</p>
+      <p>Two occurrences of the primitive string <code>"hello"</code> have the same string value. V8 may share an internal representation, but programs must not depend on that implementation detail or assume a particular memory slot.</p>
     </div>
     <div class="card">
       <h3>🏭 new String()</h3>
-      <p>Using <code>new String("hello")</code> explicitly creates a String <em>object</em> on the heap — it is never pooled/interned, and it is NOT strictly equal to a primitive string.</p>
+      <p><code>new String("hello")</code> creates a String wrapper object, so it is not strictly equal to the primitive string <code>"hello"</code>. Avoid using the wrapper in application code; claims about where it is stored or how the engine optimizes its representation are implementation details.</p>
     </div>
   </div>
 
@@ -1506,6 +1506,8 @@ footer {
     <button class="btn btn-purple" onclick="stringPoolDemo('addNew')">+ new String()</button>
     <button class="btn btn-green" onclick="stringPoolDemo('reset')">↺ Reset</button>
   </div>
+
+  <p class="card" style="margin-bottom:1rem;">This visualization is illustrative only. It does not inspect V8’s actual string storage or prove that literal strings share memory; the JavaScript specification does not expose an intern pool.</p>
 
   <div class="pool-arena">
     <div class="pool-section">
@@ -1553,9 +1555,10 @@ footer {
   <div id="gc-tab1" class="tab-content active">
     <div class="card" style="margin-bottom:1.25rem;">
       <h3>🔍 Mark and Sweep Algorithm</h3>
-      <p><strong>Phase 1 — Mark:</strong> GC starts from "roots" (global variables, current function's variables) and marks everything reachable by following references.<br><br>
-      <strong>Phase 2 — Sweep:</strong> GC scans all memory. Anything NOT marked is garbage — it gets freed.</p>
+      <p><strong>Phase 1 — Mark:</strong> in this simplified mark-and-sweep model, the collector identifies objects reachable from roots and references.<br><br>
+      <strong>Phase 2 — Sweep:</strong> unreachable objects become eligible for reclamation. Real engines may use generational, incremental or concurrent strategies; this diagram is not a command to run the browser’s actual garbage collector, and it says nothing about when memory will be returned to the operating system.</p>
     </div>
+    <p class="card" style="margin-bottom:1rem;">The buttons below update this teaching simulation only; they do not trigger the JavaScript engine’s real garbage collector or guarantee that operating-system memory will be released.</p>
     <div class="gc-arena" id="gc-arena"></div>
     <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0;">
       <button class="btn btn-pink" onclick="gcStep('setup')">▶ Setup Objects</button>
@@ -1569,16 +1572,16 @@ footer {
   <div id="gc-tab2" class="tab-content">
     <div class="card">
       <h3>🌳 Reachability — The Core Concept</h3>
-      <p>An object is <strong class="hl-green">reachable</strong> if it can be accessed through a chain of references starting from a root. Roots include: the global object, the current call stack variables, and any closures that reference variables.</p>
+      <p>An object is <strong class="hl-green">reachable</strong> when the runtime can reach it through references from roots such as active execution state, globals or host-held references. The exact roots and implementation details vary by engine and host.</p>
       <br>
-      <p>An object becomes <strong class="hl-pink">unreachable</strong> (garbage) when no variable or property anywhere in your program holds a reference to it. Once unreachable, it cannot affect your program — so it's safe to delete.</p>
+      <p>An object is <strong class="hl-pink">unreachable</strong> when no live reference path reaches it. It then becomes eligible for garbage collection, but collection is nondeterministic; assigning one variable to <code>null</code> is not sufficient if another reference still exists.</p>
     </div>
     <div class="code-block" style="margin-top:1.25rem;">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       <span class="keyword">let</span> <span class="var-name">user</span> = { <span class="var-name">name</span>: <span class="string">"Alice"</span> }; <span class="comment">// Object is reachable via user</span>
 
-<span class="var-name">user</span> = <span class="keyword">null</span>; <span class="comment">// Object is NOW unreachable → Garbage!</span>
-<span class="comment">// GC will free the { name: "Alice" } object</span>
+<span class="var-name">user</span> = <span class="keyword">null</span>; <span class="comment">// this binding no longer refers to the object</span>
+<span class="comment">// If no other references remain, it becomes eligible for GC (timing is not guaranteed)</span>
     </div>
   </div>
 
@@ -1593,10 +1596,10 @@ footer {
           1. Global Variables <span class="accordion-arrow">›</span>
         </div>
         <div class="accordion-body">
-          <p>Variables attached to <code>window</code> (or global scope) live forever unless explicitly removed. Accidentally creating globals by forgetting <code>let/const/var</code> is a common leak source.</p>
+          <p>Data attached to a long-lived global can stay reachable for the lifetime of that reference. In classic non-strict scripts, an undeclared assignment can create a global property; strict mode and JavaScript modules throw instead. Remove or replace unintended long-lived references when they are no longer needed.</p>
           <div class="code-block" style="margin-top:0.75rem;font-size:0.78rem;">
             <span class="func">function</span> <span class="var-name">leaky</span>() {
-  <span class="var-name">bigData</span> = <span class="keyword">new</span> <span class="func">Array</span>(<span class="number">1000000</span>); <span class="comment">// ← no let/const! → global!</span>
+  <span class="var-name">bigData</span> = <span class="keyword">new</span> <span class="func">Array</span>(<span class="number">1000000</span>); <span class="comment">// classic sloppy script: may create a global; strict/module code throws</span>
 }
           </div>
         </div>
@@ -1606,12 +1609,12 @@ footer {
           2. Forgotten Event Listeners <span class="accordion-arrow">›</span>
         </div>
         <div class="accordion-body">
-          <p>Event listeners keep references to DOM elements and their closures. If you remove an element but don't remove its listeners, those objects leak.</p>
+          <p>A listener can retain its callback and anything the callback closes over while the listener/target remains reachable. Removing an element from the DOM does not automatically prove a leak: if no live references keep the detached subtree reachable, the cycle can be collected. Clean up subscriptions/listeners when the owning component or long-lived target is done with them.</p>
           <div class="code-block" style="margin-top:0.75rem;font-size:0.78rem;">
             <span class="keyword">const</span> <span class="var-name">btn</span> = <span class="var-name">document</span>.<span class="func">getElementById</span>(<span class="string">'btn'</span>);
 <span class="var-name">btn</span>.<span class="func">addEventListener</span>(<span class="string">'click'</span>, <span class="var-name">handler</span>);
-<span class="comment">// If btn is removed from DOM but listener isn't removed → leak</span>
-<span class="comment">// Fix: btn.removeEventListener('click', handler)</span>
+<span class="comment">// Removing btn from DOM alone does not prove a leak; check retaining paths</span>
+<span class="comment">// Remove listeners when needed: btn.removeEventListener('click', handler)</span>
           </div>
         </div>
       </div>
@@ -1620,7 +1623,7 @@ footer {
           3. Closures Holding References <span class="accordion-arrow">›</span>
         </div>
         <div class="accordion-body">
-          <p>Closures capture variables from their outer scope. If a long-lived function (like a setInterval) closes over a large object, that object can never be collected.</p>
+          <p>Closures can retain outer bindings while the closure remains reachable. If a long-lived callback actually references a large object, that object may remain reachable and increase memory use until the retaining path is removed.</p>
           <div class="code-block" style="margin-top:0.75rem;font-size:0.78rem;">
             <span class="keyword">const</span> <span class="var-name">bigObj</span> = { <span class="var-name">data</span>: <span class="keyword">new</span> <span class="func">Array</span>(<span class="number">1e6</span>) };
 <span class="func">setInterval</span>(() => {
@@ -1708,7 +1711,7 @@ footer {
   <div id="v8-tab1" class="tab-content active">
     <div class="card" style="margin-bottom:1rem;">
       <h3>🕵️ Hidden Classes — How V8 Optimizes Objects</h3>
-      <p>Every time you create an object with the same shape (same properties in the same order), V8 assigns it the same <strong class="hl-blue">Hidden Class</strong>. Objects sharing a hidden class can be optimized with the same machine code — no property lookup needed, just a fixed memory offset.</p>
+      <p>V8 commonly uses internal object-shape metadata (often discussed as hidden classes or maps) to optimize property access. Similar property layouts may share shape information, but the exact rules are engine-version implementation details, and optimization does not mean every access becomes a guaranteed fixed-offset lookup.</p>
     </div>
     <div class="card-grid">
       <div class="card">
@@ -1723,13 +1726,13 @@ footer {
         </div>
       </div>
       <div class="card">
-        <h3 style="color:var(--neon-pink)">❌ Shape Changes = Slow</h3>
+        <h3 style="color:var(--neon-pink)">⚠️ Shape Changes Can Affect Optimization</h3>
         <div class="code-block" style="margin-top:0.75rem;font-size:0.75rem;">
           <span class="keyword">const</span> <span class="var-name">obj</span> = {};
 <span class="var-name">obj</span>.<span class="var-name">x</span> = <span class="number">1</span>; <span class="comment">// class C1</span>
 <span class="var-name">obj</span>.<span class="var-name">y</span> = <span class="number">2</span>; <span class="comment">// class C2</span>
-<span class="comment">// Each add creates new hidden class</span>
-<span class="comment">// Harder to optimize</span>
+<span class="comment">// Adding properties can change shape metadata in some engines</span>
+<span class="comment">// Measure hot paths before optimizing object construction</span>
         </div>
       </div>
     </div>
@@ -1738,9 +1741,9 @@ footer {
   <div id="v8-tab2" class="tab-content">
     <div class="card">
       <h3>⚡ Inline Caching (IC)</h3>
-      <p>When V8 accesses a property like <code>obj.name</code>, it <em>caches</em> the location (offset in memory) for that hidden class. Next time it sees the same operation on the same hidden class, it skips the lookup entirely — direct memory access.</p>
+      <p>Inline caches can specialize frequent operations based on observed receiver shapes and may speed up hot property access. A polymorphic or megamorphic call site can use different strategies; it does not mean that V8 simply gives up all optimization or always falls back to a fixed “slow lookup.”</p>
       <br>
-      <p style="color:var(--text-dim);">This is why keeping your object shapes consistent is important for performance. When V8 sees many <em>different</em> hidden classes at the same call site, the cache goes <strong class="hl-pink">megamorphic</strong> — it gives up optimizing and falls back to slow lookups.</p>
+      <p style="color:var(--text-dim);">Stable object construction can help some hot paths, but performance effects depend on engine version, workload and surrounding code. Profile before making shape consistency a rule or refactoring for it.</p>
     </div>
     <div class="analogy" style="margin-top:1rem;">
       <span class="analogy-icon">🗺️</span>
@@ -1757,19 +1760,19 @@ footer {
     <div class="card-grid">
       <div class="card">
         <h3 style="color:var(--neon-blue)">Stack Size</h3>
-        <p>Typically <strong>1–8 MB</strong> per thread. Set by the OS/browser. Stack overflow at ~10,000–15,000 call frames. You cannot control this from JS.</p>
+        <p>Limits depend on the engine, host, platform and call shape. Deep recursion can overflow the call stack, but there is no portable megabyte or frame-count threshold. Avoid unbounded recursion when input depth can grow; use an iterative algorithm when that fits the problem.</p>
       </div>
       <div class="card">
         <h3 style="color:var(--neon-purple)">Heap Size</h3>
-        <p>V8 default: ~<strong>1.5 GB</strong> (64-bit). Configurable in Node.js with <code>--max-old-space-size=4096</code> (MB). Browser tabs have per-tab limits.</p>
+        <p>Heap limits depend on V8 version, process architecture, host policy, available resources and launch settings. Node.js exposes options such as <code>--max-old-space-size</code>, but increasing a limit consumes more memory and does not fix an unbounded allocation or leak. Browser limits differ and are not a portable per-tab constant.</p>
       </div>
       <div class="card">
         <h3 style="color:var(--neon-pink)">Out of Memory</h3>
-        <p>If heap is exhausted: <code>FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory</code>. Process crashes.</p>
+        <p>Excessive memory use may lead to allocation failures, tab/process termination or host-specific error messages. Exact wording and recovery behavior vary by runtime; investigate retained objects, allocation growth and configured limits before increasing capacity.</p>
       </div>
       <div class="card">
         <h3 style="color:var(--neon-green)">Generations</h3>
-        <p>V8's GC splits heap into <strong>Young Generation</strong> (new objects, collected often) and <strong>Old Generation</strong> (long-lived, collected rarely). This is called <em>generational GC</em>.</p>
+        <p>V8 has used generational collection strategies to treat short-lived and long-lived objects differently; details can change by version and memory space. This is a V8 implementation detail, not a rule that every JavaScript host uses the same generations or collection schedule.</p>
       </div>
     </div>
   </div>
@@ -1785,13 +1788,13 @@ footer {
   </div>
 
   <div class="card" style="margin-bottom:1.5rem;">
-    <p>A <strong class="hl-green">closure</strong> is a function that "remembers" the variables from its outer scope, even after the outer function has finished executing. This is powerful — but it also means those variables stay in memory as long as the closure exists.</p>
+    <p>A <strong class="hl-green">closure</strong> lets a function access lexical bindings from its defining environment after the outer call has returned. Values actually retained by a reachable closure can stay live; the runtime may optimize environments and does not have to retain unrelated local values.</p>
   </div>
 
   <div class="card-grid" style="margin-bottom:1.5rem;">
     <div class="card">
       <h3>🧲 How Closures Keep Memory Alive</h3>
-      <p>When an inner function captures a variable, that variable is stored in a <strong>closure environment</strong> — a special heap object. It stays alive as long as the closure function is reachable.</p>
+      <p>Conceptually, a closure retains access to the outer bindings it needs. The engine’s environment representation is implementation-dependent; a captured value can remain reachable while the closure is reachable, but do not assume every local variable becomes a distinct heap object.</p>
     </div>
     <div class="card">
       <h3>💡 Closures are Useful</h3>
@@ -1802,7 +1805,7 @@ footer {
   <div class="code-block">
     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
     <span class="keyword">function</span> <span class="func">makeCounter</span>() {
-  <span class="keyword">let</span> <span class="var-name">count</span> = <span class="number">0</span>; <span class="comment">// Lives in closure environment, not stack!</span>
+  <span class="keyword">let</span> <span class="var-name">count</span> = <span class="number">0</span>; <span class="comment">// retained by the returned closure when needed</span>
   <span class="keyword">return</span> <span class="keyword">function</span>() {
     <span class="var-name">count</span>++; <span class="comment">// still accesses count from outer scope</span>
     <span class="keyword">return</span> <span class="var-name">count</span>;
@@ -1815,7 +1818,7 @@ footer {
 
 <span class="func">counter</span>(); <span class="comment">// 1</span>
 <span class="func">counter</span>(); <span class="comment">// 2</span>
-<span class="comment">// count is freed only when counter is set to null</span>
+<span class="comment">// when no reachable reference retains the closure, its data becomes eligible for GC</span>
   </div>
 </div>
 
@@ -1829,29 +1832,29 @@ footer {
   </div>
 
   <div class="card" style="margin-bottom:1.5rem;">
-    <p>Every object in the heap lives at a specific <strong class="hl-yellow">memory address</strong> — a unique number like <code>0x7f3a12b0</code>. In lower-level languages, you work with these directly. In JS, the engine handles addresses automatically — you only see <em>references</em> (variables that point to addresses).</p>
+    <p>JavaScript exposes object identity and references through its language semantics, not through portable numeric memory addresses. Engines may move objects during garbage collection or use optimized representations, so a diagram label such as <code>0x7f3a12b0</code> is illustrative rather than an address a JavaScript program can inspect.</p>
   </div>
 
   <div class="card-grid">
     <div class="card">
       <h3>🔢 What is a Memory Address?</h3>
-      <p>Memory is like a giant numbered array. Each byte has an index (address). When an object is allocated, it gets a block starting at some address. A reference variable stores that starting address number.</p>
+      <p>At a lower level, memory is addressed by runtimes and hardware, but ordinary JavaScript code cannot read or depend on an object’s address. Think of a reference as an abstract way to reach an object, not as a numeric pointer stored in a variable.</p>
     </div>
     <div class="card">
       <h3>🆔 Unique Identity</h3>
-      <p>Two objects with identical contents are still <em>different objects</em> at different addresses. That's why <code>{} === {}</code> is <code>false</code> — JS compares references (addresses), not content.</p>
+      <p>Two separate object literals create different object identities, so <code>{} === {}</code> is <code>false</code>. JavaScript compares object identity here; the language does not require comparing or exposing physical memory addresses.</p>
     </div>
   </div>
 
   <div class="code-block" style="margin-top:1.5rem;">
     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-    <span class="keyword">const</span> <span class="var-name">a</span> = { <span class="var-name">x</span>: <span class="number">1</span> }; <span class="comment">// Lives at address 0x7f3a (example)</span>
-<span class="keyword">const</span> <span class="var-name">b</span> = { <span class="var-name">x</span>: <span class="number">1</span> }; <span class="comment">// Lives at address 0x8b2c — DIFFERENT object</span>
+    <span class="keyword">const</span> <span class="var-name">a</span> = { <span class="var-name">x</span>: <span class="number">1</span> }; <span class="comment">// one object identity</span>
+<span class="keyword">const</span> <span class="var-name">b</span> = { <span class="var-name">x</span>: <span class="number">1</span> }; <span class="comment">// a distinct object identity</span>
 
-<span class="func">console</span>.<span class="func">log</span>(<span class="var-name">a</span> === <span class="var-name">b</span>); <span class="comment">// false — different addresses!</span>
+<span class="func">console</span>.<span class="func">log</span>(<span class="var-name">a</span> === <span class="var-name">b</span>); <span class="comment">// false — distinct objects</span>
 
-<span class="keyword">const</span> <span class="var-name">c</span> = <span class="var-name">a</span>; <span class="comment">// c holds the SAME address as a (0x7f3a)</span>
-<span class="func">console</span>.<span class="func">log</span>(<span class="var-name">a</span> === <span class="var-name">c</span>); <span class="comment">// true — same address!</span>
+<span class="keyword">const</span> <span class="var-name">c</span> = <span class="var-name">a</span>; <span class="comment">// c refers to the same object as a</span>
+<span class="func">console</span>.<span class="func">log</span>(<span class="var-name">a</span> === <span class="var-name">c</span>); <span class="comment">// true — same object identity</span>
   </div>
 </div>
 
@@ -1868,22 +1871,22 @@ footer {
     <div class="summary-card">
       <div class="sc-icon">📦</div>
       <div class="sc-title" style="color:var(--neon-blue)">Stack</div>
-      <div class="sc-text">Primitives stored directly. Fast LIFO structure. Freed automatically when scope ends.</div>
+      <div class="sc-text">A model for call frames and temporary execution state; exact value placement is engine-dependent.</div>
     </div>
     <div class="summary-card">
       <div class="sc-icon">🏗️</div>
       <div class="sc-title" style="color:var(--neon-purple)">Heap</div>
-      <div class="sc-text">Objects/arrays live here. Stack holds reference (address). Managed by GC.</div>
+      <div class="sc-text">A model for dynamic objects and reachability; JavaScript does not expose object addresses.</div>
     </div>
     <div class="summary-card">
       <div class="sc-icon">📞</div>
       <div class="sc-title" style="color:var(--neon-yellow)">Call Stack</div>
-      <div class="sc-text">Tracks function calls. Stack frames pushed/popped. Overflow at ~10k depth.</div>
+      <div class="sc-text">Models nested calls and returns. Excessive depth can overflow; the threshold is runtime-dependent.</div>
     </div>
     <div class="summary-card">
       <div class="sc-icon">♻️</div>
       <div class="sc-title" style="color:var(--neon-pink)">Garbage Collection</div>
-      <div class="sc-text">Mark & Sweep. Unreachable = garbage. Watch for leaks via globals, listeners, closures.</div>
+      <div class="sc-text">Reachability is the key model; collection timing is nondeterministic. Diagnose unintended retention with snapshots and allocation evidence.</div>
     </div>
     <div class="summary-card">
       <div class="sc-icon">📋</div>
@@ -1893,12 +1896,12 @@ footer {
     <div class="summary-card">
       <div class="sc-icon">📌</div>
       <div class="sc-title" style="color:var(--neon-orange)">const</div>
-      <div class="sc-text">Locks the binding, not the value. Object contents can still change. Primitive is effectively frozen.</div>
+      <div class="sc-text">Prevents reassignment of the binding. Primitive immutability comes from the value type; const does not deep-freeze objects.</div>
     </div>
     <div class="summary-card">
       <div class="sc-icon">🔠</div>
       <div class="sc-title" style="color:var(--neon-yellow)">String Pool</div>
-      <div class="sc-text">String literals may be interned. new String() creates heap object. Use literals for efficiency.</div>
+      <div class="sc-text">String interning is an engine optimization, not a language guarantee. Avoid String wrapper objects in ordinary code.</div>
     </div>
     <div class="summary-card">
       <div class="sc-icon">🏎️</div>
@@ -1908,7 +1911,7 @@ footer {
     <div class="summary-card">
       <div class="sc-icon">🧲</div>
       <div class="sc-title" style="color:var(--neon-green)">Closures</div>
-      <div class="sc-text">Capture outer variables in heap environment. Stay alive as long as closure is referenced.</div>
+      <div class="sc-text">Closures retain access to needed lexical bindings while reachable; exact environment storage is engine-dependent.</div>
     </div>
   </div>
 </div>

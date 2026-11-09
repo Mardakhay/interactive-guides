@@ -14,3 +14,4 @@ createRoot(container).render(
     <RouterProvider router={router} />
   </StrictMode>,
 );
+

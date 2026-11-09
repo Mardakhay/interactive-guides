@@ -1,0 +1,1435 @@
+{
+  "id": "js.dom-events",
+  "locale": "ru",
+  "version": 7,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-29",
+  "moduleId": "month-2-week-7",
+  "week": 7,
+  "order": 1,
+  "title": "DOM и события браузера",
+  "description": "Разберись в живом дереве документа браузера, безопасно выбирай и обновляй элементы, обрабатывай события и создай DOM-список задач на основе данных.",
+  "estimatedMinutes": 140,
+  "difficulty": "beginner",
+  "prerequisites": [
+    "js.functions-arrays-objects",
+    "html.forms-accessibility"
+  ],
+  "learningOutcomes": [
+    "Объяснять, как разбор HTML создаёт разные типы DOM nodes и elements.",
+    "Безопасно выбирать узлы, обходить связи между элементами и различать static/live collections.",
+    "Создавать и обновлять узлы безопасными API для текста, атрибутов и свойств.",
+    "Объяснять event target/currentTarget, фазы capture/target/bubble, delegation и действия браузера по умолчанию.",
+    "Отлаживать различия между HTML-атрибутами и изменяемыми DOM-свойствами.",
+    "Создавать список с источником данных в JS и проверять поведение через DevTools.",
+    "Выбирать между textContent, innerText и innerHTML и управлять классами и data-атрибутами из одного объекта состояния.",
+    "Осознанно выбирать leading-edge throttle и снимать DOM listener при teardown.",
+    "Объяснять, как состав живой HTMLCollection меняется при изменении DOM, и выбирать стабильную коллекцию при удалении узлов."
+  ],
+  "tags": [
+    "javascript",
+    "dom",
+    "events",
+    "browser",
+    "forms",
+    "security",
+    "throttle",
+    "event-lifecycle"
+  ],
+  "blocks": [
+    {
+      "id": "dom-model",
+      "type": "heading",
+      "level": 2,
+      "text": "DOM — живая модель документа в браузере"
+    },
+    {
+      "id": "dom-model-body",
+      "type": "paragraph",
+      "text": "HTML-исходник описывает документ, а Document Object Model (DOM) — структурированное дерево, которое браузер создаёт из исходника. JavaScript может читать и изменять это дерево, пока страница открыта. DOM — не скриншот и не замороженная копия первоначальной HTML-строки: после разбора браузера узлы можно добавлять, удалять и обновлять."
+    },
+    {
+      "id": "dom-node-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Node и element связаны, но это не одно и то же"
+    },
+    {
+      "id": "dom-node-explanation",
+      "type": "paragraph",
+      "text": "Каждый element — это node, но не каждый node является element. У элемента вроде button nodeType равен 1; у text node — 3; у комментария — 8. В разметке `<div id=\"panel\"><!-- note --><button>Save</button></div>` коллекция `childNodes` панели содержит комментарий и кнопку, а `children` — только кнопку. Пробелы и переносы между тегами тоже могут создавать text nodes, поэтому количество зависит от форматирования. Используй обход элементов (`children`, `parentElement`, `nextElementSibling`), когда нужны связи между элементами; `childNodes` нужен, если важны текст и комментарии."
+    },
+    {
+      "id": "dom-node-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const panel = document.querySelector(\"#panel\");\nif (panel) {\n  const nodes = [...panel.childNodes];\n  console.log(nodes.map((node) => node.nodeType));\n  console.log(panel.children.length);\n}",
+      "steps": [
+        {
+          "title": "Проверь результат поиска",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "querySelector может вернуть null. Проверка не даёт читать коллекции отсутствующей панели."
+        },
+        {
+          "title": "Посмотри все дочерние nodes",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "Для компактной разметки выше значения nodeType будут [8, 1]: сначала comment, затем button. Если добавить пробелы между тегами, появятся и text nodes с типом 3."
+        },
+        {
+          "title": "Посмотри только дочерние элементы",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "explanation": "children исключает комментарии и текст, поэтому в этом примере вернёт одну кнопку независимо от пробелов форматирования."
+        }
+      ]
+    },
+    {
+      "id": "dom-node-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В `<div><!-- note --><button>Save</button></div>` какой nodeType у комментария?",
+      "options": [
+        {
+          "id": "a",
+          "text": "1 — ELEMENT_NODE",
+          "correct": false,
+          "feedback": "Тип 1 используется у элементов, например button и div."
+        },
+        {
+          "id": "b",
+          "text": "3 — TEXT_NODE",
+          "correct": false,
+          "feedback": "Тип 3 обозначает текстовый узел; у HTML-комментария отдельный тип."
+        },
+        {
+          "id": "c",
+          "text": "8 — COMMENT_NODE",
+          "correct": true,
+          "feedback": "HTML-комментарий — node с nodeType 8. Он есть в childNodes, но отсутствует в коллекции children."
+        },
+        {
+          "id": "d",
+          "text": "9 — DOCUMENT_NODE",
+          "correct": false,
+          "feedback": "Тип 9 обозначает объект документа, а не комментарий внутри элемента."
+        }
+      ],
+      "explanation": "DOM содержит не только элементы: текст и комментарии тоже являются nodes."
+    },
+    {
+      "id": "dom-select",
+      "type": "heading",
+      "level": 2,
+      "text": "Выбирай узлы и обрабатывай отсутствие совпадений"
+    },
+    {
+      "id": "dom-select-body",
+      "type": "paragraph",
+      "text": "document.querySelector(selector) возвращает первый совпавший элемент или null. document.querySelectorAll(selector) возвращает статический NodeList всех текущих совпадений. Позже добавленные элементы автоматически не появляются в статическом NodeList. Так как селектор может ничего не найти, проверяй результат querySelector до вызова методов элемента."
+    },
+    {
+      "id": "dom-select-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const heading = document.querySelector(\"h1\");\nconst cards = document.querySelectorAll(\".card\");\n\nif (heading) {\n  heading.textContent = \"Мой учебный кабинет\";\n}\n\nconsole.log(`Найдено карточек: ${cards.length}`);",
+      "steps": [
+        {
+          "title": "Найди один элемент",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "QuerySelector возвращает первый h1 или null, если такого элемента нет."
+        },
+        {
+          "title": "Получи статическую коллекцию",
+          "lineStart": 2,
+          "lineEnd": 2,
+          "explanation": "QuerySelectorAll возвращает NodeList совпадений, найденных на момент запроса."
+        },
+        {
+          "title": "Проверь наличие элемента",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "Условие явно обрабатывает null и не позволяет вызвать textContent на отсутствующем элементе."
+        },
+        {
+          "title": "Посмотри количество совпадений",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "Length сообщает число элементов в результате этого запроса; это не live-счётчик будущих карточек."
+        }
+      ]
+    },
+    {
+      "id": "create-nodes",
+      "type": "heading",
+      "level": 2,
+      "text": "Создавай и обновляй узлы через специализированные API"
+    },
+    {
+      "id": "create-nodes-body",
+      "type": "paragraph",
+      "text": "Используй createElement для создания узла, classList для управления классами, setAttribute для атрибутов, textContent для обычного текста, append для вставки и remove для удаления. Такие API отделяют содержимое от структуры. Для строк пользователя textContent безопаснее, чем интерпретация данных как HTML."
+    },
+    {
+      "id": "textcontent-callout",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Не вставляй пользовательский ввод в innerHTML",
+      "text": "InnerHTML разбирает строку как разметку. Конкатенация недоверенного ввода с ним может создать уязвимость cross-site scripting (XSS). Для обычного текста используй createElement и textContent; доверенный или безопасно очищенный HTML разбирай только при обоснованной необходимости."
+    },
+    {
+      "id": "create-node-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const list = document.querySelector(\"#todo-list\");\n\nif (list) {\n  const item = document.createElement(\"li\");\n  item.classList.add(\"todo-item\");\n  item.textContent = \"Повторить CSS Grid\";\n  list.append(item);\n}",
+      "steps": [
+        {
+          "title": "Найди родительский контейнер",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "Селектор может вернуть null, поэтому последующие действия защищены проверкой."
+        },
+        {
+          "title": "Создай и настрой узел",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "CreateElement создаёт li; classList добавляет класс, а textContent задаёт обычный текст."
+        },
+        {
+          "title": "Вставь новый узел",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "Append добавляет новый элемент в конец списка в живом DOM."
+        }
+      ]
+    },
+    {
+      "id": "dom-attributes-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "HTML-атрибуты и DOM-свойства могут показывать разное состояние"
+    },
+    {
+      "id": "dom-attributes-explanation",
+      "type": "paragraph",
+      "text": "HTML-атрибут входит в разметку и задаёт исходную конфигурацию; DOM property — JavaScript-свойство живого объекта. Если input изначально задан как `value=\"hello\"`, ввод пользователя меняет `input.value`, но обычно оставляет `getAttribute(\"value\")` и `defaultValue` равными исходному значению. Сброс формы возвращает текущее значение к default. Некоторые свойства отражают атрибуты (например `disabled`), но boolean-атрибут истинен уже самим фактом наличия: `disabled=\"false\"` всё равно означает disabled. Читай именно то свойство, которое соответствует нужному состоянию: в DevTools Elements проверяй разметку, а в Console — живые свойства."
+    },
+    {
+      "id": "dom-attributes-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "// HTML: <form><input id=\"name\" value=\"hello\"></form>\nconst input = document.querySelector(\"#name\");\nconst form = document.querySelector(\"form\");\nif (input instanceof HTMLInputElement && form instanceof HTMLFormElement) {\n  console.log(input.getAttribute(\"value\")); // \"hello\"\n  input.value = \"world\";\n  console.log(input.getAttribute(\"value\")); // \"hello\"\n  console.log(input.value); // \"world\"\n  form.reset();\n  console.log(input.value); // \"hello\"\n}",
+      "steps": [
+        {
+          "title": "Начни с исходной разметки",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "У input есть value content attribute, а форма даёт встроенное браузером поведение reset."
+        },
+        {
+          "title": "Прочитай атрибут и измени текущее значение",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Присваивание value меняет текущее значение поля. Content attribute остаётся исходным значением разметки; он не подходит для чтения того, что пользователь ввёл сейчас."
+        },
+        {
+          "title": "Проверь границу сброса",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "form.reset() восстанавливает текущее значение контрола из default value, связанного с исходным value-атрибутом, если default не меняли."
+        }
+      ]
+    },
+    {
+      "id": "dom-attributes-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Пользователь ввёл `world` в `<input value=\"hello\">`. Какое выражение читает текущее редактируемое значение?",
+      "options": [
+        {
+          "id": "a",
+          "text": "input.getAttribute(\"value\")",
+          "correct": false,
+          "feedback": "Это чтение content attribute, который обычно остаётся исходным значением из разметки."
+        },
+        {
+          "id": "b",
+          "text": "input.value",
+          "correct": true,
+          "feedback": "Свойство value хранит текущее редактируемое значение; сброс формы может восстановить default."
+        },
+        {
+          "id": "c",
+          "text": "input.children[0]",
+          "correct": false,
+          "feedback": "input — void element; текущее текстовое значение не является дочерним узлом."
+        },
+        {
+          "id": "d",
+          "text": "document.documentElement.value",
+          "correct": false,
+          "feedback": "documentElement — корневой HTML-элемент, а не это поле формы."
+        }
+      ],
+      "explanation": "Различай исходное значение разметки/default state и изменяемое runtime state."
+    },
+    {
+      "id": "events",
+      "type": "heading",
+      "level": 2,
+      "text": "События связывают действия пользователя с кодом"
+    },
+    {
+      "id": "events-body",
+      "type": "paragraph",
+      "text": "AddEventListener регистрирует callback, который браузер вызывает при получении элемента события click, input или submit. Event.target указывает, где возникло событие; event.currentTarget — элемент, обработчик которого сейчас выполняется. Многие события всплывают к предкам, что позволяет использовать делегирование, но всплывают не все события."
+    },
+    {
+      "id": "event-example",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const form = document.querySelector(\"#todo-form\");\nconst input = document.querySelector(\"#todo-input\");\n\nform?.addEventListener(\"submit\", (event) => {\n  event.preventDefault();\n  const title = input?.value.trim();\n  if (!title) return;\n  console.log(\"Добавить задачу:\", title);\n});",
+      "steps": [
+        {
+          "title": "Слушай submit на форме",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Обработчик submit на форме принимает отправку и через поддерживаемое клавиатурное действие, и через кнопку."
+        },
+        {
+          "title": "Отмени стандартную навигацию",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "explanation": "PreventDefault отменяет стандартное действие браузера при отправке; сам по себе он не сохраняет данные."
+        },
+        {
+          "title": "Нормализуй пользовательский ввод",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "Trim удаляет пробелы по краям, а ранний return игнорирует пустое название."
+        },
+        {
+          "title": "Оставь обработку данных явной",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "explanation": "Здесь показано только событие. Настоящее приложение обновит модель данных и отобразит новое состояние."
+        }
+      ]
+    },
+    {
+      "id": "dom-event-phases-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const card = document.querySelector(\"#card\");\nconst button = document.querySelector(\"#save\");\nif (card && button) {\n  const log = [];\n  card.addEventListener(\"click\", () => log.push(\"capture\"), { capture: true });\n  button.addEventListener(\"click\", () => log.push(\"target\"));\n  card.addEventListener(\"click\", () => log.push(\"bubble\"));\n  button.click();\n  console.log(log); // [\"capture\", \"target\", \"bubble\"]\n}",
+      "steps": [
+        {
+          "title": "Зарегистрируй слушатели на предке и цели",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "Первый слушатель card явно использует capture. Слушатель button выполняется на target, а слушатель card без capture наблюдает всплывающее событие."
+        },
+        {
+          "title": "Запусти click и проследи его путь",
+          "lineStart": 8,
+          "lineEnd": 9,
+          "explanation": "Для вложенной кнопки порядок такой: capture идёт к target, выполняются слушатели цели, затем bubble возвращается к предку. Реальные события могут быть остановлены или не всплывать — это зависит от типа события."
+        }
+      ]
+    },
+    {
+      "id": "dom-quiz-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что возвращает querySelector, если совпавшего элемента нет?",
+      "options": [
+        {
+          "id": "a",
+          "text": "null",
+          "correct": true,
+          "feedback": "QuerySelector возвращает null, если подходящего элемента нет."
+        },
+        {
+          "id": "b",
+          "text": "Пустой массив",
+          "correct": false,
+          "feedback": "QuerySelector возвращает один элемент или null, но не массив."
+        },
+        {
+          "id": "c",
+          "text": "Пустой NodeList",
+          "correct": false,
+          "feedback": "QuerySelectorAll возвращает NodeList; querySelector возвращает элемент или null."
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false,
+          "feedback": "Документированный результат при отсутствии совпадения — null."
+        }
+      ],
+      "explanation": "Проверяй null до вызова методов найденного элемента."
+    },
+    {
+      "id": "dom-quiz-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "Если присвоить пользовательскую строку textContent, содержащиеся в ней HTML-теги будут разобраны в DOM-элементы.",
+      "options": [
+        {
+          "id": "true",
+          "text": "Верно",
+          "correct": false,
+          "feedback": "TextContent трактует ввод как текст и не разбирает теги в элементы."
+        },
+        {
+          "id": "false",
+          "text": "Неверно",
+          "correct": true,
+          "feedback": "HTML-разбор выполняют API вроде innerHTML; textContent вставляет текст."
+        }
+      ],
+      "explanation": "Используй текстовые API для обычного пользовательского содержимого, чтобы уменьшить риск инъекции разметки."
+    },
+    {
+      "id": "dom-quiz-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Какие утверждения о событиях браузера верны? Выбери все подходящие варианты.",
+      "options": [
+        {
+          "id": "a",
+          "text": "event.target указывает, где возникло событие",
+          "correct": true,
+          "feedback": "Target указывает на исходный источник события."
+        },
+        {
+          "id": "b",
+          "text": "event.currentTarget — элемент, чей обработчик выполняется",
+          "correct": true,
+          "feedback": "CurrentTarget — элемент, на котором зарегистрирован активный обработчик."
+        },
+        {
+          "id": "c",
+          "text": "Каждое событие всплывает через всех предков",
+          "correct": false,
+          "feedback": "Всплытие зависит от типа события."
+        },
+        {
+          "id": "d",
+          "text": "preventDefault автоматически валидирует и сохраняет форму",
+          "correct": false,
+          "feedback": "Он отменяет стандартное действие; проверка и сохранение требуют отдельной логики."
+        }
+      ],
+      "explanation": "Источник события, активный обработчик, всплытие и стандартное поведение — разные понятия."
+    },
+    {
+      "id": "dom-practice",
+      "type": "codingExercise",
+      "title": "Создай DOM-список задач на основе модели данных",
+      "language": "javascript",
+      "context": "Используй массив как источник истины и DOM API браузера для отображения задач. Платформа сохраняет черновик; отдельная песочница запускает синхронные примеры, но не DOM-шаблон этого упражнения.",
+      "instructions": [
+        "Выбери форму, текстовое поле и контейнер списка.",
+        "Храни задачи в массиве объектов с полями id, title и completed.",
+        "Создай renderTasks(), которая очищает список и создаёт li для каждой задачи.",
+        "При submit формы отмени стандартное действие, удали пробелы по краям и игнорируй пустое название.",
+        "Сначала обнови массив tasks, затем вызови renderTasks().",
+        "Используй textContent для названий и объясни, почему innerHTML опасен для произвольного пользовательского текста.",
+        "Добавь удаление через кнопку и делегирование события или опиши архитектуру удаления.",
+        "Проверь пустой ввод, несколько задач и повторные вызовы renderTasks."
+      ],
+      "requirements": [
+        "Массив — источник истины, а DOM строится на основе массива.",
+        "Событие submit обрабатывается на самой форме.",
+        "Пустые значения и строки из одних пробелов игнорируются.",
+        "Пользовательские названия отображаются как текст, а не HTML.",
+        "Повторная отрисовка не дублирует видимые элементы.",
+        "Ученик объясняет null при выборе элемента, event target и preventDefault."
+      ],
+      "starterCode": "const tasks = [];\nconst form = document.querySelector(\"#todo-form\");\nconst input = document.querySelector(\"#todo-input\");\nconst list = document.querySelector(\"#todo-list\");\nlet nextId = 1;\n\nfunction renderTasks() {\n  // TODO: очисти список и отобрази задачи из массива.\n}\n\nform?.addEventListener(\"submit\", (event) => {\n  // TODO: отмени стандартную отправку, очисти ввод, игнорируй пустое,\n  // добавь задачу, очисти поле и отобрази список заново.\n});\n\nrenderTasks();",
+      "hints": [
+        "Сначала обнови массив, а потом вызови renderTasks().",
+        "Перед новой отрисовкой очисти предыдущие узлы или согласуй их с текущими данными.",
+        "Для пользовательского названия используй createElement и textContent."
+      ],
+      "successCriteria": [
+        "Отправка непустого названия создаёт один элемент в модели и один видимый пункт.",
+        "Пустая отправка не создаёт задачу.",
+        "Повторные вызовы renderTasks не дублируют элементы.",
+        "Решение не объединяет произвольный пользовательский текст со строкой HTML.",
+        "Ты можешь объяснить, как изменение состояния приводит к отображаемому результату."
+      ]
+    },
+    {
+      "id": "dom-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "DOM — живое дерево документа браузера; querySelector возвращает элемент или null.",
+        "Используй createElement, textContent, classList, setAttribute, append и remove для осознанных изменений DOM.",
+        "Подключай addEventListener и различай target, currentTarget, всплытие и стандартные действия браузера.",
+        "Обрабатывай submit на форме и вызывай preventDefault только при замене стандартного поведения.",
+        "Для небольшого списка задач храни массив как источник истины и отображай список из его данных."
+      ]
+    },
+    {
+      "id": "deep-dom-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Глубокое погружение: делегирование событий, поведение коллекций DOM и безопасный рендеринг"
+    },
+    {
+      "id": "deep-dom-model",
+      "type": "paragraph",
+      "text": "DOM — это дерево, поэтому событие проходит фазы capturing, target и bubbling. Делегирование использует всплытие: один обработчик на устойчивом родителе управляет действиями многих существующих и будущих потомков. Целью события может быть вложенная иконка или span, а не сама кнопка, поэтому найди нужный контрол через `closest()` и проверь, что он принадлежит контейнеру. Для непроверенного текста используй `textContent`; `innerHTML` разбирает разметку и может создавать риск инъекции."
+    },
+    {
+      "id": "deep-dom-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const list = document.querySelector('#tasks');\n\nlist.addEventListener('click', (event) => {\n  const target = event.target;\n  if (!(target instanceof Element)) return;\n\n  const button = target.closest('button[data-action=\"remove\"]');\n  if (!button || !list.contains(button)) return;\n\n  button.closest('li')?.remove();\n});\n\nfunction addTask(text) {\n  const item = document.createElement('li');\n  const label = document.createElement('span');\n  label.textContent = text;\n  const button = document.createElement('button');\n  button.type = 'button';\n  button.dataset.action = 'remove';\n  button.textContent = 'Remove';\n  item.append(label, button);\n  list.append(item);\n}",
+      "steps": [
+        {
+          "title": "Слушай событие на устойчивом предке",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "Список получает всплывающие клики от потомков. Для динамически добавленных кнопок не нужно регистрировать отдельные обработчики."
+        },
+        {
+          "title": "Учитывай вложенную цель события",
+          "lineStart": 4,
+          "lineEnd": 5,
+          "explanation": "Если клик начался на дочернем элементе кнопки, event.target указывает именно на этот дочерний элемент. Проверка также не предполагает, что любой EventTarget является Element."
+        },
+        {
+          "title": "Найди действие и проверь принадлежность",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "closest() поднимается по предкам до подходящей кнопки удаления. contains() проверяет, что она находится внутри списка; после этого удаляется ближайший li."
+        },
+        {
+          "title": "Вставляй непроверенный текст как текст",
+          "lineStart": 14,
+          "lineEnd": 23,
+          "explanation": "textContent не разбирает строку задания как HTML. Создание узлов также избавляет от интерполяции пользовательской строки в разметку."
+        }
+      ]
+    },
+    {
+      "id": "deep-dom-collections",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`querySelectorAll()` возвращает статический NodeList: последующие изменения DOM не обновляют эту коллекцию.",
+        "`getElementsByClassName()` возвращает live HTMLCollection, отражающий добавление и удаление подходящих элементов.",
+        "Делегирование основано на распространении события и поиске нужной цели; оно не отменяет проверку действия и его контейнера.",
+        "Для непроверенного текста используй `textContent`. Если нужен HTML от пользователя с разметкой, требуется отдельная проверенная стратегия очистки."
+      ]
+    },
+    {
+      "id": "dom-live-collections-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Статический NodeList и живой HTMLCollection"
+    },
+    {
+      "id": "dom-live-collections-body",
+      "type": "paragraph",
+      "text": "`querySelectorAll()` возвращает статический `NodeList`: он содержит совпадения на момент выполнения запроса, поэтому последующие изменения DOM не меняют его состав. `getElementsByClassName()` возвращает живой `HTMLCollection`: коллекция отражает текущий набор подходящих элементов, включая добавленные и удалённые узлы. Живая коллекция полезна, когда нужен актуальный набор, но при удалении узлов в цикле с возрастающим индексом элементы могут пропускаться, потому что коллекция уменьшается. Для предсказуемой обработки выбери статическую коллекцию или скопируй живую через `Array.from()` перед изменением DOM."
+    },
+    {
+      "id": "dom-live-collections-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const list = document.querySelector(\"#items\");\nif (!list) throw new Error(\"List not found\");\n\nconst snapshot = list.querySelectorAll(\".item\");\nconst liveItems = list.getElementsByClassName(\"item\");\nconsole.log(snapshot.length, liveItems.length); // 2, 2\n\nconst item = document.createElement(\"li\");\nitem.className = \"item\";\nitem.textContent = \"Third\";\nlist.append(item);\n\nconsole.log(snapshot.length, liveItems.length); // 2, 3\n\n// Copy a live collection before removing items while iterating.\nconst removalSnapshot = Array.from(liveItems);\nfor (const current of removalSnapshot) current.remove();\nconsole.log(liveItems.length); // 0",
+      "steps": [
+        {
+          "title": "Создай обе коллекции одновременно",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "В списке сначала два потомка `.item`. `querySelectorAll()` создаёт статический снимок, а `getElementsByClassName()` возвращает живую коллекцию, которая отражает текущий DOM."
+        },
+        {
+          "title": "Добавь подходящий элемент",
+          "lineStart": 8,
+          "lineEnd": 13,
+          "explanation": "После добавления третьего `li` прежний NodeList по-прежнему содержит два элемента, а живая HTMLCollection уже содержит три."
+        },
+        {
+          "title": "Создай снимок перед изменением DOM",
+          "lineStart": 15,
+          "lineEnd": 18,
+          "explanation": "`Array.from()` создаёт стабильный массив текущих элементов. Поэтому удаление каждого элемента не сдвигает индексы коллекции, по которой идёт итерация. Сама живая коллекция уменьшается до нуля по мере удаления узлов."
+        }
+      ]
+    },
+    {
+      "id": "dom-live-collections-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В списке два элемента `.item`. Ты создаёшь `querySelectorAll('.item')` и `getElementsByClassName('item')`, затем добавляешь третий подходящий элемент. Какова длина коллекций после вставки?",
+      "options": [
+        {
+          "id": "snapshot-live",
+          "text": "Статический NodeList: 2; живая HTMLCollection: 3",
+          "correct": true,
+          "feedback": "Верно. NodeList от querySelectorAll остаётся исходным снимком. HTMLCollection от getElementsByClassName отражает новый подходящий элемент."
+        },
+        {
+          "id": "both-live",
+          "text": "Обе коллекции: 3",
+          "correct": false,
+          "feedback": "querySelectorAll возвращает статический NodeList, поэтому добавление нового совпадения не меняет уже созданный результат."
+        },
+        {
+          "id": "both-static",
+          "text": "Обе коллекции: 2",
+          "correct": false,
+          "feedback": "HTMLCollection от getElementsByClassName — живая коллекция, она обновляется при добавлении и удалении подходящих потомков."
+        },
+        {
+          "id": "reversed",
+          "text": "Статический NodeList: 3; живая HTMLCollection: 2",
+          "correct": false,
+          "feedback": "В этом варианте поведение перепутано: querySelectorAll возвращает статический снимок, а getElementsByClassName — живую коллекцию."
+        }
+      ],
+      "explanation": "Тип коллекции определяет, является ли её состав снимком или живым представлением DOM. Если в процессе обработки нужно удалять узлы, сначала скопируй живую коллекцию или используй статический набор для стабильной итерации."
+    },
+    {
+      "id": "deep-dom-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Почему делегированный обработчик использует `target.closest(...)`, а не считает, что `event.target` — это кнопка удаления?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Клик может начаться на вложенном элементе внутри кнопки",
+          "correct": true,
+          "feedback": "Непосредственной целью может быть span или SVG внутри кнопки. closest() поднимается по дереву и находит нужный контрол."
+        },
+        {
+          "id": "b",
+          "text": "Всплытие пропускает кнопки",
+          "correct": false,
+          "feedback": "Событие всплывает от цели через предков; непосредственной целью может быть вложенный элемент кнопки."
+        },
+        {
+          "id": "c",
+          "text": "closest() автоматически очищает пользовательский HTML",
+          "correct": false,
+          "feedback": "closest() ищет предков. Для непроверенного содержимого используй textContent или проверенный HTML-санитайзер."
+        },
+        {
+          "id": "d",
+          "text": "Цель события появляется только после обработчика родителя",
+          "correct": false,
+          "feedback": "Цель определена во время отправки события, а всплытие позволяет родителю наблюдать это событие."
+        }
+      ],
+      "explanation": "Делегирование позволяет управлять динамическими потомками одним обработчиком родителя, но обработчик всё равно должен найти правильный контрол и проверить его принадлежность родителю."
+    },
+    {
+      "id": "deep-dom-practice",
+      "type": "codingExercise",
+      "title": "Создай список заданий с делегированием без опасного HTML",
+      "language": "javascript",
+      "context": "Реализуй и объясни динамическое поведение DOM. Запусти задание в браузерном проекте со списком: JavaScript-песочница не предоставляет DOM.",
+      "instructions": [
+        "Создавай элементы задания через createElement, textContent и append.",
+        "Используй один обработчик клика на списке для удаления потомков с `data-action=remove`.",
+        "Обработай клик, который начинается на вложенном содержимом кнопки удаления.",
+        "Объясни разницу между статическим NodeList и live HTMLCollection.",
+        "Опиши, почему вставлять непроверенный текст задания через innerHTML небезопасно."
+      ],
+      "requirements": [
+        "Добавление заданий не создаёт отдельный обработчик на каждую кнопку.",
+        "Клик по вложенному содержимому кнопки удаляет правильный элемент списка.",
+        "Пользовательский текст вставляется как текст, а не разбирается как HTML.",
+        "Подходящие контролы за пределами списка игнорируются.",
+        "Объяснено, является ли выбранная коллекция статической или живой."
+      ],
+      "starterCode": "const list = document.querySelector('#tasks');\n\nfunction addTask(text) {\n  // TODO: создай li, span с текстом и кнопку удаления с type=button.\n}\n\nlist.addEventListener('click', (event) => {\n  // TODO: найди кнопку удаления, проверь принадлежность и удали li.\n});",
+      "hints": [
+        "event.target может быть дочерним элементом кнопки; найди кнопку через closest().",
+        "Используй list.contains(button), чтобы проверить принадлежность списка.",
+        "Не вставляй пользовательский ввод в HTML-строку; присвой его textContent."
+      ],
+      "successCriteria": [
+        "Для старых и новых элементов работает один обработчик родителя.",
+        "Вложенные цели клика обрабатываются.",
+        "Пользовательский текст вставляется безопасно.",
+        "Контролы за пределами списка игнорируются.",
+        "Разница статической и живой коллекции объяснена точно."
+      ]
+    },
+    {
+      "id": "dom-property-debug-exercise",
+      "type": "codingExercise",
+      "title": "Отладь DOM-тест, который читает не то значение",
+      "language": "javascript",
+      "context": "Тест формы вводит новое имя, но assertion по-прежнему видит старое. При этом обход дерева находит больше узлов, чем видно контролов.",
+      "instructions": [
+        "Создай минимальную форму с input, исходное value которой равно `hello`; введи `world` и сравни value property, defaultValue и value-атрибут.",
+        "Покажи результат form.reset() и объясни, какое значение он восстанавливает.",
+        "Используй компактную разметку с комментарием и кнопкой, сравни childNodes, children и nodeType; объясни влияние пробелов между тегами.",
+        "Запиши порядок событий capture, target и bubble и укажи, что может изменить ожидаемый порядок.",
+        "Назови панели или выражения DevTools, которые помогут изолировать каждый источник расхождения."
+      ],
+      "requirements": [
+        "Различает исходный content attribute и текущее значение input property.",
+        "Объясняет нативный form reset через default value контрола.",
+        "Верно определяет comment node и element-only коллекцию children.",
+        "Указывает, что whitespace создаёт text nodes и меняет childNodes.",
+        "Объясняет capture-target-bubble без утверждения, что всплывает любое событие."
+      ],
+      "starterCode": "// HTML: <form><input id=\"name\" value=\"hello\"></form>\nconst input = document.querySelector(\"#name\");\n\n// TODO: сравни начальный value attribute, defaultValue и текущее value.\n// TODO: задай новое значение, проверь результат и сбрось форму.\n\n// TODO: сравни childNodes и children у разметки с комментарием.\n// TODO: запиши порядок capture, target и bubble.",
+      "hints": [
+        "После присваивания input.value сравни input.getAttribute(\"value\") с input.value.",
+        "Используй form.reset(), чтобы увидеть восстановление default value.",
+        "childNodes включает текст и комментарии; children содержит только элементы."
+      ],
+      "successCriteria": [
+        "Объяснено, почему для текущего значения читают value property.",
+        "Предсказан и объяснён результат reset через defaultValue.",
+        "Учтены комментарии и пробельные text nodes при обходе DOM.",
+        "Указан порядок capture → target → bubble для обычного всплывающего click и названо ограничение распространения событий."
+      ]
+    },
+    {
+      "id": "dom-batch-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Пакетная работа с DOM и выбор browser observer"
+    },
+    {
+      "id": "dom-fragment-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const list = document.querySelector('#results');\nif (!list) throw new Error('Список результатов не найден');\n\nconst fragment = document.createDocumentFragment();\nfor (const label of ['HTML', 'CSS', 'JavaScript']) {\n  const item = document.createElement('li');\n  item.textContent = label;\n  fragment.append(item);\n}\n\nlist.replaceChildren(fragment);",
+      "steps": [
+        {
+          "title": "Создавайте узлы, не интерпретируя строки как HTML",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "Сначала проверьте целевой элемент, затем создавайте узлы и задавайте textContent. Так строка метки останется текстом, а не будет разобрана как разметка."
+        },
+        {
+          "title": "Соберите отсоединённое поддерево",
+          "lineStart": 4,
+          "lineEnd": 9,
+          "explanation": "DocumentFragment — лёгкий контейнер для подготовки узлов перед вставкой. При добавлении fragment в документ его дочерние элементы перемещаются, а сам fragment становится пустым."
+        },
+        {
+          "title": "Замените содержимое списка одной понятной операцией",
+          "lineStart": 11,
+          "lineEnd": 11,
+          "explanation": "replaceChildren выражает, что список заменяется собранными элементами. Fragment может уменьшить число мутаций живого дерева и сделать намерение яснее, но не гарантирует конкретное число layout/reflow — измеряйте, если важна производительность."
+        }
+      ]
+    },
+    {
+      "id": "dom-observer-choice",
+      "type": "paragraph",
+      "text": "Используйте event listener для известного события пользователя или браузера. MutationObserver нужен, когда код должен реагировать на изменения DOM-поддерева, выполненные другим кодом; callback запускается после постановки мутаций в очередь, поэтому не создавайте бесконечный цикл, меняя то же наблюдаемое поддерево. IntersectionObserver сообщает, когда цель приближается к viewport/root или пересекается с ним, например для собственной lazy loading или аналитики видимости. Когда работа завершена, вызывайте disconnect или unobserve; для обычных изображений проще встроенный loading=\"lazy\"."
+    },
+    {
+      "id": "dom-intersection-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const images = document.querySelectorAll('img[data-src]');\nconst observer = new IntersectionObserver((entries, currentObserver) => {\n  for (const entry of entries) {\n    if (!entry.isIntersecting) continue;\n    const image = entry.target;\n    if (!(image instanceof HTMLImageElement)) continue;\n    const source = image.dataset.src;\n    if (!source) continue;\n    image.src = source;\n    delete image.dataset.src;\n    currentObserver.unobserve(image);\n  }\n}, { rootMargin: '200px' });\n\nimages.forEach((image) => observer.observe(image));\n// При teardown компонента: observer.disconnect();",
+      "steps": [
+        {
+          "title": "Выберите только цели с отложенным источником",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "Селектор выбирает изображения с data-атрибутом. Код всё равно проверяет значение dataset перед присваиванием."
+        },
+        {
+          "title": "Дождитесь приближения и выполните работу один раз",
+          "lineStart": 2,
+          "lineEnd": 12,
+          "explanation": "Callback получает записи и observer. rootMargin начинает загрузку до попадания изображения в viewport; unobserve предотвращает повторную обработку той же цели."
+        },
+        {
+          "title": "Начните наблюдение после настройки и очистите его при завершении",
+          "lineStart": 14,
+          "lineEnd": 15,
+          "explanation": "Наблюдение запускается после создания callback. При удалении компонента или области страницы отключите observer. Для стандартной отложенной загрузки сравните этот код с более простым атрибутом loading=\"lazy\"."
+        }
+      ]
+    },
+    {
+      "id": "dom-mutation-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const panel = document.querySelector('#status-panel');\nif (!panel) throw new Error('Панель статуса не найдена');\n\nconst observer = new MutationObserver((records) => {\n  for (const record of records) {\n    console.log(record.type, record.target);\n  }\n});\nobserver.observe(panel, { childList: true, subtree: true, attributes: true });\n\n// Когда наблюдение больше не требуется:\nobserver.disconnect();",
+      "steps": [
+        {
+          "title": "Наблюдайте за конкретным поддеревом",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Выберите минимальный элемент, изменения которого важны. Проверьте отсутствие цели до вызова observe."
+        },
+        {
+          "title": "Анализируйте записи вместо постоянного опроса",
+          "lineStart": 4,
+          "lineEnd": 9,
+          "explanation": "MutationObserver передаёт накопленные записи изменений в отложенном callback. Настройки задают, какие изменения отслеживать; широкое наблюдение за всем поддеревом и атрибутами может создавать шум."
+        },
+        {
+          "title": "Явно остановите наблюдение",
+          "lineStart": 11,
+          "lineEnd": 12,
+          "explanation": "Вызывайте disconnect, когда компонент размонтируется или задача завершена. Если callback меняет наблюдаемые узлы, убедитесь, что он завершается, а не запускает бесконечный поток мутаций."
+        }
+      ]
+    },
+    {
+      "id": "dom-size-visibility-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Наблюдай за размером элемента и видимостью документа"
+    },
+    {
+      "id": "dom-size-visibility-model",
+      "type": "paragraph",
+      "text": "Выбирай API по нужному сигналу. `ResizeObserver` сообщает об изменении размеров блока элемента, даже если viewport не менялся; `window.resize` сообщает только об изменении размера окна. Если нужно изменить исключительно оформление, часто достаточно CSS/container queries. Не меняй размеры самого наблюдаемого элемента из callback без защиты: это может запустить повторные resize notifications. Page Visibility API отличается от `IntersectionObserver`: он сообщает, считается ли документ видимым или скрытым, а не пересекает ли отдельная карточка viewport. Останавливай ненужную фоновую работу в скрытом документе и очищай listeners и timers."
+    },
+    {
+      "id": "dom-resize-observer-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const card = document.querySelector(\"#responsive-card\");\nconst measurement = document.querySelector(\"#card-measurement\");\n\nif (card && measurement) {\n  const resizeObserver = new ResizeObserver((entries) => {\n    for (const entry of entries) {\n      const { width, height } = entry.contentRect;\n      measurement.textContent =\n        `${Math.round(width)} × ${Math.round(height)} px`;\n    }\n  });\n\n  resizeObserver.observe(card);\n\n  // Disconnect when this view is disposed.\n  // resizeObserver.disconnect();\n}",
+      "steps": [
+        {
+          "title": "Выбери элемент и место вывода",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "Наблюдай элемент, размеры которого действительно важны, а не только окно. Вложенная панель может менять размер из-за grid, содержимого, шрифтов или соседнего блока без события window resize."
+        },
+        {
+          "title": "Читай изменения размеров без изменения наблюдаемого блока",
+          "lineStart": 5,
+          "lineEnd": 11,
+          "explanation": "`entry.contentRect` предоставляет ширину и высоту content box. Пример выводит измерения в отдельный элемент; изменение размера самой наблюдаемой цели из callback может создать цикл ResizeObserver."
+        },
+        {
+          "title": "Подключи наблюдение и teardown",
+          "lineStart": 13,
+          "lineEnd": 17,
+          "explanation": "Начинай наблюдение, когда нужные элементы доступны, и вызывай `disconnect()` при удалении представления/компонента. `unobserve()` подходит, если перестать наблюдать нужно только за одной целью."
+        }
+      ]
+    },
+    {
+      "id": "dom-page-visibility-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function startVisibleUpdates(statusElement) {\n  let timerId;\n  let ticks = 0;\n\n  function stopUpdates() {\n    if (timerId !== undefined) {\n      window.clearInterval(timerId);\n      timerId = undefined;\n    }\n  }\n\n  function syncVisibility() {\n    if (document.hidden) {\n      stopUpdates();\n      return;\n    }\n    if (timerId !== undefined) return;\n\n    timerId = window.setInterval(() => {\n      ticks += 1;\n      statusElement.textContent = `Active updates: ${ticks}`;\n    }, 1000);\n  }\n\n  document.addEventListener(\"visibilitychange\", syncVisibility);\n  syncVisibility();\n\n  return () => {\n    document.removeEventListener(\"visibilitychange\", syncVisibility);\n    stopUpdates();\n  };\n}\n\nconst statusElement = document.querySelector(\"#status\");\nif (statusElement) {\n  const stopVisibleUpdates = startVisibleUpdates(statusElement);\n  // Call stopVisibleUpdates when this feature is disposed.\n}",
+      "steps": [
+        {
+          "title": "Храни состояние таймера локально",
+          "lineStart": 1,
+          "lineEnd": 9,
+          "explanation": "ID таймера показывает, активны ли обновления; счётчик сохраняется во время пауз и не создаёт несколько параллельных intervals."
+        },
+        {
+          "title": "Останавливай работу, когда документ скрыт",
+          "lineStart": 11,
+          "lineEnd": 20,
+          "explanation": "`visibilitychange` не содержит новое состояние в payload события. Читай `document.hidden` или `document.visibilityState`, останавливай ненужные обновления в скрытом документе и возобновляй их при возвращении."
+        },
+        {
+          "title": "Зарегистрируй обработчик, синхронизируй состояние и очисти ресурсы",
+          "lineStart": 21,
+          "lineEnd": 33,
+          "explanation": "После регистрации вызови обработчик сразу, чтобы учесть начальную видимость. Возвращаемая cleanup-функция снимает тот же callback и очищает interval. Фоновые таймеры могут замедляться и не подходят для точного планирования."
+        }
+      ]
+    },
+    {
+      "id": "dom-observer-signal-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Ширина панели дашборда меняется, потому что меняется колонка grid, но размер окна браузера остаётся прежним. Какой API предназначен для этого сигнала?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`ResizeObserver` для элемента панели",
+          "correct": true,
+          "feedback": "ResizeObserver сообщает об изменении content/border box элемента, даже когда размер viewport не менялся."
+        },
+        {
+          "id": "b",
+          "text": "Только `window.addEventListener(\"resize\", ...)`",
+          "correct": false,
+          "feedback": "Событие window resize описывает изменение viewport, но не каждое изменение размеров элемента из-за контента или layout."
+        },
+        {
+          "id": "c",
+          "text": "`IntersectionObserver` для панели",
+          "correct": false,
+          "feedback": "IntersectionObserver сообщает о пересечении с root/viewport, а не о ширине и высоте элемента."
+        },
+        {
+          "id": "d",
+          "text": "`MutationObserver` для каждого узла документа",
+          "correct": false,
+          "feedback": "MutationObserver сообщает об изменениях DOM-дерева и атрибутов, а не о вычисленных размерах блока; наблюдение за всем документом слишком широкое."
+        }
+      ],
+      "explanation": "Выбирай observer по сигналу: `ResizeObserver` — размер элемента, `IntersectionObserver` — пересечение, `MutationObserver` — изменения DOM, Page Visibility — видимость документа."
+    },
+    {
+      "id": "dom-custom-event-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const cart = document.querySelector('#cart');\nconst addButton = document.querySelector('[data-add-item]');\n\ncart?.addEventListener('cart:item-added', (event) => {\n  console.log(event.detail.itemId);\n});\n\naddButton?.addEventListener('click', () => {\n  cart?.dispatchEvent(new CustomEvent('cart:item-added', {\n    detail: { itemId: 'book-7' },\n    bubbles: true\n  }));\n});",
+      "steps": [
+        {
+          "title": "Определите контракт события",
+          "lineStart": 4,
+          "lineEnd": 5,
+          "explanation": "Имя события и форма detail образуют небольшой контракт между отправителем и обработчиком. Сделайте их специфичными и объясните смысл полезной нагрузки."
+        },
+        {
+          "title": "Отправляйте событие из компонента, который владеет действием",
+          "lineStart": 8,
+          "lineEnd": 13,
+          "explanation": "CustomEvent передаёт прикладные данные в detail. Всплытие позволяет обработать событие на предке; внутри дерева под контролем React custom events не заменяют props/state."
+        }
+      ]
+    },
+    {
+      "id": "dom-observer-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Компоненту нужно загрузить изображение незадолго до его появления на экране. Какой API предназначен для наблюдения за видимостью цели?",
+      "options": [
+        {
+          "id": "a",
+          "text": "MutationObserver",
+          "correct": false,
+          "feedback": "MutationObserver сообщает об изменениях DOM или атрибутов, но не о пересечении с viewport."
+        },
+        {
+          "id": "b",
+          "text": "IntersectionObserver",
+          "correct": true,
+          "feedback": "IntersectionObserver асинхронно сообщает об изменении пересечения цели с viewport или заданным root."
+        },
+        {
+          "id": "c",
+          "text": "Слушатель MutationEvent",
+          "correct": false,
+          "feedback": "Устаревшие mutation events — не современный observer API и не сообщают о видимости."
+        },
+        {
+          "id": "d",
+          "text": "Бесконечный setInterval с getBoundingClientRect",
+          "correct": false,
+          "feedback": "Опрос добавляет повторную работу и сложности жизненного цикла; используйте observer или встроенную загрузку изображения, если подходит."
+        }
+      ],
+      "explanation": "Выбирайте API по необходимому сигналу: мутация DOM, пересечение с viewport или известное событие."
+    },
+    {
+      "id": "dom-rate-control",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Debounce ждёт паузу после серии вызовов; подходит подсказкам поиска, когда запрос нужен только для последней строки.",
+        "Throttle ограничивает частоту вызовов выбранным интервалом; подходит непрерывным сигналам вроде scroll, когда нужно периодическое обновление.",
+        "Оба паттерна требуют очистки таймеров и обработчиков при удалении компонента; отменяйте отложенную работу.",
+        "Не добавляйте debounce к каждому input без причины: валидации и обратной связи иногда нужны сразу, а сетевым запросам всё ещё нужны отмена и защита от устаревшего ответа."
+      ]
+    },
+    {
+      "id": "dom-throttle-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Ограничь частоту scroll-обработчика и корректно удали его"
+    },
+    {
+      "id": "dom-throttle-model",
+      "type": "paragraph",
+      "text": "Throttle с leading edge пропускает первый event, затем игнорирует новые вызовы, пока не пройдёт интервал. Он подходит для повторяющихся scroll/resize-сигналов, когда полезны периодические обновления. Эта версия не имеет trailing timer: промежуточные события, включая последнее внутри интервала, могут быть пропущены. Выбирай trailing-edge-версию или debounce, если последнее значение обязательно нужно обработать."
+    },
+    {
+      "id": "dom-throttle-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function throttleLeading(fn, intervalMs) {\n  let lastRun = -Infinity;\n\n  return function (...args) {\n    const now = Date.now();\n    if (now - lastRun < intervalMs) return;\n    lastRun = now;\n    return fn.apply(this, args);\n  };\n}\n\nconst handleScroll = throttleLeading(() => {\n  console.log(window.scrollY);\n}, 250);\n\nwindow.addEventListener('scroll', handleScroll, { passive: true });\n\nfunction disposeScrollTracking() {\n  window.removeEventListener('scroll', handleScroll);\n}",
+      "steps": [
+        {
+          "title": "Ограничь частоту вызовов",
+          "lineStart": 1,
+          "lineEnd": 10,
+          "explanation": "Обёртка сохраняет время последнего выполнения и выходит раньше, если интервал ещё не прошёл. Это только leading-edge вариант без отложенного trailing callback, поэтому удалять ожидающий timer не нужно."
+        },
+        {
+          "title": "Зарегистрируй переиспользуемый listener",
+          "lineStart": 12,
+          "lineEnd": 16,
+          "explanation": "Обработчик читает scroll position и не вызывает `preventDefault`, поэтому passive listener отражает намерение. Для удаления сохраняй ту же ссылку на функцию."
+        },
+        {
+          "title": "Удали тот же экземпляр listener",
+          "lineStart": 18,
+          "lineEnd": 20,
+          "explanation": "`removeEventListener` должен получить ту же ссылку на callback и совпадающие значимые options. Вызови disposer при удалении представления, чтобы listener не удерживал handler и его closure."
+        }
+      ]
+    },
+    {
+      "id": "dom-throttle-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Этот leading-edge throttle ограничивает scroll callback одним вызовом не чаще чем раз в 250 мс и не создаёт таймеры. Как правильно очистить его?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Вызвать `removeEventListener` с той же ссылкой на функцию `handleScroll`",
+          "correct": true,
+          "feedback": "Для удаления listener нужна исходная ссылка на callback. Эта реализация не создаёт таймер, поэтому достаточно снять обработчик."
+        },
+        {
+          "id": "b",
+          "text": "Создать новую обёртку через `throttleLeading` и передать её в `removeEventListener`",
+          "correct": false,
+          "feedback": "Новая обёртка — другая ссылка на функцию, поэтому зарегистрированный listener не будет удалён."
+        },
+        {
+          "id": "c",
+          "text": "Вызвать `clearTimeout` с последним timestamp",
+          "correct": false,
+          "feedback": "Timestamp не является timer id, а эта leading-only реализация не планирует trailing timer."
+        },
+        {
+          "id": "d",
+          "text": "Ничего не делать, потому что браузер удаляет listener после каждого callback",
+          "correct": false,
+          "feedback": "Listener остаётся зарегистрированным, пока его не снимут или его target не будет собран; window обычно живёт дольше компонента."
+        }
+      ],
+      "explanation": "Зарегистрированный listener остаётся активным до явного удаления или сборки target. Сохраняй и удаляй ту же ссылку на callback; очищай таймеры только тогда, когда выбранная реализация throttle действительно их создаёт."
+    },
+    {
+      "id": "dom-advanced-practice",
+      "type": "codingExercise",
+      "title": "Выберите, подключите и очистите DOM observers",
+      "language": "javascript",
+      "context": "На странице без React есть меняющаяся панель статуса и список карточек с изображениями. Добавьте наблюдение только там, где оно решает конкретную задачу.",
+      "instructions": [
+        "Создайте список с DocumentFragment и textContent; объясните возможности и ограничения fragment для производительности.",
+        "Используйте IntersectionObserver для отложенной загрузки и сравните с нативным loading=\"lazy\".",
+        "Используйте MutationObserver лишь для DOM-поддерева, которое меняет другая система; ограничьте параметры наблюдения и не допускайте обратных циклов.",
+        "Отправьте и обработайте CustomEvent с описанным payload.",
+        "Реализуйте debounce-поиск или throttle-обработчик scroll и очищайте observers, listeners и timers при удалении представления.",
+        "Реализуй leading-edge throttled scroll handler с одной сохранённой ссылкой на callback, объясни, почему промежуточные события пропускаются, и сними listener при teardown.",
+        "Используй ResizeObserver, когда размер элемента меняется независимо от viewport; выводи измерения отдельно и отключай observer при teardown.",
+        "Используй `visibilitychange` и `document.hidden`, чтобы останавливать ненужные UI-обновления в скрытом документе; очищай interval и снимай тот же listener при teardown."
+      ],
+      "requirements": [
+        "Пользовательский текст вставляется как текст, не интерполируется в innerHTML.",
+        "Каждый observer выбран по нужному сигналу и ограничен подходящей областью.",
+        "У наблюдения и обработчиков есть явная очистка.",
+        "Частота обработки соответствует взаимодействию и не скрывает необходимую обратную связь.",
+        "План проверки учитывает отсутствующую цель, отсутствие пересечения, teardown и повторные изменения.",
+        "Любой добавленный scroll listener снимается той же ссылкой на callback; таймеры очищаются только если выбранная реализация их создаёт.",
+        "Callback ResizeObserver не меняет без защиты размеры наблюдаемого элемента; при teardown observer отключается/снимается с цели.",
+        "Обработчик Page Visibility проверяет текущее hidden-состояние документа, не создаёт повторные timers и очищает interval и тот же listener."
+      ],
+      "starterCode": "const root = document.querySelector('#cards');\n\n// TODO: безопасно создайте несколько карточек с DocumentFragment.\n// TODO: отложите тяжёлое действие, пока карточка не приблизится к экрану.\n// TODO: наблюдайте DOM-изменения только если это нужно функции.\n// TODO: при teardown очистите observers, listeners и timers.",
+      "hints": [
+        "Используйте DocumentFragment для сборки узлов, но измеряйте результат до заявлений об ускорении.",
+        "В IntersectionObserver entry содержит isIntersecting; после разовой обработки вызовите unobserve.",
+        "MutationObserver может создавать шум при наблюдении за всем документом или мутации наблюдаемого поддерева из callback.",
+        "Держите cleanup рядом с настройкой наблюдения, чтобы жизненный цикл был симметричным.",
+        "Используй ResizeObserver для изменения размеров элемента, которое не описывается надёжно событием window resize; если меняется только стиль, может хватить CSS container query.",
+        "Если callback ResizeObserver меняет размер наблюдаемой цели, можно получить цикл уведомлений; проверяй ожидаемый размер или меняй отдельный элемент вывода.",
+        "Событие visibilitychange не содержит новое состояние. Читай document.hidden/visibilityState и очищай listener вместе с timer."
+      ],
+      "successCriteria": [
+        "Карточки безопасно создаются и сохраняют нужный порядок.",
+        "Объяснён компромисс между собственной intersection-логикой и встроенной lazy loading.",
+        "Observers настроены узко и отключаются при teardown.",
+        "Debounce или throttle соответствуют потребности, а таймеры/обработчики не остаются после удаления.",
+        "Проверены крайние случаи и очистка жизненного цикла.",
+        "Частота обработчика ограничена, leading-only/trailing-поведение объяснено, а teardown удаляет listener без оставшихся таймеров.",
+        "Наблюдение размера элемента работает без изменения окна и не создаёт бесконечный цикл resize-feedback.",
+        "Работа в скрытом документе приостанавливается без дублирующих intervals, а при teardown снимается тот же listener и очищаются timers."
+      ]
+    },
+    {
+      "id": "dom-traversal-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Переходите от найденного узла к соседям, а не ищите заново"
+    },
+    {
+      "id": "dom-traversal-body",
+      "type": "paragraph",
+      "text": "Когда у вас уже есть элемент, дерево связывает его с родственниками. Свойства только для элементов (`parentElement`, `children`, `firstElementChild`, `lastElementChild`, `previousElementSibling`, `nextElementSibling`) пропускают текстовые узлы и комментарии. Свойства для узлов (`parentNode`, `childNodes`, `firstChild`, `nextSibling`) включают их, а отступы в разметке создают пробельные текстовые узлы между тегами. Если вам не нужны другие типы узлов, используйте варианты только для элементов. На краях эти свойства возвращают `null`, поэтому перед обращением к свойству результата нужна проверка. `closest(selector)` идёт вверх, начиная с самого элемента, и возвращает первое совпадение или `null`; `parent.contains(node)` проверяет отношение потомка. Цепочки вроде `parentElement.parentElement` привязывают код к точной форме разметки, поэтому `closest()` с осмысленным селектором или data-атрибутом обычно переживает изменения вёрстки лучше."
+    },
+    {
+      "id": "dom-traversal-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "// <section class=\"board\">\n//   <div class=\"item item-a\">A</div>\n//   <div class=\"item item-b\"><span>Label</span><em>Note</em></div>\n//   <div class=\"item item-c\">C</div>\n// </section>\nconst current = document.querySelector('.item-b');\n\nconsole.log(current.parentElement.className);            // \"board\"\nconsole.log(current.previousElementSibling.textContent); // \"A\"\nconsole.log(current.nextElementSibling.textContent);     // \"C\"\nconsole.log(current.firstElementChild.tagName);          // \"SPAN\"\nconsole.log(current.lastElementChild.tagName);           // \"EM\"\nconsole.log(current.children.length);                    // 2\n\nconsole.log(current.parentNode.firstChild.nodeType);     // 3: whitespace text\nconsole.log(current.parentElement.firstElementChild.className); // \"item item-a\"\nconsole.log(current.closest('.board') === current.parentElement); // true\nconsole.log(current.closest('.item') === current);       // true: starts at itself",
+      "steps": [
+        {
+          "title": "Начните с одного уже найденного элемента",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "Комментарий показывает разметку и единственный вызов `querySelector`, который находит `.item-b`. Все связи ниже читаются от этого узла без нового поиска по документу."
+        },
+        {
+          "title": "Читайте связи только между элементами",
+          "lineStart": 8,
+          "lineEnd": 13,
+          "explanation": "Каждое свойство возвращает Element или `null`. `children` — live HTMLCollection только из дочерних элементов, поэтому её длина не учитывает текст и комментарии. У первого или последнего элемента списка `previousElementSibling` или `nextElementSibling` равен `null`, и это нужно обработать."
+        },
+        {
+          "title": "Обратите внимание на ловушку с пробелами",
+          "lineStart": 15,
+          "lineEnd": 16,
+          "explanation": "`firstChild` — первый узел любого типа. При отступах в разметке это обычно пробельный текстовый узел (nodeType 3), у которого нет `className`. `firstElementChild` пропускает не-элементы и возвращает нужный элемент."
+        },
+        {
+          "title": "Ищите вверх через closest",
+          "lineStart": 17,
+          "lineEnd": 18,
+          "explanation": "`closest()` сначала проверяет сам элемент, затем каждого предка. Поэтому `closest('.item')` возвращает `current`. Если совпадений нет, возвращается `null`; это стандартный инструмент для делегирования событий."
+        }
+      ]
+    },
+    {
+      "id": "dom-traversal-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Разметка контейнера записана с отступами на нескольких строках. `container.firstChild.className` равен `undefined`, хотя первый тег внутри — `div` с классом. Чем это объясняется и что использовать?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`firstChild` вернул пробельный текстовый узел, созданный отступами; когда нужен элемент, используйте `firstElementChild`",
+          "correct": true,
+          "feedback": "У текстовых узлов нет `className`. Пробелы между тегами парсятся в текстовые узлы, а `firstChild` возвращает узел любого типа."
+        },
+        {
+          "id": "b",
+          "text": "`firstChild` работает только после полной загрузки страницы, поэтому нужно дождаться `DOMContentLoaded`",
+          "correct": false,
+          "feedback": "Дело не во времени: дерево уже построено, просто первый узел в нём не элемент."
+        },
+        {
+          "id": "c",
+          "text": "HTML-парсер удаляет пробелы между тегами, поэтому `div` должен был найтись",
+          "correct": false,
+          "feedback": "В большинстве контекстов парсер сохраняет пробельные текстовые узлы — именно поэтому существуют свойства только для элементов."
+        },
+        {
+          "id": "d",
+          "text": "`className` определён у элемента только после добавления в документ",
+          "correct": false,
+          "feedback": "`className` есть у любого элемента, добавленного в документ или нет. Просто вернулся не элемент."
+        }
+      ],
+      "explanation": "В DOM есть текстовые узлы и комментарии наряду с элементами. Когда вам нужны элементы, используйте свойства связей только для элементов и проверяйте `null` на краях."
+    },
+    {
+      "id": "dom-content-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Выбирайте, как читать и записывать текст и разметку"
+    },
+    {
+      "id": "dom-content-body",
+      "type": "paragraph",
+      "text": "`textContent` читает или записывает точный текст всех дочерних текстовых узлов. Он включает текст скрытых элементов, не разбирает разметку и является выбором по умолчанию для видимого текста. `innerText` работает с отрисованным результатом: учитывает CSS вроде `display: none` и переносы строк по вёрстке, поэтому чтение может потребовать от браузера расчёта layout и обычно дороже. `innerHTML` при чтении сериализует детей в строку разметки, а при записи разбирает строку как HTML и заменяет всех существующих детей. `outerHTML` включает сам элемент. Распространённое мнение, что скрипты, вставленные через `innerHTML`, выполняются, неверно: они не запускаются, но атрибуты обработчиков, например `onerror` у `img`, могут сработать, поэтому любая недоверенная строка остаётся опасной. Запись `el.innerHTML += html` пересоздаёт всех существующих детей, теряя обработчики, назначенные им напрямую, и их состояние, например введённый текст."
+    },
+    {
+      "id": "dom-content-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "// <div class=\"box\"><strong>Hello</strong> <span hidden>secret</span>World</div>\nconst box = document.querySelector('.box');\nconst input = '<img src=\"x\" onerror=\"reportAttack()\">';\n\nconsole.log(box.textContent); // \"Hello secretWorld\": every text node, even hidden\nconsole.log(box.innerText);   // \"Hello World\": rendered text, hidden span omitted\nconsole.log(box.innerHTML);   // the child markup as a string, span included\n\nbox.textContent = input;\nconsole.log(box.children.length); // 0: the string is stored as plain text\n\nbox.innerHTML = '<strong>Saved</strong>'; // parses markup, replaces all children\nbox.innerHTML += '<em>appended</em>';     // re-serializes and re-parses everything",
+      "steps": [
+        {
+          "title": "Подготовьте разметку и недоверенную строку",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "В элементе смешаны видимый текст, скрытый элемент и вложенный тег. Строка `input` изображает пользовательские данные с атрибутом обработчика события."
+        },
+        {
+          "title": "Сравните три способа чтения",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "`textContent` возвращает весь текст, включая скрытый span. `innerText` возвращает то, что увидит читатель, поэтому скрытый span пропущен. `innerHTML` возвращает разметку с тегами и атрибутами. Выбирайте то чтение, которое отвечает на ваш вопрос."
+        },
+        {
+          "title": "Записывайте недоверенные данные как текст",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "Присваивание в `textContent` сохраняет строку как один текстовый узел. Элемент `img` не создаётся, `children.length` равно 0, и обработчик не сможет сработать."
+        },
+        {
+          "title": "Воспринимайте запись разметки как пересборку",
+          "lineStart": 12,
+          "lineEnd": 13,
+          "explanation": "Присваивание `innerHTML` разбирает строку и заменяет всех детей. Форма `+=` сериализует текущих детей, склеивает строки и разбирает заново, поэтому существующие узлы заменяются новыми. Чтобы добавить один элемент без пересборки остального, используйте `append()` или `insertAdjacentElement()` с созданными узлами."
+        }
+      ]
+    },
+    {
+      "id": "dom-content-check",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Комментарий пользователя нужно показать внутри абзаца. Какие утверждения верны? Выберите все подходящие.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Присваивание строки в `textContent` сохраняет её как обычный текст и никогда не разбирает разметку",
+          "correct": true,
+          "feedback": "Значение становится текстовым узлом, поэтому угловые скобки отображаются как есть."
+        },
+        {
+          "id": "b",
+          "text": "Присваивание в `innerText` тоже вставляет текст, а не разметку, но чтение `innerText` зависит от отрисовки",
+          "correct": true,
+          "feedback": "Запись трактуется как текст, а чтение отражает CSS и layout, поэтому для данных проще использовать `textContent`."
+        },
+        {
+          "id": "c",
+          "text": "Присваивание в `innerHTML` безопасно, если комментарий короткий",
+          "correct": false,
+          "feedback": "Длина ничего не значит. Короткой строки с `img` и атрибутом `onerror` достаточно, чтобы выполнить код."
+        },
+        {
+          "id": "d",
+          "text": "`list.innerHTML += itemMarkup` — эффективный способ добавить один элемент",
+          "correct": false,
+          "feedback": "Он сериализует и заново разбирает всех существующих детей, теряя их обработчики и состояние."
+        },
+        {
+          "id": "e",
+          "text": "Тег `<script>`, присвоенный через `innerHTML`, всегда выполняется, поэтому достаточно фильтровать только script",
+          "correct": false,
+          "feedback": "Скрипты, вставленные так, не запускаются, зато атрибуты обработчиков могут. Фильтрация одного тега не делает безопасным разбор недоверенной разметки."
+        }
+      ],
+      "explanation": "Для данных используйте `textContent`. Разбирайте HTML только из источников, которые вы контролируете, по проверенной политике, а один элемент добавляйте созданным узлом, не пересобирая контейнер."
+    },
+    {
+      "id": "dom-state-render-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Храните состояние в данных, отображайте его в DOM, оформляйте через CSS"
+    },
+    {
+      "id": "dom-state-render-body",
+      "type": "paragraph",
+      "text": "`element.style` записывает inline-стили с именами в camelCase (`style.backgroundColor`) и читает только inline-значения. Inline-объявления перекрывают обычные правила таблицы стилей, поэтому их трудно потом изменить из CSS. `getComputedStyle(el)` доступен только для чтения и возвращает итоговые значения после каскада, например `rgb(255, 0, 0)` или `24px`. Для состояний вроде open, active или selected меняйте класс или data-атрибут и позволяйте CSS решать, как это выглядит: `classList.add`, `remove`, `contains`, `replace` и `toggle`. `toggle(name, force)` задаёт явное состояние, поэтому повторный вызов безопасен, а `toggle(name)` без второго аргумента переключает то, что сейчас в DOM. Присваивание `className` заменяет всю строку классов. Скорость зависит не от того, что вы выбрали класс вместо `style`, а от того, какие свойства меняются: `transform` и `opacity` часто можно анимировать без layout, а width или top — нет. Масштабируемый паттерн — объект состояния как источник истины, `render()`, который записывает его в текст, атрибуты и классы, и обработчики событий, которые меняют состояние и затем вызывают `render()`."
+    },
+    {
+      "id": "dom-state-render-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const state = { count: 0, theme: 'dark', isOpen: false };\n\nconst countEl = document.querySelector('#count');\nconst menuEl = document.querySelector('#menu');\nconst openBtn = document.querySelector('#open');\n\nfunction render() {\n  countEl.textContent = String(state.count);\n  document.body.dataset.theme = state.theme;\n  menuEl.classList.toggle('open', state.isOpen);\n  openBtn.setAttribute('aria-expanded', String(state.isOpen));\n}\n\nopenBtn.addEventListener('click', () => {\n  state.isOpen = !state.isOpen;\n  state.count += 1;\n  render();\n});\n\nrender();\n\n/* CSS: [data-theme=\"dark\"] { background: #0a0e1a; }\n   .menu { transform: translateX(-100%); }\n   .menu.open { transform: translateX(0); } */",
+      "steps": [
+        {
+          "title": "Объявите единый источник истины",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Объект состояния хранит факты, а не DOM-узлы. Ссылки на элементы находятся один раз и переиспользуются."
+        },
+        {
+          "title": "Пишите в DOM только в render",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "explanation": "Текст идёт через `textContent`, тема — в data-атрибут, а `toggle('open', state.isOpen)` задаёт класс по состоянию, а не переключает его. `aria-expanded` обновляется там же, поэтому визуальное состояние и состояние для вспомогательных технологий не расходятся."
+        },
+        {
+          "title": "Обработчики меняют состояние и вызывают render",
+          "lineStart": 14,
+          "lineEnd": 18,
+          "explanation": "Обработчик клика не трогает меню напрямую. Он меняет состояние и вызывает `render()`, поэтому любой путь выполнения строит DOM из одних и тех же данных."
+        },
+        {
+          "title": "Вызовите render один раз при старте",
+          "lineStart": 20,
+          "lineEnd": 20,
+          "explanation": "Первый вызов приводит начальную страницу в соответствие с состоянием, включая значение `aria-expanded`."
+        },
+        {
+          "title": "Отдайте внешний вид CSS",
+          "lineStart": 22,
+          "lineEnd": 24,
+          "explanation": "Таблица стилей сопоставляет data-атрибут и класс с визуальными эффектами. Чтобы изменить дизайн, нужно править CSS, а не JavaScript, и inline-стиль не конкурирует с этими правилами."
+        }
+      ]
+    },
+    {
+      "id": "dom-state-render-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Один обработчик вызывает `menu.classList.toggle('open')`, а другой код ставит `state.isOpen = false`, не трогая меню. Что пойдёт не так и как это исправить?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Класс и состояние могут разойтись, потому что `toggle` без аргумента переключает то, что сейчас в DOM; задавайте класс из состояния через `toggle('open', state.isOpen)` внутри `render()`",
+          "correct": true,
+          "feedback": "Когда DOM выводится из состояния в одной функции, они остаются согласованными, а повторный вызов безвреден."
+        },
+        {
+          "id": "b",
+          "text": "`classList.toggle` устарел, поэтому обработчик должен присваивать `className`",
+          "correct": false,
+          "feedback": "`toggle` актуален. Присваивание `className` к тому же перезапишет остальные классы элемента."
+        },
+        {
+          "id": "c",
+          "text": "Ничего: изменения классов ускоряются GPU, поэтому DOM всегда догоняет состояние",
+          "correct": false,
+          "feedback": "Скорость отрисовки не синхронизирует состояние. Ничто не связывает класс с `state.isOpen`, если этого не делает код."
+        },
+        {
+          "id": "d",
+          "text": "У `toggle` нет второго аргумента, поэтому нужны `if` с `add` и `remove`",
+          "correct": false,
+          "feedback": "Необязательный второй аргумент принудительно задаёт результат, и так писать чище."
+        }
+      ],
+      "explanation": "Одна функция render, которая выводит классы, атрибуты и текст из состояния, убирает целый класс ошибок синхронизации."
+    },
+    {
+      "id": "dom-card-manager-practice",
+      "type": "codingExercise",
+      "title": "Соберите безопасный менеджер карточек с фильтром",
+      "language": "javascript",
+      "context": "На небольшой странице показан список учебных карточек. Пользователи добавляют карточки через форму, отмечают их выполненными, удаляют и фильтруют по статусу. Каждое видимое изменение должно происходить из одного объекта состояния, а страница должна оставаться безопасной, если в названии есть разметка.",
+      "instructions": [
+        "Опишите состояние как массив карточек с полями `id`, `title`, `tag` и `done` и поле `filter` со значениями `all`, `active` или `done`.",
+        "Напишите `createCardElement(card)` с `createElement`, `textContent` и `dataset`; никогда не подставляйте заголовок или тег в строку для `innerHTML`.",
+        "Напишите `render()` так, чтобы он вычислял видимые карточки по `state.filter`, пересобирал сетку через DocumentFragment, показывал сообщение о пустом списке и синхронизировал класс `active` и `aria-pressed` у кнопок фильтра.",
+        "Повесьте на сетку один делегированный обработчик клика: найдите `closest('[data-action]')`, убедитесь, что он принадлежит сетке, и переключайте или удаляйте карточку по её id из состояния.",
+        "Обработайте отправку формы: `preventDefault`, проверка после `trim` и тег по умолчанию, затем очистите поля, верните фокус в поле названия и вызовите `render()`. Подключите кнопки фильтра, чтобы они меняли `state.filter`."
+      ],
+      "requirements": [
+        "Весь введённый пользователем текст вставляется через `textContent`; ни одна пользовательская строка не разбирается как HTML.",
+        "Состояние — единственный источник истины: обработчики меняют состояние, затем вызывают `render()`.",
+        "Один обработчик обслуживает действия карточек, включая карточки, добавленные после загрузки страницы.",
+        "Фильтрация вычисляет список для показа и никогда не изменяет `state.cards`.",
+        "Пустые названия и названия из одних пробелов отклоняются без добавления карточки, а кнопки фильтра показывают состояние нажатия."
+      ],
+      "starterCode": "const state = {\n  cards: [\n    { id: 1, title: 'Learn the DOM', tag: 'JavaScript', done: false },\n    { id: 2, title: 'Master events', tag: 'Events', done: false },\n  ],\n  filter: 'all',\n  nextId: 3,\n};\n\n// TODO 1: найдите сетку, форму, поля и кнопки фильтра; явно сообщите, если чего-то нет.\n// TODO 2: createCardElement(card) через textContent, dataset и две кнопки действий.\n// TODO 3: render() выводит видимые карточки из состояния и пересобирает сетку.\n// TODO 4: один делегированный обработчик done и delete через closest('[data-action]').\n// TODO 5: обработчик submit проверяет данные, обновляет состояние и вызывает render().\n// TODO 6: кнопки фильтра меняют state.filter; render() синхронизирует их состояние нажатия.",
+      "hints": [
+        "Читайте действие и id из `closest('[data-action]')`, а не из `event.target`: клик может попасть по иконке внутри кнопки.",
+        "Вычисляйте `visible` через `filter()`; не меняйте и не сортируйте `state.cards` только ради показа фильтра.",
+        "`grid.replaceChildren(fragment)` очищает и вставляет за один вызов; если `visible` пуст, покажите абзац с сообщением.",
+        "Проверьте название `<img src=x onerror=alert(1)>`: оно должно отображаться как обычный текст и ничего не запускать."
+      ],
+      "successCriteria": [
+        "Добавление, выполнение, удаление и фильтрация карточек обновляют страницу только из состояния.",
+        "Проверка с вредоносным названием показывает его как текст и не выполняет код.",
+        "Карточки, добавленные после загрузки, реагируют на действия без регистрации новых обработчиков.",
+        "Кнопки фильтра и сообщение о пустом списке остаются корректными после каждого действия."
+      ]
+    },
+    {
+      "id": "dom-state-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Используйте свойства связей только для элементов, проверяйте `null` и предпочитайте `closest()` цепочкам `parentElement`.",
+        "`textContent` — для данных, `innerText` отражает отрисованный текст, а `innerHTML` разбирает разметку и пересобирает всех детей.",
+        "Храните состояние в данных, пишите в DOM в одном `render()`, используйте `classList.toggle(name, force)` и data-атрибуты, а внешний вид отдавайте CSS."
+      ]
+    },
+    {
+      "id": "deep-dom-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Делегирование основано на всплытии; явно определяй вложенную цель и проверяй принадлежность контейнеру.",
+        "DOM-селекторы различаются тем, возвращают ли статическую или живую коллекцию.",
+        "Вставляй непроверенный текст через textContent; HTML-разбор используй только по явной проверенной политике."
+      ]
+    },
+    {
+      "id": "dom-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "MDN: Introduction to the DOM",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: Document.querySelector()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Event bubbling",
+          "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/Event_bubbling",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: Event.preventDefault()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Event/preventDefault",
+          "kind": "official-docs"
+        },
+        {
+          "title": "OWASP: Cross Site Scripting Prevention",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+          "kind": "guide"
+        },
+        {
+          "title": "MDN: Node.textContent",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: HTMLElement.innerText",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/innerText",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Element.classList",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Element/classList",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Element.closest()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Element/closest",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: EventTarget.addEventListener",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Resize Observer API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Resize_Observer_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: Page Visibility API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: событие visibilitychange",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilitychange_event",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

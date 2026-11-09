@@ -1,0 +1,15 @@
+export {
+  BACKUP_FORMAT,
+  BACKUP_SCHEMA_VERSION,
+  MAX_BACKUP_FILE_BYTES,
+  BackupError,
+  backupPayloadSchema,
+  createLocalBackup,
+  getBackupSummary,
+  parseBackup,
+  restoreLocalBackup,
+  serializeBackup,
+  type BackupErrorCode,
+  type BackupPayload,
+  type BackupSummary,
+} from './backup';

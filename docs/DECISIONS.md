@@ -27,3 +27,11 @@ Opening/reading, self-marked completion, passing a quiz, and independently solvi
 ## D-007 — Bootcamp sequence remains canonical
 **Status:** requested.  
 The supplied 24-week ABB syllabus defines the core-track order. Additional topics (engine internals, SQL, auth, deployment, extended architecture and Supabase) are labeled as supplement tracks where they extend beyond the source syllabus.
+
+## D-008 — Local-first is the final product scope; backend is not planned
+**Status:** accepted by the project owner — 2026-11-10.  
+Interactive Guides will remain a local-first application. Do not implement Supabase, a hosted backend, user accounts, authentication, cloud synchronization, server-side learner storage or cloud conflict resolution as part of this project. Browser-local persistence and the existing JSON backup/restore flow are the intended learner-data model.
+
+## D-009 — Merge the structured platform without cutting over classic lessons
+**Status:** accepted by the project owner — 2026-11-10.  
+The current release merges the bilingual structured learning platform while retaining every existing classic HTML lesson and its route. The 25-row legacy route cutover, redirect work, source deletion and any cross-ID learner-state migration are explicitly outside this merge and remain a separate follow-up. Do not migrate, fan out, reinterpret or delete existing learner records as part of the merge.

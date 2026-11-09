@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, FileText } from 'lucide-react';
 import { getCategories, getLessonsByCategory, getCategoryIcon } from '@/features/content';
-import { lessonPath } from '@/app/router/routes';
+import { lessonPath, localizedPath } from '@/app/router/routes';
 import { cn } from '@/lib/utils';
+import { getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
 
 interface LessonSidebarTreeProps {
   currentLessonId?: string;
@@ -11,6 +12,7 @@ interface LessonSidebarTreeProps {
 }
 
 export function LessonSidebarTree({ currentLessonId, currentCategoryId }: LessonSidebarTreeProps) {
+  const locale = useUiLocale();
   const categories = getCategories();
   const [expanded, setExpanded] = useState<Set<string>>(
     () => new Set(currentCategoryId ? [currentCategoryId] : []),
@@ -38,11 +40,12 @@ export function LessonSidebarTree({ currentLessonId, currentCategoryId }: Lesson
   }
 
   return (
-    <nav aria-label="Lesson tree" className="space-y-0.5">
+    <nav aria-label={translate(locale, 'lessonTreeAria')} className="space-y-0.5">
       {categories.map((category) => {
         const isExpanded = expanded.has(category.id);
         const lessons = getLessonsByCategory(category.id);
         const Icon = getCategoryIcon(category.icon);
+        const categoryCopy = getLocalizedCategoryCopy(locale, category.id, category.name, category.description);
         const isCurrentCategory = currentCategoryId === category.id;
 
         return (
@@ -58,7 +61,7 @@ export function LessonSidebarTree({ currentLessonId, currentCategoryId }: Lesson
               aria-expanded={isExpanded}
             >
               <Icon className="h-4 w-4 shrink-0" />
-              <span className="flex-1 text-left">{category.name}</span>
+              <span className="flex-1 text-left">{categoryCopy.name}</span>
               <span className="text-xs text-neutral-500">{lessons.length}</span>
               <ChevronDown
                 className={cn('h-4 w-4 shrink-0 text-neutral-500 transition-transform', isExpanded && 'rotate-180')}
@@ -71,7 +74,7 @@ export function LessonSidebarTree({ currentLessonId, currentCategoryId }: Lesson
                   return (
                     <li key={lesson.id}>
                       <Link
-                        to={lessonPath(lesson.id)}
+                        to={localizedPath(lessonPath(lesson.id), locale)}
                         aria-current={isCurrent ? 'page' : undefined}
                         className={cn(
                           'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors',

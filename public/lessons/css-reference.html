@@ -402,10 +402,10 @@
         <span class="pill">:not()</span><span class="pill">:checked</span><span class="pill">:disabled</span><span class="pill">:placeholder</span>
       </div>
       <div class="cb">
-        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'a:hover { color: purple; }\nbutton:active { transform: scale(0.98); }\ninput:focus { border-color: blue; outline: none; }\nli:first-child { font-weight: bold; }\nli:nth-child(odd) { background: #f5f5f5; }')">COPY</button></div>
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'a:hover { color: purple; }\nbutton:active { transform: scale(0.98); }\ninput:focus { border-color: blue; outline: 2px solid blue; outline-offset: 2px; }\nli:first-child { font-weight: bold; }\nli:nth-child(odd) { background: #f5f5f5; }')">COPY</button></div>
         <pre><span class="cs">a:hover</span> { <span class="cp">color</span>: <span class="cv">purple</span>; }
 <span class="cs">button:active</span> { <span class="cp">transform</span>: <span class="cf">scale</span>(<span class="cn">0.98</span>); }
-<span class="cs">input:focus</span> { <span class="cp">border-color</span>: <span class="cv">blue</span>; <span class="cp">outline</span>: <span class="cv">none</span>; }
+<span class="cs">input:focus</span> { <span class="cp">border-color</span>: <span class="cv">blue</span>; <span class="cp">outline</span>: <span class="cv">2px solid blue</span>; <span class="cp">outline-offset</span>: <span class="cv">2px</span>; }
 <span class="cs">li:first-child</span> { <span class="cp">font-weight</span>: <span class="cv">bold</span>; }
 <span class="cs">li:nth-child(odd)</span> { <span class="cp">background</span>: <span class="cv">#f5f5f5</span>; }</pre>
       </div>
@@ -413,16 +413,16 @@
 
     <div class="sub">
       <div class="stitle">Specificity — Who Wins?</div>
-      <div class="prose">When two rules target the same element, the one with higher <strong>specificity</strong> wins.</div>
+      <div class="prose">When declarations target the same property, specificity is one part of the cascade: it is compared after origin, importance, layer and other applicable cascade rules. Source order can break a tie when the earlier cascade criteria are equal.</div>
       <div class="spec-viz">
-        <div class="spec-row"><span class="spec-sel">!important</span><div class="spec-bar"><div class="spec-fill" style="width:100%;background:var(--red);"></div></div><span class="spec-val">∞</span></div>
-        <div class="spec-row"><span class="spec-sel">style=""</span><div class="spec-bar"><div class="spec-fill" style="width:90%;background:var(--yellow);"></div></div><span class="spec-val">1,0,0,0</span></div>
+                <div class="spec-row"><span class="spec-sel">style=""</span><div class="spec-bar"><div class="spec-fill" style="width:90%;background:var(--yellow);"></div></div><span class="spec-val">1,0,0,0</span></div>
         <div class="spec-row"><span class="spec-sel">#id</span><div class="spec-bar"><div class="spec-fill" style="width:70%;background:var(--accent);"></div></div><span class="spec-val">0,1,0,0</span></div>
         <div class="spec-row"><span class="spec-sel">.class / [attr] / :pseudo</span><div class="spec-bar"><div class="spec-fill" style="width:45%;background:var(--accent2);"></div></div><span class="spec-val">0,0,1,0</span></div>
         <div class="spec-row"><span class="spec-sel">tag (p, h1, div)</span><div class="spec-bar"><div class="spec-fill" style="width:20%;background:var(--green);"></div></div><span class="spec-val">0,0,0,1</span></div>
-        <div class="spec-row"><span class="spec-sel">* / inherited</span><div class="spec-bar"><div class="spec-fill" style="width:5%;background:var(--muted);"></div></div><span class="spec-val">0,0,0,0</span></div>
+        <div class="spec-row"><span class="spec-sel">* (universal selector)</span><div class="spec-bar"><div class="spec-fill" style="width:5%;background:var(--muted);"></div></div><span class="spec-val">0,0,0,0</span></div>
       </div>
-      <div class="ib warn"><div class="ibt">⚠️ Avoid !important</div><p>Using <code>!important</code> overrides all other specificity rules and makes debugging very difficult. Use it only as a last resort.</p></div>
+      <div class="ib note"><div class="ibt">The cascade is broader than specificity</div><p>The universal selector has zero specificity. Inherited values do not carry selector specificity; a matching declaration overrides an inherited value. <code>!important</code> changes cascade priority rather than adding specificity points, and other cascade rules still determine which important declaration wins.</p></div>
+      <div class="ib warn"><div class="ibt">⚠️ Avoid !important</div><p>An <code>!important</code> declaration takes priority over normal declarations for the same property in the applicable cascade. Among competing important declarations, origin, layer, specificity and source order still matter. Use it sparingly because it can make later changes harder to reason about.</p></div>
     </div>
   </div>
 </section>
@@ -557,7 +557,7 @@
         </div>
       </div>
     </div>
-    <div class="ib tip"><div class="ibt">✅ Universal Reset</div><p>Start every stylesheet with <code>* { margin: 0; padding: 0; box-sizing: border-box; }</code> to remove browser default spacing inconsistencies.</p></div>
+    <div class="ib tip"><div class="ibt">✅ Universal Reset</div><p>A common project baseline is <code>* { box-sizing: border-box; }</code> plus an intentional margin/padding reset or normalization. This is a convention, not a requirement: review the effect on native controls and preserve sensible defaults when they help users.</p></div>
   </div>
 </section>
 
@@ -692,7 +692,7 @@
   <div class="sb2">
     <div class="sub">
       <div class="stitle">Font Stack & Web-Safe Fonts</div>
-      <div class="prose">List multiple fonts in order of preference. The browser uses the first one it finds installed; the last value should always be a generic family fallback.</div>
+      <div class="prose">List font families in preference order. For each character, the browser uses the first available family that can render it; a final generic family is a useful fallback if the named families are unavailable.</div>
       <div class="cb">
         <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'h1 {\n  font-family: Caslon, Georgia, \'Times New Roman\', serif;\n}\n\np {\n  font-family: \'Helvetica Neue\', Helvetica, Arial, sans-serif;\n}')">COPY</button></div>
         <pre><span class="cs">h1</span> {
@@ -739,10 +739,10 @@
         <thead><tr><th>Property</th><th>Values / Notes</th></tr></thead>
         <tbody>
           <tr><td>font-family</td><td>Font name or stack. Quotes if multi-word.</td></tr>
-          <tr><td>font-size</td><td>px, em, rem, %. Min 16–18px for body text.</td></tr>
+          <tr><td>font-size</td><td>px, em, rem, %. Choose a readable size; 16–18 CSS px is a common starting range, not a rule.</td></tr>
           <tr><td>font-weight</td><td>normal, bold, lighter, bolder, 100–900</td></tr>
           <tr><td>font-style</td><td>normal, italic, oblique</td></tr>
-          <tr><td>line-height</td><td>Unitless ratio (e.g. 1.5) or px/em. Min 1.5 for readability.</td></tr>
+          <tr><td>line-height</td><td>Unitless ratio (e.g. 1.5) or length. Around 1.5 is a common starting point; adjust for the font, content and layout.</td></tr>
           <tr><td>letter-spacing</td><td>Space between characters. px or em.</td></tr>
           <tr><td>word-spacing</td><td>Space between words. em preferred.</td></tr>
           <tr><td>text-align</td><td>left, center, right, justify</td></tr>
@@ -762,6 +762,14 @@
     <p class="sd">Transitions animate property changes over time — no JavaScript required. They trigger on state changes like :hover, :focus, or class toggling.</p>
   </div>
   <div class="sb2">
+    <div class="ib note" style="margin-top:0;"><div class="ibt">Respect reduced-motion preferences</div><p>Do not rely on motion alone to communicate a state change. Remove or simplify nonessential animations for users who request reduced motion, while keeping state and focus feedback available.</p>
+      <pre><code>@media (prefers-reduced-motion: reduce) {
+  .nonessential-motion {
+    animation: none;
+    transition: none;
+  }
+}</code></pre>
+    </div>
     <div class="sub">
       <div class="stitle">Live Demo — hover the box</div>
       <div class="tdemo">
@@ -922,7 +930,7 @@
     <div class="sub">
       <div class="stitle">Useful Grid Functions</div>
       <div class="cb">
-        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'/* repeat() — repeat a pattern */\ngrid-template-columns: repeat(4, 1fr);\n\n/* minmax() — min and max size */\ngrid-template-columns: repeat(3, minmax(100px, 1fr));\n\n/* auto-fill — fills row with as many cols as fit */\ngrid-template-columns: repeat(auto-fill, minmax(200px, 1fr));\n\n/* fr unit — fraction of remaining space */\ngrid-template-columns: 1fr 2fr 1fr; /* 25% 50% 25% */')">COPY</button></div>
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'/* repeat() — repeat a pattern */\ngrid-template-columns: repeat(4, 1fr);\n\n/* minmax() — min and max size */\ngrid-template-columns: repeat(3, minmax(100px, 1fr));\n\n/* auto-fill — fills row with as many cols as fit */\ngrid-template-columns: repeat(auto-fill, minmax(200px, 1fr));\n\n/* fr unit — fraction of remaining space */\ngrid-template-columns: 1fr 2fr 1fr; /* 1:2:1 fractions of available space; gaps and track constraints still apply */')">COPY</button></div>
         <pre><span class="cc">/* repeat() */</span>
 <span class="cp">grid-template-columns</span>: <span class="cf">repeat</span>(<span class="cn">4</span>, <span class="cv">1fr</span>);
 
@@ -933,7 +941,7 @@
 <span class="cp">grid-template-columns</span>: <span class="cf">repeat</span>(<span class="cv">auto-fill</span>, <span class="cf">minmax</span>(<span class="cv">200px, 1fr</span>));
 
 <span class="cc">/* fr — fraction of remaining space */</span>
-<span class="cp">grid-template-columns</span>: <span class="cv">1fr 2fr 1fr</span>; <span class="cc">/* 25% 50% 25% */</span></pre>
+<span class="cp">grid-template-columns</span>: <span class="cv">1fr 2fr 1fr</span>; <span class="cc">/* 1:2:1 fractions of available space; gaps and track constraints still apply */</span></pre>
       </div>
     </div>
   </div>
@@ -951,7 +959,7 @@
       <table class="tt">
         <thead><tr><th>Unit</th><th>Relative To</th><th>Best Used For</th></tr></thead>
         <tbody>
-          <tr><td>px</td><td>Screen pixel (absolute)</td><td>Borders, fixed UI</td></tr>
+          <tr><td>px</td><td>CSS reference pixel; not necessarily one physical device pixel</td><td>Borders, fixed UI</td></tr>
           <tr><td>em</td><td>Current element's font-size</td><td>Padding, margin, spacing</td></tr>
           <tr><td>rem</td><td>Root &lt;html&gt; font-size</td><td>Font sizes (consistent scale)</td></tr>
           <tr><td>%</td><td>Parent element's dimension</td><td>Widths, heights</td></tr>
@@ -1001,7 +1009,7 @@
   <span class="cs">.hero</span> { <span class="cp">height</span>: <span class="cv">60vh</span>; }
 }</pre>
       </div>
-      <div class="ib tip"><div class="ibt">✅ Mobile-First Approach</div><p>Write your base styles for small screens, then use <code>min-width</code> media queries to add complexity for larger screens. This is more performant and easier to maintain than desktop-first.</p></div>
+      <div class="ib tip"><div class="ibt">✅ Mobile-First Approach</div><p>Write your base styles for small screens, then use <code>min-width</code> media queries to add complexity for larger screens. This can make the cascade easier to reason about and progressively add wider-screen layouts. It is not automatically faster than desktop-first; runtime performance depends on the CSS and rendered page, not the naming strategy alone.</p></div>
     </div>
   </div>
 </section>
@@ -1064,7 +1072,7 @@
 <span class="cs">.text</span> { <span class="cp">font-size</span>: <span class="cf">clamp</span>(<span class="cv">14px, 2vw, 24px</span>); }
 <span class="cs">.hero</span> { <span class="cp">padding</span>: <span class="cf">clamp</span>(<span class="cv">20px, 5vw, 80px</span>); }</pre>
           </div>
-          <div class="ib tip" style="margin-top:10px;"><div class="ibt">✅ Fluid Typography</div><p><code>clamp()</code> is the best way to create responsive font sizes without any media queries. The preferred value scales with viewport, clamped between min and max.</p></div>
+          <div class="ib tip" style="margin-top:10px;"><div class="ibt">✅ Fluid Typography</div><p><code>clamp()</code> is useful for fluid values that should grow or shrink within minimum and maximum bounds. It can reduce the need for breakpoints, but media queries are still appropriate for discrete layout changes and accessibility adjustments.</p></div>
         </div>
       </div>
       <div class="acc">
@@ -1115,8 +1123,8 @@
           <div class="stitle">Text Readability</div>
           <div class="cb"><div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span></div>
             <pre><span class="cs">body</span> {
-  <span class="cp">font-size</span>: <span class="cv">18px</span>;       <span class="cc">/* min 16–18px */</span>
-  <span class="cp">line-height</span>: <span class="cv">1.6</span>;      <span class="cc">/* min 1.5 */</span>
+  <span class="cp">font-size</span>: <span class="cv">18px</span>;       <span class="cc">/* common starting range, not a strict minimum */</span>
+  <span class="cp">line-height</span>: <span class="cv">1.6</span>;      <span class="cc">/* 1.5 is a starting point, not a minimum */</span>
   <span class="cp">max-width</span>: <span class="cv">70ch</span>;       <span class="cc">/* 45–85 char */</span>
   <span class="cp">text-align</span>: <span class="cv">left</span>;      <span class="cc">/* avoid justify */</span>
 }</pre>
@@ -1139,7 +1147,7 @@
         <div class="sub">
           <div class="stitle">Colour Contrast (WCAG)</div>
           <table class="tt">
-            <thead><tr><th>Level</th><th>Normal Text</th><th>Large Text (≥24px)</th></tr></thead>
+            <thead><tr><th>Level</th><th>Normal Text</th><th>Large Text (≥24 CSS px regular or ≥18.67 CSS px bold)</th></tr></thead>
             <tbody>
               <tr><td>AA ✅</td><td>4.5:1</td><td>3:1</td></tr>
               <tr><td>AAA ⭐</td><td>7:1</td><td>4.5:1</td></tr>
@@ -1186,7 +1194,7 @@
 <section id="sec-compat" class="sec">
   <div class="sh">
     <h2 class="st2">Browser <em>Compatibility</em></h2>
-    <p class="sd">Browsers render CSS slightly differently. Modern techniques like @supports, vendor prefixes, and progressive enhancement ensure your styles work reliably everywhere.</p>
+    <p class="sd">CSS feature support and rendering vary by browser and version. Use progressive enhancement, targeted feature queries and current compatibility data; these techniques reduce surprises but do not guarantee that every feature works identically everywhere.</p>
   </div>
   <div class="sb2">
     <div class="sub">
@@ -1199,7 +1207,7 @@
   <span class="cp">transform</span>:         <span class="cf">rotate</span>(<span class="cn">15deg</span>); <span class="cc">/* standard */</span>
 }</pre>
       </div>
-      <div class="ib tip"><div class="ibt">✅ Use Autoprefixer</div><p>The <a href="https://github.com/postcss/autoprefixer" target="_blank" style="color:var(--accent2);">Autoprefixer</a> PostCSS plugin automatically adds the right vendor prefixes — no manual work needed.</p></div>
+      <div class="ib tip"><div class="ibt">✅ Use Autoprefixer</div><p>The <a href="https://github.com/postcss/autoprefixer" target="_blank" rel="noopener noreferrer" style="color:var(--accent2);">Autoprefixer</a> PostCSS plugin can add prefixes based on the project’s target-browser configuration. Prefer current compatibility data and your <code>browserslist</code> settings over copying old prefixes blindly; a prefix alone does not make a feature supported.</p></div>
     </div>
 
     <div class="sub">

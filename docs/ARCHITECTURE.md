@@ -1,6 +1,14 @@
-# Target Architecture
+# Architecture: implemented foundation and target direction
 
-**Status:** proposed target, not yet implemented.
+**Status:** this document combines a snapshot of the implemented application with a proposed target direction. The target structure below is not a claim that every suggested folder, repository adapter or cloud service already exists.
+
+## Implemented architecture snapshot — 2026-11-03
+
+The current application uses React 18, TypeScript and Vite 8 with React Router 7, Zustand and Zod. The codebase is organized by app and feature areas; structured lesson data is stored as bilingual JSON, validated through schemas and rendered by reusable lesson-block components. Local learner state uses versioned browser storage with backup/restore workflows. Search and Practice indexes are generated at build time; lesson bodies are lazy-loaded. The PWA shell and service-worker update flow are implemented.
+
+Current code areas include `src/app`, `src/features`, `src/content`, `src/lib`, `src/pwa` and `src/styles`. The exact implementation should be read from the feature branch, not inferred from the illustrative target tree below.
+
+Supabase authentication, SQL migrations, RLS policies, cloud repositories/adapters and local/cloud synchronization are **not implemented**. The `entities` / `infrastructure` / `repositories` directories shown later are architectural proposals, not existing layers that should be assumed by contributors. The current project remains local-first; cloud work is gated by approved reconciliation and security requirements.
 
 ## Principles
 
