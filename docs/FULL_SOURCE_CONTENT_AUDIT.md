@@ -953,3 +953,32 @@ This dated status reconciles the early inventory snapshot above with later sourc
 - **Exact-head verification:** the Git command reference was verified by [run #40647176416](https://github.com/Mardakhay/interactive-guides/actions/runs/40647176416). The combined current code head 7d07400922a0c6540c7f77e3776ce674fd5614c4 passed [run #40648289992](https://github.com/Mardakhay/interactive-guides/actions/runs/40648289992): npm ci, audit diagnostics, lint, typecheck, 210 tests across 33 files, and production build.
 - **Limitations:** these are focused content-parity batches, not a complete equivalence claim. Legacy HTML still contains UI behaviors, examples and interactions that are not reproduced one-to-one. The 25-route crosswalk remains provisional, state-retention decisions remain open, and legacy routes/files must not be removed or redirected on the basis of these additions. Real-browser/device and screen-reader checks remain unrecorded.
 
+
+
+## CSS positioning source-parity follow-up — 2026-10-28
+
+- `css.fundamentals` EN/RU moved to v5. The legacy CSS reference includes a detailed Display & Position section; before this batch, the structured lesson listed positioning properties in its quick-reference list but did not explain the relationship in a worked example.
+- Added bilingual guidance for static, relative, absolute, fixed and sticky, plus containing blocks and stacking contexts. The walkthrough places a badge relative to its card and shows a sticky banner. A knowledge check distinguishes local absolute positioning from fixed positioning, guessed offsets and z-index-only fixes.
+- Added regression assertions for EN/RU shape, v5 versions, walkthrough line ranges, the unique correct answer, and MDN references to position and z-index.
+- Exact-head CI [run #40649649155](https://github.com/Mardakhay/interactive-guides/actions/runs/40649649155) passed install, audit diagnostics, lint, typecheck, tests and production build on `ecb1c8e5546ec543428af241a4f7eb59fe00d4cb`.
+- This is a targeted topic migration. Legacy interactive Flexbox/Grid/transition playgrounds remain unmatched one-to-one; responsive/accessibility acceptance still requires browser/device testing.
+
+
+
+## Git README and ignore-pattern source-parity follow-up — 2026-10-28
+
+- `git.fundamentals` EN/RU v6 explains the `.gitignore` syntax shown in the legacy quick reference: leading comments, `*` path-component behavior, bracket ranges, directory-only patterns, `!` re-inclusion and the last-match rule. It also clarifies that a child cannot be re-included when Git cannot traverse an excluded parent directory.
+- v7 adds a 40-line bilingual `README.md` walkthrough (purpose, features, tech stack, requirements, setup, checks, contributing, deployment, license and credits) and a checklist for reproducible commands, sensitive content, appropriate licensing and GitHub Pages source/build/base-path/status verification.
+- Regression tests require EN/RU block structures and versions to remain aligned, validate the README step line ranges, and assert key `.gitignore` semantics plus the official GitHub Markdown reference.
+- Exact-head CI [run #40653287307](https://github.com/Mardakhay/interactive-guides/actions/runs/40653287307) passed on `b920e1ef34bf292bde155bc18d203dc03db7827a`: 215 tests across 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
+- The legacy HTML's live search, copy buttons and accordion presentation still differ from the structured reader. This is targeted source parity, not permission to redirect legacy IDs or discard their progress, notes or bookmarks.
+
+
+
+## Git CI failure-diagnosis source-parity follow-up — 2026-10-28
+
+- `git.workflow-ci` EN/RU v6 adds a diagnosis matrix for common CI stage failures: lockfile/installation, lint and typecheck, tests, production build, and deployment. It stresses reading the failing stage's log, fixing the observed cause, retaining meaningful tests, and verifying the new SHA after a fix.
+- Added a bilingual single-choice knowledge check for a build failure after otherwise green checks; the correct action is to inspect the current build log and address the concrete cause. Force merge, blind dependency upgrades, and reusing old green status are explicitly incorrect.
+- Exact-head CI [run #40653842673](https://github.com/Mardakhay/interactive-guides/actions/runs/40653842673) passed on `ccf839c806369d9e151e4f24b430ac24f3c4c936`: 215 tests across 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
+- This narrows the explanation gap but does not reproduce the legacy animated branch canvas or failure-injection UI. The classic route and stored learner state remain untouched; equivalence and route cutover remain unapproved.
+

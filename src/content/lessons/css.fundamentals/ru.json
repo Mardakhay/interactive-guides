@@ -1,10 +1,10 @@
 {
   "id": "css.fundamentals",
   "locale": "ru",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-28",
   "moduleId": "month-1-week-3",
   "week": 3,
   "order": 3,
@@ -300,6 +300,89 @@
         "inline-block: располагается в строке рядом с содержимым, но принимает width и height как блочный элемент.",
         "Изменение display меняет поведение раскладки, но не семантический смысл HTML-элемента. Не выбирай семантический элемент только потому, что его значение display выглядит удобным."
       ]
+    },
+    {
+      "id": "css-positioning",
+      "type": "heading",
+      "level": 2,
+      "text": "Позиционирование: выбирай нужную связь элементов"
+    },
+    {
+      "id": "css-positioning-body",
+      "type": "paragraph",
+      "text": "Свойство position задаёт отношение блока к обычному потоку документа. Для основной раскладки страницы предпочитай Flexbox или Grid; позиционирование оставь для наложений, бейджей, липких заголовков и других осмысленных связей. Позиционированный элемент также может задавать containing block для абсолютно позиционированных потомков. Потомок не может выйти за границы stacking context предка только за счёт очень большого z-index."
+    },
+    {
+      "id": "css-positioning-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`static` — значение по умолчанию. Элемент остаётся в обычном потоке, а inset-свойства top/right/bottom/left не смещают его.",
+        "`relative` сохраняет место элемента в потоке, но позволяет визуально его сместить. Это также обычный способ создать containing block для абсолютно позиционированного потомка.",
+        "`absolute` убирает элемент из обычного потока и позиционирует относительно ближайшего предка, задающего containing block; часто это предок с position не static. Если нужного предка нет, бейдж или меню могут позиционироваться относительно слишком большой области страницы.",
+        "`fixed` обычно привязан к viewport и не резервирует место в обычном потоке; некоторые предки, например с transform, могут создать другой containing block.",
+        "`sticky` сохраняет место в потоке и прилипает после достижения inset-порога, например top: 0, внутри своего контейнера прокрутки. Нужны заданный порог и подходящая ситуация прокрутки.",
+        "`z-index` управляет порядком отрисовки внутри применимого stacking context. Большое значение у потомка не поднимет его над соседним stacking context, если родительский контекст расположен ниже."
+      ]
+    },
+    {
+      "id": "css-positioning-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "css",
+      "code": ".card {\n  position: relative;\n  border: 1px solid #cbd5e1;\n  padding: 2.5rem 1rem 1rem;\n}\n\n.card__badge {\n  position: absolute;\n  inset-block-start: 0.5rem;\n  inset-inline-end: 0.5rem;\n  z-index: 1;\n}\n\n.site-banner {\n  position: sticky;\n  inset-block-start: 0;\n  z-index: 10;\n}",
+      "steps": [
+        {
+          "title": "Создай containing block для бейджа",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Карточка остаётся в обычном потоке, а position: relative делает её containing block для абсолютно позиционированного бейджа. Padding оставляет место для содержимого под бейджем."
+        },
+        {
+          "title": "Размести бейдж относительно карточки",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "explanation": "Бейдж исключён из обычного потока и использует логические inset-свойства для верхнего и конечного краёв. Его z-index работает только внутри применимого stacking context."
+        },
+        {
+          "title": "Сделай баннер sticky, сохранив место в потоке",
+          "lineStart": 14,
+          "lineEnd": 18,
+          "explanation": "Sticky сохраняет место баннера в потоке и прилипает к inset-порогу при прокрутке. z-index помогает рисовать его поверх соседнего содержимого с учётом stacking context."
+        }
+      ]
+    },
+    {
+      "id": "css-positioning-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Бейдж должен оставаться в правом верхнем углу карточки, даже когда размер карточки меняется. Как лучше выразить эту связь?",
+      "options": [
+        {
+          "id": "container",
+          "text": "Задать карточке position: relative, а бейджу — position: absolute с логическими inset",
+          "correct": true,
+          "feedback": "Карточка становится containing block для бейджа, поэтому его положение зависит от карточки, а не от viewport или угаданного смещения."
+        },
+        {
+          "id": "fixed",
+          "text": "Задать бейджу position: fixed, чтобы он следовал за карточкой",
+          "correct": false,
+          "feedback": "Fixed обычно привязан к viewport, а не к изменяющимся размерам карточки."
+        },
+        {
+          "id": "margin",
+          "text": "Задать большой margin-left и top: 0 без позиционированного предка",
+          "correct": false,
+          "feedback": "Произвольный margin ненадёжен при изменении содержимого, перевода или viewport; top также не смещает static-элемент."
+        },
+        {
+          "id": "zindex",
+          "text": "Установить z-index: 99999, не меняя position или containing block",
+          "correct": false,
+          "feedback": "z-index управляет только порядком отрисовки. Он не определяет положение бейджа."
+        }
+      ],
+      "explanation": "Используй обычную раскладку для коллекции карточек, позиционированную карточку как локальный containing block и позиционированный бейдж для целевого наложения."
     },
     {
       "id": "knowledge-check-1",
@@ -862,6 +945,16 @@
           "title": "W3C: Web Content Accessibility Guidelines (WCAG) 2.2",
           "url": "https://www.w3.org/TR/WCAG22/",
           "kind": "standard"
+        },
+        {
+          "title": "MDN: position",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/position",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: z-index",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/z-index",
+          "kind": "official-docs"
         }
       ]
     }

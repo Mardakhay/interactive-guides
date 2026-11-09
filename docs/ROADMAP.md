@@ -576,3 +576,42 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Verify exact-head CI on `b5a0f8fbcac903eaea3d415b1698eadc659521d0`: [run #40648789939](https://github.com/Mardakhay/interactive-guides/actions/runs/40648789939) passed install, lint, typecheck, tests and production build.
 - [ ] Verify install, offline revisit, never-visited lesson, deep-link reload and update acceptance in real supported browsers/devices and record the results.
 
+
+
+## Learner-controlled PWA update deferral — 2026-10-28
+
+- [x] Add localized Update now / Later controls to the service-worker update prompt.
+- [x] Keep the new worker waiting when the learner defers; re-check the waiting registration when the tab becomes visible.
+- [x] Add regression tests for deferral, non-activation, re-prompt, explicit SKIP_WAITING and Russian copy. Exact-head CI passed on `caaea3fdff52a420ebd64f3e4c1ff55eea58b36e` in [run #40649159828](https://github.com/Mardakhay/interactive-guides/actions/runs/40649159828).
+- [ ] Validate update deferral and activation in a real browser while a note or coding exercise contains unsaved work; record browser/OS and tested SHA.
+
+
+
+## CSS positioning parity batch — 2026-10-28
+
+- [x] Add EN/RU explanations of static/relative/absolute/fixed/sticky positioning, containing blocks and stacking contexts.
+- [x] Add a worked badge/card and sticky-banner walkthrough, plus a knowledge check and MDN position/z-index references.
+- [x] Verify exact-head CI on `ecb1c8e5546ec543428af241a4f7eb59fe00d4cb`: [run #40649649155](https://github.com/Mardakhay/interactive-guides/actions/runs/40649649155) passed all tests and production build.
+- [ ] Continue reviewing remaining source gaps and interactive behavior; this does not complete the CSS source migration or replace real-browser responsive/accessibility acceptance.
+
+
+
+
+## Git README and ignore-pattern parity batch — 2026-10-28
+
+- [x] Upgrade `git.fundamentals` EN/RU to v6 with precise `.gitignore` comments, glob/range patterns, directory patterns, negation/re-inclusion limits and last-match precedence.
+- [x] Upgrade the same lesson to v7 with a bilingual 40-line README walkthrough and an actionable README/GitHub Pages checklist.
+- [x] Add bilingual regression checks for schema-valid block shape, locale structure, key syntax rules, README line ranges, deployment/base-path guidance and the official GitHub Markdown reference.
+- [x] Verify exact-head CI on `b920e1ef34bf292bde155bc18d203dc03db7827a`: [run #40653287307](https://github.com/Mardakhay/interactive-guides/actions/runs/40653287307) passed 215 tests / 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
+- [ ] Continue reviewing remaining source sections and interactive behavior. The classic searchable/copyable reference UI is still not a one-to-one replica; the legacy route and learner-state cutover remain blocked.
+
+
+
+## Git CI failure-diagnosis parity batch — 2026-10-28
+
+- [x] Upgrade `git.workflow-ci` EN/RU to v6 with a localized matrix for diagnosing install, lint/typecheck, tests, production build and deployment-stage failures.
+- [x] Add a bilingual single-choice knowledge check that rejects force-merging a failed build or relying on a green run from an older commit.
+- [x] Add regression assertions for schema validity, EN/RU block parity, unique IDs, the expected answer and feedback quality.
+- [x] Verify exact-head CI on `ccf839c806369d9e151e4f24b430ac24f3c4c936`: [run #40653842673](https://github.com/Mardakhay/interactive-guides/actions/runs/40653842673) passed 215 tests / 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
+- [ ] Review the remaining legacy animated branch canvas and failure-injection simulator; this educational diagnosis matrix is not a one-to-one interaction replica.
+
