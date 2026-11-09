@@ -1,6 +1,6 @@
 # Browser and device smoke-test checklist
 
-**Status as of 2026-10-28: automated preview HTTP smoke passes; native browser/device acceptance has not been run.** Exact-head CI on the pre-refresh SHA `283305d` passed [run #40701225217](https://github.com/Mardakhay/interactive-guides/actions/runs/40701225217), including 223 tests / 35 files, production build, bundle budgets, `smoke:preview` and npm audit (0 vulnerabilities). The preview smoke checks HTTP routes/assets only; do not use it to mark install, offline, storage, accessibility or mobile cases as passed. Fill in the execution record only after running the procedure against a known feature-branch SHA.
+**Status as of 2026-10-30: automated preview HTTP smoke passes; native browser/device acceptance has not been run.** Exact-head CI at `8b450e8890c2598bf23aee26d8d3acf1cda262a5` passed [run #41029890527](https://github.com/Mardakhay/interactive-guides/actions/runs/41029890527): 319 tests / 48 files, lint, typecheck, production build, 126 JavaScript chunk budgets, zero npm audit advisories, and HTTP smoke for five deep routes including `/practice`, the entry bundle, manifest, service worker and PWA assets. The preview smoke checks HTTP routes/assets only; do not use it to mark install, offline, storage, accessibility or mobile cases as passed. Fill in the execution record only after running the procedure against a known feature-branch SHA.
 
 ## Safe setup and evidence
 
@@ -44,6 +44,16 @@ These cases are partly exercised with deterministic Storage API mocks in Vitest;
 | W-03 | Open a structured lesson online and confirm its dynamic JavaScript chunk loads. Go offline and revisit that same lesson; then attempt a second lesson that has never been opened online. | The previously opened lesson works while its chunk remains in the service-worker asset cache. The unvisited lesson is not precached and may fail to load; the route must show a visible, localized load error rather than “not found” or a false success. Record both outcomes and the browser/device versions. | Not run |
 | W-04 | Trigger an available service-worker update while the lesson has unsaved input, then choose defer and later accept. | Update is user-controlled; deferring does not unexpectedly reload the active session. After acceptance, the new shell loads and learner state remains available. | Not run |
 | W-05 | On a supported mobile device, install/open the app, test localized deep-link reload, keyboard/external-keyboard navigation where available, orientation/reflow and focus visibility. | No horizontal page overflow at narrow widths, controls remain operable, visible focus is preserved, and language semantics are correct. | Not run |
+
+## D. Practice Center and exercise deep links
+
+| ID | Procedure | Expected result | Outcome / notes |
+|---|---|---|---|
+| PC-01 | Open `/practice` in English and Russian on desktop and mobile. | The exercise catalog loads in the selected language; counts and task text match the selected locale; narrow screens have no horizontal page overflow. | Not run |
+| PC-02 | In a disposable profile, open an exercise, save a draft and mark one self-review criterion. Return to `/practice`, then reload. | The correct exercise shows a saved draft and the self-review count. Existing local learner-state records remain unchanged in format. | Not run |
+| PC-03 | Filter the catalog by saved drafts and self-review, then search by lesson title, task phrase and programming language. | Only matching exercises are shown; clearing filters restores the full catalog. No hint or worked solution is exposed by the index/card. | Not run |
+| PC-04 | Select **Open exercise** from a card. | The matching structured lesson loads and scrolls to the exact coding exercise block, not merely to the top of the lesson. | Not run |
+| PC-05 | Inspect the activity wording. | Drafts and self-review are described as learner activity, not automatic grading, a mastery score or an official assessment. | Not run |
 
 ## Execution record
 

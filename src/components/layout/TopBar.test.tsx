@@ -24,6 +24,13 @@ describe('TopBar locale switch', () => {
     useLocaleStore.getState().setLocale('en');
   });
 
+  it('provides a settings entry point from the top bar', async () => {
+    const user = userEvent.setup();
+    renderTopBar('/courses');
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
+    expect(screen.getByTestId('current-path')).toHaveTextContent('/settings');
+  });
+
   it('persists UI language preference without changing regular routes', async () => {
     const user = userEvent.setup();
     renderTopBar('/courses');
