@@ -1,7 +1,7 @@
 # Code-to-requirements conformance audit
 
 **Audit date:** 2026-10-30  
-**Audit baseline:** `8b450e8890c2598bf23aee26d8d3acf1cda262a5`  
+**Audit baseline:** `4a84793f340aa1d00471ff8265f83cfc1b2c1380`  
 **Working branch:** `feat/learning-platform-foundation`
 
 This is a code-level comparison with `PRODUCT_REQUIREMENTS.md`, `ARCHITECTURE.md`, `CURRICULUM_AND_CONTENT.md`, `ROADMAP.md`, persistence/PWA documents and source-parity checklists. It is not native browser, mobile, screen-reader, production-deployment or editorial acceptance.
@@ -23,12 +23,12 @@ The lesson schema carried `draft`, `review` and `published`, but the original re
 
 ## Search coverage
 
-Search includes classic lesson metadata, notes, structured lesson titles/descriptions/tags/outcomes and authored block text, plus 24-week month/week topics, practice descriptions, projects and supplementary-track topics. The structured index loads on the first meaningful query per locale and is cached in memory for the session. Knowledge-check answers/feedback and exercise hints/solutions are excluded from snippets. This is a local in-memory index, not a server search service.
+Search includes classic lesson metadata, notes, structured lesson titles/descriptions/tags/outcomes and authored block text, plus 24-week month/week topics, practice descriptions, projects and supplementary-track topics. The structured lesson outline also searches safe section-body text, walkthrough examples and command-reference items, so a Git command query can highlight the section containing that command. Search and Practice now load a generated per-locale index built from the canonical lesson JSON rather than fetching all 44 full lesson chunks. The generator validates EN/RU IDs, statuses and block ID/type parity, and emits only approved search fields plus exercise task/rubric summaries. Full lesson bodies remain independently lazy-loaded. The generator prints raw/gzip index sizes; native browser cold/warm latency and mobile transfer still require measurement. Knowledge-check answers/feedback and exercise hints/solutions are excluded from snippets. This is a local in-memory index, not a server search service.
 
 ## Known functional gaps
 
 - No evidence-based mastery status or review queue. Completion, quiz submissions, self-reviewed criteria and drafts remain separate activity signals.
-- No dedicated Settings experience or complete theme/offline/account/sync preferences.
+- Settings exposes the currently implemented local controls/status. A theme switch, cloud account/sync and comprehensive offline availability controls are not implemented.
 - Explicit locale URLs exist for structured lessons, not every legacy/application route.
 - Structured content remains editorially marked `review`; it must not be represented as approved production curriculum.
 - 21 fetched/mapped Notion sources remain connector-unverified.
@@ -38,13 +38,13 @@ Search includes classic lesson metadata, notes, structured lesson titles/descrip
 
 ## Verification boundary
 
-Exact-head CI on this audit baseline passed 48 test files / 319 tests, lint, typecheck, production build, 126 chunk budgets and HTTP smoke for five deep routes/PWA assets ([run #41029890527](https://github.com/Mardakhay/interactive-guides/actions/runs/41029890527)). Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
+Exact-head CI on this audit baseline passed 49 test files / 325 tests, lint, typecheck, production build, 127 chunk budgets and preview smoke for six deep routes ([run #41032390443](https://github.com/Mardakhay/interactive-guides/actions/runs/41032390443)). The smoke covers Practice Center and Settings. Passing CI verifies only configured checks. It does not prove semantic bilingual equivalence, complete legacy widget parity, browser installability, real offline behavior, assistive-technology behavior or production release readiness. Record browser/device version, tested SHA, scenario and outcome in `BROWSER_SMOKE_TEST_CHECKLIST.md`.
 
 ## Safe continuation order
 
 1. Complete source parity and editorial review while retaining all legacy routes.
 2. Define and test learner-state retention before any cutover.
-3. Build a Practice Center and a separate evidence-based mastery/review model.
+3. Extend the Practice Center with an evidence-based mastery/review model only after an independent exercise-evaluation contract exists; measure the generated search/practice index in native browsers.
 4. Complete app-wide locale, Settings, responsive/accessibility and native-browser acceptance.
 5. Approve Supabase reconciliation/security scope, then implement migrations, RLS and sync.
 6. Perform final review and production acceptance before changing PR #1 from Draft.
