@@ -202,6 +202,92 @@ const referencesBlockSchema = z.object({
   })).min(1),
 });
 
+const pipelineStageSchema = z.object({
+  id: z.enum(['checkout', 'install', 'lint', 'build', 'test', 'security', 'deploy']),
+  label: z.string().min(1),
+  description: z.string().min(1),
+  successMessage: z.string().min(1),
+  failureMessage: z.string().min(1),
+  gate: z.enum(['required', 'informational', 'post-merge']),
+});
+
+
+const branchFlowActionSchema = z.object({
+  id: z.enum(['create-develop', 'create-feature', 'commit', 'merge-feature', 'create-hotfix', 'merge-hotfix', 'back-merge-hotfix', 'release']),
+  label: z.string().min(1),
+  description: z.string().min(1),
+});
+
+const branchFlowSimulationBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal('branchFlowSimulation'),
+  title: z.string().min(1),
+  description: z.string().min(1),
+  actions: z.array(branchFlowActionSchema).length(8),
+}).superRefine((block, ctx) => {
+  const expected = ['create-develop', 'create-feature', 'commit', 'merge-feature', 'create-hotfix', 'merge-hotfix', 'back-merge-hotfix', 'release'];
+  const actual = block.actions.map((action) => action.id);
+  if (actual.some((id, index) => id !== expected[index])) {
+    ctx.addIssue({ code: 'custom', path: ['actions'], message: 'Branch flow actions must preserve the documented order' });
+  }
+});
+
+const tabbedContentTabSchema = z.object({
+  id: z.enum(['why-strategy', 'branches', 'git-flow', 'merge-requests', 'code-review', 'ci-cd', 'quiz']),
+  label: z.string().min(1),
+  blockIds: z.array(z.string().min(1)).min(1),
+});
+
+const tabbedContentBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal('tabbedContent'),
+  title: z.string().min(1),
+  description: z.string().min(1),
+  tabs: z.array(tabbedContentTabSchema).length(7),
+}).superRefine((block, ctx) => {
+  const expected = ['why-strategy', 'branches', 'git-flow', 'merge-requests', 'code-review', 'ci-cd', 'quiz'];
+  const actual = block.tabs.map((tab) => tab.id);
+  if (actual.some((id, index) => id !== expected[index])) {
+    ctx.addIssue({ code: 'custom', path: ['tabs'], message: 'Git Workflow tabs must preserve the seven source sections in order' });
+  }
+  const blockIds = block.tabs.flatMap((tab) => tab.blockIds);
+  if (new Set(blockIds).size !== blockIds.length) {
+    ctx.addIssue({ code: 'custom', path: ['tabs'], message: 'A lesson block can only belong to one source tab' });
+  }
+});
+
+const sequentialQuizBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal('sequentialQuiz'),
+  title: z.string().min(1),
+  description: z.string().min(1),
+  questionBlockIds: z.array(z.string().min(1)).length(10),
+}).superRefine((block, ctx) => {
+  if (new Set(block.questionBlockIds).size !== block.questionBlockIds.length) {
+    ctx.addIssue({ code: 'custom', path: ['questionBlockIds'], message: 'A sequential quiz must reference ten distinct questions' });
+  }
+});
+
+const pipelineSimulationBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal('pipelineSimulation'),
+  title: z.string().min(1),
+  description: z.string().min(1),
+  stages: z.array(pipelineStageSchema).length(7),
+}).superRefine((block, ctx) => {
+  const expected = ['checkout', 'install', 'lint', 'build', 'test', 'security', 'deploy'];
+  const actual = block.stages.map((stage) => stage.id);
+  if (actual.some((id, index) => id !== expected[index])) {
+    ctx.addIssue({ code: 'custom', path: ['stages'], message: 'Pipeline stages must preserve the documented seven-stage order' });
+  }
+  block.stages.forEach((stage, index) => {
+    const expectedGate = index === 5 ? 'informational' : index === 6 ? 'post-merge' : 'required';
+    if (stage.gate !== expectedGate) {
+      ctx.addIssue({ code: 'custom', path: ['stages', index, 'gate'], message: 'Pipeline stage gate does not match its documented lifecycle phase' });
+    }
+  });
+});
+
 export const lessonContentBlockSchema = z.discriminatedUnion('type', [
   headingBlockSchema,
   paragraphBlockSchema,
@@ -213,6 +299,10 @@ export const lessonContentBlockSchema = z.discriminatedUnion('type', [
   knowledgeCheckBlockSchema,
   codingExerciseBlockSchema,
   referencesBlockSchema,
+  pipelineSimulationBlockSchema,
+  branchFlowSimulationBlockSchema,
+  sequentialQuizBlockSchema,
+  tabbedContentBlockSchema,
 ]);
 
 export const lessonTranslationSchema = z.object({
@@ -256,6 +346,74 @@ export const lessonTranslationSchema = z.object({
       path: ['blocks'],
       message: 'Block IDs must be unique within a lesson translation',
     });
+  }
+
+  const knowledgeCheckIds = new Set(lesson.blocks.filter((block) => block.type === 'knowledgeCheck').map((block) => block.id));
+  const sequentialQuestionIds = new Set<string>();
+  lesson.blocks.forEach((block, blockIndex) => {
+    if (block.type !== 'sequentialQuiz') return;
+    block.questionBlockIds.forEach((questionId, questionIndex) => {
+      if (!knowledgeCheckIds.has(questionId)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['blocks', blockIndex, 'questionBlockIds', questionIndex],
+          message: 'Sequential quiz references must resolve to a knowledgeCheck block in the same lesson',
+        });
+      }
+      if (sequentialQuestionIds.has(questionId)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['blocks', blockIndex, 'questionBlockIds', questionIndex],
+          message: 'A knowledgeCheck block can belong to only one sequential quiz',
+        });
+      }
+      sequentialQuestionIds.add(questionId);
+    });
+  });
+
+  const tabbedBlocks = lesson.blocks.filter((block) => block.type === 'tabbedContent');
+  if (tabbedBlocks.length > 1) {
+    ctx.addIssue({ code: 'custom', path: ['blocks'], message: 'A lesson can have only one tabbed content block' });
+  }
+  if (tabbedBlocks.length === 1) {
+    const tabbedBlock = tabbedBlocks[0];
+    if (tabbedBlock?.type === 'tabbedContent') {
+      const assignedIds = tabbedBlock.tabs.flatMap((tab) => tab.blockIds);
+      const assignedSet = new Set(assignedIds);
+      assignedIds.forEach((blockId, blockIndex) => {
+        const target = lesson.blocks.find((candidate) => candidate.id === blockId);
+        if (!target || target.type === 'tabbedContent' || target.type === 'references') {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['blocks', 'tabbedContent', 'tabs', blockIndex],
+            message: 'A source tab must reference an existing renderable lesson block',
+          });
+        }
+        if (sequentialQuestionIds.has(blockId)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['blocks', 'tabbedContent', 'tabs', blockIndex],
+            message: 'Sequential quiz question blocks must only render inside their quiz',
+          });
+        }
+      });
+      const expectedIds = lesson.blocks
+        .filter((candidate) =>
+          candidate.id !== tabbedBlock.id &&
+          candidate.type !== 'references' &&
+          !(candidate.type === 'knowledgeCheck' && sequentialQuestionIds.has(candidate.id)),
+        )
+        .map((candidate) => candidate.id);
+      const missingTabIds = expectedIds.filter((blockId) => !assignedSet.has(blockId));
+      const unknownTabIds = assignedIds.filter((blockId) => !expectedIds.includes(blockId));
+      if (missingTabIds.length > 0 || unknownTabIds.length > 0) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['blocks', 'tabbedContent', 'tabs'],
+          message: 'The seven source tabs must cover every renderable lesson block exactly once',
+        });
+      }
+    }
   }
 
   const hasReferences = lesson.blocks.some((block) => block.type === 'references');

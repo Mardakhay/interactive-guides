@@ -5,6 +5,7 @@ import { getCategoryById, getLessonsByCategory } from '@/features/content';
 import { getLearningPaths } from '@/features/learning-paths';
 import { formatLessonCount, getLocalizedCategoryCopy, getLocalizedLearningPathCopy, translate, useUiLocale } from '@/features/localization';
 import { EmptyState } from '@/components/feedback';
+import { localizedPath } from '@/app/router/routes';
 import type { RecommendedItem } from '../types';
 
 interface RecommendedNextProps {
@@ -50,7 +51,7 @@ export function RecommendedNext({ items }: RecommendedNextProps) {
         const kindLabel = path ? 'recommendationPath' : 'recommendationCourse';
 
         return (
-        <Link key={`${item.kind}-${item.id}`} to={item.href}>
+        <Link key={`${item.kind}-${item.id}`} to={localizedPath(item.href, locale)}>
           <Card interactive className="group flex h-full flex-col gap-2 p-4">
             <Badge variant="secondary" className="w-fit">
               {translate(locale, kindLabel)}

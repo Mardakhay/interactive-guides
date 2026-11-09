@@ -1,27 +1,24 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { useLocaleStore } from '@/features/localization/localeStore';
 import { RouteErrorBoundary } from './RouteErrorBoundary';
 
-function BrokenPage(): never {
-  throw new Error('Synthetic route failure');
-}
-
 afterEach(() => {
   cleanup();
   useLocaleStore.setState({ locale: 'en' });
-  vi.restoreAllMocks();
 });
 
 describe('RouteErrorBoundary localization', () => {
   it('announces a Russian error page with a localized retry action', async () => {
     useLocaleStore.setState({ locale: 'en' });
-    vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const router = createMemoryRouter(
       [{
         path: '/:locale/courses',
-        element: <BrokenPage />,
+        loader: () => {
+          throw new Error('Synthetic route failure');
+        },
+        element: <div>Unreachable route content</div>,
         errorElement: <RouteErrorBoundary />,
       }],
       { initialEntries: ['/ru/courses'] },

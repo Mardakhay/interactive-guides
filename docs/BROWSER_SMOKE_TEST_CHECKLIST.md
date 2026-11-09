@@ -1,7 +1,6 @@
 # Browser and device smoke-test checklist
 
-**Status as of 2026-10-30: automated preview HTTP smoke passes; native browser/device acceptance has not been run.** Exact-head CI at `867c86f67a562bed3f803a92aae55a088337dfcb` passed [run #41045918696](https://github.com/Mardakhay/interactive-guides/actions/runs/41045918696): 56 test files / 338 tests, lint, typecheck, production build, budgets across 141 JavaScript chunks and HTTP smoke for 13 deep routes, entry bundle, manifest, service worker, five PWA assets and 14 generated search/practice index assets. npm audit reported zero advisories. Automated tests cover mobile drawer/Modal focus, quiz-result announcements, note autosave status and structured disclosures; native browser, screen-reader and device acceptance remain open.
-
+**Status as of 2026-11-03: exact-head automated preview HTTP smoke passes; native browser/device acceptance has not been run.** The current feature branch `feat/learning-platform-foundation` is at [`66bdcb81d524a82a9b8dfed12c831c8890c57a11`](https://github.com/Mardakhay/interactive-guides/commit/66bdcb81d524a82a9b8dfed12c831c8890c57a11); exact [Actions run #41066740505 (run #890)](https://github.com/Mardakhay/interactive-guides/actions/runs/41066740505) passed dependency installation, lint, typecheck, tests, production build, bundle-budget checks and production-preview HTTP smoke. The smoke is not a real-browser execution and does not verify native install/offline, accessibility, responsive layouts, downloads or file-picker behavior. All manual outcomes below remain **Not run** until evidence is recorded for the exact tested SHA.
 ## Safe setup and evidence
 
 - Use a disposable browser profile and synthetic learner data only. Notes and code drafts can contain private information; do not use real personal content in test backups.
@@ -113,6 +112,33 @@ These cases are partly exercised with deterministic Storage API mocks in Vitest;
 | A11Y-LEARN-03 | Edit a lesson note, wait for autosave, and inspect with a screen reader. | The saved timestamp/status is announced after debounce, not on every keystroke; existing note content persists after reload. | Pass in Vitest fake-timer/store test; native screen reader not run |
 | A11Y-LEARN-04 | Expand/collapse HTML preview, hints and example solution using keyboard. | Each disclosure exposes expanded state, controls a stable panel, and hidden content is not exposed while collapsed. | Pass in Vitest component test; native browser not run |
 | A11Y-LEARN-05 | Use a structured code editor and self-review checklist with keyboard at 200% zoom. | The editor has a programmatic label; checkbox names are available; focus is visible and horizontal overflow stays contained to code/preview where intended. | Not run |
+
+## M. Recent localization and accessibility refinements
+
+| ID | Procedure | Expected result | Outcome / notes |
+|---|---|---|---|
+| A11Y-ROUTE-01 | Trigger a route-loading failure in English and Russian. | Error heading, explanation and recovery action use the active locale; recovery navigation remains within that locale. | Not run in a native browser |
+| A11Y-ROUTE-02 | Navigate between dashboard, courses, learning paths, lesson, bookmarks and notes from both locale prefixes. | Internal links preserve the active `/en` or `/ru` prefix; breadcrumbs identify the current page with `aria-current="page"`. | Not run in a native browser |
+| A11Y-FORM-03 | Submit invalid Input and Textarea controls, then focus each with a keyboard. | Controls expose `aria-invalid="true"`, invalid focus styling is visible, and placeholders remain readable. | Pass in Vitest component tests; native browser and screen reader not run |
+| A11Y-STATUS-01 | Inspect loading feedback and route errors with a screen reader. | Loading feedback has an accessible name; route error announcements and recovery controls are understandable and localized. | Not run with a screen reader |
+| A11Y-MOTION-01 | Enable the operating-system reduced-motion preference and navigate/expand app UI. | Non-essential transitions and animations are reduced or removed without hiding state changes or blocking interaction. | Not run in a native browser |
+
+## N. Git Workflow quiz and simulator acceptance
+
+Run these checks against the locale-prefixed structured lesson route `/en/structured-lessons/git.workflow-ci` and `/ru/structured-lessons/git.workflow-ci`. Component tests do not replace native browser or assistive-technology acceptance.
+
+| ID | Procedure | Expected result | Outcome / notes |
+|---|---|---|---|
+| GIT-QUIZ-01 | Open the Git Workflow lesson in EN and RU and locate the sequential quiz. | Only question 1 of 10 is visible; progress is 1/10 and score is 0/10; no referenced question is repeated later in the lesson flow. | Not run in a native browser |
+| GIT-QUIZ-02 | Answer question 1 correctly and question 2 incorrectly; use Previous, then Next. | Each answer is locked after submission; selected option and feedback are restored; live score remains correct and revisiting does not add another attempt. | Pass in Vitest component tests; native browser not run |
+| GIT-QUIZ-03 | Navigate through all ten questions with keyboard only. | Previous is disabled on the first question; Next/Finish is unavailable before answering; prompt and feedback focus changes are announced in a logical order. | Not run in a native browser/screen reader |
+| GIT-QUIZ-04 | Finish with a known mix of correct/incorrect answers, then restart. | Final score and percentage match the answers; restart returns to question 1 with a clean run score while per-question attempt history remains available. | Pass in Vitest component tests; native browser not run |
+| GIT-QUIZ-05 | Complete the sequence in Russian at 200% zoom and a 320px viewport. | Navigation, progress, score, feedback and final result remain localized, keyboard accessible and free of unintended page-wide horizontal overflow. | Not run in a native browser |
+| GIT-BRANCH-01 | Create develop and feature branches, add a commit and merge feature into develop. | Branch pointers and commit-parent graph update; active branch and history reflect the merge. | Pass in Vitest component tests; native browser not run |
+| GIT-BRANCH-02 | Create a hotfix from main, add a commit, merge to main, then attempt a release before back-merge. | A pending back-merge warning appears and release remains disabled until hotfix is merged into develop. | Pass in Vitest component tests; native browser not run |
+| GIT-BRANCH-03 | Back-merge hotfix and create a release, then reset the graph. | Release tag appears; reset returns the exercise to the initial main-only graph. | Pass in Vitest component tests; native browser not run |
+| GIT-PIPE-01 | Inject failure into a required pre-merge stage, then create a fix/new simulated commit and rerun. | Later stages are skipped after a required failure; retry uses a new simulated commit number and successful checks update the result. | Pass in Vitest component tests; native browser not run |
+| GIT-PIPE-02 | Inject an informational dependency-audit warning and separately a post-merge deployment failure. | Audit warning does not stop subsequent stages in this model; deployment failure is presented as release recovery with rollback, not as a retroactive PR gate failure. | Pass in Vitest component tests; native browser not run |
 
 ## Execution record
 

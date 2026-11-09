@@ -88,6 +88,14 @@ export function getSearchableContentBlockText(block: LessonContentBlock): string
       return block.title + ' ' + block.context + ' ' + block.instructions.join(' ') + ' ' + block.requirements.join(' ') + ' ' + block.successCriteria.join(' ');
     case 'references':
       return block.items.map((item) => item.title + ' ' + item.url).join(' ');
+    case 'pipelineSimulation':
+      return block.title + ' ' + block.description + ' ' + block.stages.map((stage) => stage.label + ' ' + stage.description + ' ' + stage.successMessage + ' ' + stage.failureMessage).join(' ');
+    case 'branchFlowSimulation':
+      return block.title + ' ' + block.description + ' ' + block.actions.map((action) => action.label + ' ' + action.description).join(' ');
+    case 'sequentialQuiz':
+      return block.title + ' ' + block.description;
+    case 'tabbedContent':
+      return block.title + ' ' + block.description + ' ' + block.tabs.map((tab) => tab.label).join(' ');
     default:
       return '';
   }

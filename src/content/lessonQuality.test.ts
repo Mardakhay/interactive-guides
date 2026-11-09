@@ -90,7 +90,7 @@ describe('cross-locale user-facing prose quality', () => {
     const ignoredKeys = new Set([
       'id', 'locale', 'version', 'updatedAt', 'moduleId', 'week',
       'supplementaryTrackId', 'order', 'estimatedMinutes', 'difficulty',
-      'prerequisites', 'tags', 'language', 'kind', 'correct',
+      'prerequisites', 'tags', 'language', 'kind', 'correct', 'blockIds',
       'lineStart', 'lineEnd', 'code', 'url', 'starterCode',
     ]);
     const issues: string[] = [];

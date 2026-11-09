@@ -17,7 +17,7 @@ import {
 import { getCatalog, getLessonsByCategory, getTotalLessonCount } from '@/features/content';
 import { useProgressStore, computeProgressStats } from '@/features/progress';
 import { Card, Badge, ProgressBar } from '@/components/ui';
-import { coursePath } from '@/app/router/routes';
+import { coursePath, localizedPath } from '@/app/router/routes';
 import { formatCategoryCount, formatLessonCount, getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -83,7 +83,7 @@ export default function CoursesPage() {
           const categoryCopy = getLocalizedCategoryCopy(locale, category.id, category.name, category.description);
           const stats = computeProgressStats(progressLessons, lessonIdsByCategory[category.id] ?? []);
           return (
-            <Link key={category.id} to={coursePath(category.id)}>
+            <Link key={category.id} to={localizedPath(coursePath(category.id), locale)}>
               <Card interactive className="group flex h-full flex-col p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600">

@@ -352,8 +352,8 @@ describe('Git fundamentals lesson translation', () => {
     );
     expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
-    expect(englishGit.version).toBe(13);
-    expect(russianGit.version).toBe(13);
+    expect(englishGit.version).toBe(14);
+    expect(russianGit.version).toBe(14);
     const remoteExample = englishGit.blocks.find((block) => block.id === 'remote-example');
     expect(remoteExample?.type).toBe('codeWalkthrough');
     if (remoteExample?.type !== 'codeWalkthrough') return;
@@ -373,7 +373,7 @@ describe('Git fundamentals lesson translation', () => {
     }
     for (const lesson of [englishGit, russianGit]) {
       expect(lessonTranslationSchema.safeParse(lesson).success).toBe(true);
-      expect(lesson.updatedAt).toBe('2026-10-29');
+      expect(lesson.updatedAt).toBe('2026-10-30');
 
       const quickReference = lesson.blocks.find((block) => block.id === 'git-command-reference-list');
       expect(quickReference?.type).toBe('commandReference');
@@ -381,8 +381,8 @@ describe('Git fundamentals lesson translation', () => {
       expect(quickReference.categories).toHaveLength(4);
       const commands = quickReference.categories.flatMap((category) => category.items.map((item) => item.command));
       const commandIds = quickReference.categories.flatMap((category) => category.items.map((item) => item.id));
-      expect(commands).toHaveLength(25);
-      expect(new Set(commandIds).size).toBe(25);
+      expect(commands).toHaveLength(26);
+      expect(new Set(commandIds).size).toBe(26);
       expect(commands).toContain('git clone <repository-url>');
       expect(commands).toContain('git branch -d <merged-branch>');
       expect(commands).toContain('git merge <branch>');
@@ -390,7 +390,18 @@ describe('Git fundamentals lesson translation', () => {
       expect(commands).toContain('git pull --ff-only');
       expect(commands).toContain('git restore --staged <file>');
       expect(commands).toContain('git revert <commit>');
+      expect(commands).toContain('git log -S "string"');
       expect(commands).not.toContain('git reset --hard <SHA>');
+
+      const undoGuide = lesson.blocks.find((block) => block.id === 'deep-git-undo-guide');
+      expect(undoGuide?.type).toBe('list');
+      if (undoGuide?.type !== 'list') throw new Error('Git reset mode guidance is missing');
+      const undoText = undoGuide.items.join(' ').toLowerCase();
+      expect(undoText).toContain('git reset --soft <commit>');
+      expect(undoText).toContain('git reset --mixed <commit>');
+      expect(undoText).toContain('git reset --hard <commit>');
+      expect(undoText).toMatch(lesson.locale === 'en' ? /git reset <commit>.*means.*--mixed/ : /git reset <commit>.*означает.*--mixed/);
+      expect(undoText).toContain('git restore --staged <file>');
 
       const duplicateCommandIds = structuredClone(lesson);
       const duplicateReference = duplicateCommandIds.blocks.find((block) => block.id === 'git-command-reference-list');
@@ -471,6 +482,8 @@ const refs = lesson.blocks.find((block) => block.id === 'references');
         expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-fetch')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-pull')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-rebase')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-reset')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-log')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/code-security/tutorials/remediate-leaked-secrets/remediating-a-leaked-secret')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/get-started/learning-about-github/access-permissions-on-github')).toBe(true);
@@ -1319,10 +1332,32 @@ describe('Git workflow lesson translation', () => {
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
-    expect(englishGitWorkflow.version).toBe(10);
-    expect(russianGitWorkflow.version).toBe(10);
+    expect(englishGitWorkflow.version).toBe(14);
+    expect(russianGitWorkflow.version).toBe(14);
     for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
-      expect(lesson.updatedAt).toBe('2026-10-29');
+      expect(lesson.updatedAt).toBe('2026-10-30');
+
+      expect(lesson.blocks.filter((block) => block.type === 'tabbedContent')).toHaveLength(1);
+      const sourceTabs = lesson.blocks.find((block) => block.id === 'git-workflow-source-tabs');
+      expect(sourceTabs?.type).toBe('tabbedContent');
+      if (sourceTabs?.type !== 'tabbedContent') throw new Error('Seven Git Workflow source tabs are missing');
+      expect(sourceTabs.tabs.map((tab) => tab.id)).toEqual(['why-strategy', 'branches', 'git-flow', 'merge-requests', 'code-review', 'ci-cd', 'quiz']);
+      const assignedTabIds = sourceTabs.tabs.flatMap((tab) => tab.blockIds);
+      expect(new Set(assignedTabIds).size).toBe(61);
+      const excludedQuestionIds = new Set(['hotfix-origin-check', 'branch-protection-check', 'git-flow-feature-target-check', 'ci-basics-check', 'review-comment-specificity-check', 'hotfix-back-merge-check', 'git-semver-minor-check', 'continuous-deployment-check', 'small-pr-review-check', 'npm-ci-lockfile-check']);
+      const expectedTabIds = lesson.blocks.filter((block) => block.id !== sourceTabs.id && block.type !== 'references' && !(block.type === 'knowledgeCheck' && excludedQuestionIds.has(block.id))).map((block) => block.id);
+      expect(assignedTabIds.slice().sort()).toEqual(expectedTabIds.slice().sort());
+            const sequentialQuiz = lesson.blocks.find((block) => block.id === 'git-workflow-sequential-quiz');
+      expect(sequentialQuiz?.type).toBe('sequentialQuiz');
+      if (sequentialQuiz?.type !== 'sequentialQuiz') throw new Error('Sequential Git workflow quiz is missing');
+      expect(sequentialQuiz.questionBlockIds).toEqual(["hotfix-origin-check","branch-protection-check","git-flow-feature-target-check","ci-basics-check","review-comment-specificity-check","hotfix-back-merge-check","git-semver-minor-check","continuous-deployment-check","small-pr-review-check","npm-ci-lockfile-check"]);
+      expect(new Set(sequentialQuiz.questionBlockIds).size).toBe(10);
+            const pipelineSimulation = lesson.blocks.find((block) => block.id === 'git-workflow-pipeline-simulation-ui');
+      expect(pipelineSimulation?.type).toBe('pipelineSimulation');
+      if (pipelineSimulation?.type !== 'pipelineSimulation') throw new Error('Git workflow pipeline simulator is missing');
+      expect(pipelineSimulation.stages.map((stage) => stage.id)).toEqual(['checkout', 'install', 'lint', 'build', 'test', 'security', 'deploy']);
+      expect(pipelineSimulation.stages.map((stage) => stage.gate)).toEqual(['required', 'required', 'required', 'required', 'required', 'informational', 'post-merge']);
+
       const ciExample = lesson.blocks.find((block) => block.id === 'ci-example');
       expect(ciExample?.type).toBe('code');
       if (ciExample?.type !== 'code') return;

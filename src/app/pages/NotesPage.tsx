@@ -6,7 +6,7 @@ import { getStructuredLessonMetadata } from '@/content/repository';
 import { useNoteStore } from '@/features/notes';
 import { Card, Badge, Button, Input } from '@/components/ui';
 import { EmptyState } from '@/components/feedback';
-import { ROUTE_PATHS, coursePath, lessonPath } from '@/app/router/routes';
+import { ROUTE_PATHS, coursePath, lessonPath, localizedPath } from '@/app/router/routes';
 import { cn } from '@/lib/utils';
 import { formatNoteCount, getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
 
@@ -88,7 +88,7 @@ export default function NotesPage() {
           message={translate(locale, 'notesEmptyMessage')}
           icon={StickyNote}
           action={
-            <Link to={ROUTE_PATHS.COURSES}>
+            <Link to={localizedPath(ROUTE_PATHS.COURSES, locale)}>
               <Button variant="primary" size="sm">
                 <Compass className="h-4 w-4" />
                 {translate(locale, 'browseCatalog')}
@@ -138,14 +138,14 @@ export default function NotesPage() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <Link
-                        to={lesson.href}
+                        to={localizedPath(lesson.href, locale)}
                         className="text-sm font-semibold text-neutral-900 hover:text-primary-700"
                       >
                         {lesson.title}
                       </Link>
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-neutral-500">
                         {lesson.kind === 'classic' && lesson.category ? (
-                          <Link to={coursePath(lesson.category.id)} className="hover:text-primary-600">
+                          <Link to={localizedPath(coursePath(lesson.category.id), locale)} className="hover:text-primary-600">
                             <Badge variant="neutral">{getLocalizedCategoryCopy(locale, lesson.category.id, lesson.category.name, lesson.category.description).name}</Badge>
                           </Link>
                         ) : <Badge variant="neutral">{lesson.categoryName}</Badge>}

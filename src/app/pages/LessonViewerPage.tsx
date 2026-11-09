@@ -17,7 +17,7 @@ import { getQuizByLessonId, QuizRenderer } from '@/features/quizzes';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { EmptyState } from '@/components/feedback';
 import { Button, Badge } from '@/components/ui';
-import { ROUTE_PATHS, coursePath, lessonPath } from '@/app/router/routes';
+import { ROUTE_PATHS, coursePath, lessonPath, localizedPath } from '@/app/router/routes';
 import { getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
 
 const AUTO_ADVANCE_DELAY_MS = 900;
@@ -69,7 +69,7 @@ export default function LessonViewerPage() {
 
     if (adjacent.next) {
       advanceTimeout.current = setTimeout(() => {
-        navigate(lessonPath(adjacent.next!.id));
+        navigate(localizedPath(lessonPath(adjacent.next!.id), locale));
       }, AUTO_ADVANCE_DELAY_MS);
     }
   };
@@ -95,7 +95,7 @@ export default function LessonViewerPage() {
           message={translate(locale, 'lessonNotFoundMessage')}
           icon={FileText}
           action={
-            <Link to={ROUTE_PATHS.COURSES} className="text-sm font-medium text-primary-600 hover:text-primary-700">
+            <Link to={localizedPath(ROUTE_PATHS.COURSES, locale)} className="text-sm font-medium text-primary-600 hover:text-primary-700">
               {translate(locale, 'backToCatalog')}
             </Link>
           }
