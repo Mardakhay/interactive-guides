@@ -8,8 +8,8 @@ This is the one authoritative task list. Dated progress notes and superseded che
 
 ## Verified baseline
 
-- Last validated code checkpoint: `4a84793f340aa1d00471ff8265f83cfc1b2c1380`; [exact-head CI run #41032390443](https://github.com/Mardakhay/interactive-guides/actions/runs/41032390443) completed successfully: 49 test files / 325 tests, ESLint, TypeScript, production build, bundle budgets across 127 JS chunks and production-preview smoke.
-- The preview smoke covers six deep routes, including `/practice` and `/settings`, as well as the entry bundle, manifest, service worker and PWA assets. Structured lesson outline search also now matches authored section text and command-reference examples, including Git commands.
+- Last validated code checkpoint: `867c86f67a562bed3f803a92aae55a088337dfcb`; [exact feature-branch CI run #41045918696](https://github.com/Mardakhay/interactive-guides/actions/runs/41045918696) passed install, ESLint, TypeScript, **56 test files / 338 tests**, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, entry bundle, manifest, service worker, 5 PWA assets and 14 generated content chunks. npm audit reported zero advisories.
+- The preview smoke covers 13 deep routes, including `/en`, `/ru`, locale-prefixed application routes and legacy aliases, as well as the entry bundle, manifest, service worker, five PWA assets and all 14 generated content chunks. The generated search data totals 269,738 bytes gzip EN / 340,328 bytes gzip RU; Practice has a separate 59,527-byte EN / 75,293-byte RU payload. Native browser latency and mobile transfer remain unmeasured. Structured lesson outline search also now matches authored section text and command-reference examples, including Git commands.
 - Current branch also contains documentation reconciliation after that code checkpoint. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
 - Curriculum inventory: 27 core + 17 supplementary = 44 bilingual lesson pairs (88 locale JSON records).
 - Practice Center indexes 118 coding exercises. Settings exposes the persisted UI language, browser connectivity signal, local-data counts and backup access.
@@ -29,6 +29,12 @@ This is the one authoritative task list. Dated progress notes and superseded che
 - [x] Bilingual Practice Center with 118 exercises, existing draft/self-review state and deep links to source exercise blocks.
 - [x] Bilingual Settings page for local language preference, browser online/offline signal, local-data counts and backup navigation; unsupported cloud/theme controls are explicitly disclosed.
 - [x] Current implementation audit, content inventory, handoff and manual acceptance checklist reconciled with the feature branch.
+- [x] Make every application route locale-prefixed, preserve legacy root aliases, query/hash on language switch, and sync browser language preference from direct locale routes.
+- [x] Add keyboard-managed mobile navigation drawer behavior (initial focus, Tab/Shift+Tab trap, Escape close and focus restoration) plus visible focus rings in the shared shell. Native screen-reader/device acceptance remains open.
+- [x] Upgrade the reusable Modal to a labelled dialog with initial focus, Tab/Shift+Tab containment, Escape/backdrop dismissal, focus restoration and body-scroll restoration.
+- [x] Make Search filter controls a correctly labelled group of mutually exclusive pressed buttons instead of tabs without associated tab panels; add visible focus to the clear-search button.
+- [x] Announce classic quiz result summaries and structured knowledge-check feedback with focus moved to the result; make note autosave status politely announced without changing debounce or persistence.
+- [x] Associate structured HTML preview, hints and example-solution disclosures with their controlled panels and verify hidden/expanded state.
 
 ## P0 — Content parity, publication and migration safety
 
@@ -42,13 +48,13 @@ This is the one authoritative task list. Dated progress notes and superseded che
 ## P1 — Product completeness and learner experience
 
 - [ ] **Add evidence-based mastery and a review queue.** Define lesson-specific completion policy and independent assessment/rubrics first. Keep self-review, drafts, quiz activity and verified mastery as separate states; do not infer mastery from opened lessons or checked boxes.
-- [ ] **Finish app-wide locale routing.** Structured lessons already use explicit `/:locale/...` URLs; decide and implement shareable locale URLs for the remaining application routes without breaking classic deep links or saved language preference.
+- [x] **Finish app-wide locale routing.** All application screens now have shareable `/:locale/...` URLs; legacy unprefixed routes redirect using the saved preference, locale switching preserves the current route/query/hash, and classic lesson URLs remain supported.
 - [ ] **Complete Settings/theme scope.** Decide whether theme switching is in the release scope; if yes, implement complete light/dark tokens and verify contrast rather than adding a decorative toggle. Cloud/account controls remain absent until Supabase scope is approved.
 - [ ] **Finish accessibility and responsive review.** Test focus order, skip links, keyboard operation, screen-reader labels/status updates, contrast, reduced motion, touch targets, zoom/reflow and narrow viewport layouts on the full app.
 - [ ] **Execute native browser acceptance for persistence and backup.** Test downloads, file picker/import, size limit, confirmation, replacement semantics, storage-denial/quota behavior and rollback messaging with synthetic learner data.
 - [ ] **Execute native PWA acceptance.** Test clean install, localized deep-link refresh, revisit of a previously loaded lesson offline, behavior for never-visited lessons, update defer/activation and mobile reflow. Record browser/OS/device and tested SHA.
 - [ ] **Review every 24-week learning outcome.** Map each requirement to evidence in a core lesson/practice task and record uncovered or duplicated outcomes.
-- [ ] **Measure the generated structured-content index in real browsers.** Search and Practice now load one compact generated index per selected locale rather than requesting all 44 full lesson chunks. Record transferred bytes, cold/warm latency and mobile performance; keep full lesson bodies lazy and verify hidden feedback/solutions are absent.
+- [ ] **Measure generated structured-content indexes in real browsers.** CI confirms six bounded search chunks per locale (about 272 KB gzip EN / 341 KB RU total) and a separate Practice payload (about 60 KB EN / 75 KB RU). Record actual transfer, cold/warm latency and mobile performance; verify Practice does not request the search chunks, full lesson bodies remain lazy, and hidden feedback/solutions are absent.
 - [ ] **Finish user-facing QA.** Audit uncommon strings, broken/stale references, keyboard/accessibility edge states, screenshots/README and learner journey from onboarding through practice/backup.
 
 ## P2 — Cloud and account capabilities

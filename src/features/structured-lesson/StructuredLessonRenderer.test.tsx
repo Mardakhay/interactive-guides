@@ -59,11 +59,15 @@ describe('StructuredLessonRenderer', () => {
     render(<StructuredLessonRenderer lesson={lesson} />);
 
     const reveal = screen.getByRole('button', { name: 'Reveal example solution' });
+    const solutionPanelId = reveal.getAttribute('aria-controls');
+    expect(solutionPanelId).toBe('practice-about-me-solution-panel');
+    expect(document.getElementById(solutionPanelId ?? '')).toHaveAttribute('hidden');
     expect(reveal.getAttribute('aria-expanded')).toBe('false');
     expect(screen.queryByText(/This is one possible complete solution/)).toBeNull();
     fireEvent.click(reveal);
 
     expect(screen.getByRole('button', { name: 'Hide example solution' }).getAttribute('aria-expanded')).toBe('true');
+    expect(document.getElementById(solutionPanelId ?? '')).not.toHaveAttribute('hidden');
     expect(screen.getByText(/This is one possible complete solution/)).toBeTruthy();
     const solutionCode = screen.getByRole('group', { name: 'html code example: Example solution' });
     expect(solutionCode.textContent).toContain('Alex Morgan');
@@ -84,9 +88,14 @@ describe('StructuredLessonRenderer', () => {
     if (!exercise) throw new Error('About Me practice section is missing');
 
     const hintText = 'Write the document shell before adding visible content.';
+    const hintButton = within(exercise).getByRole('button', { name: 'Reveal hints' });
+    const hintsPanelId = hintButton.getAttribute('aria-controls');
+    expect(hintsPanelId).toBe('practice-about-me-hints-panel');
+    expect(document.getElementById(hintsPanelId ?? '')).toHaveAttribute('hidden');
     expect(within(exercise).queryByText(hintText)).toBeNull();
-    fireEvent.click(within(exercise).getByRole('button', { name: 'Reveal hints' }));
+    fireEvent.click(hintButton);
     expect(within(exercise).getByText(hintText)).toBeTruthy();
+    expect(document.getElementById(hintsPanelId ?? '')).not.toHaveAttribute('hidden');
     fireEvent.click(within(exercise).getByRole('button', { name: 'Hide hints' }));
     expect(within(exercise).queryByText(hintText)).toBeNull();
 
@@ -112,8 +121,10 @@ describe('StructuredLessonRenderer', () => {
     fireEvent.click(screen.getByRole('button', { name: /In a title element inside head/ }));
     fireEvent.click(screen.getAllByRole('button', { name: 'Check answer' })[0]!);
 
-    expect(screen.getByText('Correct')).toBeTruthy();
-    expect(screen.getByText(/Document metadata belongs in head/)).toBeTruthy();
+    const feedback = screen.getByRole('status', { name: 'Knowledge check feedback' });
+    expect(feedback).toHaveTextContent('Correct');
+    expect(feedback).toHaveTextContent(/Document metadata belongs in head/);
+    expect(feedback).toHaveFocus();
   });
 
   it('renders the Russian pilot and localized interaction labels', async () => {

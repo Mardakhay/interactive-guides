@@ -28,7 +28,7 @@ export function SearchBar({ value, onChange, placeholder, autoFocus, locale = 'e
           type="button"
           onClick={() => onChange('')}
           aria-label={translate(locale, 'clearSearch')}
-          className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-neutral-500 transition-colors hover:text-neutral-700"
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-neutral-500 transition-colors hover:text-neutral-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
         >
           <X className="h-4 w-4" />
         </button>

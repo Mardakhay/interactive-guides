@@ -1,6 +1,12 @@
 export type Locale = 'en' | 'ru';
 
 const en = {
+  "loading": "Loading",
+  "pageNotFound": "Page not found",
+  "pageNotFoundMessage": "The page you're looking for doesn't exist or was moved.",
+  "somethingWentWrong": "Something went wrong",
+  "routeErrorMessage": "This page ran into an unexpected error. You can try again or head back to the dashboard.",
+  "tryAgain": "Try again",
   "skipToContent": "Skip to content",
   "mainNavigation": "Main navigation",
   "closeSidebar": "Close sidebar",
@@ -243,6 +249,12 @@ const en = {
   "dismissStorageWarning": "Dismiss storage warning"
 } as const;
 const ru: Record<keyof typeof en, string> = {
+  "loading": "Загрузка",
+  "pageNotFound": "Страница не найдена",
+  "pageNotFoundMessage": "Страница, которую вы ищете, не существует или была перемещена.",
+  "somethingWentWrong": "Что-то пошло не так",
+  "routeErrorMessage": "При открытии страницы произошла ошибка. Повторите попытку или вернитесь к главной.",
+  "tryAgain": "Повторить попытку",
   "skipToContent": "Перейти к содержимому",
   "mainNavigation": "Главная навигация",
   "closeSidebar": "Закрыть боковую панель",
