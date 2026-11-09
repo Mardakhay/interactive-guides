@@ -69,6 +69,7 @@ Lessons live in `src/content/lessons/<lesson-id>/en.json` and `ru.json`, with th
 - `src/app/pages/StructuredLessonPage.tsx` renders a locale-aware reader at `/:locale/structured-lessons/:lessonId`, with TOC, EN/RU switching, document language, and previous/next navigation.
 - Completion is a self-attested marker, distinct from quiz results and code mastery.
 - `src/features/structured-lesson/store.ts` tracks quiz attempts, code drafts and practice self-review checklists separately from the legacy lesson status.
+- `src/lib/storage.ts` emits an event when a write/removal fails; `StorageWarningBanner` shows a localized warning and a link to the existing backup/restore page. Tests cover the failure notification and dismissible warning. Explicit schema migrations and retry/recovery remain open.
 - The coding exercise editor saves drafts locally and reveals hints/self-review criteria. **JavaScript/TypeScript execution is not currently implemented.** The only live preview is for HTML and uses an iframe with scripts disabled.
 - Before adding execution, design the sandbox intentionally. A same-tab synchronous infinite loop cannot reliably be stopped by a parent-page timer; an in-page iframe runner must not be described as a secure arbitrary-code service. A Worker can be terminated for hard time limits but still needs careful capability/network restrictions and an explicit threat model.
 
@@ -84,9 +85,11 @@ The connected account has projects named `kaelig` and `Mardakhay's Project`; nei
 
 ## Latest CI check
 
-Current branch HEAD verified: `6ebcb88d9f6fff97e323966193c48933f9e3cdcb`. GitHub Actions run [#134](https://github.com/Mardakhay/interactive-guides/actions/runs/39772187993) completed successfully: install, lint, typecheck, tests and production build all passed. The Netlify deploy preview reports ready at https://deploy-preview-1--interactive-guides.netlify.app. Recheck the exact HEAD after subsequent commits.n run](https://github.com/Mardakhay/interactive-guides/actions/runs/39758607304)). Verify this after the documentation commit as GitHub starts a new workflow.
+GitHub Actions run [#167](https://github.com/Mardakhay/interactive-guides/actions/runs/39776235742) passed for code/test commit `be9e050fba35082d036367e3e6b7eec47a7636c3`; install, lint, typecheck, tests and production build all succeeded, including the new local-storage warning tests.
 
-The GitHub Actions workflow runs `npm ci`, ESLint, TypeScript typecheck, tests and production build. Check the exact current branch head after every substantial change; an earlier successful run does not validate later commits.
+The exact current branch HEAD when this note was updated is `0725ed8347b0127c9138690acccadb09091749d1`, a documentation-only commit after #167. Run [#168](https://github.com/Mardakhay/interactive-guides/actions/runs/39776441775) was in progress at last check. Verify the exact latest HEAD's result before claiming that current CI is green.
+
+The workflow runs `npm ci`, ESLint, TypeScript typecheck, tests and production build. A successful run for an earlier SHA does not validate later code changes.
 
 ## Documentation
 
