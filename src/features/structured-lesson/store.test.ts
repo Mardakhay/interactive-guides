@@ -45,6 +45,17 @@ describe('structured lesson learning state', () => {
     expect(saved.data.practiceChecklists['test.lesson::exercise-1'].checkedCriteria).toEqual([2]);
   });
 
+  it('persists section-read markers independently from lesson completion', () => {
+    useStructuredLearningStore.getState().setSectionComplete('test.lesson', 'section-intro', true);
+
+    let saved = JSON.parse(localStorage.getItem(storageKey) ?? '{}');
+    expect(saved.data.sectionProgress['test.lesson'].completedBlockIds).toEqual(['section-intro']);
+
+    useStructuredLearningStore.getState().setSectionComplete('test.lesson', 'section-intro', false);
+    saved = JSON.parse(localStorage.getItem(storageKey) ?? '{}');
+    expect(saved.data.sectionProgress['test.lesson'].completedBlockIds).toEqual([]);
+  });
+
   it('removes only a draft when the learner resets it', () => {
     const store = useStructuredLearningStore.getState();
     store.saveCodeDraft('test.lesson', 'exercise-1', '<h1>Draft</h1>');

@@ -4,34 +4,35 @@
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Default branch observed:** `main`
 
-This audit is based on the repository root, source directory listings, current package/config files, the lesson catalog, the renderer and progress-store implementation, selected full HTML lesson files, and recent commit history available through GitHub. It is not a local test run; no claim is made that the current build or tests were executed during this remote audit.
+This audit combines remote source inspection with exact-head GitHub Actions evidence. It is not a local checkout or browser/device acceptance run; those results are not claimed.
 
 ## Authoritative implementation snapshot — 2026-10-27
 
-- **Current feature head:** `cb24724b5b1c5317c24cf3adf6af5f40f944afda`; exact-head GitHub Actions [run #40500504527](https://github.com/Mardakhay/interactive-guides/actions/runs/40500504527) passed install, lint, typecheck, all tests and production build. This is remote CI evidence, not a local checkout/test run.
+- **Dependency-refresh validation:** controlled CI [run #40536336285](https://github.com/Mardakhay/interactive-guides/actions/runs/40536336285) passed install, lint, typecheck, 182 tests across 30 files, production build and bundle budget while using the regenerated lockfile. It reported zero npm audit findings and committed that lockfile as `59432ad63d24d2ab0e37267091ce4de2f59a0d69`. The least-privilege cleanup passed ordinary exact-head CI [run #40537074543](https://github.com/Mardakhay/interactive-guides/actions/runs/40537074543) on `56f5786cb68395936c6ac0b29b5703b85f708b73`; the new cutover-guard test/doc commit needs its own exact-head run.
 - **Branch safety:** PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) remains open Draft, base `main`, head `feat/learning-platform-foundation`. `main` remains unchanged at `b13af92576e8a73753a6e3f3d26765d9f9c44397`.
-- **Structured curriculum:** 26 core and 11 supplementary lesson IDs are registered in English and Russian (74 JSON files). The React reader/curriculum routes are integrated. Lesson registration and schema checks do not mean editorial approval or full source/interaction parity.
-- **Content review:** full content/code/interaction reviews for 25/25 legacy HTML sources are documented. Source-to-block claim-by-claim parity, exact old-widget parity, and a formal factual review of every Notion claim remain incomplete. 21 Notion pages have been fetched/mapped, but each still reports `verification.state=unverified`; reading is not formal source verification.
-- **Recent bilingual content improvements:** `html.document-structure` v6 (50 aligned blocks), `ui.design-systems` v3 (32), `performance.accessibility` v4 (41), `data.sql-postgresql` v2 (46) and `testing.react-testing-library` v4 (39) have source-derived additions and regression checks. Source inventory and section-level parity remain open.
-- **UI localization:** EN/RU preference and route-aware locale support exist across the shell and major learner routes. Uncommon strings, all legacy bodies, responsive/keyboard/touch and screen-reader announcement audits are still open.
-- **Local-first persistence:** progress/bookmarks/notes/classic quiz results use schema-v1 local-store envelopes; structured learning uses a v2 envelope with legacy migration. The v1 JSON backup/restore route validates and previews replacement, includes learner data, excludes UI preferences, and has test coverage for snapshot-read failure, write failure, rollback success/failure, legacy-key cleanup failure, exported payload and corrupt state. Browser/device acceptance of native storage restrictions/file picker/download is still unrun.
+- **Structured curriculum:** 26 core and 18 supplementary lesson IDs are registered in English and Russian (44 bilingual lesson pairs / 88 JSON files). A small static manifest supplies translated titles; complete lesson bodies load on demand through dynamic imports.
+- **Measured bundle improvement:** before lazy loading, `repository-*.js` was 2,363.77 kB minified / 784.88 kB gzip. The dependency-refresh build measures the entry chunk at 211.08 kB raw / 68.05 kB gzip and the lesson repository chunk at 61.22 kB raw / 16.81 kB gzip; all 125 JavaScript chunks passed the current budgets. CI enforces 350 kB raw / 120 kB gzip for the entry, 100 kB raw / 30 kB gzip for the repository, and a 500 kB raw maximum per JavaScript chunk. Lesson chunks are not precached, so never-visited lesson offline behavior remains a manual check. Lesson chunks are not precached; service worker caching starts after a successful same-origin asset request, so never-visited lesson offline behavior remains a manual check.
+- **Content review:** full content/code/interaction reviews for 25/25 legacy HTML sources are documented, but exact legacy-widget parity and claim-by-claim factual verification remain incomplete. 21 Notion pages have been fetched/mapped; their metadata still reports `verification.state=unverified`, so this is not formal source verification. A loader regression test now verifies every legacy catalog entry has non-empty embedded content or a valid existing HTML fallback.
+- **Recent bilingual content improvements:** `html.document-structure` v7 (50 aligned blocks), `ui.design-systems` v3 (32), `performance.accessibility` v4 (41), `data.sql-postgresql` v2 (46) and `testing.react-testing-library` v4 (39) have source-derived additions and regression checks.
+- **UI localization:** EN/RU preference and route-aware locale support exist across the shell and major learner routes. Uncommon strings, responsive/keyboard/touch behavior and screen-reader announcements still need broader audits.
+- **Local-first persistence:** progress/bookmarks/notes/classic quiz results use schema-v1 local-store envelopes; structured learning uses a v2 envelope with legacy migration. Backup/restore validates and previews replacement, includes learner data, excludes UI preferences and has automated coverage for failure/rollback paths. Browser/device acceptance of native storage restrictions/file picker/download remains unrun.
 - **PWA/deployment:** manifest/icons, scoped static-asset cache, SPA fallback and user-approved service-worker update flow are implemented. Actual install/offline/deep-link/update tests on supported desktop/mobile browsers are not recorded.
-- **Cloud/release:** Supabase auth/sync is not implemented and remains gated behind local/cloud conflict decisions and RLS/account-isolation work. Capstone, full accessibility/localization, bundle-size/performance, dependency review and release acceptance remain open.
-- **CI/dependency warning:** a recent `npm ci` reported 12 dependency audit findings (6 moderate, 4 high, 2 critical). The build also emits the existing large-chunk warning and React Router v7 future-flag warnings; these do not currently fail CI and should be triaged separately.
+- **Dependency audit and toolchain:** the tested dependency graph reports **0 npm audit findings**. Direct versions now include React Router DOM `7.18.0`, Vite `8.3.5`, `@vitejs/plugin-react` `6.1.2`, Vitest `4.1.12`, Zod `4.6.7`; lockfile is pinned and generated with npm `11.21.1`. Node 22 is used by CI. Follow-up standard CI verifies the committed lockfile without write permissions or one-off regeneration.
+- **Legacy-route cutover gate:** the legacy catalog has 25 IDs (for example `wb-002`), while the structured manifest has 44 different IDs (for example `html.document-structure`). Progress, bookmarks and notes are keyed by `lessonId`, so redirects can orphan learner state unless a reviewed one-to-many crosswalk and tested migration/retention policy exists. The fallback regression test protects current routes, but does not certify semantic parity. Keep `/lessons/:lessonId` and HTML source files until this gate is closed.
+- **Cloud/release:** Supabase auth/sync is not implemented and remains gated behind local/cloud conflict decisions and RLS/account-isolation work. Notion formal verification and browser/device acceptance remain open.
 
-This snapshot is the authoritative status for this document; earlier checkpoint sections below are chronological history and should not override it.
-
+This snapshot is authoritative; earlier checkpoint sections below are chronological history and should not override it.
 
 ## Existing application
 
 The repository is already a React application, not just a set of HTML files:
 
-- React 18, TypeScript, Vite 5, Tailwind CSS 3
-- React Router 6
+- React 18, TypeScript, Vite 8, Tailwind CSS 3
+- React Router 7.18.0 (the app still imports through `react-router-dom` for v6-to-v7 compatibility)
 - Zustand for state
 - Zod schemas
-- Vitest and Testing Library
-- ESLint and GitHub Actions CI
+- Vitest 4.1 and Testing Library
+- ESLint and GitHub Actions CI (Node 22; pinned npm 11.21.1 for reproducible lockfile handling)
 
 Available scripts from `package.json`:
 
@@ -188,7 +189,7 @@ The project is **not release-complete** while source-to-block parity, all-screen
 2. Finish localization coverage for remaining less-common strings/edge states and review source lesson-body equivalence, not only UI labels.
 3. Implement/test a safe local-data migration plus export/import and recovery path before a storage-format change.
 4. Record Android Chrome and iOS Safari install, deep-link, offline, update and external-font acceptance outcomes. Do not infer these outcomes from unit tests.
-5. Triage the dependency audit findings and production bundle-size warning without applying an unreviewed forced dependency upgrade.
+5. Retain the dependency audit diagnostic and bundle budgets; investigate any future findings before changing dependency majors.
 
 Do not mark overall release readiness complete until the source audit, learner-data portability and manual PWA acceptance gates have evidence.
 
@@ -759,3 +760,47 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Added pre-write restore protection coverage: if any original value cannot be read while collecting the rollback snapshot, restore aborts before the first write/removal. The test confirms all prior raw keys remain intact.
 - Exact-head CI passed on `b9f500ee8509a986c12b0babd25a2c9947183a90`: [40498940471](https://github.com/Mardakhay/interactive-guides/actions/runs/40498940471).
 - Real-browser/device storage privacy/quota, file picker and download remain explicit manual acceptance gates.
+
+
+## React forms source parity — 2026-10-27
+
+- `react.forms-validation` is now v3 / 52 aligned EN/RU blocks after a full review of the legacy 13-section forms source, ten-item quiz and five practice tasks. Added a cross-field password confirmation walkthrough, accessible error associations, and a regression check for revalidation when either dependent value changes.
+- Source-specific caveat: legacy custom validation has a malformed password-length comparison; canonical TypeScript is valid and library/controlled-input recommendations are qualified. Exact legacy answer-reveal/accordion UI is not rebuilt.
+- Exact-head CI must pass before considering this update verified. Main remains unchanged; HTML learner-route cutover and Notion claim/example parity remain open.
+
+## Legacy route crosswalk — 2026-10-27
+
+The candidate mapping of all 25 classic catalog IDs to possible structured destinations is documented in [LEGACY_ROUTE_CUTOVER_MATRIX.md](./LEGACY_ROUTE_CUTOVER_MATRIX.md). All entries remain blocked for cutover; this matrix distinguishes candidates from verified content equivalence and learner-state migration. The loader regression test verifies renderability, not semantic parity.
+
+
+## Structured reader accessibility checkpoint — 2026-10-28
+
+- Code/test HEAD `269b88ce3722034888e03cf11934b854a0c2a7ef` passed exact-head GitHub Actions [run #40638940943](https://github.com/Mardakhay/interactive-guides/actions/runs/40638940943): `npm ci`, lint, typecheck, the full Vitest suite and production build/bundle-budget check.
+- `StructuredLessonPage` now includes a localized scroll-driven reading-progress bar with `role="progressbar"`, keyboard/screen-reader range values, resize/scroll updates and resize-observer handling when available. EN/RU tests cover its labels and scroll state.
+- Structured code samples are keyboard-focusable so horizontally overflowing examples can be navigated without a pointer. Each sample has a language/caption accessible group label, and copy success/failure is exposed via a live status region. Regression tests cover keyboard focus and failed-copy announcements.
+- These are implementation and CI results, not assistive-technology acceptance. Real-browser/screen-reader testing, full mobile/accessibility review, source-to-content parity, legacy-route state migration and browser/device backup/PWA checks remain open. `main` remains unchanged; Supabase remains gated.
+
+
+## Section-read and practice UX checkpoint — 2026-10-28
+
+- Exact-head GitHub Actions [run #40639322531](https://github.com/Mardakhay/interactive-guides/actions/runs/40639322531) passed on code/test SHA `f578b146674ade9758f8b92b170ed736fd96309b`: `npm ci`, npm audit diagnostic, lint, typecheck, all tests and production build/bundle-budget checks.
+- Structured lesson H2 headings now have a localized self-attested read/unread control. It persists stable section IDs in the existing structured-learning v2 record; tests cover toggle behavior, saved state and Russian labels. This marker is not lesson completion and is not mastery evidence.
+- Phase 3 practice foundations include local code drafts, knowledge-check attempt history, self-review checklists, hint disclosure, sandboxed HTML preview and documented Worker/DOM constraints. A uniform authored-solution disclosure policy remains open, as does any mastery gate that requires verified practice evidence.
+- `main` remains unchanged. Manual screen-reader and browser/device checks, content/source parity and legacy-route learner-state migration remain open; Supabase stays gated.
+
+
+## Authored example-solution disclosure checkpoint — 2026-10-28
+
+- Exact-head GitHub Actions [run #40640037346](https://github.com/Mardakhay/interactive-guides/actions/runs/40640037346) passed on `42739da06df15c8a23763f9f6947a3b222de84dc`: install, lint, typecheck, full test suite and production build/bundle budgets.
+- The coding-exercise schema now accepts an optional `solution` object with code and explanation. The EN/RU `html.document-structure` pilot (`practice-about-me`) uses it; the lesson version is now 7 with 50 aligned blocks in each locale.
+- The renderer does not show the solution until the learner explicitly selects “Reveal example solution”. It explains that the solution is one valid example and supports hiding it again; regression tests check default-hidden state, reveal/collapse labels, the rendered code and both locale variants. Existing exercises without the optional field render as before.
+- This reveal control is a learning UX policy, not a security boundary: the bilingual lesson JSON is client-delivered content and can be inspected independently of the button. Do not put secrets or privileged grading data in lesson JSON.
+- Outstanding gates: the optional solution should be authored selectively after lesson-specific review; screen-reader/browser acceptance, the mastery evidence model, source-to-content parity, legacy learner-state retention and backup/PWA device checks remain open.
+
+
+## Practice disclosure and checklist interaction — 2026-10-28
+
+- Exact-head GitHub Actions [run #40640306652](https://github.com/Mardakhay/interactive-guides/actions/runs/40640306652) passed on `88ac1164925570c63376a55676b8e613d867b21a`: `npm ci`, audit diagnostic, lint, typecheck, complete Vitest suite and production build/bundle budget.
+- Added UI regression coverage for the optional bilingual example solution: it is hidden by default, opens only after a learner action, can be hidden again, and is rendered with its explanation and labelled code panel. The schema/content tests assert matching authored EN/RU solution structure; the lesson is version 7.
+- Added practice interaction coverage for hint reveal/collapse and for self-review criteria being written to and removed from the structured-learning v2 record. Self-review checkboxes still mean “I reviewed this criterion,” not that the application executed or validated the learner's code.
+- The UI's on-demand solution toggle is not a security boundary because lesson JSON is client-delivered. Authored solutions must remain public teaching content; no private answer keys or secrets belong in these files.

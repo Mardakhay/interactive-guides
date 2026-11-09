@@ -78,11 +78,61 @@ function CodePanel({
           {copyState === 'copied' ? <Check className="h-3.5 w-3.5" /> : <Clipboard className="h-3.5 w-3.5" />}
           {copyState === 'copied' ? copiedLabel : copyState === 'failed' ? failedLabel : copyLabel}
         </button>
+        <span className="sr-only" role="status" aria-label={locale === 'ru' ? 'Статус копирования кода' : 'Code copy status'}>
+          {copyState === 'idle' ? '' : copyState === 'copied' ? copiedLabel : failedLabel}
+        </span>
       </figcaption>
-      <pre className="max-w-full overflow-x-auto p-4 text-[13px] leading-6 sm:text-sm">
+      <pre
+        role="group"
+        aria-label={locale === 'ru'
+          ? `${language}: пример кода${caption ? ` — ${caption}` : ''}`
+          : `${language} code example${caption ? `: ${caption}` : ''}`}
+        tabIndex={0}
+        className="max-w-full overflow-x-auto p-4 text-[13px] leading-6 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-300 sm:text-sm"
+      >
         <code className="font-mono">{code}</code>
       </pre>
     </figure>
+  );
+}
+
+function SectionHeading({
+  block,
+  lessonId,
+  locale,
+}: {
+  block: Extract<LessonContentBlock, { type: 'heading' }>;
+  lessonId: string;
+  locale: SupportedLocale;
+}) {
+  const isRead = useStructuredLearningStore((state) =>
+    state.sectionProgress[lessonId]?.completedBlockIds.includes(block.id) ?? false,
+  );
+  const setSectionComplete = useStructuredLearningStore((state) => state.setSectionComplete);
+  const readLabel = locale === 'ru' ? 'Отметить раздел прочитанным' : 'Mark section read';
+  const unreadLabel = locale === 'ru' ? 'Снять отметку о прочтении' : 'Mark section unread';
+  const visibleLabel = isRead
+    ? (locale === 'ru' ? 'Прочитан' : 'Read')
+    : (locale === 'ru' ? 'Отметить прочитанным' : 'Mark read');
+
+  return (
+    <div className="mb-3 mt-10 flex flex-col gap-2 scroll-mt-24 sm:flex-row sm:items-start sm:justify-between">
+      <h2 id={block.id} className="min-w-0 text-2xl font-semibold tracking-tight text-neutral-950 sm:text-3xl">
+        {block.text}
+      </h2>
+      <button
+        type="button"
+        aria-pressed={isRead}
+        aria-label={`${isRead ? unreadLabel : readLabel}: ${block.text}`}
+        onClick={() => setSectionComplete(lessonId, block.id, !isRead)}
+        className={`inline-flex min-h-9 shrink-0 items-center justify-center gap-2 self-start rounded-lg border px-3 py-2 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700 sm:mt-1 ${isRead
+          ? 'border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+          : 'border-neutral-200 bg-white text-neutral-600 hover:border-primary-300 hover:text-primary-700'}`}
+      >
+        {isRead ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : null}
+        {visibleLabel}
+      </button>
+    </div>
   );
 }
 
@@ -227,6 +277,7 @@ function CodingExercise({
   const setPracticeCriterion = useStructuredLearningStore((state) => state.setPracticeCriterion);
   const [hintsOpen, setHintsOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [solutionOpen, setSolutionOpen] = useState(false);
   const code = savedCode ?? block.starterCode;
   const checked = checkedCriteria ?? [];
 
@@ -325,6 +376,41 @@ function CodingExercise({
             </div>
           )}
         </div>
+        {block.solution && (
+          <section className="rounded-xl border border-primary-200 bg-primary-50/60 p-3 sm:p-4">
+            <p className="text-xs leading-5 text-neutral-600">
+              {locale === 'ru'
+                ? 'Пример решения раскрывается только по запросу. Сравни его с требованиями; корректные реализации могут отличаться.'
+                : 'The example solution is revealed only on request. Compare it with the requirements; other correct implementations may differ.'}
+            </p>
+            <button
+              type="button"
+              aria-expanded={solutionOpen}
+              onClick={() => setSolutionOpen((open) => !open)}
+              className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-xl border border-primary-200 bg-white px-3 py-2 text-sm font-semibold text-primary-800 transition hover:bg-primary-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+            >
+              {solutionOpen
+                ? (locale === 'ru' ? 'Скрыть пример решения' : 'Hide example solution')
+                : (locale === 'ru' ? 'Показать пример решения' : 'Reveal example solution')}
+            </button>
+            {solutionOpen && (
+              <div className="mt-4" >
+                <h4 className="text-sm font-semibold text-neutral-900">
+                  {locale === 'ru' ? 'Пример решения' : 'Example solution'}
+                </h4>
+                <p className="mt-2 text-sm leading-6 text-neutral-700">{block.solution.explanation}</p>
+                <div className="mt-3">
+                  <CodePanel
+                    language={block.language}
+                    code={block.solution.code}
+                    caption={locale === 'ru' ? 'Пример решения' : 'Example solution'}
+                    locale={locale}
+                  />
+                </div>
+              </div>
+            )}
+          </section>
+        )}
         {block.hints.length > 0 && (
           <div>
             <button
@@ -376,7 +462,7 @@ function CodingExercise({
 function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonId: string) {
   switch (block.type) {
     case 'heading':
-      if (block.level === 2) return <h2 key={block.id} id={block.id} className="mb-3 mt-10 scroll-mt-24 text-2xl font-semibold tracking-tight text-neutral-950 sm:text-3xl">{block.text}</h2>;
+      if (block.level === 2) return <SectionHeading key={block.id} block={block} lessonId={lessonId} locale={locale} />;
       if (block.level === 3) return <h3 key={block.id} id={block.id} className="mb-3 mt-7 scroll-mt-24 text-xl font-semibold tracking-tight text-neutral-950">{block.text}</h3>;
       return <h4 key={block.id} id={block.id} className="mb-2 mt-6 scroll-mt-24 text-lg font-semibold text-neutral-950">{block.text}</h4>;
     case 'paragraph':

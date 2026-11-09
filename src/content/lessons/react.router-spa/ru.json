@@ -1,16 +1,16 @@
 {
   "id": "react.router-spa",
   "locale": "ru",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-27",
   "moduleId": "month-4-week-13",
   "week": 13,
   "order": 1,
   "title": "Одностраничные приложения и React Router",
   "description": "Разберись в клиентской маршрутизации, сопоставляй URL с React-компонентами, переходи без полной перезагрузки, читай параметры маршрута и обрабатывай неизвестные URL.",
-  "estimatedMinutes": 85,
+  "estimatedMinutes": 90,
   "difficulty": "beginner",
   "prerequisites": [
     "react.components-jsx-state",
@@ -52,9 +52,20 @@
       "text": "Определи шаблоны маршрутов"
     },
     {
+      "id": "router-installed-version-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Примечание о версии проекта: React Router v7"
+    },
+    {
+      "id": "router-installed-version",
+      "type": "paragraph",
+      "text": "В этом репозитории теперь используется React Router 7.18.0. В актуальной документации публичные API импортируются из `react-router`; приложение пока использует `react-router-dom`, который реэкспортирует публичные router API для совместимости при переходе с v6 на v7. Поддерживаются и declarative-паттерн `Routes`/`Route`, и data-router `createBrowserRouter`/`RouterProvider`. Синхронизируй версию пакета и документацию, а в новом проекте придерживайся одного стиля импортов."
+    },
+    {
       "id": "router-setup-body",
       "type": "paragraph",
-      "text": "В React Router v6 Routes и Route сопоставляют текущий URL с элементами. Путь может быть статичным, например /about, или динамическим, например /posts/:postId. Динамические сегменты извлекаются в параметры. Сопоставление маршрута и компонент страницы — разные вещи; держи конфигурацию маршрутов в одном понятном месте, вместо разбора путей по разным UI-компонентам."
+      "text": "В React Router v7 Routes и Route сопоставляют текущий URL с элементами. Путь может быть статичным, например /about, или динамическим, например /posts/:postId. Динамические сегменты извлекаются в параметры. Сопоставление маршрута и компонент страницы — разные вещи; держи конфигурацию маршрутов в одном понятном месте, вместо разбора путей по разным UI-компонентам."
     },
     {
       "id": "router-example",
@@ -258,7 +269,7 @@
       "type": "codingExercise",
       "title": "Создай трёхстраничную учебную SPA",
       "language": "tsx",
-      "context": "Реализуй настройку маршрутов в проекте с React Router v6. Редактор урока сохраняет исходник, но не компилирует TSX.",
+      "context": "Реализуй настройку маршрутов в проекте с React Router v7. Редактор урока сохраняет исходник, но не компилирует TSX.",
       "instructions": [
         "Создай компоненты Home, About и Posts.",
         "Настрой BrowserRouter и сопоставь пути /, /about и /posts с соответствующими компонентами.",
@@ -442,23 +453,23 @@
       "type": "references",
       "items": [
         {
-          "title": "React Router v6: Declarative Routing",
-          "url": "https://reactrouter.com/en/v6/start/overview",
+          "title": "React Router v7: маршрутизация",
+          "url": "https://reactrouter.com/start/declarative/routing",
           "kind": "official-docs"
         },
         {
-          "title": "React Router v6: useParams",
-          "url": "https://reactrouter.com/en/v6/hooks/use-params",
+          "title": "React Router v7: useParams",
+          "url": "https://reactrouter.com/api/hooks/useParams",
           "kind": "official-docs"
         },
         {
-          "title": "React Router v6: Link",
-          "url": "https://reactrouter.com/en/v6/components/link",
+          "title": "React Router v7: Link",
+          "url": "https://reactrouter.com/api/components/Link",
           "kind": "official-docs"
         },
         {
-          "title": "React Router v6: Outlet",
-          "url": "https://reactrouter.com/en/v6/components/outlet",
+          "title": "React Router v7: Outlet",
+          "url": "https://reactrouter.com/api/components/Outlet",
           "kind": "official-docs"
         },
         {

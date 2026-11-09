@@ -113,3 +113,10 @@ The prior generated dark-indigo icon concept was rejected by the user and is sup
 ## Browser/device execution protocol — 2026-10-27
 
 Use [`BROWSER_SMOKE_TEST_CHECKLIST.md`](./BROWSER_SMOKE_TEST_CHECKLIST.md#-pwa-navigation-and-mobile-acceptance) to record actual installability, deep-link refresh, offline revisit, update lifecycle and mobile reflow/focus results. Current acceptance remains unrun until an execution row includes the commit SHA, browser version, OS/device, network/profile mode and outcome.
+
+
+## On-demand structured lesson chunks — 2026-10-27
+
+Structured lesson JSON bodies are now emitted as separate dynamic JavaScript chunks. The application eagerly loads only a small bilingual metadata manifest for lesson titles and syllabus navigation; the body is fetched when its lesson route opens. This reduces the repository chunk from 2,363.77 kB minified / 784.88 kB gzip to 54.26 kB / 17.15 kB gzip in the latest measured production build.
+
+The existing service worker runtime-caches successful same-origin JavaScript assets after their first successful request. Lesson bodies are not precached: an opened-online lesson should be available on a later offline revisit while its chunk remains cached, but a never-visited lesson is not guaranteed offline. The route displays a load-failure message when a required chunk cannot be fetched. Verify both cases in browser acceptance checklist W-03 before treating this as device-tested behavior.

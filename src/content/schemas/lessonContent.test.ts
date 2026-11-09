@@ -92,6 +92,16 @@ describe('structured lesson content', () => {
     );
     expect(englishLesson.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     expect(russianLesson.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    const englishPractice = englishLesson.blocks.find((block) => block.id === 'practice-about-me');
+    const russianPractice = russianLesson.blocks.find((block) => block.id === 'practice-about-me');
+    expect(englishPractice).toMatchObject({
+      type: 'codingExercise',
+      solution: { code: expect.stringContaining('<header>'), explanation: expect.stringContaining('one possible complete solution') },
+    });
+    expect(russianPractice).toMatchObject({
+      type: 'codingExercise',
+      solution: { code: expect.stringContaining('<header>'), explanation: expect.stringContaining('один из возможных полных вариантов') },
+    });
   });
 
   it('rejects a single-choice question with two correct answers', () => {
@@ -429,12 +439,12 @@ describe('React forms and validation lesson translation', () => {
     expect(englishReactForms.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianReactForms.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishReactForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
+    expect(englishReactForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
     expect(russianReactForms.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
   it('keeps form input semantics, accessible errors, and async submit states in both locales', () => {
     for (const lesson of [englishReactForms, russianReactForms]) {
-      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
+      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
       const uncontrolled = lesson.blocks.find((block) => block.id === 'uncontrolled-example');
       expect(uncontrolled?.type).toBe('code');
       if (uncontrolled?.type !== 'code') return;
@@ -1425,7 +1435,7 @@ describe('HTML reference source coverage', () => {
   it('covers text semantics, links, metadata, and global attributes in both locales', () => {
     expect(lessonTranslationSchema.safeParse(englishLesson).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianLesson).success).toBe(true);
-    expect(englishLesson.version).toBe(6);
+    expect(englishLesson.version).toBe(7);
     expect(englishLesson.blocks).toHaveLength(50);
     expect(englishLesson.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianLesson.blocks.map(({ id, type }) => ({ id, type })),
@@ -1461,6 +1471,39 @@ describe('HTML reference source coverage', () => {
       if (refs?.type === 'references') {
         expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a')).toBe(true);
+      }
+    }
+  });
+});
+
+describe('React forms cross-field validation source coverage', () => {
+  it('revalidates dependent fields and keeps accessible errors in sync', () => {
+    expect(lessonTranslationSchema.safeParse(englishReactForms).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianReactForms).success).toBe(true);
+    expect(englishReactForms.version).toBe(3);
+    expect(englishReactForms.blocks).toHaveLength(52);
+    expect(englishReactForms.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianReactForms.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    for (const lesson of [englishReactForms, russianReactForms]) {
+      const walkthrough = lesson.blocks.find((block) => block.id === 'cross-field-validation-walkthrough');
+      expect(walkthrough?.type).toBe('codeWalkthrough');
+      if (walkthrough?.type !== 'codeWalkthrough') return;
+      const lineCount = walkthrough.code.split('\n').length;
+      expect(walkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      expect(walkthrough.code).toContain('confirmPassword !== values.password');
+      expect(walkthrough.code).toContain('aria-invalid');
+      expect(walkthrough.code).toContain('aria-describedby');
+      const check = lesson.blocks.find((block) => block.id === 'cross-field-validation-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') return;
+      expect(check.options.filter((option) => option.correct)).toHaveLength(1);
+      expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      const registration = lesson.blocks.find((block) => block.id === 'practice-registration-form');
+      expect(registration?.type).toBe('codingExercise');
+      if (registration?.type === 'codingExercise') {
+        expect(registration.instructions.some((item) => item.includes('matching passwords') || item.includes('совпадение паролей'))).toBe(true);
+        expect(registration.successCriteria.some((item) => item.toLowerCase().includes('confirmation') || item.toLowerCase().includes('подтверждение'))).toBe(true);
       }
     }
   });

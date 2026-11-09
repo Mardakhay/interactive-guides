@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Clock3, Languages, RotateCcw } from 'lucide-react';
 import { getAdjacentStructuredLessons, getBootcampCurriculum, getStructuredLesson, getWeekForLesson, getSupplementaryTrackForLesson, SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
 import type { LessonTranslation } from '@/content/schemas/lessonContent';
 import { StructuredLessonRenderer } from '@/features/structured-lesson/StructuredLessonRenderer';
 import { useProgressStore } from '@/features/progress';
+import { useStructuredLearningStore } from '@/features/structured-lesson/store';
+
+const EMPTY_SECTION_IDS: string[] = [];
 
 function isSupportedLocale(value: string | undefined): value is SupportedLocale {
   return SUPPORTED_LOCALES.some((locale) => locale === value);
@@ -12,6 +15,8 @@ function isSupportedLocale(value: string | undefined): value is SupportedLocale 
 
 export default function StructuredLessonPage() {
   const { locale: localeParam, lessonId } = useParams<{ locale: string; lessonId: string }>();
+  const readingProgressRoot = useRef<HTMLDivElement | null>(null);
+  const [readingProgress, setReadingProgress] = useState(0);
   const isLocaleSupported = isSupportedLocale(localeParam);
   const locale: SupportedLocale = isLocaleSupported ? localeParam : 'en';
   const requestKey = `${localeParam ?? ''}:${lessonId ?? ''}`;
@@ -41,6 +46,32 @@ export default function StructuredLessonPage() {
     return () => { active = false; };
   }, [isLocaleSupported, lessonId, locale, requestKey]);
 
+  useEffect(() => {
+    const root = readingProgressRoot.current;
+    if (!root) return;
+
+    const updateProgress = () => {
+      const { top, height } = root.getBoundingClientRect();
+      const scrollableDistance = height - window.innerHeight;
+      const nextProgress = scrollableDistance <= 0
+        ? 100
+        : Math.round((Math.min(scrollableDistance, Math.max(0, -top)) / scrollableDistance) * 100);
+      setReadingProgress((current) => current === nextProgress ? current : nextProgress);
+    };
+
+    updateProgress();
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    window.addEventListener('resize', updateProgress);
+    const resizeObserver = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(updateProgress);
+    resizeObserver?.observe(root);
+
+    return () => {
+      window.removeEventListener('scroll', updateProgress);
+      window.removeEventListener('resize', updateProgress);
+      resizeObserver?.disconnect();
+    };
+  }, [lesson?.id]);
+
   const week = lesson ? getWeekForLesson(lesson.id, locale) : undefined;
   const supplementaryTrack = lesson && !week ? getSupplementaryTrackForLesson(lesson.id, locale) : undefined;
   const curriculum = getBootcampCurriculum(locale);
@@ -53,6 +84,12 @@ export default function StructuredLessonPage() {
   const progressStatus = useProgressStore((state) =>
     lessonId ? (state.lessons[lessonId]?.status ?? 'not-started') : 'not-started',
   );
+  const savedSectionIds = useStructuredLearningStore((state) =>
+    lessonId ? state.sectionProgress[lessonId]?.completedBlockIds : undefined,
+  );
+  const allQuizAttempts = useStructuredLearningStore((state) => state.quizAttempts);
+  const allCodeDrafts = useStructuredLearningStore((state) => state.codeDrafts);
+  const allPracticeChecklists = useStructuredLearningStore((state) => state.practiceChecklists);
 
   useEffect(() => {
     if (lesson) markLessonOpened(lesson.id);
@@ -74,6 +111,14 @@ export default function StructuredLessonPage() {
         review: 'Пилотный материал · проходит проверку',
         outcomes: 'После урока ты сможешь',
         outline: 'Содержание урока',
+        readingProgress: 'Прогресс чтения',
+        sectionsReadCount: 'Разделов отмечено прочитанными',
+        sectionsReadSummary: 'Отмечено прочитанными',
+        evidenceTitle: 'Учебные отметки',
+        evidenceNote: 'Эти счётчики отражают действия, а не освоение темы. Ответы можно отправлять повторно; критерии практики отмечаются самим учеником, а черновики автоматически не проверяются.',
+        checksSubmitted: 'Отправлено проверок знаний',
+        practiceReviewed: 'Критерии практики отмечены',
+        draftsSaved: 'Сохранено черновиков',
         statusNotStarted: 'Не начат',
         statusStarted: 'В процессе',
         statusCompleted: 'Отмечен завершённым',
@@ -96,6 +141,14 @@ export default function StructuredLessonPage() {
         review: 'Pilot content · under review',
         outcomes: 'By the end of this lesson, you will be able to',
         outline: 'Lesson outline',
+        readingProgress: 'Reading progress',
+        sectionsReadCount: 'Sections marked read',
+        sectionsReadSummary: 'Marked read',
+        evidenceTitle: 'Learning signals',
+        evidenceNote: 'These counts describe activity, not mastery. Knowledge checks can be retried; practice criteria are self-reported, and saved drafts are not automatically graded.',
+        checksSubmitted: 'Knowledge checks submitted',
+        practiceReviewed: 'Practice criteria self-reviewed',
+        draftsSaved: 'Exercise drafts saved',
         statusNotStarted: 'Not started',
         statusStarted: 'In progress',
         statusCompleted: 'Marked complete',
@@ -154,12 +207,27 @@ export default function StructuredLessonPage() {
     );
   }
 
+  const knowledgeChecks = lesson.blocks.filter((block) => block.type === 'knowledgeCheck');
+  const codingExercises = lesson.blocks.filter((block) => block.type === 'codingExercise');
+  const knowledgeChecksSubmitted = knowledgeChecks.filter((block) =>
+    (allQuizAttempts[`${lesson.id}::${block.id}`]?.length ?? 0) > 0,
+  ).length;
+  const practiceCriteriaTotal = codingExercises.reduce((total, block) => total + block.successCriteria.length, 0);
+  const practiceCriteriaReviewed = codingExercises.reduce((total, block) => {
+    const checked = allPracticeChecklists[`${lesson.id}::${block.id}`]?.checkedCriteria ?? [];
+    return total + new Set(checked.filter((index) => Number.isInteger(index) && index >= 0 && index < block.successCriteria.length)).size;
+  }, 0);
+  const draftsSaved = codingExercises.filter((block) => allCodeDrafts[`${lesson.id}::${block.id}`] !== undefined).length;
   const otherLocale: SupportedLocale = locale === 'en' ? 'ru' : 'en';
   const outline = lesson.blocks.filter((block) => block.type === 'heading');
+  const completedSectionIds = savedSectionIds ?? EMPTY_SECTION_IDS;
   const statusLabel = progressStatus === 'completed' ? copy.statusCompleted : progressStatus === 'not-started' ? copy.statusNotStarted : copy.statusStarted;
 
   return (
-    <div className="mx-auto w-full max-w-[1500px] px-4 pb-16 pt-6 sm:px-6 lg:px-8">
+    <div ref={readingProgressRoot} data-structured-lesson-page className="mx-auto w-full max-w-[1500px] px-4 pb-16 pt-6 sm:px-6 lg:px-8">
+      <div role="progressbar" aria-label={copy.readingProgress} aria-valuemin={0} aria-valuemax={100} aria-valuenow={readingProgress} className="pointer-events-none fixed inset-x-0 top-16 z-10 h-1 bg-neutral-200/80">
+        <div aria-hidden="true" className="h-full bg-primary-600 transition-[width] duration-100" style={{ width: `${readingProgress}%` }} />
+      </div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <Link to="/courses" className="inline-flex min-h-10 items-center gap-2 rounded-xl px-2 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-950">
           <ArrowLeft className="h-4 w-4" />
@@ -202,6 +270,25 @@ export default function StructuredLessonPage() {
         </ul>
       </section>
 
+      <section className="mt-6 rounded-2xl border border-neutral-200 bg-white p-5 shadow-subtle sm:p-6" aria-labelledby="learning-signals-heading">
+        <h2 id="learning-signals-heading" className="text-lg font-semibold text-neutral-950">{copy.evidenceTitle}</h2>
+        <p className="mt-2 max-w-4xl text-sm leading-6 text-neutral-600">{copy.evidenceNote}</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div role="group" aria-label={copy.checksSubmitted} className="rounded-xl bg-neutral-50 p-3">
+            <p className="text-xs leading-5 text-neutral-600">{copy.checksSubmitted}</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-neutral-950">{knowledgeChecksSubmitted} / {knowledgeChecks.length}</p>
+          </div>
+          <div role="group" aria-label={copy.practiceReviewed} className="rounded-xl bg-neutral-50 p-3">
+            <p className="text-xs leading-5 text-neutral-600">{copy.practiceReviewed}</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-neutral-950">{practiceCriteriaReviewed} / {practiceCriteriaTotal}</p>
+          </div>
+          <div role="group" aria-label={copy.draftsSaved} className="rounded-xl bg-neutral-50 p-3">
+            <p className="text-xs leading-5 text-neutral-600">{copy.draftsSaved}</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-neutral-950">{draftsSaved} / {codingExercises.length}</p>
+          </div>
+        </div>
+      </section>
+
       <div className="mt-8 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_15rem]">
         <div className="min-w-0 rounded-2xl border border-neutral-200 bg-white p-4 shadow-subtle sm:p-7 lg:p-9">
           
@@ -224,13 +311,13 @@ export default function StructuredLessonPage() {
           <details className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-subtle lg:hidden">
             <summary className="cursor-pointer list-none text-sm font-semibold text-neutral-900">{copy.outline}</summary>
             <nav aria-label={copy.outline} className="mt-3">
-              <OutlineLinks outline={outline} />
+              <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} />
             </nav>
           </details>
           <div className="hidden rounded-2xl border border-neutral-200 bg-white p-4 shadow-subtle lg:block">
             <h2 className="text-sm font-semibold text-neutral-900">{copy.outline}</h2>
             <nav aria-label={copy.outline} className="mt-3">
-              <OutlineLinks outline={outline} />
+              <OutlineLinks outline={outline} completedSectionIds={completedSectionIds} sectionsReadLabel={copy.sectionsReadCount} sectionsReadSummary={copy.sectionsReadSummary} />
             </nav>
           </div>
           {week && (
@@ -296,16 +383,60 @@ export default function StructuredLessonPage() {
   );
 }
 
-function OutlineLinks({ outline }: { outline: Array<{ id: string; text: string }> }) {
+function OutlineLinks({
+  outline,
+  completedSectionIds,
+  sectionsReadLabel,
+  sectionsReadSummary,
+}: {
+  outline: Array<{ id: string; text: string; level: 2 | 3 | 4 }>;
+  completedSectionIds: string[];
+  sectionsReadLabel: string;
+  sectionsReadSummary: string;
+}) {
+  const sections = outline.filter((heading) => heading.level === 2);
+  const sectionsRead = sections.filter((heading) => completedSectionIds.includes(heading.id)).length;
+
   return (
-    <ul className="space-y-1.5">
-      {outline.map((heading) => (
-        <li key={heading.id}>
-          <a href={`#${heading.id}`} className="block rounded-lg px-2 py-1.5 text-sm leading-5 text-neutral-600 transition hover:bg-neutral-50 hover:text-primary-700">
-            {heading.text}
-          </a>
-        </li>
-      ))}
-    </ul>
+    <>
+      {sections.length > 0 && (
+        <div className="mb-3 rounded-lg bg-neutral-50 px-3 py-2">
+          <div className="mb-1.5 flex items-center justify-between gap-2 text-xs text-neutral-600">
+            <span>{sectionsReadSummary}</span>
+            <span className="font-semibold tabular-nums">{sectionsRead}/{sections.length}</span>
+          </div>
+          <div
+            role="progressbar"
+            aria-label={sectionsReadLabel}
+            aria-valuemin={0}
+            aria-valuemax={sections.length}
+            aria-valuenow={sectionsRead}
+            className="h-1.5 overflow-hidden rounded-full bg-neutral-200"
+          >
+            <div
+              aria-hidden="true"
+              className="h-full rounded-full bg-emerald-600 transition-[width] duration-150"
+              style={{ width: `${(sectionsRead / sections.length) * 100}%` }}
+            />
+          </div>
+        </div>
+      )}
+      <ul className="space-y-1.5">
+        {outline.map((heading) => {
+          const isRead = heading.level === 2 && completedSectionIds.includes(heading.id);
+          return (
+            <li key={heading.id}>
+              <a
+                href={`#${heading.id}`}
+                className={`flex items-start gap-2 rounded-lg px-2 py-1.5 text-sm leading-5 transition hover:bg-neutral-50 hover:text-primary-700 ${isRead ? 'text-emerald-800' : 'text-neutral-600'}`}
+              >
+                <span className="min-w-0 flex-1">{heading.text}</span>
+                {isRead && <Check className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </>
   );
 }

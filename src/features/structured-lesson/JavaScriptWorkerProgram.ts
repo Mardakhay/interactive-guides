@@ -7,9 +7,27 @@ function workerMain() {
   };
   const protocol = 'interactive-guides-worker-v1';
   const maxOutputLength = 2_000;
+  const maxOutputMessages = 40;
   const nativePostMessage = scope.postMessage.bind(scope);
+  let outputMessages = 0;
+  let outputLimitNoticeSent = false;
 
   const send = (type: string, kind: string, text: string) => {
+    if (type === 'output') {
+      if (outputMessages >= maxOutputMessages) {
+        if (!outputLimitNoticeSent) {
+          outputLimitNoticeSent = true;
+          nativePostMessage({
+            protocol,
+            type: 'output',
+            kind: 'system',
+            text: '[Further output omitted to keep the console readable.]',
+          });
+        }
+        return;
+      }
+      outputMessages += 1;
+    }
     nativePostMessage({ protocol, type, kind, text: String(text).slice(0, maxOutputLength) });
   };
 

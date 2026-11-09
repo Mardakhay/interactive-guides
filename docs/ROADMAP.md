@@ -33,9 +33,14 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 
 ## Phase 3 — Structured lesson reader
 - [x] Build typed React renderers for the supported structured content-block schema.
-- [ ] Add section table of contents, reading progress and accessible code blocks.
+- [x] Provide lesson-outline navigation and a localized, scroll-driven reading-progress indicator with accessible progressbar semantics.
+- [x] Make code samples keyboard-focusable, labelled with their language/caption, and announce copy success/failure through an accessible status.
+- [ ] Verify reading progress and code-sample interaction with a screen reader and real desktop/mobile browsers.
 - [x] Implement knowledge-check feedback per answer for the supported question schema.
-- [ ] Implement practice task UX, attempt capture and hint/solution policies.
+- [x] Provide coding-practice scaffolding, locally persisted drafts/checklists, knowledge-check attempt history, hint toggles, and a script-disabled HTML preview; document JavaScript Worker and DOM limitations.
+- [x] Persist self-attested section-read markers separately from lesson completion; do not infer mastery from reading progress.
+- [x] Add an optional authored-example-solution field and explicit reveal/collapse UI. Solutions stay hidden until requested and are labelled as examples, not the only valid implementation; the HTML “About Me” pilot has bilingual authored solutions.
+- [ ] Extend optional solutions selectively after lesson-specific editorial review and verify disclosure behavior with assistive technology.
 - [ ] Gate “mastered” status on required practice evidence where specified.
 - Acceptance: lesson pages render without independent HTML documents; exercises remain testable and accessible.
 - Suggested commits:
@@ -485,3 +490,51 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Verify that a read failure while snapshotting pre-restore storage aborts before any writes/removals and preserves every raw key.
 - Exact-head CI passed on `b9f500ee8509a986c12b0babd25a2c9947183a90` (run [40498940471](https://github.com/Mardakhay/interactive-guides/actions/runs/40498940471)).
 - [ ] Actual desktop/mobile browser tests for storage privacy/quota and native file picker/download remain open. Storage API mocks do not close these acceptance items.
+
+
+## Lazy lesson bundle and regression budget — 2026-10-27
+
+- [x] Replace static imports of all structured lesson JSON bodies with a lightweight bilingual metadata manifest and on-demand dynamic imports.
+- [x] Convert the structured lesson page to async load states and update repository/renderer tests for lazy imports.
+- [x] Verify exact-head CI on `55644ccf50f14bcaab796bd6058b25297b621d16` ([run 40504186937](https://github.com/Mardakhay/interactive-guides/actions/runs/40504186937)); 181/181 tests passed.
+- [x] Measure production output: repository chunk fell from 2,363.77 kB / 784.88 kB gzip to 54.26 kB / 17.15 kB gzip (about 97.8% lower gzip size). Entry chunk is 280.15 kB / 92.89 kB gzip.
+- [x] Add a CI-enforced bundle budget for entry/repository chunks and verify it in exact-head CI (run [40506040390](https://github.com/Mardakhay/interactive-guides/actions/runs/40506040390)); entry 280.15 kB raw / 92.90 kB gzip and repository 54.26 kB / 17.15 kB gzip pass.
+- [ ] Execute W-03 on real supported browsers/devices: verify revisiting an online-loaded lesson offline and the visible failure for a never-visited lesson. Lazy chunks are runtime-cached after first fetch, not precached.
+
+
+## Dependency audit triage — 2026-10-27
+
+- [x] Expose detailed `npm audit` findings in CI without making the existing known vulnerabilities silently disappear or breaking the current delivery pipeline before triage.
+- [x] Read the latest exact-head CI audit output and record direct/transitive status, affected ranges and fix targets in `CURRENT_STATE.md`; dependency remediation remains open.
+- [x] Apply compatible tooling and router updates with a regenerated `package-lock.json`; controlled CI passed lint, typecheck, all 182 tests, production build and bundle budgets.
+- [x] Reassess the dependency graph: current `npm audit` reports 0 findings. Keep the audit diagnostic in CI and re-evaluate future advisories against the installed lockfile.
+
+
+## Security dependency triage — 2026-10-27
+
+- [x] Add a non-blocking CI report of detailed npm audit advisories.
+- [x] Update direct Zod to 4.6.7 within major version 4 to address GHSA-mrhx-c7xc-m3w5 (`<4.6.6` affected; `4.6.6` patched).
+- [x] Verify Zod 4.6.7 on exact-head CI [run 40506040390](https://github.com/Mardakhay/interactive-guides/actions/runs/40506040390); audit report fell from 12 to 11 findings and no longer lists Zod.
+- [x] Upgrade Vite to 8.3.5, `@vitejs/plugin-react` to 6.1.2 and Vitest to 4.1.12; CI runs under Node 22 and validates build/test compatibility.
+- [x] Upgrade React Router DOM to 7.18.0, align the legacy ecosystem lesson and bilingual SPA routing lesson to v7, and add a package/source compatibility regression test.
+
+
+## Dependency-refresh validation — 2026-10-27
+
+- Upgraded the top-level toolchain/router to `vite@8.3.5`, `@vitejs/plugin-react@6.1.2`, `vitest@4.1.12`, and `react-router-dom@7.18.0`; kept React 18 and Zod 4.6.7.
+- Controlled migration CI [run #40536336285](https://github.com/Mardakhay/interactive-guides/actions/runs/40536336285) passed install, lint, typecheck, 182 tests/30 files, production build and the bundle-budget script; `npm audit` reports 0 findings for the tested graph. The generated lockfile is committed as `59432ad63d24d2ab0e37267091ce4de2f59a0d69`.
+- Entry bundle is 211.08 kB raw / 68.05 kB gzip and lesson repository is 61.22 kB raw / 16.81 kB gzip; all 125 JS chunks pass their limits. CI uses Node 22 and pinned npm 11.21.1.
+- The one-time lockfile-writing helper is removed in the cleanup commit and normal PR CI will verify the final workflow. Native browser/device acceptance, Notion formal verification and JSON-only learner-route cutover remain open.
+
+## Legacy route and learner-state cutover gate — 2026-10-27
+
+- The classic catalog has 25 IDs; the structured curriculum/manifest has 44 different IDs. They are distinct namespaces, not direct aliases.
+- Progress, bookmarks and notes are maps keyed by `lessonId`. A one-to-many topic mapping is insufficient by itself: decide whether to migrate status/bookmarks/notes to one target, split notes, retain legacy IDs or keep the old route. Do not silently clone or discard learner state.
+- A new loader regression test requires every catalog entry to resolve either non-empty embedded content or an existing local HTML fallback. It protects route renderability but is not content-equivalence certification.
+- Before cutover, produce a reviewed crosswalk for all legacy IDs, test preservation/migration for learner-data stores, and explicitly retain the source route for items whose coverage remains partial. Supabase stays behind this gate.
+
+## Candidate crosswalk checkpoint — 2026-10-27
+
+- [x] Produce a reviewable candidate map for all 25 classic catalog IDs in [LEGACY_ROUTE_CUTOVER_MATRIX.md](./LEGACY_ROUTE_CUTOVER_MATRIX.md).
+- [ ] Review every candidate against actual EN/RU target content, exercises/answers and unresolved source interactions.
+- [ ] Specify and test per-store learner-state migration or explicit legacy-record retention before redirect; do not use topic overlap as an identity mapping.

@@ -1,7 +1,7 @@
 {
   "id": "react.forms-validation",
   "locale": "ru",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-23",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "Формы React, валидация и доступные ошибки",
   "description": "Создавай удобные формы в React, различай controlled/uncontrolled inputs, проверяй данные с сохранением доступности и понимай, когда нужна библиотека форм.",
-  "estimatedMinutes": 90,
+  "estimatedMinutes": 100,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -26,7 +26,8 @@
     "Создать форму регистрации, которая обрабатывает ввод, валидацию, успех и серверные ошибки.",
     "Выбирать момент валидации (onChange, onBlur или onSubmit).",
     "Использовать типизированный объект и обработчик по name для формы с несколькими полями.",
-    "Применять register, handleSubmit, ошибки и pending-state в React Hook Form, понимая ограничения библиотеки."
+    "Применять register, handleSubmit, ошибки и pending-state в React Hook Form, понимая ограничения библиотеки.",
+    "Реализовывать и повторно выполнять межполевую валидацию без устаревших доступных ошибок."
   ],
   "tags": [
     "react",
@@ -218,6 +219,76 @@
         "onSubmit — проверка при отправке. Просто реализовать в короткой форме, но ошибки появятся позже.",
         "После первого взаимодействия можно повторно проверять поле при изменениях. Не показывай все required-ошибки при первом рендере."
       ]
+    },
+    {
+      "id": "cross-field-validation-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Проверяй взаимосвязи между полями"
+    },
+    {
+      "id": "cross-field-validation-body",
+      "type": "paragraph",
+      "text": "Некоторые правила зависят от нескольких значений: например, подтверждение пароля или дата окончания позже даты начала. Держи такие правила в функции валидации, которая получает текущие значения формы и возвращает ошибки по полям. Повторяй зависимые проверки при изменении любого связанного значения; очищай или заменяй устаревшие ошибки. Совпадение на клиенте — лишь обратная связь: сервер всё равно должен применять собственные правила аккаунта и бизнес-ограничения."
+    },
+    {
+      "id": "cross-field-validation-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type RegistrationValues = {\n  email: string;\n  password: string;\n  confirmPassword: string;\n};\n\ntype FieldErrors = Partial<Record<keyof RegistrationValues, string>>;\n\nfunction validateRegistration(values: RegistrationValues): FieldErrors {\n  const errors: FieldErrors = {};\n  if (!values.email.includes(\"@\")) {\n    errors.email = \"Enter a valid email address.\";\n  }\n  if (values.password.length < 8) {\n    errors.password = \"Use at least eight characters.\";\n  }\n  if (values.confirmPassword !== values.password) {\n    errors.confirmPassword = \"Passwords do not match.\";\n  }\n  return errors;\n}\n\n// In the form, associate each message with its input:\n<input id=\"confirmPassword\" aria-invalid={Boolean(errors.confirmPassword)}\n  aria-describedby={errors.confirmPassword ? \"confirmPassword-error\" : undefined} />\n{errors.confirmPassword && <p id=\"confirmPassword-error\">{errors.confirmPassword}</p>}",
+      "steps": [
+        {
+          "title": "Опиши контракт всех значений",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "Валидатор получает полный типизированный снимок. Для проверки взаимосвязи нужны оба значения, а не только поле, которое сейчас в фокусе."
+        },
+        {
+          "title": "Сформируй ошибки, привязанные к полям",
+          "lineStart": 9,
+          "lineEnd": 20,
+          "explanation": "Функция возвращает сообщения, а не меняет React state, поэтому её можно тестировать отдельно. Пример показывает формат, минимальную длину и подтверждение; правила пароля в реальном продукте должны соответствовать его политике."
+        },
+        {
+          "title": "Свяжи сообщение с неверным полем",
+          "lineStart": 22,
+          "lineEnd": 25,
+          "explanation": "`aria-invalid` объявляет неверное состояние, а `aria-describedby` указывает на отрисованное сообщение. В полной форме используй тот же паттерн для каждого поля и обеспечь уникальность ID."
+        }
+      ]
+    },
+    {
+      "id": "cross-field-validation-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Пользователь меняет `password` после того, как `confirmPassword` уже прошёл проверку. Что должна сделать форма?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Повторно проверить взаимосвязь и обновить или очистить ошибку подтверждения",
+          "correct": true,
+          "feedback": "Валидность подтверждения зависит от обоих текущих значений, поэтому изменение любого из них может сделать прошлый результат устаревшим."
+        },
+        {
+          "id": "b",
+          "text": "Оставить прежний результат, потому что confirmPassword не менялся",
+          "correct": false,
+          "feedback": "Правило зависит от двух полей, поэтому прежнее значение подтверждения может стать неверным после изменения пароля."
+        },
+        {
+          "id": "c",
+          "text": "Считать совпадение на клиенте доказательством корректности данных для сервера",
+          "correct": false,
+          "feedback": "Клиентские проверки можно обойти; они не подтверждают авторизацию или серверную валидность."
+        },
+        {
+          "id": "d",
+          "text": "Удалить текст ошибки, но навсегда оставить aria-invalid=true",
+          "correct": false,
+          "feedback": "Состояние ошибки и доступное описание должны отражать текущий результат проверки, а не оставаться устаревшими."
+        }
+      ],
+      "explanation": "Проверка взаимосвязи зависит от текущих значений всех связанных полей. Обновляй видимую ошибку и её доступную связь; проверки безопасности повторяй на сервере."
     },
     {
       "id": "accessible-errors",

@@ -1,17 +1,77 @@
 # Session Handoff
 
+**Last updated:** 2026-10-28  
+**Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
+**Base branch:** `main`  
+**Working branch created:** `feat/learning-platform-foundation`
+
+## Current continuation — verified practice disclosure and checklist — 2026-10-28
+
+- Latest verified HEAD: `88ac1164925570c63376a55676b8e613d867b21a`; exact-head GitHub Actions [run #40640306652](https://github.com/Mardakhay/interactive-guides/actions/runs/40640306652) passed `npm ci`, lint, typecheck, all tests and production build/bundle-budget checks.
+- Coding exercises support an optional bilingual `solution` object with code and explanation. The HTML document-structure pilot is version 7 in both locales (50 aligned blocks); “About Me” solution is hidden by default, explicitly revealed/collapsed by the learner, and labelled as one valid example.
+- Regression tests cover solution default-hidden/reveal/collapse behavior, rendered explanation/code, EN/RU labels, hint reveal/collapse, and persistence/toggle of practice self-review criteria.
+- The outline's H2 read markers and section-read count are still self-attested state. Checklist ticks are also self-review only, not code validation. The solution button is UX disclosure, not a security boundary: all lesson JSON is client-accessible and must not contain secrets/private grading data.
+- Next: design an evidence summary that distinguishes read markers, quiz attempts and practice self-review without automatically asserting mastery. Keep mastery status gated on an explicit product policy and objective evidence; screen-reader/browser acceptance, source parity, legacy route state migration and device-level backup/PWA tests remain open. Supabase remains gated.
+
+## Previous continuation — bilingual example-solution policy (superseded) — 2026-10-28
+
+- Latest verified HEAD: `42739da06df15c8a23763f9f6947a3b222de84dc`; exact-head GitHub Actions [run #40640037346](https://github.com/Mardakhay/interactive-guides/actions/runs/40640037346) passed `npm ci`, lint, typecheck, all tests and the production build/bundle-budget check.
+- The coding-exercise schema now supports optional `solution: { code, explanation }`. The bilingual `html.document-structure` lesson is version 7 (50 aligned blocks); the `practice-about-me` exercise has a complete EN/RU example solution. The reader keeps it hidden by default and only reveals it after explicit action, provides an explanation, and lets the learner hide it again.
+- Policy: authored solutions are optional and should be added selectively after lesson review. UI disclosure is not a security boundary because lesson JSON is shipped to the client; never put secrets or privileged answer/grading data in lesson JSON.
+- Recent verified reader work in this branch also includes accessible scroll progress, keyboard-focusable code samples and clipboard status, persistent self-attested H2 read markers, and a section-read count/check in the mobile/desktop outline.
+- Next: selectively review additional exercise blocks before authoring solutions, then continue mastery-evidence design. Keep “read”, “lesson complete”, “practice self-review” and “mastery” as separate claims. Actual screen-reader/browser testing, content-source parity and legacy-state migration remain open; do not start Supabase before approved reconciliation and RLS checks.
+
+## Previous continuation — persisted section-read practice (superseded) — 2026-10-28
+
+- Latest code/test HEAD: `f578b146674ade9758f8b92b170ed736fd96309b`. Exact-head GitHub Actions [run #40639322531](https://github.com/Mardakhay/interactive-guides/actions/runs/40639322531) passed `npm ci`, lint, typecheck, all tests and production build/bundle budget.
+- Structured lesson level-2 sections now have a localized “Mark read / Mark unread” self-attestation control. It uses the existing structured-learning v2 `sectionProgress` map keyed by stable lesson and section IDs. Tests verify the accessible state toggle, persistence, EN/RU labels and store behavior. This does not mark the lesson complete or assert mastery.
+- Code-sample accessibility and reading progress remain in the same verified base: localized scroll progress, keyboard focus for horizontally overflowing code, and accessible copy-result status.
+- Implemented practice foundations include draft persistence, knowledge-check attempt history, hint toggles, a script-disabled HTML preview and self-review criteria. Per-exercise authored-solution disclosure policy and any mastery threshold remain open.
+- Next: continue structured-reader/practice UX with a clear authored solution policy and evidence model, then update the source parity audit. Keep old routes until each legacy-to-structured mapping and learner-state retention decision is tested; do not start Supabase until the reconciliation and RLS gates are approved. No real-browser or screen-reader acceptance is claimed.
+
+## Previous continuation — structured reader accessibility (superseded) — 2026-10-28
+
+- Latest verified code/test HEAD: `269b88ce3722034888e03cf11934b854a0c2a7ef`; exact-head CI [run #40638940943](https://github.com/Mardakhay/interactive-guides/actions/runs/40638940943) passed `npm ci`, lint, typecheck, all tests and production build/bundle budget.
+- Added a localized scroll-driven reading-progress bar to `StructuredLessonPage`, with ARIA progressbar semantics and updates on scroll, resize and content resizing. Tests cover progress movement and English/Russian labels.
+- Improved `StructuredLessonRenderer` code samples: keyboard focus for horizontal scrolling, accessible group labels derived from language/caption, and a live status announcement for clipboard failure/success. Regression tests cover focusability, language labels and failed-copy feedback.
+- The prior Worker output cap remains included in this verified branch head; the lesson runner limits output to 40 messages plus one truncation notice.
+- No local checkout, actual browser/device or screen-reader session was run. Manual accessibility/viewport checks and the documented backup/PWA acceptance remain open.
+- Next priorities: continue practice UX and mastery evidence, then source-section parity in syllabus order. Keep legacy HTML routes until the old-to-new ID crosswalk and progress/bookmark/note/quiz disposition are reviewed and tested. Do not start Supabase auth/sync before reconciliation and RLS gates are cleared.
+
+## Previous continuation — worker output cap (superseded) — 2026-10-28
+
+- Current code change is present on `feat/learning-platform-foundation`: `src/features/structured-lesson/JavaScriptWorkerProgram.ts` caps console/result messages at 40 and sends at most one output-truncation notice. The regression test runs 100 `console.log` calls and expects 40 log messages, one notice and one finished message.
+- The feature branch contains this change in the diff against prior validated HEAD `c2a9aeafffe67d0f8bdfe10f1c148ae75ca3f541`; it does not update `main`. The correct final patch was confirmed with compare output: only these two source/test files differ from the prior HEAD.
+- Exact-head GitHub Actions run [#40637511313](https://github.com/Mardakhay/interactive-guides/actions/runs/40637511313) was queued/running at the time of this note on HEAD `ddc3f6c49a63dcc633842629ed354f946a98af92`. Wait for its result before calling the patch CI-verified. No local `npm ci`, lint, typecheck, test or build was run during this session.
+- Release gates remain unchanged: legacy catalog routes stay in place until content equivalency and learner-state migration/retention are explicitly reviewed; fetched Notion source pages remain `verification.state=unverified`; browser/device backup and PWA checks are manual and not recorded. Supabase/auth/sync must remain gated on approved reconciliation policy and direct RLS isolation tests.
+- Next priority after CI: continue source-parity migration in syllabus order or deliver section table of contents/reading progress/accessibility, while preserving the legacy routes and local-first data contracts.
+
+## Authoritative checkpoint — dependency migration — 2026-10-27
+
+- Dependency versions were refreshed on the feature branch: `react-router-dom@7.18.0`, `vite@8.3.5`, `@vitejs/plugin-react@6.1.2`, `vitest@4.1.12`; `zod@4.6.7` remains. CI uses Node 22 and npm `11.21.1` for lockfile consistency.
+- Controlled CI [run #40536336285](https://github.com/Mardakhay/interactive-guides/actions/runs/40536336285) passed `npm ci`, lint, typecheck, 182 tests/30 files, production build and bundle budgets after generating the same lockfile now committed as `59432ad63d24d2ab0e37267091ce4de2f59a0d69`. `npm audit` reported 0 findings on that graph.
+- Vite 8 build output: entry `211.08 kB raw / 68.05 kB gzip`; lesson repository `61.22 kB raw / 16.81 kB gzip`; all 125 JavaScript chunks pass the configured budgets. A config edit to `import.meta.dirname` removes Vite's `__dirname` native-loader warning.
+- The temporary lockfile-regeneration/write automation has been removed from CI. Ordinary read-only exact-head CI [run #40537074543](https://github.com/Mardakhay/interactive-guides/actions/runs/40537074543) passed on cleanup SHA `56f5786cb68395936c6ac0b29b5703b85f708b73`.
+- PR #1 remains a Draft against `main`; `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`. No browser/device acceptance is claimed.
+- Release gates remain: legacy learner routes have not been cut over to JSON-only routes, Notion pages fetched to date still report `verification.state=unverified`, and real-browser/device persistence/PWA checks remain manual. Supabase stays gated on content parity and the learner-route cutover.
+
+## Previous checkpoint — historical context
+
+# Session Handoff
+
 **Last updated:** 2026-10-27  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
 
-## Current checkpoint — 2026-10-27
+## Previous checkpoint — superseded — 2026-10-27
 
-- Feature head at start of this checkpoint: `cb24724b5b1c5317c24cf3adf6af5f40f944afda`; exact-head CI passed [40500504527](https://github.com/Mardakhay/interactive-guides/actions/runs/40500504527). `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
-- Latest implementation work adds pre-restore snapshot-read protection and stronger storage/backup failure-path tests; the test listener cleanup was also corrected to remove the exact registered callback in `afterEach`.
-- A manual smoke-test protocol now exists at [`BROWSER_SMOKE_TEST_CHECKLIST.md`](./BROWSER_SMOKE_TEST_CHECKLIST.md). It is a procedure, not evidence that a browser/device run was completed.
-- Current near-term priorities: verify CI for the current docs/status update, record manual Phase 5 browser/device results when a real environment is available, then continue the open source-claim parity and UI/reader acceptance. Do not start Supabase implementation before conflict/RLS/product gates are resolved.
+- Current feature head: `55644ccf50f14bcaab796bd6058b25297b621d16`; exact-head CI passed [40504186937](https://github.com/Mardakhay/interactive-guides/actions/runs/40504186937) (`npm ci`, lint, typecheck, 181 tests, production build). `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
+- The structured lesson repository now uses a lightweight bilingual static manifest and lazy JSON body imports. The repository chunk fell from 2,363.77 kB / 784.88 kB gzip to 54.26 kB / 17.15 kB gzip; the entry chunk is 280.15 kB / 92.89 kB gzip. Next change adds a build-time budget guard to stop the large repository chunk returning.
+- Lesson bodies are cached by the existing service worker on first successful same-origin asset request; they are not precached. W-03 must still confirm cached revisit offline and provide a clear limitation for a lesson never visited while online.
+- A manual smoke-test protocol exists at [`BROWSER_SMOKE_TEST_CHECKLIST.md`](./BROWSER_SMOKE_TEST_CHECKLIST.md); it is a procedure, not evidence of an actual browser/device run.
+- Open gates remain: actual browser/device persistence, backup and PWA acceptance; dependency audit triage; claim-by-claim source/Notion verification; full UI localization/accessibility review. Do not start Supabase implementation before conflict/RLS/product gates are resolved.
 ## Project goal
 
 Rebuild the existing Interactive Guides as a cohesive bilingual (English/Russian), mobile-friendly, PWA-ready learning platform based on:
@@ -882,3 +942,54 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - `backup.test.ts` simulates a SecurityError while collecting the pre-restore snapshot and verifies that no `setItem` or `removeItem` calls occur and every prior raw value remains unchanged.
 - Exact-head CI passed on `b9f500ee8509a986c12b0babd25a2c9947183a90`: [40498940471](https://github.com/Mardakhay/interactive-guides/actions/runs/40498940471).
 - Backup/restore failure paths now cover snapshot-read failure, write failure with successful rollback, legacy-key removal failure and rollback failure. Actual browser/device acceptance remains open.
+
+
+## Lazy lesson content and bundle-size checkpoint — 2026-10-27
+
+- `repository.ts` originally statically imported 44 bilingual JSON lesson pairs. The old production chunk was `repository-*.js` 2,363.77 kB minified / 784.88 kB gzip.
+- Added `src/content/lessonManifest.ts` with lightweight EN/RU metadata and changed complete lesson bodies to `import.meta.glob` dynamic imports. Curriculum cards and adjacent links use manifest metadata; opening a lesson loads and validates that body asynchronously. The page has localized loading/failure states and existing same-origin static-asset caching stores loaded chunks after first successful fetch.
+- Exact-head CI passed on `55644ccf50f14bcaab796bd6058b25297b621d16` ([run 40504186937](https://github.com/Mardakhay/interactive-guides/actions/runs/40504186937)); tests 181/181. New repository chunk is 54.26 kB / 17.15 kB gzip; entry is 280.15 kB / 92.89 kB gzip. Build budget enforcement is being added separately.
+- Offline acceptance still requires W-03: visit a lesson online, revisit that same lesson offline, and test a never-visited lesson offline. The latter is not precached and should fail through a visible loading error, not be described as available offline.
+
+
+## Dependency audit diagnostics — 2026-10-27
+
+- `npm ci` has consistently reported 12 audit findings (6 moderate, 4 high, 2 critical), but CI previously surfaced only the aggregate count. Added a non-blocking CI diagnostic that calls `npm audit --json` and prints each affected package, severity, advisory links, affected range and the npm-reported fix target.
+- This is visibility, not remediation: no dependency upgrades or lockfile changes were made in this step, no audit finding is considered resolved, and no `--force` update is planned without a compatibility review. Check the exact-head CI output, then patch the smallest compatible dependency set and rerun all tests/build.
+
+
+## Zod security patch — 2026-10-27
+
+- Bumped direct dependency `zod` from `^4.4.3` to `^4.6.7` and updated the matching lockfile package entry. GitHub-reviewed advisory GHSA-mrhx-c7xc-m3w5 marks versions `<4.6.6` affected and `4.6.6` patched; 4.6.7 is the newer same-major patch release.
+- Source: https://github.com/advisories/GHSA-mrhx-c7xc-m3w5 and https://github.com/colinhacks/zod/releases.
+- Remaining audit findings include Vite/Vitest tooling and React Router 6 routing; they need separate compatibility work rather than blind `npm audit fix --force`.
+
+
+## Exact-head status refresh — 2026-10-27
+
+- Current feature head: `213dd0db21491f4749d60d5668d841aaa3973a8e`; exact-head CI [40506040390](https://github.com/Mardakhay/interactive-guides/actions/runs/40506040390) passed npm ci, audit diagnostic, lint, typecheck, 181 tests, production build and bundle budget.
+- Bundle guard and direct Zod patch are verified. The audit report decreased from 12 to 11 findings; Zod 4.6.7 no longer appears. Current remaining count is 2 critical, 3 high and 6 moderate; Vite/Vitest/Router fixes need planned compatibility migrations.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains open Draft. No local checkout or real-browser/device acceptance is claimed.
+
+
+## Standard CI follow-up
+
+The lockfile-writing migration run was successful, but workflow changes and the config-loader warning fix are a separate commit. Confirm the ordinary pull-request CI run is green on the post-cleanup SHA before treating the latest branch head as final CI-verified. If any check fails, inspect the exact job log rather than relaxing dependency checks or bundle budgets.
+
+
+## React forms source parity — 2026-10-27
+
+- Fully reviewed `react-forms-tutorial.html`: controlled/uncontrolled approaches, native/custom validation, timing, RHF, server errors, ten quiz questions and five practice tasks.
+- `react.forms-validation` v3 adds cross-field password confirmation with field-keyed validation errors, `aria-invalid`/`aria-describedby`, and a knowledge check for stale dependent-field errors. Tests protect EN/RU parity and walkthrough line ranges.
+- The source's malformed password-length comparison is not copied. Controlled vs uncontrolled and RHF guidance remain contextual, not universal rules. HTML quiz/accordion interaction parity remains partial.
+
+## Legacy route/crosswalk safety checkpoint — 2026-10-27
+
+- The classic catalog contains 25 legacy IDs. A quick regex inventory initially missed `sec-001` because that prefix has three letters; direct source inspection confirmed the `frontend-auth.html` fallback is already registered. No speculative loader change was made.
+- Added a regression test iterating the entire catalog: each entry must resolve to a non-empty in-app body or a `/lessons/*.html` source that exists under `public/`. This guards new catalog entries against silently producing an empty lesson.
+- The 44 structured IDs do not reuse the legacy catalog IDs. Progress, bookmarks and notes are keyed by lesson ID, so route cutover without an explicit crosswalk and tested state-retention policy could orphan learner data. Before cutover, specify one-to-many destinations or keep-legacy dispositions for every legacy ID.
+- The new regression/test-doc commit requires exact-head CI; keep the legacy routes and source files until the content-parity and learner-state migration gates have evidence.
+
+## Legacy-route cutover matrix — 2026-10-27
+
+The new [legacy route cutover matrix](./LEGACY_ROUTE_CUTOVER_MATRIX.md) lists all 25 legacy IDs, HTML sources, provisional structured destinations and known parity gaps. It is intentionally a candidate map, not authorization to redirect any route. Progress/bookmark/note records are keyed by old lesson ID; mapping decisions and store migration tests remain open.

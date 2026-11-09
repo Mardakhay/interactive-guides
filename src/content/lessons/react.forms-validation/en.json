@@ -1,7 +1,7 @@
 {
   "id": "react.forms-validation",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-23",
@@ -10,7 +10,7 @@
   "order": 1,
   "title": "React Forms, Validation, and Accessible Errors",
   "description": "Build usable forms in React, distinguish controlled and uncontrolled inputs, validate data without losing accessibility, and understand when a form library is useful.",
-  "estimatedMinutes": 90,
+  "estimatedMinutes": 100,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -26,7 +26,8 @@
     "Build a registration form that handles input, validation, success, and server-error states.",
     "Choose when to validate a field (onChange, onBlur, or onSubmit).",
     "Use one typed object and a name-based handler for a multi-field form.",
-    "Use React Hook Form registration, submission, errors and pending state while understanding its limits."
+    "Use React Hook Form registration, submission, errors and pending state while understanding its limits.",
+    "Implement and retest cross-field validation without leaving stale accessible errors."
   ],
   "tags": [
     "react",
@@ -218,6 +219,76 @@
         "onSubmit — validate on submission. Simple for short forms, but feedback arrives later.",
         "After first interaction, revalidate as fields change if helpful. Avoid showing every required-field error on initial render."
       ]
+    },
+    {
+      "id": "cross-field-validation-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Validate relationships between fields"
+    },
+    {
+      "id": "cross-field-validation-body",
+      "type": "paragraph",
+      "text": "Some rules depend on more than one value, such as confirming a password or requiring an end date after a start date. Keep these rules in a validation function that receives the current form values and returns field-specific errors. Re-run dependent checks when either related value changes; clear or replace stale errors. A client-side match check is feedback only—the server must still enforce its own account and business rules."
+    },
+    {
+      "id": "cross-field-validation-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type RegistrationValues = {\n  email: string;\n  password: string;\n  confirmPassword: string;\n};\n\ntype FieldErrors = Partial<Record<keyof RegistrationValues, string>>;\n\nfunction validateRegistration(values: RegistrationValues): FieldErrors {\n  const errors: FieldErrors = {};\n  if (!values.email.includes(\"@\")) {\n    errors.email = \"Enter a valid email address.\";\n  }\n  if (values.password.length < 8) {\n    errors.password = \"Use at least eight characters.\";\n  }\n  if (values.confirmPassword !== values.password) {\n    errors.confirmPassword = \"Passwords do not match.\";\n  }\n  return errors;\n}\n\n// In the form, associate each message with its input:\n<input id=\"confirmPassword\" aria-invalid={Boolean(errors.confirmPassword)}\n  aria-describedby={errors.confirmPassword ? \"confirmPassword-error\" : undefined} />\n{errors.confirmPassword && <p id=\"confirmPassword-error\">{errors.confirmPassword}</p>}",
+      "steps": [
+        {
+          "title": "Describe the full value contract",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "The validator receives a complete typed snapshot. Cross-field checks need both values, not just the field that currently has focus."
+        },
+        {
+          "title": "Build a field-keyed error result",
+          "lineStart": 9,
+          "lineEnd": 20,
+          "explanation": "The function returns messages rather than mutating React state itself, so it can be tested independently. The example illustrates format, minimum length and a confirmation relationship; production password rules should follow the product's actual policy."
+        },
+        {
+          "title": "Connect the message to the invalid field",
+          "lineStart": 22,
+          "lineEnd": 25,
+          "explanation": "`aria-invalid` exposes the invalid state and `aria-describedby` points to the rendered message. In a full form, apply the same pattern to each relevant field and ensure IDs are unique."
+        }
+      ]
+    },
+    {
+      "id": "cross-field-validation-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A user changes `password` after `confirmPassword` was previously valid. What should a form do next?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Revalidate the relationship and update or clear the confirmation error",
+          "correct": true,
+          "feedback": "The validity of confirmation depends on both current values, so changing either value can make the previous result stale."
+        },
+        {
+          "id": "b",
+          "text": "Keep the previous result because confirmPassword itself did not change",
+          "correct": false,
+          "feedback": "The rule depends on two fields, so the unchanged confirmation value can become invalid when the password changes."
+        },
+        {
+          "id": "c",
+          "text": "Treat a client-side match as proof the server can trust the submitted account data",
+          "correct": false,
+          "feedback": "Client checks can be bypassed and do not establish authorization or server-side validity."
+        },
+        {
+          "id": "d",
+          "text": "Remove the error text and keep aria-invalid true permanently",
+          "correct": false,
+          "feedback": "Error state and its accessible description should reflect current validation results, not remain stale."
+        }
+      ],
+      "explanation": "Cross-field validation depends on the current values of every related field. Update both the visible error and its accessible relationship, and repeat security-sensitive validation on the server."
     },
     {
       "id": "accessible-errors",
