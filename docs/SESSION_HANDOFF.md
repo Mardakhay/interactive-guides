@@ -5,6 +5,34 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
+## Current continuation — PWA runtime-cache hardening — 2026-10-28
+
+- Latest verified code HEAD: `b5a0f8fbcac903eaea3d415b1698eadc659521d0`; exact-head GitHub Actions [run #40648789939](https://github.com/Mardakhay/interactive-guides/actions/runs/40648789939) passed `npm ci`, audit diagnostics, lint, typecheck, all tests, and production build.
+- Fixed an over-broad service-worker runtime cache rule: non-navigation requests must now be under `/assets/` before the extension allowlist is considered. This prevents arbitrary same-origin paths that happen to end in `.json`, `.js`, `.png` and similar extensions from being runtime-cached. Cache namespace bumped v5 → v6 so older entries are cleared during activation.
+- Added test protection for cache v6 and for path-scope check ordering. The existing offline model remains unchanged: app shell is precached, Vite chunks are cached after a successful online load, and an unvisited lesson is not guaranteed offline.
+- No real-browser/device acceptance has been performed; W-01 through W-05 remain manual release gates. Do not describe the application as device-tested or PWA release-ready based on CI.
+- Recent targeted content parity improvements remain recorded below/in the source audit. Legacy route mappings are still provisional; no lesson route cutover or learner-state migration has been performed. Notion pages remain `verification.state=unverified`, and Supabase is still gated by approved reconciliation policy and RLS isolation tests.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft. Next: continue review of runtime/offline edge cases and content parity, then run the browser/device checklist in a real supported environment.
+
+## Previous continuation — targeted EN/RU content parity (superseded) — 2026-10-28
+
+- Verified code HEAD: 7d07400922a0c6540c7f77e3776ce674fd5614c4. Exact-head GitHub Actions [run #40648289992](https://github.com/Mardakhay/interactive-guides/actions/runs/40648289992) passed npm ci, audit diagnostics, lint, typecheck, all 210 tests across 33 files, and production build/bundle budget.
+- Updated git.fundamentals EN/RU to v5 with a safe command quick reference (clone, branch create/list/delete, merge, diff/staged diff, fetch, pull --ff-only, push and revert) and a question distinguishing fetch from pull. The Russian workflow quiz prompt no longer contains English-only wording.
+- Updated git.workflow-ci EN/RU to v5 so its GitHub Actions YAML aligns with the actual repo workflow: Node 22, npm 11.21.1 matching the lockfile setup, permissions limited to contents read, clean install, lint/typecheck/tests/build, plus informational audit reporting. Regression tests assert these assumptions.
+- Updated html.document-structure EN/RU to v8 with an h1–h4 hierarchy walkthrough, nested section headings and aria-labelledby; updated html.forms-accessibility EN/RU to v3 with specialized input types and security caveats for accept, hidden values and server-side validation.
+- The failed interim CI runs were resolved: lesson-page tests now derive counters from authored lesson data, and the bilingual input-type assertion accepts both English and Russian wording. Latest exact-head run is green.
+- Scope remains focused, not a complete migration: legacy HTML interactions/simulators are not claimed to be replicated one-to-one. All 25 legacy route mappings remain provisional; no route cutover or learner-state migration has been performed. Notion source pages remain verification.state=unverified. Backup/PWA browser/device and screen-reader acceptance remains open.
+- main must remain b13af92576e8a73753a6e3f3d26765d9f9c44397; PR #1 stays Draft. Next: continue source-to-block review in syllabus order, then perform documented browser/device acceptance when a real test environment is available.
+
+## Previous continuation — structured JavaScript path (superseded) — 2026-10-28
+
+- Latest verified code/test HEAD: `49709e30ebc42be909e739a971d40b753fc011e5`; exact-head GitHub Actions [run #40646714866](https://github.com/Mardakhay/interactive-guides/actions/runs/40646714866) passed `npm ci`, audit diagnostics, lint, typecheck, all 209 tests / 33 files, and production build/bundle budget.
+- Added `structured-javascript-mastery` as a separate six-step route across core syntax, functions/objects, prototypes, runtime/memory, async requests, and DOM events. Locale-aware structured URLs and canonical IDs are tested. Existing `javascript-mastery` and all other classic paths remain unchanged.
+- Current route coverage now includes structured Frontend Foundations, React Developer, and JavaScript Mastery tracks. The detail page resolves either classic catalog IDs or structured manifest IDs, tracks each ID independently, keeps bookmark controls outside links, and displays an explicit unavailable state for invalid configured steps.
+- No legacy source-to-lesson equivalence is inferred from route availability. Git Reference / Git Workflow source-to-block parity, old-to-new learner-state retention, and full EN/RU editorial review remain open. Legacy route cutover remains blocked.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft. No local checkout or real-browser/screen-reader/device session was run.
+- Next: review the classic Git Reference source against `git.fundamentals` EN/RU, identify concrete coverage gaps, and add a small bilingual content batch with regression checks. Preserve all existing classic lesson routes/state until the crosswalk review explicitly approves a disposition. Supabase remains gated by an approved reconciliation policy and direct RLS isolation tests.
+
 ## Current continuation — structured learning paths — 2026-10-28
 
 - Latest verified code/test HEAD: `1f186fba06e4c37f32cd522d9a256adc344019ae`; exact-head GitHub Actions [run #40646447483](https://github.com/Mardakhay/interactive-guides/actions/runs/40646447483) passed `npm ci`, audit diagnostics, lint, typecheck, all 209 tests across 33 files, and production build/bundle budget.

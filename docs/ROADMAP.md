@@ -545,6 +545,8 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 
 
 ## Structured learning-path route coverage — 2026-10-28
+- [x] Add `structured-javascript-mastery` (core syntax, functions/objects, prototypes, runtime/memory, async requests, DOM events) with a Russian translation and exact-step integration tests. Classic `javascript-mastery` stays untouched.
+- [x] Verify exact-head CI on `49709e30ebc42be909e739a971d40b753fc011e5`: [run #40646714866](https://github.com/Mardakhay/interactive-guides/actions/runs/40646714866) passed install, lint, typecheck, 209 tests / 33 files and production build.
 
 - [x] Add separate structured Frontend Foundations and React paths using canonical lesson IDs; preserve the existing classic paths and their stored IDs.
 - [x] Resolve classic and structured lesson routes in the detail view, respecting the selected UI locale, existing progress records and bookmark store.
@@ -552,4 +554,25 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Add integration/regression tests for path progress, locale-aware links, bookmarks, localization and legacy route preservation. Exact-head CI passed on `1f186fba06e4c37f32cd522d9a256adc344019ae` in [run #40646447483](https://github.com/Mardakhay/interactive-guides/actions/runs/40646447483) (209 tests / 33 files plus production build).
 - [ ] Continue detailed source-to-lesson parity review in syllabus order. Separate IDs and successful route resolution do not establish content equivalence.
 - [ ] Complete real-browser, screen-reader and mobile acceptance; these checks are not covered by CI.
+
+
+
+## Targeted source-parity batches — 2026-10-28
+
+- [x] Add a bilingual Git command reference, including branch lifecycle, fetch vs pull, explicit protected-branch caution, and regression assertions.
+- [x] Align the bilingual GitHub Actions YAML example with the actual repository workflow: Node 22, npm 11.21.1, least-privilege contents-read permission, install/lint/typecheck/test/build checks.
+- [x] Add a bilingual semantic h1–h4 hierarchy example with aria-labelledby and a test for walkthrough line ranges.
+- [x] Cover specialized HTML input types and document security limits for file accept and hidden fields; add a knowledge check and official MDN references.
+- [x] Verify exact-head CI on 7d07400922a0c6540c7f77e3776ce674fd5614c4: [run #40648289992](https://github.com/Mardakhay/interactive-guides/actions/runs/40648289992), 210 tests / 33 files plus production build.
+- [ ] Continue topic-by-topic review of remaining source gaps, interactive behavior, and EN/RU editorial equivalence. This checkpoint does not complete Phase 4 or unblock route cutover.
+- [ ] Complete recorded real-browser/device and screen-reader acceptance; automated CI is not a substitute.
+
+
+
+## PWA runtime-cache scope hardening — 2026-10-28
+
+- [x] Restrict service-worker runtime caching to same-origin Vite assets under `/assets/`; extension-looking root routes are no longer runtime-cached.
+- [x] Bump the cache namespace to v6 and add a regression assertion that the path guard precedes extension matching.
+- [x] Verify exact-head CI on `b5a0f8fbcac903eaea3d415b1698eadc659521d0`: [run #40648789939](https://github.com/Mardakhay/interactive-guides/actions/runs/40648789939) passed install, lint, typecheck, tests and production build.
+- [ ] Verify install, offline revisit, never-visited lesson, deep-link reload and update acceptance in real supported browsers/devices and record the results.
 

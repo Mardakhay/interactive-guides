@@ -138,8 +138,35 @@ describe('HTML forms and accessibility lesson translation', () => {
     expect(englishForms.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianForms.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
     expect(russianForms.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    expect(englishForms.version).toBe(3);
+    expect(russianForms.version).toBe(3);
+    for (const lesson of [englishForms, russianForms]) {
+      expect(lesson.updatedAt).toBe('2026-10-28');
+      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+      const specialized = lesson.blocks.find((block) => block.id === 'specialized-input-types-list');
+      expect(specialized?.type).toBe('list');
+      if (specialized?.type !== 'list') return;
+      const guidance = specialized.items.join(' ').toLowerCase();
+      expect(guidance).toContain('date');
+      expect(guidance).toContain('time');
+      expect(guidance).toContain('range');
+      expect(guidance).toContain('accept=');
+      expect(guidance).toContain('hidden');
+      expect(guidance).toMatch(/server|сервер/);
+      const check = lesson.blocks.find((block) => block.id === 'file-accept-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') return;
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['filter']);
+      expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.id === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') {
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#enctype')).toBe(true);
+      }
+    }
   });
 });
 
@@ -178,8 +205,8 @@ describe('HTML document content and media', () => {
     expect(englishLesson.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianLesson.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishLesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
-    expect(englishLesson.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(7);
+    expect(englishLesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
+    expect(englishLesson.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(8);
     expect(englishLesson.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(englishLesson.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
@@ -294,10 +321,10 @@ describe('Git fundamentals lesson translation', () => {
     expect(englishGit.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGit.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
-    expect(englishGit.version).toBe(4);
-    expect(russianGit.version).toBe(4);
+    expect(englishGit.version).toBe(5);
+    expect(russianGit.version).toBe(5);
     const remoteExample = englishGit.blocks.find((block) => block.id === 'remote-example');
     expect(remoteExample?.type).toBe('codeWalkthrough');
     if (remoteExample?.type !== 'codeWalkthrough') return;
@@ -314,6 +341,39 @@ describe('Git fundamentals lesson translation', () => {
       if (hygiene?.type === 'list') {
         expect(hygiene.items.some((item) => item.toLowerCase().includes('markdown'))).toBe(true);
       }
+    }
+    for (const lesson of [englishGit, russianGit]) {
+      expect(lessonTranslationSchema.safeParse(lesson).success).toBe(true);
+      expect(lesson.updatedAt).toBe('2026-10-28');
+
+      const quickReference = lesson.blocks.find((block) => block.id === 'git-command-reference-list');
+      expect(quickReference?.type).toBe('list');
+      if (quickReference?.type !== 'list') return;
+      expect(quickReference.items.join(' ')).toContain('git clone <repository-url>');
+      expect(quickReference.items.join(' ')).toContain('git branch -d <branch>');
+      expect(quickReference.items.join(' ')).toContain('git merge <branch>');
+      expect(quickReference.items.join(' ')).toContain('git fetch origin');
+      expect(quickReference.items.join(' ')).toContain('git pull --ff-only');
+      expect(quickReference.items.join(' ')).toContain('git revert <commit>');
+
+      const fetchCheck = lesson.blocks.find((block) => block.id === 'fetch-pull-check');
+      expect(fetchCheck?.type).toBe('knowledgeCheck');
+      if (fetchCheck?.type !== 'knowledgeCheck') return;
+      expect(fetchCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['fetch']);
+      expect(fetchCheck.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+
+      const refs = lesson.blocks.find((block) => block.id === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') {
+        expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-fetch')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-pull')).toBe(true);
+      }
+    }
+    expect(russianGit.blocks.find((block) => block.id === 'knowledge-check-3')?.type).toBe('knowledgeCheck');
+    const russianWorkflowCheck = russianGit.blocks.find((block) => block.id === 'knowledge-check-3');
+    if (russianWorkflowCheck?.type === 'knowledgeCheck') {
+      expect(russianWorkflowCheck.prompt).toContain('Выбери');
+      expect(russianWorkflowCheck.prompt).not.toContain('Select all that apply');
     }
   });
 });
@@ -883,6 +943,22 @@ describe('Git workflow lesson translation', () => {
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
+    expect(englishGitWorkflow.version).toBe(5);
+    expect(russianGitWorkflow.version).toBe(5);
+    for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
+      const ciExample = lesson.blocks.find((block) => block.id === 'ci-example');
+      expect(ciExample?.type).toBe('code');
+      if (ciExample?.type !== 'code') return;
+      expect(ciExample.code).toContain('node-version: 22');
+      expect(ciExample.code).toContain('npm install --global npm@11.21.1');
+      expect(ciExample.code).toContain('permissions:');
+      expect(ciExample.code).toContain('contents: read');
+      expect(ciExample.code).toContain('continue-on-error: true');
+      expect(ciExample.code).toContain('npm run lint');
+      expect(ciExample.code).toContain('npm run typecheck');
+      expect(ciExample.code).toContain('npm test');
+      expect(ciExample.code).toContain('npm run build');
+    }
     expect(englishGitWorkflow.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
         'git-cd-body',
@@ -1435,8 +1511,8 @@ describe('HTML reference source coverage', () => {
   it('covers text semantics, links, metadata, and global attributes in both locales', () => {
     expect(lessonTranslationSchema.safeParse(englishLesson).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianLesson).success).toBe(true);
-    expect(englishLesson.version).toBe(7);
-    expect(englishLesson.blocks).toHaveLength(50);
+    expect(englishLesson.version).toBe(8);
+    expect(englishLesson.blocks).toHaveLength(54);
     expect(englishLesson.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianLesson.blocks.map(({ id, type }) => ({ id, type })),
     );
@@ -1460,6 +1536,20 @@ describe('HTML reference source coverage', () => {
       expect(linksWalk.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= linksLines)).toBe(true);
       expect(linksWalk.code).toContain('rel="noopener"');
       expect(linksWalk.code).toContain('property="og:title"');
+      const headingWalkthrough = lesson.blocks.find((block) => block.id === 'html-heading-hierarchy-walkthrough');
+      expect(headingWalkthrough?.type).toBe('codeWalkthrough');
+      if (headingWalkthrough?.type !== 'codeWalkthrough') return;
+      expect(headingWalkthrough.code).toContain('<h1>Account settings</h1>');
+      expect(headingWalkthrough.code).toContain('<h2 id="contact-heading">');
+      expect(headingWalkthrough.code).toContain('<h3 id="verification-heading">');
+      expect(headingWalkthrough.code).toContain('<h4>Before you continue</h4>');
+      const headingLineCount = headingWalkthrough.code.split('\n').length;
+      expect(headingWalkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= headingLineCount)).toBe(true);
+      const headingCheck = lesson.blocks.find((block) => block.id === 'html-heading-hierarchy-check');
+      expect(headingCheck?.type).toBe('knowledgeCheck');
+      if (headingCheck?.type !== 'knowledgeCheck') return;
+      expect(headingCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['structure']);
+
       const globals = lesson.blocks.find((block) => block.id === 'html-global-attributes');
       expect(globals?.type).toBe('list');
       if (globals?.type === 'list') {
