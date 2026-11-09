@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 const lessonLocaleSchema = z.enum(['en', 'ru']);
 const reviewStatusSchema = z.enum(['draft', 'review', 'published']);
+export type LessonPublicationStatus = z.infer<typeof reviewStatusSchema>;
 const difficultySchema = z.enum(['beginner', 'intermediate', 'advanced']);
 
 const blockBase = {
@@ -234,6 +235,10 @@ export const lessonTranslationSchema = z.object({
   tags: z.array(z.string().min(1)),
   blocks: z.array(lessonContentBlockSchema).min(1),
 }).superRefine((lesson, ctx) => {
+  if (lesson.status === 'published' && lesson.translationStatus === 'review-needed') {
+    ctx.addIssue({ code: 'custom', path: ['translationStatus'], message: 'A lesson with a review-needed translation cannot be published' });
+  }
+
   const hasCoreWeek = lesson.week !== undefined;
   const hasSupplementaryTrack = lesson.supplementaryTrackId !== undefined;
   if (hasCoreWeek === hasSupplementaryTrack) {

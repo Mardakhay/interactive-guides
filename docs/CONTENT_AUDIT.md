@@ -1,12 +1,12 @@
 # Structured Content Audit
 
-**Updated:** 2026-10-23  
+**Updated:** 2026-10-30  
 **Branch:** `feat/learning-platform-foundation`  
 **Scope:** the embedded, bilingual structured lesson catalog and curriculum registry.
 
 ## Inventory
 
-The content repository registers 26 core lesson IDs in English and Russian (52 locale files) across the 24-week bootcamp, plus 11 supplementary IDs in both locales (22 locale files). The supplements are kept outside the bootcamp weeks. The app parses registered translations and curriculum through Zod at import time and exposes them through the structured lesson reader.
+The content repository registers 27 core lesson IDs in English and Russian (54 locale files) across the 24-week bootcamp, plus 17 supplementary IDs in both locales (34 locale files). The supplements are kept outside the bootcamp weeks. The app parses registered translations and curriculum through Zod at import time and exposes them through the structured lesson reader.
 
 Core IDs: `web.internet-http`, `html.document-structure`, `html.forms-accessibility`, `css.fundamentals`, `css.flexbox-grid-responsive`, `js.basics-types-control-flow`, `js.functions-arrays-objects`, `js.dom-events`, `js.async-fetch`, `git.fundamentals`, `tooling.node-npm-vite`, `typescript.fundamentals`, `react.components-jsx-state`, `react.effects-lists-composition`, `react.router-spa`, `react.forms-validation`, `react.context-shared-state`, `react.api-custom-hooks`, `ui.design-systems`, `performance.accessibility`, `testing.react-testing-library`, `git.workflow-ci`, `capstone.requirements-discovery`, `capstone.design-architecture-planning`, `capstone.implementation`, `capstone.review-demo`.
 
@@ -14,7 +14,7 @@ Supplementary IDs: `network.dns-tcp-tls`, `browser.rendering-pipeline`, `js.runt
 
 ## Structural guarantees and limits
 
-The lesson schema/tests cover required lesson structure, stable unique block IDs, line ranges, quiz answer/feedback shape, coding-exercise scaffolding, locale block parity and curriculum/repository links. These checks establish machine-readable consistency, not that all source explanations are correct, that examples execute, or that translations are editorially equivalent. Lesson editorial status remains review.
+The lesson schema/tests cover required lesson structure, stable unique block IDs, line ranges, quiz answer/feedback shape, coding-exercise scaffolding, locale block parity and curriculum/repository links. The stable-ID manifest now records publication status and is checked against both locale records; draft content is excluded from learner-facing metadata/search, and published lessons cannot be marked translation-review-needed. Review content is explicitly labelled as pilot material. These checks establish machine-readable consistency, not that all source explanations are correct, that examples execute, or that translations are editorially equivalent. Current inventory: 27 core + 17 supplementary pairs (44 EN/RU pairs, 88 locale JSON records); editorial status remains review.
 
 ## Source parity status
 

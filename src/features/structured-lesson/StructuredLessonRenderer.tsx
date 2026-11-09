@@ -372,7 +372,7 @@ function CodingExercise({
   const checked = checkedCriteria ?? [];
 
   return (
-    <section className="my-8 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-subtle">
+    <section id={block.id} className="my-8 scroll-mt-24 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-subtle">
       <div className="border-b border-neutral-200 bg-neutral-50 p-4 sm:p-5">
         <p className="text-xs font-semibold uppercase tracking-wider text-primary-700">
           {locale === 'ru' ? 'Практика с кодом' : 'Coding practice'}
