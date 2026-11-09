@@ -38,6 +38,107 @@ describe('Git Reference source-derived content', () => {
     expect(russian.updatedAt).toBe(english.updatedAt);
   });
 
+  it('teaches least-privilege repository access roles in both locales', async () => {
+    for (const locale of locales) {
+      const lesson = await loadGitFundamentals(locale);
+      const body = lesson.blocks.find((block) => block.id === 'repository-access-body');
+      const check = lesson.blocks.find((block) => block.id === 'repository-access-role-check');
+
+      expect(body?.type).toBe('paragraph');
+      if (body?.type !== 'paragraph') throw new Error('Repository access guidance is missing');
+      expect(body.text).toMatch(locale === 'en' ? /least privilege/ : /минимальных привилегий/);
+      expect(body.text).toContain('Triage');
+      expect(body.text).toMatch(/ruleset|protection/);
+
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') throw new Error('Repository access check is missing');
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['triage-role']);
+      expect(check.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+
+      const references = lesson.blocks.find((block) => block.id === 'references');
+      expect(references?.type).toBe('references');
+      if (references?.type === 'references') {
+        expect(references.items.some((item) => item.url === 'https://docs.github.com/en/get-started/learning-about-github/access-permissions-on-github')).toBe(true);
+        expect(references.items.some((item) => item.url === 'https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles')).toBe(true);
+        expect(references.items.some((item) => item.url === 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository')).toBe(true);
+      }
+    }
+  });
+
+  it('teaches the correct response to a committed secret leak in both locales', async () => {
+    for (const locale of locales) {
+      const lesson = await loadGitFundamentals(locale);
+      const body = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-body');
+      const walkthrough = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-walkthrough');
+      const check = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-check');
+
+      expect(body?.type).toBe('paragraph');
+      if (body?.type !== 'paragraph') throw new Error('Secret response guidance is missing');
+      expect(body.text).toMatch(locale === 'en' ? /revoke or rotate/ : /отзови или замени/);
+      expect(body.text).toMatch(locale === 'en' ? /Never paste the secret/ : /Никогда не вставляй секрет/);
+
+      expect(walkthrough?.type).toBe('codeWalkthrough');
+      if (walkthrough?.type !== 'codeWalkthrough') throw new Error('Secret response walkthrough is missing');
+      expect(walkthrough.code).toContain('git rm --cached -- .env');
+      expect(walkthrough.code).toContain('git diff --cached --stat');
+      expect(walkthrough.code).not.toContain('git diff --cached -- .env');
+      for (const step of walkthrough.steps) {
+        expect(step.lineStart).toBeGreaterThan(0);
+        expect(step.lineEnd).toBeLessThanOrEqual(walkthrough.code.split('\n').length);
+      }
+
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') throw new Error('Secret response check is missing');
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['revoke-first']);
+      expect(check.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+
+      const references = lesson.blocks.find((block) => block.id === 'references');
+      expect(references?.type).toBe('references');
+      if (references?.type === 'references') {
+        expect(references.items.some((item) => item.url === 'https://docs.github.com/en/code-security/tutorials/remediate-leaked-secrets/remediating-a-leaked-secret')).toBe(true);
+        expect(references.items.some((item) => item.url === 'https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository')).toBe(true);
+      }
+    }
+  });
+
+  it('teaches the GitHub Flow pull-request review lifecycle in both locales', async () => {
+    for (const locale of locales) {
+      const lesson = await loadGitFundamentals(locale);
+      const heading = lesson.blocks.find((block) => block.id === 'github-flow-review-heading');
+      const body = lesson.blocks.find((block) => block.id === 'github-flow-review-body');
+      const walkthrough = lesson.blocks.find((block) => block.id === 'github-flow-review-walkthrough');
+      const check = lesson.blocks.find((block) => block.id === 'github-flow-review-check');
+
+      expect(heading?.type).toBe('heading');
+      expect(body?.type).toBe('paragraph');
+      if (body?.type !== 'paragraph') throw new Error('GitHub Flow review guidance is missing');
+      expect(body.text.toLowerCase()).toContain('pull request');
+      expect(body.text.toLowerCase()).toMatch(locale === 'en' ? /review|checks|merge/ : /ревью|провер|merge/);
+
+      expect(walkthrough?.type).toBe('codeWalkthrough');
+      if (walkthrough?.type !== 'codeWalkthrough') throw new Error('GitHub Flow walkthrough is missing');
+      expect(walkthrough.code).toContain('git fetch origin');
+      expect(walkthrough.code).toContain('git switch -c feat/my-change');
+      expect(walkthrough.code).toContain('git push -u origin HEAD');
+      for (const step of walkthrough.steps) {
+        expect(step.lineStart).toBeGreaterThan(0);
+        expect(step.lineEnd).toBeLessThanOrEqual(walkthrough.code.split('\n').length);
+      }
+
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') throw new Error('GitHub Flow review check is missing');
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['update-pr-branch']);
+      expect(check.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+      expect(check.explanation.toLowerCase()).toMatch(locale === 'en' ? /required approvals|approvals and checks/ : /одобрени|провер/);
+
+      const references = lesson.blocks.find((block) => block.id === 'references');
+      expect(references?.type).toBe('references');
+      if (references?.type === 'references') {
+        expect(references.items.some((item) => item.url === 'https://docs.github.com/en/get-started/using-github/github-flow')).toBe(true);
+      }
+    }
+  });
+
   it('teaches Markdown syntax with a line-checked worked example and explanatory feedback', async () => {
     for (const locale of locales) {
       const lesson = await loadGitFundamentals(locale);

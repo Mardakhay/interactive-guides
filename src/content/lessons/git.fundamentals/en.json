@@ -1,7 +1,7 @@
 {
   "id": "git.fundamentals",
   "locale": "en",
-  "version": 8,
+  "version": 13,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -168,6 +168,76 @@
       ]
     },
     {
+      "id": "gitignore-secret-response-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "If a real secret was committed"
+    },
+    {
+      "id": "gitignore-secret-response-body",
+      "type": "paragraph",
+      "text": "Treat a pushed API token, password or private key as compromised. First revoke or rotate it with the provider and notify the credential owner or security contact; review available access/audit logs. Then add the local secret file to `.gitignore` and, if it is tracked, remove it from the index while preserving the local copy. A new removal commit does not erase old copies from history, forks or caches. Decide with repository maintainers whether history rewriting is necessary, because it changes commit IDs and must be coordinated with collaborators. Never paste the secret into an issue, pull request, CI log or remediation note."
+    },
+    {
+      "id": "gitignore-secret-response-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "# First revoke/rotate the leaked credential with its provider and notify its owner.\n# Edit .gitignore to include .env; do not paste the secret into logs or a PR.\ngit status --short\ngit rm --cached -- .env  # only if .env is already tracked; keeps the local file\ngit add .gitignore\ngit status --short\ngit diff --cached --stat\ngit diff --cached -- .gitignore\ngit commit -m \"chore: stop tracking local environment file\"",
+      "steps": [
+        {
+          "title": "Contain the exposed credential first",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "These first actions happen outside Git: revoke or rotate the real token with its provider, notify the responsible owner/security contact, and avoid copying secret values into comments or logs."
+        },
+        {
+          "title": "Stop tracking the file but preserve the local copy",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "explanation": "Edit `.gitignore` first. Run `git rm --cached -- .env` only if the file is currently tracked; this removes it from the index but keeps the local file. Stage the ignore rule and inspect status."
+        },
+        {
+          "title": "Review the staged change without printing the secret",
+          "lineStart": 7,
+          "lineEnd": 9,
+          "explanation": "Review the summary and only the `.gitignore` diff; do not display the `.env` contents. Commit after checking that the staged change contains the intended tracking removal. This does not purge older history by itself."
+        }
+      ]
+    },
+    {
+      "id": "gitignore-secret-response-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "An active production API token in `.env` was committed and pushed. What should you do first, before repository cleanup?",
+      "options": [
+        {
+          "id": "revoke-first",
+          "text": "Immediately revoke or rotate the token with its provider, alert the owner/security contact, and then coordinate index/history cleanup",
+          "correct": true,
+          "feedback": "Correct. Treat an exposed active credential as compromised. Revoke or rotate it through the provider first, notify the responsible owner, and then clean the tracked file and decide with maintainers whether history rewriting is warranted."
+        },
+        {
+          "id": "ignore-only",
+          "text": "Add `.env` to `.gitignore` and push; that automatically disables the token",
+          "correct": false,
+          "feedback": "`.gitignore` does not revoke a credential and does not remove an already-tracked file. The exposed token can still be used until its provider revokes or rotates it."
+        },
+        {
+          "id": "delete-latest-only",
+          "text": "Delete `.env` in a new commit and assume the token is no longer exposed",
+          "correct": false,
+          "feedback": "A new commit does not erase older versions from Git history, clones, forks or cached views. A real token must be revoked or rotated independently."
+        },
+        {
+          "id": "force-push-first",
+          "text": "Force-push rewritten history before revoking the token, without coordinating with collaborators",
+          "correct": false,
+          "feedback": "History rewriting is disruptive and will not invalidate the credential. Contain the credential first; any history rewrite needs a coordinated plan with repository owners and collaborators."
+        }
+      ],
+      "explanation": "Treat the active token as compromised: revoke or rotate it with its provider first, notify the responsible owner/security contact, inspect possible use, then remove the tracked file and coordinate any required history cleanup."
+    },
+    {
       "id": "remote",
       "type": "heading",
       "level": 2,
@@ -209,6 +279,120 @@
           "explanation": "After confirming the current branch and team policy, `git push -u origin HEAD` publishes the checked-out branch under the same name on origin and sets upstream tracking. It does not mean 'push main' unless you are currently on main; do not bypass a required PR workflow."
         }
       ]
+    },
+    {
+      "id": "github-flow-review-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Follow GitHub Flow: branch, pull request, review, merge"
+    },
+    {
+      "id": "github-flow-review-body",
+      "type": "paragraph",
+      "text": "GitHub Flow separates local Git work from the hosted review process. Create a focused feature branch, make and test a small change, commit it, then push that branch and open a pull request on GitHub (or your team's hosting platform) against the intended base branch, usually `main`. Describe the intent, notable trade-offs and checks you ran. Reviewers discuss the diff and may request changes; push follow-up commits to the same feature branch so the existing discussion and checks update. Do not merge merely because a PR exists: wait for required reviews and checks to pass under the repository's rules. After merge, update your local default branch and delete the feature branch when the team policy allows it."
+    },
+    {
+      "id": "github-flow-review-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "git status\ngit fetch origin\ngit switch main\ngit pull --ff-only\ngit switch -c feat/my-change\n# Edit files and run the checks documented by the repository\ngit add path/to/changed-file\ngit diff --staged\ngit commit -m \"feat: describe the change\"\ngit push -u origin HEAD",
+      "steps": [
+        {
+          "title": "Start from an up-to-date base",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Check that your working tree is clean, fetch remote references, switch to the default branch and update it only if a fast-forward is possible. Replace `main` if the project uses a different default branch."
+        },
+        {
+          "title": "Create the feature and prepare a reviewable diff",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Create a focused branch, make the change and run the repository's documented checks. Stage only the intended file, then inspect the staged diff so unrelated or sensitive changes do not enter the commit."
+        },
+        {
+          "title": "Commit and publish the review branch",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "Commit the scoped change and publish the current feature branch. The next step happens in the hosting platform: open a pull request, describe the intent and test evidence, and request review. If feedback arrives, update this same branch and PR; merge only after policy-required reviews and checks pass."
+        }
+      ]
+    },
+    {
+      "id": "github-flow-review-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A reviewer requests changes on your open pull request. What is the best next step?",
+      "options": [
+        {
+          "id": "update-pr-branch",
+          "text": "Update the same feature branch, run the relevant checks, commit and push the fix, respond to the review, then wait for required approvals and checks before merging",
+          "correct": true,
+          "feedback": "Correct. A pull request tracks the proposed branch; pushing follow-up commits to that branch updates the same review. Required approvals and checks still need to pass before merge."
+        },
+        {
+          "id": "open-new-pr",
+          "text": "Open a completely new pull request for every review comment, leaving the original branch unchanged",
+          "correct": false,
+          "feedback": "That fragments the discussion and leaves the original pull request unresolved. Follow-up commits normally update the existing feature branch and pull request."
+        },
+        {
+          "id": "skip-checks",
+          "text": "Merge immediately because the initial pull-request review has already started",
+          "correct": false,
+          "feedback": "A review request is not approval, and required checks may still be failing. Follow the repository's approval and branch-protection rules."
+        },
+        {
+          "id": "push-main",
+          "text": "Commit the correction directly to the protected default branch to avoid another review",
+          "correct": false,
+          "feedback": "That bypasses the review workflow and may be blocked by branch protection. Make the correction on the pull-request branch and follow the team's policy."
+        }
+      ],
+      "explanation": "Keep review discussion and fixes together in the existing pull request. Push the correction to its feature branch, respond to feedback, and merge only when the required approvals and checks pass."
+    },
+    {
+      "id": "repository-access-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Manage repository access with least privilege"
+    },
+    {
+      "id": "repository-access-body",
+      "type": "paragraph",
+      "text": "Repository access and branch protections are configured on the hosting platform, not with local Git commands. Personal repositories have a simpler owner/collaborator model; organization repositories can use granular roles and teams. Apply the principle of least privilege: give each person only the access required: Read for viewing/discussion, Triage for managing issues and pull requests without pushing code, Write for contributors who need to push, and Maintain/Admin only when their additional responsibilities justify it. Review team membership periodically, remove access that is no longer needed, and keep administrator/owner privileges limited. Branch protection or rulesets are a separate control that can require reviews and checks; a role alone is not proof that those rules are configured."
+    },
+    {
+      "id": "repository-access-role-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "In an organization-owned repository, a teammate needs to organize issues, discussions and pull requests but does not need to push code. Which role best follows least privilege?",
+      "options": [
+        {
+          "id": "triage-role",
+          "text": "Triage",
+          "correct": true,
+          "feedback": "Correct. Triage is intended for contributors who need to manage issues and pull requests without write access to repository contents."
+        },
+        {
+          "id": "read-role",
+          "text": "Read",
+          "correct": false,
+          "feedback": "Read is appropriate for viewing and discussing repository content, but it does not grant the issue and pull-request management capabilities described in this scenario."
+        },
+        {
+          "id": "write-role",
+          "text": "Write",
+          "correct": false,
+          "feedback": "Write allows pushing code. Do not grant code-write privileges when the contributor only needs triage capabilities."
+        },
+        {
+          "id": "owner-role",
+          "text": "Organization owner or repository administrator",
+          "correct": false,
+          "feedback": "Owner/admin access is much broader than required and can include sensitive settings or destructive actions. Use the narrowest role that supports the work."
+        }
+      ],
+      "explanation": "For an organization-owned repository, choose the least-privileged role that matches the job: Read for viewing/discussion, Triage for issue and PR management without code push, Write for contributors who push code, and higher roles only when their extra permissions are necessary."
     },
     {
       "id": "commit-message",
@@ -784,6 +968,76 @@
       ]
     },
     {
+      "id": "git-rebase-safe-update",
+      "type": "heading",
+      "level": 2,
+      "text": "Update your own feature branch with a safe rebase"
+    },
+    {
+      "id": "git-rebase-safe-update-body",
+      "type": "paragraph",
+      "text": "Use rebase to replay your own unpublished feature commits on top of the latest base when the team permits that workflow. Start with a clean working tree and fetch first: `git fetch origin` updates remote-tracking references without integrating them. `git rebase origin/main` recreates your commits on top of the updated base, so their commit IDs change. Do not rebase commits teammates may depend on. If a conflict is unclear, `git rebase --abort` can abandon the active rebase and return to the state from when that rebase began; use it instead of guessing, and do not run it together with `git rebase --continue`. After a successful rebase, inspect status and history, run relevant tests, and coordinate before publishing rewritten shared history."
+    },
+    {
+      "id": "git-rebase-safe-update-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "bash",
+      "code": "git status\ngit fetch origin\ngit switch feat/my-change\ngit rebase origin/main\n# Only if Git stops for a conflict: resolve the file in your editor first\ngit diff --check\ngit add src/components/Panel.tsx\ngit rebase --continue\ngit status\ngit log --oneline --graph -8",
+      "steps": [
+        {
+          "title": "Fetch and rebase your own branch",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Start with a clean working tree. Fetch updates origin/main without integrating it; switch to your own feature branch, then replay its commits on the refreshed base. If no conflict occurs, skip the conditional resolution commands below."
+        },
+        {
+          "title": "Validate a conflict resolution before continuing",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "explanation": "Run these lines only when the rebase has stopped for a conflict: edit the intended result, check whitespace, stage the resolved path, then continue the active rebase. If you cannot safely resolve it, use git rebase --abort instead of git rebase --continue."
+        },
+        {
+          "title": "Verify the result",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "After the rebase finishes, inspect the working tree and commit graph and run the project's tests. Rebase recreates commit IDs; coordinate with teammates before pushing rewritten commits they may rely on."
+        }
+      ]
+    },
+    {
+      "id": "git-rebase-safety-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You need to update your own unpublished `feat/search` branch with the latest `main`. The working tree is clean and the team permits rebase. Which sequence refreshes the base before replaying your commits?",
+      "options": [
+        {
+          "id": "rebase-own-feature",
+          "text": "Run `git fetch origin`, switch to `feat/search`, then run `git rebase origin/main`",
+          "correct": true,
+          "feedback": "Correct. Fetch refreshes the remote-tracking reference; rebasing your own unpublished feature branch then replays its commits on the latest origin/main."
+        },
+        {
+          "id": "stale-local-main",
+          "text": "Run `git rebase main` without fetching, assuming local `main` must be current",
+          "correct": false,
+          "feedback": "Local main may be stale. Fetch first and rebase onto the remote-tracking branch that reflects the latest fetched base."
+        },
+        {
+          "id": "hard-reset-main",
+          "text": "Switch to `main` and run `git reset --hard origin/main` to move the feature branch",
+          "correct": false,
+          "feedback": "That changes main and can discard tracked work; it does not rebase the feature branch onto the updated base."
+        },
+        {
+          "id": "rewrite-shared-branch",
+          "text": "Rebase a feature branch that teammates already use without coordinating with them",
+          "correct": false,
+          "feedback": "Rebase recreates commits and changes their IDs. Do not rewrite history that collaborators depend on without an agreed team procedure."
+        }
+      ],
+      "explanation": "Run `git fetch origin` first so the remote-tracking ref is current, then rebase only your own branch when history rewriting is permitted. If conflict resolution is unsafe, abort the active rebase instead of guessing."
+    },
+    {
       "id": "git-command-reference-heading",
       "type": "heading",
       "level": 2,
@@ -796,19 +1050,157 @@
     },
     {
       "id": "git-command-reference-list",
-      "type": "list",
-      "ordered": false,
-      "items": [
-        "Start from a remote repository: `git clone <repository-url>` creates a local copy and configures the remote, commonly named `origin`.",
-        "Inspect your local state: `git status -sb` shows concise status and branch information; `git branch -vv` shows upstream tracking; `git remote -v` lists remote URLs.",
-        "Create a separate feature branch: `git switch -c feat/lesson-summary` creates and switches to a branch from the current commit. Start from the agreed, up-to-date base.",
-        "List and remove local branches: `git branch` lists them; after a branch has been merged, `git branch -d <branch>` removes it locally. Git refuses to delete an unmerged branch by default; do not use `-D` casually.",
-        "Merge a feature branch into the current target: `git merge <branch>` integrates the named branch into the checked-out branch. In a shared repository, follow the pull-request policy instead of merging directly into a protected branch.",
-        "Review the proposed commit: `git diff` displays unstaged edits; `git diff --staged` displays the content selected for the next commit.",
-        "Fetch without integrating: `git fetch origin` updates remote-tracking references without changing the current branch or working-tree files.",
-        "Integrate upstream only when fast-forward is possible: `git pull --ff-only` fetches and advances the current branch if it has no local divergence. It fails instead of inventing a merge when histories have diverged.",
-        "Publish the current branch: `git push -u origin HEAD` publishes the checked-out branch under the same name and configures upstream. It does not mean `main` unless you are on `main`; follow pull-request and branch-protection rules.",
-        "Undo a commit that was already shared: `git revert <commit>` adds an inverse commit and preserves the existing shared history."
+      "type": "commandReference",
+      "categories": [
+        {
+          "id": "basic-workflow",
+          "title": "Basic workflow",
+          "items": [
+            {
+              "id": "git-init",
+              "command": "git init",
+              "description": "Create a new local repository when this directory is not already under Git."
+            },
+            {
+              "id": "git-status",
+              "command": "git status -sb",
+              "description": "Review the current branch and working-tree changes before staging, committing or undoing anything."
+            },
+            {
+              "id": "git-add-file",
+              "command": "git add <file>",
+              "description": "Stage a specific file for the next commit; inspect the staged diff before committing."
+            },
+            {
+              "id": "git-add-all",
+              "command": "git add --all",
+              "description": "Stage tracked and untracked changes across the repository, including deletions. Review status first."
+            },
+            {
+              "id": "git-diff",
+              "command": "git diff",
+              "description": "Inspect unstaged changes before deciding what belongs in the next commit."
+            },
+            {
+              "id": "git-diff-staged",
+              "command": "git diff --staged",
+              "description": "Inspect exactly what is staged for the next commit."
+            },
+            {
+              "id": "git-commit",
+              "command": "git commit -m \"message\"",
+              "description": "Create a commit from staged changes using a message that describes the intent."
+            },
+            {
+              "id": "git-log",
+              "command": "git log --oneline",
+              "description": "View a compact list of recent commits."
+            }
+          ]
+        },
+        {
+          "id": "inspect-and-undo",
+          "title": "Inspect and undo",
+          "items": [
+            {
+              "id": "git-show-head",
+              "command": "git show HEAD",
+              "description": "Inspect the latest commit's metadata and patch."
+            },
+            {
+              "id": "git-restore-staged",
+              "command": "git restore --staged <file>",
+              "description": "Remove a file from the index without discarding its working-tree edits."
+            },
+            {
+              "id": "git-restore-file",
+              "command": "git restore <file>",
+              "description": "Discard unstaged edits for a file. This is destructive: review git diff first."
+            },
+            {
+              "id": "git-stash-push",
+              "command": "git stash push -u -m \"message\"",
+              "description": "Temporarily stash tracked and untracked changes before switching tasks; ignored files are not included."
+            },
+            {
+              "id": "git-stash-pop",
+              "command": "git stash pop",
+              "description": "Reapply the latest stash and remove it only if Git can apply it; inspect and resolve conflicts if needed."
+            },
+            {
+              "id": "git-commit-amend",
+              "command": "git commit --amend",
+              "description": "Revise the latest commit. This rewrites its ID; use only before sharing or with an agreed team workflow."
+            },
+            {
+              "id": "git-revert",
+              "command": "git revert <commit>",
+              "description": "Undo a commit by adding an inverse commit, preserving already-shared history."
+            }
+          ]
+        },
+        {
+          "id": "branching",
+          "title": "Branching",
+          "items": [
+            {
+              "id": "git-branch-vv",
+              "command": "git branch -vv",
+              "description": "List local branches and their upstream-tracking information."
+            },
+            {
+              "id": "git-switch-create",
+              "command": "git switch -c feat/my-change",
+              "description": "Create and switch to a feature branch from the current commit."
+            },
+            {
+              "id": "git-switch",
+              "command": "git switch <branch>",
+              "description": "Switch to an existing local branch; check status first if the working tree has changes."
+            },
+            {
+              "id": "git-merge",
+              "command": "git merge <branch>",
+              "description": "Merge the named branch into the branch currently checked out; follow the repository's review policy."
+            },
+            {
+              "id": "git-branch-delete",
+              "command": "git branch -d <merged-branch>",
+              "description": "Delete a local branch after it has been merged. Git refuses to delete an unmerged branch by default."
+            }
+          ]
+        },
+        {
+          "id": "remote-collaboration",
+          "title": "Remote collaboration",
+          "items": [
+            {
+              "id": "git-clone",
+              "command": "git clone <repository-url>",
+              "description": "Clone an existing remote repository and normally configure the remote named origin."
+            },
+            {
+              "id": "git-remote-v",
+              "command": "git remote -v",
+              "description": "Review configured remote names and URLs before fetching or pushing."
+            },
+            {
+              "id": "git-fetch-origin",
+              "command": "git fetch origin",
+              "description": "Update remote-tracking references without changing the current branch or working-tree files."
+            },
+            {
+              "id": "git-pull-ff-only",
+              "command": "git pull --ff-only",
+              "description": "Fetch and advance only when a fast-forward is possible; stop and investigate if local and remote history diverged."
+            },
+            {
+              "id": "git-push-head",
+              "command": "git push -u origin HEAD",
+              "description": "Publish the currently checked-out branch and set its upstream; this does not mean main unless you are on main."
+            }
+          ]
+        }
       ]
     },
     {
@@ -911,6 +1303,41 @@
         {
           "title": "GitHub Docs: Basic writing and formatting syntax",
           "url": "https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Git Documentation: git-rebase",
+          "url": "https://git-scm.com/docs/git-rebase",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: GitHub flow",
+          "url": "https://docs.github.com/en/get-started/using-github/github-flow",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: Remediating a leaked secret",
+          "url": "https://docs.github.com/en/code-security/tutorials/remediate-leaked-secrets/remediating-a-leaked-secret",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: Removing sensitive data from a repository",
+          "url": "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: Access permissions on GitHub",
+          "url": "https://docs.github.com/en/get-started/learning-about-github/access-permissions-on-github",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: Managing repository roles",
+          "url": "https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles",
+          "kind": "official-docs"
+        },
+        {
+          "title": "GitHub Docs: Creating repository rulesets",
+          "url": "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository",
           "kind": "official-docs"
         }
       ]

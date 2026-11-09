@@ -1,10 +1,10 @@
 {
   "id": "tooling.advanced-package-workflows",
   "locale": "ru",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-27",
+  "updatedAt": "2026-10-29",
   "moduleId": "supplement-tooling",
   "supplementaryTrackId": "supplement-tooling",
   "order": 1,
@@ -131,6 +131,39 @@
         }
       ],
       "explanation": "Используй npm ci для CI, а install/update — когда намеренно меняешь разрешение зависимостей."
+    },
+    {
+      "id": "pkg-update-range-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "В проекте указано `\"react\": \"^18.3.0\"`. Команда хочет обновить разрешённые версии пакетов в существующих SemVer-диапазонах, не изменяя прямой диапазон зависимости в `package.json`. Какая команда подходит?",
+      "options": [
+        {
+          "id": "npm-update",
+          "text": "Выполнить `npm update`, затем проверить diff `package-lock.json` и запустить обязательные проверки",
+          "correct": true,
+          "feedback": "Верно. `npm update` обновляет установленные/разрешённые версии до наиболее новых, которые удовлетворяют объявленным диапазонам. По умолчанию она не переписывает прямые диапазоны в `package.json`, поэтому проверь изменения lockfile и запусти проверки проекта."
+        },
+        {
+          "id": "npm-ci",
+          "text": "Выполнить `npm ci`, чтобы выбрать более новые версии внутри объявленных диапазонов",
+          "correct": false,
+          "feedback": "`npm ci` воспроизводит существующий lockfile, а не предназначена для намеренного обновления разрешения зависимостей. Она завершится ошибкой, если lockfile не согласован с манифестом."
+        },
+        {
+          "id": "install-latest",
+          "text": "Выполнить `npm install react@latest`, считая, что это никогда не выйдет за текущий major-диапазон",
+          "correct": false,
+          "feedback": "Целевая установка по dist-tag `latest` не равнозначна обновлению внутри существующего диапазона; она может изменить прямое объявление зависимости и выбрать новый major."
+        },
+        {
+          "id": "npm-uninstall",
+          "text": "Выполнить `npm uninstall react`, чтобы сохранить диапазон, но обновить установленную версию",
+          "correct": false,
+          "feedback": "`npm uninstall` удаляет объявленную зависимость; она не предназначена для обновления разрешённых версий в рамках существующего диапазона."
+        }
+      ],
+      "explanation": "Выбирай `npm update`, когда нужно обновить установленные/разрешённые версии в пределах уже объявленных диапазонов. Проверь diff lockfile, убедись, что прямые объявления по-прежнему верны, и запусти проверки репозитория перед коммитом."
     },
     {
       "id": "pkg-practice",
@@ -345,6 +378,11 @@
         {
           "title": "Prettier: документация",
           "url": "https://prettier.io/docs/en/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Документация npm: npm update",
+          "url": "https://docs.npmjs.com/cli/v11/commands/npm-update/",
           "kind": "official-docs"
         }
       ]

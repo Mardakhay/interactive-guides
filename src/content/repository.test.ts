@@ -284,6 +284,105 @@ describe('structured content repository', () => {
     expect(getPatternList(russian)).toContain('`!.env.example`');
   });
 
+  it('teaches safe remediation when a real secret was committed', async () => {
+    const [english, russian] = await Promise.all([
+      getStructuredLesson('git.fundamentals', 'en'),
+      getStructuredLesson('git.fundamentals', 'ru'),
+    ]);
+    expect(english).toBeDefined();
+    expect(russian).toBeDefined();
+    if (!english || !russian) throw new Error('Bilingual Git fundamentals lesson is missing');
+
+    expect(english.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russian.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    for (const lesson of [english, russian]) {
+      const body = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-body');
+      const walkthrough = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-walkthrough');
+      const check = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-check');
+      expect(body?.type).toBe('paragraph');
+      if (body?.type !== 'paragraph') throw new Error('Secret response body is missing');
+      expect(body.text).toMatch(lesson.locale === 'en' ? /revoke or rotate/ : /отзови или замени/);
+      expect(body.text).toMatch(lesson.locale === 'en' ? /history|forks|caches/ : /истории|fork|кеш/);
+      expect(walkthrough?.type).toBe('codeWalkthrough');
+      if (walkthrough?.type !== 'codeWalkthrough') throw new Error('Secret response walkthrough is missing');
+      expect(walkthrough.code).toContain('git rm --cached -- .env');
+      expect(walkthrough.code).toContain('git diff --cached --stat');
+      expect(walkthrough.code).not.toContain('git diff --cached -- .env');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') throw new Error('Secret response knowledge check is missing');
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['revoke-first']);
+      expect(check.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+    }
+  });
+
+  it('teaches least-privilege access management for organization repositories', async () => {
+    const [english, russian] = await Promise.all([
+      getStructuredLesson('git.fundamentals', 'en'),
+      getStructuredLesson('git.fundamentals', 'ru'),
+    ]);
+    expect(english).toBeDefined();
+    expect(russian).toBeDefined();
+    if (!english || !russian) throw new Error('Bilingual Git fundamentals lesson is missing');
+    expect(english.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russian.blocks.map(({ id, type }) => ({ id, type })),
+    );
+
+    for (const lesson of [english, russian]) {
+      const body = lesson.blocks.find((block) => block.id === 'repository-access-body');
+      const check = lesson.blocks.find((block) => block.id === 'repository-access-role-check');
+      expect(body?.type).toBe('paragraph');
+      if (body?.type !== 'paragraph') throw new Error('Repository access guidance is missing');
+      expect(body.text).toMatch(lesson.locale === 'en' ? /least privilege/ : /минимальных привилегий/);
+      expect(body.text).toContain('Triage');
+      expect(body.text).toMatch(/ruleset|protection/);
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') throw new Error('Repository role check is missing');
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['triage-role']);
+    }
+  });
+
+  it('assesses npm update separately from a frozen CI install in both locales', async () => {
+    const [english, russian] = await Promise.all([
+      getStructuredLesson('tooling.advanced-package-workflows', 'en'),
+      getStructuredLesson('tooling.advanced-package-workflows', 'ru'),
+    ]);
+    expect(english).toBeDefined();
+    expect(russian).toBeDefined();
+    if (!english || !russian) throw new Error('Bilingual advanced package workflow lesson is missing');
+
+    expect(english.version).toBe(3);
+    expect(russian.version).toBe(3);
+    expect(english.blocks).toHaveLength(18);
+    expect(russian.blocks).toHaveLength(18);
+    expect(english.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russian.blocks.map(({ id, type }) => ({ id, type })),
+    );
+
+    for (const lesson of [english, russian]) {
+      const commands = lesson.blocks.find((block) => block.id === 'pkg-commands');
+      expect(commands?.type).toBe('list');
+      if (commands?.type !== 'list') throw new Error('Package-manager command reference is missing');
+      const commandText = commands.items.join(' ').toLowerCase();
+      expect(commandText).toContain('npm update');
+      expect(commandText).toContain('lockfile');
+      expect(commandText).toMatch(/diff|изучи/);
+
+      const check = lesson.blocks.find((block) => block.id === 'pkg-update-range-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') throw new Error('npm update knowledge check is missing');
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['npm-update']);
+      expect(check.options.every((option) => option.feedback.trim().length > 45)).toBe(true);
+      expect(check.explanation).toContain('npm update');
+      expect(check.explanation).toMatch(lesson.locale === 'en' ? /lockfile diff/ : /diff lockfile/);
+
+      const references = lesson.blocks.find((block) => block.id === 'pkg-references');
+      expect(references?.type).toBe('references');
+      if (references?.type !== 'references') throw new Error('Package workflow references are missing');
+      expect(references.items.some((item) => item.url === 'https://docs.npmjs.com/cli/v11/commands/npm-update/')).toBe(true);
+    }
+  });
+
   it('provides a practical README walkthrough and deployment checklist in both locales', async () => {
     const [english, russian] = await Promise.all([
       getStructuredLesson('git.fundamentals', 'en'),
@@ -293,8 +392,8 @@ describe('structured content repository', () => {
     expect(russian).toBeDefined();
     if (!english || !russian) throw new Error('Bilingual Git fundamentals lesson is missing');
 
-    expect(english.version).toBe(8);
-    expect(russian.version).toBe(8);
+    expect(english.version).toBe(13);
+    expect(russian.version).toBe(13);
     expect(english.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russian.blocks.map(({ id, type }) => ({ id, type })),
     );

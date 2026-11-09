@@ -1,10 +1,10 @@
 {
   "id": "tooling.advanced-package-workflows",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-27",
+  "updatedAt": "2026-10-29",
   "moduleId": "supplement-tooling",
   "supplementaryTrackId": "supplement-tooling",
   "order": 1,
@@ -131,6 +131,39 @@
         }
       ],
       "explanation": "Use npm ci for CI installs and install/update when deliberately changing dependency resolution."
+    },
+    {
+      "id": "pkg-update-range-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A project declares `\"react\": \"^18.3.0\"`. The team wants to refresh resolved packages within their existing SemVer ranges without changing the direct dependency range in `package.json`. Which command best fits?",
+      "options": [
+        {
+          "id": "npm-update",
+          "text": "Run `npm update`, then review the `package-lock.json` diff and run the required checks",
+          "correct": true,
+          "feedback": "Correct. `npm update` refreshes installed/resolved versions to the latest versions that satisfy the declared ranges. By default it does not rewrite direct dependency range values in `package.json`, so review the lockfile changes and run the project checks."
+        },
+        {
+          "id": "npm-ci",
+          "text": "Run `npm ci` to choose newer versions within the declared ranges",
+          "correct": false,
+          "feedback": "`npm ci` reproduces the existing lockfile rather than intentionally refreshing dependency resolution. It fails if the lockfile and manifest are inconsistent."
+        },
+        {
+          "id": "install-latest",
+          "text": "Run `npm install react@latest` and assume it can never move outside the current major range",
+          "correct": false,
+          "feedback": "A targeted install using the `latest` dist-tag is not the same as updating within the existing range; it may change the direct dependency declaration and select a new major."
+        },
+        {
+          "id": "npm-uninstall",
+          "text": "Run `npm uninstall react` to keep the declared range but update the installed version",
+          "correct": false,
+          "feedback": "`npm uninstall` removes the declared dependency; it is not the command for refreshing resolved versions within its existing range."
+        }
+      ],
+      "explanation": "Choose `npm update` when you intend to refresh installed/resolved packages within the ranges already declared. Inspect the lockfile diff, confirm the direct declarations are still intended, and run the repository's checks before committing the result."
     },
     {
       "id": "pkg-practice",
@@ -345,6 +378,11 @@
         {
           "title": "Prettier: Documentation",
           "url": "https://prettier.io/docs/en/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "npm Docs: npm update",
+          "url": "https://docs.npmjs.com/cli/v11/commands/npm-update/",
           "kind": "official-docs"
         }
       ]

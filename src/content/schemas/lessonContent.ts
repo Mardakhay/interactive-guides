@@ -28,6 +28,47 @@ const listBlockSchema = z.object({
   items: z.array(z.string().min(1)).min(1),
 });
 
+const commandReferenceItemSchema = z.object({
+  id: z.string().min(1),
+  command: z.string().min(1),
+  description: z.string().min(1),
+});
+
+const commandReferenceCategorySchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  items: z.array(commandReferenceItemSchema).min(1),
+});
+
+const commandReferenceBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal('commandReference'),
+  categories: z.array(commandReferenceCategorySchema).min(1),
+}).superRefine((block, ctx) => {
+  const categoryIds = new Set<string>();
+  const itemIds = new Set<string>();
+  block.categories.forEach((category, categoryIndex) => {
+    if (categoryIds.has(category.id)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['categories', categoryIndex, 'id'],
+        message: 'Command reference category IDs must be unique',
+      });
+    }
+    categoryIds.add(category.id);
+    category.items.forEach((item, itemIndex) => {
+      if (itemIds.has(item.id)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['categories', categoryIndex, 'items', itemIndex, 'id'],
+          message: 'Command reference item IDs must be unique across categories',
+        });
+      }
+      itemIds.add(item.id);
+    });
+  });
+});
+
 const calloutBlockSchema = z.object({
   ...blockBase,
   type: z.literal('callout'),
@@ -164,6 +205,7 @@ export const lessonContentBlockSchema = z.discriminatedUnion('type', [
   headingBlockSchema,
   paragraphBlockSchema,
   listBlockSchema,
+  commandReferenceBlockSchema,
   calloutBlockSchema,
   codeBlockSchema,
   codeWalkthroughBlockSchema,

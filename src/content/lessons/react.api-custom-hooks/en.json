@@ -1,7 +1,7 @@
 {
   "id": "react.api-custom-hooks",
   "locale": "en",
-  "version": 5,
+  "version": 6,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-10-29",
@@ -724,6 +724,69 @@
         "Unmounting clears the pending timeout.",
         "A late response for an older query cannot replace newer results.",
         "Loading, empty, error and non-empty states are distinguishable."
+      ]
+    },
+    {
+      "id": "legacy-use-local-storage-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useEffect, useState } from \"react\";\n\ntype StoredValue<T> = {\n  key: string;\n  value: T;\n  shouldPersist: boolean;\n};\n\nfunction readStoredValue<T>(key: string, initialValue: T): StoredValue<T> {\n  if (typeof window === \"undefined\") {\n    return { key, value: initialValue, shouldPersist: false };\n  }\n\n  try {\n    const raw = window.localStorage.getItem(key);\n    if (raw === null) return { key, value: initialValue, shouldPersist: true };\n    return { key, value: JSON.parse(raw) as T, shouldPersist: false };\n  } catch {\n    // Do not overwrite malformed or inaccessible storage automatically.\n    return { key, value: initialValue, shouldPersist: false };\n  }\n}\n\nfunction useLocalStorage<T>(key: string, initialValue: T) {\n  const [stored, setStored] = useState(() => readStoredValue(key, initialValue));\n  const value = stored.key === key\n    ? stored.value\n    : readStoredValue(key, initialValue).value;\n\n  useEffect(() => {\n    if (stored.key !== key) {\n      setStored(readStoredValue(key, initialValue));\n      return;\n    }\n    if (!stored.shouldPersist || typeof window === \"undefined\") return;\n\n    try {\n      const serialized = JSON.stringify(stored.value);\n      if (serialized !== undefined) window.localStorage.setItem(key, serialized);\n    } catch {\n      // Keep in-memory state usable when storage is blocked or full.\n    }\n  }, [key, initialValue, stored]);\n\n  function setValue(next: T | ((current: T) => T)) {\n    setStored((current) => {\n      const previous = current.key === key\n        ? current.value\n        : readStoredValue(key, initialValue).value;\n      const value = typeof next === \"function\"\n        ? (next as (current: T) => T)(previous)\n        : next;\n      return { key, value, shouldPersist: true };\n    });\n  }\n\n  return [value, setValue] as const;\n}",
+      "steps": [
+        {
+          "title": "Read storage defensively",
+          "lineStart": 1,
+          "lineEnd": 20,
+          "explanation": "The initial read distinguishes a missing key from a malformed or inaccessible record. A type assertion after JSON.parse is not runtime validation."
+        },
+        {
+          "title": "Keep state associated with its key",
+          "lineStart": 22,
+          "lineEnd": 28,
+          "explanation": "When the key prop changes, read the new key before persisting anything so the previous value is not copied into a different record."
+        },
+        {
+          "title": "Persist updates without making storage a UI dependency",
+          "lineStart": 29,
+          "lineEnd": 58,
+          "explanation": "Writes are guarded and failures leave the in-memory state usable. This example targets client-rendered use; server-rendered apps must avoid hydration mismatch."
+        }
+      ]
+    },
+    {
+      "id": "legacy-use-local-storage-practice",
+      "type": "codingExercise",
+      "title": "Implement a defensive useLocalStorage Hook",
+      "language": "tsx",
+      "context": "Build a reusable Hook for a client-rendered React app. The lesson draft editor stores your code but does not execute TSX; test the implementation in a real project.",
+      "instructions": [
+        "Read the selected key for the current Hook instance and use the initial value only when no stored value exists.",
+        "Return the current value and a setter that accepts either a value or a functional updater.",
+        "Persist JSON when the value changes and handle localStorage being blocked or full without crashing the UI.",
+        "If stored JSON is malformed or storage cannot be read, do not silently overwrite the original record just because the Hook mounted.",
+        "Keep key changes from copying the prior key's value into the new key; test a stable key and a changed key.",
+        "Explain that a type assertion after JSON.parse does not validate runtime shape and that server-rendered apps need a hydration-aware design."
+      ],
+      "requirements": [
+        "The Hook reads a stored value or uses the fallback when the key is absent.",
+        "Functional updates are calculated from the most recent Hook state.",
+        "Storage read/write and JSON parsing errors are handled deliberately.",
+        "Malformed or inaccessible stored data is not automatically replaced with the fallback on mount.",
+        "A changed key loads the new key's value instead of persisting the previous key's value under it.",
+        "The explanation covers runtime validation and the difference between a client-only SPA and server rendering."
+      ],
+      "starterCode": "import { useEffect, useState } from \"react\";\n\nfunction useLocalStorage<T>(key: string, initialValue: T) {\n  const [value, setValue] = useState<T>(() => initialValue);\n\n  useEffect(() => {\n    // TODO: read the key, preserving malformed/unreadable data.\n    // TODO: serialize updates without crashing when storage is unavailable.\n  }, [key, initialValue, value]);\n\n  return [value, setValue] as const;\n}",
+      "hints": [
+        "Storage APIs and JSON parsing can throw; keep the in-memory UI usable when they fail.",
+        "Track which key the stored value belongs to so changing key cannot copy the old value to the new key.",
+        "A TypeScript assertion on parsed JSON does not check its properties at runtime."
+      ],
+      "successCriteria": [
+        "Existing values load correctly and a missing key uses the fallback.",
+        "The setter supports both direct values and functional updaters.",
+        "Storage failures do not crash the component.",
+        "Corrupt saved data is not silently erased on mount.",
+        "Changing the key cannot write the old value to the new key.",
+        "Runtime validation and hydration limitations are explained accurately."
       ]
     },
     {
