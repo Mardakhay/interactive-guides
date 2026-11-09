@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { loadJSON, saveJSON } from '@/lib/storage';
+import { readVersionedJSON, saveVersionedJSON } from '@/lib/versionedStorage';
 import { STORAGE_KEYS } from '@/lib/constants';
 import { quizResultsStateSchema } from './schemas';
 import type { QuizAttempt, QuizResultsState } from './types';
@@ -9,13 +9,11 @@ const DEFAULT_STATE: QuizResultsState = {
 };
 
 function loadInitialState(): QuizResultsState {
-  const raw = loadJSON<QuizResultsState>(STORAGE_KEYS.QUIZ_RESULTS, DEFAULT_STATE);
-  const parsed = quizResultsStateSchema.safeParse(raw);
-  return parsed.success ? parsed.data : DEFAULT_STATE;
+  return readVersionedJSON(STORAGE_KEYS.QUIZ_RESULTS, quizResultsStateSchema, DEFAULT_STATE).data;
 }
 
 function persist(state: QuizResultsState): void {
-  saveJSON(STORAGE_KEYS.QUIZ_RESULTS, state);
+  saveVersionedJSON(STORAGE_KEYS.QUIZ_RESULTS, state, quizResultsStateSchema);
 }
 
 interface QuizResultsStore extends QuizResultsState {

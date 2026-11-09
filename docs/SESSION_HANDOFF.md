@@ -1,6 +1,6 @@
 # Session Handoff
 
-**Last updated:** 2026-10-23  
+**Last updated:** 2026-10-27  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
@@ -782,3 +782,12 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Expanded `js.runtime-memory` to v4 / 35 aligned EN/RU blocks with an async TTL cache: shared in-flight Promise, expiry begins on success, rejected-entry eviction, explicit invalidation/clear, and a guard against stale pending requests undoing invalidation.
 - Added a knowledge check and applied exercise with an injectable clock, deterministic expiry tests, retry/invalidation-race requirements and memory-growth policy; regression tests cover ranges, IDs, answer cardinality, exercise rubric and MDN Promise reference.
 - TTL is lazy freshness, not a strict memory cap; API/network cache policy remains endpoint-specific. Advanced JS source page metadata remains `verification.state=unverified`.
+
+
+## Local-data backup/export-restore checkpoint — 2026-10-27
+
+- Added `src/features/backup` with versioned JSON v1 validation and local snapshot/restore, plus `/backup` UI linked in the sidebar. Snapshot includes progress, bookmarks, notes, classic quiz outcomes, and structured quiz attempts, code drafts, practice checklists and section progress.
+- Restore parses and validates all datasets before mutation, previews a summary, requires explicit user confirmation, replaces rather than merges data, writes the current structured-learning v2 envelope and removes the legacy record at the end. A write failure triggers best-effort rollback; a rollback failure is reported separately.
+- Regression coverage: export/parse round-trip; absent-store defaults; non-mutating legacy structured-state read; malformed stored data; malformed/unsupported backup; replacement and legacy-key cleanup; rollback after a write error; summary counts.
+- Exact-head CI for code commit `73a47b96b1c0fc00d454c0cd955f24514bb32024` passed [run #40487424471](https://github.com/Mardakhay/interactive-guides/actions/runs/40487424471). This docs-only checkpoint follows; check CI on its final HEAD before concluding the task.
+- Remaining Phase 5 items: independent versioned repositories/migration across all stores, broad unavailable-storage/migration-retry testing, browser download/file-picker smoke evidence, and a documented policy for future local/cloud reconciliation. Supabase remains not started. Keep work on `feat/learning-platform-foundation`; `main` is unchanged.
