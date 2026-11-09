@@ -39,7 +39,7 @@ export function ProgressSummary({ completed, inProgress, total, percent }: Progr
       </div>
 
       <Card className="p-5">
-        <ProgressBar value={percent} label={translate(locale, 'dashboardOverallProgress', { completed, total })} />
+        <ProgressBar value={percent} label={translate(locale, 'dashboardClassicCatalogProgress', { completed, total })} />
       </Card>
     </div>
   );

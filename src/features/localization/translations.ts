@@ -96,7 +96,10 @@ const en = {
   "dashboardCompletedLabel": "Completed",
   "dashboardInProgressLabel": "In progress",
   "dashboardTotalLessons": "Total lessons",
-  "dashboardOverallProgress": "Overall progress — {completed} of {total} lessons",
+  "structuredProgressTitle": "Structured curriculum progress",
+  "structuredProgressDescription": "Tracks all registered bilingual structured lessons, including supplementary topics. This stays separate from the classic HTML catalog during migration.",
+  "structuredProgressLabel": "Structured curriculum progress — {completed} of {total} lessons",
+  "dashboardClassicCatalogProgress": "Classic catalog progress — {completed} of {total} lessons",
   "noLessonsStartedTitle": "No lessons started yet",
   "noLessonsStartedMessage": "Head to Start Here for an orientation, or browse the full catalog to jump right in.",
   "startHere": "Start here",
@@ -276,7 +279,10 @@ const ru: Record<keyof typeof en, string> = {
   "dashboardCompletedLabel": "Завершено",
   "dashboardInProgressLabel": "В процессе",
   "dashboardTotalLessons": "Всего уроков",
-  "dashboardOverallProgress": "Общий прогресс — {completed} из {total} уроков",
+  "structuredProgressTitle": "Прогресс структурированной программы",
+  "structuredProgressDescription": "Учитывает все зарегистрированные структурированные уроки на двух языках, включая дополнительные темы. Во время миграции они считаются отдельно от классического HTML-каталога.",
+  "structuredProgressLabel": "Прогресс структурированной программы — {completed} из {total} уроков",
+  "dashboardClassicCatalogProgress": "Прогресс классического каталога — {completed} из {total} уроков",
   "noLessonsStartedTitle": "Вы ещё не начали обучение",
   "noLessonsStartedMessage": "Начните с вводного раздела или выберите тему в каталоге.",
   "startHere": "С чего начать",
@@ -423,6 +429,18 @@ const learningPathTranslations: Record<string, { title: string; description: str
   "production-ready": {
     "title": "Frontend для production",
     "description": "Углубите навыки: архитектура frontend, комплексное тестирование, аутентификация и безопасность production-приложений."
+  },
+  "structured-frontend-foundations": {
+    "title": "Структурированные основы frontend",
+    "description": "Пройдите двуязычную программу внутри приложения: основы веба, семантический HTML, доступные формы, CSS, адаптивная вёрстка и события DOM. Этот маршрут использует отдельные ID структурированных уроков и не заменяет классический каталог."
+  },
+  "structured-react-developer": {
+    "title": "Структурированный путь React-разработчика",
+    "description": "Изучайте React по структурированной программе: компоненты и состояние, эффекты и композиция, формы, общее состояние, маршрутизация и надёжная загрузка данных. Существующие классические маршруты React остаются без изменений."
+  },
+  "structured-javascript-mastery": {
+    "title": "Структурированный путь JavaScript",
+    "description": "Пройдите структурированную двуязычную последовательность JavaScript: основы языка, функции и объекты, прототипы, память, асинхронные запросы и работа с браузером. Классический маршрут JavaScript не заменяется."
   }
 };
 

@@ -933,3 +933,12 @@ Before replacing legacy routes, create a reviewed crosswalk from every old ID to
 ## Candidate catalog-route crosswalk created — 2026-10-27
 
 Created [LEGACY_ROUTE_CUTOVER_MATRIX.md](./LEGACY_ROUTE_CUTOVER_MATRIX.md) to bridge the 25 legacy catalog IDs to provisional destinations in the 44-ID structured curriculum. Every row lists known parity gaps and remains blocked pending detailed EN/RU equivalence review, explicit legacy interaction disposition, and learner-state migration/retention tests. This is not an automatic redirect table.
+
+## Authoritative source-review status — 2026-10-28
+
+This dated status reconciles the early inventory snapshot above with later source-specific reviews and the current-state summary. The early statement that most HTML bodies still needed line-by-line inspection described the initial audit stage and is not the final source-reading count.
+
+- **HTML source reading/review:** all 25 of 25 legacy HTML files have a documented full text/content/code/interaction review. Source-specific rows record what was examined, which structured targets were updated, technical claims that were qualified, and which widgets remain non-equivalent. The `html-reference.html` row records a full current-source re-review on 2026-10-27; `html.document-structure` now additionally includes the optional bilingual example solution added in version 7.
+- **Source parity is not complete:** 25/25 is a source-review count, not a claim that each legacy section, code example, answer, quiz, interactive control, localization or learner-flow has been reproduced. Candidate mappings and known gaps remain in this audit and in [LEGACY_ROUTE_CUTOVER_MATRIX.md](./LEGACY_ROUTE_CUTOVER_MATRIX.md). Keep legacy routes and files until destination equivalency and learner-state retention have been reviewed and tested.
+- **Notion verification is separate:** 21 Notion pages were fetched/mapped, but their metadata continues to report `verification.state=unverified`. Reading and mapping those pages does not constitute formal source verification or claim-by-claim sign-off.
+- **Acceptance remains separate from source review:** automated schema/tests/CI verify structural and code invariants; they do not replace editorial review, full interaction parity, real-browser/device testing or screen-reader acceptance.
