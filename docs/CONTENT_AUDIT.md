@@ -72,3 +72,13 @@ Every lesson remains marked `review`. Do not interpret a successful schema/CI ru
 5. Check every linked source and remove or replace broken, weak, or outdated references.
 6. Mark `published` only after an explicit content review; retain a clear record of reviewer/date and any known limitation.
 7. Keep the legacy HTML until its migration and translation parity have passed that review.
+
+
+## Supplementary network/browser content
+
+Two optional bilingual lessons were added to improve coverage suggested by the heading-level scan of `public/lessons/internet-fundamentals.html`:
+
+- `network.dns-tcp-tls`: DNS hierarchy/TTL, transport distinctions, ports, TLS, HTTP generations and DevTools failure classification.
+- `browser.rendering-pipeline`: DOM/CSSOM, critical rendering path, script-loading attributes, layout/paint/compositing and Performance-based investigation.
+
+These lessons are linked to explicit supplementary track IDs and remain in `review`. Schema/translation/navigation tests and a successful CI run are prerequisites, but not a substitute for editorial review. The legacy source is not yet fully migrated paragraph-by-paragraph.

@@ -82,7 +82,7 @@ The sections above record the original audit of `main` and remain useful as a ba
 
 ### Structured bilingual course
 
-- The canonical JSON curriculum still represents six months and 24 weeks. The current structured repository registers 26 lesson IDs, each with an English and a Russian JSON translation (52 translation files in total).
+- The canonical JSON curriculum still represents six months and 24 weeks. The repository registers 26 core lesson IDs (52 locale files) plus two supplementary lesson IDs, `network.dns-tcp-tls` and `browser.rendering-pipeline` (four locale files). That is 28 stable IDs / 56 locale files in total; supplementary lessons remain outside core curriculum navigation.
 - Week 1 is split into web fundamentals/HTTP and HTML structure; Week 8 is split into async JavaScript/Fetch and Git fundamentals. Every other week currently has one main structured lesson.
 - The repository imports and schema-validates all lesson translations. `getStructuredLesson`, `getWeekForLesson`, `getCurriculumWeek`, and `getAdjacentStructuredLessons` expose content and canonical navigation.
 - Lessons use stable IDs and typed blocks for prose, lists, callouts, code, code walkthroughs, knowledge checks, coding exercises and references.
@@ -137,9 +137,29 @@ The sections above record the original audit of `main` and remain useful as a ba
 
 The original audit above describes `main` at the time it was inspected; the feature branch now has a more complete structured-content and persistence foundation.
 
-- The canonical curriculum has 26 EN/RU structured lesson pairs (52 locale files). A static audit found no structural issues with ordered block parity, duplicate IDs, walkthrough ranges, quiz answer shape, or practice scaffolding; see `docs/CONTENT_AUDIT.md`.
+- The canonical core curriculum has 26 EN/RU structured lesson pairs (52 locale files), with two supplementary EN/RU pairs registered separately (56 locale files in the repository overall). A static audit found no structural issues with ordered block parity, duplicate IDs, walkthrough ranges, quiz answer shape, or practice scaffolding; see `docs/CONTENT_AUDIT.md`.
 - Structured content remains in editorial `review` status. Legacy HTML source reconciliation and source-link verification are still pending.
 - Section-level lesson progress, local quiz/draft/checklist state, validated backup export/import with merge rules, and localized storage-failure warnings are implemented.
 - HTML preview runs with scripts disabled. Ordinary JavaScript snippets can run in a disposable Worker with a 1.5-second timeout; DOM-dependent exercises, TS/TSX, shell commands and live network calls still require the learner's local project. The Worker is a learning aid, not a hardened hostile-code service.
 - GitHub Actions run [#200](https://github.com/Mardakhay/interactive-guides/actions/runs/39782773247) passed the exact code checkpoint SHA `611f75c91634d74d06feb74a06bfcf5c9470830a`: install, lint, typecheck, tests and production build succeeded. Recheck the new docs commit before saying its CI is green.
 - Remaining highest-value work: verify the Worker runner on the deployed hosting/CSP setup, localize/consolidate the full app shell, review content against Notion and legacy sources, test storage retry/migration under browser quota/security errors, and run real-device PWA tests.
+
+
+## Working-branch checkpoint update — 2026-10-23
+
+This is the newest checkpoint and supersedes earlier working-branch verification snapshots above.
+
+- The last verified implementation/content commit before this documentation update is [`495467a`](https://github.com/Mardakhay/interactive-guides/commit/495467a470828ffad5f689f2c4b2015771be18a5). The branch remains `feat/learning-platform-foundation`; PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) remains open as a draft.
+- Fixed the malformed trailing duplicate block in `src/content/repository.ts`; the existing locale-aware curriculum lookup and adjacent-lesson functions remain intact.
+- Repository tests derive expected lesson registration and week navigation from the canonical curricula, and the supplementary duplicate test now verifies a real duplicate lesson assignment.
+- GitHub Actions [run #212](https://github.com/Mardakhay/interactive-guides/actions/runs/39909489666) passed for SHA `495467a470828ffad5f689f2c4b2015771be18a5`: install, ESLint, typecheck, Vitest tests and production build all succeeded.
+- The repository has 26 core lesson IDs (52 EN/RU files) plus two supplementary lesson IDs (four EN/RU files), so 28 IDs / 56 locale files are registered overall. The static audit in `docs/CONTENT_AUDIT.md` covers the 26 core pairs; supplementary lessons are tracked separately.
+- Week 15 now includes a bilingual typed `useReducer` + Context walkthrough and provider-scope/context-splitting guidance. Russian quiz prompts in Week 14 and Week 15 received localization fixes. Both lesson pairs remain in editorial `review` status.
+- No local commands, physical-device tests, or full human editorial review were run in this session.
+
+### Remaining high-priority work
+
+1. Review Week 14 and Week 15 against the Notion source and the editorial checklist; continue semantic/source parity review for every core and supplementary lesson pair.
+2. Reconcile each legacy HTML lesson line-by-line with its replacement and retain the source files until migration is reviewed in both locales.
+3. Finish end-to-end app localization, visual consistency, responsive/accessibility QA, Worker-hosting/CSP tests, storage-failure testing and real-device PWA acceptance.
+4. Keep cloud sync blocked on a dedicated Supabase ownership/cost decision and explicit approval.
