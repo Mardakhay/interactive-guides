@@ -207,6 +207,7 @@ function CodingExercise({
 }) {
   const [code, setCode] = useState(block.starterCode);
   const [hintsOpen, setHintsOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   return (
     <section className="my-8 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-subtle">
@@ -247,6 +248,35 @@ function CodingExercise({
             rows={12}
             className="mt-3 block w-full resize-y rounded-xl border border-neutral-300 bg-[#111827] p-4 font-mono text-xs leading-6 text-neutral-100 shadow-inner focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200 sm:text-sm"
           />
+          {block.language.toLowerCase() === 'html' && (
+            <div className="mt-3">
+              <button
+                type="button"
+                aria-expanded={previewOpen}
+                onClick={() => setPreviewOpen((open) => !open)}
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+              >
+                {previewOpen
+                  ? (locale === 'ru' ? 'Скрыть предпросмотр' : 'Hide preview')
+                  : (locale === 'ru' ? 'Предпросмотр результата' : 'Preview result')}
+              </button>
+              {previewOpen && (
+                <div className="mt-3 overflow-hidden rounded-xl border border-neutral-200 bg-white">
+                  <p className="border-b border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-600">
+                    {locale === 'ru'
+                      ? 'Изолированный предпросмотр HTML. Скрипты отключены; код не получает доступ к приложению.'
+                      : 'Isolated HTML preview. Scripts are disabled and the code cannot access the application.'}
+                  </p>
+                  <iframe
+                    title={locale === 'ru' ? 'Предпросмотр HTML-кода' : 'HTML code preview'}
+                    srcDoc={code}
+                    sandbox=""
+                    className="h-72 w-full bg-white"
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
         {block.hints.length > 0 && (
           <div>
