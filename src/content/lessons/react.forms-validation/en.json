@@ -236,7 +236,7 @@
     },
     {
       "id": "knowledge-check-3",
-      "type": "multi-select",
+      "type": "knowledgeCheck",
       "questionType": "multi-select",
       "prompt": "Which practices improve form accessibility and reliability? Select all that apply.",
       "options": [
@@ -344,7 +344,7 @@
         {
           "title": "W3C WAI: Forms Tutorial",
           "url": "https://www.w3.org/WAI/tutorials/forms/",
-          "kind": "accessibility"
+          "kind": "guide"
         }
       ]
     }

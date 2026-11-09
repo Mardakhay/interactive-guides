@@ -158,7 +158,9 @@
           "practice": [
             "Build a To-do app using an in-memory array and DOM rendering"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "js.dom-events"
+          ]
         },
         {
           "id": "month-2-week-8",
@@ -233,7 +235,9 @@
           "practice": [
             "Build Counter and To-do components by rewriting previous tasks in React"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.components-jsx-state"
+          ]
         },
         {
           "id": "month-3-week-12",
@@ -344,7 +348,9 @@
           "practice": [
             "Build a small UI kit with Button, Input and Card components"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "ui.design-systems"
+          ]
         },
         {
           "id": "month-5-week-18",
@@ -358,7 +364,9 @@
           "practice": [
             "Tune an existing project and inspect bundle size or lazy routes"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "performance.accessibility"
+          ]
         },
         {
           "id": "month-5-week-19",
@@ -372,7 +380,9 @@
           "practice": [
             "Write 2–3 component tests for interactions such as button click and form submission"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "testing.react-testing-library"
+          ]
         },
         {
           "id": "month-5-week-20",
@@ -386,7 +396,9 @@
           "practice": [
             "Simulate task → branch → commit → MR → review"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "git.workflow-ci"
+          ]
         }
       ]
     },
@@ -408,7 +420,9 @@
           "practice": [
             "Define the problem, target users, core stories and acceptance criteria"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.requirements-discovery"
+          ]
         },
         {
           "id": "month-6-week-22",
@@ -422,7 +436,9 @@
           "practice": [
             "Produce wireframes, an API contract sketch, a page map and sprint plan"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.design-architecture-planning"
+          ]
         },
         {
           "id": "month-6-week-23",
@@ -436,7 +452,9 @@
           "practice": [
             "Implement the project's core end-to-end user journeys"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.implementation"
+          ]
         },
         {
           "id": "month-6-week-24",
@@ -452,7 +470,9 @@
             "Present the final application and explain architecture, trade-offs and code quality"
           ],
           "project": "Final Capstone Project and Demo Day",
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.review-demo"
+          ]
         }
       ]
     }

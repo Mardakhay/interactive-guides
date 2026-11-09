@@ -1,0 +1,396 @@
+{
+  "id": "capstone.design-architecture-planning",
+  "locale": "en",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-22",
+  "moduleId": "month-6-week-22",
+  "week": 22,
+  "order": 1,
+  "title": "Capstone Part 2: Wireframes, Architecture, API Contracts, and Sprint Plan",
+  "description": "Turn the approved product brief into a buildable plan: map pages and states, sketch wireframes, define module boundaries and data contracts, and split the MVP into small verifiable increments.",
+  "estimatedMinutes": 80,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "capstone.requirements-discovery",
+    "react.router-spa",
+    "react.forms-validation",
+    "react.api-custom-hooks",
+    "ui.design-systems"
+  ],
+  "learningOutcomes": [
+    "Translate user journeys into a page map and a set of meaningful screen states.",
+    "Create low-fidelity wireframes that communicate hierarchy, actions, empty states, and errors before visual polish.",
+    "Define feature/module boundaries and a component tree that follows responsibilities rather than arbitrary file size.",
+    "Sketch API contracts for requests, responses, validation failures, loading, and empty results.",
+    "Choose an appropriate data flow and decide what belongs in local component state, shared state, URL state, and server state.",
+    "Break the capstone into small milestones with dependencies, acceptance checks, and reviewable pull requests."
+  ],
+  "tags": [
+    "capstone",
+    "wireframes",
+    "architecture",
+    "api-contract",
+    "component-tree",
+    "sprint-planning",
+    "data-flow"
+  ],
+  "blocks": [
+    {
+      "id": "design-translation",
+      "type": "heading",
+      "level": 2,
+      "text": "Turn requirements into a plan before polishing visuals"
+    },
+    {
+      "id": "design-translation-body",
+      "type": "paragraph",
+      "text": "The Week 21 product brief says what value the project must deliver. Week 22 decides how that experience can be built and verified. Create a page map, wireframes, component responsibilities, data/API contracts, and a short work plan. These are not paperwork for its own sake: they expose missing requirements, ambiguous state transitions, impossible dependencies, and overly large features before implementation makes them expensive to change."
+    },
+    {
+      "id": "page-map",
+      "type": "heading",
+      "level": 2,
+      "text": "Make a page map from user journeys"
+    },
+    {
+      "id": "page-map-body",
+      "type": "paragraph",
+      "text": "A page map lists the application's route-level views and how a user reaches them. Map the screens that support the MVP's primary journeys, then name their important states: loading, empty, validation error, request error, success, and access denied where relevant. Not every state needs a separate URL or page. Often it is a state within the same page. Mark which routes require authentication and what happens when a user opens a nested URL directly."
+    },
+    {
+      "id": "page-map-example",
+      "type": "code",
+      "language": "markdown",
+      "caption": "Example page map with route and screen states",
+      "code": "/                       Home or dashboard\n/courses                Course catalog\n/courses/:courseId      Course overview\n/lessons/:lessonId      Lesson reader\n/bookmarks              Saved lessons\n\nLesson reader states:\n- loading lesson\n- content ready\n- lesson not found\n- loading/error for optional API data\n- completed marker visible\n\nNavigation rules:\n- every page has a useful title\n- unknown routes show a recovery link\n- direct deep links load through the host's SPA fallback"
+    },
+    {
+      "id": "wireframes",
+      "type": "heading",
+      "level": 2,
+      "text": "Wireframes communicate hierarchy and behavior"
+    },
+    {
+      "id": "wireframes-body",
+      "type": "paragraph",
+      "text": "A low-fidelity wireframe is a functional sketch, not a promise about exact colors, borders, or typography. It should show the primary content, important actions, relationships between regions, navigation, feedback locations, and responsive changes. Annotate what happens after each primary action and show at least the empty and error states for data-heavy screens. A paper drawing, Figma frame, or simple HTML prototype can work as long as it answers the same questions."
+    },
+    {
+      "id": "wireframe-checklist",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Hierarchy: what should users notice first, and what is secondary?",
+        "Action: what is the main action on this screen and how is it labelled?",
+        "Feedback: where do loading, success, validation errors, and request errors appear?",
+        "Accessibility: are labels, headings, focus, keyboard use, and error descriptions planned?",
+        "Responsive behavior: what stacks, wraps, collapses, or moves on a narrow viewport?",
+        "Recovery: how can the user return, retry, undo, or escape a dead end?"
+      ]
+    },
+    {
+      "id": "architecture-boundaries",
+      "type": "heading",
+      "level": 2,
+      "text": "Choose boundaries by responsibility"
+    },
+    {
+      "id": "architecture-boundaries-body",
+      "type": "paragraph",
+      "text": "A component tree answers which interface pieces compose a screen. An application architecture also separates responsibility: route/page orchestration, reusable UI, feature-specific business rules, API/service access, data contracts, and persistence. A practical feature-based layout groups related code together while keeping shared primitives independent of one particular feature. Avoid both extremes: one giant component that owns everything and a maze of tiny files that provide no meaningful boundary."
+    },
+    {
+      "id": "architecture-example",
+      "type": "code",
+      "language": "text",
+      "caption": "One possible feature-oriented structure",
+      "code": "src/\n  app/\n    router.tsx\n    providers.tsx\n  components/\n    Button.tsx\n    TextField.tsx\n  features/\n    courses/\n      pages/CourseCatalogPage.tsx\n      components/CourseCard.tsx\n      services/courseService.ts\n      schemas/course.ts\n    lessons/\n      pages/LessonPage.tsx\n      components/LessonContent.tsx\n      services/lessonService.ts\n  lib/\n    httpClient.ts\n  types/\n    api.ts"
+    },
+    {
+      "id": "component-tree",
+      "type": "heading",
+      "level": 2,
+      "text": "Build a component tree from ownership and reuse"
+    },
+    {
+      "id": "component-tree-body",
+      "type": "paragraph",
+      "text": "Start with the route or page, then split out regions with distinct responsibilities or reuse. The page often coordinates data and user flow; a list renders a collection; a row/card renders one item; a form owns input and validation feedback. Decide who owns each piece of state and who can change it. A component should receive data and callbacks through explicit props instead of reaching into unrelated pages or importing a feature's private internals."
+    },
+    {
+      "id": "component-tree-example",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "LessonPage: coordinates route parameter, loading/error state, and the lesson view.",
+        "LessonHeader: displays title, estimate, and primary lesson actions.",
+        "LessonContent: renders structured content blocks; it should not own account authentication.",
+        "LessonActions: reports bookmark/completion intent via props/callbacks.",
+        "RelatedLessons: renders a supplied list and handles its local view state only if needed."
+      ]
+    },
+    {
+      "id": "data-flow",
+      "type": "heading",
+      "level": 2,
+      "text": "Decide where state belongs"
+    },
+    {
+      "id": "data-flow-body",
+      "type": "paragraph",
+      "text": "Use local component state for data needed by one small component or form. Lift state to the closest common owner when a few siblings share it. Context can distribute cross-cutting values such as locale, current user, or a theme, but it should not become a default home for every state value. URL state fits shareable filters, search, pagination, and selected routes. Server state belongs to fetched or persisted resources and needs explicit loading, stale-data, error, and refetch rules."
+    },
+    {
+      "id": "state-placement",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Local UI state: open/closed menu, input draft, selected tab when it need not be shareable.",
+        "URL state: search query, filter, sort order, page number, selected resource route.",
+        "Shared client state: data and actions genuinely needed across distant components, such as current locale or a global interaction preference.",
+        "Server/persisted state: courses, posts, bookmarks stored remotely, authenticated profile, or API results.",
+        "Derived values: filtered lists or display labels that can be calculated from existing state usually do not need another state variable."
+      ]
+    },
+    {
+      "id": "api-contract",
+      "type": "heading",
+      "level": 2,
+      "text": "Define API contracts before wiring the UI"
+    },
+    {
+      "id": "api-contract-body",
+      "type": "paragraph",
+      "text": "An API contract makes the exchange between UI and service predictable. Document method and path, request shape, successful response shape, relevant status codes, validation errors, authorization requirements, and pagination or sorting conventions. TypeScript types help the frontend use the contract, but they do not validate untrusted JSON at runtime. If an API is not chosen yet, define a service interface and use deterministic mock data so the rest of the UI can be built without pretending the integration already exists."
+    },
+    {
+      "id": "api-contract-example",
+      "type": "codeWalkthrough",
+      "language": "json",
+      "code": "{\n  \"operation\": \"createBookmark\",\n  \"method\": \"POST\",\n  \"path\": \"/api/bookmarks\",\n  \"request\": {\n    \"lessonId\": \"lesson-123\"\n  },\n  \"success\": {\n    \"status\": 201,\n    \"body\": {\n      \"id\": \"bookmark-456\",\n      \"lessonId\": \"lesson-123\"\n    }\n  },\n  \"errors\": [400, 401, 409, 500]\n}",
+      "steps": [
+        {
+          "title": "Name the operation and route",
+          "lineStart": 2,
+          "lineEnd": 4,
+          "explanation": "A named operation documents intent. The method and path tell the frontend how the action is requested; they are not a substitute for authorization rules."
+        },
+        {
+          "title": "Document the request body",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "The UI needs to know which data is required. This example sends a lesson ID rather than trusting a user ID supplied by the browser."
+        },
+        {
+          "title": "Define the successful response",
+          "lineStart": 8,
+          "lineEnd": 14,
+          "explanation": "A documented response lets the service and UI agree on which fields can be used after a successful request."
+        },
+        {
+          "title": "List meaningful failure statuses",
+          "lineStart": 15,
+          "lineEnd": 15,
+          "explanation": "A page may respond differently to invalid data, missing authentication, a duplicate bookmark, and a server failure. Document the expected error shape as well as the status codes before implementing those states."
+        }
+      ]
+    },
+    {
+      "id": "api-contract-rules",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Do not assume the UI can enforce authorization",
+      "text": "A hidden button or protected route is only a presentation decision. If the API contains private data or mutations, authorization must be enforced by the service/database, and the contract should say what happens when access is denied. Never place secret server credentials in browser code."
+    },
+    {
+      "id": "sprint-planning",
+      "type": "heading",
+      "level": 2,
+      "text": "Split the work into demoable increments"
+    },
+    {
+      "id": "sprint-planning-body",
+      "type": "paragraph",
+      "text": "Avoid tasks like “build frontend” or “finish backend”; they are too large to estimate or review. Divide the MVP into vertical slices that deliver one user-visible outcome and can be validated. Write dependencies explicitly—for example, a list view can use mock data before the real service exists. For every slice define the expected behavior, owner, verification, and completion condition. Leave time for integration, accessibility, and refactoring rather than filling every hour with new features."
+    },
+    {
+      "id": "sprint-template",
+      "type": "code",
+      "language": "markdown",
+      "caption": "Example implementation sequence",
+      "code": "Milestone 1 — app shell and navigation\n- route map and responsive layout\n- not-found route\n- accessibility baseline\n\nMilestone 2 — primary read journey\n- list and detail views\n- loading / empty / error states\n- deterministic mock service\n\nMilestone 3 — primary mutation\n- form validation\n- create/update/delete action\n- success/error feedback\n\nMilestone 4 — persisted data and review\n- real service integration if ready\n- tests for critical flows\n- responsive/a11y checks\n- README, deployment and demo prep"
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why define an API contract before wiring the UI to a real service?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It clarifies request/response shapes and failure states so the UI and service can be developed predictably",
+          "correct": true,
+          "feedback": "The contract defines the boundary and makes successful and failed outcomes explicit."
+        },
+        {
+          "id": "b",
+          "text": "It automatically guarantees the API implementation is secure",
+          "correct": false,
+          "feedback": "A contract documents expectations; security still needs to be implemented and tested at the service/data layer."
+        },
+        {
+          "id": "c",
+          "text": "It means frontend code no longer needs runtime validation for external data",
+          "correct": false,
+          "feedback": "Static types do not prove an external JSON response matches the declared shape."
+        },
+        {
+          "id": "d",
+          "text": "It requires every endpoint to be written before a UI mock can be used",
+          "correct": false,
+          "feedback": "A service interface and mock data can support UI work before the final API implementation exists."
+        }
+      ],
+      "explanation": "A contract makes the boundary testable and allows UI and service work to progress independently without inventing success behavior."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "A page's wireframe should show only the ideal success state; error and empty states can be designed after implementation.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "Leaving failure and empty states until later often produces inconsistent or unusable flows."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "Important loading, empty, validation, error, and recovery states should be considered before implementation."
+        }
+      ],
+      "explanation": "Wireframes should communicate how the interface behaves, including situations where data is missing or an action fails."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Which are useful capstone planning artifacts? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "A page map with important states and navigation rules",
+          "correct": true,
+          "feedback": "It explains where journeys happen and how users reach screens."
+        },
+        {
+          "id": "b",
+          "text": "A documented API/service contract with success and error outcomes",
+          "correct": true,
+          "feedback": "It aligns the UI with the service boundary and makes failures explicit."
+        },
+        {
+          "id": "c",
+          "text": "A task called “build the whole app” with no smaller milestones",
+          "correct": false,
+          "feedback": "A broad task is hard to estimate, review, or validate incrementally."
+        },
+        {
+          "id": "d",
+          "text": "A component tree based on responsibility and state ownership",
+          "correct": true,
+          "feedback": "It clarifies component boundaries and the flow of data and actions."
+        }
+      ],
+      "explanation": "Good planning artifacts make routes, responsibilities, data contracts, and increments explicit before implementation."
+    },
+    {
+      "id": "capstone-design-exercise",
+      "type": "codingExercise",
+      "title": "Create the capstone design and implementation plan",
+      "language": "markdown",
+      "context": "Use the product brief from Week 21. This exercise produces planning artifacts; the lesson editor does not create Figma files or compile application code.",
+      "instructions": [
+        "Create a page map for the core user journeys and document route-level states.",
+        "Sketch low-fidelity wireframes for the two most important screens, including loading/empty/error where relevant.",
+        "Describe a component tree for each screen and identify the owner of each state.",
+        "Draw the feature/module boundaries and note which components/services should remain reusable.",
+        "Define the API/service contract for the primary read operation and primary mutation, including request, success, and failure shapes.",
+        "Decide which state belongs in the URL, local component state, shared client state, and persisted/server state.",
+        "Break the MVP into 3–5 vertical milestones with acceptance checks, dependencies, and a demo outcome.",
+        "Identify one architecture or data/security risk and write a mitigation or validation task."
+      ],
+      "requirements": [
+        "Every must-have user story maps to a screen/action and at least one acceptance check.",
+        "Wireframes communicate hierarchy, actions, feedback, accessibility, and responsive behavior.",
+        "Component/module boundaries have clear responsibilities and state ownership.",
+        "API contracts include request, success response, relevant failure states, and authorization assumptions.",
+        "State placement is deliberate; derived data is not duplicated without a reason.",
+        "Milestones are small enough to review and demonstrate independently.",
+        "Known dependencies, assumptions, and risks are explicit."
+      ],
+      "starterCode": "# Capstone design pack\n\n## Page map and routes\n\n## Screen states\n- Loading:\n- Empty:\n- Validation error:\n- Request error:\n- Success:\n- Recovery:\n\n## Wireframes\n- Screen A:\n- Screen B:\n\n## Component tree and ownership\n\n## Feature/module boundaries\n\n## API/service contract\n- Operation:\n- Method/path:\n- Request:\n- Success response:\n- Failure responses:\n- Authorization/data assumptions:\n\n## State placement\n- Local:\n- URL:\n- Shared client:\n- Server/persisted:\n- Derived:\n\n## Milestones\n1. Outcome / acceptance check / dependency\n2. Outcome / acceptance check / dependency\n3. Outcome / acceptance check / dependency\n4. Outcome / acceptance check / dependency\n\n## Risks and mitigation",
+      "hints": [
+        "Map each must-have story to an end-to-end slice rather than dividing work only by technical layer.",
+        "Use mocks to unblock the UI, but label them clearly and write down what remains before a real integration is complete.",
+        "Keep route state, form draft state, shared user preferences, and persisted server data conceptually separate."
+      ],
+      "successCriteria": [
+        "The plan connects requirements to pages, components, and acceptance checks.",
+        "The two core wireframes show both structure and important interface states.",
+        "Every module has a clear responsibility and state owner.",
+        "API contracts make success and failure behavior explicit.",
+        "The plan is broken into a few independent vertical milestones.",
+        "At least one important risk has an owner or concrete validation action."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Convert the product brief into a page map, wireframes, responsibilities, data contracts, and incremental plan.",
+        "Wireframes should show hierarchy, actions, feedback, responsive behavior, and important non-success states.",
+        "Architecture boundaries should follow responsibility, reuse, and state ownership—not arbitrary file count.",
+        "API contracts document requests, successful responses, errors, and authorization assumptions; types alone do not validate external data.",
+        "Plan demoable vertical slices with acceptance checks, dependencies, tests, and time for accessibility and integration."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "GOV.UK Service Manual: Prototyping",
+          "url": "https://www.gov.uk/service-manual/agile-delivery/prototyping",
+          "kind": "guide"
+        },
+        {
+          "title": "GOV.UK Service Manual: Service patterns",
+          "url": "https://design-system.service.gov.uk/patterns/",
+          "kind": "guide"
+        },
+        {
+          "title": "React: Thinking in React",
+          "url": "https://react.dev/learn/thinking-in-react",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Microsoft REST API Guidelines",
+          "url": "https://github.com/microsoft/api-guidelines",
+          "kind": "guide"
+        },
+        {
+          "title": "OWASP API Security Project",
+          "url": "https://owasp.org/www-project-api-security/",
+          "kind": "guide"
+        }
+      ]
+    }
+  ]
+}

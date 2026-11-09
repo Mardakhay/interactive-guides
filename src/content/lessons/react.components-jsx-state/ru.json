@@ -1,0 +1,372 @@
+{
+  "id": "react.components-jsx-state",
+  "locale": "ru",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-22",
+  "moduleId": "month-3-week-11",
+  "week": 11,
+  "order": 1,
+  "title": "Компоненты React, JSX, props и state",
+  "description": "Научись декларативно описывать UI, объединять переиспользуемые функциональные компоненты, передавать props только для чтения и обновлять состояние через useState.",
+  "estimatedMinutes": 70,
+  "difficulty": "beginner",
+  "prerequisites": [
+    "typescript.fundamentals",
+    "tooling.node-npm-vite"
+  ],
+  "learningOutcomes": [
+    "Объяснять декларативную модель рендеринга React.",
+    "Создавать функциональные компоненты и объединять их в страницу.",
+    "Читать JSX-выражения и выполнять условный рендеринг.",
+    "Передавать данные через props и считать их доступными только для чтения.",
+    "Использовать useState для значений, меняющихся со временем и влияющих на UI.",
+    "Обновлять массивы и объекты иммутабельно и применять функциональные обновления при необходимости."
+  ],
+  "tags": [
+    "react",
+    "components",
+    "jsx",
+    "props",
+    "state",
+    "useState"
+  ],
+  "blocks": [
+    {
+      "id": "react-declarative",
+      "type": "heading",
+      "level": 2,
+      "text": "React описывает UI для текущего состояния"
+    },
+    {
+      "id": "react-declarative-body",
+      "type": "paragraph",
+      "text": "В императивном DOM-коде обработчик часто находит элемент и напрямую меняет текст или классы. React использует декларативную модель: компоненты описывают интерфейс для текущих props и state, а React согласует это описание с DOM. Вместо ручного обновления тех же узлов изменяй данные, от которых зависит интерфейс, и позволь React отрисовать результат."
+    },
+    {
+      "id": "react-mental-model",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Компонент — переиспользуемая единица UI",
+      "text": "Функциональный компонент получает props, может читать собственное состояние и возвращает React-элементы. React может вызвать его снова, когда входные данные изменятся. Рендер описывает UI, а обработчики событий запрашивают изменения состояния при взаимодействии пользователя."
+    },
+    {
+      "id": "component-jsx",
+      "type": "heading",
+      "level": 2,
+      "text": "Функциональные компоненты и JSX"
+    },
+    {
+      "id": "component-jsx-body",
+      "type": "paragraph",
+      "text": "Функциональный компонент — функция с именем, начинающимся с заглавной буквы, которая возвращает React-элементы. JSX позволяет описывать дерево с помощью разметкообразного синтаксиса, преобразуемого сборщиком в JavaScript. Используй фигурные скобки для JavaScript-выражений, className для CSS-классов и родительский элемент или Fragment, если нужно вернуть несколько соседних элементов."
+    },
+    {
+      "id": "component-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type WelcomeProps = { name: string };\n\nfunction Welcome({ name }: WelcomeProps) {\n  return (\n    <section className=\"welcome\">\n      <h1>Привет, {name}!</h1>\n      <p>Выбери урок, чтобы продолжить.</p>\n    </section>\n  );\n}\n\nexport function App() {\n  return <Welcome name=\"Mira\" />;\n}",
+      "steps": [
+        {
+          "title": "Определи контракт входных данных",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "WelcomeProps задаёт обязательное свойство name. TypeScript может сообщить об отсутствующем или неверно типизированном prop."
+        },
+        {
+          "title": "Получи props как вход функции",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "Компонент извлекает name из props. Значение передаёт родитель, а дочерний компонент только читает его."
+        },
+        {
+          "title": "Опиши разметку с помощью JSX",
+          "lineStart": 4,
+          "lineEnd": 9,
+          "explanation": "JSX описывает section и дочерние узлы. Фигурные скобки вычисляют выражение name, а className задаёт CSS-класс."
+        },
+        {
+          "title": "Собери страницу из компонента",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "App использует Welcome как элемент и передаёт значение. Повторное использование с другими props меняет вывод без дублирования структуры."
+        }
+      ]
+    },
+    {
+      "id": "jsx-expressions",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Используй {expression}, чтобы вставить JavaScript-выражение в JSX; инструкции вроде if нельзя размещать прямо в позиции выражения.",
+        "Для условного рендеринга подойдут condition ? <A /> : <B /> или обычный if перед return.",
+        "Используй map для отображения коллекции и задавай каждому соседнему элементу стабильный key.",
+        "Имена компонентов начинаются с заглавной буквы; нативные HTML-теги — со строчной.",
+        "Props — данные или callback от родителя; не мутируй через них значения, которыми владеет родитель."
+      ]
+    },
+    {
+      "id": "props",
+      "type": "heading",
+      "level": 2,
+      "text": "Props настраивают дочерние компоненты"
+    },
+    {
+      "id": "props-body",
+      "type": "paragraph",
+      "text": "Props позволяют родителю передавать дочернему компоненту строки, числа, boolean, объекты, массивы и callback-функции. Считай их доступными только для чтения. Если ребёнку нужно запросить изменение, он может вызвать callback родителя или использовать подходящее локальное состояние. Компонент должен отображать актуальные props, а не предполагать, что значения никогда не меняются."
+    },
+    {
+      "id": "props-example",
+      "type": "code",
+      "language": "tsx",
+      "caption": "Передай данные и поведение переиспользуемой карточке",
+      "code": "type LessonCardProps = {\n  title: string;\n  durationMinutes: number;\n  onOpen: () => void;\n};\n\nfunction LessonCard({ title, durationMinutes, onOpen }: LessonCardProps) {\n  return (\n    <article>\n      <h2>{title}</h2>\n      <p>{durationMinutes} min</p>\n      <button onClick={onOpen}>Open lesson</button>\n    </article>\n  );\n}"
+    },
+    {
+      "id": "state",
+      "type": "heading",
+      "level": 2,
+      "text": "State сохраняется между рендерами"
+    },
+    {
+      "id": "state-body",
+      "type": "paragraph",
+      "text": "Локальная переменная внутри функции компонента создаётся заново, когда React вызывает функцию повторно. Изменение такой переменной не сообщает React, что UI нужно обновить. UseState предоставляет значение, которое React сохраняет между рендерами, и setter для планирования обновления. Значение состояния текущего рендера — снимок; вызов setter не меняет этот снимок на месте."
+    },
+    {
+      "id": "counter-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState } from \"react\";\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n  return (\n    <section>\n      <p>Счёт: {count}</p>\n      <button onClick={() => setCount(count + 1)}>Увеличить</button>\n    </section>\n  );\n}",
+      "steps": [
+        {
+          "title": "Инициализируй значение состояния",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "UseState(0) использует ноль в первом рендере и возвращает текущее значение вместе с setter-ом."
+        },
+        {
+          "title": "Отобрази текущий снимок",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "Выражение count вычисляется для этого рендера. После обновления состояния React вызовет компонент повторно с новым значением."
+        },
+        {
+          "title": "Запроси обновление по событию",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "Setter планирует обновление состояния. React координирует новый рендер и изменение DOM; это не прямая DOM-операция."
+        }
+      ]
+    },
+    {
+      "id": "immutable-updates",
+      "type": "heading",
+      "level": 2,
+      "text": "Обновляй состояние иммутабельно"
+    },
+    {
+      "id": "immutable-updates-body",
+      "type": "paragraph",
+      "text": "Когда состояние содержит массив или объект, возвращай новый массив или объект, описывающий изменение. Map, filter и object spread помогают выразить обновление, сохраняя остальные элементы и свойства. Если новое состояние зависит от ожидаемого предыдущего состояния — особенно при нескольких инкрементах в очереди — используй функциональный updater, чтобы каждый вызов получил последнее ожидаемое значение."
+    },
+    {
+      "id": "immutable-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "const [count, setCount] = useState(0);\n\nfunction addThree() {\n  setCount((current) => current + 1);\n  setCount((current) => current + 1);\n  setCount((current) => current + 1);\n}\n\nconst [user, setUser] = useState({ name: \"Mira\", role: \"learner\" });\nsetUser((current) => ({ ...current, role: \"admin\" }));",
+      "steps": [
+        {
+          "title": "Поставь в очередь обновления от ожидаемого состояния",
+          "lineStart": 3,
+          "lineEnd": 7,
+          "explanation": "Каждый updater получает ожидаемое значение, созданное предыдущим updater-ом. Так три инкремента надёжно добавляют три, хотя вызовы выполняются в одном обработчике."
+        },
+        {
+          "title": "Представь изменение объекта новым значением",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "Spread копирует свойства верхнего уровня в новый объект, а затем переопределяет role. Существующее имя сохраняется."
+        }
+      ]
+    },
+    {
+      "id": "hook-rules",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Соблюдай Rules of Hooks",
+      "text": "Вызывай useState и другие Hooks на верхнем уровне функционального компонента или custom Hook, а не внутри циклов, условий или вложенных функций. Постоянный порядок вызовов позволяет React сопоставлять каждый Hook с правильным состоянием или эффектом между рендерами."
+    },
+    {
+      "id": "react-quiz-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Что происходит, когда setter useState получает другое следующее значение?",
+      "options": [
+        {
+          "id": "a",
+          "text": "React планирует обновление и при необходимости выполняет новый рендер",
+          "correct": true,
+          "feedback": "Setter сообщает React об изменении состояния; React обновляет UI в соответствии с новым значением."
+        },
+        {
+          "id": "b",
+          "text": "Он напрямую меняет DOM-узел, содержащий значение",
+          "correct": false,
+          "feedback": "React координирует DOM на основе рендеринга; setter не является прямым DOM API."
+        },
+        {
+          "id": "c",
+          "text": "Он перезагружает документ браузера",
+          "correct": false,
+          "feedback": "Локальное обновление состояния обычно вызывает рендер React, а не полную перезагрузку."
+        },
+        {
+          "id": "d",
+          "text": "Переменная состояния сразу меняется в выполняющемся рендере",
+          "correct": false,
+          "feedback": "Текущий рендер сохраняет свой снимок; новое значение используется в следующем рендере."
+        }
+      ],
+      "explanation": "Setter планирует обновление; значение состояния текущего рендера остаётся снимком."
+    },
+    {
+      "id": "react-quiz-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "Дочерний компонент должен мутировать объект prop, если пользователь нажал кнопку.",
+      "options": [
+        {
+          "id": "true",
+          "text": "Верно",
+          "correct": false,
+          "feedback": "Мутация prop обходит ожидаемый поток данных и может не вызвать рендер React."
+        },
+        {
+          "id": "false",
+          "text": "Неверно",
+          "correct": true,
+          "feedback": "Props доступны только для чтения; используй callback или подходящее локальное состояние."
+        }
+      ],
+      "explanation": "Props задают однонаправленный поток данных от родителя к дочернему компоненту."
+    },
+    {
+      "id": "react-quiz-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Какие практики соответствуют обычным рекомендациям React о state? Выбери все подходящие варианты.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Использовать функциональный updater, если новое значение зависит от предыдущего состояния",
+          "correct": true,
+          "feedback": "Updater получает ожидаемое предыдущее значение и корректно объединяется с другими обновлениями в очереди."
+        },
+        {
+          "id": "b",
+          "text": "Создавать новый массив или объект для обновления структурированного состояния",
+          "correct": true,
+          "feedback": "Иммутабельные обновления делают переходы явными и сохраняют предсказуемые ссылки."
+        },
+        {
+          "id": "c",
+          "text": "Вызывать useState условно внутри if",
+          "correct": false,
+          "feedback": "Hooks должны вызываться на верхнем уровне и в одном порядке при каждом рендере."
+        },
+        {
+          "id": "d",
+          "text": "Мутировать объект состояния и передавать ту же ссылку обратно",
+          "correct": false,
+          "feedback": "Мутация скрывает изменение и может привести к тому, что React сочтёт значение прежним."
+        }
+      ],
+      "explanation": "Используй предсказуемые иммутабельные обновления и соблюдай Rules of Hooks."
+    },
+    {
+      "id": "react-practice",
+      "type": "codingExercise",
+      "title": "Создай счётчик и список задач на состоянии React",
+      "language": "tsx",
+      "context": "Реализуй упражнение в React-проекте. Редактор сохраняет черновик, но не компилирует TSX в браузере.",
+      "instructions": [
+        "Создай компонент Counter с useState и кнопкой увеличения.",
+        "Добавь кнопку, увеличивающую счётчик на три с помощью функциональных updater-ов.",
+        "Определи Task с полями id, title и completed.",
+        "Отображай задачи из state со стабильными keys и разреши отметить задачу выполненной через map.",
+        "Добавляй задачи созданием нового массива, не мутируя предыдущий.",
+        "Объясни, почему изменение локальной переменной не вызывает рендер, а обновление state вызывает.",
+        "Если выделяешь TaskItem, передавай props и не мутируй их.",
+        "Проверь повторные нажатия и добавление нескольких задач."
+      ],
+      "requirements": [
+        "Функции компонентов возвращают корректный JSX, имена используют PascalCase.",
+        "Счётчик основан на useState, а не на изменяемой локальной переменной.",
+        "Кнопка увеличения на три использует функциональные updater-ы.",
+        "Добавление и обновление задач выполняется иммутабельно.",
+        "У отображаемых задач есть стабильные keys.",
+        "Ученик может объяснить props, снимок state и повторный рендер."
+      ],
+      "starterCode": "import { useState } from \"react\";\n\ntype Task = { id: number; title: string; completed: boolean };\n\nexport function PracticePanel() {\n  const [count, setCount] = useState(0);\n  const [tasks, setTasks] = useState<Task[]>([]);\n\n  function addTask() {\n    // TODO: добавь задачу через новый массив.\n  }\n\n  function completeTask(id: number) {\n    // TODO: используй map и иммутабельно обнови нужную задачу.\n  }\n\n  return (\n    <section>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount((current) => current + 1)}>Increase</button>\n      <button onClick={() => {\n        // TODO: увеличь на три функциональными обновлениями.\n      }}>Increase by three</button>\n      <button onClick={addTask}>Add task</button>\n      <ul>{tasks.map((task) => (\n        <li key={task.id}>\n          <span>{task.completed ? \"✓ \" : \"\"}{task.title}</span>\n          <button onClick={() => completeTask(task.id)}>Complete</button>\n        </li>\n      ))}</ul>\n    </section>\n  );\n}",
+      "hints": [
+        "Каждое обновление должно возвращать новый массив, а не мутировать существующий.",
+        "Используй map, чтобы сохранить все задачи и изменить только ту, чей ID совпал.",
+        "Для нескольких инкрементов, зависящих от прошлого значения, используй updater-функции."
+      ],
+      "successCriteria": [
+        "Счётчик реагирует на каждый клик.",
+        "Кнопка увеличения на три добавляет ровно три.",
+        "Добавление задач сохраняет предыдущие данные.",
+        "Выполнение одной задачи не меняет остальные.",
+        "У каждого элемента списка есть стабильный key.",
+        "Ты можешь объяснить различие между state React и локальной переменной."
+      ]
+    },
+    {
+      "id": "react-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Компоненты описывают UI декларативно на основе props и state.",
+        "JSX описывает элементы; фигурные скобки вычисляют JavaScript-выражения.",
+        "Props — входные данные только для чтения; state представляет значения, меняющиеся со временем.",
+        "Setter useState планирует рендер; он не меняет DOM напрямую и не меняет снимок текущего рендера.",
+        "Обновляй массивы и объекты иммутабельно, а если новое значение зависит от предыдущего — используй functional updater."
+      ]
+    },
+    {
+      "id": "react-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "React: Your First Component",
+          "url": "https://react.dev/learn/your-first-component",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Passing Props to a Component",
+          "url": "https://react.dev/learn/passing-props-to-a-component",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: State as a Snapshot",
+          "url": "https://react.dev/learn/state-as-a-snapshot",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Queueing a Series of State Updates",
+          "url": "https://react.dev/learn/queueing-a-series-of-state-updates",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Updating Arrays in State",
+          "url": "https://react.dev/learn/updating-arrays-in-state",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}
