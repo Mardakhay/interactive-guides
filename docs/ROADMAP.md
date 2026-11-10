@@ -18,8 +18,8 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Add tests for schema invariants, bilingual lesson structure, curriculum order, repository lookups and walkthrough line references.
 - [x] Add a full-course EN/RU block-structure and knowledge-check presence invariant.
 - [x] Run a static audit of 26 bilingual lesson pairs for block identity, walkthrough ranges, quiz answer structure, and practice completeness (`CONTENT_AUDIT.md`).
-- [ ] Map all legacy lesson files to exact curriculum/sub-track lesson IDs.
-- [ ] Add a content editorial/review/publishing checklist and workflow.
+- [x] Map all 25 legacy HTML files to existing canonical lesson IDs where available, and explicitly record TBD destinations for future supplementary content (`LEGACY_CONTENT_INVENTORY.md`).
+- [x] Add a content editorial/review/publishing checklist and workflow (`EDITORIAL_REVIEW_CHECKLIST.md`).
 - Acceptance: content loads only through schema validation, canonical ordering is stable, and CI validates content invariants.
 
 ## Phase 2 — Application UI and locale routing
@@ -42,7 +42,7 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Validate code-walkthrough line references against sample length.
 - [x] Persist completed lesson sections with a version-tolerant schema; test preservation during draft reset and backup merge.
 - [ ] Add a richer review queue.
-- [x] Add a disposable Web Worker runner for ordinary JavaScript exercises with a 1.5-second hard-stop timeout, source/output limits, common network-capability blocking and tests.
+- [x] Add a disposable Web Worker runner for ordinary JavaScript exercises with a 1.5-second hard-stop timeout, source/output limits, common network-capability blocking, actual async-snippet execution coverage and tests.
 - [ ] Evaluate separate execution support for TypeScript/TSX and DOM-dependent lessons; shell and real network workflows continue in the learner's own project.
 - Note: the Worker runner is a learning aid, not a hardened security boundary for hostile code; the UI displays this limitation explicitly.
 - [ ] Add stronger coding-practice evidence; do not confuse a checklist tick with validated correctness.
@@ -54,6 +54,7 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Create an initial Week 1 pilot and add structured Week 2–4 content in both locales.
 - [ ] Fully audit each HTML file including headings, code, diagrams, hidden answers, links and interactions.
 - [ ] Review and fact-check the new Week 1 web fundamentals and Week 8 async/Fetch/Git lessons, including EN/RU equivalence.
+- [ ] Apply the editorial checklist to every lesson pair before changing `status: review`.
 - [ ] Review source accuracy and translation parity for the four pilots.
 - [x] Create structured bilingual content for the complete 24-week core syllabus.
 - [ ] Review each mapped legacy HTML source line-by-line and reconcile it against the replacement lesson; implementation is not proof of source parity.
@@ -64,10 +65,11 @@ Use small, reversible phases; keep useful current behavior working while migrati
 ## Phase 5 — Local-first persistence
 - [x] Add local storage for structured quiz attempt history, code drafts and practice checklist state.
 - [x] Add validated local-data export/import with preview, merge rules and best-effort rollback (`src/features/data-portability/backup.ts`, Data Management page, tests).
-- [ ] Add explicit migrations between persisted schema versions as storage contracts evolve.
+- [x] Add an explicit raw-v1 to versioned-v2 migration for structured learning state, preserving old records until the new copy has been written; keep backup export/import payload format stable.
 - [ ] Preserve existing progress, notes, bookmarks and old quiz results through data-shape changes.
 - [x] Surface localStorage write/removal failures with a localized warning and tests.
-- [ ] Add a user-triggered retry/recovery flow for failed persistence and explicit schema-version migrations.
+- [x] Add a localized storage warning that distinguishes read/write/remove failures and a user-triggered retry that re-writes current in-memory progress, bookmarks, notes, quiz results and structured learning state after write failures.
+- [ ] Add migrations for other persisted stores when their data schemas change; the current explicit v1→v2 migration is scoped to structured learning.
 - Acceptance: upgrades cannot silently reset existing learner data.
 
 ## Phase 6 — Supabase auth and sync

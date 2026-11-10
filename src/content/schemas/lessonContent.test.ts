@@ -1,4 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import englishNetwork from '../lessons/network.dns-tcp-tls/en.json';
+import russianNetwork from '../lessons/network.dns-tcp-tls/ru.json';
+import englishBrowserRendering from '../lessons/browser.rendering-pipeline/en.json';
+import russianBrowserRendering from '../lessons/browser.rendering-pipeline/ru.json';
 import englishLesson from '../lessons/html-document-structure/en.json';
 import russianLesson from '../lessons/html-document-structure/ru.json';
 import englishForms from '../lessons/html.forms-accessibility/en.json';
@@ -386,5 +390,26 @@ describe('Capstone review and demo lesson translation', () => {
     expect(englishCapstoneReview.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianCapstoneReview.blocks.map(({ id, type }) => ({ id, type })),
     );
+  });
+});
+
+describe('supplementary lesson placement and locale parity', () => {
+  it('accepts both locales and keeps their ordered block structure aligned', () => {
+    for (const [en, ru] of [[englishNetwork, russianNetwork], [englishBrowserRendering, russianBrowserRendering]] as const) {
+      expect(lessonTranslationSchema.safeParse(en).success).toBe(true);
+      expect(lessonTranslationSchema.safeParse(ru).success).toBe(true);
+      expect(en.id).toBe(ru.id);
+      expect(en.week).toBeUndefined();
+      expect(ru.week).toBeUndefined();
+      expect(en.supplementaryTrackId).toBe(ru.supplementaryTrackId);
+      expect(en.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+        ru.blocks.map(({ id, type }) => ({ id, type })),
+      );
+    }
+  });
+
+  it('requires exactly one core-week or supplementary-track placement', () => {
+    expect(lessonTranslationSchema.safeParse({ ...englishNetwork, supplementaryTrackId: undefined }).success).toBe(false);
+    expect(lessonTranslationSchema.safeParse({ ...englishLesson, supplementaryTrackId: 'supplement-network-browser' }).success).toBe(false);
   });
 });

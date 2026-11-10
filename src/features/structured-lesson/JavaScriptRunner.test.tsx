@@ -90,4 +90,32 @@ describe('JavaScriptRunner', () => {
     expect(source).not.toContain('</script>');
     expect(source).not.toContain('window.location');
   });
+  it('executes an async snippet and reports its returned value', async () => {
+    const messages: Array<{ protocol: string; type: string; kind?: string; text?: string }> = [];
+    const workerScope: {
+      postMessage: (message: unknown) => void;
+      console: Console;
+      onmessage: ((event: MessageEvent) => void) | null;
+      [key: string]: unknown;
+    } = {
+      postMessage: (message) => messages.push(message as { protocol: string; type: string; kind?: string; text?: string }),
+      console: {
+        log() {}, info() {}, warn() {}, error() {}, debug() {}, table() {},
+      } as unknown as Console,
+      onmessage: null,
+    };
+
+    const executeBootstrap = new Function('self', buildWorkerSource()) as (scope: typeof workerScope) => void;
+    executeBootstrap(workerScope);
+    workerScope.onmessage?.({
+      data: { type: 'run', code: 'await Promise.resolve(); return 3;' },
+    } as MessageEvent);
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(messages.some((message) => message.type === 'output' && message.kind === 'result' && message.text === '3')).toBe(true);
+    expect(messages.some((message) => message.type === 'finished')).toBe(true);
+    expect(messages.some((message) => message.type === 'runtime-error')).toBe(false);
+  });
+
 });

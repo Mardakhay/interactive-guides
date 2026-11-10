@@ -1,3 +1,7 @@
+import englishNetwork from './lessons/network.dns-tcp-tls/en.json';
+import russianNetwork from './lessons/network.dns-tcp-tls/ru.json';
+import englishBrowserRendering from './lessons/browser.rendering-pipeline/en.json';
+import russianBrowserRendering from './lessons/browser.rendering-pipeline/ru.json';
 import englishWebBasics from './lessons/web.internet-http/en.json';
 import russianWebBasics from './lessons/web.internet-http/ru.json';
 import englishPilot from './lessons/html-document-structure/en.json';
@@ -59,6 +63,10 @@ export const SUPPORTED_LOCALES = ['en', 'ru'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 const lessonTranslations = [
+  lessonTranslationSchema.parse(englishNetwork),
+  lessonTranslationSchema.parse(russianNetwork),
+  lessonTranslationSchema.parse(englishBrowserRendering),
+  lessonTranslationSchema.parse(russianBrowserRendering),
   lessonTranslationSchema.parse(englishWebBasics),
   lessonTranslationSchema.parse(russianWebBasics),
   lessonTranslationSchema.parse(englishPilot),
@@ -136,6 +144,16 @@ export function getWeekForLesson(lessonId: string, locale: SupportedLocale) {
     .find((week) => week.lessonIds.includes(lessonId));
 }
 
+/** Resolves the supplementary track that owns a lesson, if it is outside the core syllabus. */
+export function getSupplementaryTrackForLesson(lessonId: string, locale: SupportedLocale) {
+  return curricula[locale].supplementaryTracks.find((track) => track.lessonIds.includes(lessonId));
+}
+
+/** Resolves a supplementary track by its stable identifier. */
+export function getSupplementaryTrackById(trackId: string, locale: SupportedLocale) {
+  return curricula[locale].supplementaryTracks.find((track) => track.id === trackId);
+}
+
 /** Returns the canonical week record by its stable identifier. */
 export function getCurriculumWeek(weekId: string, locale: SupportedLocale) {
   const curriculum = curricula[locale];
@@ -148,10 +166,25 @@ export function getStructuredLessonIds() {
   return [...new Set(lessonTranslations.map((lesson) => lesson.id))];
 }
 
-/** Finds neighboring available structured lessons in canonical curriculum order. */
+/** Finds neighboring lessons in core syllabus order or within one supplementary track. */
 export function getAdjacentStructuredLessons(lessonId: string, locale: SupportedLocale): {
   previous: LessonTranslation | undefined;
   next: LessonTranslation | undefined;
+} {
+  const coreWeek = getWeekForLesson(lessonId, locale);
+  const supplementaryTrack = coreWeek ? undefined : getSupplementaryTrackForLesson(lessonId, locale);
+  const ids = coreWeek
+    ? curricula[locale].months.flatMap((month) => month.weeks).flatMap((week) => week.lessonIds)
+    : supplementaryTrack?.lessonIds ?? [];
+  const orderedLessons: LessonTranslation[] = ids
+    .map((id) => lessonTranslations.find((lesson) => lesson.id === id && lesson.locale === locale))
+    .filter((lesson): lesson is LessonTranslation => lesson !== undefined);
+  const index = orderedLessons.findIndex((lesson) => lesson.id === lessonId);
+  if (index < 0) return { previous: undefined, next: undefined };
+  return {
+    previous: index > 0 ? orderedLessons[index - 1] : undefined,
+    next: index < orderedLessons.length - 1 ? orderedLessons[index + 1] : undefined,
+  };
 } {
   const orderedLessons: LessonTranslation[] = curricula[locale].months
     .flatMap((month) => month.weeks)

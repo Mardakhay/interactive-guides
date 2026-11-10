@@ -51,3 +51,19 @@ describe('localized curriculum parity', () => {
     );
   });
 });
+
+describe('supplementary track schema', () => {
+  it('supports lesson ownership while keeping the original 24 core weeks', () => {
+    const parsed = bootcampCurriculumSchema.parse(englishCurriculum);
+    expect(parsed.supplementaryTracks.find((track) => track.id === 'supplement-network-browser')?.lessonIds).toEqual(['network.dns-tcp-tls']);
+    expect(parsed.supplementaryTracks.find((track) => track.id === 'supplement-browser-architecture')?.lessonIds).toEqual(['browser.rendering-pipeline']);
+    expect(parsed.months.flatMap((month) => month.weeks)).toHaveLength(24);
+  });
+
+  it('rejects the same supplementary lesson assigned to multiple tracks', () => {
+    const parsed = bootcampCurriculumSchema.parse(englishCurriculum);
+    const invalid = structuredClone(parsed);
+    invalid.supplementaryTracks.push({ ...invalid.supplementaryTracks[0]!, id: 'duplicate-track' });
+    expect(bootcampCurriculumSchema.safeParse(invalid).success).toBe(false);
+  });
+});

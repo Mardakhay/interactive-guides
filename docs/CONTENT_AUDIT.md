@@ -3,7 +3,7 @@
 **Audit date:** 2026-10-22  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Working branch:** `feat/learning-platform-foundation`  
-**Checkpoint SHA before this documentation update:** `d8676ba3b4813ea8d9e9483f0436704e53a9a42a`
+**Content snapshot:** verified in the structured-content tree at implementation checkpoint `ab64fcbb54f00a0bbd302da3061bd9aa1936f211`
 
 ## Scope
 
@@ -61,7 +61,7 @@ GitHub Actions additionally validates imported lesson schemas, content reference
 - That the complete app shell is localized, accessible, and polished at every mobile viewport.
 - That PWA install/offline behavior passes on real devices.
 
-Every lesson remains marked `review`. Do not interpret a successful schema/CI run as editorial approval.
+Every lesson remains marked `review`. Do not interpret a successful schema/CI run as editorial approval. Use [`EDITORIAL_REVIEW_CHECKLIST.md`](./EDITORIAL_REVIEW_CHECKLIST.md) for the human review and publication gate.
 
 ## Follow-up review workflow
 
