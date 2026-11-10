@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Languages } from 'lucide-react';
-import { getBootcampCurriculum, getStructuredLesson, SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
+import { getBootcampCurriculum, getStructuredLessonMetadata, SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
 
 function isSupportedLocale(value: string | undefined): value is SupportedLocale {
   return SUPPORTED_LOCALES.some((locale) => locale === value);
@@ -121,7 +121,7 @@ export default function StructuredCurriculumPage() {
                   {week.project && <p className="mt-4 rounded-lg bg-primary-50 p-3 text-sm leading-6 text-primary-900"><strong>{copy.project}:</strong> {week.project}</p>}
                   <div className="mt-4 flex flex-wrap gap-2">
                     {week.lessonIds.map((id) => {
-                      const lesson = getStructuredLesson(id, locale);
+                      const lesson = getStructuredLessonMetadata(id, locale);
                       if (!lesson) return null;
                       return (
                         <Link key={id} to={'/' + locale + '/structured-lessons/' + id} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary-700 px-3 py-2 text-sm font-semibold text-white hover:bg-primary-800">
@@ -154,7 +154,7 @@ export default function StructuredCurriculumPage() {
               </ul>
               <div className="mt-4 flex flex-wrap gap-2">
                 {track.lessonIds.map((id) => {
-                  const lesson = getStructuredLesson(id, locale);
+                  const lesson = getStructuredLessonMetadata(id, locale);
                   if (!lesson) return null;
                   return (
                     <Link key={id} to={'/' + locale + '/structured-lessons/' + id} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-800 hover:border-amber-500">

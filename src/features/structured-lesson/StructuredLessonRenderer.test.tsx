@@ -4,8 +4,8 @@ import { getStructuredLesson } from '@/content/repository';
 import { StructuredLessonRenderer } from './StructuredLessonRenderer';
 
 describe('StructuredLessonRenderer', () => {
-  it('renders structured prose, code and an independent coding exercise', () => {
-    const lesson = getStructuredLesson('html.document-structure', 'en');
+  it('renders structured prose, code and an independent coding exercise', async () => {
+    const lesson = await getStructuredLesson('html.document-structure', 'en');
     if (!lesson) throw new Error('English pilot lesson is missing');
 
     render(<StructuredLessonRenderer lesson={lesson} />);
@@ -16,8 +16,8 @@ describe('StructuredLessonRenderer', () => {
     expect(screen.getAllByLabelText('Your code').length).toBeGreaterThan(0);
   });
 
-  it('gives feedback when a learner submits a knowledge-check answer', () => {
-    const lesson = getStructuredLesson('html.document-structure', 'en');
+  it('gives feedback when a learner submits a knowledge-check answer', async () => {
+    const lesson = await getStructuredLesson('html.document-structure', 'en');
     if (!lesson) throw new Error('English pilot lesson is missing');
 
     render(<StructuredLessonRenderer lesson={lesson} />);
@@ -29,8 +29,8 @@ describe('StructuredLessonRenderer', () => {
     expect(screen.getByText(/Document metadata belongs in head/)).toBeTruthy();
   });
 
-  it('renders the Russian pilot and localized interaction labels', () => {
-    const lesson = getStructuredLesson('html.document-structure', 'ru');
+  it('renders the Russian pilot and localized interaction labels', async () => {
+    const lesson = await getStructuredLesson('html.document-structure', 'ru');
     if (!lesson) throw new Error('Russian pilot lesson is missing');
 
     render(<StructuredLessonRenderer lesson={lesson} />);
@@ -41,8 +41,8 @@ describe('StructuredLessonRenderer', () => {
   });
 });
 
-  it('offers a restricted Worker runner for JavaScript without DOM requirements', () => {
-    const lesson = getStructuredLesson('js.basics-types-control-flow', 'en');
+  it('offers a restricted Worker runner for JavaScript without DOM requirements', async () => {
+    const lesson = await getStructuredLesson('js.basics-types-control-flow', 'en');
     if (!lesson) throw new Error('JavaScript lesson is missing');
 
     render(<StructuredLessonRenderer lesson={lesson} />);
@@ -51,8 +51,8 @@ describe('StructuredLessonRenderer', () => {
     expect(screen.getAllByText(/common network APIs are deliberately blocked/i).length).toBeGreaterThan(0);
   });
 
-  it('explains that DOM-dependent exercises need a local browser project', () => {
-    const lesson = getStructuredLesson('js.dom-events', 'en');
+  it('explains that DOM-dependent exercises need a local browser project', async () => {
+    const lesson = await getStructuredLesson('js.dom-events', 'en');
     if (!lesson) throw new Error('DOM lesson is missing');
 
     render(<StructuredLessonRenderer lesson={lesson} />);

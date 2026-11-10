@@ -5,6 +5,13 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
+
+## Current checkpoint — 2026-10-27
+
+- Feature head at start of this checkpoint: `cb24724b5b1c5317c24cf3adf6af5f40f944afda`; exact-head CI passed [40500504527](https://github.com/Mardakhay/interactive-guides/actions/runs/40500504527). `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
+- Latest implementation work adds pre-restore snapshot-read protection and stronger storage/backup failure-path tests; the test listener cleanup was also corrected to remove the exact registered callback in `afterEach`.
+- A manual smoke-test protocol now exists at [`BROWSER_SMOKE_TEST_CHECKLIST.md`](./BROWSER_SMOKE_TEST_CHECKLIST.md). It is a procedure, not evidence that a browser/device run was completed.
+- Current near-term priorities: verify CI for the current docs/status update, record manual Phase 5 browser/device results when a real environment is available, then continue the open source-claim parity and UI/reader acceptance. Do not start Supabase implementation before conflict/RLS/product gates are resolved.
 ## Project goal
 
 Rebuild the existing Interactive Guides as a cohesive bilingual (English/Russian), mobile-friendly, PWA-ready learning platform based on:
@@ -791,3 +798,87 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - Regression coverage: export/parse round-trip; absent-store defaults; non-mutating legacy structured-state read; malformed stored data; malformed/unsupported backup; replacement and legacy-key cleanup; rollback after a write error; summary counts.
 - Exact-head CI for code commit `73a47b96b1c0fc00d454c0cd955f24514bb32024` passed [run #40487424471](https://github.com/Mardakhay/interactive-guides/actions/runs/40487424471). This docs-only checkpoint follows; check CI on its final HEAD before concluding the task.
 - Remaining Phase 5 items: independent versioned repositories/migration across all stores, broad unavailable-storage/migration-retry testing, browser download/file-picker smoke evidence, and a documented policy for future local/cloud reconciliation. Supabase remains not started. Keep work on `feat/learning-platform-foundation`; `main` is unchanged.
+
+## Versioned local-store continuation — 2026-10-27
+
+- `src/lib/versionedStorage.ts` now backs progress, bookmarks, notes and classic quiz-result stores with a versioned envelope (`format: interactive-guides-local-store`, `schemaVersion: 1`, `data`). Valid existing raw JSON records are migrated at read time. If migration write fails, the source raw value stays intact and the validated in-memory data remains available so a later read can retry; unsupported or malformed records are not overwritten.
+- The independent user backup format is still `interactive-guides-backup` v1. It imports current envelopes and raw legacy datasets, exports a stable portable model, and restores as versioned envelopes for the four classic stores plus the existing structured-learning v2 envelope.
+- Tests cover successful migration, migration write failure and retry, unknown future version, invalid state, storage read/write errors, backup reading of versioned records, restoring all versioned records and rollback. Code SHA `3b6bb04caf338282f1f8f52d8724d11f7792b7a3` passed CI run [40489627861](https://github.com/Mardakhay/interactive-guides/actions/runs/40489627861).
+- Remaining Phase 5 gates: store action-level integration tests across each slice and browser/device file-picker/download smoke checks. Supabase remains gated until local-first contracts and acceptance evidence are stable. Work remains on `feat/learning-platform-foundation`; do not merge/change `main` as part of continuation.
+
+## Learner-store action test checkpoint — 2026-10-27
+
+- Added `src/features/persistence/storePersistence.test.ts` to exercise state-store actions against persisted schema-v1 envelopes: progress open/complete, bookmark add/dedup/toggle, note editing/blank deletion, and quiz attempt save/clear.
+- Shared `versionedStorage.test.ts` covers raw JSON migration, a failed migration write preserving the old raw value, retry on a subsequent read, future schema-version rejection, invalid data and storage read/write errors. Backup tests cover raw and versioned record compatibility and restore envelopes for all four classic stores.
+- Exact-head CI passed for code commit `0fd1b488a2a6ea1b1c7c54eda5194b3bb3f4393c` in run [40490205475](https://github.com/Mardakhay/interactive-guides/actions/runs/40490205475). The follow-up docs commit needs exact-head CI.
+- Remaining Phase 5 acceptance: real-browser/device checks for download, file picker, invalid/oversize file, confirmation, successful restore and failure/recovery feedback. Do not mark Phase 5 complete until those checks are recorded.
+
+## Backup UI interaction coverage — 2026-10-27
+
+- Expanded `src/app/pages/BackupPage.test.tsx` beyond render-only checks: valid upload/preview, explicit replacement confirmation, successful restore with active-store and persisted-envelope assertions, malformed JSON, pre-read 10 MiB size rejection, and JSON download filename/announcement/object-URL cleanup.
+- These are automated Vitest/jsdom interaction tests. The roadmap's real-browser/device gate remains open: still verify native file picker, actual browser download behavior, storage-denied/quota behavior, and the UI flow in supported desktop/mobile browsers.
+
+
+## Backup file-read race hardening — 2026-10-27
+
+- `BackupPage` now uses a monotonically increasing read token so results from a slower earlier `File.text()` cannot overwrite the preview/status for a newer file selection. The active request is invalidated on unmount as well.
+- Added an interaction regression test where an invalid first file resolves after a valid second file; the valid preview/status must remain and no stale error may appear. Exact-head CI for the prior UI interaction tests passed run [40492610625](https://github.com/Mardakhay/interactive-guides/actions/runs/40492610625); this race-fix commit needs its own CI.
+
+
+## Reconciliation proposal and backup hardening — 2026-10-27
+
+- Added `docs/LOCAL_CLOUD_RECONCILIATION.md` (proposal only) with per-entity conflict rules, schema gaps, idempotency/revision/tombstone requirements and acceptance tests. Supabase remains unimplemented; review note-sync privacy, classic quiz history, bookmark conflict behavior and conflict UX before migration.
+- `/backup` UI tests cover import preview, confirmation gating, successful restore to active stores and versioned storage, malformed JSON, 10 MiB guard, dated download filename/status and object-URL cleanup. `BackupPage` ignores stale async file reads after a newer selection and invalidates pending reads on unmount.
+- Exact-head CI for backup UI and file-read race hardening: [40492871900](https://github.com/Mardakhay/interactive-guides/actions/runs/40492871900) succeeded on `36f9ee744b20ee14c9d3ac0b2b63e05eba1d0b76` (lint, typecheck, tests, build).
+
+
+## Global persistence-error visibility — 2026-10-27
+
+- The application shell now mounts `StorageErrorNotice`, which surfaces existing and future `STORAGE_ERROR_EVENT` failures for read/write/remove operations. It uses `useSyncExternalStore` and a separate clear notification so dismissing updates the external snapshot while future errors remain visible.
+- EN/RU copy explains that a failed write may remain only in memory; it does not claim the data has been saved. Component tests cover pre-mount failure, live update, dismissal, and Russian copy.
+- Code commit `011379483d21de82387c07f9de8248e7efedf200` is under exact-head CI run [40494213854](https://github.com/Mardakhay/interactive-guides/actions/runs/40494213854). Browser/device localStorage privacy/quota checks and `/backup` native file-picker/download smoke testing remain open.
+
+
+## Storage-error notice final CI checkpoint — 2026-10-27
+
+- `StorageErrorNotice` is mounted in `AppLayout`, uses the versioned storage-error snapshot/events, supports dismiss and later re-announcement, and has EN/RU copy. Component tests cover pre-mount failure, live event, dismissal and locale.
+- Final exact-head CI passed for code commit `56197eb6a903d6f808ea5944d01627f7dfc00381` in run [40494779602](https://github.com/Mardakhay/interactive-guides/actions/runs/40494779602). A missing `MemoryRouter` and an unwrapped event update were corrected in the test harness.
+- Remaining user-facing acceptance gates are actual browser/device checks for localStorage privacy/quota failures and the `/backup` file picker/download/recovery flow.
+
+
+## Storage notice shell integration — 2026-10-27
+
+- Added `src/components/layout/AppLayout.test.tsx` to verify a storage write error reported before mount is surfaced by the actual application shell. This protects the wiring between `AppLayout` and `StorageErrorNotice` in addition to the notice's own interaction tests.
+- The preceding exact-head component test suite passed run [40495155044](https://github.com/Mardakhay/interactive-guides/actions/runs/40495155044); verify CI on the new integration test before calling it validated. Browser/device localStorage quota/privacy and `/backup` file picker/download checks remain open.
+
+
+## Storage-error application-shell acceptance — 2026-10-27
+
+- Added `src/components/layout/AppLayout.test.tsx` so the global warning is verified through the actual layout, not only in isolation: a write failure reported before mounting becomes a visible `role=alert` in the app shell.
+- Exact-head CI passed on `d2e9fc961b01a28353d72772b8d4d95b5cd1b13b` in run [40495501752](https://github.com/Mardakhay/interactive-guides/actions/runs/40495501752) (npm ci, lint, typecheck, tests, production build).
+- Remaining Phase 5 user-environment checks are localStorage privacy/quota behavior and `/backup` file picker/download/recovery in real browsers/devices.
+
+## Backup restore failure recovery — 2026-10-27
+
+- Added page-level tests for both rollback-success and rollback-failure paths. The first preserves the previous raw values and active store state; the second verifies the urgent recovery message and ensures the imported payload is not published into Zustand after a partial storage failure.
+- Exact-head CI passed on `c3208ddac964003dd6c119e9fb41a8b78c601435`: [run 40497324096](https://github.com/Mardakhay/interactive-guides/actions/runs/40497324096). Checks: npm install, lint, typecheck, tests and production build.
+- Still open: native browser/device localStorage privacy/quota behavior, file picker/download, and restore recovery smoke checks. These cannot be claimed from jsdom tests.
+
+## Backup export and rollback boundary validation — 2026-10-27
+
+- Extended backup tests to validate the downloaded JSON payload itself (format/version, included note content, intended dataset keys, exclusion of UI preferences) and to assert that malformed stored state aborts export before object URL creation.
+- Added a storage-unit regression test for failure removing the legacy structured-learning key after replacement writes; all prior raw values must be restored. Existing UI tests cover rollback success/failure and active-store behavior.
+- Exact-head CI passed on `814c4d6f51deefb8f8904a4a3a15321aa537d233`: [run 40497807964](https://github.com/Mardakhay/interactive-guides/actions/runs/40497807964). An intermediate test-only failure on `35a79df` was due to jsdom Blob missing `.text()` and was corrected by using `FileReader`.
+- Next: continue reviewing Phase 5 acceptance and current source-audit gaps. Manual real-browser/device tests for storage privacy/quota and native file picker/download remain open.
+
+## Structured-learning migration cleanup test — 2026-10-27
+
+- Added a migration test where the v2 envelope write succeeds but removal of the v1 legacy key throws. The current record remains usable, the legacy raw record is preserved, and the central storage alert records the `remove` failure.
+- Exact-head CI passed on `9fb38aa1252e6a8f9191b777889b3c8cbe1229dc`: [40498451420](https://github.com/Mardakhay/interactive-guides/actions/runs/40498451420).
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 is open Draft. Real-browser/device localStorage quota/privacy and `/backup` file-picker/download acceptance remain open.
+
+## Backup snapshot-read safety test — 2026-10-27
+
+- `backup.test.ts` simulates a SecurityError while collecting the pre-restore snapshot and verifies that no `setItem` or `removeItem` calls occur and every prior raw value remains unchanged.
+- Exact-head CI passed on `b9f500ee8509a986c12b0babd25a2c9947183a90`: [40498940471](https://github.com/Mardakhay/interactive-guides/actions/runs/40498940471).
+- Backup/restore failure paths now cover snapshot-read failure, write failure with successful rollback, legacy-key removal failure and rollback failure. Actual browser/device acceptance remains open.

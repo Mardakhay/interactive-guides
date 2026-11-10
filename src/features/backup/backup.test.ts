@@ -3,6 +3,7 @@ import { STORAGE_KEYS } from '@/lib/constants';
 import { clearLastStorageError } from '@/lib/storage';
 import { BACKUP_FORMAT, BACKUP_SCHEMA_VERSION, BackupError, createLocalBackup, getBackupSummary, parseBackup, restoreLocalBackup, serializeBackup } from './backup';
 import { LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, STRUCTURED_LEARNING_STORAGE_KEY } from '@/features/structured-lesson/schemas';
+import { createLocalStoreRecord, LOCAL_STORE_FORMAT } from '@/lib/versionedStorage';
 
 class MemoryStorage implements Storage {
   private values = new Map<string, string>();
@@ -38,7 +39,7 @@ function createPopulatedStorage(): MemoryStorage {
     quizAttempts: { 'html-basics::check-1': [{ selectedOptionIds: ['b'], isCorrect: true, submittedAt: '2026-10-01T10:15:00.000Z' }] },
     codeDrafts: { 'html-basics::exercise-1': { code: 'const total = 3;', updatedAt: '2026-10-01T10:15:00.000Z' } },
     practiceChecklists: { 'html-basics::exercise-1': { checkedCriteria: [0], updatedAt: '2026-10-01T10:15:00.000Z' } },
-    sectionProgress: { 'html-basics': { completedBlockIds: ['intro'], updatedAt: '2026-10-01T10:15:00.000Z' } },
+    sectionProgress: { 'html-basics': { completedBlockIds: ['intro', 'practice-1'], updatedAt: '2026-10-01T10:15:00.000Z' } },
   } }));
   return storage;
 }
@@ -94,6 +95,37 @@ describe('local learning data backups', () => {
     expect(target.getItem(LEGACY_STRUCTURED_LEARNING_STORAGE_KEY)).toBeNull();
   });
 
+  it('does not write anything when reading the pre-restore snapshot fails', () => {
+    class ReadFailingSnapshotStorage extends MemoryStorage {
+      writes = 0;
+      removals = 0;
+      override getItem(key: string): string | null {
+        if (key === STORAGE_KEYS.NOTES) throw new DOMException('Storage denied while snapshotting', 'SecurityError');
+        return super.getItem(key);
+      }
+      override setItem(key: string, value: string): void {
+        this.writes += 1;
+        super.setItem(key, value);
+      }
+      override removeItem(key: string): void {
+        this.removals += 1;
+        super.removeItem(key);
+      }
+    }
+    const rawBackup = serializeBackup(createLocalBackup(createPopulatedStorage()));
+    const target = new ReadFailingSnapshotStorage();
+    const keys = [STORAGE_KEYS.PROGRESS, STORAGE_KEYS.BOOKMARKS, STORAGE_KEYS.NOTES, STORAGE_KEYS.QUIZ_RESULTS, STRUCTURED_LEARNING_STORAGE_KEY, LEGACY_STRUCTURED_LEARNING_STORAGE_KEY];
+    const before = new Map<string, string>(keys.map((key) => [key, `before:${key}`]));
+    for (const [key, value] of before) MemoryStorage.prototype.setItem.call(target, key, value);
+
+    let caught: unknown;
+    try { restoreLocalBackup(rawBackup, target); } catch (error) { caught = error; }
+    expect(caught).toBeInstanceOf(BackupError);
+    expect((caught as BackupError).code).toBe('storage-read-failed');
+    expect(target.writes).toBe(0);
+    expect(target.removals).toBe(0);
+    for (const [key, value] of before) expect(MemoryStorage.prototype.getItem.call(target, key)).toBe(value);
+  });
   it('rolls back every affected key if one write fails', () => {
     const rawBackup = serializeBackup(createLocalBackup(createPopulatedStorage()));
     const target = new FailOnceStorage();
@@ -107,7 +139,7 @@ describe('local learning data backups', () => {
 
   it('summarizes records for a confirmation preview', () => {
     const summary = getBackupSummary(createLocalBackup(createPopulatedStorage()));
-    expect(summary).toEqual({ progressRecords: 2, completedLessons: 1, bookmarks: 1, notes: 1, quizResults: 1, structuredQuizAttempts: 1, codeDrafts: 1, practiceChecklists: 1, sectionProgress: 1 });
+    expect(summary).toEqual({ progressRecords: 2, completedLessons: 1, bookmarks: 1, notes: 1, quizResults: 1, structuredQuizAttempts: 1, codeDrafts: 1, practiceChecklists: 1, sectionProgress: 2 });
   });
   it('surfaces storage read errors instead of treating an unavailable store as empty', () => {
     class ReadFailStorage extends MemoryStorage {
@@ -121,6 +153,29 @@ describe('local learning data backups', () => {
     expect((caught as BackupError).code).toBe('storage-read-failed');
   });
 
+  it('restores all previous keys if removing the legacy record fails after replacement writes', () => {
+    class FailLegacyRemoveStorage extends MemoryStorage {
+      private shouldFail = true;
+      override removeItem(key: string): void {
+        if (key === LEGACY_STRUCTURED_LEARNING_STORAGE_KEY && this.shouldFail) {
+          this.shouldFail = false;
+          throw new DOMException('Storage denied while removing legacy record', 'SecurityError');
+        }
+        super.removeItem(key);
+      }
+    }
+    const rawBackup = serializeBackup(createLocalBackup(createPopulatedStorage()));
+    const target = new FailLegacyRemoveStorage();
+    const keys = [STORAGE_KEYS.PROGRESS, STORAGE_KEYS.BOOKMARKS, STORAGE_KEYS.NOTES, STORAGE_KEYS.QUIZ_RESULTS, STRUCTURED_LEARNING_STORAGE_KEY, LEGACY_STRUCTURED_LEARNING_STORAGE_KEY];
+    const before = new Map<string, string>(keys.map((key) => [key, `before:${key}`]));
+    for (const [key, value] of before) target.setItem(key, value);
+
+    let caught: unknown;
+    try { restoreLocalBackup(rawBackup, target); } catch (error) { caught = error; }
+    expect(caught).toBeInstanceOf(BackupError);
+    expect((caught as BackupError).code).toBe('storage-write-failed');
+    for (const [key, value] of before) expect(target.getItem(key)).toBe(value);
+  });
   it('reports when restoring the old snapshot also fails', () => {
     class FailCountStorage extends MemoryStorage {
       private failures = new Map<string, number>();
@@ -143,5 +198,27 @@ describe('local learning data backups', () => {
     try { restoreLocalBackup(rawBackup, target); } catch (error) { caught = error; }
     expect(caught).toBeInstanceOf(BackupError);
     expect((caught as BackupError).code).toBe('rollback-failed');
+  });
+  it('exports versioned store envelopes and restores every legacy dataset as a current envelope', () => {
+    const source = new MemoryStorage();
+    const progress = { lessons: {
+      'semantic-html': { status: 'completed' as const, startedAt: '2026-10-10T10:00:00.000Z', completedAt: '2026-10-10T10:20:00.000Z' },
+    }, lastOpenedLessonId: 'semantic-html', lastOpenedAt: '2026-10-10T10:20:00.000Z' };
+    source.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(createLocalStoreRecord(progress)));
+    const backup = createLocalBackup(source);
+    expect(backup.data.progress.lessons['semantic-html'].status).toBe('completed');
+    const target = new MemoryStorage();
+    restoreLocalBackup(serializeBackup(backup), target);
+    for (const key of [STORAGE_KEYS.PROGRESS, STORAGE_KEYS.BOOKMARKS, STORAGE_KEYS.NOTES, STORAGE_KEYS.QUIZ_RESULTS]) {
+      const record = JSON.parse(target.getItem(key) ?? '{}') as { format?: string; schemaVersion?: number; data?: unknown };
+      expect(record.format).toBe(LOCAL_STORE_FORMAT);
+      expect(record.schemaVersion).toBe(1);
+      expect(record.data).toBeDefined();
+    }
+  });
+  it('rejects a backup with an invalid creation timestamp', () => {
+    const valid = createLocalBackup(createPopulatedStorage());
+    const invalid = { ...valid, createdAt: 'not-a-timestamp' };
+    expect(() => parseBackup(JSON.stringify(invalid))).toThrowError(BackupError);
   });
 });
