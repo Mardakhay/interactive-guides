@@ -27,7 +27,6 @@ export function loadJSON<T>(key: string, fallback: T): T {
     if (!raw) return fallback;
     return JSON.parse(raw) as T;
   } catch {
-    notifyStorageError(key, 'read');
     return fallback;
   }
 }
@@ -48,7 +47,7 @@ export function removeKey(key: string): boolean {
     localStorage.removeItem(key);
     return true;
   } catch {
-    notifyStorageError(key, 'remove');
+    notifyStorageError(key, 'write');
     return false;
   }
 }
