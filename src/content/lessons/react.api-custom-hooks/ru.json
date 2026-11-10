@@ -187,7 +187,7 @@
       "id": "knowledge-check-1",
       "type": "knowledgeCheck",
       "questionType": "single-choice",
-      "prompt": "What is a key reason to place fetch logic in a service module rather than repeating it in each component?",
+      "prompt": "Зачем выносить логику fetch в service-модуль, а не повторять её в каждом компоненте?",
       "options": [
         {
           "id": "a",
@@ -220,7 +220,7 @@
       "id": "knowledge-check-2",
       "type": "knowledgeCheck",
       "questionType": "true-false",
-      "prompt": "A custom Hook automatically shares the same state instance among every component that calls it.",
+      "prompt": "Custom Hook автоматически предоставляет один и тот же экземпляр состояния всем компонентам, которые его вызывают.",
       "options": [
         {
           "id": "true",
@@ -241,7 +241,7 @@
       "id": "knowledge-check-3",
       "type": "knowledgeCheck",
       "questionType": "multi-select",
-      "prompt": "Which are good decisions for a production data-loading hook? Select all that apply.",
+      "prompt": "Какие решения стоит принимать при создании production-hook для загрузки данных? Выбери все подходящие варианты.",
       "options": [
         {
           "id": "a",

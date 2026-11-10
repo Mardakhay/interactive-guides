@@ -68,7 +68,7 @@ The source remains **partial**: its visual mock tabs, live examples, FAQ accordi
 
 ## Continuation checkpoint — 2026-10-26
 
-Current structural inventory is 44 EN/RU lesson pairs (26 core + 18 supplementary; 88 locale JSON files). The HTML content/code/interaction review checklist is documented as complete for 25/25 source files, while exact source-to-block, claim-by-claim factual review, and app-side interaction parity remain incomplete. All 21 fetched Notion pages remain connector-unverified. Recent depth additions include `frontend.architecture-boundaries` v4 (34 blocks with explicit SOLID coverage), `html.document-structure` v6 (50 blocks), and `ui.design-systems` v3 (32 blocks). Do not treat block count as a depth score.
+Current structural inventory is 44 EN/RU lesson pairs (27 core + 17 supplementary; 88 locale JSON files). The HTML content/code/interaction review checklist is documented as complete for 25/25 source files, while exact source-to-block, claim-by-claim factual review, and app-side interaction parity remain incomplete. All 21 fetched Notion pages remain connector-unverified. Recent depth additions include `frontend.architecture-boundaries` v4 (34 blocks with explicit SOLID coverage), `html.document-structure` v6 (50 blocks), and `ui.design-systems` v3 (32 blocks). Do not treat block count as a depth score.
 
 The current app still serves legacy lesson HTML in its old catalog/routes. Cutover is gated on finishing source-level coverage and reviewing all core/supplement content. Supabase has not been implemented. Latest commit CI status should be checked against the exact feature SHA before treating any checkpoint as verified.
 
@@ -367,7 +367,7 @@ All 21 pages return `verification.state=unverified`. The ledger distinguishes in
 
 ## Current status reconciliation — 2026-10-27
 
-The earlier 37-pair/74-file count and incomplete HTML-read counts are historical snapshots, superseded by the current tree: 44 EN/RU lesson pairs (26 core + 18 supplementary; 88 lesson JSON files). Content/code/interaction reviews for all 25 HTML sources are documented 25/25; source-to-block fidelity and equivalent UI-interaction parity remain partial. The Notion ledger documents 21 fetched pages, all marked `verification.state=unverified` by source metadata.
+The earlier 37-pair/74-file count and incomplete HTML-read counts are historical snapshots, superseded by the current tree: 44 EN/RU lesson pairs (27 core + 17 supplementary; 88 lesson JSON files). Content/code/interaction reviews for all 25 HTML sources are documented 25/25; source-to-block fidelity and equivalent UI-interaction parity remain partial. The Notion ledger documents 21 fetched pages, all marked `verification.state=unverified` by source metadata.
 
 
 ## Part 4 test-coverage continuation — 2026-10-27
@@ -436,3 +436,21 @@ Before replacing legacy routes, create a reviewed crosswalk from every old ID to
 ## Legacy catalog route crosswalk — 2026-10-27
 
 A provisional 25-entry old-to-new route matrix is documented in [LEGACY_ROUTE_CUTOVER_MATRIX.md](./LEGACY_ROUTE_CUTOVER_MATRIX.md). Candidate destinations are not treated as completed parity; all routes remain blocked until each EN/RU target's examples, checks, exercises, answers and interaction decisions are reviewed. Learner-state maps remain keyed by legacy ID and need an explicit tested disposition.
+
+
+## Current bilingual registry and verification — 2026-10-28
+
+The earlier dated snapshots in this document (including 26 core / 18 supplementary) are superseded by the current mapping: **27 core lesson IDs + 17 supplementary IDs = 44 structured lesson IDs**, each with EN/RU records. `ui.bootstrap-mui` is core week 17 with `ui.design-systems`; `css.sass-scss` remains supplementary.
+
+GitHub Actions [run #40688503193](https://github.com/Mardakhay/interactive-guides/actions/runs/40688503193) passed on code/content SHA `cc68eaa8c28cb9e96a1f348a163fdaa44768b873`: `npm ci`, `npm run lint`, `npm run typecheck`, 221 tests across 35 files, and `npm run build`. The dependency install/audit step reported 0 vulnerabilities; bundle budgets passed across 125 JavaScript chunks.
+
+The all-registry test checks Russian title/description localization and translated learning outcomes; the last test-driven fix translated two English-only outcomes in `js.runtime-memory` and set both EN/RU records to v5. This confirms a narrow metadata invariant, not full prose/editorial or legacy-source parity. Keep the separate 25-file source review and route-cutover conclusions as documented: source reading is complete, parity is not, and legacy learner routes/state must not be removed before the signed-off crosswalk and retention gates.
+
+
+## Exact-copy prose localization check — 2026-10-28
+
+The current quality suite goes beyond schema/structure parity: it compares long user-facing strings in corresponding EN/RU structured lesson blocks and rejects content that remains verbatim English in Russian. It excludes starter code, code/reference blocks, CSS-property quick references, event-loop traces and code-shaped quiz examples so those are not incorrectly translated. This check led to translation corrections for 52 prose strings across eight RU lesson files, in addition to earlier fixes for learning-path notes, selected quiz prompts, and the two English-only `js.runtime-memory` learning outcomes.
+
+GitHub Actions [run #40689939570](https://github.com/Mardakhay/interactive-guides/actions/runs/40689939570) passed on exact code/content SHA `12059fd51069df3f3126db470cd2f4744cc157ff`: `npm ci`, lint, typecheck, **222 tests across 35 files**, production build, and bundle budgets across 125 JavaScript chunks. `npm audit` reported zero vulnerabilities.
+
+The new check is a detector for obvious untranslated copy, not a human translation review or proof of semantic source parity. That broader audit stays open.

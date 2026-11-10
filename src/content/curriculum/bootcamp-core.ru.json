@@ -350,7 +350,8 @@
             "Создать небольшой UI-kit из Button, Input и Card"
           ],
           "lessonIds": [
-            "ui.design-systems"
+            "ui.design-systems",
+            "ui.bootstrap-mui"
           ]
         },
         {
@@ -620,18 +621,14 @@
     },
     {
       "id": "supplement-ui-ecosystem",
-      "title": "Препроцессоры CSS и UI-библиотеки",
+      "title": "Препроцессоры CSS и стратегии дизайн-токенов",
       "topics": [
         "Модули и mixins Sass/SCSS",
-        "Compile-time tokens и CSS custom properties",
-        "Responsive grid Bootstrap",
-        "Компоненты и темы Material UI",
-        "Компромиссы версий и доступности"
+        "Токены на этапе сборки и CSS custom properties"
       ],
-      "note": "Дополнительное покрытие UI-экосистемы по интерактивным HTML-источникам; не входит в ядро из 24 недель.",
+      "note": "Дополнительное изучение CSS-препроцессоров. Основы UI-библиотек входят в основную программу на 17-й неделе; дополнительные темы остаются отдельно от исходной 24-недельной программы.",
       "lessonIds": [
-        "css.sass-scss",
-        "ui.bootstrap-mui"
+        "css.sass-scss"
       ]
     },
     {

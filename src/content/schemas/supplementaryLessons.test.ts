@@ -236,7 +236,7 @@ describe('class semantics and shared prototype methods', () => {
       expect(exercise.starterCode).toContain('updateCity');
       expect(lesson.blocks.find((block) => block.id === 'runtime-engine-callout')?.type).toBe('callout');
       expect(lesson.blocks.find((block) => block.id === 'runtime-memory-tools')?.type).toBe('paragraph');
-      expect(lesson.version).toBe(4);
+      expect(lesson.version).toBe(5);
       expect(lesson.blocks).toHaveLength(35);
       const memo = lesson.blocks.find((block) => block.id === 'runtime-memoization-walkthrough');
       expect(memo?.type).toBe('codeWalkthrough');
@@ -390,7 +390,7 @@ describe('frontend authentication security and lifecycle', () => {
   it('covers status codes, JWT limits, OAuth roles and concurrent token refresh', () => {
     expect(lessonTranslationSchema.safeParse(englishAuth).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianAuth).success).toBe(true);
-    expect(englishAuth.version).toBe(2);
+    expect(englishAuth.version).toBe(3);
     expect(englishAuth.blocks).toHaveLength(23);
     expect(englishAuth.blocks.map(({ id, type }) => [id, type])).toEqual(
       russianAuth.blocks.map(({ id, type }) => [id, type]),

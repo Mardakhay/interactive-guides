@@ -60,6 +60,80 @@ describe('structured content repository', () => {
     expect(getBootcampCurriculum('en').months[0]?.title).not.toBe(getBootcampCurriculum('ru').months[0]?.title);
   });
 
+  it('keeps UI-library foundations in canonical week 17 while CSS preprocessing stays supplementary', async () => {
+    for (const locale of ['en', 'ru'] as const) {
+      expect(getCurriculumWeek('month-5-week-17', locale)?.lessonIds).toEqual([
+        'ui.design-systems',
+        'ui.bootstrap-mui',
+      ]);
+      expect(getWeekForLesson('ui.bootstrap-mui', locale)?.id).toBe('month-5-week-17');
+      expect(getSupplementaryTrackForLesson('ui.bootstrap-mui', locale)).toBeUndefined();
+      expect(getSupplementaryTrackById('supplement-ui-ecosystem', locale)?.lessonIds).toEqual([
+        'css.sass-scss',
+      ]);
+      expect(getSupplementaryTrackForLesson('css.sass-scss', locale)?.id).toBe('supplement-ui-ecosystem');
+
+      const lesson = await getStructuredLesson('ui.bootstrap-mui', locale);
+      expect(lesson?.week).toBe(17);
+      expect(lesson?.moduleId).toBe('month-5-week-17');
+      expect(lesson?.supplementaryTrackId).toBeUndefined();
+    }
+  });
+
+  it('keeps visible Russian metadata and learning outcomes localized across the full registry', async () => {
+    const issues: string[] = [];
+
+    for (const lessonId of expectedIds) {
+      const [english, russian] = await Promise.all([
+        getStructuredLesson(lessonId, 'en'),
+        getStructuredLesson(lessonId, 'ru'),
+      ]);
+      if (!english || !russian) {
+        issues.push(`${lessonId}: missing EN/RU lesson while checking localization`);
+        continue;
+      }
+
+      for (const [field, value] of [
+        ['title', russian.title],
+        ['description', russian.description],
+      ] as const) {
+        if (!/[А-Яа-яЁё]/.test(value)) issues.push(`${lessonId}: RU ${field} contains no Cyrillic text`);
+      }
+
+      if (russian.learningOutcomes.length !== english.learningOutcomes.length) {
+        issues.push(`${lessonId}: EN/RU learning outcome counts differ (${english.learningOutcomes.length} vs ${russian.learningOutcomes.length})`);
+        continue;
+      }
+
+      russian.learningOutcomes.forEach((outcome, index) => {
+        const englishOutcome = english.learningOutcomes[index];
+        if (outcome.trim() === englishOutcome?.trim()) {
+          issues.push(`${lessonId}: RU learning outcome ${index + 1} is identical to EN`);
+        } else if (!/[А-Яа-яЁё]/.test(outcome)) {
+          issues.push(`${lessonId}: RU learning outcome ${index + 1} contains no Cyrillic text`);
+        }
+      });
+    }
+
+    expect(issues).toEqual([]);
+  });
+
+  it('keeps core and supplementary lesson IDs unique and disjoint in both locales', () => {
+    for (const locale of ['en', 'ru'] as const) {
+      const curriculum = getBootcampCurriculum(locale);
+      const coreIds = curriculum.months.flatMap((month) =>
+        month.weeks.flatMap((week) => week.lessonIds),
+      );
+      const supplementaryIds = curriculum.supplementaryTracks.flatMap((track) => track.lessonIds);
+
+      expect(coreIds).toHaveLength(27);
+      expect(new Set(coreIds).size).toBe(coreIds.length);
+      expect(supplementaryIds).toHaveLength(17);
+      expect(new Set(supplementaryIds).size).toBe(supplementaryIds.length);
+      expect(coreIds.filter((id) => supplementaryIds.includes(id))).toEqual([]);
+    }
+  });
+
   it('maps all structured lessons to their canonical week', () => {
     for (const locale of ['en', 'ru'] as const) {
       const curriculum = getBootcampCurriculum(locale);
@@ -219,8 +293,8 @@ describe('structured content repository', () => {
     expect(russian).toBeDefined();
     if (!english || !russian) throw new Error('Bilingual Git fundamentals lesson is missing');
 
-    expect(english.version).toBe(7);
-    expect(russian.version).toBe(7);
+    expect(english.version).toBe(8);
+    expect(russian.version).toBe(8);
     expect(english.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russian.blocks.map(({ id, type }) => ({ id, type })),
     );

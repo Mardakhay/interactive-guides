@@ -795,18 +795,8 @@
           "kind": "official-docs"
         },
         {
-          "title": "MDN: Function.prototype.bind()",
-          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind",
-          "kind": "official-docs"
-        },
-        {
           "title": "MDN: Strict mode",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode",
-          "kind": "official-docs"
-        },
-        {
-          "title": "MDN: Classes",
-          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes",
           "kind": "official-docs"
         },
         {
@@ -822,11 +812,6 @@
         {
           "title": "MDN: Object.freeze",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze",
-          "kind": "official-docs"
-        },
-        {
-          "title": "MDN: Classes",
-          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes",
           "kind": "official-docs"
         },
         {

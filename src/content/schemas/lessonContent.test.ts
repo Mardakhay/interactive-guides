@@ -346,10 +346,10 @@ describe('Git fundamentals lesson translation', () => {
     expect(englishGit.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGit.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
-    expect(englishGit.version).toBe(7);
-    expect(russianGit.version).toBe(7);
+    expect(englishGit.version).toBe(8);
+    expect(russianGit.version).toBe(8);
     const remoteExample = englishGit.blocks.find((block) => block.id === 'remote-example');
     expect(remoteExample?.type).toBe('codeWalkthrough');
     if (remoteExample?.type !== 'codeWalkthrough') return;
@@ -369,7 +369,7 @@ describe('Git fundamentals lesson translation', () => {
     }
     for (const lesson of [englishGit, russianGit]) {
       expect(lessonTranslationSchema.safeParse(lesson).success).toBe(true);
-      expect(lesson.updatedAt).toBe('2026-10-28');
+      expect(lesson.updatedAt).toBe('2026-10-29');
 
       const quickReference = lesson.blocks.find((block) => block.id === 'git-command-reference-list');
       expect(quickReference?.type).toBe('list');
@@ -665,12 +665,17 @@ describe('React API and custom hooks lesson translation', () => {
   });
 });
 
-describe('supplementary UI ecosystem lesson', () => {
-  it('preserves bilingual Bootstrap and MUI explanations, checks, and practice', () => {
+describe('core UI library lesson', () => {
+  it('preserves bilingual Bootstrap and MUI explanations, checks, and practice in week 17', () => {
     expect(lessonTranslationSchema.safeParse(englishUiEcosystem).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianUiEcosystem).success).toBe(true);
     expect(englishUiEcosystem.id).toBe('ui.bootstrap-mui');
-    expect(englishUiEcosystem.supplementaryTrackId).toBe('supplement-ui-ecosystem');
+    expect(englishUiEcosystem.week).toBe(17);
+    expect(englishUiEcosystem.moduleId).toBe('month-5-week-17');
+    expect(englishUiEcosystem.supplementaryTrackId).toBeUndefined();
+    expect(russianUiEcosystem.week).toBe(17);
+    expect(russianUiEcosystem.moduleId).toBe('month-5-week-17');
+    expect(russianUiEcosystem.supplementaryTrackId).toBeUndefined();
     expect(englishUiEcosystem.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianUiEcosystem.blocks.map(({ id, type }) => ({ id, type })),
     );
@@ -962,15 +967,16 @@ describe('Git workflow lesson translation', () => {
     expect(englishGitWorkflow.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGitWorkflow.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
-    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
-    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
-    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
-    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
-    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
-    expect(englishGitWorkflow.version).toBe(6);
-    expect(russianGitWorkflow.version).toBe(6);
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
+    expect(englishGitWorkflow.version).toBe(7);
+    expect(russianGitWorkflow.version).toBe(7);
     for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
+      expect(lesson.updatedAt).toBe('2026-10-29');
       const ciExample = lesson.blocks.find((block) => block.id === 'ci-example');
       expect(ciExample?.type).toBe('code');
       if (ciExample?.type !== 'code') return;
@@ -995,6 +1001,17 @@ describe('Git workflow lesson translation', () => {
     expect(englishGitWorkflow.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining(['ci-failure-diagnosis-heading', 'ci-failure-diagnosis-matrix', 'ci-failure-diagnosis-check']),
     );
+    expect(englishGitWorkflow.blocks.map((block) => block.id)).toEqual(
+      expect.arrayContaining([
+        'conflict-resolution-procedure',
+        'conflict-resolution-procedure-body',
+        'conflict-resolution-merge-walkthrough',
+        'conflict-resolution-rebase-walkthrough',
+        'conflict-continuation-commands',
+        'conflict-resolution-check',
+        'conflict-resolution-practice',
+      ]),
+    );
     const diagnosisByLocale = [englishGitWorkflow, russianGitWorkflow].map((lesson) => {
       const matrix = lesson.blocks.find((candidate) => candidate.id === 'ci-failure-diagnosis-matrix');
       expect(matrix?.type).toBe('list');
@@ -1018,6 +1035,37 @@ describe('Git workflow lesson translation', () => {
       requirements: expect.arrayContaining([expect.stringContaining('exact commit SHA')]),
       successCriteria: expect.arrayContaining([expect.stringContaining('rollback')]),
     });
+    for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
+      const continuationCommands = lesson.blocks.find((block) => block.id === 'conflict-continuation-commands');
+      expect(continuationCommands?.type).toBe('list');
+      if (continuationCommands?.type !== 'list') throw new Error('Conflict continuation commands are missing');
+      expect(continuationCommands.items.join(' ')).toContain('git merge --continue');
+      expect(continuationCommands.items.join(' ')).toContain('git rebase --continue');
+      expect(continuationCommands.items.join(' ')).toContain('git merge --abort');
+      expect(continuationCommands.items.join(' ')).toContain('git rebase --abort');
+      const conflictQuiz = lesson.blocks.find((block) => block.id === 'conflict-resolution-check');
+      expect(conflictQuiz?.type).toBe('knowledgeCheck');
+      if (conflictQuiz?.type !== 'knowledgeCheck') throw new Error('Conflict recovery question is missing');
+      expect(conflictQuiz.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['rebase-continue']);
+      expect(conflictQuiz.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const mergeWalkthrough = lesson.blocks.find((block) => block.id === 'conflict-resolution-merge-walkthrough');
+      const rebaseWalkthrough = lesson.blocks.find((block) => block.id === 'conflict-resolution-rebase-walkthrough');
+      for (const walkthrough of [mergeWalkthrough, rebaseWalkthrough]) {
+        expect(walkthrough?.type).toBe('codeWalkthrough');
+        if (walkthrough?.type !== 'codeWalkthrough') throw new Error('Conflict command walkthrough is missing');
+        const lineCount = walkthrough.code.split('\\n').length;
+        for (const step of walkthrough.steps) {
+          expect(step.lineStart).toBeGreaterThan(0);
+          expect(step.lineEnd).toBeLessThanOrEqual(lineCount);
+        }
+      }
+      const conflictExercise = lesson.blocks.find((block) => block.id === 'conflict-resolution-practice');
+      expect(conflictExercise?.type).toBe('codingExercise');
+      if (conflictExercise?.type !== 'codingExercise') throw new Error('Conflict resolution practice is missing');
+      expect(conflictExercise.requirements.length).toBeGreaterThanOrEqual(4);
+      expect(conflictExercise.hints.length).toBeGreaterThanOrEqual(3);
+      expect(conflictExercise.successCriteria.length).toBeGreaterThanOrEqual(4);
+    }
   });
 });
 

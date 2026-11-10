@@ -216,7 +216,7 @@
       "id": "knowledge-check-1",
       "type": "knowledgeCheck",
       "questionType": "single-choice",
-      "prompt": "Какова главная роль package-lock.json в обычном npm-проекте?",
+      "prompt": "Какова основная роль файла package-lock.json в обычном npm-приложении?",
       "options": [
         {
           "id": "a",
@@ -270,7 +270,7 @@
       "id": "knowledge-check-3",
       "type": "knowledgeCheck",
       "questionType": "multi-select",
-      "prompt": "Which statements about project tooling are accurate? Select all that apply.",
+      "prompt": "Какие утверждения об инструментах проекта верны? Выбери все подходящие варианты.",
       "options": [
         {
           "id": "a",

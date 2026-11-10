@@ -1,10 +1,10 @@
 {
   "id": "frontend.auth-security",
   "locale": "ru",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-28",
   "moduleId": "supplement-auth",
   "supplementaryTrackId": "supplement-auth",
   "order": 1,
@@ -338,22 +338,22 @@
       "language": "text",
       "context": "Проанализируй гипотетическую dashboard с входом, браузерными credentials и защищёнными API-операциями.",
       "instructions": [
-        "Identify the identity provider/client, the API resource server, and which layer owns each authentication and authorization decision.",
-        "Compare an Authorization Code + PKCE SPA design with a BFF session design; state why the selected architecture fits the threat model.",
-        "Explain how XSS and CSRF risks differ for JavaScript-readable credentials and HttpOnly cookies.",
-        "Specify distinct frontend behavior for 401, 403 and an intentionally concealed 404 response.",
-        "Define expiry, refresh, bounded retry, logout, server-session invalidation and credential-revocation behavior.",
-        "Explain why decoding a JWT payload cannot validate its signature or grant API access.",
-        "Write tests for unauthenticated, authenticated-but-forbidden and authorized requests, parallel 401 responses, refresh failure, and direct API calls that bypass the UI."
+        "Определи провайдера идентификации/клиента, сервер ресурсов API и слой, который отвечает за каждое решение об аутентификации и авторизации.",
+        "Сравни архитектуру SPA с Authorization Code + PKCE и архитектуру с BFF-сессией; объясни, почему выбранный вариант соответствует модели угроз.",
+        "Объясни, чем различаются риски XSS и CSRF при credentials, доступных JavaScript, и HttpOnly cookies.",
+        "Определи отдельное поведение frontend для 401, 403 и намеренно скрытого ответа 404.",
+        "Опиши срок действия, refresh, ограниченные повторы, logout, инвалидирование серверной сессии и отзыв credentials.",
+        "Объясни, почему декодирование payload JWT не проверяет подпись и не даёт права доступа к API.",
+        "Напиши тесты для запросов без аутентификации, после входа без нужных прав и с разрешённым доступом, параллельных 401, ошибки refresh и прямых API-вызовов в обход UI."
       ],
       "requirements": [
-        "Authentication and authorization are explicitly distinguished.",
-        "No privileged client secret or server credential is bundled into browser JavaScript.",
-        "The selected storage/transport model has a threat-model rationale and an explicit CSRF/XSS plan.",
-        "Trusted server/data-layer authorization is required regardless of UI guards or decoded JWT claims.",
-        "401, 403 and concealed 404 responses have distinct and contract-aware UX.",
-        "Refresh operations are deduplicated, retry is bounded, and failure transitions into explicit recovery.",
-        "Logout covers the server session or credential lifecycle as well as client state."
+        "Аутентификация и авторизация явно разграничены.",
+        "Привилегированный client secret или серверные credentials не попадают в browser JavaScript.",
+        "Выбранная модель хранения/передачи обоснована моделью угроз и имеет явный план защиты от CSRF/XSS.",
+        "Авторизация на доверенном серверном/data-layer обязательна независимо от UI guards или декодированных JWT claims.",
+        "Ответы 401, 403 и скрытый 404 приводят к разному UX с учётом контракта API.",
+        "Операции refresh объединяются, повторы ограничены, а после сбоя предусмотрен явный сценарий восстановления.",
+        "Logout охватывает серверную сессию или жизненный цикл credentials, а также состояние клиента."
       ],
       "starterCode": "Функция: admin dashboard\n\nIdentity provider / тип клиента:\nResource server и правила авторизации:\nРешение SPA PKCE vs BFF и компромиссы:\nПередача / хранение credentials:\nЗащита от XSS / CSRF:\nПоведение для 401 / 403 / скрытого 404:\nПараллельный refresh / ограничение повтора:\nLogout / expiry / отзыв credentials:\n\nТест-кейсы:\n- нет сессии / неверные credentials:\n- пользователь вошёл, но прав нет:\n- доступ разрешён:\n- параллельные ответы 401:\n- refresh завершился ошибкой:\n- прямой API-запрос в обход UI:",
       "hints": [
