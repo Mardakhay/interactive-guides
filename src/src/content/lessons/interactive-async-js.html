@@ -1,0 +1,2319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Async JavaScript — Deep Dive Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────
+   TOKENS
+───────────────────────────────────────────── */
+:root {
+  --bg:          #080b12;
+  --surface:     #0f1420;
+  --surface2:    #141a28;
+  --surface3:    #1a2235;
+  --border:      #1e2a3d;
+  --border2:     #253147;
+
+  --blue:        #4f9cf9;
+  --blue-dim:    rgba(79,156,249,0.08);
+  --blue-glow:   rgba(79,156,249,0.18);
+  --orange:      #f97316;
+  --green:       #22d3a5;
+  --purple:      #a78bfa;
+  --red:         #f43f5e;
+  --yellow:      #f59e0b;
+  --emerald:     #22c55e;
+
+  --text:        #dde5f0;
+  --text-dim:    #8899b4;
+  --text-faint:  #4a5d7a;
+
+  --code-bg:     #060910;
+  --mono:        'Space Mono', monospace;
+  --serif:       'Fraunces', serif;
+}
+
+/* ─────────────────────────────────────────────
+   RESET & BASE
+───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--mono);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.75;
+  overflow-x: hidden;
+  font-size: 15px;
+}
+
+::selection { background: rgba(79,156,249,0.25); }
+
+/* ─────────────────────────────────────────────
+   PROGRESS + SIDE NAV
+───────────────────────────────────────────── */
+.progress-bar {
+  position: fixed; top: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--purple), var(--green));
+  z-index: 200;
+  transition: width 0.2s;
+}
+
+.side-nav {
+  position: fixed; right: 1.25rem; top: 50%;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 10px;
+  z-index: 100;
+}
+@media (max-width: 1000px) { .side-nav { display: none; } }
+
+.side-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--border2);
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+}
+.side-dot.active, .side-dot:hover {
+  background: var(--blue);
+  box-shadow: 0 0 8px var(--blue-glow);
+}
+.side-dot:hover .dot-tip {
+  opacity: 1; transform: translateX(0) translateY(-50%);
+}
+.dot-tip {
+  position: absolute; right: calc(100% + 10px); top: 50%;
+  transform: translateX(4px) translateY(-50%);
+  background: var(--surface2); border: 1px solid var(--border2);
+  padding: 3px 8px; border-radius: 5px;
+  font-size: 0.6rem; white-space: nowrap; color: var(--text);
+  opacity: 0; transition: all 0.2s; pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────
+   HERO
+───────────────────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 2rem;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -5%, rgba(79,156,249,0.13) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 85%, rgba(167,139,250,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 35% at 5% 70%, rgba(249,115,22,0.05) 0%, transparent 55%);
+  pointer-events: none;
+}
+.grid-bg {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(79,156,249,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79,156,249,0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+}
+.hero-pill {
+  font-size: 0.62rem; letter-spacing: 0.32em; color: var(--blue);
+  text-transform: uppercase; margin-bottom: 1.8rem;
+  border: 1px solid rgba(79,156,249,0.28);
+  padding: 5px 18px; border-radius: 100px;
+  background: rgba(79,156,249,0.04);
+}
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(3.2rem, 9vw, 7.5rem);
+  font-weight: 900; line-height: 0.95;
+  letter-spacing: -0.03em; margin-bottom: 1.6rem;
+}
+.hero h1 em {
+  font-style: normal; display: block;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(79,156,249,0.45);
+}
+.hero-sub {
+  font-size: 0.88rem; color: var(--text-dim);
+  max-width: 480px; margin-bottom: 3.5rem; line-height: 1.8;
+}
+.hero-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.9rem; width: 100%; max-width: 580px;
+}
+@media (max-width: 560px) { .hero-nav { grid-template-columns: repeat(2, 1fr); } }
+.hero-btn {
+  background: var(--surface); border: 1px solid var(--border2);
+  color: var(--text); padding: 1rem 0.6rem;
+  border-radius: 14px; cursor: pointer;
+  font-family: var(--mono); font-size: 0.68rem;
+  text-align: center; text-decoration: none;
+  transition: border-color 0.2s, transform 0.2s, background 0.2s;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.55rem;
+}
+.hero-btn:hover {
+  border-color: var(--blue); background: var(--blue-dim);
+  transform: translateY(-3px);
+}
+.hero-btn span { font-size: 1.45rem; }
+
+/* ─────────────────────────────────────────────
+   SECTIONS
+───────────────────────────────────────────── */
+.section {
+  max-width: 860px; margin: 0 auto;
+  padding: 6rem 1.75rem 4rem;
+  border-top: 1px solid var(--border);
+}
+.sec-label {
+  font-size: 0.6rem; letter-spacing: 0.35em; color: var(--blue);
+  text-transform: uppercase; margin-bottom: 0.7rem;
+}
+.section > h2 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 5.5vw, 3.6rem);
+  font-weight: 900; letter-spacing: -0.025em;
+  line-height: 1.05; margin-bottom: 1rem;
+}
+.section > .intro {
+  font-size: 0.87rem; color: var(--text-dim);
+  max-width: 640px; margin-bottom: 3rem;
+  line-height: 1.85;
+}
+h3.sub {
+  font-size: 1.05rem; font-weight: 700;
+  margin-top: 3rem; margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+h4.sub2 {
+  font-size: 0.78rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-dim);
+  margin-top: 2rem; margin-bottom: 0.9rem;
+}
+.prose {
+  font-size: 0.84rem; color: var(--text-dim);
+  line-height: 1.9; margin-bottom: 1rem;
+}
+.prose strong { color: var(--text); }
+.prose code {
+  background: var(--surface3); border: 1px solid var(--border2);
+  padding: 1px 5px; border-radius: 4px;
+  font-size: 0.82rem; color: var(--green);
+}
+
+/* ─────────────────────────────────────────────
+   CODE BLOCKS
+───────────────────────────────────────────── */
+.code-wrap {
+  position: relative;
+  margin: 1.5rem 0;
+}
+.code-wrap .code-tag {
+  position: absolute; top: 0; left: 0;
+  background: var(--surface3); border: 1px solid var(--border2);
+  border-bottom: none; border-left: none;
+  font-size: 0.58rem; letter-spacing: 0.18em; color: var(--text-faint);
+  text-transform: uppercase; padding: 3px 10px;
+  border-radius: 0 0 6px 0;
+}
+pre {
+  background: var(--code-bg); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.6rem 1.4rem 1.4rem;
+  overflow-x: auto; font-family: var(--mono);
+  font-size: 0.78rem; line-height: 1.9;
+}
+.kw  { color: #c792ea; }
+.fn  { color: #82aaff; }
+.str { color: #c3e88d; }
+.num { color: #f78c6c; }
+.cmt { color: #3d5271; font-style: italic; }
+.pm  { color: #ffcb6b; }
+.op  { color: #89ddff; }
+
+/* ─────────────────────────────────────────────
+   CARDS / GRIDS
+───────────────────────────────────────────── */
+.two-col {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1rem; margin: 1.5rem 0;
+}
+@media (max-width: 620px) { .two-col { grid-template-columns: 1fr; } }
+
+.three-col {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1rem; margin: 1.5rem 0;
+}
+@media (max-width: 680px) { .three-col { grid-template-columns: 1fr; } }
+
+.four-col {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1rem; margin: 1.5rem 0;
+}
+@media (max-width: 700px) { .four-col { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 440px) { .four-col { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 14px; padding: 1.4rem;
+  position: relative; overflow: hidden;
+}
+.card.accent-top::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 2.5px;
+}
+.card.blue-top::before  { background: var(--blue); }
+.card.green-top::before { background: var(--green); }
+.card.red-top::before   { background: var(--red); }
+.card.yellow-top::before { background: var(--yellow); }
+.card.purple-top::before { background: var(--purple); }
+.card.orange-top::before { background: var(--orange); }
+.card .card-label {
+  font-size: 0.65rem; letter-spacing: 0.2em;
+  text-transform: uppercase; margin-bottom: 0.6rem;
+  font-weight: 700;
+}
+.card .card-label.blue   { color: var(--blue); }
+.card .card-label.green  { color: var(--green); }
+.card .card-label.red    { color: var(--red); }
+.card .card-label.yellow { color: var(--yellow); }
+.card .card-label.purple { color: var(--purple); }
+.card .card-label.orange { color: var(--orange); }
+.card .card-title {
+  font-size: 0.88rem; font-weight: 700; margin-bottom: 0.6rem;
+}
+.card .card-body {
+  font-size: 0.78rem; color: var(--text-dim); line-height: 1.75;
+}
+.card .card-body code {
+  background: var(--surface3); padding: 1px 5px;
+  border-radius: 4px; color: var(--green); font-size: 0.75rem;
+}
+
+/* ─────────────────────────────────────────────
+   CALLOUTS
+───────────────────────────────────────────── */
+.callout {
+  display: flex; gap: 0.9rem; align-items: flex-start;
+  border-radius: 10px; padding: 1rem 1.1rem;
+  margin: 1.5rem 0; border: 1px solid; font-size: 0.8rem;
+  line-height: 1.75;
+}
+.callout .ci { font-size: 1.15rem; flex-shrink: 0; margin-top: 1px; }
+.callout p { }
+.callout p strong { display: block; margin-bottom: 0.25rem; }
+.callout.tip    { border-color: rgba(34,211,165,0.3); background: rgba(34,211,165,0.04); }
+.callout.tip p  { color: #a0e6d0; }
+.callout.tip p strong { color: var(--green); }
+.callout.warn   { border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.04); }
+.callout.warn p { color: #fcd9a0; }
+.callout.warn p strong { color: var(--yellow); }
+.callout.info   { border-color: rgba(79,156,249,0.3); background: rgba(79,156,249,0.04); }
+.callout.info p { color: #a8cbf8; }
+.callout.info p strong { color: var(--blue); }
+.callout.danger { border-color: rgba(244,63,94,0.3); background: rgba(244,63,94,0.04); }
+.callout.danger p { color: #fda4b4; }
+.callout.danger p strong { color: var(--red); }
+
+/* ─────────────────────────────────────────────
+   COMPARE PAIR  (side by side code)
+───────────────────────────────────────────── */
+.compare-pair {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1rem; margin: 1.5rem 0;
+}
+@media (max-width: 640px) { .compare-pair { grid-template-columns: 1fr; } }
+.compare-half { position: relative; }
+.compare-half .compare-label {
+  font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+  font-weight: 700; padding: 0.35rem 0.8rem;
+  border-radius: 6px 6px 0 0; display: inline-block;
+  margin-bottom: -1px; position: relative; z-index: 1;
+}
+.compare-half.bad  .compare-label { background: rgba(244,63,94,0.15); color: var(--red); border: 1px solid rgba(244,63,94,0.3); }
+.compare-half.good .compare-label { background: rgba(34,211,165,0.12); color: var(--green); border: 1px solid rgba(34,211,165,0.3); }
+.compare-half.bad  pre { border-color: rgba(244,63,94,0.25); }
+.compare-half.good pre { border-color: rgba(34,211,165,0.25); }
+
+/* ─────────────────────────────────────────────
+   PROMISE CHAIN PIPELINE  (vertical)
+───────────────────────────────────────────── */
+.pipeline {
+  display: flex; flex-direction: column;
+  align-items: flex-start; gap: 0;
+  margin: 2.5rem 0; padding: 0;
+  position: relative;
+}
+
+/* Vertical connector spine */
+.pipeline::before {
+  content: '';
+  position: absolute;
+  left: 18px; top: 36px;
+  width: 2px;
+  bottom: 36px;
+  background: linear-gradient(to bottom, var(--blue) 0%, rgba(79,156,249,0.15) 100%);
+  border-radius: 2px;
+}
+
+.pipeline-step {
+  display: flex; gap: 1.1rem; align-items: flex-start;
+  width: 100%; padding: 0 0 0 0;
+  position: relative;
+}
+
+/* Spacing between steps */
+.pipeline-step + .pipeline-step { margin-top: 0.2rem; }
+
+/* Larger gap before catch and finally */
+.pipeline-step.catch-step  { margin-top: 1.2rem; }
+.pipeline-step.finally-step { margin-top: 1.2rem; }
+
+/* Divider line before catch / finally */
+.pipeline-step.catch-step::before,
+.pipeline-step.finally-step::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: -0.75rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border2) 0%, transparent 70%);
+}
+
+/* Node circle */
+.pip-node {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2px solid; display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 700; flex-shrink: 0;
+  position: relative; z-index: 1; background: var(--bg);
+  transition: box-shadow 0.2s;
+}
+.pip-node.blue   { border-color: var(--blue); color: var(--blue); }
+.pip-node.green  { border-color: var(--green); color: var(--green); }
+.pip-node.red    { border-color: var(--red); color: var(--red); }
+.pip-node.yellow { border-color: var(--yellow); color: var(--yellow); }
+.pip-node.purple { border-color: var(--purple); color: var(--purple); }
+
+.pipeline-step:hover .pip-node { box-shadow: 0 0 12px rgba(79,156,249,0.4); }
+
+/* Content */
+.pip-content {
+  flex: 1; background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 1rem 1.1rem; margin-top: 4px;
+  transition: border-color 0.2s;
+}
+.pipeline-step:hover .pip-content { border-color: var(--border2); }
+
+.pip-content .pip-method {
+  font-size: 0.8rem; font-weight: 700; font-family: var(--mono);
+  margin-bottom: 0.35rem;
+}
+.pip-content .pip-method.blue   { color: var(--blue); }
+.pip-content .pip-method.green  { color: var(--green); }
+.pip-content .pip-method.red    { color: var(--red); }
+.pip-content .pip-method.yellow { color: var(--yellow); }
+.pip-content .pip-method.purple { color: var(--purple); }
+
+.pip-content .pip-title {
+  font-size: 0.8rem; color: var(--text); font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.pip-content .pip-desc {
+  font-size: 0.76rem; color: var(--text-dim); line-height: 1.7;
+}
+.pip-content .pip-desc code {
+  background: var(--surface3); padding: 1px 5px;
+  border-radius: 4px; color: var(--green); font-size: 0.73rem;
+}
+.pip-content .pip-badge {
+  display: inline-block; margin-top: 0.6rem;
+  font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px;
+}
+.pip-badge.always { background: rgba(167,139,250,0.15); color: var(--purple); }
+.pip-badge.error  { background: rgba(244,63,94,0.12); color: var(--red); }
+.pip-badge.success { background: rgba(34,211,165,0.12); color: var(--green); }
+
+/* Special dashed border for catch + finally */
+.pipeline-step.catch-step .pip-content {
+  border-style: dashed; border-color: rgba(244,63,94,0.35);
+}
+.pipeline-step.finally-step .pip-content {
+  border-style: dashed; border-color: rgba(167,139,250,0.35);
+}
+
+/* ─────────────────────────────────────────────
+   PROMISE STATES
+───────────────────────────────────────────── */
+.state-trio {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1rem; margin: 1.5rem 0;
+}
+@media (max-width: 580px) { .state-trio { grid-template-columns: 1fr; } }
+
+.state-card {
+  border-radius: 14px; padding: 1.5rem 1rem;
+  text-align: center; border: 1px solid;
+}
+.state-card.pend { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.04); }
+.state-card.fulfd { border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.04); }
+.state-card.rejd  { border-color: rgba(244,63,94,0.4); background: rgba(244,63,94,0.04); }
+.state-card .si { font-size: 2.2rem; margin-bottom: 0.7rem; }
+.state-card .sn { font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem; }
+.state-card.pend  .sn { color: var(--yellow); }
+.state-card.fulfd .sn { color: var(--emerald); }
+.state-card.rejd  .sn { color: var(--red); }
+.state-card .sd { font-size: 0.74rem; color: var(--text-dim); line-height: 1.65; }
+.state-card .sd code { background: var(--surface3); padding: 1px 5px; border-radius: 4px; font-size: 0.72rem; }
+.state-card.pend  .sd code { color: var(--yellow); }
+.state-card.fulfd .sd code { color: var(--emerald); }
+.state-card.rejd  .sd code { color: var(--red); }
+
+/* ─────────────────────────────────────────────
+   EVENT LOOP DIAGRAM
+───────────────────────────────────────────── */
+.el-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; margin: 2rem 0;
+  background: var(--border); border-radius: 16px; overflow: hidden;
+}
+@media (max-width: 600px) { .el-grid { grid-template-columns: 1fr; } }
+
+.el-cell {
+  background: var(--surface); padding: 1.3rem 1rem;
+  text-align: center; transition: background 0.2s;
+  position: relative;
+}
+.el-cell.highlight { background: var(--surface2); }
+.el-cell .ec-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+.el-cell .ec-name { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.4rem; color: var(--blue); }
+.el-cell .ec-desc { font-size: 0.7rem; color: var(--text-dim); line-height: 1.6; }
+
+.el-row2 {
+  display: grid; grid-template-columns: 1fr 2fr 1fr;
+  gap: 1px; margin-top: 1px;
+  background: var(--border); border-radius: 0 0 16px 16px; overflow: hidden;
+}
+@media (max-width: 600px) { .el-row2 { grid-template-columns: 1fr; } }
+
+/* ─────────────────────────────────────────────
+   CALLBACK HELL
+───────────────────────────────────────────── */
+.hell-wrap {
+  background: var(--code-bg); border: 1px solid rgba(244,63,94,0.3);
+  border-radius: 14px; padding: 1.5rem; margin: 1.5rem 0;
+  font-family: var(--mono); font-size: 0.77rem;
+}
+.hl { border-left: 2px solid; padding: 0.5rem 0 0.5rem 1.25rem; }
+
+/* ─────────────────────────────────────────────
+   INTERACTIVE DEMOS
+───────────────────────────────────────────── */
+.demo-box {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 16px; padding: 1.5rem; margin: 2rem 0;
+}
+.demo-box .demo-title {
+  font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 0.6rem; font-weight: 700;
+}
+.demo-box .demo-desc {
+  font-size: 0.78rem; color: var(--text-dim); margin-bottom: 1rem; line-height: 1.7;
+}
+.btn-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0; }
+.btn-run {
+  background: var(--blue); color: #04090f;
+  border: none; padding: 0.55rem 1.2rem;
+  border-radius: 8px; cursor: pointer;
+  font-family: var(--mono); font-size: 0.73rem; font-weight: 700;
+  transition: all 0.18s; white-space: nowrap;
+}
+.btn-run:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.btn-run:active { transform: translateY(0); }
+.btn-run.green  { background: var(--green); }
+.btn-run.purple { background: var(--purple); }
+.btn-run.orange { background: var(--orange); }
+.btn-clr {
+  background: transparent; color: var(--text-faint);
+  border: 1px solid var(--border2); padding: 0.55rem 0.9rem;
+  border-radius: 8px; cursor: pointer;
+  font-family: var(--mono); font-size: 0.73rem;
+  transition: all 0.18s; white-space: nowrap;
+}
+.btn-clr:hover { border-color: var(--text-dim); color: var(--text); }
+
+.demo-out {
+  background: var(--code-bg); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1rem 1.1rem;
+  min-height: 90px; max-height: 220px;
+  overflow-y: auto; font-size: 0.76rem;
+  font-family: var(--mono); margin-top: 1rem;
+  color: var(--text-dim);
+}
+.demo-out .ll { display: block; line-height: 1.8; }
+.demo-out .ll.s { color: var(--emerald); }
+.demo-out .ll.e { color: var(--red); }
+.demo-out .ll.i { color: var(--blue); }
+.demo-out .ll.w { color: var(--yellow); }
+.demo-out .ll.m { color: var(--text-dim); }
+
+/* ─────────────────────────────────────────────
+   TABS
+───────────────────────────────────────────── */
+.tab-bar { display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.tab-btn {
+  background: var(--surface3); border: 1px solid var(--border2);
+  color: var(--text-dim); padding: 0.45rem 0.9rem;
+  border-radius: 7px; cursor: pointer;
+  font-family: var(--mono); font-size: 0.7rem;
+  transition: all 0.18s;
+}
+.tab-btn.on { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+.tab-pane { display: none; }
+.tab-pane.on { display: block; }
+
+/* ─────────────────────────────────────────────
+   HTTP METHODS
+───────────────────────────────────────────── */
+.http-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1rem; margin: 1.5rem 0;
+}
+@media (max-width: 660px) { .http-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 380px) { .http-grid { grid-template-columns: 1fr; } }
+.http-card {
+  border-radius: 12px; padding: 1rem 0.9rem; border: 1px solid;
+}
+.http-card .hm { font-size: 0.68rem; letter-spacing: 0.2em; font-weight: 700; text-transform: uppercase; margin-bottom: 0.45rem; }
+.http-card .hp { font-size: 0.73rem; color: var(--text-dim); line-height: 1.6; }
+.http-card.get    { border-color: rgba(34,211,165,0.35); background: rgba(34,211,165,0.04); }
+.http-card.get .hm { color: var(--green); }
+.http-card.post   { border-color: rgba(79,156,249,0.35); background: rgba(79,156,249,0.04); }
+.http-card.post .hm { color: var(--blue); }
+.http-card.put    { border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.04); }
+.http-card.put .hm { color: var(--yellow); }
+.http-card.del    { border-color: rgba(244,63,94,0.35); background: rgba(244,63,94,0.04); }
+.http-card.del .hm { color: var(--red); }
+
+/* ─────────────────────────────────────────────
+   TIMING BARS
+───────────────────────────────────────────── */
+.timing-block { margin: 1.5rem 0; }
+.timing-row {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 0.7rem;
+}
+.timing-lbl { width: 90px; text-align: right; font-size: 0.72rem; color: var(--text-dim); flex-shrink: 0; }
+.timing-track {
+  flex: 1; height: 30px; background: var(--surface3);
+  border-radius: 7px; overflow: hidden;
+  border: 1px solid var(--border2);
+}
+.timing-fill {
+  height: 100%; border-radius: 7px;
+  display: flex; align-items: center; padding-left: 10px;
+  font-size: 0.63rem; font-weight: 700; color: #030609;
+}
+.timing-fill.seq { width: 100%; background: linear-gradient(90deg, var(--red), var(--orange)); }
+.timing-fill.par { width: 34%; background: linear-gradient(90deg, var(--green), var(--blue)); }
+.timing-note { font-size: 0.76rem; color: var(--text-dim); margin-top: 0.5rem; }
+
+/* ─────────────────────────────────────────────
+   QUIZ
+───────────────────────────────────────────── */
+.quiz-box {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 18px; padding: 2rem; margin: 3rem 0;
+}
+.quiz-head {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 1.6rem; flex-wrap: wrap;
+}
+.quiz-head h3 { font-family: var(--serif); font-size: 1.45rem; flex: 1; }
+.quiz-score-badge {
+  background: var(--code-bg); border: 1px solid var(--border2);
+  padding: 4px 10px; border-radius: 7px;
+  font-size: 0.7rem; color: var(--blue);
+}
+.question {
+  background: var(--code-bg); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 1.4rem;
+  margin-bottom: 1rem;
+}
+.question .qp { font-size: 0.82rem; color: var(--text); margin-bottom: 1rem; line-height: 1.75; }
+.question .qp code { background: var(--surface3); padding: 1px 5px; border-radius: 4px; color: var(--green); font-size: 0.78rem; }
+.opts { display: flex; flex-direction: column; gap: 0.55rem; }
+.opt {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 0.65rem 0.9rem;
+  cursor: pointer; font-family: var(--mono); font-size: 0.76rem;
+  color: var(--text); text-align: left;
+  transition: border-color 0.18s, background 0.18s;
+  display: flex; align-items: center; gap: 0.75rem;
+}
+.opt:hover:not(:disabled) { border-color: var(--blue); background: var(--blue-dim); }
+.opt.correct { border-color: var(--emerald)!important; background: rgba(34,197,94,0.08)!important; color: var(--emerald)!important; }
+.opt.wrong   { border-color: var(--red)!important;     background: rgba(244,63,94,0.08)!important; color: var(--red)!important; }
+.opt:disabled { cursor: default; }
+.opt-ltr {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1px solid var(--border2); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem;
+}
+.expl {
+  margin-top: 0.75rem; padding: 0.75rem 1rem;
+  border-radius: 8px; font-size: 0.74rem;
+  line-height: 1.7; display: none;
+}
+.expl.show { display: block; }
+.expl.c { background: rgba(34,197,94,0.08); border-left: 3px solid var(--emerald); color: #9de8c4; }
+.expl.w { background: rgba(244,63,94,0.08); border-left: 3px solid var(--red); color: #fca5a5; }
+
+/* ─────────────────────────────────────────────
+   PRACTICE
+───────────────────────────────────────────── */
+.practice {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 16px; padding: 1.5rem; margin: 2rem 0;
+}
+.practice .prac-label {
+  font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 0.8rem; font-weight: 700;
+}
+.practice .prac-task { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1rem; line-height: 1.75; }
+.practice .prac-task strong { color: var(--text); }
+textarea.ced {
+  width: 100%; background: var(--code-bg); border: 1px solid var(--border);
+  border-radius: 9px; padding: 0.9rem 1rem;
+  color: var(--green); font-family: var(--mono);
+  font-size: 0.76rem; resize: vertical; min-height: 120px;
+  outline: none; transition: border-color 0.2s; line-height: 1.75;
+}
+textarea.ced:focus { border-color: var(--blue); }
+
+/* ─────────────────────────────────────────────
+   FETCH RESULTS
+───────────────────────────────────────────── */
+.fetch-result {
+  background: var(--code-bg); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1rem 1.1rem; margin-top: 1rem;
+  min-height: 100px; font-size: 0.74rem;
+  font-family: var(--mono); color: var(--text);
+}
+.post-card {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 9px; padding: 0.9rem; margin-bottom: 0.7rem;
+  animation: fadeUp 0.3s ease;
+}
+.post-card h4 { font-size: 0.76rem; color: var(--blue); margin-bottom: 0.35rem; }
+.post-card p  { font-size: 0.71rem; color: var(--text-dim); }
+@keyframes fadeUp { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform:none; } }
+.spin-row { display: flex; align-items: center; gap: 0.5rem; color: var(--text-dim); font-size: 0.78rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { width: 15px; height: 15px; border: 2px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.75s linear infinite; flex-shrink: 0; }
+
+/* ─────────────────────────────────────────────
+   CHEATSHEET  (reference section)
+───────────────────────────────────────────── */
+.ref-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 1rem; margin: 1.5rem 0;
+}
+@media (max-width: 620px) { .ref-grid { grid-template-columns: 1fr; } }
+.ref-card {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 13px; padding: 1.2rem;
+}
+.ref-card .rc-label {
+  font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase;
+  font-weight: 700; margin-bottom: 0.75rem;
+}
+
+/* ─────────────────────────────────────────────
+   FINAL RESULT
+───────────────────────────────────────────── */
+.final-result {
+  display: none; background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 14px; padding: 2rem; margin-top: 1.5rem; text-align: center;
+}
+.final-result .fr-emoji { font-size: 3rem; margin-bottom: 0.75rem; }
+.final-result .fr-title {
+  font-family: var(--serif); font-size: 1.6rem;
+  font-weight: 900; margin-bottom: 0.6rem;
+}
+.final-result .fr-msg { font-size: 0.8rem; color: var(--text-dim); max-width: 420px; margin: 0 auto; line-height: 1.75; }
+
+/* ─────────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────────── */
+footer {
+  text-align: center; padding: 3rem 1.5rem;
+  color: var(--text-faint); font-size: 0.7rem;
+  border-top: 1px solid var(--border);
+  line-height: 2;
+}
+
+/* ─────────────────────────────────────────────
+   MICRO ANIMATIONS
+───────────────────────────────────────────── */
+@keyframes pulse { 0%,100%{opacity:.35} 50%{opacity:1} }
+.pulse { animation: pulse 2.2s infinite; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="pbar"></div>
+
+<nav class="side-nav" id="sideNav">
+  <div class="side-dot active" data-target="hero"><span class="dot-tip">Intro</span></div>
+  <div class="side-dot" data-target="sync"><span class="dot-tip">Sync vs Async</span></div>
+  <div class="side-dot" data-target="eventloop"><span class="dot-tip">Event Loop</span></div>
+  <div class="side-dot" data-target="callbacks"><span class="dot-tip">Callbacks</span></div>
+  <div class="side-dot" data-target="promises"><span class="dot-tip">Promises</span></div>
+  <div class="side-dot" data-target="asyncawait"><span class="dot-tip">async/await</span></div>
+  <div class="side-dot" data-target="fetch"><span class="dot-tip">Fetch & API</span></div>
+  <div class="side-dot" data-target="quiz"><span class="dot-tip">Final Quiz</span></div>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     HERO
+════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="grid-bg"></div>
+  <div class="hero-pill">Deep Dive · Interactive Course</div>
+  <h1>Async<em>JavaScript</em></h1>
+  <p class="hero-sub">Everything from blocking code and the Event Loop, to Promises, async/await, and real-world Fetch requests — explained to the tiniest detail.</p>
+  <nav class="hero-nav">
+    <a class="hero-btn" href="#sync"><span>🔄</span>Sync vs Async</a>
+    <a class="hero-btn" href="#promises"><span>⏳</span>Promises</a>
+    <a class="hero-btn" href="#asyncawait"><span>✨</span>async/await</a>
+    <a class="hero-btn" href="#fetch"><span>🌐</span>Fetch & API</a>
+  </nav>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SECTION 1 — SYNC VS ASYNC
+════════════════════════════════════════════ -->
+<section class="section" id="sync">
+  <div class="sec-label">Section 01</div>
+  <h2>Sync vs Async</h2>
+  <p class="intro">JavaScript is <strong>single-threaded</strong> — it has one call stack and can only do one thing at a time. Understanding what "blocking" means and how JavaScript sidesteps it is the entire foundation of async programming.</p>
+
+  <h3 class="sub">🔵 Synchronous — Blocking Code</h3>
+  <p class="prose">In synchronous code, every line is a <strong>checkpoint</strong>. The engine reads line 1, executes it completely, then moves to line 2. Nothing can interrupt this sequence. If line 2 takes 5 seconds (a huge calculation, a file read), the entire program freezes for those 5 seconds. The user sees a locked-up browser, events don't fire, nothing repaints.</p>
+  <p class="prose">This is called <strong>blocking</strong> because the thread is occupied — blocked — and cannot handle anything else.</p>
+  <div class="code-wrap">
+    <span class="code-tag">js</span>
+    <pre><span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'1 — Started'</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'2 — Processing...'</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'3 — Done'</span>);
+
+<span class="cmt">// Output is always guaranteed to be in this exact order:</span>
+<span class="cmt">// 1 — Started</span>
+<span class="cmt">// 2 — Processing...</span>
+<span class="cmt">// 3 — Done</span>
+<span class="cmt">//</span>
+<span class="cmt">// Predictable. Safe. But inflexible — any slow operation STOPS everything.</span></pre>
+  </div>
+
+  <h3 class="sub">🟢 Asynchronous — Non-blocking Code</h3>
+  <p class="prose">Asynchronous code lets JavaScript <strong>offload</strong> slow operations — timers, network requests, disk reads — to the browser's Web APIs. These run in the background (outside the JS thread). When they complete, a callback is queued and JavaScript picks it up later, when the main thread is free.</p>
+  <p class="prose">Crucially: <strong>JavaScript itself never truly runs in parallel.</strong> It's still single-threaded. The browser does the waiting on its behalf, and JavaScript comes back to handle the result.</p>
+  <div class="code-wrap">
+    <span class="code-tag">js</span>
+    <pre><span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'1 — Started'</span>);    <span class="cmt">// → Call Stack → runs immediately</span>
+
+<span class="fn">setTimeout</span>(<span class="pm">callback</span>, <span class="num">2000</span>);    <span class="cmt">// → Handed OFF to browser timer API</span>
+                                <span class="cmt">// → JS does NOT wait — moves on instantly</span>
+
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'3 — Continues'</span>);   <span class="cmt">// → Runs immediately after line 1</span>
+
+<span class="cmt">// ... 2 seconds pass in the background ...</span>
+
+<span class="kw">function</span> <span class="fn">callback</span>() {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'2 — After 2 seconds'</span>); <span class="cmt">// Runs LAST, when timer fires</span>
+}
+
+<span class="cmt">// Actual output:</span>
+<span class="cmt">// 1 — Started       (line 1, synchronous)</span>
+<span class="cmt">// 3 — Continues     (line 3, synchronous — skip past setTimeout)</span>
+<span class="cmt">// 2 — After 2 sec   (callback, async — after 2000ms)</span>
+<span class="cmt">//</span>
+<span class="cmt">// Line 3 runs BEFORE line 2 even though it comes later in the code!</span></pre>
+  </div>
+
+  <div class="callout tip">
+    <span class="ci">💡</span>
+    <p><strong>Real-world analogy:</strong> Imagine ordering coffee (async) vs waiting at the counter staring at the machine until it's done (sync). With async, you place your order, sit down, do other things, and the barista calls you when it's ready. The café (browser) does the waiting. You (JS thread) stay productive.</p>
+  </div>
+
+  <!-- Live Demo -->
+  <div class="demo-box">
+    <div class="demo-title">⚡ Live Demo</div>
+    <p class="demo-desc">Run both modes and watch the output order carefully. Notice how async skips past the setTimeout entirely.</p>
+    <div class="btn-row">
+      <button class="btn-run" onclick="demoSync()">▶ Run Sync</button>
+      <button class="btn-run green" onclick="demoAsync()">▶ Run Async (2s timer)</button>
+      <button class="btn-clr" onclick="clr('o1')">✕ Clear</button>
+    </div>
+    <div class="demo-out" id="o1">// Click a button above...</div>
+  </div>
+
+  <!-- Quick Quiz -->
+  <div class="quiz-box">
+    <div class="quiz-head"><h3>🧠 Quick Check</h3></div>
+
+    <div class="question" id="qs1">
+      <p class="qp"><strong>Q1.</strong> Why is synchronous code called "blocking"?</p>
+      <div class="opts">
+        <button class="opt" onclick="qa(this,'qs1',false,'b')"><span class="opt-ltr">A</span> Because it throws errors that block execution</button>
+        <button class="opt" onclick="qa(this,'qs1',true,'b')"><span class="opt-ltr">B</span> Because the next line cannot run until the current one finishes — the thread is occupied</button>
+        <button class="opt" onclick="qa(this,'qs1',false,'b')"><span class="opt-ltr">C</span> Because it prevents variables from being reassigned</button>
+        <button class="opt" onclick="qa(this,'qs1',false,'b')"><span class="opt-ltr">D</span> Because JavaScript is multi-threaded and blocks other threads</button>
+      </div>
+      <div class="expl" id="e-qs1"></div>
+    </div>
+
+    <div class="question" id="qs2">
+      <p class="qp"><strong>Q2.</strong> What is the output order of:<br><code>console.log('A'); setTimeout(()=>console.log('B'), 0); console.log('C');</code></p>
+      <div class="opts">
+        <button class="opt" onclick="qa(this,'qs2',false,'c')"><span class="opt-ltr">A</span> A → B → C</button>
+        <button class="opt" onclick="qa(this,'qs2',false,'c')"><span class="opt-ltr">B</span> B → A → C</button>
+        <button class="opt" onclick="qa(this,'qs2',true,'c')"><span class="opt-ltr">C</span> A → C → B</button>
+        <button class="opt" onclick="qa(this,'qs2',false,'c')"><span class="opt-ltr">D</span> All three at the same time</button>
+      </div>
+      <div class="expl" id="e-qs2"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SECTION 2 — EVENT LOOP
+════════════════════════════════════════════ -->
+<section class="section" id="eventloop">
+  <div class="sec-label">Section 02</div>
+  <h2>The Event Loop</h2>
+  <p class="intro">The Event Loop is JavaScript's concurrency model — the engine that makes async code possible without multi-threading. Understanding this deeply will explain every strange output order you ever see.</p>
+
+  <h3 class="sub">The Five Components</h3>
+  <p class="prose">JavaScript runtime has several distinct areas. Each plays a specific role:</p>
+
+  <div class="el-grid">
+    <div class="el-cell">
+      <div class="ec-icon">📚</div>
+      <div class="ec-name">Call Stack</div>
+      <div class="ec-desc">Where code actually executes. Functions are pushed when called, popped when they return. LIFO (last-in, first-out). Only one frame executes at a time.</div>
+    </div>
+    <div class="el-cell">
+      <div class="ec-icon">🧠</div>
+      <div class="ec-name">Heap</div>
+      <div class="ec-desc">Unstructured memory where objects and variables are stored. The stack holds references to objects living here.</div>
+    </div>
+    <div class="el-cell highlight">
+      <div class="ec-icon">🔄</div>
+      <div class="ec-name">Event Loop</div>
+      <div class="ec-desc">Continuously checks: is the Call Stack empty? If yes, moves the next item from a queue into the stack. This is the entire loop.</div>
+    </div>
+  </div>
+  <div class="el-row2">
+    <div class="el-cell">
+      <div class="ec-icon">📋</div>
+      <div class="ec-name">Web APIs</div>
+      <div class="ec-desc">Browser-provided async services: <code>setTimeout</code>, <code>fetch</code>, <code>DOM events</code>, <code>XMLHttpRequest</code>. They run outside the JS thread.</div>
+    </div>
+    <div class="el-cell highlight">
+      <div class="ec-icon">⚡</div>
+      <div class="ec-name">Microtask Queue</div>
+      <div class="ec-desc">High-priority queue. <strong>Promises</strong> and <code>queueMicrotask()</code> land here. The Event Loop drains this queue <em>completely</em> before touching the Callback Queue. Even a new microtask added during processing runs before any macrotask.</div>
+    </div>
+    <div class="el-cell">
+      <div class="ec-icon">📬</div>
+      <div class="ec-name">Callback Queue</div>
+      <div class="ec-desc">Also called the Macrotask Queue. <code>setTimeout</code>, <code>setInterval</code>, I/O callbacks wait here. Lower priority than microtasks.</div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <span class="ci">⚠️</span>
+    <p><strong>Priority rule:</strong> When the Call Stack empties, the Event Loop checks the Microtask Queue FIRST and drains it completely — every last microtask — before moving even one item from the Callback Queue. This is why Promise <code>.then()</code> callbacks always run before <code>setTimeout</code> callbacks, even if the timeout is 0ms.</p>
+  </div>
+
+  <h3 class="sub">Step-by-Step Execution Trace</h3>
+  <p class="prose">Here is the exact sequence for a piece of code that mixes all three types of execution:</p>
+  <div class="code-wrap">
+    <span class="code-tag">js</span>
+    <pre><span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'A'</span>);
+
+<span class="fn">setTimeout</span>(() => <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'B'</span>), <span class="num">1000</span>);
+
+<span class="kw">new</span> <span class="fn">Promise</span>((<span class="pm">resolve</span>) => {
+  <span class="fn">resolve</span>(<span class="str">'C'</span>);           <span class="cmt">// executor runs SYNCHRONOUSLY</span>
+}).<span class="fn">then</span>((<span class="pm">v</span>) => <span class="fn">console</span>.<span class="fn">log</span>(<span class="pm">v</span>));  <span class="cmt">// .then callback → Microtask Queue</span>
+
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'D'</span>);
+
+<span class="cmt">// ── EXECUTION ORDER ─────────────────────────────────────────────</span>
+<span class="cmt">// Step 1: console.log('A') → Call Stack → executes → prints "A"</span>
+<span class="cmt">// Step 2: setTimeout callback → handed to Web API, timer starts</span>
+<span class="cmt">// Step 3: Promise executor runs synchronously → resolve('C') called</span>
+<span class="cmt">//         → .then callback queued in Microtask Queue</span>
+<span class="cmt">// Step 4: console.log('D') → Call Stack → executes → prints "D"</span>
+<span class="cmt">// Step 5: Call Stack is now EMPTY</span>
+<span class="cmt">//         → Event Loop checks Microtask Queue → finds 'C' callback</span>
+<span class="cmt">//         → moves to Call Stack → prints "C"</span>
+<span class="cmt">// Step 6: Microtask Queue is empty</span>
+<span class="cmt">//         → 1 second passes → setTimeout callback → Callback Queue</span>
+<span class="cmt">//         → Event Loop moves it to Call Stack → prints "B"</span>
+<span class="cmt">//</span>
+<span class="cmt">// Final output:  A → D → C → B</span></pre>
+  </div>
+
+  <div class="callout info">
+    <span class="ci">🔑</span>
+    <p><strong>The key insight:</strong> The Promise executor function (the code inside <code>new Promise(fn)</code>) runs synchronously — immediately, inline. Only the <code>.then()</code> callback is deferred to the Microtask Queue. This is why <code>resolve()</code> is called at step 3 but we only see "C" at step 5.</p>
+  </div>
+
+  <div class="demo-box">
+    <div class="demo-title">🎬 Animated Trace</div>
+    <p class="demo-desc">Watch the Event Loop run step-by-step with timestamps.</p>
+    <div class="btn-row">
+      <button class="btn-run" onclick="animateEL()">▶ Animate Event Loop</button>
+      <button class="btn-clr" onclick="clr('elout')">✕ Clear</button>
+    </div>
+    <div class="demo-out" id="elout">// Click Animate to trace the execution...</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SECTION 3 — CALLBACKS
+════════════════════════════════════════════ -->
+<section class="section" id="callbacks">
+  <div class="sec-label">Section 03</div>
+  <h2>Callbacks</h2>
+  <p class="intro">Before Promises existed, callbacks were <em>the</em> way to handle async operations. They're simple and still used everywhere — but they have a critical flaw at scale.</p>
+
+  <h3 class="sub">What is a Callback?</h3>
+  <p class="prose">A callback is simply a <strong>function passed as an argument to another function</strong>, to be called later. There's nothing magic about it — it's just a function reference. The receiving function decides <em>when</em> to call it.</p>
+  <p class="prose">The async pattern works because JavaScript functions are <strong>first-class values</strong> — you can pass them around like any other variable, store them, and invoke them later.</p>
+  <div class="code-wrap">
+    <span class="code-tag">js</span>
+    <pre><span class="cmt">// A function that accepts a callback</span>
+<span class="kw">function</span> <span class="fn">fetchData</span>(<span class="pm">callback</span>) {
+  <span class="fn">setTimeout</span>(() => {
+    <span class="kw">const</span> data = <span class="str">'Server response: user data'</span>;
+    <span class="fn">callback</span>(<span class="kw">null</span>, data);   <span class="cmt">// Node.js convention: (error, result)</span>
+  }, <span class="num">1000</span>);
+}
+
+<span class="cmt">// Pass a function as the callback argument</span>
+<span class="fn">fetchData</span>((<span class="pm">err</span>, <span class="pm">result</span>) => {
+  <span class="kw">if</span> (<span class="pm">err</span>) { <span class="fn">console</span>.<span class="fn">error</span>(<span class="pm">err</span>); <span class="kw">return</span>; }
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="pm">result</span>); <span class="cmt">// "Server response: user data" (after 1s)</span>
+});</pre>
+  </div>
+
+  <div class="callout tip">
+    <span class="ci">💡</span>
+    <p><strong>Error-first convention:</strong> In Node.js and older APIs, callbacks follow the pattern <code>(error, result)</code> — the first argument is always an error object (or <code>null</code> if success), the second is the result. Always check the error first!</p>
+  </div>
+
+  <h3 class="sub">😱 Callback Hell — The Pyramid of Doom</h3>
+  <p class="prose">When you have sequential async operations where each one depends on the result of the previous one, callbacks nest inside each other. Each indentation level is another async dependency. This is called <strong>Callback Hell</strong> — and it's not just ugly, it's dangerous:</p>
+  <p class="prose"><strong>Why it's bad:</strong> Error handling must be duplicated at every level. Refactoring is nearly impossible. Stack traces become unreadable. Testing individual steps is painful. Code reviewers want to quit.</p>
+
+  <div class="hell-wrap">
+    <div class="hl" style="border-color:#f43f5e">
+      <code style="color:#f43f5e">getUser(1, (err, user) => {</code>
+      <div class="hl" style="border-color:#f97316">
+        <code style="color:#f97316">getOrders(user.id, (err, orders) => {</code>
+        <div class="hl" style="border-color:#eab308">
+          <code style="color:#eab308">getOrderDetails(orders[0].id, (err, details) => {</code>
+          <div class="hl" style="border-color:#22c55e">
+            <code style="color:#22c55e">getShipping(details.id, (err, shipping) => {</code>
+            <div class="hl" style="border-color:#3b82f6">
+              <code style="color:#3b82f6">getTracking(shipping.id, (err, tracking) => {</code>
+              <br><code style="color:#4a5d7a">  // 😵 5 levels deep. Imagine adding error handling at each.</code>
+              <br><code style="color:#3b82f6">});</code>
+            </div>
+            <code style="color:#22c55e">});</code>
+          </div>
+          <code style="color:#eab308">});</code>
+        </div>
+        <code style="color:#f97316">});</code>
+      </div>
+      <code style="color:#f43f5e">});</code>
+    </div>
+  </div>
+
+  <div class="three-col">
+    <div class="callout danger" style="margin:0">
+      <span class="ci">❌</span><p>Hard to read — indentation grows horizontally until you scroll</p>
+    </div>
+    <div class="callout danger" style="margin:0">
+      <span class="ci">❌</span><p>Error handling must be repeated at every single nesting level</p>
+    </div>
+    <div class="callout danger" style="margin:0">
+      <span class="ci">❌</span><p>Can't easily break into functions — each inner function needs outer data</p>
+    </div>
+  </div>
+
+  <div class="callout tip" style="margin-top:1.5rem">
+    <span class="ci">🚀</span>
+    <p><strong>Solution: Promises.</strong> Promises were invented specifically to flatten this pyramid into a linear chain. Instead of nesting, you chain with <code>.then()</code>. We'll see this next.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SECTION 4 — PROMISES
+════════════════════════════════════════════ -->
+<section class="section" id="promises">
+  <div class="sec-label">Section 04</div>
+  <h2>Promises</h2>
+  <p class="intro">A Promise is a JavaScript object that represents the <em>eventual result</em> of an asynchronous operation. Think of it as a placeholder — a receipt that says "this will have a value, or an error, some time in the future." You can attach handlers to it immediately, before the value even arrives.</p>
+
+  <div class="callout info">
+    <span class="ci">🔑</span>
+    <p><strong>Why Promises over callbacks:</strong> Promises are composable, chainable, and have standardized error handling. They were introduced in ES6 (2015) and are the foundation that async/await is built on. You cannot use async/await without Promises — they are the same system.</p>
+  </div>
+
+  <h3 class="sub">The Three States</h3>
+  <p class="prose">Every Promise exists in exactly one of three states at any moment. Once it moves out of Pending, it <strong>cannot change again</strong> — this immutability is a core guarantee.</p>
+
+  <div class="state-trio">
+    <div class="state-card pend">
+      <div class="si">⏳</div>
+      <div class="sn">Pending</div>
+      <div class="sd">The initial state. The async operation is still in progress. Neither <code>resolve</code> nor <code>reject</code> has been called yet. The Promise is waiting.</div>
+    </div>
+    <div class="state-card fulfd">
+      <div class="si">✅</div>
+      <div class="sn">Fulfilled</div>
+      <div class="sd"><code>resolve(value)</code> was called. The operation succeeded. Attached <code>.then()</code> callbacks receive the value. This state is permanent.</div>
+    </div>
+    <div class="state-card rejd">
+      <div class="si">❌</div>
+      <div class="sn">Rejected</div>
+      <div class="sd"><code>reject(reason)</code> was called (or an exception was thrown inside). The operation failed. Attached <code>.catch()</code> callbacks receive the error. Also permanent.</div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <span class="ci">⚠️</span>
+    <p><strong>Immutability matters:</strong> Once a Promise is fulfilled or rejected, calling <code>resolve()</code> or <code>reject()</code> again has zero effect. You cannot "undo" or "retry" a settled Promise. To retry, you create a new Promise.</p>
+  </div>
+
+  <h3 class="sub">Creating a Promise</h3>
+  <p class="prose">You construct a Promise by passing an <strong>executor function</strong> to <code>new Promise()</code>. The executor receives two functions as arguments: <code>resolve</code> and <code>reject</code>. You call one of them when your async work is done.</p>
+  <p class="prose"><strong>Important:</strong> The executor function itself runs <em>synchronously</em> — immediately when you call <code>new Promise()</code>. Only the resolution is async.</p>
+  <div class="code-wrap">
+    <span class="code-tag">js</span>
+    <pre><span class="kw">const</span> myPromise = <span class="kw">new</span> <span class="fn">Promise</span>((<span class="pm">resolve</span>, <span class="pm">reject</span>) => {
+  <span class="cmt">// ← This executor function runs RIGHT NOW, synchronously</span>
+  <span class="cmt">// It receives two control functions: resolve and reject</span>
+
+  <span class="fn">setTimeout</span>(() => {              <span class="cmt">// simulate async work</span>
+    <span class="kw">const</span> success = <span class="kw">true</span>;
+
+    <span class="kw">if</span> (success) {
+      <span class="fn">resolve</span>(<span class="str">'✅ Data arrived!'</span>);  <span class="cmt">// → Fulfilled. .then() fires.</span>
+    } <span class="kw">else</span> {
+      <span class="fn">reject</span>(<span class="kw">new</span> <span class="fn">Error</span>(<span class="str">'❌ Server crashed'</span>)); <span class="cmt">// → Rejected. .catch() fires.</span>
+    }
+  }, <span class="num">1000</span>);
+});
+
+<span class="cmt">// Attach handlers BEFORE the async work even completes — that's fine!</span>
+<span class="cmt">// The handlers are stored and called when the Promise settles.</span>
+myPromise
+  .<span class="fn">then</span>(<span class="pm">result</span> => <span class="fn">console</span>.<span class="fn">log</span>(<span class="pm">result</span>))    <span class="cmt">// Fulfilled path</span>
+  .<span class="fn">catch</span>(<span class="pm">error</span>  => <span class="fn">console</span>.<span class="fn">error</span>(<span class="pm">error</span>)) <span class="cmt">// Rejected path</span>
+  .<span class="fn">finally</span>(() => <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Done'</span>));   <span class="cmt">// Always runs</span></pre>
+  </div>
+
+  <!-- Interactive demo -->
+  <div class="demo-box">
+    <div class="demo-title">⚡ Promise Simulator</div>
+    <p class="demo-desc">Creates a Promise with a random 50% chance of success or failure. Watch all three handlers fire.</p>
+    <div class="btn-row">
+      <button class="btn-run" onclick="demoPromise()">▶ Create & Resolve/Reject</button>
+      <button class="btn-clr" onclick="clr('o2')">✕ Clear</button>
+    </div>
+    <div class="demo-out" id="o2">// Click to simulate a Promise...</div>
+  </div>
+
+  <!-- CHAINING PIPELINE -->
+  <h3 class="sub">.then() · .catch() · .finally() — The Chain</h3>
+  <p class="prose">Each <code>.then()</code> call returns a <strong>new Promise</strong>. Whatever you <code>return</code> inside a <code>.then()</code> becomes the resolved value of that new Promise, which is passed to the next <code>.then()</code>. This is how the chain stays flat instead of nesting. One single <code>.catch()</code> at the end is enough to handle errors from <em>any</em> step above it — the error propagates down the chain automatically.</p>
+
+  <div class="pipeline">
+    <!-- Step 1: Source -->
+    <div class="pipeline-step">
+      <div class="pip-node blue">1</div>
+      <div class="pip-content">
+        <div class="pip-method blue">getUserData(userId)</div>
+        <div class="pip-title">The originating Promise</div>
+        <div class="pip-desc">This function returns a Promise that will eventually resolve with a user object <code>{ id, name, age }</code>, or reject if the userId is invalid. This is the <strong>source</strong> of the chain.</div>
+        <span class="pip-badge success">Returns Promise</span>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="pipeline-step">
+      <div class="pip-node blue">2</div>
+      <div class="pip-content">
+        <div class="pip-method blue">.then(user => { ... return user.id })</div>
+        <div class="pip-title">First handler — receives the user, returns id</div>
+        <div class="pip-desc">The <code>user</code> argument here is the value passed to <code>resolve()</code> in the previous step. Whatever you <code>return</code> inside this <code>.then()</code> is automatically wrapped in a Promise and becomes the input to the <em>next</em> <code>.then()</code>. Here we extract just <code>user.id</code> and pass it forward.</div>
+        <span class="pip-badge success">Passes: user.id (number)</span>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="pipeline-step">
+      <div class="pip-node blue">3</div>
+      <div class="pip-content">
+        <div class="pip-method blue">.then(id => { ... return `Profile #${id}` })</div>
+        <div class="pip-title">Second handler — receives id, builds a message</div>
+        <div class="pip-desc">Now <code>id</code> is what was returned in the previous step. We don't need the user object anymore — it was already narrowed down. We build a string and return it. You can <code>return</code> a plain value (synchronous result) or another <code>new Promise()</code> (async chaining continues).</div>
+        <span class="pip-badge success">Passes: "Profile #1 loaded"</span>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="pipeline-step">
+      <div class="pip-node blue">4</div>
+      <div class="pip-content">
+        <div class="pip-method blue">.then(message => { console.log(message) })</div>
+        <div class="pip-title">Third handler — receives the final message</div>
+        <div class="pip-desc">This <code>.then()</code> returns nothing (implicitly <code>undefined</code>), which resolves to a fulfilled Promise with <code>undefined</code>. That's fine — we're at the end of the chain. The next step is <code>.catch()</code>.</div>
+      </div>
+    </div>
+
+    <!-- CATCH — separated -->
+    <div class="pipeline-step catch-step">
+      <div class="pip-node red">!</div>
+      <div class="pip-content">
+        <div class="pip-method red">.catch(error => { console.error(error) })</div>
+        <div class="pip-title">Error handler — catches ANY rejection above</div>
+        <div class="pip-desc">If <strong>any</strong> of steps 1–4 reject or throw an exception, the chain short-circuits. The rejection skips all remaining <code>.then()</code> handlers and lands here. One <code>.catch()</code> protects the entire chain. You can also re-throw from here if needed, and the error will propagate further.</div>
+        <span class="pip-badge error">Catches all upstream errors</span>
+      </div>
+    </div>
+
+    <!-- FINALLY — separated -->
+    <div class="pipeline-step finally-step">
+      <div class="pip-node purple">∞</div>
+      <div class="pip-content">
+        <div class="pip-method purple">.finally(() => { hideSpinner() })</div>
+        <div class="pip-title">Cleanup handler — always runs, regardless of outcome</div>
+        <div class="pip-desc">Runs whether the chain fulfilled or rejected. It receives <strong>no arguments</strong> — it doesn't know what the result or error was. It's purely for cleanup: hiding loading spinners, releasing resources, logging completion. Does not affect the chain's resolved/rejected value.</div>
+        <span class="pip-badge always">Success OR failure — always</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <span class="code-tag">js</span>
+    <pre><span class="fn">getUserData</span>(<span class="num">1</span>)
+  .<span class="fn">then</span>(<span class="pm">user</span> => {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'User:'</span>, <span class="pm">user</span>.<span class="pm">name</span>);   <span class="cmt">// "Ali"</span>
+    <span class="kw">return</span> <span class="pm">user</span>.<span class="pm">id</span>;                    <span class="cmt">// passed to next .then()</span>
+  })
+  .<span class="fn">then</span>(<span class="pm">id</span> => {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'ID:'</span>, <span class="pm">id</span>);            <span class="cmt">// 1</span>
+    <span class="kw">return</span> <span class="str">`Profile #<span class="pm">${id}</span> loaded`</span>;
+  })
+  .<span class="fn">then</span>(<span class="pm">msg</span> => <span class="fn">console</span>.<span class="fn">log</span>(<span class="pm">msg</span>))      <span class="cmt">// "Profile #1 loaded"</span>
+  .<span class="fn">catch</span>(<span class="pm">err</span> => <span class="fn">console</span>.<span class="fn">error</span>(<span class="pm">err</span>))  <span class="cmt">// any error in steps 1–3</span>
+  .<span class="fn">finally</span>(() => <span class="fn">hideSpinner</span>());     <span class="cmt">// cleanup, always</span></pre>
+  </div>
+
+  <h3 class="sub">Static Promise Methods</h3>
+  <p class="prose">These are utility methods on the <code>Promise</code> constructor itself — not on a Promise instance. They let you work with multiple Promises at once.</p>
+
+  <div class="three-col">
+    <div class="card accent-top green-top">
+      <div class="card-label green">Promise.all()</div>
+      <div class="card-title">All must succeed</div>
+      <div class="card-body">Runs ALL promises in parallel. Resolves with an array of all results — <strong>only when every single one resolves</strong>. If ANY one rejects, the whole thing rejects immediately and the other results are discarded. Use when you need every result and can't proceed without all of them.<br><br>Best for: loading all assets needed to render a page.</div>
+    </div>
+    <div class="card accent-top orange-top">
+      <div class="card-label orange">Promise.race()</div>
+      <div class="card-title">First one wins</div>
+      <div class="card-body">Settles (resolves OR rejects) with whichever Promise settles first. The others are ignored. This is how you implement <strong>timeouts</strong>: race your request against a Promise that rejects after N seconds.<br><br>Best for: abort strategy — take fastest data source, implement request timeouts.</div>
+    </div>
+    <div class="card accent-top purple-top">
+      <div class="card-label purple">Promise.allSettled()</div>
+      <div class="card-title">Never rejects</div>
+      <div class="card-body">Waits for ALL promises regardless of outcome. Returns an array of result objects with <code>{ status: 'fulfilled', value }</code> or <code>{ status: 'rejected', reason }</code>. You see every result — successes and failures — without the whole thing aborting.<br><br>Best for: batch operations where partial success is acceptable.</div>
+    </div>
+  </div>
+
+  <div class="demo-box">
+    <div class="demo-title">⚡ Try All Three Static Methods</div>
+    <div class="tab-bar">
+      <button class="tab-btn on" onclick="switchTab('t-all','tg1',this)">Promise.all()</button>
+      <button class="tab-btn" onclick="switchTab('t-race','tg1',this)">Promise.race()</button>
+      <button class="tab-btn" onclick="switchTab('t-settled','tg1',this)">Promise.allSettled()</button>
+    </div>
+    <div id="t-all" class="tab-pane on">
+      <p class="demo-desc">Three promises: 300ms, 700ms, 500ms. <code>all()</code> waits for all three. One failure kills all.</p>
+      <div class="btn-row">
+        <button class="btn-run" onclick="demoAll(false)">▶ All Succeed</button>
+        <button class="btn-run orange" onclick="demoAll(true)">▶ One Fails</button>
+      </div>
+    </div>
+    <div id="t-race" class="tab-pane">
+      <p class="demo-desc">Three promises at 100ms, 500ms, 1000ms. <code>race()</code> returns the first to finish.</p>
+      <div class="btn-row">
+        <button class="btn-run" onclick="demoRace()">▶ Race them</button>
+      </div>
+    </div>
+    <div id="t-settled" class="tab-pane">
+      <p class="demo-desc">One resolves, one rejects. <code>allSettled()</code> shows both outcomes — never throws.</p>
+      <div class="btn-row">
+        <button class="btn-run" onclick="demoSettled()">▶ allSettled()</button>
+      </div>
+    </div>
+    <button class="btn-clr" onclick="clr('o3')" style="margin-top:0.6rem">✕ Clear</button>
+    <div class="demo-out" id="o3">// Select a method and click Run...</div>
+  </div>
+
+  <h3 class="sub">Error Handling — The Right Way</h3>
+  <div class="compare-pair">
+    <div class="compare-half bad">
+      <div class="compare-label">❌ Wrong</div>
+      <pre><span class="cmt">// No .catch() — silent failure</span>
+<span class="fn">fetchData</span>()
+  .<span class="fn">then</span>(<span class="pm">d</span> => <span class="fn">process</span>(<span class="pm">d</span>));
+<span class="cmt">// If rejected → nothing happens!</span>
+<span class="cmt">// "Unhandled Promise Rejection"</span>
+<span class="cmt">// Node will crash. Browsers warn.</span></pre>
+    </div>
+    <div class="compare-half good">
+      <div class="compare-label">✅ Correct</div>
+      <pre><span class="fn">fetchData</span>()
+  .<span class="fn">then</span>(<span class="pm">d</span> => <span class="fn">process</span>(<span class="pm">d</span>))
+  .<span class="fn">then</span>(<span class="pm">r</span> => <span class="fn">display</span>(<span class="pm">r</span>))
+  .<span class="fn">catch</span>(<span class="pm">e</span> => <span class="fn">handleError</span>(<span class="pm">e</span>))
+  .<span class="fn">finally</span>(() => <span class="fn">spinner</span>(<span class="kw">false</span>));</pre>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="quiz-box">
+    <div class="quiz-head"><h3>🧠 Promises Quiz</h3></div>
+    <div class="question" id="qp1">
+      <p class="qp"><strong>Q1.</strong> What happens to a Promise after <code>resolve()</code> is called?</p>
+      <div class="opts">
+        <button class="opt" onclick="qa(this,'qp1',false,'b')"><span class="opt-ltr">A</span> It resets to Pending if you call resolve() again</button>
+        <button class="opt" onclick="qa(this,'qp1',true,'b')"><span class="opt-ltr">B</span> It permanently moves to Fulfilled — calling resolve() or reject() again does nothing</button>
+        <button class="opt" onclick="qa(this,'qp1',false,'b')"><span class="opt-ltr">C</span> It becomes garbage collected immediately</button>
+        <button class="opt" onclick="qa(this,'qp1',false,'b')"><span class="opt-ltr">D</span> It calls .finally() automatically</button>
+      </div>
+      <div class="expl" id="e-qp1"></div>
+    </div>
+    <div class="question" id="qp2">
+      <p class="qp"><strong>Q2.</strong> You have 3 independent API calls and you need all 3 results. Which method AND why?</p>
+      <div class="opts">
+        <button class="opt" onclick="qa(this,'qp2',false,'b')"><span class="opt-ltr">A</span> Sequential await — safer to go one by one</button>
+        <button class="opt" onclick="qa(this,'qp2',true,'b')"><span class="opt-ltr">B</span> Promise.all() — they run in parallel, you get all results, and it's ~3× faster</button>
+        <button class="opt" onclick="qa(this,'qp2',false,'b')"><span class="opt-ltr">C</span> Promise.race() — take the fastest data available</button>
+        <button class="opt" onclick="qa(this,'qp2',false,'b')"><span class="opt-ltr">D</span> Promise.allSettled() — to handle any failures gracefully</button>
+      </div>
+      <div class="expl" id="e-qp2"></div>
+    </div>
+    <div class="question" id="qp3">
+      <p class="qp"><strong>Q3.</strong> What does <code>.finally(fn)</code> receive as an argument?</p>
+      <div class="opts">
+        <button class="opt" onclick="qa(this,'qp3',false,'c')"><span class="opt-ltr">A</span> The resolved value from the last .then()</button>
+        <button class="opt" onclick="qa(this,'qp3',false,'c')"><span class="opt-ltr">B</span> The error if rejected, or undefined if fulfilled</button>
+        <button class="opt" onclick="qa(this,'qp3',true,'c')"><span class="opt-ltr">C</span> Nothing — finally's callback receives no arguments at all</button>
+        <button class="opt" onclick="qa(this,'qp3',false,'c')"><span class="opt-ltr">D</span> Both the result and error as separate arguments</button>
+      </div>
+      <div class="expl" id="e-qp3"></div>
+    </div>
+    <div class="question" id="qp4">
+      <p class="qp"><strong>Q4.</strong> In a promise chain: <code>p.then(A).then(B).catch(C)</code> — if handler A throws, what runs?</p>
+      <div class="opts">
+        <button class="opt" onclick="qa(this,'qp4',false,'c')"><span class="opt-ltr">A</span> A, then B, then C</button>
+        <button class="opt" onclick="qa(this,'qp4',false,'c')"><span class="opt-ltr">B</span> A, then C (B is skipped)</button>
+        <button class="opt" onclick="qa(this,'qp4',true,'c')"><span class="opt-ltr">C</span> A (up until the throw), then C — B is skipped entirely, the error jumps to catch</button>
+        <button class="opt" onclick="qa(this,'qp4',false,'c')"><span class="opt-ltr">D</span> Only A — catch doesn't exist in this chain</button>
+      </div>
+      <div class="expl" id="e-qp4"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SECTION 5 — ASYNC/AWAIT
+════════════════════════════════════════════ -->
+<section class="section" id="asyncawait">
+  <div class="sec-label">Section 05</div>
+  <h2>async / await</h2>
+  <p class="intro">async/await is described as "syntactic sugar" — a cleaner syntax that compiles to Promise-based code. It doesn't replace Promises; it makes writing and reading them dramatically easier by letting async code look synchronous.</p>
+
+  <div class="callout info">
+    <span class="ci">🔑</span>
+    <p><strong>Under the hood:</strong> <code>async function getUser() { return data; }</code> is equivalent to <code>function getUser() { return Promise.resolve(data); }</code>. The JS engine transforms async/await into Promise chains behind the scenes. Knowing this helps you debug when something unexpected happens.</p>
+  </div>
+
+  <h3 class="sub">The Four Rules</h3>
+  <div class="four-col">
+    <div class="card accent-top blue-top">
+      <div class="card-label blue">Rule 1</div>
+      <div class="card-title">async keyword</div>
+      <div class="card-body">Place <code>async</code> before <code>function</code>. Works with all function forms: <code>async function fn(){}</code>, <code>const fn = async () => {}</code>, <code>async fn(){}</code> in a class. The function now always returns a Promise, regardless of what you return.</div>
+    </div>
+    <div class="card accent-top blue-top">
+      <div class="card-label blue">Rule 2</div>
+      <div class="card-title">await keyword</div>
+      <div class="card-body">Place <code>await</code> before any expression that returns a Promise. Execution inside the <code>async</code> function <em>pauses here</em> until the Promise settles. The resolved value is assigned to the variable. Other code outside this function continues normally.</div>
+    </div>
+    <div class="card accent-top blue-top">
+      <div class="card-label blue">Rule 3</div>
+      <div class="card-title">Only inside async</div>
+      <div class="card-body"><code>await</code> is only valid inside an <code>async</code> function. Using it at the top level gives a SyntaxError in classic scripts. Exception: ES modules (<code>type="module"</code>) support top-level await.</div>
+    </div>
+    <div class="card accent-top blue-top">
+      <div class="card-label blue">Rule 4</div>
+      <div class="card-title">try/catch for errors</div>
+      <div class="card-body">When an awaited Promise rejects, it throws — which means <code>try/catch</code> works exactly as it does with synchronous errors. This replaces <code>.catch()</code> and feels far more natural for sequential async code.</div>
+    </div>
+  </div>
+
+  <h3 class="sub">Promise Chain vs async/await — Same thing, different look</h3>
+  <div class="compare-pair">
+    <div class="compare-half bad">
+      <div class="compare-label">📜 Promise .then() style</div>
+      <pre><span class="kw">function</span> <span class="fn">loadProfile</span>(<span class="pm">id</span>) {
+  <span class="kw">return</span> <span class="fn">fetch</span>(<span class="str">`/api/users/<span class="pm">${id}</span>`</span>)
+    .<span class="fn">then</span>(<span class="pm">res</span> => {
+      <span class="kw">if</span> (!<span class="pm">res</span>.<span class="pm">ok</span>) <span class="kw">throw</span> <span class="kw">new</span> <span class="fn">Error</span>(<span class="pm">res</span>.<span class="pm">status</span>);
+      <span class="kw">return</span> <span class="pm">res</span>.<span class="fn">json</span>();
+    })
+    .<span class="fn">then</span>(<span class="pm">user</span> => {
+      <span class="fn">console</span>.<span class="fn">log</span>(<span class="pm">user</span>.<span class="pm">name</span>);
+      <span class="kw">return</span> <span class="fn">fetch</span>(<span class="str">`/api/orders/<span class="pm">${user.id}</span>`</span>);
+    })
+    .<span class="fn">then</span>(<span class="pm">res</span> => <span class="pm">res</span>.<span class="fn">json</span>())
+    .<span class="fn">catch</span>(<span class="pm">err</span> => <span class="fn">console</span>.<span class="fn">error</span>(<span class="pm">err</span>));
+}</pre>
+    </div>
+    <div class="compare-half good">
+      <div class="compare-label">✨ async/await style</div>
+      <pre><span class="kw">async function</span> <span class="fn">loadProfile</span>(<span class="pm">id</span>) {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> res  = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`/api/users/<span class="pm">${id}</span>`</span>);
+    <span class="kw">if</span> (!res.<span class="pm">ok</span>) <span class="kw">throw</span> <span class="kw">new</span> <span class="fn">Error</span>(<span class="pm">res</span>.<span class="pm">status</span>);
+    <span class="kw">const</span> user = <span class="kw">await</span> res.<span class="fn">json</span>();
+
+    <span class="fn">console</span>.<span class="fn">log</span>(user.<span class="pm">name</span>);
+
+    <span class="kw">const</span> oRes   = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`/api/orders/<span class="pm">${user.id}</span>`</span>);
+    <span class="kw">const</span> orders = <span class="kw">await</span> oRes.<span class="fn">json</span>();
+    <span class="kw">return</span> orders;
+  } <span class="kw">catch</span> (<span class="pm">err</span>) {
+    <span class="fn">console</span>.<span class="fn">error</span>(<span class="pm">err</span>);
+  }
+}</pre>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <span class="ci">💡</span>
+    <p><strong>Why it reads better:</strong> The async/await version reads top-to-bottom like synchronous code. Variables are in scope everywhere (no need to pass data via return values through the chain). Error handling is one <code>try/catch</code> block. Debugging shows clean stack traces. This is why async/await became the dominant style.</p>
+  </div>
+
+  <h3 class="sub">try/catch/finally — Complete Error Handling</h3>
+  <div class="code-wrap">
+    <span class="code-tag">js</span>
+    <pre><span class="kw">async function</span> <span class="fn">loadUserProfile</span>(<span class="pm">userId</span>) {
+  <span class="kw">try</span> {
+    <span class="cmt">// ─────────── Step 1: Fetch user ───────────</span>
+    <span class="kw">const</span> userRes = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`/api/users/<span class="pm">${userId}</span>`</span>);
+
+    <span class="cmt">// fetch() itself only rejects on network failure, NOT on HTTP errors.</span>
+    <span class="cmt">// A 404 or 500 response still "succeeds" from fetch's perspective.</span>
+    <span class="cmt">// So we MUST manually check response.ok and throw if needed.</span>
+    <span class="kw">if</span> (!userRes.<span class="pm">ok</span>) {
+      <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">`HTTP Error: <span class="pm">${userRes.status}</span> <span class="pm">${userRes.statusText}</span>`</span>);
+    }
+
+    <span class="cmt">// Parsing the body is also async — it streams the response data</span>
+    <span class="kw">const</span> user = <span class="kw">await</span> userRes.<span class="fn">json</span>();
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'User:'</span>, user.<span class="pm">name</span>);
+
+    <span class="cmt">// ─────────── Step 2: Fetch orders ───────────</span>
+    <span class="kw">const</span> ordersRes = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`/api/users/<span class="pm">${userId}</span>/orders`</span>);
+    <span class="kw">const</span> orders    = <span class="kw">await</span> ordersRes.<span class="fn">json</span>();
+
+    <span class="kw">return</span> { user, orders };
+
+  } <span class="kw">catch</span> (<span class="pm">error</span>) {
+    <span class="cmt">// Catches: network failures, HTTP errors we throw, JSON parse errors,</span>
+    <span class="cmt">// or any exception thrown anywhere inside the try block.</span>
+    <span class="fn">console</span>.<span class="fn">error</span>(<span class="str">'Something went wrong:'</span>, <span class="pm">error</span>.<span class="pm">message</span>);
+    <span class="kw">return null</span>;
+
+  } <span class="kw">finally</span> {
+    <span class="cmt">// Runs AFTER try (if succeeded) or AFTER catch (if failed).</span>
+    <span class="cmt">// Use for cleanup that must happen no matter what.</span>
+    <span class="fn">hideLoadingSpinner</span>();
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Loading complete (success or error)'</span>);
+  }
+}</pre>
+  </div>
+
+  <h3 class="sub">Sequential vs Parallel — A Critical Performance Difference</h3>
+  <p class="prose">The most common async/await mistake is using <code>await</code> sequentially when the requests don't depend on each other. Each <code>await</code> pauses until that request completes before starting the next one — you're throwing away the benefit of async.</p>
+
+  <div class="compare-pair">
+    <div class="compare-half bad">
+      <div class="compare-label">🐌 Sequential — Unnecessary waiting</div>
+      <pre><span class="kw">async function</span> <span class="fn">loadData</span>() {
+  <span class="cmt">// Request 2 won't START until request 1 ENDS.</span>
+  <span class="cmt">// Request 3 won't START until request 2 ENDS.</span>
+  <span class="cmt">// Even though these three don't depend on each other!</span>
+  <span class="kw">const</span> users    = <span class="kw">await</span> <span class="fn">fetchUsers</span>();   <span class="cmt">// 1s</span>
+  <span class="kw">const</span> posts    = <span class="kw">await</span> <span class="fn">fetchPosts</span>();   <span class="cmt">// 1s</span>
+  <span class="kw">const</span> comments = <span class="kw">await</span> <span class="fn">fetchComments</span>(); <span class="cmt">// 1s</span>
+  <span class="cmt">// Total: 3 seconds 😴</span>
+}</pre>
+    </div>
+    <div class="compare-half good">
+      <div class="compare-label">🚀 Parallel — All start simultaneously</div>
+      <pre><span class="kw">async function</span> <span class="fn">loadData</span>() {
+  <span class="cmt">// All three start at the exact same moment.</span>
+  <span class="cmt">// We await all of them together.</span>
+  <span class="kw">const</span> [users, posts, comments] =
+    <span class="kw">await</span> <span class="fn">Promise</span>.<span class="fn">all</span>([
+      <span class="fn">fetchUsers</span>(),
+      <span class="fn">fetchPosts</span>(),
+      <span class="fn">fetchComments</span>()
+    ]);
+  <span class="cmt">// Total: max(1s, 1s, 1s) = 1 second 🚀</span>
+}</pre>
+    </div>
+  </div>
+
+  <div class="timing-block">
+    <div class="timing-row">
+      <div class="timing-lbl">Sequential</div>
+      <div class="timing-track"><div class="timing-fill seq">3 seconds total</div></div>
+    </div>
+    <div class="timing-row">
+      <div class="timing-lbl">Parallel</div>
+      <div class="timing-track"><div class="timing-fill par">~1 second</div></div>
+    </div>
+    <p class="timing-note">Rule: if requests don't depend on each other → always use <code>Promise.all()</code>. Can be 3–10× faster depending on your API latency.</p>
+  </div>
+
+  <div class="callout warn">
+    <span class="ci">⚠️</span>
+    <p><strong>When sequential IS correct:</strong> If request 2 needs data from request 1's response (e.g., you need the user's ID before fetching their orders), you must use sequential await. The order only matters when there's an actual data dependency.</p>
+  </div>
+
+  <!-- Demo -->
+  <div class="demo-box">
+    <div class="demo-title">⚡ async/await Demos</div>
+    <div class="btn-row">
+      <button class="btn-run" onclick="demoAwait()">▶ Run async/await</button>
+      <button class="btn-run green" onclick="demoParallel()">▶ Sequential vs Parallel timing</button>
+      <button class="btn-clr" onclick="clr('o4')">✕ Clear</button>
+    </div>
+    <div class="demo-out" id="o4">// Click to run demos...</div>
+  </div>
+
+  <!-- Practice -->
+  <div class="practice">
+    <div class="prac-label">🛠 Practice Challenge</div>
+    <p class="prac-task"><strong>Rewrite this Promise chain using async/await with try/catch:</strong><br>The answer should use <code>async function</code>, at least two <code>await</code> calls, a <code>try/catch</code> block, and call <code>response.json()</code> with await.</p>
+    <div class="code-wrap" style="margin-bottom:1rem">
+      <span class="code-tag">to convert</span>
+      <pre style="font-size:0.72rem"><span class="kw">function</span> <span class="fn">getData</span>() {
+  <span class="kw">return</span> <span class="fn">fetch</span>(<span class="str">'/api/data'</span>)
+    .<span class="fn">then</span>(<span class="pm">res</span> => <span class="pm">res</span>.<span class="fn">json</span>())
+    .<span class="fn">then</span>(<span class="pm">data</span> => { <span class="fn">console</span>.<span class="fn">log</span>(<span class="pm">data</span>); <span class="kw">return</span> <span class="pm">data</span>; })
+    .<span class="fn">catch</span>(<span class="pm">err</span> => <span class="fn">console</span>.<span class="fn">error</span>(<span class="pm">err</span>));
+}</pre>
+    </div>
+    <textarea class="ced" id="prac1" placeholder="async function getData() {
+  try {
+    // your code here
+  } catch (error) {
+    // handle error
+  }
+}"></textarea>
+    <div class="btn-row" style="margin-top:0.8rem">
+      <button class="btn-run" onclick="checkPrac()">Check Answer</button>
+      <button class="btn-clr" onclick="document.getElementById('prac1out').style.display='none'">Hide</button>
+    </div>
+    <div class="demo-out" id="prac1out" style="display:none;margin-top:0.8rem"></div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="quiz-box">
+    <div class="quiz-head"><h3>🧠 async/await Quiz</h3></div>
+    <div class="question" id="qa1">
+      <p class="qp"><strong>Q1.</strong> What does an <code>async</code> function always return, even if you return a plain string?</p>
+      <div class="opts">
+        <button class="opt" onclick="qa(this,'qa1',false,'b')"><span class="opt-ltr">A</span> The plain string, unchanged</button>
+        <button class="opt" onclick="qa(this,'qa1',true,'b')"><span class="opt-ltr">B</span> A Promise that resolves with the string</button>
+        <button class="opt" onclick="qa(this,'qa1',false,'b')"><span class="opt-ltr">C</span> undefined, because return is ignored</button>
+        <button class="opt" onclick="qa(this,'qa1',false,'b')"><span class="opt-ltr">D</span> An error, because you must return a Promise</button>
+      </div>
+      <div class="expl" id="e-qa1"></div>
+    </div>
+    <div class="question" id="qa2">
+      <p class="qp"><strong>Q2.</strong> What happens if an <code>await</code>-ed Promise rejects and there is no try/catch?</p>
+      <div class="opts">
+        <button class="opt" onclick="qa(this,'qa2',false,'a')"><span class="opt-ltr">A</span> JavaScript silently ignores the error</button>
+        <button class="opt" onclick="qa(this,'qa2',true,'a')"><span class="opt-ltr">B</span> The async function's returned Promise rejects with that error — an Unhandled Promise Rejection</button>
+        <button class="opt" onclick="qa(this,'qa2',false,'a')"><span class="opt-ltr">C</span> Execution pauses indefinitely</button>
+        <button class="opt" onclick="qa(this,'qa2',false,'a')"><span class="opt-ltr">D</span> It automatically retries the await</button>
+      </div>
+      <div class="expl" id="e-qa2"></div>
+    </div>
+    <div class="question" id="qa3">
+      <p class="qp"><strong>Q3.</strong> You have: <code>const a = await p1; const b = await p2;</code> — what's the performance issue?</p>
+      <div class="opts">
+        <button class="opt" onclick="qa(this,'qa3',false,'c')"><span class="opt-ltr">A</span> No issue — this is the recommended way to handle Promises</button>
+        <button class="opt" onclick="qa(this,'qa3',false,'c')"><span class="opt-ltr">B</span> It will cause a memory leak</button>
+        <button class="opt" onclick="qa(this,'qa3',true,'c')"><span class="opt-ltr">C</span> p2 doesn't start until p1 finishes — if they're independent, use Promise.all() to run them in parallel</button>
+        <button class="opt" onclick="qa(this,'qa3',false,'c')"><span class="opt-ltr">D</span> Both promises run in parallel automatically</button>
+      </div>
+      <div class="expl" id="e-qa3"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SECTION 6 — FETCH & API
+════════════════════════════════════════════ -->
+<section class="section" id="fetch">
+  <div class="sec-label">Section 06</div>
+  <h2>Fetch API &amp; REST</h2>
+  <p class="intro">The Fetch API is the modern, Promise-based way to make HTTP requests from JavaScript. It replaced the older XMLHttpRequest (XHR) and works perfectly with async/await. Understanding it means understanding HTTP itself.</p>
+
+  <h3 class="sub">HTTP Methods — What each one means</h3>
+  <p class="prose">REST APIs are built around HTTP verbs. Each verb signals the <em>intent</em> of the operation to the server. Using the wrong verb is like saying "DELETE please" when you mean "GET".</p>
+  <div class="http-grid">
+    <div class="http-card get"><div class="hm">GET</div><p>Read data. No body sent. Safe and idempotent — calling it 100 times has the same effect as calling it once. Fetch posts, read profile, list products.</p></div>
+    <div class="http-card post"><div class="hm">POST</div><p>Create new data. Body contains the new resource. Not idempotent — calling it 3 times creates 3 records. Register user, submit form, create order.</p></div>
+    <div class="http-card put"><div class="hm">PUT / PATCH</div><p>Update existing data. PUT replaces the whole resource; PATCH updates only specified fields. Edit profile, change password, update status.</p></div>
+    <div class="http-card del"><div class="hm">DELETE</div><p>Remove data. Idempotent — deleting something that's already deleted is the same as deleting it once. Delete account, remove post, cancel subscription.</p></div>
+  </div>
+
+  <h3 class="sub">GET Request — Reading Data</h3>
+  <p class="prose">The simplest fetch call. Two awaits are always needed: one for the response headers, one for the body. They're separate because the body streams asynchronously.</p>
+  <div class="code-wrap">
+    <span class="code-tag">js</span>
+    <pre><span class="kw">async function</span> <span class="fn">getPosts</span>() {
+  <span class="cmt">// Step 1: Make the request. Await resolves when HEADERS arrive.</span>
+  <span class="cmt">// The body may still be streaming at this point!</span>
+  <span class="kw">const</span> response = <span class="kw">await</span> <span class="fn">fetch</span>(
+    <span class="str">'https://jsonplaceholder.typicode.com/posts?_limit=5'</span>
+  );
+
+  <span class="cmt">// Step 2: ALWAYS check status. fetch() does NOT throw on HTTP errors!</span>
+  <span class="cmt">// A 404 "Not Found" is still a "successful" response to fetch().</span>
+  <span class="cmt">// response.ok is true for status 200–299, false for everything else.</span>
+  <span class="kw">if</span> (!response.<span class="pm">ok</span>) {
+    <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">`HTTP Error: <span class="pm">${response.status}</span> <span class="pm">${response.statusText}</span>`</span>);
+  }
+
+  <span class="cmt">// Step 3: Parse the body as JSON. This is also async — it reads</span>
+  <span class="cmt">// the full response stream and parses it. Never call both .json()</span>
+  <span class="cmt">// and .text() on the same response — you can only read the body once!</span>
+  <span class="kw">const</span> posts = <span class="kw">await</span> response.<span class="fn">json</span>();
+
+  <span class="fn">console</span>.<span class="fn">log</span>(posts); <span class="cmt">// [{id:1, userId:1, title:'...', body:'...'}, ...]</span>
+  <span class="kw">return</span> posts;
+}</pre>
+  </div>
+
+  <h3 class="sub">POST Request — Sending Data</h3>
+  <p class="prose">When sending data, you provide an options object as the second argument to <code>fetch()</code>. The <code>body</code> must be a string — you convert your JavaScript object to JSON with <code>JSON.stringify()</code>. The <code>Content-Type</code> header tells the server how to parse it.</p>
+  <div class="code-wrap">
+    <span class="code-tag">js</span>
+    <pre><span class="kw">async function</span> <span class="fn">createPost</span>(<span class="pm">title</span>, <span class="pm">body</span>) {
+  <span class="kw">const</span> response = <span class="kw">await</span> <span class="fn">fetch</span>(
+    <span class="str">'https://jsonplaceholder.typicode.com/posts'</span>,
+    {
+      method: <span class="str">'POST'</span>,              <span class="cmt">// Use POST, not GET</span>
+      headers: {
+        <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>  <span class="cmt">// Tell server: "I'm sending JSON"</span>
+        <span class="cmt">// Other common headers: 'Authorization': 'Bearer token123'</span>
+      },
+      body: <span class="fn">JSON</span>.<span class="fn">stringify</span>({        <span class="cmt">// Convert JS object → JSON string</span>
+        title: <span class="pm">title</span>,               <span class="cmt">// fetch() body must be a string!</span>
+        body: <span class="pm">body</span>,
+        userId: <span class="num">1</span>
+      })
+    }
+  );
+
+  <span class="cmt">// Server returns the created resource with its new ID (usually 201 Created)</span>
+  <span class="kw">const</span> newPost = <span class="kw">await</span> response.<span class="fn">json</span>();
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Created:'</span>, newPost); <span class="cmt">// { id: 101, title: '...', ... }</span>
+  <span class="kw">return</span> newPost;
+}</pre>
+  </div>
+
+  <h3 class="sub">The Response Object — What you get back</h3>
+  <div class="code-wrap">
+    <span class="code-tag">js</span>
+    <pre><span class="kw">const</span> response = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://api.example.com/data'</span>);
+
+<span class="cmt">// ── Status information ──────────────────────────────────────────</span>
+response.<span class="pm">status</span>      <span class="cmt">// Number: 200, 201, 400, 401, 403, 404, 500...</span>
+response.<span class="pm">ok</span>          <span class="cmt">// Boolean: true if status 200-299, false otherwise</span>
+response.<span class="pm">statusText</span>  <span class="cmt">// String: "OK", "Not Found", "Internal Server Error"</span>
+response.<span class="pm">headers</span>     <span class="cmt">// Headers object: response.headers.get('Content-Type')</span>
+
+<span class="cmt">// ── Body parsing methods (each returns a Promise, pick ONE per response) ──</span>
+<span class="kw">const</span> json  = <span class="kw">await</span> response.<span class="fn">json</span>();   <span class="cmt">// JSON string → JavaScript object/array</span>
+<span class="kw">const</span> text  = <span class="kw">await</span> response.<span class="fn">text</span>();   <span class="cmt">// Raw text (HTML, XML, CSV...)</span>
+<span class="kw">const</span> blob  = <span class="kw">await</span> response.<span class="fn">blob</span>();   <span class="cmt">// Binary data (images, PDFs, files)</span>
+
+<span class="cmt">// ⚠️ You can ONLY read the body once. Calling .json() after .text()</span>
+<span class="cmt">// on the same response throws "body already used" error.</span></pre>
+  </div>
+
+  <h3 class="sub">JSON.stringify() &amp; JSON.parse() — The bridge between JS and the network</h3>
+  <p class="prose">The network can only transport text. JSON is a text format that represents JavaScript data structures. You need to convert in both directions:</p>
+  <div class="code-wrap">
+    <span class="code-tag">js</span>
+    <pre><span class="cmt">// JS Object → JSON String (for SENDING data over the network)</span>
+<span class="kw">const</span> user = { name: <span class="str">'Ali'</span>, age: <span class="num">25</span>, active: <span class="kw">true</span> };
+<span class="kw">const</span> jsonStr = <span class="fn">JSON</span>.<span class="fn">stringify</span>(user);
+<span class="fn">console</span>.<span class="fn">log</span>(jsonStr);         <span class="cmt">// '{"name":"Ali","age":25,"active":true}'</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> jsonStr); <span class="cmt">// "string" — it's just text now</span>
+
+<span class="cmt">// JSON String → JS Object (for RECEIVING data from the network)</span>
+<span class="kw">const</span> parsed = <span class="fn">JSON</span>.<span class="fn">parse</span>(jsonStr);
+<span class="fn">console</span>.<span class="fn">log</span>(parsed.<span class="pm">name</span>);         <span class="cmt">// "Ali"</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> parsed.<span class="pm">age</span>); <span class="cmt">// "number" — types are restored!</span>
+
+<span class="cmt">// Note: response.json() does JSON.parse() for you internally</span></pre>
+  </div>
+
+  <h3 class="sub">Managing UI States During Fetch</h3>
+  <p class="prose">A complete fetch interaction has four possible UI states. Always handle all of them or your UI will be confusing for users:</p>
+  <div class="code-wrap">
+    <span class="code-tag">js</span>
+    <pre><span class="kw">async function</span> <span class="fn">loadPosts</span>() {
+  <span class="cmt">// 1️⃣  LOADING — show a spinner immediately</span>
+  container.<span class="pm">innerHTML</span> = <span class="str">'&lt;p&gt;⏳ Loading...&lt;/p&gt;'</span>;
+
+  <span class="kw">try</span> {
+    <span class="kw">const</span> res   = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/posts'</span>);
+    <span class="kw">if</span> (!res.<span class="pm">ok</span>) <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">`Server error: <span class="pm">${res.status}</span>`</span>);
+    <span class="kw">const</span> posts = <span class="kw">await</span> res.<span class="fn">json</span>();
+
+    <span class="cmt">// 2️⃣  EMPTY — server responded fine but there's no data</span>
+    <span class="kw">if</span> (posts.<span class="pm">length</span> === <span class="num">0</span>) {
+      container.<span class="pm">innerHTML</span> = <span class="str">'&lt;p&gt;📭 No posts yet&lt;/p&gt;'</span>;
+      <span class="kw">return</span>;
+    }
+
+    <span class="cmt">// 3️⃣  SUCCESS — render the actual data</span>
+    container.<span class="pm">innerHTML</span> = posts
+      .<span class="fn">map</span>(<span class="pm">p</span> => <span class="str">`&lt;div class="post"&gt;&lt;h3&gt;<span class="pm">${p.title}</span>&lt;/h3&gt;&lt;p&gt;<span class="pm">${p.body}</span>&lt;/p&gt;&lt;/div&gt;`</span>)
+      .<span class="fn">join</span>(<span class="str">''</span>);
+
+  } <span class="kw">catch</span> (<span class="pm">error</span>) {
+    <span class="cmt">// 4️⃣  ERROR — network failure, HTTP error, or JSON parse failure</span>
+    container.<span class="pm">innerHTML</span> = <span class="str">`&lt;p&gt;❌ <span class="pm">${error.message}</span>&lt;/p&gt;`</span>;
+  }
+}</pre>
+  </div>
+
+  <!-- Live Fetch Demo -->
+  <div class="demo-box">
+    <div class="demo-title">🌐 Live API Requests</div>
+    <p class="demo-desc">These make real HTTP requests to public APIs. Watch the loading state, then the result.</p>
+    <div class="btn-row">
+      <button class="btn-run" onclick="liveGet()">📄 GET Posts</button>
+      <button class="btn-run green" onclick="liveJoke()">😂 GET Joke</button>
+      <button class="btn-run purple" onclick="livePost()">✍️ POST New Post</button>
+      <button class="btn-clr" onclick="document.getElementById('fr').innerHTML='<span style=color:var(--text-faint)>// Cleared...</span>'">✕ Clear</button>
+    </div>
+    <div class="fetch-result" id="fr"><span style="color:var(--text-faint)">// Click a button to make a real API request...</span></div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="quiz-box">
+    <div class="quiz-head"><h3>🧠 Fetch & API Quiz</h3></div>
+    <div class="question" id="qf1">
+      <p class="qp"><strong>Q1.</strong> You call <code>fetch('/api/data')</code> and the server returns a 404 status. Does fetch() throw an error automatically?</p>
+      <div class="opts">
+        <button class="opt" onclick="qa(this,'qf1',false,'b')"><span class="opt-ltr">A</span> Yes — any non-200 status causes fetch() to reject its Promise</button>
+        <button class="opt" onclick="qa(this,'qf1',true,'b')"><span class="opt-ltr">B</span> No — fetch() only rejects on network failure. HTTP errors are "successful" responses you must check manually with response.ok</button>
+        <button class="opt" onclick="qa(this,'qf1',false,'b')"><span class="opt-ltr">C</span> It depends on the browser</button>
+        <button class="opt" onclick="qa(this,'qf1',false,'b')"><span class="opt-ltr">D</span> Only if you're using async/await — .then() would catch it</button>
+      </div>
+      <div class="expl" id="e-qf1"></div>
+    </div>
+    <div class="question" id="qf2">
+      <p class="qp"><strong>Q2.</strong> Why do you need two <code>await</code> calls when using fetch — one for <code>fetch(url)</code> and one for <code>response.json()</code>?</p>
+      <div class="opts">
+        <button class="opt" onclick="qa(this,'qf2',false,'c')"><span class="opt-ltr">A</span> It's a quirk — one await would work too, it just looks cleaner with two</button>
+        <button class="opt" onclick="qa(this,'qf2',false,'c')"><span class="opt-ltr">B</span> The first await is for security — the second reads the body</button>
+        <button class="opt" onclick="qa(this,'qf2',true,'c')"><span class="opt-ltr">C</span> The first await resolves when response headers arrive; the body streams separately and reading it is a separate async operation</button>
+        <button class="opt" onclick="qa(this,'qf2',false,'c')"><span class="opt-ltr">D</span> Both awaits are optional — .then() handles it automatically</button>
+      </div>
+      <div class="expl" id="e-qf2"></div>
+    </div>
+    <div class="question" id="qf3">
+      <p class="qp"><strong>Q3.</strong> What is the purpose of <code>'Content-Type': 'application/json'</code> in POST headers?</p>
+      <div class="opts">
+        <button class="opt" onclick="qa(this,'qf3',false,'b')"><span class="opt-ltr">A</span> It tells the browser what format the response will be in</button>
+        <button class="opt" onclick="qa(this,'qf3',true,'b')"><span class="opt-ltr">B</span> It tells the SERVER what format the request BODY is in, so the server knows how to parse it</button>
+        <button class="opt" onclick="qa(this,'qf3',false,'b')"><span class="opt-ltr">C</span> It's required for CORS to work correctly</button>
+        <button class="opt" onclick="qa(this,'qf3',false,'b')"><span class="opt-ltr">D</span> It enables JSON.stringify() to work on the body</button>
+      </div>
+      <div class="expl" id="e-qf3"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FINAL QUIZ
+════════════════════════════════════════════ -->
+<section class="section" id="quiz">
+  <div class="sec-label">Final Assessment</div>
+  <h2>Final Quiz</h2>
+  <p class="intro">Six carefully chosen questions that cover every major concept from this course. Each one targets a specific thing that trips up developers.</p>
+
+  <div class="quiz-box">
+    <div class="quiz-head">
+      <h3>🏆 Master Challenge</h3>
+      <span class="quiz-score-badge" id="fScore">Score: 0 / 0</span>
+    </div>
+
+    <div class="question" id="qz1">
+      <p class="qp"><strong>Q1.</strong> What is the output of this code?<br><code>Promise.resolve('A').then(v => { throw new Error('B') }).catch(e => e.message).then(v => console.log(v))</code></p>
+      <div class="opts">
+        <button class="opt" onclick="qf(this,'qz1',false)"><span class="opt-ltr">A</span> 'A'</button>
+        <button class="opt" onclick="qf(this,'qz1',true)"><span class="opt-ltr">B</span> 'B'</button>
+        <button class="opt" onclick="qf(this,'qz1',false)"><span class="opt-ltr">C</span> Nothing — the error is uncaught</button>
+        <button class="opt" onclick="qf(this,'qz1',false)"><span class="opt-ltr">D</span> An Error object is logged</button>
+      </div>
+      <div class="expl" id="e-qz1"></div>
+    </div>
+
+    <div class="question" id="qz2">
+      <p class="qp"><strong>Q2.</strong> Which queue does the Event Loop drain first after the Call Stack empties?</p>
+      <div class="opts">
+        <button class="opt" onclick="qf(this,'qz2',false)"><span class="opt-ltr">A</span> Callback Queue (setTimeout, setInterval)</button>
+        <button class="opt" onclick="qf(this,'qz2',true)"><span class="opt-ltr">B</span> Microtask Queue (Promise .then(), queueMicrotask)</button>
+        <button class="opt" onclick="qf(this,'qz2',false)"><span class="opt-ltr">C</span> They are drained in the order items were added</button>
+        <button class="opt" onclick="qf(this,'qz2',false)"><span class="opt-ltr">D</span> It depends on the browser implementation</button>
+      </div>
+      <div class="expl" id="e-qz2"></div>
+    </div>
+
+    <div class="question" id="qz3">
+      <p class="qp"><strong>Q3.</strong> <code>async/await</code> is called "syntactic sugar" because:</p>
+      <div class="opts">
+        <button class="opt" onclick="qf(this,'qz3',false)"><span class="opt-ltr">A</span> It is faster than Promises at runtime</button>
+        <button class="opt" onclick="qf(this,'qz3',false)"><span class="opt-ltr">B</span> It adds new capabilities that Promises don't have</button>
+        <button class="opt" onclick="qf(this,'qz3',true)"><span class="opt-ltr">C</span> It's a cleaner syntax layer on top of Promises — the engine transforms it into Promise-based code</button>
+        <button class="opt" onclick="qf(this,'qz3',false)"><span class="opt-ltr">D</span> It avoids the Event Loop entirely</button>
+      </div>
+      <div class="expl" id="e-qz3"></div>
+    </div>
+
+    <div class="question" id="qz4">
+      <p class="qp"><strong>Q4.</strong> Call 2 requires data from Call 1's response. Call 3 requires data from Call 2's response. How should you structure these?</p>
+      <div class="opts">
+        <button class="opt" onclick="qf(this,'qz4',true)"><span class="opt-ltr">A</span> Sequential await — each call awaits the previous result before starting</button>
+        <button class="opt" onclick="qf(this,'qz4',false)"><span class="opt-ltr">B</span> Promise.all() — pass all three promises in an array</button>
+        <button class="opt" onclick="qf(this,'qz4',false)"><span class="opt-ltr">C</span> Promise.race() — pick the fastest</button>
+        <button class="opt" onclick="qf(this,'qz4',false)"><span class="opt-ltr">D</span> Promise.allSettled() — to handle any individual failures</button>
+      </div>
+      <div class="expl" id="e-qz4"></div>
+    </div>
+
+    <div class="question" id="qz5">
+      <p class="qp"><strong>Q5.</strong> You call <code>fetch('/api/users')</code> and the server is completely down (DNS fails). What happens?</p>
+      <div class="opts">
+        <button class="opt" onclick="qf(this,'qz5',false)"><span class="opt-ltr">A</span> fetch() returns a Response with status 0</button>
+        <button class="opt" onclick="qf(this,'qz5',true)"><span class="opt-ltr">B</span> fetch() rejects its Promise with a network error — this is the only time fetch auto-rejects</button>
+        <button class="opt" onclick="qf(this,'qz5',false)"><span class="opt-ltr">C</span> The browser retries automatically 3 times</button>
+        <button class="opt" onclick="qf(this,'qz5',false)"><span class="opt-ltr">D</span> response.ok is false but no error is thrown</button>
+      </div>
+      <div class="expl" id="e-qz5"></div>
+    </div>
+
+    <div class="question" id="qz6">
+      <p class="qp"><strong>Q6.</strong> What does <code>Promise.allSettled()</code> guarantee that <code>Promise.all()</code> does NOT?</p>
+      <div class="opts">
+        <button class="opt" onclick="qf(this,'qz6',false)"><span class="opt-ltr">A</span> Promises run faster in parallel</button>
+        <button class="opt" onclick="qf(this,'qz6',true)"><span class="opt-ltr">B</span> It NEVER rejects — it always resolves with an array showing each promise's outcome (fulfilled or rejected)</button>
+        <button class="opt" onclick="qf(this,'qz6',false)"><span class="opt-ltr">C</span> Failed promises are automatically retried</button>
+        <button class="opt" onclick="qf(this,'qz6',false)"><span class="opt-ltr">D</span> Results are returned in order of resolution speed</button>
+      </div>
+      <div class="expl" id="e-qz6"></div>
+    </div>
+
+    <div class="final-result" id="finalResult">
+      <div class="fr-emoji" id="frEmoji"></div>
+      <div class="fr-title" id="frTitle"></div>
+      <div class="fr-msg"  id="frMsg"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     REFERENCE
+════════════════════════════════════════════ -->
+<section class="section">
+  <div class="sec-label">Reference</div>
+  <h2>Quick Reference</h2>
+  <div class="ref-grid">
+    <div class="ref-card">
+      <div class="rc-label" style="color:var(--blue)">Promise Chain</div>
+      <pre style="font-size:0.72rem;"><span class="fn">fetch</span>(url)
+  .<span class="fn">then</span>(<span class="pm">res</span> => <span class="pm">res</span>.<span class="fn">json</span>())
+  .<span class="fn">then</span>(<span class="pm">data</span> => <span class="fn">use</span>(<span class="pm">data</span>))
+  .<span class="fn">catch</span>(<span class="pm">err</span> => <span class="fn">handle</span>(<span class="pm">err</span>))
+  .<span class="fn">finally</span>(() => <span class="fn">cleanup</span>());</pre>
+    </div>
+    <div class="ref-card">
+      <div class="rc-label" style="color:var(--purple)">async/await</div>
+      <pre style="font-size:0.72rem;"><span class="kw">async function</span> <span class="fn">load</span>() {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> r = <span class="kw">await</span> <span class="fn">fetch</span>(url);
+    <span class="kw">if</span> (!r.<span class="pm">ok</span>) <span class="kw">throw new</span> <span class="fn">Error</span>();
+    <span class="kw">return await</span> r.<span class="fn">json</span>();
+  } <span class="kw">catch</span>(<span class="pm">e</span>) { <span class="fn">handle</span>(<span class="pm">e</span>); }
+  <span class="kw">finally</span> { <span class="fn">cleanup</span>(); }
+}</pre>
+    </div>
+    <div class="ref-card">
+      <div class="rc-label" style="color:var(--green)">Parallel Requests</div>
+      <pre style="font-size:0.72rem;"><span class="kw">const</span> [a, b, c] =
+  <span class="kw">await</span> <span class="fn">Promise</span>.<span class="fn">all</span>([
+    <span class="fn">fetch</span>(<span class="str">'/a'</span>).<span class="fn">then</span>(<span class="pm">r</span>=><span class="pm">r</span>.<span class="fn">json</span>()),
+    <span class="fn">fetch</span>(<span class="str">'/b'</span>).<span class="fn">then</span>(<span class="pm">r</span>=><span class="pm">r</span>.<span class="fn">json</span>()),
+    <span class="fn">fetch</span>(<span class="str">'/c'</span>).<span class="fn">then</span>(<span class="pm">r</span>=><span class="pm">r</span>.<span class="fn">json</span>())
+  ]);</pre>
+    </div>
+    <div class="ref-card">
+      <div class="rc-label" style="color:var(--orange)">POST Request</div>
+      <pre style="font-size:0.72rem;"><span class="fn">fetch</span>(url, {
+  method: <span class="str">'POST'</span>,
+  headers: {
+    <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>
+  },
+  body: <span class="fn">JSON</span>.<span class="fn">stringify</span>(data)
+}).<span class="fn">then</span>(<span class="pm">r</span> => <span class="pm">r</span>.<span class="fn">json</span>())</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Async JavaScript — Deep Dive Interactive Guide<br>
+  All demos run entirely in your browser · No frameworks · Pure JavaScript
+</footer>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+/* ── Progress Bar + Side Nav ──────────────── */
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY;
+  const total    = document.body.scrollHeight - window.innerHeight;
+  document.getElementById('pbar').style.width = (scrolled / total * 100) + '%';
+
+  const sections = ['hero','sync','eventloop','callbacks','promises','asyncawait','fetch','quiz'];
+  const dots     = document.querySelectorAll('.side-dot');
+  sections.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    if (r.top <= window.innerHeight * 0.5 && r.bottom >= 0) {
+      dots.forEach(d => d.classList.remove('active'));
+      if (dots[i]) dots[i].classList.add('active');
+    }
+  });
+});
+
+document.querySelectorAll('.side-dot').forEach(dot => {
+  dot.addEventListener('click', () => {
+    const id = dot.dataset.target;
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+/* ── Output helpers ───────────────────────── */
+function ll(id, msg, cls = 'm') {
+  const out = document.getElementById(id);
+  if (!out) return;
+  const placeholder = out.querySelector('span') || (out.textContent.includes('//') ? out : null);
+  if (placeholder && out.children.length <= 1 && out.textContent.includes('//')) out.innerHTML = '';
+  const s = document.createElement('span');
+  s.className = 'll ' + cls;
+  s.textContent = msg;
+  out.appendChild(s);
+  out.scrollTop = out.scrollHeight;
+}
+function clr(id) {
+  const out = document.getElementById(id);
+  if (out) out.innerHTML = '<span style="color:var(--text-faint)">// Cleared...</span>';
+}
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* ── Section 1 Demos ─────────────────────── */
+function demoSync() {
+  clr('o1');
+  ll('o1','▶ Running synchronous code — each line blocks the next', 'i');
+  ll('o1','');
+  ll('o1','1 — Started', 's');
+  ll('o1','2 — Processing...', 's');
+  ll('o1','3 — Done', 's');
+  ll('o1','');
+  ll('o1','✓ All 3 ran in strict order. Line 2 had to wait for line 1.', 'i');
+}
+
+function demoAsync() {
+  clr('o1');
+  ll('o1','▶ Running asynchronous code — setTimeout is non-blocking', 'i');
+  ll('o1','');
+  ll('o1','1 — Started  ← synchronous, goes straight to stack', 's');
+  ll('o1','             setTimeout handed off to Web API, timer starts...', 'm');
+  ll('o1','3 — Continues  ← synchronous, runs immediately after', 's');
+  ll('o1','');
+  ll('o1','⏳ Waiting 2 seconds for timer (main thread is FREE right now)...', 'w');
+  setTimeout(() => {
+    ll('o1','');
+    ll('o1','── 2 seconds later ──────────────────────', 'm');
+    ll('o1','Timer fires → callback → Callback Queue → Event Loop → Stack', 'm');
+    ll('o1','2 — After 2 seconds  ← async, runs LAST', 's');
+    ll('o1','');
+    ll('o1','✓ Notice: line 3 printed BEFORE line 2 despite being later in source.', 'i');
+  }, 2000);
+}
+
+/* ── Event Loop Animation ─────────────────── */
+async function animateEL() {
+  clr('elout');
+  const steps = [
+    ['📚 [Call Stack] → console.log("A") pushed → executes → "A" printed → popped', 'i'],
+    ['📋 [Web API]    → setTimeout(fn, 1000) handed off, timer starts outside JS', 'm'],
+    ['📚 [Call Stack] → new Promise() executor runs synchronously → resolve("C") called', 'i'],
+    ['⚡ [Microtask Queue] → .then() callback queued (Promise is settled)', 'w'],
+    ['📚 [Call Stack] → console.log("D") pushed → executes → "D" printed → popped', 'i'],
+    ['📚 [Call Stack] is now EMPTY — Event Loop wakes up and checks queues...', 'm'],
+    ['⚡ [Microtask Queue] has priority! → .then("C") callback moves to stack → "C" printed', 'w'],
+    ['⚡ [Microtask Queue] is now empty — check Callback Queue next', 'm'],
+    ['⏱  ........ 1 second passes ........', 'm'],
+    ['📬 [Callback Queue] → setTimeout callback arrives', 'm'],
+    ['📬 → Event Loop moves it to Call Stack → "B" printed', 'i'],
+    ['', 'm'],
+    ['✅ Final output order:  A → D → C → B', 's'],
+  ];
+  for (const [msg, cls] of steps) {
+    ll('elout', msg, cls);
+    await delay(msg === '' ? 100 : 600);
+  }
+}
+
+/* ── Promise Demo ─────────────────────────── */
+function demoPromise() {
+  clr('o2');
+  ll('o2','⏳ Creating Promise... (state: PENDING)', 'w');
+  const p = new Promise((res, rej) => {
+    setTimeout(() => {
+      const r = Math.random();
+      r > 0.5 ? res(r.toFixed(4)) : rej(`Number too small: ${r.toFixed(4)}`);
+    }, 1200);
+  });
+  p.then(v => {
+    ll('o2','Promise state → FULFILLED', 'i');
+    ll('o2',`✅ .then() fires with value: ${v}`, 's');
+  }).catch(e => {
+    ll('o2','Promise state → REJECTED', 'i');
+    ll('o2',`❌ .catch() fires with reason: ${e}`, 'e');
+  }).finally(() => {
+    ll('o2','🏁 .finally() always runs — used for cleanup', 'w');
+  });
+}
+
+/* ── Static Method Demos ──────────────────── */
+function demoAll(oneFailsMode) {
+  clr('o3');
+  const start = Date.now();
+  ll('o3','▶ Promise.all() — starting 3 promises in parallel', 'i');
+  const p1 = new Promise(r => setTimeout(() => r('Users (300ms)'), 300));
+  const p2 = oneFailsMode
+    ? new Promise((_, j) => setTimeout(() => j('Orders API down!'), 500))
+    : new Promise(r => setTimeout(() => r('Orders (500ms)'), 500));
+  const p3 = new Promise(r => setTimeout(() => r('Comments (700ms)'), 700));
+  Promise.all([p1, p2, p3])
+    .then(([r1, r2, r3]) => {
+      const t = ((Date.now() - start)/1000).toFixed(2);
+      ll('o3',`✅ All resolved in ${t}s (not 1.5s — parallel!)`, 's');
+      ll('o3',`Result 1: ${r1}`, 's');
+      ll('o3',`Result 2: ${r2}`, 's');
+      ll('o3',`Result 3: ${r3}`, 's');
+    })
+    .catch(err => {
+      const t = ((Date.now() - start)/1000).toFixed(2);
+      ll('o3',`❌ Promise.all() rejected at ${t}s — one failure kills all`, 'e');
+      ll('o3',`Error: ${err}`, 'e');
+      ll('o3','(use Promise.allSettled() if you want partial results)', 'w');
+    });
+}
+function demoRace() {
+  clr('o3');
+  ll('o3','▶ Promise.race() — three contestants:', 'i');
+  ll('o3','  🔵 Fast:   100ms', 'm');
+  ll('o3','  🟡 Medium: 500ms', 'm');
+  ll('o3','  🔴 Slow:  1000ms', 'm');
+  const fast   = new Promise(r => setTimeout(() => r('🏆 Fast wins! (100ms)'), 100));
+  const medium = new Promise(r => setTimeout(() => r('Medium (500ms)'), 500));
+  const slow   = new Promise(r => setTimeout(() => r('Slow (1000ms)'), 1000));
+  Promise.race([fast, medium, slow]).then(winner => {
+    ll('o3','');
+    ll('o3',`✅ Race settled: ${winner}`, 's');
+    ll('o3','Others are ignored after the first resolves.', 'm');
+  });
+}
+function demoSettled() {
+  clr('o3');
+  ll('o3','▶ Promise.allSettled() — one succeeds, one fails:', 'i');
+  const p1 = Promise.resolve('Data OK ✅');
+  const p2 = Promise.reject('Network Error ❌');
+  const p3 = Promise.resolve('Cache OK ✅');
+  Promise.allSettled([p1, p2, p3]).then(results => {
+    results.forEach((r, i) => {
+      if (r.status === 'fulfilled') ll('o3',`Promise ${i+1}: fulfilled → ${r.value}`, 's');
+      else ll('o3',`Promise ${i+1}: rejected  → ${r.reason}`, 'e');
+    });
+    ll('o3','');
+    ll('o3','✅ allSettled never throws — all outcomes are visible.', 'i');
+  });
+}
+
+/* ── Async/Await Demos ────────────────────── */
+async function demoAwait() {
+  clr('o4');
+  ll('o4','▶ async function starts executing...', 'i');
+  try {
+    ll('o4','⏳ await step 1 — pausing function, 600ms...', 'w');
+    await delay(600);
+    ll('o4','✅ Step 1 complete: User data loaded', 's');
+    ll('o4','⏳ await step 2 — pausing again, 600ms...', 'w');
+    await delay(600);
+    ll('o4','✅ Step 2 complete: Orders loaded', 's');
+    ll('o4','');
+    ll('o4','✓ Reads like synchronous code, but executes asynchronously.', 'i');
+  } catch(e) {
+    ll('o4','❌ ' + e.message, 'e');
+  }
+}
+
+async function demoParallel() {
+  clr('o4');
+  ll('o4','📊 Timing comparison: Sequential vs Parallel (3 × 400ms tasks)', 'i');
+  ll('o4','');
+
+  // Sequential
+  ll('o4','🐌 Sequential: starting...', 'w');
+  let start = Date.now();
+  await delay(400); await delay(400); await delay(400);
+  const seqMs = Date.now() - start;
+  ll('o4',`   Finished in ${seqMs}ms  (3 × 400ms)`, 'e');
+  ll('o4','');
+
+  // Parallel
+  ll('o4','🚀 Parallel (Promise.all): starting...', 'w');
+  start = Date.now();
+  await Promise.all([delay(400), delay(400), delay(400)]);
+  const parMs = Date.now() - start;
+  ll('o4',`   Finished in ${parMs}ms  (max of 3 × 400ms)`, 's');
+  ll('o4','');
+  ll('o4',`⚡ Parallel was ${(seqMs/parMs).toFixed(1)}× faster.`, 'i');
+}
+
+/* ── Practice Checker ────────────────────── */
+function checkPrac() {
+  const code = document.getElementById('prac1').value;
+  const out  = document.getElementById('prac1out');
+  out.style.display = 'block';
+  out.innerHTML = '';
+  const c = code.toLowerCase();
+  const checks = [
+    { ok: c.includes('async'),                label: 'async keyword used' },
+    { ok: (c.match(/await/g)||[]).length >= 2, label: 'At least 2 await calls' },
+    { ok: c.includes('try') && c.includes('catch'), label: 'try/catch block present' },
+    { ok: c.includes('.json()'),               label: 'response.json() called' },
+    { ok: c.includes('async function') || c.includes('async (') || c.includes('async()'), label: 'Function is declared async' },
+  ];
+  let score = 0;
+  checks.forEach(ch => {
+    const s = document.createElement('span');
+    s.className = 'll ' + (ch.ok ? 's' : 'e');
+    s.textContent = (ch.ok ? '✅' : '❌') + ' ' + ch.label;
+    out.appendChild(s);
+    out.appendChild(document.createElement('br'));
+    if (ch.ok) score++;
+  });
+  out.appendChild(document.createElement('br'));
+  const sum = document.createElement('span');
+  sum.className = 'll i';
+  sum.textContent = `Score: ${score}/${checks.length} — ` + (score === checks.length ? 'Perfect! 🎉' : score >= 3 ? 'Almost there!' : 'Keep at it!');
+  out.appendChild(sum);
+}
+
+/* ── Live Fetch Demos ────────────────────── */
+async function liveGet() {
+  const el = document.getElementById('fr');
+  el.innerHTML = '<div class="spin-row"><div class="spinner"></div> GET https://jsonplaceholder.typicode.com/posts?_limit=3</div>';
+  try {
+    const r = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=3');
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const posts = await r.json();
+    el.innerHTML = `<div style="color:var(--green);font-size:0.7rem;margin-bottom:0.6rem">✅ 200 OK — ${posts.length} posts received</div>`;
+    posts.forEach(p => {
+      el.innerHTML += `<div class="post-card"><h4>#${p.id} — ${p.title}</h4><p>${p.body.substring(0,80)}...</p></div>`;
+    });
+  } catch(e) {
+    el.innerHTML = `<span style="color:var(--red)">❌ ${e.message} — check your internet connection</span>`;
+  }
+}
+
+async function liveJoke() {
+  const el = document.getElementById('fr');
+  el.innerHTML = '<div class="spin-row"><div class="spinner"></div> GET https://v2.jokeapi.dev/joke/Programming?type=single</div>';
+  try {
+    const r = await fetch('https://v2.jokeapi.dev/joke/Programming?type=single');
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+    el.innerHTML = `<div style="color:var(--green);font-size:0.7rem;margin-bottom:0.8rem">✅ 200 OK — joke received</div>
+      <div style="font-size:0.84rem;line-height:1.8;padding:1rem;background:var(--surface);border:1px solid var(--border2);border-radius:9px">${d.joke || d.setup + '<br><br>' + d.delivery}</div>`;
+  } catch(e) {
+    el.innerHTML = `<span style="color:var(--red)">❌ ${e.message}</span>`;
+  }
+}
+
+async function livePost() {
+  const el = document.getElementById('fr');
+  el.innerHTML = '<div class="spin-row"><div class="spinner"></div> POST https://jsonplaceholder.typicode.com/posts</div>';
+  try {
+    const r = await fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'My Async JS Post', body: 'Written with fetch() and async/await!', userId: 1 })
+    });
+    const d = await r.json();
+    el.innerHTML = `<div style="color:var(--green);font-size:0.7rem;margin-bottom:0.6rem">✅ 201 Created — server created the resource</div>
+      <div class="post-card"><h4>ID: ${d.id} — ${d.title}</h4><p>${d.body}</p><p style="color:var(--blue);font-size:0.65rem;margin-top:0.5rem">Status 201 Created · Content-Type: application/json</p></div>`;
+  } catch(e) {
+    el.innerHTML = `<span style="color:var(--red)">❌ ${e.message}</span>`;
+  }
+}
+
+/* ── Tabs ─────────────────────────────────── */
+function switchTab(paneId, groupId, btn) {
+  const box  = btn.closest('.demo-box');
+  box.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('on'));
+  box.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById(paneId).classList.add('on');
+  btn.classList.add('on');
+}
+
+/* ── Quiz Logic ───────────────────────────── */
+const ANSWERS = {
+  qs1:  { correct: 'b', exp: { c: '✅ Exactly — "blocking" means the thread is occupied and cannot execute the next line until the current one finishes. Like being stuck in a narrow hallway.', w: '❌ Incorrect. "Blocking" describes thread occupancy, not errors or multi-threading.' }},
+  qs2:  { correct: 'c', exp: { c: '✅ Correct! setTimeout(fn, 0) still sends the callback through Web API → Callback Queue → Event Loop. Both console.log calls run synchronously first. Then B runs.', w: '❌ Incorrect. Even with 0ms delay, setTimeout callbacks go through the Callback Queue and always run after synchronous code.' }},
+  qp1:  { correct: 'b', exp: { c: '✅ Correct! A settled Promise is immutable. Once fulfilled or rejected, it stays that way forever. Additional resolve/reject calls are silently ignored.', w: '❌ Incorrect. Promises cannot change state once settled. They are permanently fulfilled or rejected.' }},
+  qp2:  { correct: 'b', exp: { c: '✅ Correct! Promise.all() runs all three in parallel and resolves when all three are done. This can be 3× faster than sequential awaiting when requests are independent.', w: '❌ Incorrect. Sequential await wastes time. Promise.race() would discard 2 results. Promise.allSettled() is for when you need partial results including failures.' }},
+  qp3:  { correct: 'c', exp: { c: '✅ Correct! .finally() receives no arguments intentionally — it doesn\'t know whether the chain succeeded or failed. For that you use .then() or .catch().', w: '❌ Incorrect. .finally(fn) calls fn with zero arguments. It\'s designed for cleanup that doesn\'t need to know the result.' }},
+  qp4:  { correct: 'c', exp: { c: '✅ Correct! When A throws, the rejection propagates down the chain. All .then() handlers are skipped until a .catch() is found. B never runs.', w: '❌ Incorrect. .then() handlers are skipped on rejection. The error jumps straight to the nearest .catch().' }},
+  qa1:  { correct: 'b', exp: { c: '✅ Correct! async functions always return a Promise. If you return a string, it becomes Promise.resolve("string"). If you throw, it becomes Promise.reject(error).', w: '❌ Incorrect. The whole point of async is that it wraps return values in Promises automatically.' }},
+  qa2:  { correct: 'b', exp: { c: '✅ Correct! Without try/catch, an await rejection propagates up and causes the async function\'s returned Promise to reject. If nothing handles that, it\'s an "Unhandled Promise Rejection".', w: '❌ Incorrect. Errors from await must be handled with try/catch or .catch() on the async function\'s returned Promise.' }},
+  qa3:  { correct: 'c', exp: { c: '✅ Correct! Sequential await means p2 doesn\'t even START until p1 is fully done. If they\'re independent requests, this wastes time — use Promise.all() to launch them simultaneously.', w: '❌ Incorrect. Sequential await creates a bottleneck: each request waits for the previous one to complete.' }},
+  qf1:  { correct: 'b', exp: { c: '✅ Correct! This is one of the most important things to know about fetch(). It only rejects on network-level failures (no DNS, CORS error, etc.). HTTP 404/500 are "successful" responses from fetch\'s perspective.', w: '❌ Incorrect. fetch() resolves its Promise for any HTTP response. You must check response.ok manually.' }},
+  qf2:  { correct: 'c', exp: { c: '✅ Correct! The HTTP spec separates headers and body. The first await gets you the response headers (status, content-type). The body streams separately — reading it is a second async operation.', w: '❌ Incorrect. Response headers and body arrive separately. The body can be large and streamed, so reading it requires its own await.' }},
+  qf3:  { correct: 'b', exp: { c: '✅ Correct! The Content-Type header is metadata that tells the receiving party how to parse the body. Without it, the server might treat your JSON as plain text and fail to parse it.', w: '❌ Incorrect. Content-Type describes the REQUEST body format to the server, not the response format.' }},
+};
+
+const FINAL_ANSWERS = {
+  qz1: { correct: 1, exp: 'The .then() throws Error("B"). The .catch() receives that error and returns e.message which is "B". The final .then() receives "B" and logs it. .catch() converts a rejected promise back to a fulfilled one with its return value.' },
+  qz2: { correct: 1, exp: 'Microtask Queue always has priority. The Event Loop drains it completely (every last microtask, even newly added ones) before moving even one item from the Callback Queue. This is defined by the ECMAScript spec.' },
+  qz3: { correct: 2, exp: 'The JS engine transforms async/await into Promise chains. An async function returns a Promise; await pauses execution and resumes when the Promise settles. No new runtime capabilities — just cleaner syntax.' },
+  qz4: { correct: 0, exp: 'When there are data dependencies (call 2 needs call 1\'s result), sequential await is the ONLY correct approach. Promise.all() would require you to know all three inputs upfront, which is impossible here.' },
+  qz5: { correct: 1, exp: 'Network-level failure (DNS, CORS, no connection) is the ONLY case where fetch() auto-rejects. HTTP errors like 404 or 500 are "successful" HTTP responses — you must check response.ok yourself.' },
+  qz6: { correct: 1, exp: 'Promise.allSettled() always resolves with an array of { status, value/reason } objects. Promise.all() rejects immediately if any promise rejects. allSettled lets you inspect every outcome independently.' },
+};
+
+function qa(btn, qId, isCorrect, correctLetter) {
+  const q = document.getElementById(qId);
+  if (q.dataset.done) return;
+  q.dataset.done = '1';
+  const opts = q.querySelectorAll('.opt');
+  opts.forEach((b, i) => {
+    b.disabled = true;
+    if ('abcd'[i] === correctLetter) b.classList.add('correct');
+  });
+  if (!isCorrect) btn.classList.add('wrong');
+  const exp   = document.getElementById('e-' + qId);
+  const info  = ANSWERS[qId];
+  exp.textContent = isCorrect ? info.exp.c : info.exp.w;
+  exp.className   = 'expl show ' + (isCorrect ? 'c' : 'w');
+}
+
+let fDone = 0, fRight = 0;
+function qf(btn, qId, isCorrect) {
+  const q = document.getElementById(qId);
+  if (q.dataset.done) return;
+  q.dataset.done = '1';
+  fDone++; if (isCorrect) fRight++;
+  document.getElementById('fScore').textContent = `Score: ${fRight} / ${fDone}`;
+
+  const opts = q.querySelectorAll('.opt');
+  const info = FINAL_ANSWERS[qId];
+  opts.forEach((b, i) => { b.disabled = true; if (i === info.correct) b.classList.add('correct'); });
+  if (!isCorrect) btn.classList.add('wrong');
+  const exp = document.getElementById('e-' + qId);
+  exp.textContent = (isCorrect ? '✅ Correct! ' : '❌ Incorrect. ') + info.exp;
+  exp.className   = 'expl show ' + (isCorrect ? 'c' : 'w');
+
+  if (fDone === 6) showResult();
+}
+
+function showResult() {
+  const r = document.getElementById('finalResult');
+  r.style.display = 'block';
+  const pct = fRight / 6;
+  let emoji, title, msg;
+  if (pct === 1)      { emoji = '🏆'; title = `Perfect — ${fRight}/6`; msg = 'Outstanding! You have a thorough understanding of async JavaScript: the Event Loop, Promises, async/await, and Fetch. You\'re ready for real-world async code.'; }
+  else if (pct >= .8) { emoji = '🎉'; title = `Excellent — ${fRight}/6`; msg = 'Great work! You have a solid grasp of async JavaScript. Review the explanations for the questions you missed and you\'ll be solid.'; }
+  else if (pct >= .6) { emoji = '👍'; title = `Good — ${fRight}/6`; msg = 'You have a foundation but some concepts need reinforcing. Read the explanations carefully and re-run the interactive demos.'; }
+  else                { emoji = '📚'; title = `Keep studying — ${fRight}/6`; msg = 'Async JavaScript is genuinely tricky — it takes time. Go back through the sections, run every demo, and come back to this quiz.'; }
+  document.getElementById('frEmoji').textContent = emoji;
+  document.getElementById('frTitle').textContent = title;
+  document.getElementById('frMsg').textContent   = msg;
+  r.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Reference Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d0f14; --surface:#161921; --surface2:#1e2330; --border:#2a3045;
+    --accent:#c084fc; --accent2:#38bdf8; --accent3:#f97316;
+    --text:#e2e8f0; --muted:#64748b;
+    --green:#4ade80; --red:#f87171; --yellow:#fbbf24; --pink:#f472b6;
+    --sw:270px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;display:flex;min-height:100vh;overflow-x:hidden;}
+
+  /* ── SIDEBAR ── */
+  #sb{width:var(--sw);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;display:flex;flex-direction:column;transition:transform .3s;}
+  #sb::-webkit-scrollbar{width:3px;}
+  #sb::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+  .sb-top{padding:22px 20px 14px;border-bottom:1px solid var(--border);}
+  .sb-icon{width:42px;height:42px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:10px;}
+  .sb-top h1{font-size:18px;font-weight:800;letter-spacing:-.5px;}
+  .sb-top span{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;}
+  .sb-srch{padding:12px 16px;border-bottom:1px solid var(--border);}
+  #srch{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 12px 7px 32px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:border-color .2s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:9px center;}
+  #srch:focus{border-color:var(--accent);}
+  #srch::placeholder{color:var(--muted);}
+  .nlbl{padding:14px 18px 4px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+  .ni{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;font-size:13px;font-weight:700;color:var(--muted);border-left:3px solid transparent;transition:all .2s;text-decoration:none;}
+  .ni:hover{color:var(--text);background:var(--surface2);}
+  .ni.active{color:var(--accent);border-left-color:var(--accent);background:rgba(192,132,252,.07);}
+  .ni .ic{font-size:14px;width:18px;text-align:center;}
+
+  /* ── MAIN ── */
+  #main{margin-left:var(--sw);flex:1;min-height:100vh;}
+  #prog{position:fixed;top:0;left:var(--sw);right:0;height:2px;background:var(--accent);transform-origin:left;transform:scaleX(0);z-index:50;}
+
+  /* ── SECTIONS ── */
+  .sec{display:none;animation:fu .3s ease;}
+  .sec.active{display:block;}
+  @keyframes fu{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ── HERO ── */
+  #hero{background:linear-gradient(135deg,#0d0f14,#120e1a,#0d0f14);padding:72px 56px 56px;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+  #hero::before{content:'';position:absolute;top:-80px;right:-80px;width:480px;height:480px;background:radial-gradient(circle,rgba(192,132,252,.09) 0%,transparent 70%);pointer-events:none;}
+  #hero::after{content:'CSS';position:absolute;bottom:10px;right:30px;font-family:'JetBrains Mono',monospace;font-size:140px;font-weight:800;color:rgba(255,255,255,.025);letter-spacing:-6px;pointer-events:none;}
+  .hbadge{display:inline-block;background:rgba(192,132,252,.12);border:1px solid rgba(192,132,252,.3);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 12px;border-radius:20px;margin-bottom:18px;letter-spacing:1px;}
+  #hero h1{font-size:52px;font-weight:800;letter-spacing:-2px;line-height:1.05;margin-bottom:14px;}
+  #hero h1 em{font-style:normal;color:var(--accent);}
+  #hero p{font-size:15px;color:var(--muted);max-width:500px;line-height:1.7;margin-bottom:28px;}
+  .hstats{display:flex;gap:28px;flex-wrap:wrap;}
+  .st .n{font-size:26px;font-weight:800;color:var(--accent);letter-spacing:-1px;}
+  .st .l{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px;}
+
+  /* ── SEC HEAD / BODY ── */
+  .sh{padding:48px 56px 0;}
+  .st2{font-size:30px;font-weight:800;letter-spacing:-1px;margin-bottom:6px;}
+  .st2 em{font-style:normal;color:var(--accent);}
+  .sd{color:var(--muted);font-size:13px;line-height:1.7;max-width:620px;margin-bottom:32px;}
+  .sb2{padding:0 56px 56px;}
+
+  /* ── SUB ── */
+  .sub{margin-bottom:36px;}
+  .stitle{font-size:16px;font-weight:800;color:var(--accent2);letter-spacing:-.3px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .stitle::before{content:'';display:block;width:3px;height:18px;background:var(--accent2);border-radius:2px;flex-shrink:0;}
+
+  /* ── PROSE / CODE ── */
+  .prose{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:10px;}
+  .prose strong{color:var(--text);}
+  code{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:rgba(192,132,252,.1);color:var(--accent);padding:1px 5px;border-radius:4px;}
+  .cb{background:#080a10;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:14px 0;}
+  .cbh{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--surface2);border-bottom:1px solid var(--border);}
+  .dots{display:flex;gap:5px;}
+  .dots span{width:9px;height:9px;border-radius:50%;}
+  .dots span:nth-child(1){background:#ff5f57;}
+  .dots span:nth-child(2){background:#febc2e;}
+  .dots span:nth-child(3){background:#28c840;}
+  .lang{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1.5px;}
+  .cpb{background:none;border:1px solid var(--border);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 9px;border-radius:4px;cursor:pointer;transition:all .2s;letter-spacing:.5px;}
+  .cpb:hover{color:var(--text);border-color:var(--accent);}
+  .cpb.ok{color:var(--green);border-color:var(--green);}
+  pre{padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.75;overflow-x:auto;color:#94b8d0;}
+  pre::-webkit-scrollbar{height:3px;}
+  pre::-webkit-scrollbar-thumb{background:var(--border);}
+  /* syntax colors */
+  .cs{color:#c084fc;} /* selector */
+  .cp{color:#38bdf8;} /* property */
+  .cv{color:#4ade80;} /* value */
+  .cc{color:#64748b;font-style:italic;} /* comment */
+  .cat{color:#f97316;} /* at-rule */
+  .cn{color:#fbbf24;} /* number */
+  .cf{color:#f472b6;} /* function */
+
+  /* ── CARDS ── */
+  .cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin:16px 0;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;transition:border-color .2s,transform .2s;position:relative;overflow:hidden;}
+  .card:hover{border-color:rgba(192,132,252,.4);transform:translateY(-2px);}
+  .card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent);opacity:0;transition:opacity .2s;}
+  .card:hover::after{opacity:1;}
+  .card .ci{font-size:22px;margin-bottom:10px;}
+  .card h3{font-size:13px;font-weight:800;margin-bottom:6px;}
+  .card p{font-size:12px;color:var(--muted);line-height:1.6;}
+
+  /* ── TABLE ── */
+  .tt{width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden;border:1px solid var(--border);margin:16px 0;}
+  .tt th{background:var(--surface2);padding:10px 16px;text-align:left;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);font-family:'JetBrains Mono',monospace;}
+  .tt td{padding:10px 16px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);background:var(--surface);line-height:1.5;vertical-align:top;}
+  .tt tr:hover td{background:var(--surface2);}
+  .tt td:first-child{font-family:'JetBrains Mono',monospace;color:var(--accent2);white-space:nowrap;}
+
+  /* ── ACCORDION ── */
+  .acc{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+  .ach{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;cursor:pointer;background:var(--surface);transition:background .2s;user-select:none;}
+  .ach:hover{background:var(--surface2);}
+  .achl{display:flex;align-items:center;gap:10px;}
+  .achl .badge{font-family:'JetBrains Mono',monospace;font-size:10px;background:rgba(192,132,252,.15);color:var(--accent);padding:2px 8px;border-radius:4px;border:1px solid rgba(192,132,252,.25);}
+  .ach h3{font-size:13px;font-weight:800;}
+  .acarr{color:var(--muted);transition:transform .3s;font-size:11px;}
+  .acarr.open{transform:rotate(180deg);color:var(--accent);}
+  .acb{display:none;padding:20px;background:#080a10;border-top:1px solid var(--border);}
+  .acb.open{display:block;}
+
+  /* ── INFO BOXES ── */
+  .ib{border-radius:10px;padding:14px 18px;margin:12px 0;border-left:3px solid;}
+  .ib.tip{background:rgba(74,222,128,.07);border-color:var(--green);}
+  .ib.warn{background:rgba(248,113,113,.07);border-color:var(--red);}
+  .ib.note{background:rgba(56,189,248,.07);border-color:var(--accent2);}
+  .ib.info{background:rgba(192,132,252,.07);border-color:var(--accent);}
+  .ib .ibt{font-size:12px;font-weight:800;margin-bottom:4px;}
+  .ib.tip .ibt{color:var(--green);}
+  .ib.warn .ibt{color:var(--red);}
+  .ib.note .ibt{color:var(--accent2);}
+  .ib.info .ibt{color:var(--accent);}
+  .ib p{font-size:12px;color:var(--muted);line-height:1.65;}
+
+  /* ── SPLIT ── */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+  .split3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:16px 0;}
+
+  /* ── PILLS ── */
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+  .pill{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2);cursor:default;transition:all .2s;}
+  .pill:hover{border-color:var(--accent2);background:rgba(56,189,248,.07);}
+
+  /* ── BOX MODEL VIZ ── */
+  #bm-viz{background:#080a10;border:1px solid var(--border);border-radius:12px;padding:32px;margin:16px 0;display:flex;align-items:center;justify-content:center;}
+  .bm-margin{background:rgba(248,113,113,.15);border:2px dashed rgba(248,113,113,.4);border-radius:8px;padding:20px;position:relative;}
+  .bm-border{background:rgba(251,191,36,.15);border:2px solid rgba(251,191,36,.5);border-radius:6px;padding:16px;position:relative;}
+  .bm-padding{background:rgba(74,222,128,.12);border:2px dashed rgba(74,222,128,.4);border-radius:4px;padding:14px;}
+  .bm-content{background:rgba(192,132,252,.2);border:2px solid rgba(192,132,252,.5);border-radius:3px;padding:18px 32px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);font-weight:700;}
+  .bm-label{position:absolute;top:-10px;left:10px;font-family:'JetBrains Mono',monospace;font-size:9px;padding:1px 6px;border-radius:4px;font-weight:700;}
+  .bm-margin .bm-label{background:var(--red);color:#000;}
+  .bm-border .bm-label{background:var(--yellow);color:#000;}
+  .bm-padding .bm-label{background:var(--green);color:#000;}
+
+  /* ── FLEXBOX DEMO ── */
+  #flex-demo{background:#080a10;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:16px 0;}
+  .fd-ctrl{display:flex;flex-wrap:wrap;gap:12px;padding:16px;background:var(--surface2);border-bottom:1px solid var(--border);}
+  .fd-ctrl label{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px;display:flex;flex-direction:column;gap:4px;}
+  .fd-ctrl select{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 8px;border-radius:5px;outline:none;cursor:pointer;}
+  .fd-ctrl select:focus{border-color:var(--accent);}
+  #fd-box{display:flex;min-height:120px;padding:12px;gap:8px;transition:all .3s;}
+  .fd-item{background:rgba(192,132,252,.2);border:1px solid rgba(192,132,252,.4);border-radius:6px;padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);font-weight:700;min-width:48px;text-align:center;transition:all .3s;}
+
+  /* ── GRID DEMO ── */
+  #gd-demo{background:#080a10;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:16px 0;}
+  .gd-ctrl{display:flex;flex-wrap:wrap;gap:12px;padding:16px;background:var(--surface2);border-bottom:1px solid var(--border);}
+  .gd-ctrl label{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px;display:flex;flex-direction:column;gap:4px;}
+  .gd-ctrl select,.gd-ctrl input[type=range]{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 8px;border-radius:5px;outline:none;cursor:pointer;}
+  #gd-box{display:grid;padding:12px;gap:8px;transition:all .3s;}
+  .gd-item{background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.35);border-radius:6px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2);font-weight:700;text-align:center;}
+
+  /* ── COLOR SWATCHES ── */
+  .swatch-grid{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0;}
+  .swatch{width:56px;height:56px;border-radius:8px;cursor:pointer;position:relative;transition:transform .15s;border:1px solid rgba(255,255,255,.08);}
+  .swatch:hover{transform:scale(1.1);}
+  .swatch .scopy{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);white-space:nowrap;opacity:0;transition:opacity .2s;}
+  .swatch:hover .scopy{opacity:1;}
+
+  /* ── TRANSITION DEMO ── */
+  .tdemo{background:#080a10;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:16px 0;}
+  .tdemo-ctrl{display:flex;flex-wrap:wrap;gap:12px;padding:16px;background:var(--surface2);border-bottom:1px solid var(--border);}
+  .tdemo-ctrl label{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px;display:flex;flex-direction:column;gap:4px;min-width:120px;}
+  .tdemo-ctrl select,.tdemo-ctrl input[type=range]{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 8px;border-radius:5px;outline:none;cursor:pointer;}
+  .tdemo-stage{padding:28px;display:flex;align-items:center;justify-content:center;gap:40px;}
+  #td-box{width:80px;height:80px;background:rgba(192,132,252,.3);border:2px solid var(--accent);border-radius:8px;cursor:pointer;transition:all .4s ease;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);}
+  #td-box:hover{background:var(--accent);color:#000;border-radius:40px;transform:scale(1.3) rotate(15deg);}
+  .tdemo-hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);}
+
+  /* ── SPECIFICITY VIZ ── */
+  .spec-viz{background:#080a10;border:1px solid var(--border);border-radius:10px;padding:20px;margin:14px 0;}
+  .spec-row{display:flex;align-items:center;gap:14px;padding:8px 0;border-bottom:1px solid rgba(42,48,69,.5);}
+  .spec-row:last-child{border-bottom:none;}
+  .spec-sel{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent2);min-width:160px;}
+  .spec-bar{flex:1;height:16px;border-radius:4px;background:var(--surface2);overflow:hidden;position:relative;}
+  .spec-fill{height:100%;border-radius:4px;transition:width .5s;}
+  .spec-val{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);min-width:60px;text-align:right;}
+
+  /* ── MQ BREAKPOINTS ── */
+  .bps{display:flex;align-items:flex-end;gap:0;margin:16px 0;background:#080a10;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  .bp{flex:1;padding:14px 10px 12px;text-align:center;border-right:1px solid var(--border);transition:background .2s;cursor:default;}
+  .bp:last-child{border-right:none;}
+  .bp:hover{background:var(--surface2);}
+  .bp .bpn{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);font-weight:700;margin-bottom:4px;}
+  .bp .bpd{font-size:11px;color:var(--muted);}
+  .bp .bpi{font-size:20px;margin-bottom:6px;}
+
+  /* ── QUICK REF ── */
+  .qr{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px;}
+  .qr h4{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:12px;}
+  .qrr{display:flex;gap:14px;align-items:baseline;padding:7px 0;border-bottom:1px solid rgba(42,48,69,.5);}
+  .qrr:last-child{border-bottom:none;}
+  .qrp{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);flex-shrink:0;min-width:200px;}
+  .qrd{font-size:12px;color:var(--muted);}
+
+  /* ── MOBILE ── */
+  #mtog{display:none;position:fixed;bottom:22px;right:22px;z-index:200;background:var(--accent);color:#000;border:none;width:46px;height:46px;border-radius:50%;font-size:18px;cursor:pointer;box-shadow:0 4px 20px rgba(192,132,252,.4);}
+
+  @media(max-width:768px){
+    #sb{transform:translateX(-100%);}
+    #sb.open{transform:translateX(0);}
+    #main{margin-left:0;}
+    #prog{left:0;}
+    #mtog{display:flex;align-items:center;justify-content:center;}
+    #hero,main .sh,main .sb2{padding-left:22px;padding-right:22px;}
+    #hero{padding-top:48px;padding-bottom:36px;}
+    #hero h1{font-size:36px;}
+    #hero::after{display:none;}
+    .sh{padding-top:36px;}
+    .split,.split3{grid-template-columns:1fr;}
+    .qrr{flex-direction:column;gap:3px;}
+    .qrp{min-width:auto;}
+    .bps{flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+<div id="prog"></div>
+
+<!-- ── SIDEBAR ── -->
+<aside id="sb">
+  <div class="sb-top">
+    <div class="sb-icon">🎨</div>
+    <h1>CSS Reference</h1>
+    <span>INTERACTIVE GUIDE</span>
+  </div>
+  <div class="sb-srch"><input type="text" id="srch" placeholder="Search properties..." autocomplete="off"></div>
+
+  <div class="nlbl">Foundations</div>
+  <a class="ni active" data-s="overview" href="#"><span class="ic">🏠</span> Overview</a>
+  <a class="ni" data-s="syntax" href="#"><span class="ic">📐</span> Syntax & Selectors</a>
+  <a class="ni" data-s="visual" href="#"><span class="ic">🎨</span> Visual Rules</a>
+  <a class="ni" data-s="boxmodel" href="#"><span class="ic">📦</span> Box Model</a>
+  <a class="ni" data-s="display" href="#"><span class="ic">🗂️</span> Display & Position</a>
+
+  <div class="nlbl">Styling</div>
+  <a class="ni" data-s="colors" href="#"><span class="ic">🌈</span> Colors</a>
+  <a class="ni" data-s="typography" href="#"><span class="ic">🖋️</span> Typography</a>
+  <a class="ni" data-s="transitions" href="#"><span class="ic">✨</span> Transitions</a>
+
+  <div class="nlbl">Layout</div>
+  <a class="ni" data-s="flexbox" href="#"><span class="ic">↔️</span> Flexbox</a>
+  <a class="ni" data-s="grid" href="#"><span class="ic">⊞</span> Grid</a>
+
+  <div class="nlbl">Advanced</div>
+  <a class="ni" data-s="responsive" href="#"><span class="ic">📱</span> Responsive Design</a>
+  <a class="ni" data-s="variables" href="#"><span class="ic">🔧</span> Variables & Functions</a>
+  <a class="ni" data-s="accessibility" href="#"><span class="ic">♿</span> Accessibility</a>
+  <a class="ni" data-s="compat" href="#"><span class="ic">🌐</span> Browser Compatibility</a>
+
+  <div class="nlbl">Reference</div>
+  <a class="ni" data-s="quickref" href="#"><span class="ic">⚡</span> Quick Reference</a>
+</aside>
+
+<main id="main">
+
+<!-- ══════════════════════════════ OVERVIEW ══════════════════════════════ -->
+<section id="sec-overview" class="sec active">
+  <div id="hero">
+    <div class="hbadge">CSS3 • Cascading Style Sheets</div>
+    <h1>Master <em>CSS</em> —<br>Style the Web</h1>
+    <p>A complete interactive reference for CSS3 — selectors, the box model, flexbox, grid, transitions, responsive design, variables, and browser compatibility.</p>
+    <div class="hstats">
+      <div class="st"><div class="n">14</div><div class="l">SECTIONS</div></div>
+      <div class="st"><div class="n">80+</div><div class="l">PROPERTIES</div></div>
+      <div class="st"><div class="n">∞</div><div class="l">STYLES</div></div>
+    </div>
+  </div>
+  <div class="sh" style="padding-top:40px;">
+    <h2 class="st2">What is <em>CSS?</em></h2>
+    <p class="sd">CSS (Cascading Style Sheets) controls the visual presentation of HTML. While HTML defines structure, CSS defines colour, layout, spacing, fonts, animations, and more. Together they are the backbone of every webpage.</p>
+  </div>
+  <div class="sb2">
+    <div class="cg">
+      <div class="card"><div class="ci">🎨</div><h3>Style</h3><p>Control colours, fonts, sizes, and visual effects on any HTML element.</p></div>
+      <div class="card"><div class="ci">📐</div><h3>Layout</h3><p>Flexbox and Grid give you powerful, two-dimensional control over page layouts.</p></div>
+      <div class="card"><div class="ci">📱</div><h3>Responsive</h3><p>Media queries adapt designs to any screen size from phone to ultrawide monitor.</p></div>
+      <div class="card"><div class="ci">✨</div><h3>Animation</h3><p>Transitions and animations bring interfaces to life without JavaScript.</p></div>
+      <div class="card"><div class="ci">🔧</div><h3>Variables</h3><p>Custom properties let you store and reuse values across your entire stylesheet.</p></div>
+      <div class="card"><div class="ci">♿</div><h3>Accessible</h3><p>Good CSS ensures content is readable and navigable for everyone, including screen reader users.</p></div>
+    </div>
+    <div class="ib note"><div class="ibt">💡 The Cascade</div><p>CSS is <strong>cascading</strong> — when multiple rules target the same element, the browser decides which wins using <strong>specificity</strong>, <strong>source order</strong>, and <strong>inheritance</strong>.</p></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ SYNTAX & SELECTORS ══════════════════════════════ -->
+<section id="sec-syntax" class="sec">
+  <div class="sh">
+    <h2 class="st2">Syntax & <em>Selectors</em></h2>
+    <p class="sd">CSS rules target HTML elements using selectors. Understanding how to write selectors — and how specificity resolves conflicts — is fundamental to mastering CSS.</p>
+  </div>
+  <div class="sb2">
+
+    <div class="sub">
+      <div class="stitle">Anatomy of a CSS Ruleset</div>
+      <div class="cb">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'p {\n  color: blue;\n  font-size: 18px;\n}')">COPY</button></div>
+        <pre><span class="cs">p</span> {                     <span class="cc">/* selector */</span>
+  <span class="cp">color</span>: <span class="cv">blue</span>;           <span class="cc">/* declaration */</span>
+  <span class="cp">font-size</span>: <span class="cv">18px</span>;       <span class="cc">/* property: value */</span>
+}</pre>
+      </div>
+      <div class="cg">
+        <div class="card"><h3>Selector</h3><p>Targets the HTML element(s) to style — e.g. <code>p</code>, <code>.class</code>, <code>#id</code></p></div>
+        <div class="card"><h3>Declaration Block</h3><p>Everything inside <code>{ }</code> — one or more declarations</p></div>
+        <div class="card"><h3>Declaration</h3><p>A single <code>property: value</code> pair ending with <code>;</code></p></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Three Ways to Include CSS</div>
+      <div class="split">
+        <div>
+          <table class="tt">
+            <thead><tr><th>Method</th><th>Where</th><th>Best For</th></tr></thead>
+            <tbody>
+              <tr><td>External</td><td>.css file via &lt;link&gt;</td><td>Production (preferred)</td></tr>
+              <tr><td>Internal</td><td>&lt;style&gt; in &lt;head&gt;</td><td>Single-page overrides</td></tr>
+              <tr><td>Inline</td><td>style="" attribute</td><td>Quick tests, emails</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <div class="cb">
+            <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">HTML</span></div>
+            <pre><span class="cc">&lt;!-- External --&gt;</span>
+&lt;<span class="cp">link</span> rel=<span class="cv">"stylesheet"</span> href=<span class="cv">"style.css"</span>&gt;
+
+<span class="cc">&lt;!-- Internal --&gt;</span>
+&lt;<span class="cp">style</span>&gt;
+  <span class="cs">p</span> { <span class="cp">color</span>: <span class="cv">red</span>; }
+&lt;/<span class="cp">style</span>&gt;
+
+<span class="cc">&lt;!-- Inline --&gt;</span>
+&lt;<span class="cp">p</span> style=<span class="cv">"color:blue"</span>&gt;Hello&lt;/<span class="cp">p</span>&gt;</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Selector Types</div>
+      <div class="cb">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS — ALL SELECTOR TYPES</span><button class="cpb" onclick="cp(this,'/* Type */\np { color: green; }\n\n/* Universal */\n* { font-family: Verdana; }\n\n/* Class */\n.brand { color: purple; }\n\n/* ID */\n#main-title { font-size: 2rem; }\n\n/* Attribute */\n[href] { color: magenta; }\nimg[src*=\"photo\"] { height: 100px; }\n\n/* Chaining */\nh1.special { color: teal; }\n\n/* Descendant */\n.menu li { color: blue; }\n\n/* Grouping */\nh1, h2, .title { font-family: Georgia; }')">COPY</button></div>
+        <pre><span class="cc">/* Type — targets all elements of that tag */</span>
+<span class="cs">p</span> { <span class="cp">color</span>: <span class="cv">green</span>; }
+
+<span class="cc">/* Universal — targets everything */</span>
+<span class="cs">*</span> { <span class="cp">font-family</span>: <span class="cv">Verdana</span>; }
+
+<span class="cc">/* Class — targets elements with that class */</span>
+<span class="cs">.brand</span> { <span class="cp">color</span>: <span class="cv">purple</span>; }
+
+<span class="cc">/* ID — targets one unique element */</span>
+<span class="cs">#main-title</span> { <span class="cp">font-size</span>: <span class="cv">2rem</span>; }
+
+<span class="cc">/* Attribute selectors */</span>
+<span class="cs">[href]</span> { <span class="cp">color</span>: <span class="cv">magenta</span>; }
+<span class="cs">img[src*="photo"]</span> { <span class="cp">height</span>: <span class="cv">100px</span>; }
+
+<span class="cc">/* Chaining — element must match both */</span>
+<span class="cs">h1.special</span> { <span class="cp">color</span>: <span class="cv">teal</span>; }
+
+<span class="cc">/* Descendant — li inside .menu */</span>
+<span class="cs">.menu li</span> { <span class="cp">color</span>: <span class="cv">blue</span>; }
+
+<span class="cc">/* Grouping — same style for multiple selectors */</span>
+<span class="cs">h1, h2, .title</span> { <span class="cp">font-family</span>: <span class="cv">Georgia</span>; }</pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Pseudo-Classes</div>
+      <div class="prose">Pseudo-classes target elements in a specific <strong>state</strong>.</div>
+      <div class="pills">
+        <span class="pill">:hover</span><span class="pill">:active</span><span class="pill">:focus</span><span class="pill">:visited</span>
+        <span class="pill">:first-child</span><span class="pill">:last-child</span><span class="pill">:nth-child(n)</span>
+        <span class="pill">:not()</span><span class="pill">:checked</span><span class="pill">:disabled</span><span class="pill">:placeholder</span>
+      </div>
+      <div class="cb">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'a:hover { color: purple; }\nbutton:active { transform: scale(0.98); }\ninput:focus { border-color: blue; outline: none; }\nli:first-child { font-weight: bold; }\nli:nth-child(odd) { background: #f5f5f5; }')">COPY</button></div>
+        <pre><span class="cs">a:hover</span> { <span class="cp">color</span>: <span class="cv">purple</span>; }
+<span class="cs">button:active</span> { <span class="cp">transform</span>: <span class="cf">scale</span>(<span class="cn">0.98</span>); }
+<span class="cs">input:focus</span> { <span class="cp">border-color</span>: <span class="cv">blue</span>; <span class="cp">outline</span>: <span class="cv">none</span>; }
+<span class="cs">li:first-child</span> { <span class="cp">font-weight</span>: <span class="cv">bold</span>; }
+<span class="cs">li:nth-child(odd)</span> { <span class="cp">background</span>: <span class="cv">#f5f5f5</span>; }</pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Specificity — Who Wins?</div>
+      <div class="prose">When two rules target the same element, the one with higher <strong>specificity</strong> wins.</div>
+      <div class="spec-viz">
+        <div class="spec-row"><span class="spec-sel">!important</span><div class="spec-bar"><div class="spec-fill" style="width:100%;background:var(--red);"></div></div><span class="spec-val">∞</span></div>
+        <div class="spec-row"><span class="spec-sel">style=""</span><div class="spec-bar"><div class="spec-fill" style="width:90%;background:var(--yellow);"></div></div><span class="spec-val">1,0,0,0</span></div>
+        <div class="spec-row"><span class="spec-sel">#id</span><div class="spec-bar"><div class="spec-fill" style="width:70%;background:var(--accent);"></div></div><span class="spec-val">0,1,0,0</span></div>
+        <div class="spec-row"><span class="spec-sel">.class / [attr] / :pseudo</span><div class="spec-bar"><div class="spec-fill" style="width:45%;background:var(--accent2);"></div></div><span class="spec-val">0,0,1,0</span></div>
+        <div class="spec-row"><span class="spec-sel">tag (p, h1, div)</span><div class="spec-bar"><div class="spec-fill" style="width:20%;background:var(--green);"></div></div><span class="spec-val">0,0,0,1</span></div>
+        <div class="spec-row"><span class="spec-sel">* / inherited</span><div class="spec-bar"><div class="spec-fill" style="width:5%;background:var(--muted);"></div></div><span class="spec-val">0,0,0,0</span></div>
+      </div>
+      <div class="ib warn"><div class="ibt">⚠️ Avoid !important</div><p>Using <code>!important</code> overrides all other specificity rules and makes debugging very difficult. Use it only as a last resort.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ VISUAL RULES ══════════════════════════════ -->
+<section id="sec-visual" class="sec">
+  <div class="sh">
+    <h2 class="st2">Visual <em>Rules</em></h2>
+    <p class="sd">Control fonts, sizes, colours, alignment, and backgrounds — the fundamental properties that make elements look the way they do.</p>
+  </div>
+  <div class="sb2">
+    <div class="split">
+      <div>
+        <div class="sub">
+          <div class="stitle">Font Properties</div>
+          <div class="cb">
+            <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'p {\n  font-family: \'Courier New\', sans-serif;\n  font-size: 18px;\n  font-weight: bold;    /* or 100–900 */\n  font-style: italic;\n  text-transform: uppercase;\n  text-align: center;\n  letter-spacing: 2px;\n  word-spacing: 0.3em;\n  line-height: 1.5;\n}')">COPY</button></div>
+            <pre><span class="cs">p</span> {
+  <span class="cp">font-family</span>: <span class="cv">'Courier New'</span>, sans-serif;
+  <span class="cp">font-size</span>: <span class="cv">18px</span>;
+  <span class="cp">font-weight</span>: <span class="cv">bold</span>;    <span class="cc">/* or 100–900 */</span>
+  <span class="cp">font-style</span>: <span class="cv">italic</span>;
+  <span class="cp">text-transform</span>: <span class="cv">uppercase</span>;
+  <span class="cp">text-align</span>: <span class="cv">center</span>;
+  <span class="cp">letter-spacing</span>: <span class="cv">2px</span>;
+  <span class="cp">word-spacing</span>: <span class="cv">0.3em</span>;
+  <span class="cp">line-height</span>: <span class="cv">1.5</span>;
+}</pre>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="sub">
+          <div class="stitle">Colour & Background</div>
+          <div class="cb">
+            <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'h1 {\n  color: red;\n  background-color: #1e293b;\n  opacity: 0.9;\n}\n\np {\n  background-image: url(\'bg.jpg\');\n  background-size: cover;\n  background-position: center;\n  background-repeat: no-repeat;\n}')">COPY</button></div>
+            <pre><span class="cs">h1</span> {
+  <span class="cp">color</span>: <span class="cv">red</span>;
+  <span class="cp">background-color</span>: <span class="cv">#1e293b</span>;
+  <span class="cp">opacity</span>: <span class="cv">0.9</span>;
+}
+
+<span class="cs">p</span> {
+  <span class="cp">background-image</span>: <span class="cf">url</span>(<span class="cv">'bg.jpg'</span>);
+  <span class="cp">background-size</span>: <span class="cv">cover</span>;
+  <span class="cp">background-position</span>: <span class="cv">center</span>;
+  <span class="cp">background-repeat</span>: <span class="cv">no-repeat</span>;
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ib tip"><div class="ibt">✅ !important — use sparingly</div><p>Adding <code>!important</code> to a declaration overrides all other rules for that property. Useful as a last resort but makes maintenance difficult.</p></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ BOX MODEL ══════════════════════════════ -->
+<section id="sec-boxmodel" class="sec">
+  <div class="sh">
+    <h2 class="st2">The Box <em>Model</em></h2>
+    <p class="sd">Every HTML element is a rectangular box. The box model defines how its total space is calculated using content, padding, border, and margin.</p>
+  </div>
+  <div class="sb2">
+    <div class="sub">
+      <div class="stitle">Visual Diagram</div>
+      <div id="bm-viz">
+        <div class="bm-margin"><span class="bm-label" style="background:var(--red);color:#000;">MARGIN</span>
+          <div class="bm-border"><span class="bm-label" style="background:var(--yellow);color:#000;">BORDER</span>
+            <div class="bm-padding"><span class="bm-label" style="background:var(--green);color:#000;">PADDING</span>
+              <div class="bm-content">CONTENT<br><span style="font-size:9px;opacity:.7;">width × height</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="split">
+      <div>
+        <div class="sub">
+          <div class="stitle">Padding & Margin Shorthand</div>
+          <div class="cb">
+            <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'/* 4 values: top right bottom left */\npadding: 10px 20px 10px 20px;\n\n/* 3 values: top | left+right | bottom */\npadding: 10px 20px 15px;\n\n/* 2 values: top+bottom | left+right */\npadding: 10px 20px;\n\n/* 1 value: all sides */\npadding: 10px;\n\n/* Center horizontally */\ndiv { width: 400px; margin: 0 auto; }')">COPY</button></div>
+            <pre><span class="cc">/* 4: top right bottom left */</span>
+<span class="cp">padding</span>: <span class="cv">10px 20px 10px 20px</span>;
+
+<span class="cc">/* 2: top+bottom | left+right */</span>
+<span class="cp">padding</span>: <span class="cv">10px 20px</span>;
+
+<span class="cc">/* Center element horizontally */</span>
+<span class="cs">div</span> { <span class="cp">width</span>: <span class="cv">400px</span>; <span class="cp">margin</span>: <span class="cv">0 auto</span>; }</pre>
+          </div>
+        </div>
+        <div class="sub">
+          <div class="stitle">Border</div>
+          <div class="cb">
+            <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'p {\n  border: 3px solid coral;\n  border-radius: 8px;\n  border-top: 2px dashed blue;\n}')">COPY</button></div>
+            <pre><span class="cs">p</span> {
+  <span class="cp">border</span>: <span class="cv">3px solid coral</span>;
+  <span class="cp">border-radius</span>: <span class="cv">8px</span>;
+  <span class="cp">border-top</span>: <span class="cv">2px dashed blue</span>;
+}</pre>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="sub">
+          <div class="stitle">Box-Sizing</div>
+          <div class="prose">By default (<code>content-box</code>), padding and border are added to the declared width. Use <code>border-box</code> to include them inside the width.</div>
+          <div class="cb">
+            <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'/* Apply to everything — recommended */\n* {\n  box-sizing: border-box;\n}\n\n/* content-box (default) */\n/* width: 200px + 20px padding + 4px border = 224px total */\n\n/* border-box */\n/* width: always 200px, padding+border inside */')">COPY</button></div>
+            <pre><span class="cc">/* Recommended global reset */</span>
+<span class="cs">*</span> { <span class="cp">box-sizing</span>: <span class="cv">border-box</span>; }
+
+<span class="cc">/* content-box (default):
+   200px + 20px padding = 220px total
+   border-box:
+   always 200px — padding inside */</span></pre>
+          </div>
+        </div>
+        <div class="sub">
+          <div class="stitle">Overflow & Visibility</div>
+          <div class="cb">
+            <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'p {\n  overflow: scroll;   /* scroll | hidden | visible */\n}\n\n.hidden-el {\n  visibility: hidden; /* space preserved */\n}\n.removed {\n  display: none;      /* no space */\n}')">COPY</button></div>
+            <pre><span class="cs">p</span> { <span class="cp">overflow</span>: <span class="cv">scroll</span>; <span class="cc">/* hidden | visible */</span> }
+
+<span class="cc">/* visibility: hidden — space preserved */</span>
+<span class="cs">.hidden</span> { <span class="cp">visibility</span>: <span class="cv">hidden</span>; }
+
+<span class="cc">/* display: none — removed from flow */</span>
+<span class="cs">.gone</span> { <span class="cp">display</span>: <span class="cv">none</span>; }</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ib tip"><div class="ibt">✅ Universal Reset</div><p>Start every stylesheet with <code>* { margin: 0; padding: 0; box-sizing: border-box; }</code> to remove browser default spacing inconsistencies.</p></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ DISPLAY & POSITION ══════════════════════════════ -->
+<section id="sec-display" class="sec">
+  <div class="sh">
+    <h2 class="st2">Display & <em>Position</em></h2>
+    <p class="sd">CSS controls where elements appear on the page. The <code>display</code> property changes how elements participate in the flow; <code>position</code> lets you remove elements from the flow entirely.</p>
+  </div>
+  <div class="sb2">
+    <div class="sub">
+      <div class="stitle">The display Property</div>
+      <table class="tt">
+        <thead><tr><th>Value</th><th>Behaviour</th><th>Example Use</th></tr></thead>
+        <tbody>
+          <tr><td>block</td><td>Full width, starts on new line</td><td>&lt;div&gt;, &lt;p&gt;, &lt;h1&gt;</td></tr>
+          <tr><td>inline</td><td>Only content width, no line break</td><td>&lt;span&gt;, &lt;a&gt;, &lt;strong&gt;</td></tr>
+          <tr><td>inline-block</td><td>Like inline, but respects width/height</td><td>Buttons, nav items</td></tr>
+          <tr><td>flex</td><td>Flex container — 1D layout</td><td>Navbars, card rows</td></tr>
+          <tr><td>grid</td><td>Grid container — 2D layout</td><td>Page layouts</td></tr>
+          <tr><td>none</td><td>Element removed from layout entirely</td><td>Hide elements</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">The position Property</div>
+      <div class="cb">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'.relative { position: relative; top: 20px; left: 10px; }\n.absolute { position: absolute; top: 0; right: 0; }\n.fixed    { position: fixed; bottom: 20px; right: 20px; }\n.sticky   { position: sticky; top: 0; }')">COPY</button></div>
+        <pre><span class="cs">.relative</span> { <span class="cp">position</span>: <span class="cv">relative</span>; <span class="cp">top</span>: <span class="cv">20px</span>; <span class="cp">left</span>: <span class="cv">10px</span>; }
+<span class="cs">.absolute</span> { <span class="cp">position</span>: <span class="cv">absolute</span>; <span class="cp">top</span>: <span class="cv">0</span>; <span class="cp">right</span>: <span class="cv">0</span>; }
+<span class="cs">.fixed</span>    { <span class="cp">position</span>: <span class="cv">fixed</span>; <span class="cp">bottom</span>: <span class="cv">20px</span>; <span class="cp">right</span>: <span class="cv">20px</span>; }
+<span class="cs">.sticky</span>   { <span class="cp">position</span>: <span class="cv">sticky</span>; <span class="cp">top</span>: <span class="cv">0</span>; }</pre>
+      </div>
+      <table class="tt">
+        <thead><tr><th>Value</th><th>Reference Point</th><th>Stays in Flow?</th></tr></thead>
+        <tbody>
+          <tr><td>static</td><td>Normal document flow (default)</td><td>Yes</td></tr>
+          <tr><td>relative</td><td>Its own normal position</td><td>Yes (space preserved)</td></tr>
+          <tr><td>absolute</td><td>Nearest positioned ancestor</td><td>No</td></tr>
+          <tr><td>fixed</td><td>Viewport (doesn't scroll)</td><td>No</td></tr>
+          <tr><td>sticky</td><td>Scroll position threshold</td><td>Yes → No on stick</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Z-Index & Float</div>
+      <div class="split">
+        <div>
+          <div class="cb">
+            <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS — Z-INDEX</span></div>
+            <pre><span class="cc">/* Only works on positioned elements */</span>
+<span class="cs">.modal</span>   { <span class="cp">position</span>: <span class="cv">fixed</span>; <span class="cp">z-index</span>: <span class="cn">100</span>; }
+<span class="cs">.overlay</span> { <span class="cp">position</span>: <span class="cv">fixed</span>; <span class="cp">z-index</span>: <span class="cn">99</span>; }
+<span class="cc">/* Higher z-index appears on top */</span></pre>
+          </div>
+        </div>
+        <div>
+          <div class="cb">
+            <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS — FLOAT</span></div>
+            <pre><span class="cs">.image</span> { <span class="cp">float</span>: <span class="cv">left</span>; <span class="cp">margin-right</span>: <span class="cv">16px</span>; }
+<span class="cc">/* Text wraps around floated element */</span>
+
+<span class="cs">.clearfix</span> { <span class="cp">clear</span>: <span class="cv">both</span>; }
+<span class="cc">/* Stops wrap on next element */</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ COLORS ══════════════════════════════ -->
+<section id="sec-colors" class="sec">
+  <div class="sh">
+    <h2 class="st2">CSS <em>Colors</em></h2>
+    <p class="sd">CSS supports named colours, hexadecimal, RGB, and HSL — each with optional alpha transparency. Understanding HSL especially helps when building consistent colour systems.</p>
+  </div>
+  <div class="sb2">
+    <div class="sub">
+      <div class="stitle">Color Formats</div>
+      <div class="cb">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'color: red;                       /* named */\ncolor: #c084fc;                   /* hex */\ncolor: #c08;                      /* shorthand hex */\ncolor: rgb(192, 132, 252);        /* rgb */\ncolor: rgba(192, 132, 252, 0.5);  /* rgb + alpha */\ncolor: hsl(270, 95%, 75%);        /* hsl */\ncolor: hsla(270, 95%, 75%, 0.8);  /* hsl + alpha */')">COPY</button></div>
+        <pre><span class="cp">color</span>: <span class="cv">red</span>;                       <span class="cc">/* named */</span>
+<span class="cp">color</span>: <span class="cv">#c084fc</span>;                   <span class="cc">/* hex */</span>
+<span class="cp">color</span>: <span class="cv">#c08</span>;                      <span class="cc">/* shorthand hex */</span>
+<span class="cp">color</span>: <span class="cf">rgb</span>(<span class="cn">192</span>, <span class="cn">132</span>, <span class="cn">252</span>);        <span class="cc">/* rgb 0–255 */</span>
+<span class="cp">color</span>: <span class="cf">rgba</span>(<span class="cn">192</span>, <span class="cn">132</span>, <span class="cn">252</span>, <span class="cn">0.5</span>);  <span class="cc">/* alpha 0–1 */</span>
+<span class="cp">color</span>: <span class="cf">hsl</span>(<span class="cn">270</span>, <span class="cn">95%</span>, <span class="cn">75%</span>);        <span class="cc">/* hue saturation lightness */</span>
+<span class="cp">color</span>: <span class="cf">hsla</span>(<span class="cn">270</span>, <span class="cn">95%</span>, <span class="cn">75%</span>, <span class="cn">0.8</span>);  <span class="cc">/* hsl + alpha */</span></pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Understanding HSL</div>
+      <div class="split3">
+        <div class="card"><div class="ci">🎯</div><h3>Hue (0–360°)</h3><p>Angle on the colour wheel. 0°=red, 120°=green, 240°=blue.</p></div>
+        <div class="card"><div class="ci">💧</div><h3>Saturation (0–100%)</h3><p>Intensity of the colour. 0% = grey, 100% = vivid full colour.</p></div>
+        <div class="card"><div class="ci">☀️</div><h3>Lightness (0–100%)</h3><p>Brightness. 0%=black, 50%=normal, 100%=white.</p></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Clickable Swatches</div>
+      <p class="prose" style="margin-bottom:10px;">Click a swatch to copy its hex value.</p>
+      <div class="swatch-grid" id="swatches"></div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Alpha Transparency</div>
+      <div class="cb">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span></div>
+        <pre><span class="cc">/* RGBA — 0 transparent, 1 opaque */</span>
+<span class="cp">background</span>: <span class="cf">rgba</span>(<span class="cn">0</span>, <span class="cn">0</span>, <span class="cn">0</span>, <span class="cn">0.5</span>);     <span class="cc">/* 50% black */</span>
+
+<span class="cc">/* Hex with alpha — last 2 digits */</span>
+<span class="cp">background</span>: <span class="cv">#c084fc80</span>;              <span class="cc">/* ~50% opacity */</span>
+<span class="cp">background</span>: <span class="cv">#c084fc00</span>;              <span class="cc">/* fully transparent */</span>
+<span class="cp">background</span>: <span class="cv">#c084fcFF</span>;              <span class="cc">/* fully opaque */</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ TYPOGRAPHY ══════════════════════════════ -->
+<section id="sec-typography" class="sec">
+  <div class="sh">
+    <h2 class="st2">CSS <em>Typography</em></h2>
+    <p class="sd">Typography properties control every aspect of how text looks and reads — from font choice and weight to spacing, alignment, and custom web fonts.</p>
+  </div>
+  <div class="sb2">
+    <div class="sub">
+      <div class="stitle">Font Stack & Web-Safe Fonts</div>
+      <div class="prose">List multiple fonts in order of preference. The browser uses the first one it finds installed; the last value should always be a generic family fallback.</div>
+      <div class="cb">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'h1 {\n  font-family: Caslon, Georgia, \'Times New Roman\', serif;\n}\n\np {\n  font-family: \'Helvetica Neue\', Helvetica, Arial, sans-serif;\n}')">COPY</button></div>
+        <pre><span class="cs">h1</span> {
+  <span class="cp">font-family</span>: <span class="cv">Caslon, Georgia, 'Times New Roman', serif</span>;
+}
+<span class="cs">p</span> {
+  <span class="cp">font-family</span>: <span class="cv">'Helvetica Neue', Helvetica, Arial, sans-serif</span>;
+}</pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Custom Fonts</div>
+      <div class="split">
+        <div>
+          <div class="prose"><strong>Google Fonts</strong> — link in your HTML head, then use in CSS:</div>
+          <div class="cb">
+            <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">HTML + CSS</span><button class="cpb" onclick="cp(this,'<!-- In HTML head -->\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap\" rel=\"stylesheet\">\n\n/* In CSS */\nbody { font-family: \'Inter\', sans-serif; }')">COPY</button></div>
+            <pre><span class="cc">&lt;!-- HTML head --&gt;</span>
+&lt;link href=<span class="cv">"fonts.googleapis.com/..."</span>&gt;
+
+<span class="cc">/* CSS */</span>
+<span class="cs">body</span> { <span class="cp">font-family</span>: <span class="cv">'Inter', sans-serif</span>; }</pre>
+          </div>
+        </div>
+        <div>
+          <div class="prose"><strong>Self-hosted</strong> — using @font-face:</div>
+          <div class="cb">
+            <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'@font-face {\n  font-family: \'MyFont\';\n  src: url(\'fonts/MyFont.woff2\') format(\'woff2\'),\n       url(\'fonts/MyFont.woff\') format(\'woff\');\n  font-weight: normal;\n  font-style: normal;\n}')">COPY</button></div>
+            <pre><span class="cat">@font-face</span> {
+  <span class="cp">font-family</span>: <span class="cv">'MyFont'</span>;
+  <span class="cp">src</span>: <span class="cf">url</span>(<span class="cv">'fonts/MyFont.woff2'</span>)
+       <span class="cf">format</span>(<span class="cv">'woff2'</span>);
+  <span class="cp">font-weight</span>: <span class="cv">normal</span>;
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">All Typography Properties</div>
+      <table class="tt">
+        <thead><tr><th>Property</th><th>Values / Notes</th></tr></thead>
+        <tbody>
+          <tr><td>font-family</td><td>Font name or stack. Quotes if multi-word.</td></tr>
+          <tr><td>font-size</td><td>px, em, rem, %. Min 16–18px for body text.</td></tr>
+          <tr><td>font-weight</td><td>normal, bold, lighter, bolder, 100–900</td></tr>
+          <tr><td>font-style</td><td>normal, italic, oblique</td></tr>
+          <tr><td>line-height</td><td>Unitless ratio (e.g. 1.5) or px/em. Min 1.5 for readability.</td></tr>
+          <tr><td>letter-spacing</td><td>Space between characters. px or em.</td></tr>
+          <tr><td>word-spacing</td><td>Space between words. em preferred.</td></tr>
+          <tr><td>text-align</td><td>left, center, right, justify</td></tr>
+          <tr><td>text-transform</td><td>uppercase, lowercase, capitalize, none</td></tr>
+          <tr><td>text-decoration</td><td>none, underline, line-through, overline</td></tr>
+          <tr><td>text-shadow</td><td>offset-x offset-y blur color</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ TRANSITIONS ══════════════════════════════ -->
+<section id="sec-transitions" class="sec">
+  <div class="sh">
+    <h2 class="st2">CSS <em>Transitions</em></h2>
+    <p class="sd">Transitions animate property changes over time — no JavaScript required. They trigger on state changes like :hover, :focus, or class toggling.</p>
+  </div>
+  <div class="sb2">
+    <div class="sub">
+      <div class="stitle">Live Demo — hover the box</div>
+      <div class="tdemo">
+        <div class="tdemo-ctrl">
+          <label>DURATION<select id="td-dur" onchange="updateTD()"><option value=".2s">.2s</option><option value=".4s" selected>.4s</option><option value=".8s">.8s</option><option value="1.5s">1.5s</option></select></label>
+          <label>TIMING<select id="td-ease" onchange="updateTD()"><option value="ease" selected>ease</option><option value="ease-in">ease-in</option><option value="ease-out">ease-out</option><option value="ease-in-out">ease-in-out</option><option value="linear">linear</option></select></label>
+          <label>DELAY<select id="td-del" onchange="updateTD()"><option value="0s" selected>0s</option><option value="0.1s">0.1s</option><option value="0.3s">0.3s</option><option value="0.5s">0.5s</option></select></label>
+        </div>
+        <div class="tdemo-stage">
+          <div id="td-box">Hover me</div>
+          <div class="tdemo-hint">← hover the box<br>to see transition</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Transition Properties</div>
+      <div class="cb">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'/* Individual properties */\na {\n  transition-property: color;\n  transition-duration: 1s;\n  transition-timing-function: ease-out;\n  transition-delay: 0s;\n}\n\n/* Shorthand: property duration timing delay */\na { transition: color 1s ease-out 0s; }\n\n/* Multiple transitions */\n.btn {\n  transition: color 0.3s ease,\n              background-color 0.3s ease,\n              transform 0.2s ease-in;\n}\n\n/* Transition all properties */\n.box { transition: all 0.4s ease; }')">COPY</button></div>
+        <pre><span class="cc">/* Individual properties */</span>
+<span class="cs">a</span> {
+  <span class="cp">transition-property</span>: <span class="cv">color</span>;
+  <span class="cp">transition-duration</span>: <span class="cv">1s</span>;
+  <span class="cp">transition-timing-function</span>: <span class="cv">ease-out</span>;
+  <span class="cp">transition-delay</span>: <span class="cv">0s</span>;
+}
+
+<span class="cc">/* Shorthand: property duration timing delay */</span>
+<span class="cs">a</span> { <span class="cp">transition</span>: <span class="cv">color 1s ease-out 0s</span>; }
+
+<span class="cc">/* Multiple transitions */</span>
+<span class="cs">.btn</span> {
+  <span class="cp">transition</span>: <span class="cv">color 0.3s ease</span>,
+              <span class="cv">background-color 0.3s ease</span>,
+              <span class="cv">transform 0.2s ease-in</span>;
+}</pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Timing Functions</div>
+      <table class="tt">
+        <thead><tr><th>Value</th><th>Behaviour</th></tr></thead>
+        <tbody>
+          <tr><td>ease</td><td>Slow start → faster middle → slow end (default)</td></tr>
+          <tr><td>ease-in</td><td>Slow start, accelerates to the end</td></tr>
+          <tr><td>ease-out</td><td>Fast start, decelerates to end</td></tr>
+          <tr><td>ease-in-out</td><td>Slow start, fast middle, slow end</td></tr>
+          <tr><td>linear</td><td>Constant speed throughout</td></tr>
+          <tr><td>cubic-bezier()</td><td>Custom curve with four control points</td></tr>
+          <tr><td>steps(n)</td><td>Jumps in n discrete steps (no smoothing)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ FLEXBOX ══════════════════════════════ -->
+<section id="sec-flexbox" class="sec">
+  <div class="sh">
+    <h2 class="st2">Layout with <em>Flexbox</em></h2>
+    <p class="sd">Flexbox is a one-dimensional layout system. It distributes space along a single axis (row or column) and is perfect for navbars, card rows, and centring content.</p>
+  </div>
+  <div class="sb2">
+    <div class="sub">
+      <div class="stitle">Interactive Flexbox Playground</div>
+      <div id="flex-demo">
+        <div class="fd-ctrl">
+          <label>JUSTIFY-CONTENT<select id="fjc" onchange="updateFlex()"><option>flex-start</option><option>flex-end</option><option>center</option><option>space-between</option><option>space-around</option><option>space-evenly</option></select></label>
+          <label>ALIGN-ITEMS<select id="fai" onchange="updateFlex()"><option>stretch</option><option>flex-start</option><option>flex-end</option><option>center</option><option>baseline</option></select></label>
+          <label>FLEX-DIRECTION<select id="ffd" onchange="updateFlex()"><option>row</option><option>row-reverse</option><option>column</option><option>column-reverse</option></select></label>
+          <label>FLEX-WRAP<select id="ffw" onchange="updateFlex()"><option>nowrap</option><option>wrap</option><option>wrap-reverse</option></select></label>
+        </div>
+        <div id="fd-box" style="height:140px;">
+          <div class="fd-item">A</div>
+          <div class="fd-item">B</div>
+          <div class="fd-item">C</div>
+          <div class="fd-item">D</div>
+        </div>
+      </div>
+      <div id="flex-code-out" class="cb" style="margin-top:8px;">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS OUTPUT</span><button class="cpb" id="flex-cpb" onclick="cp(this,document.getElementById('flex-pre').textContent)">COPY</button></div>
+        <pre id="flex-pre" style="margin:0;"></pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Flex Item Properties</div>
+      <div class="cb">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'.side   { flex-grow: 1; flex-shrink: 1; flex-basis: 100px; }\n.center { flex-grow: 2; flex-shrink: 1; flex-basis: 150px; }\n\n/* Shorthand: grow shrink basis */\n.side   { flex: 1 1 100px; }\n.center { flex: 2 1 150px; }\n\n/* Override alignment for one item */\n.special { align-self: flex-end; }')">COPY</button></div>
+        <pre><span class="cs">.side</span>   { <span class="cp">flex-grow</span>: <span class="cn">1</span>; <span class="cp">flex-shrink</span>: <span class="cn">1</span>; <span class="cp">flex-basis</span>: <span class="cv">100px</span>; }
+<span class="cs">.center</span> { <span class="cp">flex-grow</span>: <span class="cn">2</span>; <span class="cp">flex-shrink</span>: <span class="cn">1</span>; <span class="cp">flex-basis</span>: <span class="cv">150px</span>; }
+
+<span class="cc">/* Shorthand: grow shrink basis */</span>
+<span class="cs">.side</span>   { <span class="cp">flex</span>: <span class="cv">1 1 100px</span>; }
+<span class="cs">.center</span> { <span class="cp">flex</span>: <span class="cv">2 1 150px</span>; }
+
+<span class="cc">/* Override alignment for one item */</span>
+<span class="cs">.special</span> { <span class="cp">align-self</span>: <span class="cv">flex-end</span>; }</pre>
+      </div>
+      <div class="split">
+        <div><div class="ib note"><div class="ibt">Main Axis</div><p>Controlled by <code>flex-direction</code> (row or column). Use <code>justify-content</code> to space items along it.</p></div></div>
+        <div><div class="ib info"><div class="ibt">Cross Axis</div><p>Perpendicular to the main axis. Use <code>align-items</code> (single line) or <code>align-content</code> (multiple lines).</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ GRID ══════════════════════════════ -->
+<section id="sec-grid" class="sec">
+  <div class="sh">
+    <h2 class="st2">CSS <em>Grid</em></h2>
+    <p class="sd">CSS Grid is a two-dimensional layout system giving control over both rows and columns simultaneously. Ideal for page-level layouts and complex UI patterns.</p>
+  </div>
+  <div class="sb2">
+    <div class="sub">
+      <div class="stitle">Interactive Grid Playground</div>
+      <div id="gd-demo">
+        <div class="gd-ctrl">
+          <label>COLUMNS<select id="gcols" onchange="updateGrid()"><option value="repeat(2,1fr)">2 equal</option><option value="repeat(3,1fr)" selected>3 equal</option><option value="repeat(4,1fr)">4 equal</option><option value="1fr 2fr 1fr">1fr 2fr 1fr</option><option value="100px 1fr 100px">100px 1fr 100px</option></select></label>
+          <label>GAP<select id="ggap" onchange="updateGrid()"><option value="4px">4px</option><option value="8px" selected>8px</option><option value="16px">16px</option><option value="24px">24px</option></select></label>
+          <label>ITEMS<select id="gitems" onchange="updateGrid()"><option value="3">3</option><option value="6" selected>6</option><option value="9">9</option></select></label>
+        </div>
+        <div id="gd-box" style="padding:12px;"></div>
+      </div>
+      <div id="grid-code-out" class="cb" style="margin-top:8px;">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS OUTPUT</span><button class="cpb" id="grid-cpb" onclick="cp(this,document.getElementById('grid-pre').textContent)">COPY</button></div>
+        <pre id="grid-pre" style="margin:0;"></pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Grid Properties Reference</div>
+      <div class="cb">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'.container {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  grid-template-rows: 100px auto;\n  gap: 20px 10px;\n}\n\n/* Shorthand: rows / columns */\n.container { grid-template: 100px auto / repeat(3, 1fr); }\n\n/* Named areas */\n.container {\n  grid-template-areas:\n    \"header header header\"\n    \"nav    main   aside\"\n    \"footer footer footer\";\n}\nheader { grid-area: header; }\n\n/* Item spanning */\n.item { grid-column: 1 / 3; }   /* spans cols 1–2 */\n.item { grid-row: 1 / span 2; } /* spans 2 rows */')">COPY</button></div>
+        <pre><span class="cs">.container</span> {
+  <span class="cp">display</span>: <span class="cv">grid</span>;
+  <span class="cp">grid-template-columns</span>: <span class="cf">repeat</span>(<span class="cn">3</span>, <span class="cv">1fr</span>);
+  <span class="cp">grid-template-rows</span>: <span class="cv">100px auto</span>;
+  <span class="cp">gap</span>: <span class="cv">20px 10px</span>;         <span class="cc">/* row-gap column-gap */</span>
+}
+
+<span class="cc">/* Named template areas */</span>
+<span class="cs">.container</span> {
+  <span class="cp">grid-template-areas</span>:
+    <span class="cv">"header header header"</span>
+    <span class="cv">"nav    main   aside"</span>
+    <span class="cv">"footer footer footer"</span>;
+}
+<span class="cs">header</span> { <span class="cp">grid-area</span>: <span class="cv">header</span>; }
+
+<span class="cc">/* Item spanning */</span>
+<span class="cs">.item</span> { <span class="cp">grid-column</span>: <span class="cv">1 / 3</span>; }   <span class="cc">/* cols 1–2 */</span>
+<span class="cs">.item</span> { <span class="cp">grid-row</span>: <span class="cv">1 / span 2</span>; } <span class="cc">/* 2 rows */</span></pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Useful Grid Functions</div>
+      <div class="cb">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'/* repeat() — repeat a pattern */\ngrid-template-columns: repeat(4, 1fr);\n\n/* minmax() — min and max size */\ngrid-template-columns: repeat(3, minmax(100px, 1fr));\n\n/* auto-fill — fills row with as many cols as fit */\ngrid-template-columns: repeat(auto-fill, minmax(200px, 1fr));\n\n/* fr unit — fraction of remaining space */\ngrid-template-columns: 1fr 2fr 1fr; /* 25% 50% 25% */')">COPY</button></div>
+        <pre><span class="cc">/* repeat() */</span>
+<span class="cp">grid-template-columns</span>: <span class="cf">repeat</span>(<span class="cn">4</span>, <span class="cv">1fr</span>);
+
+<span class="cc">/* minmax() */</span>
+<span class="cp">grid-template-columns</span>: <span class="cf">repeat</span>(<span class="cn">3</span>, <span class="cf">minmax</span>(<span class="cv">100px, 1fr</span>));
+
+<span class="cc">/* auto-fill — responsive columns with no media queries! */</span>
+<span class="cp">grid-template-columns</span>: <span class="cf">repeat</span>(<span class="cv">auto-fill</span>, <span class="cf">minmax</span>(<span class="cv">200px, 1fr</span>));
+
+<span class="cc">/* fr — fraction of remaining space */</span>
+<span class="cp">grid-template-columns</span>: <span class="cv">1fr 2fr 1fr</span>; <span class="cc">/* 25% 50% 25% */</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ RESPONSIVE ══════════════════════════════ -->
+<section id="sec-responsive" class="sec">
+  <div class="sh">
+    <h2 class="st2">Responsive <em>Design</em></h2>
+    <p class="sd">Responsive design makes websites adapt to any screen size using relative units, flexible layouts, and media queries.</p>
+  </div>
+  <div class="sb2">
+    <div class="sub">
+      <div class="stitle">Relative Units</div>
+      <table class="tt">
+        <thead><tr><th>Unit</th><th>Relative To</th><th>Best Used For</th></tr></thead>
+        <tbody>
+          <tr><td>px</td><td>Screen pixel (absolute)</td><td>Borders, fixed UI</td></tr>
+          <tr><td>em</td><td>Current element's font-size</td><td>Padding, margin, spacing</td></tr>
+          <tr><td>rem</td><td>Root &lt;html&gt; font-size</td><td>Font sizes (consistent scale)</td></tr>
+          <tr><td>%</td><td>Parent element's dimension</td><td>Widths, heights</td></tr>
+          <tr><td>vw</td><td>1% of viewport width</td><td>Full-width sections</td></tr>
+          <tr><td>vh</td><td>1% of viewport height</td><td>Full-height sections</td></tr>
+          <tr><td>vmin / vmax</td><td>Smaller / larger of vw or vh</td><td>Fluid typography</td></tr>
+          <tr><td>ch</td><td>Width of "0" in current font</td><td>Line length control</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Common Breakpoints</div>
+      <div class="bps">
+        <div class="bp"><div class="bpi">📱</div><div class="bpn">320px</div><div class="bpd">Small mobile</div></div>
+        <div class="bp"><div class="bpi">📱</div><div class="bpn">480px</div><div class="bpd">Mobile</div></div>
+        <div class="bp"><div class="bpi">📟</div><div class="bpn">768px</div><div class="bpd">Tablet</div></div>
+        <div class="bp"><div class="bpi">💻</div><div class="bpn">1024px</div><div class="bpd">Laptop</div></div>
+        <div class="bp"><div class="bpi">🖥️</div><div class="bpn">1280px</div><div class="bpd">Desktop</div></div>
+        <div class="bp"><div class="bpi">🖥️</div><div class="bpn">1440px+</div><div class="bpd">Wide screen</div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Media Queries</div>
+      <div class="cb">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'/* Mobile first — add complexity as screen grows */\nbody { font-size: 14px; }\n\n@media only screen and (min-width: 768px) {\n  body { font-size: 16px; }\n  .container { max-width: 720px; }\n}\n\n@media only screen and (min-width: 1024px) {\n  .container { max-width: 960px; }\n}\n\n/* Range */\n@media only screen and (min-width: 480px) and (max-width: 768px) {\n  .sidebar { display: none; }\n}\n\n/* High resolution (retina) */\n@media only screen and (min-resolution: 2dppx) {\n  .logo { background-image: url(logo@2x.png); }\n}\n\n/* Orientation */\n@media (orientation: landscape) {\n  .hero { height: 60vh; }\n}')">COPY</button></div>
+        <pre><span class="cc">/* Mobile first — enhance as screen grows */</span>
+<span class="cs">body</span> { <span class="cp">font-size</span>: <span class="cv">14px</span>; }
+
+<span class="cat">@media</span> only screen and (<span class="cp">min-width</span>: <span class="cn">768px</span>) {
+  <span class="cs">body</span> { <span class="cp">font-size</span>: <span class="cv">16px</span>; }
+  <span class="cs">.container</span> { <span class="cp">max-width</span>: <span class="cv">720px</span>; }
+}
+
+<span class="cat">@media</span> only screen and (<span class="cp">min-width</span>: <span class="cn">1024px</span>) {
+  <span class="cs">.container</span> { <span class="cp">max-width</span>: <span class="cv">960px</span>; }
+}
+
+<span class="cc">/* High-resolution / retina screens */</span>
+<span class="cat">@media</span> only screen and (<span class="cp">min-resolution</span>: <span class="cn">2dppx</span>) {
+  <span class="cs">.logo</span> { <span class="cp">background-image</span>: <span class="cf">url</span>(<span class="cv">logo@2x.png</span>); }
+}
+
+<span class="cc">/* Orientation */</span>
+<span class="cat">@media</span> (<span class="cp">orientation</span>: <span class="cv">landscape</span>) {
+  <span class="cs">.hero</span> { <span class="cp">height</span>: <span class="cv">60vh</span>; }
+}</pre>
+      </div>
+      <div class="ib tip"><div class="ibt">✅ Mobile-First Approach</div><p>Write your base styles for small screens, then use <code>min-width</code> media queries to add complexity for larger screens. This is more performant and easier to maintain than desktop-first.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ VARIABLES & FUNCTIONS ══════════════════════════════ -->
+<section id="sec-variables" class="sec">
+  <div class="sh">
+    <h2 class="st2">Variables & <em>Functions</em></h2>
+    <p class="sd">CSS custom properties (variables) let you define reusable values. CSS functions perform dynamic calculations directly in your stylesheets.</p>
+  </div>
+  <div class="sb2">
+    <div class="sub">
+      <div class="stitle">CSS Custom Properties (Variables)</div>
+      <div class="cb">
+        <div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'/* Global scope — available everywhere */\n:root {\n  --color-primary: #c084fc;\n  --color-bg: #0d0f14;\n  --font-size-base: 16px;\n  --spacing-lg: 32px;\n  --border-radius: 8px;\n}\n\n/* Usage */\n.button {\n  background: var(--color-primary);\n  font-size: var(--font-size-base);\n  border-radius: var(--border-radius);\n}\n\n/* With fallback value */\n.text {\n  color: var(--text-color, #e2e8f0);\n}\n\n/* Local scope */\n.card {\n  --card-padding: 20px;\n  padding: var(--card-padding);\n}\n\n/* Variables in media queries */\n@media (max-width: 768px) {\n  :root {\n    --font-size-base: 14px;\n    --spacing-lg: 20px;\n  }\n}')">COPY</button></div>
+        <pre><span class="cc">/* Global scope — declare in :root */</span>
+<span class="cs">:root</span> {
+  <span class="cp">--color-primary</span>: <span class="cv">#c084fc</span>;
+  <span class="cp">--font-size-base</span>: <span class="cv">16px</span>;
+  <span class="cp">--spacing-lg</span>: <span class="cv">32px</span>;
+  <span class="cp">--border-radius</span>: <span class="cv">8px</span>;
+}
+
+<span class="cc">/* Usage with var() */</span>
+<span class="cs">.button</span> {
+  <span class="cp">background</span>: <span class="cf">var</span>(<span class="cv">--color-primary</span>);
+  <span class="cp">border-radius</span>: <span class="cf">var</span>(<span class="cv">--border-radius</span>);
+}
+
+<span class="cc">/* Fallback value */</span>
+<span class="cs">.text</span> { <span class="cp">color</span>: <span class="cf">var</span>(<span class="cv">--text-color, #e2e8f0</span>); }
+
+<span class="cc">/* Responsive variables */</span>
+<span class="cat">@media</span> (<span class="cp">max-width</span>: <span class="cv">768px</span>) {
+  <span class="cs">:root</span> {
+    <span class="cp">--font-size-base</span>: <span class="cv">14px</span>;
+    <span class="cp">--spacing-lg</span>: <span class="cv">20px</span>;
+  }
+}</pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">CSS Functions</div>
+      <div class="acc">
+        <div class="ach" onclick="doAcc(this)"><div class="achl"><span class="badge">calc()</span><h3>Mathematical calculations</h3></div><span class="acarr">▼</span></div>
+        <div class="acb">
+          <div class="cb"><div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'.item { width: calc(100% - 40px); }\n.item { margin: 15px calc(1.5vw + 5px); }\n.item { height: calc(100vh - 60px); }')">COPY</button></div>
+            <pre><span class="cs">.item</span> { <span class="cp">width</span>: <span class="cf">calc</span>(<span class="cv">100% - 40px</span>); }
+<span class="cs">.item</span> { <span class="cp">margin</span>: <span class="cv">15px</span> <span class="cf">calc</span>(<span class="cv">1.5vw + 5px</span>); }
+<span class="cs">.item</span> { <span class="cp">height</span>: <span class="cf">calc</span>(<span class="cv">100vh - 60px</span>); }</pre>
+          </div>
+        </div>
+      </div>
+      <div class="acc">
+        <div class="ach" onclick="doAcc(this)"><div class="achl"><span class="badge">clamp()</span><h3>Fluid value within bounds</h3></div><span class="acarr">▼</span></div>
+        <div class="acb">
+          <div class="cb"><div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'/* clamp(min, preferred, max) */\n.text { font-size: clamp(14px, 2vw, 24px); }\n.hero { padding: clamp(20px, 5vw, 80px); }')">COPY</button></div>
+            <pre><span class="cc">/* clamp(min, preferred, max) */</span>
+<span class="cs">.text</span> { <span class="cp">font-size</span>: <span class="cf">clamp</span>(<span class="cv">14px, 2vw, 24px</span>); }
+<span class="cs">.hero</span> { <span class="cp">padding</span>: <span class="cf">clamp</span>(<span class="cv">20px, 5vw, 80px</span>); }</pre>
+          </div>
+          <div class="ib tip" style="margin-top:10px;"><div class="ibt">✅ Fluid Typography</div><p><code>clamp()</code> is the best way to create responsive font sizes without any media queries. The preferred value scales with viewport, clamped between min and max.</p></div>
+        </div>
+      </div>
+      <div class="acc">
+        <div class="ach" onclick="doAcc(this)"><div class="achl"><span class="badge">min() / max()</span><h3>Pick smallest or largest value</h3></div><span class="acarr">▼</span></div>
+        <div class="acb">
+          <div class="cb"><div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'.content { width: min(600px, 90%); }\n.sidebar { width: max(200px, 20%); }')">COPY</button></div>
+            <pre><span class="cs">.content</span> { <span class="cp">width</span>: <span class="cf">min</span>(<span class="cv">600px, 90%</span>); } <span class="cc">/* never wider than 600px */</span>
+<span class="cs">.sidebar</span> { <span class="cp">width</span>: <span class="cf">max</span>(<span class="cv">200px, 20%</span>); } <span class="cc">/* never narrower than 200px */</span></pre>
+          </div>
+        </div>
+      </div>
+      <div class="acc">
+        <div class="ach" onclick="doAcc(this)"><div class="achl"><span class="badge">Transform functions</span><h3>scale(), rotate(), translate()</h3></div><span class="acarr">▼</span></div>
+        <div class="acb">
+          <div class="cb"><div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'.card:hover {\n  transform: scale(1.05) translateY(-4px);\n}\n\n.icon {\n  transform: rotate(45deg);\n}\n\n.slide-in {\n  transform: translateX(-100%);\n}')">COPY</button></div>
+            <pre><span class="cs">.card:hover</span> {
+  <span class="cp">transform</span>: <span class="cf">scale</span>(<span class="cn">1.05</span>) <span class="cf">translateY</span>(<span class="cn">-4px</span>);
+}
+<span class="cs">.icon</span> { <span class="cp">transform</span>: <span class="cf">rotate</span>(<span class="cn">45deg</span>); }
+<span class="cs">.slide</span> { <span class="cp">transform</span>: <span class="cf">translateX</span>(<span class="cn">-100%</span>); }</pre>
+          </div>
+        </div>
+      </div>
+      <div class="acc">
+        <div class="ach" onclick="doAcc(this)"><div class="achl"><span class="badge">Filter functions</span><h3>blur(), brightness(), drop-shadow()</h3></div><span class="acarr">▼</span></div>
+        <div class="acb">
+          <div class="cb"><div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'img:hover { filter: brightness(1.2) saturate(1.3); }\n.overlay  { backdrop-filter: blur(8px); }\n.shadow   { filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.4)); }')">COPY</button></div>
+            <pre><span class="cs">img:hover</span> { <span class="cp">filter</span>: <span class="cf">brightness</span>(<span class="cn">1.2</span>) <span class="cf">saturate</span>(<span class="cn">1.3</span>); }
+<span class="cs">.overlay</span>  { <span class="cp">backdrop-filter</span>: <span class="cf">blur</span>(<span class="cn">8px</span>); }
+<span class="cs">.shadow</span>   { <span class="cp">filter</span>: <span class="cf">drop-shadow</span>(<span class="cv">2px 4px 8px rgba(0,0,0,0.4)</span>); }</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ ACCESSIBILITY ══════════════════════════════ -->
+<section id="sec-accessibility" class="sec">
+  <div class="sh">
+    <h2 class="st2">CSS <em>Accessibility</em></h2>
+    <p class="sd">Good CSS doesn't just look nice — it ensures content is readable, navigable, and usable by everyone, including users of assistive technologies.</p>
+  </div>
+  <div class="sb2">
+    <div class="split">
+      <div>
+        <div class="sub">
+          <div class="stitle">Text Readability</div>
+          <div class="cb"><div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span></div>
+            <pre><span class="cs">body</span> {
+  <span class="cp">font-size</span>: <span class="cv">18px</span>;       <span class="cc">/* min 16–18px */</span>
+  <span class="cp">line-height</span>: <span class="cv">1.6</span>;      <span class="cc">/* min 1.5 */</span>
+  <span class="cp">max-width</span>: <span class="cv">70ch</span>;       <span class="cc">/* 45–85 char */</span>
+  <span class="cp">text-align</span>: <span class="cv">left</span>;      <span class="cc">/* avoid justify */</span>
+}</pre>
+          </div>
+        </div>
+        <div class="sub">
+          <div class="stitle">Focus & Interactive States</div>
+          <div class="cb"><div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'input:focus, a:focus, button:focus {\n  outline: 3px solid #c084fc;\n  outline-offset: 2px;\n}\n\na { text-decoration: underline; }\na:visited { color: purple; }\n.clickable { cursor: pointer; }')">COPY</button></div>
+            <pre><span class="cc">/* Never remove focus outlines! */</span>
+<span class="cs">input:focus, button:focus</span> {
+  <span class="cp">outline</span>: <span class="cv">3px solid #c084fc</span>;
+  <span class="cp">outline-offset</span>: <span class="cv">2px</span>;
+}
+<span class="cs">a</span> { <span class="cp">text-decoration</span>: <span class="cv">underline</span>; }
+<span class="cs">.btn</span> { <span class="cp">cursor</span>: <span class="cv">pointer</span>; }</pre>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="sub">
+          <div class="stitle">Colour Contrast (WCAG)</div>
+          <table class="tt">
+            <thead><tr><th>Level</th><th>Normal Text</th><th>Large Text (≥24px)</th></tr></thead>
+            <tbody>
+              <tr><td>AA ✅</td><td>4.5:1</td><td>3:1</td></tr>
+              <tr><td>AAA ⭐</td><td>7:1</td><td>4.5:1</td></tr>
+              <tr><td>Fail ❌</td><td>&lt;4.5:1</td><td>&lt;3:1</td></tr>
+            </tbody>
+          </table>
+          <div class="ib warn"><div class="ibt">⚠️ Avoid colour-only cues</div><p>Never convey meaning through colour alone. Always pair colour with text labels, icons, or patterns.</p></div>
+        </div>
+        <div class="sub">
+          <div class="stitle">Hiding Content</div>
+          <div class="cb"><div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span></div>
+            <pre><span class="cc">/* Hidden from all */</span>
+<span class="cs">.gone</span> { <span class="cp">display</span>: <span class="cv">none</span>; }
+<span class="cs">.inv</span>  { <span class="cp">visibility</span>: <span class="cv">hidden</span>; }
+
+<span class="cc">/* Visually hidden, readable by screen readers */</span>
+<span class="cs">.sr-only</span> {
+  <span class="cp">position</span>: <span class="cv">absolute</span>;
+  <span class="cp">width</span>: <span class="cv">1px</span>; <span class="cp">height</span>: <span class="cv">1px</span>;
+  <span class="cp">overflow</span>: <span class="cv">hidden</span>;
+  <span class="cp">clip</span>: <span class="cf">rect</span>(<span class="cn">0</span>,<span class="cn">0</span>,<span class="cn">0</span>,<span class="cn">0</span>);
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sub">
+      <div class="stitle">Print Styles</div>
+      <div class="cb"><div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'@media print {\n  nav, footer, .ads { display: none; }\n  body { font-size: 12pt; color: #000; background: #fff; }\n  a[href^=\"http\"]:after { content: \" (\" attr(href) \")\"; }\n  h1, h2, h3 { page-break-after: avoid; }\n}')">COPY</button></div>
+        <pre><span class="cat">@media</span> <span class="cv">print</span> {
+  <span class="cs">nav, footer, .ads</span> { <span class="cp">display</span>: <span class="cv">none</span>; }
+  <span class="cs">body</span> { <span class="cp">font-size</span>: <span class="cv">12pt</span>; <span class="cp">color</span>: <span class="cv">#000</span>; }
+  <span class="cc">/* Show URLs after links when printed */</span>
+  <span class="cs">a[href^="http"]:after</span> {
+    <span class="cp">content</span>: <span class="cv">" (" attr(href) ")"</span>;
+  }
+}</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ BROWSER COMPAT ══════════════════════════════ -->
+<section id="sec-compat" class="sec">
+  <div class="sh">
+    <h2 class="st2">Browser <em>Compatibility</em></h2>
+    <p class="sd">Browsers render CSS slightly differently. Modern techniques like @supports, vendor prefixes, and progressive enhancement ensure your styles work reliably everywhere.</p>
+  </div>
+  <div class="sb2">
+    <div class="sub">
+      <div class="stitle">Vendor Prefixes</div>
+      <div class="cb"><div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'.box {\n  -webkit-transform: rotate(15deg); /* Chrome, Safari */\n  -moz-transform:    rotate(15deg); /* Firefox */\n  -ms-transform:     rotate(15deg); /* IE / Edge */\n  -o-transform:      rotate(15deg); /* old Opera */\n  transform:         rotate(15deg); /* standard */\n}')">COPY</button></div>
+        <pre><span class="cs">.box</span> {
+  <span class="cp">-webkit-transform</span>: <span class="cf">rotate</span>(<span class="cn">15deg</span>); <span class="cc">/* Chrome, Safari */</span>
+  <span class="cp">-moz-transform</span>:    <span class="cf">rotate</span>(<span class="cn">15deg</span>); <span class="cc">/* Firefox */</span>
+  <span class="cp">-ms-transform</span>:     <span class="cf">rotate</span>(<span class="cn">15deg</span>); <span class="cc">/* IE/Edge */</span>
+  <span class="cp">transform</span>:         <span class="cf">rotate</span>(<span class="cn">15deg</span>); <span class="cc">/* standard */</span>
+}</pre>
+      </div>
+      <div class="ib tip"><div class="ibt">✅ Use Autoprefixer</div><p>The <a href="https://github.com/postcss/autoprefixer" target="_blank" style="color:var(--accent2);">Autoprefixer</a> PostCSS plugin automatically adds the right vendor prefixes — no manual work needed.</p></div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Feature Queries (@supports)</div>
+      <div class="cb"><div class="cbh"><div class="dots"><span></span><span></span><span></span></div><span class="lang">CSS</span><button class="cpb" onclick="cp(this,'/* Default for all browsers */\n.gallery { display: inline-block; margin: 10px; }\n\n/* Enhanced for browsers that support grid */\n@supports (display: grid) {\n  .gallery {\n    display: grid;\n    grid-template-columns: repeat(3, 1fr);\n    gap: 20px;\n  }\n}\n\n/* Logical NOT */\n@supports not (display: grid) {\n  .gallery { float: left; width: 33%; }\n}\n\n/* Multiple conditions */\n@supports (display: grid) and (gap: 10px) {\n  /* only if both are supported */\n}')">COPY</button></div>
+        <pre><span class="cc">/* Default — all browsers */</span>
+<span class="cs">.gallery</span> { <span class="cp">display</span>: <span class="cv">inline-block</span>; <span class="cp">margin</span>: <span class="cv">10px</span>; }
+
+<span class="cc">/* Enhanced — only if grid is supported */</span>
+<span class="cat">@supports</span> (<span class="cp">display</span>: <span class="cv">grid</span>) {
+  <span class="cs">.gallery</span> {
+    <span class="cp">display</span>: <span class="cv">grid</span>;
+    <span class="cp">grid-template-columns</span>: <span class="cf">repeat</span>(<span class="cn">3</span>, <span class="cv">1fr</span>);
+    <span class="cp">gap</span>: <span class="cv">20px</span>;
+  }
+}
+
+<span class="cc">/* Not supported */</span>
+<span class="cat">@supports not</span> (<span class="cp">display</span>: <span class="cv">grid</span>) { ... }
+
+<span class="cc">/* Combining conditions */</span>
+<span class="cat">@supports</span> (<span class="cp">display</span>: <span class="cv">grid</span>) <span class="cv">and</span> (<span class="cp">gap</span>: <span class="cv">10px</span>) { ... }</pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="stitle">Progressive Enhancement vs Graceful Degradation</div>
+      <div class="split">
+        <div class="card" style="border-left:3px solid var(--green);">
+          <div class="ci">🌱</div>
+          <h3>Progressive Enhancement</h3>
+          <p>Start with basics that work everywhere, then layer enhancements for modern browsers. More future-proof and modular.</p>
+        </div>
+        <div class="card" style="border-left:3px solid var(--accent3);">
+          <div class="ci">🪂</div>
+          <h3>Graceful Degradation</h3>
+          <p>Start with full features for modern browsers, then provide fallbacks for older ones. Easier for existing complex projects.</p>
+        </div>
+      </div>
+      <div class="ib note"><div class="ibt">💡 Check Support</div><p>Use <a href="https://caniuse.com" target="_blank" style="color:var(--accent2);">caniuse.com</a> to check browser support for any CSS feature before using it.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ QUICK REFERENCE ══════════════════════════════ -->
+<section id="sec-quickref" class="sec">
+  <div class="sh">
+    <h2 class="st2">Quick <em>Reference</em></h2>
+    <p class="sd">All essential CSS properties at a glance.</p>
+  </div>
+  <div class="sb2">
+    <div class="qr"><h4>📦 BOX MODEL</h4>
+      <div class="qrr"><span class="qrp">width / height</span><span class="qrd">Content area dimensions</span></div>
+      <div class="qrr"><span class="qrp">padding</span><span class="qrd">Space inside border</span></div>
+      <div class="qrr"><span class="qrp">margin</span><span class="qrd">Space outside border</span></div>
+      <div class="qrr"><span class="qrp">border</span><span class="qrd">3px solid #color</span></div>
+      <div class="qrr"><span class="qrp">border-radius</span><span class="qrd">Round corners</span></div>
+      <div class="qrr"><span class="qrp">box-sizing</span><span class="qrd">border-box (recommended)</span></div>
+      <div class="qrr"><span class="qrp">overflow</span><span class="qrd">hidden | scroll | visible</span></div>
+    </div>
+    <div class="qr"><h4>🗂️ DISPLAY & POSITION</h4>
+      <div class="qrr"><span class="qrp">display</span><span class="qrd">block | inline | flex | grid | none</span></div>
+      <div class="qrr"><span class="qrp">position</span><span class="qrd">static | relative | absolute | fixed | sticky</span></div>
+      <div class="qrr"><span class="qrp">top / right / bottom / left</span><span class="qrd">Offset from reference point</span></div>
+      <div class="qrr"><span class="qrp">z-index</span><span class="qrd">Stacking order (higher = on top)</span></div>
+      <div class="qrr"><span class="qrp">float</span><span class="qrd">left | right — wraps text around</span></div>
+      <div class="qrr"><span class="qrp">clear</span><span class="qrd">Stop wrapping: both | left | right</span></div>
+    </div>
+    <div class="qr"><h4>↔️ FLEXBOX</h4>
+      <div class="qrr"><span class="qrp">display: flex</span><span class="qrd">Create flex container</span></div>
+      <div class="qrr"><span class="qrp">flex-direction</span><span class="qrd">row | column | row-reverse | column-reverse</span></div>
+      <div class="qrr"><span class="qrp">justify-content</span><span class="qrd">Main axis spacing</span></div>
+      <div class="qrr"><span class="qrp">align-items</span><span class="qrd">Cross axis alignment</span></div>
+      <div class="qrr"><span class="qrp">flex-wrap</span><span class="qrd">wrap | nowrap</span></div>
+      <div class="qrr"><span class="qrp">flex: grow shrink basis</span><span class="qrd">Item sizing shorthand</span></div>
+      <div class="qrr"><span class="qrp">gap</span><span class="qrd">Space between items</span></div>
+    </div>
+    <div class="qr"><h4>⊞ GRID</h4>
+      <div class="qrr"><span class="qrp">display: grid</span><span class="qrd">Create grid container</span></div>
+      <div class="qrr"><span class="qrp">grid-template-columns</span><span class="qrd">Column track sizes</span></div>
+      <div class="qrr"><span class="qrp">grid-template-rows</span><span class="qrd">Row track sizes</span></div>
+      <div class="qrr"><span class="qrp">gap</span><span class="qrd">row-gap column-gap shorthand</span></div>
+      <div class="qrr"><span class="qrp">grid-column</span><span class="qrd">start / end (item placement)</span></div>
+      <div class="qrr"><span class="qrp">grid-area</span><span class="qrd">row-start / col-start / row-end / col-end</span></div>
+      <div class="qrr"><span class="qrp">grid-template-areas</span><span class="qrd">Named area layout</span></div>
+    </div>
+    <div class="qr"><h4>🎨 TYPOGRAPHY</h4>
+      <div class="qrr"><span class="qrp">font-family</span><span class="qrd">Font stack with fallbacks</span></div>
+      <div class="qrr"><span class="qrp">font-size</span><span class="qrd">px | em | rem | %</span></div>
+      <div class="qrr"><span class="qrp">font-weight</span><span class="qrd">100–900 or bold/normal</span></div>
+      <div class="qrr"><span class="qrp">line-height</span><span class="qrd">Unitless ratio (e.g. 1.5)</span></div>
+      <div class="qrr"><span class="qrp">letter-spacing</span><span class="qrd">Character spacing</span></div>
+      <div class="qrr"><span class="qrp">text-transform</span><span class="qrd">uppercase | lowercase | capitalize</span></div>
+      <div class="qrr"><span class="qrp">text-align</span><span class="qrd">left | center | right | justify</span></div>
+    </div>
+    <div class="qr"><h4>✨ TRANSITIONS & TRANSFORMS</h4>
+      <div class="qrr"><span class="qrp">transition</span><span class="qrd">property duration timing delay</span></div>
+      <div class="qrr"><span class="qrp">transition-timing-function</span><span class="qrd">ease | linear | ease-in-out…</span></div>
+      <div class="qrr"><span class="qrp">transform: scale()</span><span class="qrd">Resize element</span></div>
+      <div class="qrr"><span class="qrp">transform: rotate()</span><span class="qrd">Rotate by degrees</span></div>
+      <div class="qrr"><span class="qrp">transform: translate()</span><span class="qrd">Move along x/y axes</span></div>
+    </div>
+    <div class="qr"><h4>🔧 VARIABLES & FUNCTIONS</h4>
+      <div class="qrr"><span class="qrp">--variable: value</span><span class="qrd">Define custom property</span></div>
+      <div class="qrr"><span class="qrp">var(--variable, fallback)</span><span class="qrd">Use custom property</span></div>
+      <div class="qrr"><span class="qrp">calc(expr)</span><span class="qrd">Math with mixed units</span></div>
+      <div class="qrr"><span class="qrp">clamp(min, val, max)</span><span class="qrd">Constrained fluid value</span></div>
+      <div class="qrr"><span class="qrp">min() / max()</span><span class="qrd">Pick smallest/largest</span></div>
+      <div class="qrr"><span class="qrp">@supports (prop: val)</span><span class="qrd">Feature detection</span></div>
+    </div>
+  </div>
+</section>
+
+</main>
+<button id="mtog" onclick="toggleSb()">☰</button>
+
+<script>
+  // Navigation
+  document.querySelectorAll('.ni').forEach(el => {
+    el.addEventListener('click', e => {
+      e.preventDefault();
+      const id = el.dataset.s;
+      document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+      document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('sec-' + id).classList.add('active');
+      if (window.innerWidth <= 768) document.getElementById('sb').classList.remove('open');
+      window.scrollTo(0, 0);
+    });
+  });
+
+  // Accordion
+  function doAcc(h) {
+    h.querySelector('.acarr').classList.toggle('open');
+    h.nextElementSibling.classList.toggle('open');
+  }
+
+  // Copy
+  function cp(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'COPIED!'; btn.classList.add('ok');
+      setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('ok'); }, 1800);
+    });
+  }
+
+  // Mobile
+  function toggleSb() { document.getElementById('sb').classList.toggle('open'); }
+
+  // Search
+  document.getElementById('srch').addEventListener('input', e => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('.ni').forEach(el => {
+      el.style.opacity = q && !el.textContent.toLowerCase().includes(q) ? '0.2' : '1';
+    });
+  });
+
+  // Progress
+  window.addEventListener('scroll', () => {
+    const s = document.documentElement.scrollTop;
+    const h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    document.getElementById('prog').style.transform = `scaleX(${h > 0 ? s / h : 0})`;
+  });
+
+  // ── FLEXBOX DEMO ──
+  function updateFlex() {
+    const box = document.getElementById('fd-box');
+    const jc = document.getElementById('fjc').value;
+    const ai = document.getElementById('fai').value;
+    const fd = document.getElementById('ffd').value;
+    const fw = document.getElementById('ffw').value;
+    box.style.justifyContent = jc;
+    box.style.alignItems = ai;
+    box.style.flexDirection = fd;
+    box.style.flexWrap = fw;
+    box.style.height = fd.startsWith('column') ? '200px' : '140px';
+    document.getElementById('flex-pre').textContent =
+`.container {\n  display: flex;\n  justify-content: ${jc};\n  align-items: ${ai};\n  flex-direction: ${fd};\n  flex-wrap: ${fw};\n}`;
+  }
+  updateFlex();
+
+  // ── GRID DEMO ──
+  function updateGrid() {
+    const box = document.getElementById('gd-box');
+    const cols = document.getElementById('gcols').value;
+    const gap  = document.getElementById('ggap').value;
+    const n    = parseInt(document.getElementById('gitems').value);
+    box.style.gridTemplateColumns = cols;
+    box.style.gap = gap;
+    box.innerHTML = '';
+    for (let i = 1; i <= n; i++) {
+      const d = document.createElement('div');
+      d.className = 'gd-item'; d.textContent = i;
+      box.appendChild(d);
+    }
+    document.getElementById('grid-pre').textContent =
+`.container {\n  display: grid;\n  grid-template-columns: ${cols};\n  gap: ${gap};\n}`;
+  }
+  updateGrid();
+
+  // ── TRANSITION DEMO ──
+  function updateTD() {
+    const dur  = document.getElementById('td-dur').value;
+    const ease = document.getElementById('td-ease').value;
+    const del  = document.getElementById('td-del').value;
+    document.getElementById('td-box').style.transition = `all ${dur} ${ease} ${del}`;
+  }
+  updateTD();
+
+  // ── COLOUR SWATCHES ──
+  const swatchColors = [
+    '#ef4444','#f97316','#f59e0b','#eab308','#84cc16','#22c55e',
+    '#10b981','#14b8a6','#06b6d4','#3b82f6','#6366f1','#8b5cf6',
+    '#a855f7','#c084fc','#d946ef','#ec4899','#f43f5e','#64748b',
+    '#ffffff','#000000','#1e293b','#334155','#94a3b8','#e2e8f0'
+  ];
+  const swatchGrid = document.getElementById('swatches');
+  swatchColors.forEach(c => {
+    const s = document.createElement('div');
+    s.className = 'swatch';
+    s.style.background = c;
+    s.title = c;
+    s.innerHTML = `<span class="scopy">${c}</span>`;
+    s.addEventListener('click', () => {
+      navigator.clipboard.writeText(c);
+      s.style.transform = 'scale(1.25)';
+      setTimeout(() => s.style.transform = '', 400);
+    });
+    swatchGrid.appendChild(s);
+  });
+</script>
+</body>
+</html>

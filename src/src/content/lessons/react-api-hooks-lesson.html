@@ -1,0 +1,3022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React API Integration & Custom Hooks</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d14;
+    --bg2: #0f1320;
+    --bg3: #141929;
+    --card: #161d2e;
+    --card2: #1a2238;
+    --border: #232d45;
+    --border2: #2a3550;
+    --accent: #4f9eff;
+    --accent2: #7c5fff;
+    --accent3: #ff6b6b;
+    --accent4: #43e8b0;
+    --accent5: #ffc142;
+    --text: #e2e8f7;
+    --text2: #8a9bbf;
+    --text3: #5a6a8a;
+    --code-bg: #0d1117;
+    --code-border: #1e2d47;
+    --green: #43e8b0;
+    --red: #ff6b6b;
+    --yellow: #ffc142;
+    --purple: #a855f7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: 
+      radial-gradient(ellipse at 20% 20%, rgba(79,158,255,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(124,95,255,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 50%, rgba(67,232,176,0.02) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  button, input, textarea, select {
+    font: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  section {
+    scroll-margin-top: 92px;
+  }
+
+  code {
+    overflow-wrap: anywhere;
+  }
+
+  /* HEADER */
+  header {
+    padding: 60px 0 40px;
+    text-align: center;
+    position: relative;
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(79,158,255,0.1);
+    border: 1px solid rgba(79,158,255,0.25);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    animation: fadeSlideDown 0.6s ease both;
+  }
+
+  header h1 {
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    animation: fadeSlideDown 0.6s 0.1s ease both;
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, var(--accent4) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header p.subtitle {
+    color: var(--text2);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto 32px;
+    animation: fadeSlideDown 0.6s 0.2s ease both;
+  }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    font-size: 13px;
+    color: var(--text3);
+    animation: fadeSlideDown 0.6s 0.3s ease both;
+  }
+
+  .header-meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,13,20,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+  }
+
+  .nav-inner {
+    display: flex;
+    overflow-x: auto;
+    gap: 0;
+    scrollbar-width: none;
+  }
+
+  .nav-inner::-webkit-scrollbar { display: none; }
+
+  .nav-item {
+    padding: 16px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text3);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: block;
+  }
+
+  .nav-item:hover { color: var(--text); border-bottom-color: var(--border2); }
+  .nav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* SECTIONS */
+  section {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  section:last-child { border-bottom: none; }
+
+  .section-header {
+    margin-bottom: 40px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h2 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  p { color: var(--text2); margin-bottom: 16px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { color: var(--text); font-weight: 600; }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .card:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+
+  .icon-blue { background: rgba(79,158,255,0.12); }
+  .icon-purple { background: rgba(124,95,255,0.12); }
+  .icon-green { background: rgba(67,232,176,0.12); }
+  .icon-orange { background: rgba(255,193,66,0.12); }
+  .icon-red { background: rgba(255,107,107,0.12); }
+
+  /* CODE BLOCKS */
+  .code-wrapper {
+    position: relative;
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--code-border);
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0d1422;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--code-border);
+  }
+
+  .code-filename {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .code-filename .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border2);
+    color: var(--text3);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .copy-btn:hover { color: var(--text); border-color: var(--accent); }
+  .copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+  pre {
+    background: var(--code-bg);
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    tab-size: 2;
+  }
+
+  code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85em;
+    background: rgba(79,158,255,0.08);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+  }
+
+  /* Syntax highlight */
+  .kw { color: #c792ea; }       /* keywords */
+  .fn { color: #82aaff; }       /* functions */
+  .str { color: #c3e88d; }      /* strings */
+  .num { color: #f78c6c; }      /* numbers */
+  .cmt { color: #546e7a; font-style: italic; }  /* comments */
+  .typ { color: #ffcb6b; }      /* types */
+  .op { color: #89ddff; }       /* operators */
+  .var { color: #eeffff; }      /* variables */
+  .punc { color: #89ddff; }     /* punctuation */
+  .prop { color: #f07178; }     /* properties */
+  .tag { color: #f07178; }      /* jsx tags */
+  .attr { color: #c792ea; }     /* attributes */
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 0;
+    background: var(--bg2);
+    padding: 6px;
+    border-radius: 10px;
+    width: fit-content;
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    padding: 8px 18px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text3);
+    border: none;
+    background: none;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .tab.active {
+    background: var(--card2);
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* DIAGRAM */
+  .diagram {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    overflow-x: auto;
+  }
+
+  .interceptor-diagram {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+
+  .diagram-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text3);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .diagram-title-return {
+    margin-top: 22px;
+  }
+
+  .flow-row {
+    display: flex;
+    align-items: stretch;
+    gap: 14px;
+    min-width: 760px;
+  }
+
+  .flow-row-return {
+    display: flex;
+    align-items: stretch;
+    gap: 14px;
+    min-width: 760px;
+  }
+
+  .flow-node {
+    min-height: 78px;
+    min-width: 150px;
+    padding: 14px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    position: relative;
+    flex: 1 1 150px;
+  }
+
+  .flow-node strong {
+    font-size: 14px;
+    line-height: 1.2;
+    color: var(--text);
+  }
+
+  .flow-node span {
+    font-size: 12px;
+    color: var(--text3);
+    line-height: 1.3;
+  }
+
+  .flow-node small {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    line-height: 1.3;
+    color: var(--text3);
+    font-family: 'Fira Code', monospace;
+  }
+
+  .flow-request {
+    border-color: rgba(79,158,255,0.7);
+    background: rgba(15, 26, 46, 0.92);
+    box-shadow: 0 0 0 1px rgba(79,158,255,0.12) inset;
+  }
+
+  .flow-response {
+    border-color: rgba(67,232,176,0.7);
+    background: rgba(15, 41, 30, 0.92);
+    box-shadow: 0 0 0 1px rgba(67,232,176,0.12) inset;
+  }
+
+  .flow-arrow {
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: center;
+    user-select: none;
+  }
+
+  .flow-arrow-return {
+    color: var(--green);
+  }
+
+  @media (max-width: 900px) {
+    .flow-row,
+    .flow-row-return {
+      min-width: 0;
+      flex-direction: column;
+    }
+
+    .flow-arrow {
+      transform: rotate(90deg);
+      margin: -2px 0;
+    }
+
+    .flow-row-return .flow-arrow {
+      transform: rotate(-90deg);
+    }
+  }
+
+/* CALLOUT */
+  .callout {
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .callout-info { background: rgba(79,158,255,0.06); border: 1px solid rgba(79,158,255,0.2); }
+  .callout-tip { background: rgba(67,232,176,0.06); border: 1px solid rgba(67,232,176,0.2); }
+  .callout-warn { background: rgba(255,193,66,0.06); border: 1px solid rgba(255,193,66,0.2); }
+  .callout-danger { background: rgba(255,107,107,0.06); border: 1px solid rgba(255,107,107,0.2); }
+
+  .callout-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+
+  .callout-body h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+
+  .callout-body p {
+    font-size: 14px;
+    color: var(--text2);
+    margin: 0;
+  }
+
+  /* QUIZ */
+  .quiz-container {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .quiz-header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .quiz-header h3 { margin: 0; font-size: 15px; }
+
+  .quiz-progress {
+    font-size: 13px;
+    color: var(--text3);
+  }
+
+  .quiz-question {
+    padding: 28px;
+    border-bottom: 1px solid var(--border);
+    display: none;
+  }
+
+  .quiz-question.active { display: block; }
+
+  .quiz-question h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .quiz-option {
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border2);
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text2);
+    transition: all 0.2s;
+    background: var(--bg2);
+    text-align: left;
+    font-family: 'Outfit', sans-serif;
+    line-height: 1.5;
+  }
+
+  .quiz-option:hover { border-color: var(--accent); color: var(--text); }
+  .quiz-option.correct { border-color: var(--green); background: rgba(67,232,176,0.08); color: var(--green); }
+  .quiz-option.wrong { border-color: var(--red); background: rgba(255,107,107,0.08); color: var(--red); }
+  .quiz-option.disabled { cursor: not-allowed; }
+
+  .quiz-explanation {
+    display: none;
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: rgba(79,158,255,0.06);
+    border: 1px solid rgba(79,158,255,0.15);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  .quiz-explanation.show { display: block; }
+
+  .quiz-footer {
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .quiz-score {
+    font-size: 14px;
+    color: var(--text3);
+  }
+
+  .btn {
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: 'Outfit', sans-serif;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover { background: #3d8eef; transform: translateY(-1px); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+  }
+
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* FLOW DIAGRAM SVG */
+  .flow-diagram {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  /* BADGE */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .badge-blue { background: rgba(79,158,255,0.12); color: var(--accent); border: 1px solid rgba(79,158,255,0.2); }
+  .badge-purple { background: rgba(124,95,255,0.12); color: var(--accent2); border: 1px solid rgba(124,95,255,0.2); }
+  .badge-green { background: rgba(67,232,176,0.12); color: var(--green); border: 1px solid rgba(67,232,176,0.2); }
+  .badge-red { background: rgba(255,107,107,0.12); color: var(--red); border: 1px solid rgba(255,107,107,0.2); }
+  .badge-yellow { background: rgba(255,193,66,0.12); color: var(--yellow); border: 1px solid rgba(255,193,66,0.2); }
+
+  /* COMPARISON TABLE */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .compare-table th {
+    text-align: left;
+    padding: 14px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compare-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: top;
+  }
+
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* STEP LIST */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(79,158,255,0.1);
+    border: 1px solid rgba(79,158,255,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-body h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .step-body p { font-size: 14px; margin: 0; }
+
+  /* INTERACTIVE DEMO */
+  .demo-container {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .demo-toolbar {
+    padding: 14px 20px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .demo-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .demo-live {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--green);
+  }
+
+  .live-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .demo-body { padding: 24px; }
+
+  /* PRACTICE TASKS */
+  .task-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .task-header {
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .task-header:hover { background: rgba(255,255,255,0.02); }
+
+  .task-header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .task-num {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .task-title { font-size: 15px; font-weight: 600; }
+
+  .task-chevron {
+    transition: transform 0.3s;
+    color: var(--text3);
+  }
+
+  .task-card.open .task-chevron { transform: rotate(180deg); }
+
+  .task-body {
+    display: none;
+    padding: 0 22px 22px;
+    border-top: 1px solid var(--border);
+  }
+
+  .task-card.open .task-body { display: block; }
+  .task-body { padding-top: 20px; }
+
+  /* ANIMATIONS */
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in { animation: fadeIn 0.5s ease both; }
+
+  /* GRID LAYOUTS */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 700px) {
+    .two-col { grid-template-columns: 1fr; }
+    .card-grid { grid-template-columns: 1fr; }
+  }
+
+  /* LAYER DIAGRAM */
+  .layer-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .layer {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .layer::after {
+    content: '↓';
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    font-size: 14px;
+    color: var(--text3);
+    background: var(--bg);
+    width: 24px;
+    text-align: center;
+  }
+
+  .layer:last-child::after { display: none; }
+
+  .layer:hover { filter: brightness(1.1); }
+
+  .layer-1 { background: rgba(79,158,255,0.08); border-bottom: 1px solid var(--border); }
+  .layer-2 { background: rgba(124,95,255,0.08); border-bottom: 1px solid var(--border); }
+  .layer-3 { background: rgba(67,232,176,0.08); border-bottom: 1px solid var(--border); }
+  .layer-4 { background: rgba(255,193,66,0.08); border-bottom: 1px solid var(--border); }
+  .layer-5 { background: rgba(255,107,107,0.08); }
+
+  .layer-icon { font-size: 22px; width: 36px; text-align: center; flex-shrink: 0; }
+
+  .layer-info { flex: 1; }
+
+  .layer-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .layer-desc {
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  .layer-file {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    background: rgba(0,0,0,0.3);
+    color: var(--text2);
+  }
+
+  /* SCORE DISPLAY */
+  .score-display {
+    text-align: center;
+    padding: 24px;
+    display: none;
+  }
+
+  .score-display.show { display: block; }
+
+  .score-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0 auto 12px;
+  }
+
+  /* MINI INTERACTIVE DEMO */
+  .hook-demo {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 12px;
+    padding: 20px;
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+  }
+
+  .demo-state {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .state-var {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+
+  .state-key { color: var(--accent2); }
+  .state-val { color: var(--accent4); }
+
+  .demo-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+
+  .demo-btn {
+    padding: 8px 16px;
+    border-radius: 7px;
+    border: 1px solid var(--border2);
+    background: var(--card2);
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Fira Code', monospace;
+    transition: all 0.2s;
+  }
+
+  .demo-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .demo-log {
+    margin-top: 14px;
+    max-height: 120px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .log-line {
+    font-size: 11px;
+    color: var(--text3);
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.02);
+    animation: fadeIn 0.2s ease;
+  }
+
+  .log-line.success { color: var(--green); }
+  .log-line.error { color: var(--red); }
+  .log-line.info { color: var(--accent); }
+  .log-line.warn { color: var(--yellow); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  /* PROGRESS BAR */
+  .progress-bar-container {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 48px 0;
+    text-align: center;
+    color: var(--text3);
+    font-size: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 40px;
+  }
+
+  .toc h3 { margin-bottom: 16px; font-size: 15px; }
+
+  .toc-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 8px;
+    list-style: none;
+  }
+
+  .toc-list li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  .toc-list li a:hover {
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+  }
+
+  .toc-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    min-width: 20px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-badge">⚛ React Fundamentals</div>
+    <h1>API Integration &<br><span class="gradient-text">Custom Hooks</span></h1>
+    <p class="subtitle">Master service files, useUsers, usePosts, error handling, and the patterns that make real React apps scalable.</p>
+    <div class="header-meta">
+      <span>📖 Deep dive</span>
+      <span>🎯 Beginner → Intermediate</span>
+      <span>⏱ ~45 min read</span>
+      <span>🧪 Quizzes + Practice Tasks</span>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#why-api-layer" class="nav-item active" onclick="setActive(this)">1. Why API Layer</a>
+      <a href="#architecture" class="nav-item" onclick="setActive(this)">2. Architecture</a>
+      <a href="#axios-client" class="nav-item" onclick="setActive(this)">3. Axios Client</a>
+      <a href="#service-files" class="nav-item" onclick="setActive(this)">4. Service Files</a>
+      <a href="#custom-hooks" class="nav-item" onclick="setActive(this)">5. Custom Hooks</a>
+      <a href="#use-search" class="nav-item" onclick="setActive(this)">6. useSearch</a>
+      <a href="#error-handling" class="nav-item" onclick="setActive(this)">7. Error Handling</a>
+      <a href="#quiz" class="nav-item" onclick="setActive(this)">8. Quiz</a>
+      <a href="#practice" class="nav-item" onclick="setActive(this)">9. Practice</a>
+      <a href="#cheatsheet" class="nav-item" onclick="setActive(this)">10. Cheatsheet</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc" style="margin-top: 48px;">
+    <h3>📚 In this lesson</h3>
+    <ul class="toc-list">
+      <li><a href="#why-api-layer"><span class="toc-num">01</span> Why API Layer?</a></li>
+      <li><a href="#architecture"><span class="toc-num">02</span> Architecture &amp; File Structure</a></li>
+      <li><a href="#axios-client"><span class="toc-num">03</span> Axios Client Setup</a></li>
+      <li><a href="#service-files"><span class="toc-num">04</span> Service Files (CRUD)</a></li>
+      <li><a href="#custom-hooks"><span class="toc-num">05</span> Custom Hooks</a></li>
+      <li><a href="#use-search"><span class="toc-num">06</span> useSearch + Debounce</a></li>
+      <li><a href="#error-handling"><span class="toc-num">07</span> Error Handling &amp; Retry</a></li>
+      <li><a href="#quiz"><span class="toc-num">08</span> Quiz</a></li>
+      <li><a href="#practice"><span class="toc-num">09</span> Practice Tasks</a></li>
+      <li><a href="#cheatsheet"><span class="toc-num">10</span> Quick Reference</a></li>
+    </ul>
+  </div>
+
+  <!-- SECTION 1: WHY API LAYER -->
+  <section id="why-api-layer">
+    <div class="section-header">
+      <div class="section-label">Section 01</div>
+      <h2>Why Do We Need an API Layer?</h2>
+      <p>Before we write a single line of the solution, let's understand <strong>what problem we're solving</strong>.</p>
+    </div>
+
+    <div class="two-col" style="margin-bottom: 24px;">
+      <div>
+        <h3 style="color: var(--red); margin-bottom: 12px;">❌ The Problem — Code Without API Layer</h3>
+        <p>Imagine you have 5 components that all fetch users. You'd write the same <code>fetch()</code> call 5 times. Then your API URL changes — now you edit 5 files. One <code>catch</code> is slightly different — now you have 5 bugs.</p>
+        <div class="callout callout-danger">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body">
+            <h4>DRY Principle Violation</h4>
+            <p>"Don't Repeat Yourself" — every piece of knowledge should have a single, authoritative representation in your codebase.</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="color: var(--green); margin-bottom: 12px;">✅ The Solution — Centralized API Layer</h3>
+        <div class="card-grid" style="grid-template-columns: 1fr;">
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);">
+            <span style="color:var(--accent);font-size:18px;">🏛</span>
+            <div><strong>Centralized</strong><p style="font-size:13px;margin:0;">All API calls live in one place</p></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);">
+            <span style="color:var(--accent2);font-size:18px;">♻️</span>
+            <div><strong>Reusable</strong><p style="font-size:13px;margin:0;">Write once, use everywhere</p></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);">
+            <span style="color:var(--green);font-size:18px;">🔧</span>
+            <div><strong>Easy to change</strong><p style="font-size:13px;margin:0;">Update base URL in 1 place</p></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;">
+            <span style="color:var(--yellow);font-size:18px;">🧪</span>
+            <div><strong>Testable</strong><p style="font-size:13px;margin:0;">Mock services easily in tests</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(this,'bad-code')">❌ Without API Layer</button>
+      <button class="tab" onclick="switchTab(this,'good-code')">✅ With API Layer</button>
+    </div>
+
+    <div id="bad-code" class="tab-panel active">
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-filename">
+            <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+            UserList.tsx — UserDetail.tsx — UserProfile.tsx (3 separate files)
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="cmt">// ❌ BAD: Copy-pasted fetch in every component</span>
+
+<span class="kw">function</span> <span class="fn">UserList</span>() {
+  <span class="fn">useEffect</span>(() <span class="op">=></span> {
+    <span class="fn">fetch</span>(<span class="str">'https://api.example.com/users'</span>)  <span class="cmt">// 👈 hardcoded URL</span>
+      .<span class="fn">then</span>(res <span class="op">=></span> res.<span class="fn">json</span>())
+      .<span class="fn">then</span>(data <span class="op">=></span> <span class="fn">setUsers</span>(data))
+      .<span class="fn">catch</span>(err <span class="op">=></span> <span class="fn">setError</span>(err));  <span class="cmt">// 👈 no consistent error format</span>
+  }, []);
+}
+
+<span class="kw">function</span> <span class="fn">UserDetail</span>() {
+  <span class="fn">useEffect</span>(() <span class="op">=></span> {
+    <span class="fn">fetch</span>(<span class="str">'https://api.example.com/users/1'</span>)  <span class="cmt">// 👈 same URL, copy-pasted</span>
+      .<span class="fn">then</span>(res <span class="op">=></span> res.<span class="fn">json</span>())  <span class="cmt">// 👈 same boilerplate, again</span>
+      .<span class="fn">then</span>(data <span class="op">=></span> <span class="fn">setUser</span>(data));
+      <span class="cmt">// 👈 forgot the catch! Bug waiting to happen</span>
+  }, []);
+}
+
+<span class="kw">function</span> <span class="fn">UserProfile</span>() {
+  <span class="fn">useEffect</span>(() <span class="op">=></span> {
+    <span class="fn">fetch</span>(<span class="str">'https://api.example.com/users/5'</span>)  <span class="cmt">// same again...</span>
+      .<span class="fn">then</span>(res <span class="op">=></span> res.<span class="fn">json</span>())
+      .<span class="fn">then</span>(data <span class="op">=></span> <span class="fn">setProfile</span>(data))
+      .<span class="fn">catch</span>(err <span class="op">=></span> console.<span class="fn">log</span>(err));  <span class="cmt">// different error handling!</span>
+  }, []);
+}
+
+<span class="cmt">// 😱 Now imagine: URL changes from v1 to v2...
+// You need to edit ALL 3 files (or 10, or 50!)</span></code></pre>
+      </div>
+    </div>
+
+    <div id="good-code" class="tab-panel">
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-filename">
+            <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+            api/userService.ts → used by all components
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="cmt">// ✅ GOOD: API service defined ONCE</span>
+
+<span class="cmt">// api/userService.ts</span>
+<span class="kw">const</span> userService <span class="op">=</span> {
+  <span class="fn">getAll</span>: <span class="kw">async</span> (): <span class="typ">Promise</span>&lt;<span class="typ">User</span>[]&gt; <span class="op">=></span> {
+    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">get</span>&lt;<span class="typ">User</span>[]&gt;(<span class="str">'/users'</span>);
+    <span class="kw">return</span> data;
+  },
+  <span class="fn">getById</span>: <span class="kw">async</span> (id: <span class="typ">number</span>): <span class="typ">Promise</span>&lt;<span class="typ">User</span>&gt; <span class="op">=></span> {
+    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">get</span>&lt;<span class="typ">User</span>&gt;(<span class="str">`/users/</span><span class="op">${</span>id<span class="op">}</span><span class="str">`</span>);
+    <span class="kw">return</span> data;
+  },
+};
+
+<span class="cmt">// Now ALL components are clean and simple:</span>
+
+<span class="kw">function</span> <span class="fn">UserList</span>() {
+  <span class="kw">const</span> { users, loading, error } <span class="op">=</span> <span class="fn">useUsers</span>();  <span class="cmt">// 👈 just this!</span>
+  <span class="kw">return</span> &lt;<span class="tag">ul</span>&gt;{users.<span class="fn">map</span>(u <span class="op">=></span> &lt;<span class="tag">li</span>&gt;{u.name}&lt;/<span class="tag">li</span>&gt;)}&lt;/<span class="tag">ul</span>&gt;;
+}
+
+<span class="kw">function</span> <span class="fn">UserDetail</span>() {
+  <span class="kw">const</span> { user, loading, error } <span class="op">=</span> <span class="fn">useUser</span>(<span class="num">1</span>);  <span class="cmt">// 👈 same pattern</span>
+  <span class="kw">return</span> &lt;<span class="tag">div</span>&gt;{user?.name}&lt;/<span class="tag">div</span>&gt;;
+}
+
+<span class="cmt">// 🎉 URL changes? Edit ONE line in client.ts. Done.</span></code></pre>
+      </div>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <h4>The Restaurant Analogy</h4>
+        <p>An API layer is like a restaurant kitchen. Customers (components) don't go directly to the market (API). They give their order to the kitchen (API layer), which handles everything. The customer just receives their food — clean and ready.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: ARCHITECTURE -->
+  <section id="architecture">
+    <div class="section-header">
+      <div class="section-label">Section 02</div>
+      <h2>Architecture & File Structure</h2>
+      <p>A well-structured React app separates concerns into clear layers. Each layer has one job.</p>
+    </div>
+
+    <h3 style="margin-bottom: 20px;">The 4 Layers</h3>
+
+    <div class="layer-diagram" style="margin-bottom: 32px;">
+      <div class="layer layer-1">
+        <div class="layer-icon">🖥️</div>
+        <div class="layer-info">
+          <div class="layer-name">Components</div>
+          <div class="layer-desc">UI only — render data, handle user interactions. Know nothing about fetch or HTTP.</div>
+        </div>
+        <div class="layer-file">UserList.tsx</div>
+      </div>
+      <div class="layer layer-2">
+        <div class="layer-icon">🪝</div>
+        <div class="layer-info">
+          <div class="layer-name">Custom Hooks</div>
+          <div class="layer-desc">Manage state, loading & error. Connect components to services.</div>
+        </div>
+        <div class="layer-file">useUsers.ts</div>
+      </div>
+      <div class="layer layer-3">
+        <div class="layer-icon">⚙️</div>
+        <div class="layer-info">
+          <div class="layer-name">Service Files</div>
+          <div class="layer-desc">Pure API functions — getAll, getById, create, update, delete. No React.</div>
+        </div>
+        <div class="layer-file">userService.ts</div>
+      </div>
+      <div class="layer layer-4">
+        <div class="layer-icon">🌐</div>
+        <div class="layer-info">
+          <div class="layer-name">API Client</div>
+          <div class="layer-desc">Axios instance with baseURL, headers, interceptors. Shared by all services.</div>
+        </div>
+        <div class="layer-file">client.ts</div>
+      </div>
+      <div class="layer layer-5">
+        <div class="layer-icon">☁️</div>
+        <div class="layer-info">
+          <div class="layer-name">Backend / REST API</div>
+          <div class="layer-desc">External server you communicate with — not your code.</div>
+        </div>
+        <div class="layer-file">api.example.com</div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom: 16px;">Complete Project Structure</h3>
+    <div class="code-wrapper">
+      <div class="code-header">
+        <div class="code-filename">
+          <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+          Project Directory Tree
+        </div>
+      </div>
+      <pre><code>dashboard-app/
+├── src/
+│   ├── <span class="fn">api</span>/                       <span class="cmt">← API Layer</span>
+│   │   ├── <span class="str">client.ts</span>              <span class="cmt">← Axios instance, baseURL, interceptors</span>
+│   │   ├── <span class="str">userService.ts</span>         <span class="cmt">← getUsers, getUser, createUser, etc.</span>
+│   │   ├── <span class="str">postService.ts</span>         <span class="cmt">← getPosts, getPostById, etc.</span>
+│   │   ├── <span class="str">errorHandler.ts</span>        <span class="cmt">← Centralized error parsing</span>
+│   │   └── <span class="str">types.ts</span>               <span class="cmt">← TypeScript interfaces (User, Post, etc.)</span>
+│   │
+│   ├── <span class="fn">hooks</span>/                     <span class="cmt">← Custom Hooks Layer</span>
+│   │   ├── <span class="str">useUsers.ts</span>            <span class="cmt">← useEffect + state + userService</span>
+│   │   ├── <span class="str">usePosts.ts</span>            <span class="cmt">← same pattern for posts</span>
+│   │   ├── <span class="str">useFetch.ts</span>            <span class="cmt">← generic reusable hook</span>
+│   │   └── <span class="str">useSearch.ts</span>           <span class="cmt">← search + debounce logic</span>
+│   │
+│   ├── <span class="fn">components</span>/               <span class="cmt">← UI Layer</span>
+│   │   ├── <span class="str">UserList.tsx</span>           <span class="cmt">← uses useUsers()</span>
+│   │   ├── <span class="str">PostList.tsx</span>           <span class="cmt">← uses usePosts()</span>
+│   │   ├── <span class="str">Dashboard.tsx</span>
+│   │   ├── <span class="str">SearchBar.tsx</span>
+│   │   ├── <span class="str">ErrorMessage.tsx</span>       <span class="cmt">← reusable error UI</span>
+│   │   └── <span class="str">LoadingSkeleton.tsx</span>    <span class="cmt">← loading placeholder</span>
+│   │
+│   ├── <span class="str">App.tsx</span>
+│   └── <span class="str">main.tsx</span>
+│
+├── <span class="str">package.json</span>
+└── <span class="str">tsconfig.json</span></code></pre>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-body">
+        <h4>Separation of Concerns</h4>
+        <p>Each file has ONE job. Components render UI. Hooks manage state. Services make API calls. Client configures Axios. If you need to change how an API call works, you only touch one file.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: AXIOS CLIENT -->
+  <section id="axios-client">
+    <div class="section-header">
+      <div class="section-label">Section 03</div>
+      <h2>Axios Client Setup</h2>
+      <p>Axios is a library that makes HTTP requests easier than the built-in <code>fetch()</code>. Let's see why, then configure it properly.</p>
+    </div>
+
+    <h3 style="margin-bottom: 16px;">fetch() vs Axios — Side by Side</h3>
+    <div class="two-col" style="margin-bottom: 28px;">
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>With fetch() — verbose</div>
+        </div>
+        <pre style="font-size:12px;"><code><span class="kw">const</span> res <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/users'</span>);
+
+<span class="cmt">// Must manually check status!</span>
+<span class="kw">if</span> (!res.ok) {
+  <span class="kw">throw</span> <span class="kw">new</span> <span class="fn">Error</span>(<span class="str">'Failed'</span>);
+}
+
+<span class="cmt">// Must manually parse JSON</span>
+<span class="kw">const</span> data <span class="op">=</span> <span class="kw">await</span> res.<span class="fn">json</span>();
+
+<span class="cmt">// No timeout support built-in
+// No request/response interceptors
+// Must set headers manually every time</span></code></pre>
+      </div>
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>With Axios — clean</div>
+        </div>
+        <pre style="font-size:12px;"><code><span class="cmt">// Axios auto-throws on 4xx/5xx</span>
+<span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span>
+  apiClient.<span class="fn">get</span>(<span class="str">'/users'</span>);
+
+<span class="cmt">// ✅ Auto JSON parsing
+// ✅ Auto error on bad status
+// ✅ baseURL — no repeating
+// ✅ Interceptors (add token, etc.)
+// ✅ Timeout support
+// ✅ Request cancellation</span></code></pre>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom: 16px;">Creating the Axios Instance</h3>
+    <div class="code-wrapper">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>api/client.ts</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="kw">import</span> axios <span class="kw">from</span> <span class="str">'axios'</span>;
+
+<span class="cmt">// 1. Create your custom Axios instance</span>
+<span class="kw">const</span> apiClient <span class="op">=</span> axios.<span class="fn">create</span>({
+  baseURL: <span class="str">'https://jsonplaceholder.typicode.com'</span>,  <span class="cmt">// 👈 all URLs are relative to this</span>
+  timeout: <span class="num">10000</span>,          <span class="cmt">// 👈 fail if no response in 10 seconds</span>
+  headers: {
+    <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>,
+  },
+});
+
+<span class="cmt">// 2. Request Interceptor — runs BEFORE every request is sent</span>
+apiClient.interceptors.request.<span class="fn">use</span>(
+  (config) <span class="op">=></span> {
+    <span class="cmt">// Automatically attach auth token if it exists</span>
+    <span class="kw">const</span> token <span class="op">=</span> localStorage.<span class="fn">getItem</span>(<span class="str">'token'</span>);
+    <span class="kw">if</span> (token) {
+      config.headers.Authorization <span class="op">=</span> <span class="str">`Bearer </span><span class="op">${</span>token<span class="op">}</span><span class="str">`</span>;
+    }
+    <span class="kw">return</span> config;  <span class="cmt">// must return config!</span>
+  }
+);
+
+<span class="cmt">// 3. Response Interceptor — runs AFTER every response arrives</span>
+apiClient.interceptors.response.<span class="fn">use</span>(
+  (response) <span class="op">=></span> response,  <span class="cmt">// ✅ success — pass through unchanged</span>
+  (error) <span class="op">=></span> {
+    <span class="kw">if</span> (error.response) {
+      <span class="cmt">// Server responded with an error status (4xx, 5xx)</span>
+      <span class="kw">switch</span> (error.response.status) {
+        <span class="kw">case</span> <span class="num">401</span>:  <span class="cmt">// Unauthorized — not logged in</span>
+          localStorage.<span class="fn">removeItem</span>(<span class="str">'token'</span>);
+          window.location.href <span class="op">=</span> <span class="str">'/login'</span>;
+          <span class="kw">break</span>;
+        <span class="kw">case</span> <span class="num">403</span>:  <span class="cmt">// Forbidden — logged in but no permission</span>
+          console.<span class="fn">error</span>(<span class="str">'Access denied!'</span>);
+          <span class="kw">break</span>;
+        <span class="kw">case</span> <span class="num">404</span>:  <span class="cmt">// Not found</span>
+          console.<span class="fn">error</span>(<span class="str">'Resource not found'</span>);
+          <span class="kw">break</span>;
+        <span class="kw">case</span> <span class="num">500</span>:  <span class="cmt">// Server crashed</span>
+          console.<span class="fn">error</span>(<span class="str">'Server error — try again later'</span>);
+          <span class="kw">break</span>;
+      }
+    } <span class="kw">else if</span> (error.request) {
+      <span class="cmt">// Request made but no response — network issue</span>
+      console.<span class="fn">error</span>(<span class="str">'Network error — are you offline?'</span>);
+    }
+    <span class="kw">return</span> Promise.<span class="fn">reject</span>(error);  <span class="cmt">// always re-throw!</span>
+  }
+);
+
+<span class="kw">export default</span> apiClient;</code></pre>
+    </div>
+
+    <h3 style="margin-bottom: 12px;">Understanding Interceptors</h3>
+    <div class="interceptor-diagram" style="margin-bottom: 20px;">
+      <div class="diagram-title">REQUEST FLOW</div>
+
+      <div class="flow-row">
+        <div class="flow-node">
+          <strong>Component</strong>
+          <span>calls service</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node flow-request">
+          <strong>Request</strong>
+          <span>Interceptor</span>
+          <small>+ adds token</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <strong>Network</strong>
+          <span>HTTP Request</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <strong>Backend</strong>
+          <span>API Server</span>
+        </div>
+      </div>
+
+      <div class="diagram-title diagram-title-return">RESPONSE FLOW</div>
+
+      <div class="flow-row flow-row-return">
+        <div class="flow-node">
+          <strong>Backend</strong>
+          <span>API Server</span>
+        </div>
+        <div class="flow-arrow flow-arrow-return">←</div>
+        <div class="flow-node flow-response">
+          <strong>Response</strong>
+          <span>Interceptor</span>
+          <small>parses / logs errors</small>
+        </div>
+        <div class="flow-arrow flow-arrow-return">←</div>
+        <div class="flow-node">
+          <strong>data / error</strong>
+          <span>returned to hook</span>
+        </div>
+        <div class="flow-arrow flow-arrow-return">←</div>
+        <div class="flow-node">
+          <strong>Component</strong>
+          <span>updates UI</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom: 16px;">TypeScript Types — api/types.ts</h3>
+    <div class="callout callout-info">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body">
+        <h4>Why TypeScript Interfaces?</h4>
+        <p>Interfaces describe the <em>shape</em> of your data. They catch errors at compile time (before the browser runs your code), provide autocomplete in your editor, and make your code self-documenting.</p>
+      </div>
+    </div>
+    <div class="code-wrapper">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>api/types.ts</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="cmt">// These interfaces mirror exactly what the API returns as JSON</span>
+
+<span class="kw">export interface</span> <span class="typ">User</span> {
+  id: <span class="typ">number</span>;
+  name: <span class="typ">string</span>;
+  username: <span class="typ">string</span>;
+  email: <span class="typ">string</span>;
+  phone: <span class="typ">string</span>;
+  website: <span class="typ">string</span>;
+  company: {
+    name: <span class="typ">string</span>;
+  };
+}
+
+<span class="kw">export interface</span> <span class="typ">Post</span> {
+  id: <span class="typ">number</span>;
+  userId: <span class="typ">number</span>;    <span class="cmt">// 👈 which user wrote it</span>
+  title: <span class="typ">string</span>;
+  body: <span class="typ">string</span>;
+}
+
+<span class="kw">export interface</span> <span class="typ">Comment</span> {
+  id: <span class="typ">number</span>;
+  postId: <span class="typ">number</span>;    <span class="cmt">// 👈 which post this belongs to</span>
+  name: <span class="typ">string</span>;
+  email: <span class="typ">string</span>;
+  body: <span class="typ">string</span>;
+}
+
+<span class="cmt">// Generic API response wrapper — useful when your API wraps data</span>
+<span class="kw">export interface</span> <span class="typ">ApiResponse</span>&lt;<span class="typ">T</span>&gt; {
+  data: <span class="typ">T</span>;          <span class="cmt">// T could be User, Post[], Comment, etc.</span>
+  status: <span class="typ">number</span>;
+  message?: <span class="typ">string</span>;
+}
+
+<span class="cmt">// Pagination support</span>
+<span class="kw">export interface</span> <span class="typ">PaginatedResponse</span>&lt;<span class="typ">T</span>&gt; {
+  data: <span class="typ">T</span>[];
+  total: <span class="typ">number</span>;
+  page: <span class="typ">number</span>;
+  limit: <span class="typ">number</span>;
+}
+
+<span class="cmt">// Query parameters for filtering/sorting</span>
+<span class="kw">export interface</span> <span class="typ">QueryParams</span> {
+  page?: <span class="typ">number</span>;
+  limit?: <span class="typ">number</span>;
+  search?: <span class="typ">string</span>;
+  sortBy?: <span class="typ">string</span>;
+  order?: <span class="str">'asc'</span> | <span class="str">'desc'</span>;
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 4: SERVICE FILES -->
+  <section id="service-files">
+    <div class="section-header">
+      <div class="section-label">Section 04</div>
+      <h2>Service Files</h2>
+      <p>Service files contain all the actual API calls. They are plain async functions grouped by resource. <strong>No React, no state</strong> — just pure data fetching logic.</p>
+    </div>
+
+    <h3 style="margin-bottom: 8px;">CRUD Operations — The Full Pattern</h3>
+    <p>CRUD stands for <strong>Create, Read, Update, Delete</strong> — the four fundamental operations for any data resource.</p>
+
+    <div class="card-grid" style="margin: 20px 0;">
+      <div class="card" style="padding:16px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span class="badge badge-blue">GET</span>
+          <strong style="font-size:14px;">Read</strong>
+        </div>
+        <p style="font-size:13px;margin:0;">Fetch data from the server. Doesn't change anything.</p>
+      </div>
+      <div class="card" style="padding:16px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span class="badge badge-green">POST</span>
+          <strong style="font-size:14px;">Create</strong>
+        </div>
+        <p style="font-size:13px;margin:0;">Send new data to create a resource on the server.</p>
+      </div>
+      <div class="card" style="padding:16px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span class="badge badge-yellow">PUT/PATCH</span>
+          <strong style="font-size:14px;">Update</strong>
+        </div>
+        <p style="font-size:13px;margin:0;">Modify existing data. PUT = full replace, PATCH = partial.</p>
+      </div>
+      <div class="card" style="padding:16px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span class="badge badge-red">DELETE</span>
+          <strong style="font-size:14px;">Delete</strong>
+        </div>
+        <p style="font-size:13px;margin:0;">Remove a resource from the server permanently.</p>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(this,'user-service')">👤 userService.ts</button>
+      <button class="tab" onclick="switchTab(this,'post-service')">📝 postService.ts</button>
+    </div>
+
+    <div id="user-service" class="tab-panel active">
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>api/userService.ts</div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="kw">import</span> apiClient <span class="kw">from</span> <span class="str">'./client'</span>;
+<span class="kw">import</span> { <span class="typ">User</span> } <span class="kw">from</span> <span class="str">'./types'</span>;
+
+<span class="kw">const</span> userService <span class="op">=</span> {
+  <span class="cmt">// READ — get all users</span>
+  <span class="fn">getAll</span>: <span class="kw">async</span> (): <span class="typ">Promise</span>&lt;<span class="typ">User</span>[]&gt; <span class="op">=></span> {
+    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">get</span>&lt;<span class="typ">User</span>[]&gt;(<span class="str">'/users'</span>);
+    <span class="kw">return</span> data;
+  },
+
+  <span class="cmt">// READ — get one user by ID</span>
+  <span class="fn">getById</span>: <span class="kw">async</span> (id: <span class="typ">number</span>): <span class="typ">Promise</span>&lt;<span class="typ">User</span>&gt; <span class="op">=></span> {
+    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">get</span>&lt;<span class="typ">User</span>&gt;(<span class="str">`/users/</span><span class="op">${</span>id<span class="op">}</span><span class="str">`</span>);
+    <span class="kw">return</span> data;
+  },
+
+  <span class="cmt">// CREATE — send a new user</span>
+  <span class="cmt">// Omit&lt;User, 'id'&gt; means: User without the 'id' field</span>
+  <span class="cmt">// (server assigns the ID)</span>
+  <span class="fn">create</span>: <span class="kw">async</span> (user: <span class="typ">Omit</span>&lt;<span class="typ">User</span>, <span class="str">'id'</span>&gt;): <span class="typ">Promise</span>&lt;<span class="typ">User</span>&gt; <span class="op">=></span> {
+    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">post</span>&lt;<span class="typ">User</span>&gt;(<span class="str">'/users'</span>, user);
+    <span class="kw">return</span> data;
+  },
+
+  <span class="cmt">// UPDATE — replace user data (full update)</span>
+  <span class="cmt">// Partial&lt;User&gt; means: any subset of User fields is OK</span>
+  <span class="fn">update</span>: <span class="kw">async</span> (id: <span class="typ">number</span>, user: <span class="typ">Partial</span>&lt;<span class="typ">User</span>&gt;): <span class="typ">Promise</span>&lt;<span class="typ">User</span>&gt; <span class="op">=></span> {
+    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">put</span>&lt;<span class="typ">User</span>&gt;(<span class="str">`/users/</span><span class="op">${</span>id<span class="op">}</span><span class="str">`</span>, user);
+    <span class="kw">return</span> data;
+  },
+
+  <span class="cmt">// DELETE — remove a user</span>
+  <span class="fn">delete</span>: <span class="kw">async</span> (id: <span class="typ">number</span>): <span class="typ">Promise</span>&lt;<span class="typ">void</span>&gt; <span class="op">=></span> {
+    <span class="kw">await</span> apiClient.<span class="fn">delete</span>(<span class="str">`/users/</span><span class="op">${</span>id<span class="op">}</span><span class="str">`</span>);
+  },
+
+  <span class="cmt">// SEARCH — filter by query string</span>
+  <span class="fn">search</span>: <span class="kw">async</span> (query: <span class="typ">string</span>): <span class="typ">Promise</span>&lt;<span class="typ">User</span>[]&gt; <span class="op">=></span> {
+    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">get</span>&lt;<span class="typ">User</span>[]&gt;(<span class="str">'/users'</span>, {
+      params: { q: query }   <span class="cmt">// → GET /users?q=john</span>
+    });
+    <span class="kw">return</span> data;
+  },
+};
+
+<span class="kw">export default</span> userService;</code></pre>
+      </div>
+    </div>
+
+    <div id="post-service" class="tab-panel">
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>api/postService.ts</div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="kw">import</span> apiClient <span class="kw">from</span> <span class="str">'./client'</span>;
+<span class="kw">import</span> { <span class="typ">Post</span>, <span class="typ">Comment</span> } <span class="kw">from</span> <span class="str">'./types'</span>;
+
+<span class="kw">const</span> postService <span class="op">=</span> {
+  <span class="fn">getAll</span>: <span class="kw">async</span> (): <span class="typ">Promise</span>&lt;<span class="typ">Post</span>[]&gt; <span class="op">=></span> {
+    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">get</span>&lt;<span class="typ">Post</span>[]&gt;(<span class="str">'/posts'</span>);
+    <span class="kw">return</span> data;
+  },
+
+  <span class="fn">getById</span>: <span class="kw">async</span> (id: <span class="typ">number</span>): <span class="typ">Promise</span>&lt;<span class="typ">Post</span>&gt; <span class="op">=></span> {
+    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">get</span>&lt;<span class="typ">Post</span>&gt;(<span class="str">`/posts/</span><span class="op">${</span>id<span class="op">}</span><span class="str">`</span>);
+    <span class="kw">return</span> data;
+  },
+
+  <span class="cmt">// Get ALL posts by a specific user — nested route!</span>
+  <span class="fn">getByUserId</span>: <span class="kw">async</span> (userId: <span class="typ">number</span>): <span class="typ">Promise</span>&lt;<span class="typ">Post</span>[]&gt; <span class="op">=></span> {
+    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">get</span>&lt;<span class="typ">Post</span>[]&gt;(<span class="str">`/users/</span><span class="op">${</span>userId<span class="op">}</span><span class="str">/posts`</span>);
+    <span class="kw">return</span> data;
+  },
+
+  <span class="cmt">// Get comments for a post — also a nested route</span>
+  <span class="fn">getComments</span>: <span class="kw">async</span> (postId: <span class="typ">number</span>): <span class="typ">Promise</span>&lt;<span class="typ">Comment</span>[]&gt; <span class="op">=></span> {
+    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">get</span>&lt;<span class="typ">Comment</span>[]&gt;(<span class="str">`/posts/</span><span class="op">${</span>postId<span class="op">}</span><span class="str">/comments`</span>);
+    <span class="kw">return</span> data;
+  },
+
+  <span class="fn">create</span>: <span class="kw">async</span> (post: <span class="typ">Omit</span>&lt;<span class="typ">Post</span>, <span class="str">'id'</span>&gt;): <span class="typ">Promise</span>&lt;<span class="typ">Post</span>&gt; <span class="op">=></span> {
+    <span class="kw">const</span> { data } <span class="op">=</span> <span class="kw">await</span> apiClient.<span class="fn">post</span>&lt;<span class="typ">Post</span>&gt;(<span class="str">'/posts'</span>, post);
+    <span class="kw">return</span> data;
+  },
+};
+
+<span class="kw">export default</span> postService;</code></pre>
+      </div>
+    </div>
+
+    <div class="callout callout-tip" style="margin-top:20px;">
+      <div class="callout-icon">🔑</div>
+      <div class="callout-body">
+        <h4>TypeScript Utility Types</h4>
+        <p><code>Omit&lt;User, 'id'&gt;</code> — User type but without the <code>id</code> field (server creates IDs). <code>Partial&lt;User&gt;</code> — all fields optional, useful for PATCH/update operations where you only send changed fields.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: CUSTOM HOOKS -->
+  <section id="custom-hooks">
+    <div class="section-header">
+      <div class="section-label">Section 05</div>
+      <h2>Custom Hooks</h2>
+      <p>Custom hooks let you extract stateful logic out of components. A custom hook is just a function starting with <code>use</code> that can call other hooks.</p>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🪝</div>
+      <div class="callout-body">
+        <h4>Why Custom Hooks?</h4>
+        <p>Without custom hooks, you'd have <code>useState</code>, <code>useEffect</code>, <code>try/catch</code>, and loading logic duplicated in every component that fetches data. Custom hooks extract this into one reusable place.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom: 16px;">useUsers — Full Breakdown</h3>
+    <div class="code-wrapper">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>hooks/useUsers.ts</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="kw">import</span> { useState, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> userService <span class="kw">from</span> <span class="str">'../api/userService'</span>;
+<span class="kw">import</span> { <span class="typ">User</span> } <span class="kw">from</span> <span class="str">'../api/types'</span>;
+
+<span class="kw">function</span> <span class="fn">useUsers</span>() {
+  <span class="cmt">// Three pieces of state for any data fetch:</span>
+  <span class="kw">const</span> [users, setUsers] <span class="op">=</span> <span class="fn">useState</span>&lt;<span class="typ">User</span>[]&gt;([]);          <span class="cmt">// the data</span>
+  <span class="kw">const</span> [loading, setLoading] <span class="op">=</span> <span class="fn">useState</span>&lt;<span class="typ">boolean</span>&gt;(<span class="kw">true</span>);    <span class="cmt">// is it loading?</span>
+  <span class="kw">const</span> [error, setError] <span class="op">=</span> <span class="fn">useState</span>&lt;<span class="typ">string</span> | <span class="kw">null</span>&gt;(<span class="kw">null</span>);  <span class="cmt">// error message</span>
+
+  <span class="kw">const</span> <span class="fn">fetchUsers</span> <span class="op">=</span> <span class="kw">async</span> () <span class="op">=></span> {
+    <span class="kw">try</span> {
+      <span class="fn">setLoading</span>(<span class="kw">true</span>);
+      <span class="fn">setError</span>(<span class="kw">null</span>);                      <span class="cmt">// clear previous errors</span>
+      
+      <span class="kw">const</span> data <span class="op">=</span> <span class="kw">await</span> userService.<span class="fn">getAll</span>();
+      <span class="fn">setUsers</span>(data);
+      
+    } <span class="kw">catch</span> (err) {
+      <span class="cmt">// Safe error message extraction</span>
+      <span class="fn">setError</span>(err <span class="kw">instanceof</span> <span class="typ">Error</span> ? err.message : <span class="str">'An error occurred'</span>);
+    } <span class="kw">finally</span> {
+      <span class="fn">setLoading</span>(<span class="kw">false</span>);  <span class="cmt">// ALWAYS stop loading — success OR failure</span>
+    }
+  };
+
+  <span class="cmt">// Run on mount (empty array = run once when component mounts)</span>
+  <span class="fn">useEffect</span>(() <span class="op">=></span> {
+    <span class="fn">fetchUsers</span>();
+  }, []);
+
+  <span class="cmt">// Return what components need — data + state + refetch</span>
+  <span class="kw">return</span> { users, loading, error, refetch: fetchUsers };
+}
+
+<span class="kw">export default</span> useUsers;</code></pre>
+    </div>
+
+    <h3 style="margin-bottom: 16px; margin-top: 28px;">How the Component Uses It</h3>
+    <div class="code-wrapper">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>components/UserList.tsx</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="kw">import</span> useUsers <span class="kw">from</span> <span class="str">'../hooks/useUsers'</span>;
+
+<span class="kw">function</span> <span class="fn">UserList</span>() {
+  <span class="cmt">// All the complexity is hidden in the hook!</span>
+  <span class="kw">const</span> { users, loading, error, refetch } <span class="op">=</span> <span class="fn">useUsers</span>();
+
+  <span class="cmt">// Show loading state</span>
+  <span class="kw">if</span> (loading) <span class="kw">return</span> &lt;<span class="tag">p</span>&gt;Loading...&lt;/<span class="tag">p</span>&gt;;
+
+  <span class="cmt">// Show error with retry button</span>
+  <span class="kw">if</span> (error) <span class="kw">return</span> (
+    &lt;<span class="tag">div</span>&gt;
+      &lt;<span class="tag">p</span>&gt;❌ {error}&lt;/<span class="tag">p</span>&gt;
+      &lt;<span class="tag">button</span> <span class="attr">onClick</span>={refetch}&gt;Try again&lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+  );
+
+  <span class="cmt">// Show data — component only cares about rendering!</span>
+  <span class="kw">return</span> (
+    &lt;<span class="tag">ul</span>&gt;
+      {users.<span class="fn">map</span>(user <span class="op">=></span> (
+        &lt;<span class="tag">li</span> <span class="attr">key</span>={user.id}&gt;
+          &lt;<span class="tag">strong</span>&gt;{user.name}&lt;/<span class="tag">strong</span>&gt; — {user.email}
+        &lt;/<span class="tag">li</span>&gt;
+      ))}
+    &lt;/<span class="tag">ul</span>&gt;
+  );
+}</code></pre>
+    </div>
+
+    <h3 style="margin-bottom: 16px; margin-top: 28px;">usePosts — With Optional Filter</h3>
+    <div class="code-wrapper">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>hooks/usePosts.ts</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="kw">import</span> { useState, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> postService <span class="kw">from</span> <span class="str">'../api/postService'</span>;
+<span class="kw">import</span> { <span class="typ">Post</span> } <span class="kw">from</span> <span class="str">'../api/types'</span>;
+
+<span class="cmt">// userId is OPTIONAL — can show all posts or filtered by user</span>
+<span class="kw">function</span> <span class="fn">usePosts</span>(userId?: <span class="typ">number</span>) {
+  <span class="kw">const</span> [posts, setPosts] <span class="op">=</span> <span class="fn">useState</span>&lt;<span class="typ">Post</span>[]&gt;([]);
+  <span class="kw">const</span> [loading, setLoading] <span class="op">=</span> <span class="fn">useState</span>(<span class="kw">true</span>);
+  <span class="kw">const</span> [error, setError] <span class="op">=</span> <span class="fn">useState</span>&lt;<span class="typ">string</span> | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+
+  <span class="kw">const</span> <span class="fn">fetchPosts</span> <span class="op">=</span> <span class="kw">async</span> () <span class="op">=></span> {
+    <span class="kw">try</span> {
+      <span class="fn">setLoading</span>(<span class="kw">true</span>);
+      <span class="fn">setError</span>(<span class="kw">null</span>);
+      
+      <span class="cmt">// Conditional fetch based on whether userId was passed</span>
+      <span class="kw">const</span> data <span class="op">=</span> userId
+        ? <span class="kw">await</span> postService.<span class="fn">getByUserId</span>(userId)  <span class="cmt">// → /users/5/posts</span>
+        : <span class="kw">await</span> postService.<span class="fn">getAll</span>();              <span class="cmt">// → /posts</span>
+      
+      <span class="fn">setPosts</span>(data);
+    } <span class="kw">catch</span> (err) {
+      <span class="fn">setError</span>(err <span class="kw">instanceof</span> <span class="typ">Error</span> ? err.message : <span class="str">'Error'</span>);
+    } <span class="kw">finally</span> {
+      <span class="fn">setLoading</span>(<span class="kw">false</span>);
+    }
+  };
+
+  <span class="cmt">// Re-fetch whenever userId changes!</span>
+  <span class="fn">useEffect</span>(() <span class="op">=></span> { <span class="fn">fetchPosts</span>(); }, [userId]);
+
+  <span class="kw">return</span> { posts, loading, error, refetch: fetchPosts };
+}
+
+<span class="kw">export default</span> usePosts;
+
+<span class="cmt">// Usage examples:
+// usePosts()      → all posts
+// usePosts(5)     → only user 5's posts
+// usePosts(userId) → reactive: refetches when userId changes</span></code></pre>
+    </div>
+
+    <h3 style="margin-bottom: 16px; margin-top: 28px;">useFetch — The Universal Generic Hook</h3>
+    <p>Why write the same loading/error/data pattern 10 times? <code>useFetch</code> is a reusable hook that works with <em>any</em> async function.</p>
+    <div class="code-wrapper">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>hooks/useFetch.ts</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="kw">import</span> { useState, useEffect, useCallback } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="cmt">// Generic interface — T can be any type (User, Post[], Comment, etc.)</span>
+<span class="kw">interface</span> <span class="typ">UseFetchResult</span>&lt;<span class="typ">T</span>&gt; {
+  data: <span class="typ">T</span> | <span class="kw">null</span>;
+  loading: <span class="typ">boolean</span>;
+  error: <span class="typ">string</span> | <span class="kw">null</span>;
+  refetch: () <span class="op">=></span> <span class="typ">void</span>;
+}
+
+<span class="kw">function</span> <span class="fn">useFetch</span>&lt;<span class="typ">T</span>&gt;(
+  fetchFn: () <span class="op">=></span> <span class="typ">Promise</span>&lt;<span class="typ">T</span>&gt;,   <span class="cmt">// 👈 accepts ANY async function</span>
+  deps: <span class="kw">any</span>[] <span class="op">=</span> []               <span class="cmt">// 👈 re-run when these change</span>
+): <span class="typ">UseFetchResult</span>&lt;<span class="typ">T</span>&gt; {
+  <span class="kw">const</span> [data, setData] <span class="op">=</span> <span class="fn">useState</span>&lt;<span class="typ">T</span> | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+  <span class="kw">const</span> [loading, setLoading] <span class="op">=</span> <span class="fn">useState</span>(<span class="kw">true</span>);
+  <span class="kw">const</span> [error, setError] <span class="op">=</span> <span class="fn">useState</span>&lt;<span class="typ">string</span> | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+
+  <span class="kw">const</span> execute <span class="op">=</span> <span class="fn">useCallback</span>(<span class="kw">async</span> () <span class="op">=></span> {
+    <span class="kw">try</span> {
+      <span class="fn">setLoading</span>(<span class="kw">true</span>);
+      <span class="fn">setError</span>(<span class="kw">null</span>);
+      <span class="kw">const</span> result <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetchFn</span>();
+      <span class="fn">setData</span>(result);
+    } <span class="kw">catch</span> (err) {
+      <span class="fn">setError</span>(err <span class="kw">instanceof</span> <span class="typ">Error</span> ? err.message : <span class="str">'Error'</span>);
+    } <span class="kw">finally</span> {
+      <span class="fn">setLoading</span>(<span class="kw">false</span>);
+    }
+  }, deps);
+
+  <span class="fn">useEffect</span>(() <span class="op">=></span> { <span class="fn">execute</span>(); }, [execute]);
+
+  <span class="kw">return</span> { data, loading, error, refetch: execute };
+}
+
+<span class="kw">export default</span> useFetch;
+
+<span class="cmt">// ============ USAGE — So clean! ============</span>
+
+<span class="cmt">// All users</span>
+<span class="kw">const</span> { data: users, loading } <span class="op">=</span> <span class="fn">useFetch</span>(() <span class="op">=></span> userService.<span class="fn">getAll</span>());
+
+<span class="cmt">// One user (re-fetches when userId changes)</span>
+<span class="kw">const</span> { data: user } <span class="op">=</span> <span class="fn">useFetch</span>(() <span class="op">=></span> userService.<span class="fn">getById</span>(userId), [userId]);
+
+<span class="cmt">// User's posts (nested resource)</span>
+<span class="kw">const</span> { data: posts } <span class="op">=</span> <span class="fn">useFetch</span>(() <span class="op">=></span> postService.<span class="fn">getByUserId</span>(userId), [userId]);
+
+<span class="cmt">// Comments for a post</span>
+<span class="kw">const</span> { data: comments } <span class="op">=</span> <span class="fn">useFetch</span>(() <span class="op">=></span> postService.<span class="fn">getComments</span>(postId), [postId]);</code></pre>
+    </div>
+
+    <!-- Interactive Hook Demo -->
+    <h3 style="margin-bottom:16px;margin-top:28px;">🎮 Interactive Hook State Simulator</h3>
+    <div class="demo-container">
+      <div class="demo-toolbar">
+        <div class="demo-title">⚛ useUsers Hook — State Visualizer</div>
+        <div class="demo-live"><div class="live-dot"></div> Simulated</div>
+      </div>
+      <div class="demo-body">
+        <div class="hook-demo">
+          <div class="demo-state">
+            <div class="state-var">
+              <div class="state-key">users</div>
+              <div class="state-val" id="sim-users">[]</div>
+            </div>
+            <div class="state-var">
+              <div class="state-key">loading</div>
+              <div class="state-val" id="sim-loading" style="color:var(--yellow)">true</div>
+            </div>
+            <div class="state-var">
+              <div class="state-key">error</div>
+              <div class="state-val" id="sim-error">null</div>
+            </div>
+          </div>
+          <div class="demo-controls">
+            <button class="demo-btn" onclick="simFetch()">▶ fetchUsers()</button>
+            <button class="demo-btn" onclick="simError()">💥 Simulate Error</button>
+            <button class="demo-btn" onclick="simRefetch()">🔄 refetch()</button>
+            <button class="demo-btn" onclick="simReset()">↩ Reset</button>
+          </div>
+          <div class="demo-log" id="sim-log">
+            <div class="log-line info">// Hook initialized — useEffect will call fetchUsers()</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: useSearch -->
+    <section id="use-search" style="border:none;padding:40px 0 0;">
+      <h3 style="margin-bottom:8px; margin-top: 12px;">useSearch — Debounced Search</h3>
+      <p>Debouncing means: wait until the user <em>stops</em> typing before triggering the search. Without it, you fire an API call on every single keystroke.</p>
+
+      <div class="callout callout-warn">
+        <div class="callout-icon">⚡</div>
+        <div class="callout-body">
+          <h4>Why Debounce Matters</h4>
+          <p>If you type "john" (4 letters) in a search box, <em>without</em> debounce you make 4 API calls: "j", "jo", "joh", "john". With a 300ms debounce, you make just 1 — only when you pause typing.</p>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>hooks/useSearch.ts</div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="kw">import</span> { useState, useEffect, useMemo } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">useSearch</span>&lt;<span class="typ">T</span>&gt;(
+  items: <span class="typ">T</span>[],                      <span class="cmt">// The full list to search through</span>
+  searchFields: (<span class="kw">keyof</span> <span class="typ">T</span>)[],       <span class="cmt">// Which fields to search on</span>
+  delay: <span class="typ">number</span> <span class="op">=</span> <span class="num">300</span>             <span class="cmt">// Debounce delay in ms</span>
+) {
+  <span class="kw">const</span> [query, setQuery] <span class="op">=</span> <span class="fn">useState</span>(<span class="str">''</span>);               <span class="cmt">// live input value</span>
+  <span class="kw">const</span> [debouncedQuery, setDebouncedQuery] <span class="op">=</span> <span class="fn">useState</span>(<span class="str">''</span>); <span class="cmt">// delayed value</span>
+
+  <span class="cmt">// DEBOUNCE: Only update debouncedQuery after 300ms of no typing</span>
+  <span class="fn">useEffect</span>(() <span class="op">=></span> {
+    <span class="kw">const</span> timer <span class="op">=</span> <span class="fn">setTimeout</span>(() <span class="op">=></span> {
+      <span class="fn">setDebouncedQuery</span>(query);
+    }, delay);
+    
+    <span class="cmt">// Cleanup: cancel previous timer if user types again</span>
+    <span class="kw">return</span> () <span class="op">=></span> <span class="fn">clearTimeout</span>(timer);
+  }, [query, delay]);
+
+  <span class="cmt">// FILTER: Only recalculate when debouncedQuery or items change</span>
+  <span class="kw">const</span> filtered <span class="op">=</span> <span class="fn">useMemo</span>(() <span class="op">=></span> {
+    <span class="kw">if</span> (!debouncedQuery.<span class="fn">trim</span>()) <span class="kw">return</span> items; <span class="cmt">// empty query → all items</span>
+    
+    <span class="kw">const</span> lower <span class="op">=</span> debouncedQuery.<span class="fn">toLowerCase</span>();
+    
+    <span class="kw">return</span> items.<span class="fn">filter</span>(item <span class="op">=></span>
+      searchFields.<span class="fn">some</span>(field <span class="op">=></span> {
+        <span class="kw">const</span> value <span class="op">=</span> <span class="typ">String</span>(item[field]);
+        <span class="kw">return</span> value.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(lower);
+      })
+    );
+  }, [items, debouncedQuery, searchFields]);
+
+  <span class="kw">return</span> { query, setQuery, filtered, debouncedQuery };
+}
+
+<span class="kw">export default</span> useSearch;
+
+<span class="cmt">// ========= Usage in component: =========</span>
+<span class="kw">function</span> <span class="fn">UserList</span>() {
+  <span class="kw">const</span> { users } <span class="op">=</span> <span class="fn">useUsers</span>();
+  <span class="kw">const</span> { query, setQuery, filtered } <span class="op">=</span> <span class="fn">useSearch</span>(
+    users,
+    [<span class="str">'name'</span>, <span class="str">'email'</span>, <span class="str">'username'</span>]  <span class="cmt">// search these 3 fields</span>
+  );
+  
+  <span class="kw">return</span> (
+    &lt;<span class="tag">div</span>&gt;
+      &lt;<span class="tag">input</span>
+        <span class="attr">value</span>={query}
+        <span class="attr">onChange</span>={e <span class="op">=></span> <span class="fn">setQuery</span>(e.target.value)}
+        <span class="attr">placeholder</span>=<span class="str">"Search users..."</span>
+      /&gt;
+      &lt;<span class="tag">ul</span>&gt;
+        {filtered.<span class="fn">map</span>(user <span class="op">=></span> &lt;<span class="tag">li</span> <span class="attr">key</span>={user.id}&gt;{user.name}&lt;/<span class="tag">li</span>&gt;)}
+      &lt;/<span class="tag">ul</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}</code></pre>
+      </div>
+
+      <!-- Debounce Diagram -->
+      <h4 style="margin: 24px 0 12px; color: var(--text);">Debounce Timeline Visualization</h4>
+      <div class="diagram">
+        <svg viewBox="0 0 760 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+          <!-- Labels -->
+          <text x="10" y="30" fill="#8a9bbf" font-size="11" font-family="Outfit" font-weight="600">User types:</text>
+          <text x="10" y="70" fill="#8a9bbf" font-size="11" font-family="Outfit" font-weight="600">No debounce:</text>
+          <text x="10" y="120" fill="#8a9bbf" font-size="11" font-family="Outfit" font-weight="600">With debounce:</text>
+          <text x="10" y="160" fill="#8a9bbf" font-size="11" font-family="Outfit" font-weight="600">300ms delay</text>
+
+          <!-- Keystroke markers -->
+          <rect x="120" y="16" width="28" height="22" rx="5" fill="#1a2238" stroke="#4f9eff"/>
+          <text x="134" y="31" fill="#e2e8f7" font-size="12" text-anchor="middle" font-family="Fira Code">j</text>
+
+          <rect x="180" y="16" width="28" height="22" rx="5" fill="#1a2238" stroke="#4f9eff"/>
+          <text x="194" y="31" fill="#e2e8f7" font-size="12" text-anchor="middle" font-family="Fira Code">o</text>
+
+          <rect x="240" y="16" width="28" height="22" rx="5" fill="#1a2238" stroke="#4f9eff"/>
+          <text x="254" y="31" fill="#e2e8f7" font-size="12" text-anchor="middle" font-family="Fira Code">h</text>
+
+          <rect x="300" y="16" width="28" height="22" rx="5" fill="#1a2238" stroke="#4f9eff"/>
+          <text x="314" y="31" fill="#e2e8f7" font-size="12" text-anchor="middle" font-family="Fira Code">n</text>
+
+          <!-- No debounce: 4 API calls -->
+          <circle cx="134" cy="70" r="10" fill="rgba(255,107,107,0.15)" stroke="#ff6b6b"/>
+          <text x="134" y="74" fill="#ff6b6b" font-size="9" text-anchor="middle" font-family="Outfit">API</text>
+
+          <circle cx="194" cy="70" r="10" fill="rgba(255,107,107,0.15)" stroke="#ff6b6b"/>
+          <text x="194" y="74" fill="#ff6b6b" font-size="9" text-anchor="middle" font-family="Outfit">API</text>
+
+          <circle cx="254" cy="70" r="10" fill="rgba(255,107,107,0.15)" stroke="#ff6b6b"/>
+          <text x="254" y="74" fill="#ff6b6b" font-size="9" text-anchor="middle" font-family="Outfit">API</text>
+
+          <circle cx="314" cy="70" r="10" fill="rgba(255,107,107,0.15)" stroke="#ff6b6b"/>
+          <text x="314" y="74" fill="#ff6b6b" font-size="9" text-anchor="middle" font-family="Outfit">API</text>
+
+          <text x="360" y="74" fill="#ff6b6b" font-size="11" font-family="Outfit">← 4 calls! Wasteful</text>
+
+          <!-- Debounce: timers reset -->
+          <line x1="134" y1="108" x2="174" y2="108" stroke="#ffc142" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="154" y="104" fill="#ffc142" font-size="9" text-anchor="middle" font-family="Outfit">×cancelled</text>
+
+          <line x1="194" y1="108" x2="234" y2="108" stroke="#ffc142" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="214" y="104" fill="#ffc142" font-size="9" text-anchor="middle" font-family="Outfit">×cancelled</text>
+
+          <line x1="254" y1="108" x2="294" y2="108" stroke="#ffc142" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="274" y="104" fill="#ffc142" font-size="9" text-anchor="middle" font-family="Outfit">×cancelled</text>
+
+          <line x1="314" y1="108" x2="454" y2="108" stroke="#43e8b0" stroke-width="1.5"/>
+          <text x="384" y="104" fill="#43e8b0" font-size="9" text-anchor="middle" font-family="Outfit">300ms wait...</text>
+
+          <circle cx="470" cy="108" r="12" fill="rgba(67,232,176,0.15)" stroke="#43e8b0"/>
+          <text x="470" y="112" fill="#43e8b0" font-size="9" text-anchor="middle" font-family="Outfit">API</text>
+
+          <text x="500" y="112" fill="#43e8b0" font-size="11" font-family="Outfit">← 1 call! ✅</text>
+
+          <!-- Timeline base -->
+          <line x1="110" y1="145" x2="740" y2="145" stroke="#232d45" stroke-width="1"/>
+          <text x="110" y="160" fill="#5a6a8a" font-size="9" font-family="Outfit">0ms</text>
+          <text x="170" y="160" fill="#5a6a8a" font-size="9" font-family="Outfit">60ms</text>
+          <text x="230" y="160" fill="#5a6a8a" font-size="9" font-family="Outfit">120ms</text>
+          <text x="290" y="160" fill="#5a6a8a" font-size="9" font-family="Outfit">180ms</text>
+          <text x="450" y="160" fill="#43e8b0" font-size="9" font-family="Outfit">480ms (fire!)</text>
+        </svg>
+      </div>
+    </section>
+  </section>
+
+  <!-- SECTION 6: ERROR HANDLING -->
+  <section id="error-handling">
+    <div class="section-header">
+      <div class="section-label">Section 06</div>
+      <h2>Error Handling & Retry</h2>
+      <p>Good apps don't just crash — they tell users what went wrong and give them a way to recover.</p>
+    </div>
+
+    <h3 style="margin-bottom: 16px;">Types of API Errors</h3>
+    <div style="overflow-x:auto;">
+      <table class="compare-table" style="margin-bottom:24px;">
+        <thead>
+          <tr>
+            <th>Error Type</th>
+            <th>When It Happens</th>
+            <th>error.response</th>
+            <th>error.request</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-red">Network Error</span></td>
+            <td>No internet, server down</td>
+            <td style="color:var(--text3)">undefined</td>
+            <td style="color:var(--green)">exists</td>
+            <td>Show "Check connection"</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-yellow">401 Unauthorized</span></td>
+            <td>Token expired / not logged in</td>
+            <td style="color:var(--green)">exists</td>
+            <td>—</td>
+            <td>Redirect to login</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-yellow">403 Forbidden</span></td>
+            <td>Logged in but no permission</td>
+            <td style="color:var(--green)">exists</td>
+            <td>—</td>
+            <td>Show "Access denied"</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-blue">404 Not Found</span></td>
+            <td>Resource doesn't exist</td>
+            <td style="color:var(--green)">exists</td>
+            <td>—</td>
+            <td>Show "Not found"</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-red">500 Server Error</span></td>
+            <td>Server crash / bug</td>
+            <td style="color:var(--green)">exists</td>
+            <td>—</td>
+            <td>Show "Try again later" + retry</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-bottom: 16px;">Centralized Error Handler</h3>
+    <div class="code-wrapper">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>api/errorHandler.ts</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="kw">import</span> { <span class="typ">AxiosError</span> } <span class="kw">from</span> <span class="str">'axios'</span>;
+
+<span class="kw">interface</span> <span class="typ">ApiError</span> {
+  message: <span class="typ">string</span>;
+  status?: <span class="typ">number</span>;
+  isRetryable: <span class="typ">boolean</span>;  <span class="cmt">// should we show a retry button?</span>
+}
+
+<span class="kw">export function</span> <span class="fn">handleApiError</span>(error: <span class="kw">unknown</span>): <span class="typ">ApiError</span> {
+  <span class="kw">if</span> (error <span class="kw">instanceof</span> <span class="typ">AxiosError</span>) {
+    <span class="kw">const</span> status <span class="op">=</span> error.response?.status;
+    
+    <span class="cmt">// Network error — no response received</span>
+    <span class="kw">if</span> (!error.response) {
+      <span class="kw">return</span> {
+        message: <span class="str">'Network error — check your connection'</span>,
+        isRetryable: <span class="kw">true</span>,  <span class="cmt">// network might come back!</span>
+      };
+    }
+
+    <span class="kw">if</span> (status <span class="op">===</span> <span class="num">401</span>) {
+      <span class="kw">return</span> { message: <span class="str">'Please log in again'</span>, status, isRetryable: <span class="kw">false</span> };
+    }
+
+    <span class="kw">if</span> (status <span class="op">===</span> <span class="num">403</span>) {
+      <span class="kw">return</span> { message: <span class="str">'Access denied'</span>, status, isRetryable: <span class="kw">false</span> };
+    }
+
+    <span class="kw">if</span> (status <span class="op">===</span> <span class="num">404</span>) {
+      <span class="kw">return</span> { message: <span class="str">'Resource not found'</span>, status, isRetryable: <span class="kw">false</span> };
+    }
+
+    <span class="cmt">// 500+ — server errors are retryable</span>
+    <span class="kw">if</span> (status <span class="op">&&</span> status <span class="op">>=</span> <span class="num">500</span>) {
+      <span class="kw">return</span> { message: <span class="str">'Server error — try again later'</span>, status, isRetryable: <span class="kw">true</span> };
+    }
+  }
+
+  <span class="cmt">// Unknown error</span>
+  <span class="kw">return</span> { message: <span class="str">'An unexpected error occurred'</span>, isRetryable: <span class="kw">false</span> };
+}</code></pre>
+    </div>
+
+    <h3 style="margin-bottom: 16px; margin-top: 28px;">Retry with Exponential Backoff</h3>
+    <div class="callout callout-info">
+      <div class="callout-icon">📈</div>
+      <div class="callout-body">
+        <h4>What is Exponential Backoff?</h4>
+        <p>Instead of retrying immediately (which could overwhelm a struggling server), you wait longer between each attempt: 1s → 2s → 4s → 8s. This gives the server time to recover.</p>
+      </div>
+    </div>
+    <div class="code-wrapper">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>utils/retry.ts</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="kw">async function</span> <span class="fn">withRetry</span>&lt;<span class="typ">T</span>&gt;(
+  fn: () <span class="op">=></span> <span class="typ">Promise</span>&lt;<span class="typ">T</span>&gt;,
+  maxRetries: <span class="typ">number</span> <span class="op">=</span> <span class="num">3</span>,
+  delay: <span class="typ">number</span> <span class="op">=</span> <span class="num">1000</span>
+): <span class="typ">Promise</span>&lt;<span class="typ">T</span>&gt; {
+  <span class="kw">let</span> lastError: <span class="typ">Error</span>;
+
+  <span class="kw">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="num">0</span>; i <span class="op"><</span> maxRetries; i++) {
+    <span class="kw">try</span> {
+      <span class="kw">return await</span> <span class="fn">fn</span>();                        <span class="cmt">// ✅ success → return immediately</span>
+    } <span class="kw">catch</span> (error) {
+      lastError <span class="op">=</span> error <span class="kw">as</span> <span class="typ">Error</span>;
+      console.<span class="fn">log</span>(<span class="str">`Attempt </span><span class="op">${</span>i <span class="op">+</span> <span class="num">1</span><span class="op">}</span><span class="str">/</span><span class="op">${</span>maxRetries<span class="op">}</span><span class="str"> failed`</span>);
+
+      <span class="kw">if</span> (i <span class="op"><</span> maxRetries <span class="op">-</span> <span class="num">1</span>) {
+        <span class="cmt">// Exponential backoff: 1000ms → 2000ms → 4000ms</span>
+        <span class="kw">const</span> waitTime <span class="op">=</span> delay <span class="op">*</span> Math.<span class="fn">pow</span>(<span class="num">2</span>, i);
+        console.<span class="fn">log</span>(<span class="str">`Waiting </span><span class="op">${</span>waitTime<span class="op">}</span><span class="str">ms before retry...`</span>);
+        <span class="kw">await new</span> <span class="fn">Promise</span>(r <span class="op">=></span> <span class="fn">setTimeout</span>(r, waitTime));
+      }
+    }
+  }
+
+  <span class="kw">throw</span> lastError!;  <span class="cmt">// all retries exhausted</span>
+}
+
+<span class="cmt">// Usage in a service:</span>
+<span class="kw">const</span> <span class="fn">getAll</span> <span class="op">=</span> <span class="kw">async</span> (): <span class="typ">Promise</span>&lt;<span class="typ">User</span>[]&gt; <span class="op">=></span> {
+  <span class="kw">return</span> <span class="fn">withRetry</span>(
+    () <span class="op">=></span> apiClient.<span class="fn">get</span>&lt;<span class="typ">User</span>[]&gt;(<span class="str">'/users'</span>).<span class="fn">then</span>(r <span class="op">=></span> r.data),
+    <span class="num">3</span>,    <span class="cmt">// max 3 attempts</span>
+    <span class="num">1000</span>  <span class="cmt">// start with 1s delay</span>
+  );
+};</code></pre>
+    </div>
+
+    <h3 style="margin-bottom: 16px; margin-top: 28px;">Error + Loading UI Components</h3>
+    <div class="two-col">
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>ErrorMessage.tsx</div>
+        </div>
+        <pre style="font-size:12px;"><code><span class="kw">function</span> <span class="fn">ErrorMessage</span>({
+  message,
+  onRetry,
+}: {
+  message: <span class="typ">string</span>;
+  onRetry?: () <span class="op">=></span> <span class="kw">void</span>;
+}) {
+  <span class="kw">return</span> (
+    &lt;<span class="tag">div</span> <span class="attr">className</span>=<span class="str">"error"</span>&gt;
+      &lt;<span class="tag">span</span>&gt;⚠️&lt;/<span class="tag">span</span>&gt;
+      &lt;<span class="tag">p</span>&gt;{message}&lt;/<span class="tag">p</span>&gt;
+      {onRetry <span class="op">&&</span> (
+        &lt;<span class="tag">button</span> <span class="attr">onClick</span>={onRetry}&gt;
+          🔄 Try again
+        &lt;/<span class="tag">button</span>&gt;
+      )}
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}</code></pre>
+      </div>
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>LoadingSkeleton.tsx</div>
+        </div>
+        <pre style="font-size:12px;"><code><span class="kw">function</span> <span class="fn">LoadingSkeleton</span>({
+  count <span class="op">=</span> <span class="num">3</span>
+}: { count?: <span class="typ">number</span> }) {
+  <span class="kw">return</span> (
+    &lt;<span class="tag">div</span>&gt;
+      {Array.<span class="fn">from</span>({ length: count })
+        .<span class="fn">map</span>((_, i) <span class="op">=></span> (
+          &lt;<span class="tag">div</span> <span class="attr">key</span>={i}
+            <span class="attr">className</span>=<span class="str">"skeleton"</span>&gt;
+            <span class="cmt">// animated placeholder</span>
+          &lt;/<span class="tag">div</span>&gt;
+        ))}
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}
+
+<span class="cmt">// Usage:
+// if (loading) return &lt;LoadingSkeleton /&gt;
+// if (error) return &lt;ErrorMessage
+//   message={error}
+//   onRetry={refetch} /&gt;</span></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 7: QUIZ -->
+  <section id="quiz">
+    <div class="section-header">
+      <div class="section-label">Section 07</div>
+      <h2>Knowledge Check 🧠</h2>
+      <p>Test your understanding of the concepts covered in this lesson.</p>
+    </div>
+
+    <div class="quiz-container">
+      <div class="quiz-header">
+        <h3>API Integration & Custom Hooks Quiz</h3>
+        <div class="quiz-progress">Question <span id="q-current">1</span> / <span id="q-total">8</span></div>
+      </div>
+
+      <div class="progress-bar-container" style="margin: 0 28px;">
+        <div class="progress-bar-fill" id="quiz-progress-bar" style="width: 12.5%"></div>
+      </div>
+
+      <!-- Q1 -->
+      <div class="quiz-question active" data-q="0">
+        <h4>1. What is the main problem that an API layer solves?</h4>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="checkAnswer(this, false)">It makes API calls faster by using caching</button>
+          <button class="quiz-option" onclick="checkAnswer(this, true)">It centralizes API calls so you don't repeat the same fetch logic in every component</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">It replaces the need for a backend server</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">It automatically handles authentication tokens</button>
+        </div>
+        <div class="quiz-explanation">
+          ✅ The API layer centralizes all API calls in one place, following the DRY (Don't Repeat Yourself) principle. Without it, you'd write the same <code>fetch()</code> boilerplate in every component that needs data.
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="quiz-question" data-q="1">
+        <h4>2. Which layer is responsible for managing <code>loading</code>, <code>error</code>, and <code>data</code> state?</h4>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="checkAnswer(this, false)">The Component layer (e.g. UserList.tsx)</button>
+          <button class="quiz-option" onclick="checkAnswer(this, true)">The Custom Hook layer (e.g. useUsers.ts)</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">The Service layer (e.g. userService.ts)</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">The API Client layer (client.ts)</button>
+        </div>
+        <div class="quiz-explanation">
+          ✅ Custom Hooks manage state (useState), side effects (useEffect), and bridge between services and components. Services are pure async functions with no React state.
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="quiz-question" data-q="2">
+        <h4>3. What does <code>finally</code> do in a try/catch/finally block in a custom hook?</h4>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="checkAnswer(this, false)">It runs only if there was no error</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">It catches errors the catch block missed</button>
+          <button class="quiz-option" onclick="checkAnswer(this, true)">It always runs — whether the request succeeded or failed — typically used to set loading to false</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">It cancels any pending requests</button>
+        </div>
+        <div class="quiz-explanation">
+          ✅ <code>finally</code> runs regardless of success or failure. This guarantees <code>setLoading(false)</code> is always called — if you forget it, the spinner would spin forever after an error.
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="quiz-question" data-q="3">
+        <h4>4. What is the purpose of a Request Interceptor in Axios?</h4>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="checkAnswer(this, false)">To retry failed requests automatically</button>
+          <button class="quiz-option" onclick="checkAnswer(this, true)">To modify every outgoing request — for example, automatically adding an Authorization header</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">To parse the JSON response automatically</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">To log 404 errors to the console</button>
+        </div>
+        <div class="quiz-explanation">
+          ✅ Request interceptors run <em>before</em> each request is sent. A common use case is attaching the user's auth token from localStorage to every request's Authorization header — automatically.
+        </div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="quiz-question" data-q="4">
+        <h4>5. What does <code>Omit&lt;User, 'id'&gt;</code> mean in TypeScript?</h4>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="checkAnswer(this, false)">It creates a User type where all fields except 'id' are optional</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">It removes the User type completely from the project</button>
+          <button class="quiz-option" onclick="checkAnswer(this, true)">It creates a new type with all User fields EXCEPT 'id' — used when creating a user (server assigns the ID)</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">It makes the 'id' field required</button>
+        </div>
+        <div class="quiz-explanation">
+          ✅ <code>Omit&lt;User, 'id'&gt;</code> is a TypeScript utility type that produces a new type identical to User but without the <code>id</code> field. When creating a new user, you don't send an ID — the server generates it.
+        </div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="quiz-question" data-q="5">
+        <h4>6. Why do we need debouncing in a search hook?</h4>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="checkAnswer(this, false)">To make the search results appear faster</button>
+          <button class="quiz-option" onclick="checkAnswer(this, true)">To avoid firing an API call on every single keystroke — wait until the user pauses typing</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">To prevent TypeScript errors in the search function</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">To cache the search results in localStorage</button>
+        </div>
+        <div class="quiz-explanation">
+          ✅ Without debouncing, typing "john" makes 4 requests: "j", "jo", "joh", "john". With a 300ms debounce, you only make 1 request when the user stops typing. This is much more efficient.
+        </div>
+      </div>
+
+      <!-- Q7 -->
+      <div class="quiz-question" data-q="6">
+        <h4>7. What does <code>isRetryable: true</code> in an error handler indicate?</h4>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="checkAnswer(this, false)">The error was caused by wrong user input</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">The user is not authenticated</button>
+          <button class="quiz-option" onclick="checkAnswer(this, true)">The error might resolve if tried again — like a network error or server crash (500)</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">The request timed out and cannot be completed</button>
+        </div>
+        <div class="quiz-explanation">
+          ✅ <code>isRetryable</code> tells the UI whether to show a "Try Again" button. Network errors and 500 errors might be temporary. But 404 (resource not found) or 403 (forbidden) won't change by retrying.
+        </div>
+      </div>
+
+      <!-- Q8 -->
+      <div class="quiz-question" data-q="7">
+        <h4>8. In <code>usePosts(userId?: number)</code>, what does the <code>?</code> after <code>userId</code> mean?</h4>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="checkAnswer(this, false)">userId must always be provided</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">userId is a boolean value</button>
+          <button class="quiz-option" onclick="checkAnswer(this, true)">userId is optional — the hook works both with and without it</button>
+          <button class="quiz-option" onclick="checkAnswer(this, false)">The parameter is deprecated and should not be used</button>
+        </div>
+        <div class="quiz-explanation">
+          ✅ The <code>?</code> makes the parameter optional in TypeScript. <code>usePosts()</code> fetches all posts, while <code>usePosts(5)</code> fetches only posts by user #5. The hook handles both cases with a conditional fetch.
+        </div>
+      </div>
+
+      <div class="score-display" id="quiz-score-display">
+        <div class="score-circle" id="score-circle">0/8</div>
+        <h3 id="score-msg" style="margin-bottom: 8px;"></h3>
+        <p id="score-sub" style="color:var(--text3); font-size:14px;"></p>
+        <button class="btn btn-outline" onclick="restartQuiz()" style="margin-top:16px;">🔄 Retry Quiz</button>
+      </div>
+
+      <div class="quiz-footer">
+        <div class="quiz-score">Score: <span id="current-score">0</span> / 8</div>
+        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 8: PRACTICE TASKS -->
+  <section id="practice">
+    <div class="section-header">
+      <div class="section-label">Section 08</div>
+      <h2>Practice Tasks 💪</h2>
+      <p>The best way to learn is by doing. Try these challenges in order — each builds on the previous.</p>
+    </div>
+
+    <div class="task-card" onclick="toggleTask(event, this)">
+      <div class="task-header">
+        <div class="task-header-left">
+          <div class="task-num" style="background:rgba(79,158,255,0.1);color:var(--accent);">01</div>
+          <div>
+            <div class="task-title">Set up the API Client</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px;"><span class="badge badge-green">Beginner</span> &nbsp; Build your first Axios instance</div>
+          </div>
+        </div>
+        <div class="task-chevron">▼</div>
+      </div>
+      <div class="task-body">
+        <p><strong>Goal:</strong> Create <code>api/client.ts</code> with a configured Axios instance.</p>
+        <p><strong>Requirements:</strong></p>
+        <ul style="color:var(--text2);font-size:14px;padding-left:20px;line-height:2;">
+          <li>Use <code>https://jsonplaceholder.typicode.com</code> as baseURL</li>
+          <li>Set a 10 second timeout</li>
+          <li>Add a request interceptor that logs "→ Request: [METHOD] [URL]" to console</li>
+          <li>Add a response interceptor that logs "← Response: [STATUS]" to console</li>
+          <li>Handle 401 by logging "Session expired, redirecting..."</li>
+        </ul>
+        <div class="callout callout-tip" style="margin-top:16px;">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <h4>Hint</h4>
+            <p>In the request interceptor, you can access <code>config.method</code> and <code>config.url</code>. In the response interceptor, <code>response.status</code> gives you the status code.</p>
+          </div>
+        </div>
+        <div class="code-wrapper" style="margin-top:16px;">
+          <div class="code-header">
+            <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>Starter skeleton</div>
+          </div>
+          <pre><code><span class="kw">import</span> axios <span class="kw">from</span> <span class="str">'axios'</span>;
+
+<span class="kw">const</span> apiClient <span class="op">=</span> axios.<span class="fn">create</span>({
+  <span class="cmt">// TODO: add baseURL, timeout, headers</span>
+});
+
+<span class="cmt">// TODO: add request interceptor</span>
+
+<span class="cmt">// TODO: add response interceptor</span>
+
+<span class="kw">export default</span> apiClient;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggleTask(event, this)">
+      <div class="task-header">
+        <div class="task-header-left">
+          <div class="task-num" style="background:rgba(67,232,176,0.1);color:var(--green);">02</div>
+          <div>
+            <div class="task-title">Create a todoService</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px;"><span class="badge badge-green">Beginner</span> &nbsp; Practice the service pattern</div>
+          </div>
+        </div>
+        <div class="task-chevron">▼</div>
+      </div>
+      <div class="task-body">
+        <p><strong>Goal:</strong> Create <code>api/todoService.ts</code> for the <code>/todos</code> endpoint.</p>
+        <p>JSONPlaceholder has a <code>/todos</code> endpoint. Each todo has: <code>id</code>, <code>userId</code>, <code>title</code>, <code>completed</code>.</p>
+        <p><strong>Implement these functions:</strong></p>
+        <ul style="color:var(--text2);font-size:14px;padding-left:20px;line-height:2;">
+          <li><code>getAll()</code> — fetch all todos</li>
+          <li><code>getById(id: number)</code> — fetch one todo</li>
+          <li><code>getByUserId(userId: number)</code> — fetch all todos for a user</li>
+          <li><code>create(todo: Omit&lt;Todo, 'id'&gt;)</code> — create new todo</li>
+          <li><code>toggleComplete(id: number, completed: boolean)</code> — use PATCH to update just the <code>completed</code> field</li>
+        </ul>
+        <div class="code-wrapper" style="margin-top:16px;">
+          <div class="code-header">
+            <div class="code-filename"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>Expected interface</div>
+          </div>
+          <pre><code><span class="cmt">// First define the type in types.ts:</span>
+<span class="kw">export interface</span> <span class="typ">Todo</span> {
+  id: <span class="typ">number</span>;
+  userId: <span class="typ">number</span>;
+  title: <span class="typ">string</span>;
+  completed: <span class="typ">boolean</span>;
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggleTask(event, this)">
+      <div class="task-header">
+        <div class="task-header-left">
+          <div class="task-num" style="background:rgba(124,95,255,0.1);color:var(--accent2);">03</div>
+          <div>
+            <div class="task-title">Build useTodos Custom Hook</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px;"><span class="badge badge-blue">Intermediate</span> &nbsp; State + Service integration</div>
+          </div>
+        </div>
+        <div class="task-chevron">▼</div>
+      </div>
+      <div class="task-body">
+        <p><strong>Goal:</strong> Create <code>hooks/useTodos.ts</code> that wraps todoService with state management.</p>
+        <p><strong>The hook should return:</strong></p>
+        <ul style="color:var(--text2);font-size:14px;padding-left:20px;line-height:2;">
+          <li><code>todos</code> — the list of todos</li>
+          <li><code>loading</code> — boolean</li>
+          <li><code>error</code> — string or null</li>
+          <li><code>refetch</code> — function to manually reload</li>
+          <li><code>addTodo(title: string)</code> — creates a new todo and updates the local list</li>
+          <li><code>toggleTodo(id: number)</code> — toggles completed and updates the local list</li>
+        </ul>
+        <div class="callout callout-warn" style="margin-top:16px;">
+          <div class="callout-icon">🧩</div>
+          <div class="callout-body">
+            <h4>Challenge: Optimistic Updates</h4>
+            <p>For <code>toggleTodo</code>, try updating the UI immediately (before the API call completes), then rollback if the API call fails. This is called an "optimistic update" and is how modern apps feel fast.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggleTask(event, this)">
+      <div class="task-header">
+        <div class="task-header-left">
+          <div class="task-num" style="background:rgba(255,193,66,0.1);color:var(--yellow);">04</div>
+          <div>
+            <div class="task-title">Build a Full TodoList Component</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px;"><span class="badge badge-blue">Intermediate</span> &nbsp; Wire everything together</div>
+          </div>
+        </div>
+        <div class="task-chevron">▼</div>
+      </div>
+      <div class="task-body">
+        <p><strong>Goal:</strong> Create a <code>TodoList.tsx</code> component that uses your <code>useTodos</code> hook.</p>
+        <p><strong>Features:</strong></p>
+        <ul style="color:var(--text2);font-size:14px;padding-left:20px;line-height:2;">
+          <li>Show loading state while fetching</li>
+          <li>Show error message with a retry button on failure</li>
+          <li>Display todos with a checkbox to toggle completion</li>
+          <li>Show "Add Todo" input + button</li>
+          <li>Filter buttons: "All" | "Active" | "Completed"</li>
+          <li>Show count: "3 of 10 completed"</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggleTask(event, this)">
+      <div class="task-header">
+        <div class="task-header-left">
+          <div class="task-num" style="background:rgba(255,107,107,0.1);color:var(--red);">05</div>
+          <div>
+            <div class="task-title">Add Retry Logic to useFetch</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px;"><span class="badge badge-red">Advanced</span> &nbsp; Error handling mastery</div>
+          </div>
+        </div>
+        <div class="task-chevron">▼</div>
+      </div>
+      <div class="task-body">
+        <p><strong>Goal:</strong> Extend the <code>useFetch</code> hook to automatically retry failed requests.</p>
+        <p><strong>Requirements:</strong></p>
+        <ul style="color:var(--text2);font-size:14px;padding-left:20px;line-height:2;">
+          <li>Add <code>retries?: number</code> parameter (default: 0)</li>
+          <li>Add <code>retryDelay?: number</code> parameter (default: 1000)</li>
+          <li>Implement exponential backoff between retries</li>
+          <li>Add <code>retryCount</code> to the return value so components can display "Retrying... (attempt 2/3)"</li>
+          <li>Only retry if <code>isRetryable</code> is true (use your errorHandler)</li>
+        </ul>
+        <div class="callout callout-tip" style="margin-top:16px;">
+          <div class="callout-icon">🏆</div>
+          <div class="callout-body">
+            <h4>Bonus Challenge</h4>
+            <p>Add an abort signal (<code>AbortController</code>) to cancel in-flight requests when the component unmounts. This prevents "cannot update state on unmounted component" warnings.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHEAT SHEET -->
+  <section id="cheatsheet" style="padding-bottom:20px;">
+    <div class="section-header">
+      <div class="section-label">Reference</div>
+      <h2>Quick Reference Cheat Sheet 📋</h2>
+    </div>
+
+    <div class="card" style="background:var(--code-bg);border-color:var(--code-border);">
+      <div class="two-col">
+        <div>
+          <h3 style="font-size:14px;color:var(--accent);margin-bottom:12px;font-family:'Fira Code'">// Key Patterns</h3>
+          <div style="font-family:'Fira Code';font-size:12px;line-height:2.2;color:var(--text2);">
+            <div><span class="kw">Axios instance</span> → <span class="fn">axios.create(config)</span></div>
+            <div><span class="kw">Request interceptor</span> → <span class="fn">apiClient.interceptors.request.use(fn)</span></div>
+            <div><span class="kw">Response interceptor</span> → <span class="fn">apiClient.interceptors.response.use(ok, err)</span></div>
+            <div><span class="kw">GET</span> → <span class="fn">apiClient.get&lt;T&gt;('/path')</span></div>
+            <div><span class="kw">POST</span> → <span class="fn">apiClient.post&lt;T&gt;('/path', body)</span></div>
+            <div><span class="kw">PUT</span> → <span class="fn">apiClient.put&lt;T&gt;('/path/id', body)</span></div>
+            <div><span class="kw">DELETE</span> → <span class="fn">apiClient.delete('/path/id')</span></div>
+            <div><span class="kw">Query params</span> → <span class="fn">apiClient.get('/path', { params: { q: 'x' } })</span></div>
+          </div>
+        </div>
+        <div>
+          <h3 style="font-size:14px;color:var(--accent2);margin-bottom:12px;font-family:'Fira Code'">// TypeScript Utilities</h3>
+          <div style="font-family:'Fira Code';font-size:12px;line-height:2.2;color:var(--text2);">
+            <div><span class="typ">Omit</span>&lt;<span class="typ">T</span>, <span class="str">'id'</span>&gt; → T without 'id' field</div>
+            <div><span class="typ">Partial</span>&lt;<span class="typ">T</span>&gt; → all fields optional</div>
+            <div><span class="typ">Required</span>&lt;<span class="typ">T</span>&gt; → all fields required</div>
+            <div><span class="typ">Pick</span>&lt;<span class="typ">T</span>, <span class="str">'a'|'b'</span>&gt; → only these fields</div>
+            <div><span class="typ">Promise</span>&lt;<span class="typ">User</span>[]&gt; → async returns User array</div>
+            <br>
+            <h3 style="font-size:14px;color:var(--green);margin-bottom:6px;font-family:'Fira Code'">// Hook Template</h3>
+            <div><span class="kw">const</span> [data, setData] = <span class="fn">useState</span>&lt;<span class="typ">T</span>[]&gt;([]);</div>
+            <div><span class="kw">const</span> [loading, setLoading] = <span class="fn">useState</span>(<span class="kw">true</span>);</div>
+            <div><span class="kw">const</span> [error, setError] = <span class="fn">useState</span>&lt;<span class="typ">string</span>|<span class="kw">null</span>&gt;(<span class="kw">null</span>);</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="container">
+    <p style="margin-bottom:4px; color: var(--text3);">React API Integration & Custom Hooks — Complete Lesson</p>
+    <p style="font-size:12px;">Built with ❤️ for React learners &nbsp;·&nbsp; Topics: Axios · Service Pattern · Custom Hooks · Error Handling</p>
+  </div>
+</footer>
+
+<script>
+  // ============================
+  // NAV ACTIVE STATE
+  // ============================
+  function setActive(el) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // Scroll spy
+  window.addEventListener('scroll', () => {
+    const sections = document.querySelectorAll('section[id]');
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    document.querySelectorAll('.nav-item').forEach(n => {
+      n.classList.remove('active');
+      if (n.getAttribute('href') === '#' + current) n.classList.add('active');
+    });
+  });
+
+  // ============================
+  // TABS
+  // ============================
+  function switchTab(btn, panelId) {
+    const parent = btn.closest('div');
+    parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+
+    const section = btn.closest('section') || btn.closest('.container');
+    let panels = section ? section.querySelectorAll('.tab-panel') : document.querySelectorAll('.tab-panel');
+
+    panels.forEach(p => {
+      if (p.id === panelId) p.classList.add('active');
+      else p.classList.remove('active');
+    });
+  }
+
+  // ============================
+  // COPY CODE
+  // ============================
+  function copyCode(btn) {
+    const pre = btn.closest('.code-wrapper').querySelector('pre');
+    const text = pre.innerText;
+    const done = () => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    };
+
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else {
+      fallbackCopy(text, done);
+    }
+  }
+
+  function fallbackCopy(text, done) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', 'true');
+    ta.style.position = 'absolute';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); done(); }
+    finally { document.body.removeChild(ta); }
+  }
+
+  // ============================
+  // QUIZ
+  // ============================
+  const quizQuestions = Array.from(document.querySelectorAll('.quiz-question'));
+  let currentQ = 0;
+  let score = 0;
+  let answered = Array(quizQuestions.length).fill(false);
+  const totalQ = quizQuestions.length;
+  document.getElementById('q-total').textContent = totalQ;
+
+  function checkAnswer(btn, correct) {
+    const qEl = btn.closest('.quiz-question');
+    if (qEl.querySelector('.quiz-option.correct') || qEl.querySelector('.quiz-option.wrong')) return;
+
+    const opts = qEl.querySelectorAll('.quiz-option');
+    opts.forEach(o => o.classList.add('disabled'));
+
+    if (correct) {
+      btn.classList.add('correct');
+      if (!answered[currentQ]) { score++; answered[currentQ] = true; }
+    } else {
+      btn.classList.add('wrong');
+      opts.forEach(o => { if (o !== btn) o.style.opacity = '0.4'; });
+    }
+
+    qEl.querySelector('.quiz-explanation').classList.add('show');
+    document.getElementById('current-score').textContent = score;
+    document.getElementById('next-btn').disabled = false;
+  }
+
+  function nextQuestion() {
+    if (currentQ < totalQ - 1) {
+      quizQuestions[currentQ].classList.remove('active');
+      currentQ++;
+      quizQuestions[currentQ].classList.add('active');
+      document.getElementById('q-current').textContent = currentQ + 1;
+      document.getElementById('quiz-progress-bar').style.width = ((currentQ + 1) / totalQ * 100) + '%';
+      document.getElementById('next-btn').disabled = true;
+      if (currentQ === totalQ - 1) document.getElementById('next-btn').textContent = 'Finish ✓';
+    } else {
+      // Show score
+      quizQuestions.forEach(q => q.style.display = 'none');
+      const scoreDisplay = document.getElementById('quiz-score-display');
+      scoreDisplay.classList.add('show');
+      const pct = Math.round(score / totalQ * 100);
+      const circle = document.getElementById('score-circle');
+      circle.textContent = score + '/' + totalQ;
+
+      let msg, sub, color;
+      if (pct >= 90) { msg = '🏆 Excellent!'; sub = 'You have a strong grasp of API integration patterns.'; color = 'var(--green)'; }
+      else if (pct >= 70) { msg = '👍 Good job!'; sub = 'Review the sections you found tricky and try again.'; color = 'var(--accent)'; }
+      else { msg = '📚 Keep studying!'; sub = 'Re-read the lesson sections and try the quiz again.'; color = 'var(--yellow)'; }
+
+      circle.style.background = color + '20';
+      circle.style.border = '3px solid ' + color;
+      circle.style.color = color;
+      document.getElementById('score-msg').textContent = msg;
+      document.getElementById('score-sub').textContent = sub;
+      document.getElementById('next-btn').style.display = 'none';
+    }
+  }
+
+  function restartQuiz() {
+    currentQ = 0; score = 0;
+    answered = Array(totalQ).fill(false);
+    document.getElementById('quiz-score-display').classList.remove('show');
+    document.getElementById('quiz-progress-bar').style.width = (1 / totalQ * 100) + '%';
+    document.getElementById('q-current').textContent = '1';
+    document.getElementById('q-total').textContent = totalQ;
+    document.getElementById('current-score').textContent = '0';
+    document.getElementById('next-btn').disabled = true;
+    document.getElementById('next-btn').style.display = '';
+    document.getElementById('next-btn').textContent = 'Next →';
+
+    quizQuestions.forEach((q, i) => {
+      q.style.display = '';
+      q.classList.remove('active');
+      q.querySelectorAll('.quiz-option').forEach(o => {
+        o.classList.remove('correct','wrong','disabled');
+        o.style.opacity = '';
+      });
+      q.querySelector('.quiz-explanation').classList.remove('show');
+    });
+    quizQuestions[0].classList.add('active');
+  }
+
+  // ============================
+  // PRACTICE TASKS TOGGLE
+  // ============================
+  function toggleTask(evt, card) {
+    if (evt?.target?.closest('.copy-btn')) return;
+    card.classList.toggle('open');
+  }
+
+  // ============================
+  // HOOK SIMULATOR
+  // ============================
+  let simState = { users: [], loading: true, error: null };
+  let simTimer = null;
+
+  function updateSimDisplay() {
+    document.getElementById('sim-users').textContent = simState.users.length > 0
+      ? `[...${simState.users.length} users]` : '[]';
+    const loadEl = document.getElementById('sim-loading');
+    loadEl.textContent = simState.loading.toString();
+    loadEl.style.color = simState.loading ? 'var(--yellow)' : 'var(--green)';
+    const errEl = document.getElementById('sim-error');
+    errEl.textContent = simState.error || 'null';
+    errEl.style.color = simState.error ? 'var(--red)' : 'var(--text3)';
+  }
+
+  function addLog(msg, type = '') {
+    const log = document.getElementById('sim-log');
+    const line = document.createElement('div');
+    line.className = 'log-line ' + type;
+    line.textContent = msg;
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function simFetch() {
+    simState = { users: [], loading: true, error: null };
+    updateSimDisplay();
+    addLog('→ fetchUsers() called', 'info');
+    addLog('→ setLoading(true)', 'info');
+    addLog('→ await userService.getAll() ...', '');
+
+    setTimeout(() => {
+      simState.users = [{id:1,name:'Alice'},{id:2,name:'Bob'},{id:3,name:'Charlie'}];
+      simState.loading = false;
+      updateSimDisplay();
+      addLog('← API responded with 3 users ✓', 'success');
+      addLog('← setUsers([Alice, Bob, Charlie])', 'success');
+      addLog('← setLoading(false)', 'success');
+    }, 1200);
+  }
+
+  function simError() {
+    simState = { users: [], loading: true, error: null };
+    updateSimDisplay();
+    addLog('→ fetchUsers() called', 'info');
+    addLog('→ setLoading(true)', 'info');
+    addLog('→ await userService.getAll() ...', '');
+
+    setTimeout(() => {
+      simState.loading = false;
+      simState.error = 'Network Error: fetch failed';
+      updateSimDisplay();
+      addLog('✗ Request failed!', 'error');
+      addLog('← catch: setError("Network Error")', 'error');
+      addLog('← finally: setLoading(false)', 'warn');
+    }, 800);
+  }
+
+  function simRefetch() {
+    simState.loading = true;
+    simState.error = null;
+    simState.users = [];
+    updateSimDisplay();
+    addLog('→ refetch() triggered by user click', 'info');
+    simFetch();
+  }
+
+  function simReset() {
+    simState = { users: [], loading: true, error: null };
+    updateSimDisplay();
+    document.getElementById('sim-log').innerHTML = '<div class="log-line info">// Hook initialized — useEffect will call fetchUsers()</div>';
+  }
+
+  // Auto-run simulation on page load
+  setTimeout(() => simFetch(), 500);
+
+  const qTotalEl = document.getElementById('q-total');
+  if (qTotalEl) qTotalEl.textContent = quizQuestions.length;
+
+  // ============================
+  // ANIMATIONS ON SCROLL
+  // ============================
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.animation = 'fadeIn 0.5s ease both';
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.card, .code-wrapper, .callout, .task-card').forEach(el => {
+    el.style.opacity = '0';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>

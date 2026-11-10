@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SQL Mastery — Interactive Learning Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@300;400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"/>
+<style>
+/* =============================================================
+   TOKENS
+   ============================================================= */
+:root{
+  --bg:         #0d0b09;
+  --bg-card:    #141210;
+  --bg-surface: #1c1916;
+  --bg-raised:  #232018;
+  --border:     #2d2822;
+  --border-hi:  #4a3e30;
+  --orange:     #ff5c2b;
+  --orange-dim: #cc4a22;
+  --gold:       #f5b731;
+  --gold-dim:   #c4921f;
+  --green:      #3ecf72;
+  --green-dim:  #2ca05a;
+  --blue:       #5c9eff;
+  --red:        #ff4d5e;
+  --violet:     #b07aff;
+  --text:       #ede8e3;
+  --text-2:     #9a8e83;
+  --text-3:     #5a504a;
+  --code-bg:    #080705;
+  --r:          8px;
+  --r-lg:       14px;
+  --sh:         0 2px 16px rgba(0,0,0,.6);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:15px}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  line-height:1.7;overflow-x:hidden;
+}
+/* scrollbar */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:3px}
+
+/* =============================================================
+   LAYOUT
+   ============================================================= */
+.shell{display:flex;min-height:100vh}
+
+/* --- SIDEBAR --- */
+.sidebar{
+  width:255px;min-width:255px;
+  background:var(--bg-card);
+  border-right:1px solid var(--border);
+  position:sticky;top:0;height:100vh;
+  overflow-y:auto;display:flex;flex-direction:column;
+  padding-bottom:2rem;z-index:100;
+}
+.sb-top{
+  padding:1.5rem 1.25rem 1rem;
+  border-bottom:1px solid var(--border);
+  margin-bottom:.4rem;
+}
+.sb-logo{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:800;font-size:1.05rem;
+  display:flex;align-items:center;gap:.5rem;
+  letter-spacing:-.02em;
+}
+.sb-logo .accent{color:var(--orange)}
+.sb-logo .rest{color:var(--text)}
+
+/* progress inside sidebar */
+.sb-progress{margin-top:.9rem}
+.sb-prog-label{
+  display:flex;justify-content:space-between;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.63rem;color:var(--text-3);
+  margin-bottom:.35rem;
+}
+.sb-prog-label span{color:var(--orange)}
+.sb-track{height:2px;background:var(--bg-raised);border-radius:2px}
+.sb-fill{height:100%;width:0;background:linear-gradient(90deg,var(--orange),var(--gold));border-radius:2px;transition:width .4s ease}
+
+.nav-group{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text-3);padding:.8rem 1.25rem .25rem;
+}
+.nav-item{
+  display:flex;align-items:center;gap:.55rem;
+  padding:.48rem 1.25rem;
+  color:var(--text-2);font-size:.8rem;
+  border-left:2px solid transparent;
+  cursor:pointer;text-decoration:none;
+  transition:all .12s;
+}
+.nav-item:hover{color:var(--text);background:rgba(255,92,43,.04);border-left-color:var(--border-hi)}
+.nav-item.active{color:var(--orange);background:rgba(255,92,43,.06);border-left-color:var(--orange)}
+.nav-item .ni{font-size:.75rem;opacity:.6;width:14px;text-align:center;flex-shrink:0}
+.nav-item .nn{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text-3)}
+.nav-item.seen .nn{color:var(--green)}
+
+/* --- MAIN --- */
+.main{flex:1;padding:2.5rem 3rem;max-width:960px;margin:0 auto;width:100%}
+
+/* =============================================================
+   HERO
+   ============================================================= */
+.hero{
+  padding:2.5rem 0 2rem;
+  margin-bottom:3rem;
+  border-bottom:1px solid var(--border);
+  position:relative;
+}
+.hero-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.68rem;color:var(--orange);
+  letter-spacing:.08em;text-transform:uppercase;
+  margin-bottom:.9rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.hero-eyebrow::before{content:'';display:block;width:24px;height:1px;background:var(--orange)}
+.hero h1{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:3rem;font-weight:800;line-height:1.05;
+  letter-spacing:-.04em;margin-bottom:.8rem;
+}
+.hero h1 .hl{
+  -webkit-text-fill-color:transparent;
+  -webkit-background-clip:text;background-clip:text;
+  background-image:linear-gradient(110deg,var(--orange) 0%,var(--gold) 100%);
+}
+.hero-sub{color:var(--text-2);font-size:.93rem;max-width:520px;line-height:1.65}
+.hero-meta{
+  display:flex;gap:2.5rem;margin-top:1.5rem;
+}
+.meta-item{display:flex;flex-direction:column}
+.meta-val{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:1.6rem;font-weight:700;
+  color:var(--text);line-height:1;
+}
+.meta-val em{color:var(--orange);font-style:normal}
+.meta-key{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text-3);margin-top:.25rem}
+
+/* =============================================================
+   SECTIONS
+   ============================================================= */
+.section{
+  margin-bottom:4.5rem;
+  opacity:0;transform:translateY(18px);
+  transition:opacity .45s ease,transform .45s ease;
+}
+.section.visible{opacity:1;transform:none}
+
+.sec-head{
+  display:flex;align-items:flex-start;gap:.9rem;
+  margin-bottom:1.6rem;padding-bottom:.9rem;
+  border-bottom:1px solid var(--border);
+}
+.sec-num{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:2.2rem;font-weight:800;line-height:1;
+  color:var(--border-hi);letter-spacing:-.03em;
+  flex-shrink:0;margin-top:-.1rem;
+}
+.sec-info{}
+.sec-title{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:1.45rem;font-weight:700;
+  letter-spacing:-.025em;line-height:1.2;
+}
+.sec-desc{color:var(--text-3);font-size:.82rem;margin-top:.2rem;font-family:'JetBrains Mono',monospace}
+
+/* =============================================================
+   CARDS
+   ============================================================= */
+.card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:1.3rem 1.4rem;
+  margin-bottom:1.1rem;
+  transition:border-color .15s,box-shadow .15s;
+}
+.card:hover{border-color:var(--border-hi);box-shadow:var(--sh)}
+.card-head{
+  display:flex;align-items:center;gap:.5rem;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:.95rem;font-weight:700;margin-bottom:.8rem;
+}
+.tag{
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;
+  padding:.12rem .4rem;border-radius:4px;font-weight:400;
+  letter-spacing:.03em;text-transform:uppercase;
+}
+.tag-c{background:rgba(176,122,255,.12);color:var(--violet);border:1px solid rgba(176,122,255,.2)}
+.tag-s{background:rgba(255,92,43,.1);color:var(--orange);border:1px solid rgba(255,92,43,.2)}
+.tag-e{background:rgba(245,183,49,.1);color:var(--gold);border:1px solid rgba(245,183,49,.2)}
+.tag-t{background:rgba(62,207,114,.1);color:var(--green);border:1px solid rgba(62,207,114,.2)}
+.tag-w{background:rgba(255,77,94,.1);color:var(--red);border:1px solid rgba(255,77,94,.2)}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.1rem}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.1rem}
+
+/* =============================================================
+   CODE BLOCKS
+   ============================================================= */
+pre,code{font-family:'JetBrains Mono',monospace}
+.cb{
+  background:var(--code-bg);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;margin-bottom:.9rem;
+}
+.cb-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.45rem .85rem;background:rgba(255,255,255,.015);
+  border-bottom:1px solid var(--border);
+}
+.cb-lang{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em}
+.cb-copy{
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;
+  color:var(--text-3);background:none;border:none;cursor:pointer;
+  padding:.12rem .35rem;border-radius:4px;transition:color .12s;
+}
+.cb-copy:hover{color:var(--orange)}
+.cb-copy.done{color:var(--green)}
+pre code{
+  display:block;padding:.9rem 1rem;font-size:.8rem;line-height:1.75;
+  color:#d4ccbf;overflow-x:auto;white-space:pre;
+}
+/* tokens */
+.kw{color:#ff9a6c}      /* keywords: SELECT FROM WHERE */
+.fn{color:#c9a8ff}      /* functions: COUNT SUM */
+.str{color:#a8d8a0}     /* strings */
+.num{color:var(--gold)} /* numbers */
+.cm{color:var(--text-3);font-style:italic} /* comments */
+.op{color:#7ecfff}      /* operators */
+.tb{color:#ffb86c}      /* table names */
+
+/* =============================================================
+   PRACTICE EDITOR
+   ============================================================= */
+.editor{
+  background:var(--code-bg);border:1px solid var(--border);
+  border-radius:var(--r-lg);overflow:hidden;margin-bottom:1.1rem;
+}
+.ed-top{
+  display:flex;align-items:center;gap:.7rem;
+  padding:.55rem .9rem;background:rgba(255,255,255,.015);
+  border-bottom:1px solid var(--border);
+}
+.ed-dots{display:flex;gap:.3rem}
+.d{width:9px;height:9px;border-radius:50%}
+.dr{background:#ff5f57}.dy{background:#febc2e}.dg{background:#28c840}
+.ed-name{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text-3)}
+.ed-badge{
+  margin-left:auto;font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;color:var(--orange);
+  background:rgba(255,92,43,.08);border:1px solid rgba(255,92,43,.2);
+  padding:.08rem .38rem;border-radius:4px;
+}
+.ed-area{
+  width:100%;min-height:115px;background:transparent;
+  color:#d4ccbf;font-family:'JetBrains Mono',monospace;
+  font-size:.79rem;line-height:1.75;border:none;outline:none;
+  resize:vertical;padding:.9rem 1rem;caret-color:var(--orange);
+}
+.ed-area::selection{background:rgba(255,92,43,.25)}
+.ed-bot{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.5rem .9rem;background:rgba(255,255,255,.015);
+  border-top:1px solid var(--border);gap:.5rem;
+}
+.btn-run{
+  display:flex;align-items:center;gap:.4rem;
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:500;
+  color:var(--bg);background:var(--orange);border:none;
+  padding:.38rem .9rem;border-radius:6px;cursor:pointer;
+  transition:background .12s,transform .08s;flex-shrink:0;
+}
+.btn-run:hover{background:var(--orange-dim)}
+.btn-run:active{transform:scale(.97)}
+.btn-run svg{width:10px;height:10px;fill:currentColor}
+.btn-hint{
+  font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text-3);
+  background:none;border:1px solid var(--border);padding:.28rem .65rem;
+  border-radius:6px;cursor:pointer;transition:all .12s;
+}
+.btn-hint:hover{color:var(--gold);border-color:rgba(245,183,49,.3)}
+.ed-hint{
+  font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--gold);
+  background:rgba(245,183,49,.05);border-top:1px solid rgba(245,183,49,.12);
+  padding:.7rem 1rem;display:none;line-height:1.6;
+}
+.ed-hint.show{display:block}
+.ed-result{
+  border-top:1px solid var(--border);
+  padding:.7rem .9rem;display:none;
+}
+.ed-result.show{display:block}
+.rt{width:100%;border-collapse:collapse;font-size:.75rem}
+.rt th{
+  text-align:left;padding:.32rem .65rem;
+  background:rgba(255,92,43,.07);color:var(--orange);
+  border:1px solid var(--border);
+  font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:500;
+}
+.rt td{padding:.28rem .65rem;border:1px solid var(--border);color:var(--text)}
+.rt tr:nth-child(even) td{background:rgba(255,255,255,.018)}
+.rt-null{color:var(--text-3);font-style:italic}
+.rt-msg{
+  font-family:'JetBrains Mono',monospace;font-size:.68rem;
+  color:var(--text-3);margin-top:.35rem;
+  display:flex;align-items:center;gap:.3rem;
+}
+.rt-msg.ok{color:var(--green)}.rt-msg.err{color:var(--red)}
+.rt-spin{
+  display:inline-block;animation:spin .7s linear infinite;
+  font-size:.8rem;color:var(--text-3);
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* =============================================================
+   QUIZ
+   ============================================================= */
+.quiz{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-top:2px solid var(--orange);
+  border-radius:var(--r-lg);padding:1.3rem 1.4rem;margin-top:1rem;
+}
+.quiz-eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:.62rem;
+  color:var(--orange);letter-spacing:.08em;text-transform:uppercase;
+  margin-bottom:.55rem;display:flex;align-items:center;gap:.4rem;
+}
+.quiz-q{font-weight:500;font-size:.88rem;line-height:1.55;margin-bottom:.85rem}
+.quiz-q code{
+  font-family:'JetBrains Mono',monospace;font-size:.82em;
+  color:var(--gold);background:rgba(245,183,49,.08);
+  padding:.08rem .3rem;border-radius:3px;
+}
+.quiz-opts{display:flex;flex-direction:column;gap:.45rem}
+.qopt{
+  display:flex;align-items:flex-start;gap:.65rem;
+  padding:.6rem .85rem;border:1px solid var(--border);
+  border-radius:var(--r);cursor:pointer;font-size:.83rem;
+  transition:all .12s;user-select:none;line-height:1.45;
+}
+.qopt:hover:not(.locked){border-color:var(--border-hi);background:rgba(255,92,43,.04)}
+.qopt .ok{
+  font-family:'JetBrains Mono',monospace;font-size:.65rem;
+  color:var(--text-3);background:var(--bg-surface);
+  border:1px solid var(--border);padding:.08rem .32rem;
+  border-radius:4px;min-width:22px;text-align:center;flex-shrink:0;margin-top:.05rem;
+}
+.qopt.correct{border-color:var(--green);background:rgba(62,207,114,.06);color:var(--green)}
+.qopt.correct .ok{background:rgba(62,207,114,.12);border-color:var(--green);color:var(--green)}
+.qopt.wrong{border-color:var(--red);background:rgba(255,77,94,.06);color:var(--red)}
+.qopt.wrong .ok{background:rgba(255,77,94,.12);border-color:var(--red);color:var(--red)}
+.qopt.dim{opacity:.35;pointer-events:none}
+.qopt.locked{cursor:default}
+.q-fb{
+  margin-top:.7rem;padding:.55rem .8rem;border-radius:var(--r);
+  font-size:.8rem;line-height:1.5;display:none;
+}
+.q-fb.show{display:block}
+.q-fb.fb-ok{background:rgba(62,207,114,.06);border:1px solid rgba(62,207,114,.18);color:var(--green)}
+.q-fb.fb-no{background:rgba(255,77,94,.06);border:1px solid rgba(255,77,94,.18);color:var(--red)}
+
+/* =============================================================
+   DATA TABLES
+   ============================================================= */
+.dt{width:100%;border-collapse:collapse;font-size:.81rem;margin-bottom:.9rem}
+.dt th{
+  text-align:left;padding:.52rem .85rem;
+  background:var(--bg-surface);color:var(--gold);
+  font-family:'JetBrains Mono',monospace;font-size:.68rem;
+  font-weight:500;border:1px solid var(--border);letter-spacing:.02em;
+}
+.dt td{padding:.46rem .85rem;border:1px solid var(--border)}
+.dt tr:nth-child(even) td{background:rgba(255,255,255,.012)}
+.dt td code,.dt th code{
+  font-family:'JetBrains Mono',monospace;font-size:.82em;
+  color:var(--orange);background:rgba(255,92,43,.08);
+  padding:.04rem .28rem;border-radius:3px;
+}
+
+/* =============================================================
+   CALLOUTS
+   ============================================================= */
+.note{
+  display:flex;gap:.75rem;padding:.9rem 1rem;
+  border-radius:var(--r);margin-bottom:.9rem;
+  font-size:.84rem;line-height:1.6;
+}
+.note-ico{font-size:.95rem;flex-shrink:0;margin-top:.08rem}
+.note.info{background:rgba(92,158,255,.06);border:1px solid rgba(92,158,255,.18);color:#9dc3ff}
+.note.warn{background:rgba(255,77,94,.05);border:1px solid rgba(255,77,94,.18);color:#ff9aa5}
+.note.tip{background:rgba(62,207,114,.05);border:1px solid rgba(62,207,114,.18);color:#8de8ac}
+.note.idea{background:rgba(245,183,49,.05);border:1px solid rgba(245,183,49,.18);color:#f5d07a}
+.note strong{font-weight:600;color:inherit}
+
+/* =============================================================
+   COLLAPSIBLE
+   ============================================================= */
+.toggle-btn{
+  display:inline-flex;align-items:center;gap:.45rem;
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;
+  color:var(--text-3);background:none;
+  border:1px solid var(--border);padding:.32rem .7rem;
+  border-radius:var(--r);cursor:pointer;margin-bottom:.6rem;
+  transition:all .12s;
+}
+.toggle-btn:hover{color:var(--gold);border-color:rgba(245,183,49,.25)}
+.toggle-btn .arr{transition:transform .18s;display:inline-block;font-style:normal}
+.toggle-btn.open .arr{transform:rotate(90deg)}
+.collapsible{display:none}
+.collapsible.open{display:block;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+/* =============================================================
+   OPERATION CARDS — relational algebra
+   ============================================================= */
+.op-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:.75rem;margin-bottom:.9rem}
+.op-card{
+  background:var(--bg-surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:.85rem .95rem;
+  transition:border-color .15s,transform .15s;
+}
+.op-card:hover{border-color:var(--border-hi);transform:translateY(-2px)}
+.op-sym{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:1.4rem;font-weight:700;color:var(--orange);margin-bottom:.25rem;line-height:1;
+}
+.op-nm{font-weight:600;font-size:.84rem;margin-bottom:.18rem;font-family:'Bricolage Grotesque',sans-serif}
+.op-sq{
+  font-family:'JetBrains Mono',monospace;font-size:.68rem;
+  color:var(--gold);background:rgba(245,183,49,.08);
+  padding:.08rem .32rem;border-radius:3px;display:inline-block;margin-bottom:.25rem;
+}
+.op-dc{font-size:.76rem;color:var(--text-3);line-height:1.45}
+
+/* =============================================================
+   EXECUTION PIPELINE
+   ============================================================= */
+.pipeline{
+  display:flex;align-items:stretch;flex-wrap:wrap;
+  gap:0;margin-bottom:1rem;
+}
+.pipe{
+  display:flex;flex-direction:column;align-items:center;
+  background:var(--bg-surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:.55rem .85rem;
+  min-width:90px;text-align:center;flex:1;
+  transition:border-color .15s;
+}
+.pipe:hover{border-color:var(--orange)}
+.pipe-n{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--orange);margin-bottom:.18rem}
+.pipe-t{font-size:.77rem;font-weight:600;font-family:'Bricolage Grotesque',sans-serif}
+.pipe-d{font-size:.65rem;color:var(--text-3);margin-top:.18rem;line-height:1.3}
+.p-arr{color:var(--border-hi);padding:0 .15rem;display:flex;align-items:center;font-size:1rem;flex-shrink:0}
+
+/* =============================================================
+   EXEC ORDER LIST
+   ============================================================= */
+.exec-list{display:flex;flex-direction:column;gap:.28rem;margin-bottom:.9rem}
+.exec-row{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.47rem .85rem;background:var(--bg-surface);
+  border:1px solid var(--border);border-radius:var(--r);
+  font-size:.83rem;transition:.12s;
+}
+.exec-row:hover{border-color:var(--border-hi);background:rgba(255,92,43,.04)}
+.estep{
+  font-family:'JetBrains Mono',monospace;font-size:.65rem;
+  color:var(--text-3);width:20px;flex-shrink:0;
+}
+.eclause{
+  font-family:'JetBrains Mono',monospace;font-size:.79rem;
+  color:var(--orange);background:rgba(255,92,43,.08);
+  padding:.08rem .4rem;border-radius:4px;min-width:115px;
+}
+.enote{font-size:.78rem;color:var(--text-2)}
+
+/* =============================================================
+   JOIN VISUALS
+   ============================================================= */
+.join-grid{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-bottom:.9rem}
+.join-card{
+  background:var(--bg-surface);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:1rem;text-align:center;
+  transition:.15s;
+}
+.join-card:hover{border-color:var(--border-hi)}
+.jvenn{position:relative;height:66px;width:120px;margin:0 auto .55rem}
+.jca,.jcb{
+  width:56px;height:56px;border-radius:50%;position:absolute;top:5px;
+}
+.jca{left:0}.jcb{right:0}
+.join-card h4{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:.88rem;font-weight:700;margin-bottom:.25rem;
+}
+.join-card p{font-size:.75rem;color:var(--text-2);line-height:1.5}
+
+/* =============================================================
+   INLINE CODE
+   ============================================================= */
+p code,li code{
+  font-family:'JetBrains Mono',monospace;font-size:.83em;
+  color:var(--orange);background:rgba(255,92,43,.08);
+  padding:.05rem .3rem;border-radius:3px;
+}
+
+/* =============================================================
+   FLOATING SCROLL PROGRESS
+   ============================================================= */
+.flt{
+  position:fixed;bottom:1.4rem;right:1.4rem;z-index:200;
+  width:50px;height:50px;cursor:pointer;
+}
+.flt svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.flt-inner{
+  position:absolute;inset:6px;
+  background:var(--bg-card);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--orange);
+}
+
+/* =============================================================
+   RESPONSIVE
+   ============================================================= */
+@media(max-width:880px){
+  .sidebar{display:none}
+  .main{padding:1.5rem 1.1rem}
+  .g2,.g3{grid-template-columns:1fr}
+  .join-grid{grid-template-columns:1fr}
+  .hero h1{font-size:2.1rem}
+  .pipeline{gap:.25rem}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ===================== SIDEBAR ===================== -->
+<nav class="sidebar" id="sidebar">
+  <div class="sb-top">
+    <div class="sb-logo">
+      <span class="accent">▸</span>
+      <span class="rest">SQL Mastery</span>
+    </div>
+    <div class="sb-progress">
+      <div class="sb-prog-label">
+        <span>Progress</span>
+        <span id="prog-pct">0%</span>
+      </div>
+      <div class="sb-track"><div class="sb-fill" id="sb-fill"></div></div>
+    </div>
+  </div>
+
+  <div class="nav-group">Foundations</div>
+  <a class="nav-item" href="#s1"><span class="ni">①</span>Introduction &amp; Origins<span class="nn">§01</span></a>
+  <a class="nav-item" href="#s2"><span class="ni">②</span>Relational Algebra<span class="nn">§02</span></a>
+  <a class="nav-item" href="#s3"><span class="ni">③</span>Dialects &amp; Execution<span class="nn">§03</span></a>
+
+  <div class="nav-group">Querying</div>
+  <a class="nav-item" href="#s4"><span class="ni">④</span>SELECT Statement<span class="nn">§04</span></a>
+  <a class="nav-item" href="#s5"><span class="ni">⑤</span>Filtering &amp; Sorting<span class="nn">§05</span></a>
+  <a class="nav-item" href="#s6"><span class="ni">⑥</span>Aggregation &amp; Subqueries<span class="nn">§06</span></a>
+
+  <div class="nav-group">Structure &amp; Joins</div>
+  <a class="nav-item" href="#s7"><span class="ni">⑦</span>Joining Tables<span class="nn">§07</span></a>
+  <a class="nav-item" href="#s8"><span class="ni">⑧</span>DDL — Define Structure<span class="nn">§08</span></a>
+  <a class="nav-item" href="#s9"><span class="ni">⑨</span>DML — Modify Data<span class="nn">§09</span></a>
+
+  <div class="nav-group">Advanced</div>
+  <a class="nav-item" href="#s10"><span class="ni">⑩</span>Views, CASE &amp; UNION<span class="nn">§10</span></a>
+  <a class="nav-item" href="#s11"><span class="ni">⑪</span>Execution Order<span class="nn">§11</span></a>
+</nav>
+
+<!-- ===================== MAIN CONTENT ===================== -->
+<main class="main">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Interactive Learning Guide</div>
+  <h1>Learn <span class="hl">SQL</span> From<br/>First Principles</h1>
+  <p class="hero-sub">A complete hands-on course covering relational theory through advanced query techniques. Every section includes live practice editors, instant quizzes, and real-world examples.</p>
+  <div class="hero-meta">
+    <div class="meta-item"><div class="meta-val"><em>11</em></div><div class="meta-key">sections</div></div>
+    <div class="meta-item"><div class="meta-val"><em>30+</em></div><div class="meta-key">examples</div></div>
+    <div class="meta-item"><div class="meta-val"><em>11</em></div><div class="meta-key">quizzes</div></div>
+    <div class="meta-item"><div class="meta-val"><em>7</em></div><div class="meta-key">editors</div></div>
+  </div>
+</div>
+
+<!-- ================================================================
+     §01 — INTRODUCTION
+     ================================================================ -->
+<div class="section" id="s1">
+  <div class="sec-head">
+    <div class="sec-num">01</div>
+    <div class="sec-info">
+      <div class="sec-title">Introduction &amp; Origins</div>
+      <div class="sec-desc">Why SQL exists, where it came from, why it's still dominant 50+ years later</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Concept</span> What is SQL?</div>
+    <p><strong>SQL (Structured Query Language)</strong> is the standard language for communicating with <em>relational databases</em> — systems that organize data into structured tables of rows and columns. Unlike procedural languages where you specify <em>how</em> to do something step by step, SQL is <strong>declarative</strong>: you describe <em>what</em> data you want, and the database engine decides the most efficient retrieval strategy.</p><br/>
+    <p>Think of a relational database as a set of interconnected spreadsheets. Each table has named columns with defined data types. SQL is the language you use to query, transform, and manage that data.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">History</span> The 1970s at IBM</div>
+    <p>The foundations were laid by <strong>Dr. Edgar F. Codd</strong>, a mathematician at IBM who published his landmark 1970 paper introducing the <em>relational model</em> based on set theory and relational algebra. His ideas were refined by <strong>Donald Chamberlin and Raymond Boyce</strong>, who developed SEQUEL (later SQL) at IBM — giving rise to IBM DB2 and Oracle. SQL was standardized by ANSI in 1986; the widely implemented standard is <strong>SQL-92</strong>.</p>
+  </div>
+
+  <div class="g2">
+    <div class="note info"><span class="note-ico">📊</span><div>Despite being over <strong>50 years old</strong>, relational databases power roughly <strong>70% of production systems</strong> today. SQL remains one of the most sought-after technical skills in data, engineering, and business roles.</div></div>
+    <div class="note tip"><span class="note-ico">💡</span><div><strong>Declarative vs Imperative:</strong> In Python you'd loop through rows. In SQL you write <code>SELECT name FROM users WHERE age &gt; 30</code> — and the optimizer decides whether to use an index, full scan, etc.</div></div>
+  </div>
+
+  <div class="quiz" id="q1-wrap">
+    <div class="quiz-eyebrow">▸ Quick Check — §01</div>
+    <div class="quiz-q">SQL is best described as which type of language?</div>
+    <div class="quiz-opts">
+      <div class="qopt" data-correct="false" data-fb="SQL is <em>declarative</em> — you describe what you want, not how to get it. Imperative languages like Python require you to write the step-by-step procedure."><span class="ok">A</span>Imperative — you specify step-by-step instructions</div>
+      <div class="qopt" data-correct="true"  data-fb="Correct! SQL is declarative: you write what data you want and the database engine determines the most efficient execution plan."><span class="ok">B</span>Declarative — you describe what you want</div>
+      <div class="qopt" data-correct="false" data-fb="Object-oriented languages (Java, Python) are based on classes and objects. SQL predates OOP and uses a completely different paradigm."><span class="ok">C</span>Object-oriented — based on classes and objects</div>
+      <div class="qopt" data-correct="false" data-fb="Functional languages like Haskell treat computation as evaluation of mathematical functions. SQL is declarative, not functional."><span class="ok">D</span>Functional — based on pure functions</div>
+    </div>
+    <div class="q-fb" id="q1-fb"></div>
+  </div>
+</div>
+
+<!-- ================================================================
+     §02 — RELATIONAL ALGEBRA
+     ================================================================ -->
+<div class="section" id="s2">
+  <div class="sec-head">
+    <div class="sec-num">02</div>
+    <div class="sec-info">
+      <div class="sec-title">Relational Algebra</div>
+      <div class="sec-desc">The mathematical foundation SQL is built upon — understanding this makes SQL intuitive</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Concept</span> Why Relational Algebra Matters</div>
+    <p>SQL is not arbitrary — it was built directly from <strong>relational algebra</strong>, a formal branch of mathematics that defines operations on sets of data called <em>relations</em> (tables). Every operation takes one or more relations as input and produces a new relation as output. This <em>"table in, table out"</em> consistency is what makes SQL queries composable — you can nest them arbitrarily deep.</p><br/>
+    <p>Understanding these operations clarifies why SQL behaves the way it does: why <code>UNION</code> requires matching column counts, how <code>JOIN</code> works under the hood, and why every subquery must produce a valid table.</p>
+  </div>
+
+  <div class="op-grid">
+    <div class="op-card"><div class="op-sym">∪</div><div class="op-nm">Union</div><div class="op-sq">UNION</div><div class="op-dc">Combines rows from two compatible tables, removing duplicates by default</div></div>
+    <div class="op-card"><div class="op-sym">∩</div><div class="op-nm">Intersection</div><div class="op-sq">INTERSECT</div><div class="op-dc">Returns only rows present in both tables</div></div>
+    <div class="op-card"><div class="op-sym">−</div><div class="op-nm">Difference</div><div class="op-sq">EXCEPT</div><div class="op-dc">Rows in the first table that don't appear in the second</div></div>
+    <div class="op-card"><div class="op-sym">π</div><div class="op-nm">Projection</div><div class="op-sq">SELECT col1, col2</div><div class="op-dc">Selects specific columns — reduces the width of the relation</div></div>
+    <div class="op-card"><div class="op-sym">σ</div><div class="op-nm">Selection</div><div class="op-sq">WHERE</div><div class="op-dc">Filters rows by a condition — reduces the height of the relation</div></div>
+    <div class="op-card"><div class="op-sym">×</div><div class="op-nm">Cartesian Product</div><div class="op-sq">FROM a, b</div><div class="op-dc">Every row of one table paired with every row of another — dangerous unfiltered!</div></div>
+    <div class="op-card"><div class="op-sym">⨝</div><div class="op-nm">Natural Join</div><div class="op-sq">JOIN … ON</div><div class="op-dc">Rows from two tables combined where a shared column matches</div></div>
+  </div>
+
+  <div class="note warn"><span class="note-ico">⚠️</span><div><strong>The Cartesian Product trap:</strong> If you forget a <code>JOIN ... ON</code> condition, SQL silently performs a Cartesian Product. With 1,000 rows in each table, that's <strong>1,000,000 rows</strong> returned. One of the most expensive and hard-to-debug mistakes.</div></div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-e">Example</span> Relational Algebra → SQL</div>
+    <p style="font-size:.83rem;margin-bottom:.7rem">The expression <em>σ<sub>age&gt;30</sub>(π<sub>name,age</sub>(employees))</em> — project name and age, then filter — becomes:</p>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="cm">-- π (Projection) → SELECT clause: choose columns</span>
+<span class="cm">-- σ (Selection)  → WHERE clause: filter rows</span>
+<span class="kw">SELECT</span> name, age          <span class="cm">-- π: keep only these columns</span>
+<span class="kw">FROM</span>   employees
+<span class="kw">WHERE</span>  age <span class="op">&gt;</span> <span class="num">30</span>;          <span class="cm">-- σ: filter rows</span></code></pre>
+    </div>
+  </div>
+
+  <div class="quiz" id="q2-wrap">
+    <div class="quiz-eyebrow">▸ Quick Check — §02</div>
+    <div class="quiz-q">In relational algebra, which operation does the SQL <code>WHERE</code> clause correspond to?</div>
+    <div class="quiz-opts">
+      <div class="qopt" data-correct="false" data-fb="Projection (π) corresponds to the SELECT clause — it picks which columns appear in the result, reducing the relation's width."><span class="ok">A</span>Projection (π) — selecting specific columns</div>
+      <div class="qopt" data-correct="true"  data-fb="Correct! Selection (σ) filters rows based on a predicate condition, exactly what WHERE does."><span class="ok">B</span>Selection (σ) — filtering rows by condition</div>
+      <div class="qopt" data-correct="false" data-fb="Natural Join (⨝) corresponds to JOIN ... ON — combining rows from two tables on a shared key."><span class="ok">C</span>Natural Join (⨝) — combining two tables</div>
+      <div class="qopt" data-correct="false" data-fb="Union (∪) corresponds to UNION — stacking rows from two queries with compatible schemas."><span class="ok">D</span>Union (∪) — stacking two query results</div>
+    </div>
+    <div class="q-fb" id="q2-fb"></div>
+  </div>
+</div>
+
+<!-- ================================================================
+     §03 — DIALECTS & EXECUTION
+     ================================================================ -->
+<div class="section" id="s3">
+  <div class="sec-head">
+    <div class="sec-num">03</div>
+    <div class="sec-info">
+      <div class="sec-title">Dialects &amp; How SQL Executes</div>
+      <div class="sec-desc">Why the same query behaves differently across databases, and what happens under the hood</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Concept</span> SQL Dialects</div>
+    <p>SQL was standardized in 1992 (SQL-92) but every vendor <em>extends</em> it with proprietary features. SQL written for one platform may fail on another.</p>
+  </div>
+
+  <table class="dt">
+    <thead><tr><th>Feature</th><th>SQL Server</th><th>MySQL</th><th>PostgreSQL</th><th>SQLite</th></tr></thead>
+    <tbody>
+      <tr><td>Case sensitivity</td><td>Case-sensitive</td><td>Case-insensitive</td><td>Case-sensitive</td><td>Case-sensitive</td></tr>
+      <tr><td>String quotes</td><td>Single only</td><td>Single or double</td><td>Single only</td><td>Single or double</td></tr>
+      <tr><td>Row limiting</td><td><code>TOP n</code></td><td><code>LIMIT n</code></td><td><code>LIMIT n</code></td><td><code>LIMIT n</code></td></tr>
+      <tr><td>Auto-increment</td><td><code>IDENTITY</code></td><td><code>AUTO_INCREMENT</code></td><td><code>SERIAL / IDENTITY</code></td><td><code>AUTOINCREMENT</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="note warn"><span class="note-ico">⚠️</span><div><strong>Watch out:</strong> <code>ISNULL()</code> works in SQL Server but not PostgreSQL. <code>CHECK</code> constraints are enforced in PostgreSQL but <strong>silently ignored</strong> in MySQL. Migration between platforms typically requires rewriting and retesting all SQL code.</div></div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Concept</span> 5 Stages of SQL Execution</div>
+    <p style="margin-bottom:.9rem">When you submit a query, the DBMS processes it through five internal stages. Understanding this pipeline is the foundation of query tuning.</p>
+    <div class="pipeline">
+      <div class="pipe"><div class="pipe-n">01</div><div class="pipe-t">Parsing</div><div class="pipe-d">Syntax checked; errors returned immediately</div></div>
+      <div class="p-arr">→</div>
+      <div class="pipe"><div class="pipe-n">02</div><div class="pipe-t">Binding</div><div class="pipe-d">Tables &amp; columns verified in schema</div></div>
+      <div class="p-arr">→</div>
+      <div class="pipe"><div class="pipe-n">03</div><div class="pipe-t">Compilation</div><div class="pipe-d">Internal representation built</div></div>
+      <div class="p-arr">→</div>
+      <div class="pipe"><div class="pipe-n">04</div><div class="pipe-t">Optimization</div><div class="pipe-d">Best plan chosen from candidates</div></div>
+      <div class="p-arr">→</div>
+      <div class="pipe"><div class="pipe-n">05</div><div class="pipe-t">Execution</div><div class="pipe-d">Plan runs; answer set returned</div></div>
+    </div>
+  </div>
+
+  <div class="note info"><span class="note-ico">💡</span><div><strong>Performance bottleneck:</strong> The optimizer minimises <strong>Disk I/O</strong>. A CPU can execute roughly <strong>one million instructions</strong> in the time it takes to perform a single disk read. Efficient queries leverage indexes to keep disk access minimal.</div></div>
+
+  <div class="quiz" id="q3-wrap">
+    <div class="quiz-eyebrow">▸ Quick Check — §03</div>
+    <div class="quiz-q">During which execution stage does the database verify that referenced tables and columns actually exist?</div>
+    <div class="quiz-opts">
+      <div class="qopt" data-correct="false" data-fb="Parsing only checks syntax — it ensures the query is grammatically valid SQL. It does not look up whether tables exist."><span class="ok">A</span>Parsing</div>
+      <div class="qopt" data-correct="true"  data-fb="Correct! Binding verifies that all referenced table and column names exist in the database schema. If a table doesn't exist, the error is caught here."><span class="ok">B</span>Binding</div>
+      <div class="qopt" data-correct="false" data-fb="Optimization selects the most efficient execution plan — it occurs after Binding has already confirmed the schema references are valid."><span class="ok">C</span>Optimization</div>
+      <div class="qopt" data-correct="false" data-fb="Execution is the final stage — the chosen plan runs and produces the result set. Schema validation is long done before this."><span class="ok">D</span>Execution</div>
+    </div>
+    <div class="q-fb" id="q3-fb"></div>
+  </div>
+</div>
+
+<!-- ================================================================
+     §04 — SELECT
+     ================================================================ -->
+<div class="section" id="s4">
+  <div class="sec-head">
+    <div class="sec-num">04</div>
+    <div class="sec-info">
+      <div class="sec-title">The SELECT Statement</div>
+      <div class="sec-desc">The most fundamental SQL command — retrieving, shaping, and transforming data</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-s">Syntax</span> Basic Structure</div>
+    <p style="margin-bottom:.75rem">SELECT requires at minimum two clauses: <code>SELECT</code> (which columns) and <code>FROM</code> (which table).</p>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="cm">-- Explicit columns (preferred in production)</span>
+<span class="kw">SELECT</span> column1, column2
+<span class="kw">FROM</span>   table_name;
+
+<span class="cm">-- Wildcard: retrieves ALL columns (fine for exploration)</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> employees;</code></pre>
+    </div>
+    <div class="note warn"><span class="note-ico">⚠️</span><div><strong>Avoid <code>SELECT *</code> in production.</strong> It retrieves unnecessary data, inflates network transfer, and can silently break queries if table columns are added, removed, or reordered.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Concept</span> Expressions, Aliases &amp; Computed Columns</div>
+    <p style="margin-bottom:.75rem">The SELECT clause accepts arithmetic expressions, function calls, and string operations. Use <code>AS</code> to give computed columns readable names.</p>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="cm">-- Arithmetic expression with alias</span>
+<span class="kw">SELECT</span> order_id,
+       unit_price <span class="op">*</span> quantity <span class="kw">AS</span> total
+<span class="kw">FROM</span>   order_details;
+
+<span class="cm">-- String concatenation (PostgreSQL uses ||)</span>
+<span class="kw">SELECT</span> first_name <span class="op">||</span> <span class="str">' '</span> <span class="op">||</span> last_name <span class="kw">AS</span> full_name
+<span class="kw">FROM</span>   employees;
+
+<span class="cm">-- Extract a component from a date</span>
+<span class="kw">SELECT</span> last_name,
+       hire_date,
+       <span class="fn">DATE_PART</span>(<span class="str">'year'</span>, hire_date) <span class="kw">AS</span> hire_year
+<span class="kw">FROM</span>   employees;
+
+<span class="cm">-- Format a date as readable text</span>
+<span class="kw">SELECT</span> <span class="fn">TO_CHAR</span>(hire_date, <span class="str">'Month YYYY'</span>) <span class="kw">AS</span> hire_month
+<span class="kw">FROM</span>   employees;</code></pre>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><span class="tag tag-t">Reference</span> Date Functions</div>
+      <table class="dt" style="font-size:.76rem">
+        <thead><tr><th>Function</th><th>Returns</th></tr></thead>
+        <tbody>
+          <tr><td><code>NOW()</code></td><td>Current timestamp</td></tr>
+          <tr><td><code>CURRENT_DATE</code></td><td>Today's date</td></tr>
+          <tr><td><code>AGE(d1, d2)</code></td><td>Interval between dates</td></tr>
+          <tr><td><code>EXTRACT(part FROM d)</code></td><td>Year / month / day etc.</td></tr>
+          <tr><td><code>DATE_TRUNC('hour', ts)</code></td><td>Truncated timestamp</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="tag tag-t">Tip</span> Comments in SQL</div>
+      <div class="cb">
+        <div class="cb-head"><span class="cb-lang">SQL</span></div>
+        <pre><code><span class="cm">-- Single-line comment</span>
+
+<span class="cm">/*
+  Multi-line block comment.
+  Use to explain complex logic.
+*/</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> employees;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editor 1 -->
+  <div class="editor">
+    <div class="ed-top">
+      <div class="ed-dots"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div></div>
+      <div class="ed-name">practice_01_select.sql</div>
+      <div class="ed-badge">✏ Try It</div>
+    </div>
+    <textarea class="ed-area" id="ed1" spellcheck="false">-- Practice: Select employee names and compute monthly salary
+SELECT first_name,
+       last_name,
+       annual_salary / 12 AS monthly_salary
+FROM   employees
+WHERE  department = 'Engineering';</textarea>
+    <div class="ed-bot">
+      <button class="btn-hint" onclick="toggleHint('h1')">💡 Hint</button>
+      <button class="btn-run" onclick="runQuery('ed1','r1')"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg> Run Query</button>
+    </div>
+    <div class="ed-hint" id="h1">Use <strong>SELECT col AS alias</strong> to rename output columns. Arithmetic operators (+, -, *, /) work directly in the SELECT clause to produce computed values.</div>
+    <div class="ed-result" id="r1"></div>
+  </div>
+
+  <div class="quiz" id="q4-wrap">
+    <div class="quiz-eyebrow">▸ Quick Check — §04</div>
+    <div class="quiz-q">What does <code>SELECT first_name || ' ' || last_name AS full_name FROM employees</code> produce?</div>
+    <div class="quiz-opts">
+      <div class="qopt" data-correct="false" data-fb="The || operator is string concatenation, not a column separator. It joins the values together into one string, not two separate columns."><span class="ok">A</span>Two separate columns: first_name and last_name</div>
+      <div class="qopt" data-correct="true"  data-fb="Correct! The || operator concatenates strings. The result is a single column called full_name containing 'FirstName LastName' for each employee."><span class="ok">B</span>One column called full_name with 'FirstName LastName'</div>
+      <div class="qopt" data-correct="false" data-fb="AS here renames the computed expression, not the table. Table aliases use a different syntax: FROM employees AS e."><span class="ok">C</span>It renames the employees table to full_name</div>
+      <div class="qopt" data-correct="false" data-fb="|| is valid PostgreSQL string concatenation syntax. It is not an error. MySQL uses CONCAT() instead."><span class="ok">D</span>A syntax error — || is not valid SQL</div>
+    </div>
+    <div class="q-fb" id="q4-fb"></div>
+  </div>
+</div>
+
+<!-- ================================================================
+     §05 — FILTERING & SORTING
+     ================================================================ -->
+<div class="section" id="s5">
+  <div class="sec-head">
+    <div class="sec-num">05</div>
+    <div class="sec-info">
+      <div class="sec-title">Filtering &amp; Sorting Results</div>
+      <div class="sec-desc">WHERE, LIKE, IN, BETWEEN, NULL handling, ORDER BY, LIMIT, DISTINCT</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Concept</span> The WHERE Clause &amp; Operators</div>
+    <table class="dt">
+      <thead><tr><th>Operator</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><code>=</code></td><td>Equal to</td><td><code>WHERE country = 'Brazil'</code></td></tr>
+        <tr><td><code>!= / &lt;&gt;</code></td><td>Not equal to</td><td><code>WHERE status &lt;&gt; 'active'</code></td></tr>
+        <tr><td><code>&gt;, &gt;=, &lt;, &lt;=</code></td><td>Comparison</td><td><code>WHERE price &gt;= 50</code></td></tr>
+        <tr><td><code>LIKE</code></td><td>Pattern match</td><td><code>WHERE name LIKE 'A%'</code></td></tr>
+        <tr><td><code>IN</code></td><td>Value in a list</td><td><code>WHERE id IN (1, 2, 3)</code></td></tr>
+        <tr><td><code>BETWEEN</code></td><td>Inclusive range</td><td><code>WHERE price BETWEEN 10 AND 50</code></td></tr>
+        <tr><td><code>IS NULL</code></td><td>Value is absent</td><td><code>WHERE region IS NULL</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><span class="tag tag-s">Syntax</span> LIKE Wildcards</div>
+      <p style="font-size:.82rem;margin-bottom:.6rem"><code>%</code> matches zero or more characters. <code>_</code> matches exactly one character.</p>
+      <div class="cb">
+        <div class="cb-head"><span class="cb-lang">SQL</span></div>
+        <pre><code><span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'M%'</span>    <span class="cm">-- starts with M</span>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'%son'</span>  <span class="cm">-- ends with "son"</span>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'%ill%'</span> <span class="cm">-- contains "ill"</span>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'_a%'</span>   <span class="cm">-- 2nd char is "a"</span></code></pre>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="tag tag-s">Syntax</span> IN and BETWEEN</div>
+      <div class="cb">
+        <div class="cb-head"><span class="cb-lang">SQL</span></div>
+        <pre><code><span class="cm">-- IN: clean shorthand for multiple ORs</span>
+<span class="kw">WHERE</span> supplier_id <span class="kw">IN</span> (<span class="num">2</span>, <span class="num">4</span>, <span class="num">6</span>, <span class="num">8</span>)
+
+<span class="cm">-- BETWEEN: inclusive on both ends</span>
+<span class="kw">WHERE</span> unit_price <span class="kw">BETWEEN</span> <span class="num">20</span> <span class="kw">AND</span> <span class="num">30</span>
+<span class="cm">-- same as:</span>
+<span class="kw">WHERE</span> unit_price <span class="op">&gt;=</span> <span class="num">20</span>
+  <span class="kw">AND</span> unit_price <span class="op">&lt;=</span> <span class="num">30</span></code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Concept</span> NULL — The Absence of Value</div>
+    <p><code>NULL</code> represents the <em>absence</em> of a value — not zero, not an empty string, but truly unknown or not applicable.</p>
+    <br/>
+    <div class="note warn"><span class="note-ico">⚠️</span><div><strong>Critical NULL rule:</strong> <code>WHERE region = NULL</code> will <strong>never match any row</strong> — not even rows where region IS NULL. NULL cannot be compared using <code>=</code> or <code>!=</code>. Always use <code>IS NULL</code> or <code>IS NOT NULL</code>.</div></div>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="cm">-- ❌ WRONG: matches absolutely nothing, ever</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> employees <span class="kw">WHERE</span> region <span class="op">=</span> <span class="kw">NULL</span>;
+
+<span class="cm">-- ✅ CORRECT</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> employees <span class="kw">WHERE</span> region <span class="kw">IS NULL</span>;
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> employees <span class="kw">WHERE</span> region <span class="kw">IS NOT NULL</span>;</code></pre>
+    </div>
+    <div class="note info"><span class="note-ico">💡</span><div><code>SUM()</code>, <code>AVG()</code>, <code>MIN()</code>, <code>MAX()</code> all <strong>skip NULLs</strong>. <code>COUNT(*)</code> counts every row including NULLs. <code>COUNT(column)</code> counts only non-NULL values in that column.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-s">Syntax</span> Sorting, Limiting &amp; DISTINCT</div>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="cm">-- ORDER BY: ASC (default) or DESC</span>
+<span class="kw">SELECT</span> product_name, unit_price
+<span class="kw">FROM</span>   products
+<span class="kw">ORDER BY</span> unit_price <span class="kw">DESC</span>;
+
+<span class="cm">-- LIMIT: cap the rows returned</span>
+<span class="kw">SELECT</span> product_name, unit_price
+<span class="kw">FROM</span>   products
+<span class="kw">ORDER BY</span> unit_price <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">5</span>;
+
+<span class="cm">-- DISTINCT: remove duplicate rows</span>
+<span class="kw">SELECT DISTINCT</span> country <span class="kw">FROM</span> customers;
+
+<span class="cm">-- Count unique values</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> country) <span class="kw">FROM</span> customers;</code></pre>
+    </div>
+  </div>
+
+  <!-- Editor 2 -->
+  <div class="editor">
+    <div class="ed-top">
+      <div class="ed-dots"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div></div>
+      <div class="ed-name">practice_02_filter.sql</div>
+      <div class="ed-badge">✏ Try It</div>
+    </div>
+    <textarea class="ed-area" id="ed2" spellcheck="false">-- Practice: Top 5 most expensive products starting with 'Ch'
+SELECT product_name, unit_price
+FROM   products
+WHERE  product_name LIKE 'Ch%'
+  AND  unit_price IS NOT NULL
+ORDER BY unit_price DESC
+LIMIT 5;</textarea>
+    <div class="ed-bot">
+      <button class="btn-hint" onclick="toggleHint('h2')">💡 Hint</button>
+      <button class="btn-run" onclick="runQuery('ed2','r2')"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg> Run Query</button>
+    </div>
+    <div class="ed-hint" id="h2">Combine conditions with AND/OR. Use parentheses to control precedence. Text values need single quotes; numbers do not. LIKE with % is case-insensitive in many databases.</div>
+    <div class="ed-result" id="r2"></div>
+  </div>
+
+  <div class="quiz" id="q5-wrap">
+    <div class="quiz-eyebrow">▸ Quick Check — §05</div>
+    <div class="quiz-q">Which query correctly finds all employees with no assigned region?</div>
+    <div class="quiz-opts">
+      <div class="qopt" data-correct="false" data-fb="WHERE region = NULL never matches anything. NULL compared with = always evaluates to UNKNOWN, not TRUE. This is one of SQL's most common beginner mistakes."><span class="ok">A</span><code>WHERE region = NULL</code></div>
+      <div class="qopt" data-correct="false" data-fb="Double-equals == is not valid SQL syntax. It is used in programming languages like Python and JavaScript, not in SQL."><span class="ok">B</span><code>WHERE region == NULL</code></div>
+      <div class="qopt" data-correct="true"  data-fb="Correct! IS NULL is the only valid SQL syntax for checking whether a value is absent. NULL requires its own special operators."><span class="ok">C</span><code>WHERE region IS NULL</code></div>
+      <div class="qopt" data-correct="false" data-fb="LIKE is for string pattern matching with wildcards (% and _). It cannot be used with NULL."><span class="ok">D</span><code>WHERE region LIKE NULL</code></div>
+    </div>
+    <div class="q-fb" id="q5-fb"></div>
+  </div>
+</div>
+
+<!-- ================================================================
+     §06 — AGGREGATION & SUBQUERIES
+     ================================================================ -->
+<div class="section" id="s6">
+  <div class="sec-head">
+    <div class="sec-num">06</div>
+    <div class="sec-info">
+      <div class="sec-title">Aggregation, Grouping &amp; Subqueries</div>
+      <div class="sec-desc">Summarising data with GROUP BY, HAVING, and nesting queries inside queries</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Concept</span> Aggregate Functions</div>
+    <table class="dt">
+      <thead><tr><th>Function</th><th>Behavior</th><th>NULL handling</th></tr></thead>
+      <tbody>
+        <tr><td><code>COUNT(*)</code></td><td>Count all rows</td><td>Includes NULLs</td></tr>
+        <tr><td><code>COUNT(col)</code></td><td>Count non-NULL values</td><td>Skips NULLs</td></tr>
+        <tr><td><code>SUM(col)</code></td><td>Sum numeric values</td><td>Skips NULLs</td></tr>
+        <tr><td><code>AVG(col)</code></td><td>Average numeric values</td><td>Skips NULLs (may surprise!)</td></tr>
+        <tr><td><code>MIN(col)</code></td><td>Smallest value (any type)</td><td>Skips NULLs</td></tr>
+        <tr><td><code>MAX(col)</code></td><td>Largest value (any type)</td><td>Skips NULLs</td></tr>
+      </tbody>
+    </table>
+    <div class="note warn"><span class="note-ico">⚠️</span><div><strong>The mixing rule:</strong> When aggregates appear in SELECT, every non-aggregated column <strong>must</strong> also appear in GROUP BY. Mixing without GROUP BY is an error.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-s">Syntax</span> GROUP BY and HAVING</div>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="cm">-- GROUP BY: partition rows, then aggregate each group</span>
+<span class="kw">SELECT</span>   country, <span class="fn">COUNT</span>(customer_id) <span class="kw">AS</span> customer_count
+<span class="kw">FROM</span>     customers
+<span class="kw">GROUP BY</span> country
+<span class="kw">ORDER BY</span> customer_count <span class="kw">DESC</span>;
+
+<span class="cm">-- HAVING: filter AFTER grouping (WHERE filters BEFORE grouping)</span>
+<span class="kw">SELECT</span>   country, <span class="fn">COUNT</span>(customer_id) <span class="kw">AS</span> cnt
+<span class="kw">FROM</span>     customers
+<span class="kw">GROUP BY</span> country
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(customer_id) <span class="op">&gt;</span> <span class="num">5</span>;
+
+<span class="cm">-- Both WHERE and HAVING in the same query:</span>
+<span class="kw">SELECT</span>   category_id, <span class="fn">SUM</span>(unit_price) <span class="kw">AS</span> total
+<span class="kw">FROM</span>     products
+<span class="kw">WHERE</span>    discontinued <span class="op">=</span> <span class="num">0</span>        <span class="cm">-- pre-group filter (fast)</span>
+<span class="kw">GROUP BY</span> category_id
+<span class="kw">HAVING</span>   <span class="fn">SUM</span>(unit_price) <span class="op">&gt;</span> <span class="num">100</span>; <span class="cm">-- post-group filter</span></code></pre>
+    </div>
+    <div class="note tip"><span class="note-ico">✅</span><div><strong>Mental model:</strong> WHERE = "Pre-group filter" (eliminates rows before grouping). HAVING = "Post-group filter" (eliminates groups after aggregation). Always prefer WHERE for raw-row conditions — it's faster.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Concept</span> Subqueries — Queries Inside Queries</div>
+    <p style="margin-bottom:.8rem">A <strong>subquery</strong> is a complete SQL query nested inside another. The result of the inner query feeds the outer query. They appear in three main positions:</p>
+    <button class="toggle-btn" onclick="toggleCollapse('sub-body')"><span class="arr">▶</span> Show all subquery types with examples</button>
+    <div class="collapsible" id="sub-body">
+      <div class="cb">
+        <div class="cb-head"><span class="cb-lang">Subquery in WHERE</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+        <pre><code><span class="cm">-- Single-value subquery (use =)</span>
+<span class="kw">SELECT</span> product_name, unit_price
+<span class="kw">FROM</span>   products
+<span class="kw">WHERE</span>  unit_price <span class="op">=</span> (<span class="kw">SELECT</span> <span class="fn">MAX</span>(unit_price) <span class="kw">FROM</span> products);
+
+<span class="cm">-- Multi-value subquery (use IN)</span>
+<span class="kw">SELECT</span> customer_id, order_id
+<span class="kw">FROM</span>   orders
+<span class="kw">WHERE</span>  order_id <span class="kw">IN</span> (
+    <span class="kw">SELECT</span> order_id
+    <span class="kw">FROM</span>   order_details
+    <span class="kw">WHERE</span>  quantity <span class="op">&gt;</span> <span class="num">100</span>
+);</code></pre>
+      </div>
+      <div class="cb">
+        <div class="cb-head"><span class="cb-lang">Subquery in FROM (derived table)</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+        <pre><code><span class="cm">-- Must be given an alias; acts as a temporary table</span>
+<span class="kw">SELECT</span> order_id
+<span class="kw">FROM</span>  (
+    <span class="kw">SELECT</span> order_id, <span class="fn">SUM</span>(quantity) <span class="kw">AS</span> total_items
+    <span class="kw">FROM</span>   order_details
+    <span class="kw">GROUP BY</span> order_id
+    <span class="kw">HAVING</span> <span class="fn">SUM</span>(quantity) <span class="op">&lt;</span> <span class="num">100</span>
+) <span class="kw">AS</span> small_orders;</code></pre>
+      </div>
+      <div class="cb">
+        <div class="cb-head"><span class="cb-lang">Correlated Subquery (re-runs per outer row)</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+        <pre><code><span class="cm">-- Inner query references a column from the outer query.
+-- Re-evaluated for EACH ROW of the outer query — can be slow!</span>
+<span class="kw">SELECT</span> o.employee_id, o.order_id, o.ship_city
+<span class="kw">FROM</span>   orders o
+<span class="kw">WHERE</span>  o.ship_city <span class="op">=</span> (
+    <span class="kw">SELECT</span> e.city
+    <span class="kw">FROM</span>   employees e
+    <span class="kw">WHERE</span>  e.employee_id <span class="op">=</span> o.employee_id  <span class="cm">-- ← references outer row</span>
+);</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editor 3 -->
+  <div class="editor">
+    <div class="ed-top">
+      <div class="ed-dots"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div></div>
+      <div class="ed-name">practice_03_aggregate.sql</div>
+      <div class="ed-badge">✏ Try It</div>
+    </div>
+    <textarea class="ed-area" id="ed3" spellcheck="false">-- Practice: Countries with more than 3 customers, sorted by count
+SELECT   country,
+         COUNT(customer_id) AS customer_count
+FROM     customers
+GROUP BY country
+HAVING   COUNT(customer_id) > 3
+ORDER BY customer_count DESC;</textarea>
+    <div class="ed-bot">
+      <button class="btn-hint" onclick="toggleHint('h3')">💡 Hint</button>
+      <button class="btn-run" onclick="runQuery('ed3','r3')"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg> Run Query</button>
+    </div>
+    <div class="ed-hint" id="h3">WHERE filters rows BEFORE grouping. HAVING filters groups AFTER aggregation. You CANNOT use aggregate functions like COUNT() inside a WHERE clause.</div>
+    <div class="ed-result" id="r3"></div>
+  </div>
+
+  <div class="quiz" id="q6-wrap">
+    <div class="quiz-eyebrow">▸ Quick Check — §06</div>
+    <div class="quiz-q">You want categories where average product price is above $50. Which clause filters the groups?</div>
+    <div class="quiz-opts">
+      <div class="qopt" data-correct="false" data-fb="WHERE is evaluated BEFORE GROUP BY (step 2 of execution order). Aggregate functions like AVG() are not available yet at that point — using them in WHERE causes an error."><span class="ok">A</span>WHERE AVG(unit_price) &gt; 50</div>
+      <div class="qopt" data-correct="true"  data-fb="Correct! HAVING is evaluated AFTER GROUP BY (step 4), so aggregate functions are fully available. This is exactly when and where to filter based on aggregated values."><span class="ok">B</span>HAVING AVG(unit_price) &gt; 50</div>
+      <div class="qopt" data-correct="false" data-fb="FILTER is not a standard SQL clause for GROUP BY filtering. Some databases support it for window functions only."><span class="ok">C</span>FILTER AVG(unit_price) &gt; 50</div>
+      <div class="qopt" data-correct="false" data-fb="ORDER BY sorts the final result set — it has no filtering ability and cannot take conditional expressions."><span class="ok">D</span>ORDER BY AVG(unit_price) &gt; 50</div>
+    </div>
+    <div class="q-fb" id="q6-fb"></div>
+  </div>
+</div>
+
+<!-- ================================================================
+     §07 — JOINS
+     ================================================================ -->
+<div class="section" id="s7">
+  <div class="sec-head">
+    <div class="sec-num">07</div>
+    <div class="sec-info">
+      <div class="sec-title">Joining Tables</div>
+      <div class="sec-desc">INNER JOIN, OUTER JOINs, multi-table chains, and detecting orphaned records</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Concept</span> What is a JOIN?</div>
+    <p>A <code>JOIN</code> retrieves data from multiple tables by matching rows on a <strong>shared key</strong> — usually a foreign key. Rather than duplicating data in one giant table, relational databases split data into focused tables and join them at query time.</p>
+    <div class="cb" style="margin-top:.8rem">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="cm">-- ✅ Explicit JOIN syntax (always preferred)</span>
+<span class="kw">SELECT</span> e.last_name, e.first_name,
+       <span class="fn">COUNT</span>(o.order_id) <span class="kw">AS</span> order_total
+<span class="kw">FROM</span>   employees e
+<span class="kw">JOIN</span>   orders o <span class="kw">ON</span> e.employee_id <span class="op">=</span> o.employee_id
+<span class="kw">GROUP BY</span> e.last_name, e.first_name
+<span class="kw">ORDER BY</span> order_total <span class="kw">DESC</span>;
+
+<span class="cm">-- ❌ Implicit syntax (old style — avoid for clarity)</span>
+<span class="kw">SELECT</span> e.last_name, <span class="fn">COUNT</span>(o.order_id)
+<span class="kw">FROM</span>   employees e, orders o
+<span class="kw">WHERE</span>  e.employee_id <span class="op">=</span> o.employee_id
+<span class="kw">GROUP BY</span> e.last_name;</code></pre>
+    </div>
+  </div>
+
+  <div class="join-grid">
+    <div class="join-card">
+      <div class="jvenn">
+        <div class="jca" style="background:var(--orange);opacity:.5"></div>
+        <div class="jcb" style="background:var(--blue);opacity:.5"></div>
+        <div style="position:absolute;top:5px;left:50%;transform:translateX(-50%);width:26px;height:56px;background:rgba(255,255,255,.35);clip-path:ellipse(13px 28px at 50% 50%)"></div>
+      </div>
+      <h4>INNER JOIN</h4>
+      <p>Only rows with a match in <em>both</em> tables. Non-matching rows are silently discarded.</p>
+    </div>
+    <div class="join-card">
+      <div class="jvenn">
+        <div class="jca" style="background:var(--orange);opacity:.8"></div>
+        <div class="jcb" style="background:var(--blue);opacity:.25"></div>
+      </div>
+      <h4>LEFT JOIN</h4>
+      <p>All rows from the left table. Unmatched right-table columns become NULL.</p>
+    </div>
+    <div class="join-card">
+      <div class="jvenn">
+        <div class="jca" style="background:var(--orange);opacity:.25"></div>
+        <div class="jcb" style="background:var(--blue);opacity:.8"></div>
+      </div>
+      <h4>RIGHT JOIN</h4>
+      <p>All rows from the right table. Unmatched left-table columns become NULL.</p>
+    </div>
+    <div class="join-card">
+      <div class="jvenn">
+        <div class="jca" style="background:var(--orange);opacity:.6"></div>
+        <div class="jcb" style="background:var(--blue);opacity:.6"></div>
+      </div>
+      <h4>FULL OUTER JOIN</h4>
+      <p>All rows from both tables. Unmatched columns on either side become NULL.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-e">Example</span> Multi-Table Join (3 tables)</div>
+    <p style="font-size:.83rem;margin-bottom:.7rem"><strong>Rule:</strong> For N tables joined, you need at least N−1 join conditions. Missing one causes a Cartesian product.</p>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="kw">SELECT</span>   e.last_name,
+         <span class="fn">SUM</span>(d.unit_price <span class="op">*</span> d.quantity) <span class="kw">AS</span> total_sales
+<span class="kw">FROM</span>     employees e
+<span class="kw">JOIN</span>     orders o        <span class="kw">ON</span> e.employee_id <span class="op">=</span> o.employee_id   <span class="cm">-- join #1</span>
+<span class="kw">JOIN</span>     order_details d <span class="kw">ON</span> o.order_id    <span class="op">=</span> d.order_id     <span class="cm">-- join #2</span>
+<span class="kw">GROUP BY</span> e.last_name
+<span class="kw">ORDER BY</span> total_sales <span class="kw">DESC</span>
+<span class="kw">LIMIT</span>    <span class="num">5</span>;</code></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-e">Example</span> Outer Join for Data Integrity Checks</div>
+    <p style="font-size:.83rem;margin-bottom:.7rem">LEFT JOIN + <code>WHERE … IS NULL</code> is a powerful pattern for finding <strong>orphaned records</strong>.</p>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="cm">-- Find orders referencing a non-existent customer</span>
+<span class="kw">SELECT</span> o.order_id, o.customer_id
+<span class="kw">FROM</span>   orders o
+<span class="kw">LEFT JOIN</span> customers c <span class="kw">ON</span> o.customer_id <span class="op">=</span> c.customer_id
+<span class="kw">WHERE</span>  c.customer_id <span class="kw">IS NULL</span>;
+<span class="cm">-- Rows that survive: orders with NO matching customer
+-- These are data integrity violations</span></code></pre>
+    </div>
+  </div>
+
+  <!-- Editor 4 -->
+  <div class="editor">
+    <div class="ed-top">
+      <div class="ed-dots"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div></div>
+      <div class="ed-name">practice_04_joins.sql</div>
+      <div class="ed-badge">✏ Try It</div>
+    </div>
+    <textarea class="ed-area" id="ed4" spellcheck="false">-- Practice: All employees, including those with no orders
+-- (employees without orders appear with NULL order_id)
+SELECT e.employee_id,
+       e.last_name,
+       e.first_name,
+       o.order_id
+FROM   employees e
+LEFT JOIN orders o ON e.employee_id = o.employee_id
+ORDER BY e.last_name;</textarea>
+    <div class="ed-bot">
+      <button class="btn-hint" onclick="toggleHint('h4')">💡 Hint</button>
+      <button class="btn-run" onclick="runQuery('ed4','r4')"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg> Run Query</button>
+    </div>
+    <div class="ed-hint" id="h4">LEFT JOIN preserves all rows from the left table. Employees with no orders still appear — their order_id will be NULL. INNER JOIN would silently exclude them.</div>
+    <div class="ed-result" id="r4"></div>
+  </div>
+
+  <div class="quiz" id="q7-wrap">
+    <div class="quiz-eyebrow">▸ Quick Check — §07</div>
+    <div class="quiz-q">You join 4 tables in a query. What is the minimum number of JOIN conditions needed to avoid a Cartesian product?</div>
+    <div class="quiz-opts">
+      <div class="qopt" data-correct="false" data-fb="2 conditions for 4 tables leaves 2 tables unconnected, causing Cartesian products between those pairs."><span class="ok">A</span>2</div>
+      <div class="qopt" data-correct="true"  data-fb="Correct! The rule is N − 1 conditions for N tables. For 4 tables: 4 − 1 = 3 JOIN conditions minimum to avoid any Cartesian products."><span class="ok">B</span>3</div>
+      <div class="qopt" data-correct="false" data-fb="4 works but is one more than the minimum. N − 1 is the minimum; adding extra valid conditions is fine but not required."><span class="ok">C</span>4</div>
+      <div class="qopt" data-correct="false" data-fb="1 condition for 4 tables leaves 3 table-to-table connections without join logic, creating massive Cartesian products."><span class="ok">D</span>1</div>
+    </div>
+    <div class="q-fb" id="q7-fb"></div>
+  </div>
+</div>
+
+<!-- ================================================================
+     §08 — DDL
+     ================================================================ -->
+<div class="section" id="s8">
+  <div class="sec-head">
+    <div class="sec-num">08</div>
+    <div class="sec-info">
+      <div class="sec-title">DDL — Defining Database Structure</div>
+      <div class="sec-desc">CREATE TABLE, data types, constraints, and ALTER TABLE</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><span class="tag tag-c">DDL vs DML</span></div>
+      <p style="font-size:.83rem"><strong>DDL</strong> (Data Definition Language) defines and manages the <em>structure</em> of objects.<br/>Commands: <code>CREATE</code>, <code>ALTER</code>, <code>DROP</code>.<br/><br/><strong>DML</strong> (Data Manipulation Language) manages the <em>data within</em> those structures.<br/>Commands: <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>TRUNCATE</code>.</p>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="tag tag-t">Principle</span> Design with Integrity</div>
+      <p style="font-size:.83rem">Choosing the right data types and constraints at design time is far cheaper than fixing bad data after it's in production. Constraints like <code>NOT NULL</code>, <code>UNIQUE</code>, and <code>FOREIGN KEY</code> act as a safety net — they prevent invalid data from ever entering the database.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-s">Syntax</span> CREATE TABLE with Full Constraints</div>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="kw">DROP TABLE IF EXISTS</span> items; <span class="cm">-- prevent error if already exists</span>
+
+<span class="kw">CREATE TABLE</span> items (
+    item_id     <span class="tb">INT</span>          <span class="kw">PRIMARY KEY</span>,           <span class="cm">-- NOT NULL + UNIQUE</span>
+    item_code   <span class="tb">VARCHAR</span>(<span class="num">5</span>)  <span class="kw">UNIQUE</span>,                <span class="cm">-- no duplicates</span>
+    item_name   <span class="tb">VARCHAR</span>(<span class="num">40</span>) <span class="kw">NOT NULL DEFAULT</span> <span class="str">' '</span>, <span class="cm">-- required field</span>
+    quantity    <span class="tb">INT</span>          <span class="kw">NOT NULL DEFAULT</span> <span class="num">0</span>,   <span class="cm">-- defaults to 0</span>
+    price       <span class="tb">DECIMAL</span>(<span class="num">9</span>,<span class="num">2</span>) <span class="kw">NOT NULL DEFAULT</span> <span class="num">0</span>
+                             <span class="kw">CHECK</span> (price <span class="op">&lt;</span> <span class="num">1000</span>),  <span class="cm">-- custom rule</span>
+    supplier_id <span class="tb">INT</span>,
+    <span class="kw">FOREIGN KEY</span> (supplier_id)
+        <span class="kw">REFERENCES</span> suppliers(supplier_id)
+        <span class="kw">ON DELETE NO ACTION</span>    <span class="cm">-- block delete if children exist</span>
+        <span class="kw">ON UPDATE CASCADE</span>      <span class="cm">-- propagate key changes to children</span>
+);</code></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Reference</span> SQL Data Types</div>
+    <div class="g3" style="margin:0">
+      <div>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--orange);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.08em">Numeric</p>
+        <p style="font-size:.78rem;color:var(--text-2);line-height:1.9">
+          <code>SMALLINT</code> — 2 bytes<br/>
+          <code>INTEGER</code> — 4 bytes<br/>
+          <code>BIGINT</code> — 8 bytes<br/>
+          <code>DECIMAL(x,y)</code> — exact<br/>
+          <code>REAL / FLOAT</code> — approx.
+        </p>
+      </div>
+      <div>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--gold);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.08em">Text</p>
+        <p style="font-size:.78rem;color:var(--text-2);line-height:1.9">
+          <code>CHAR(n)</code> — fixed-length<br/>
+          <code>VARCHAR(n)</code> — up to n chars<br/>
+          <code>TEXT</code> — unlimited
+        </p>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--violet);margin:.7rem 0 .5rem;text-transform:uppercase;letter-spacing:.08em">Other</p>
+        <p style="font-size:.78rem;color:var(--text-2);line-height:1.9"><code>BOOLEAN</code><br/><code>JSON</code></p>
+      </div>
+      <div>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--green);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.08em">Date / Time</p>
+        <p style="font-size:.78rem;color:var(--text-2);line-height:1.9">
+          <code>DATE</code> — date only<br/>
+          <code>TIME</code> — time only<br/>
+          <code>TIMESTAMP</code> — date + time<br/>
+          <code>TIMESTAMPTZ</code> — with tz<br/>
+          <code>INTERVAL</code> — duration
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-s">Syntax</span> ALTER TABLE</div>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="kw">ALTER TABLE</span> items <span class="kw">RENAME TO</span> inventory;
+<span class="kw">ALTER TABLE</span> inventory <span class="kw">RENAME COLUMN</span> item_name <span class="kw">TO</span> description;
+<span class="kw">ALTER TABLE</span> inventory <span class="kw">ADD COLUMN</span> unit <span class="tb">VARCHAR</span>(<span class="num">5</span>) <span class="kw">NULL</span>;
+<span class="kw">ALTER TABLE</span> inventory <span class="kw">DROP COLUMN</span> unit;</code></pre>
+    </div>
+  </div>
+
+  <div class="quiz" id="q8-wrap">
+    <div class="quiz-eyebrow">▸ Quick Check — §08</div>
+    <div class="quiz-q">Which constraint prevents a product's price column from storing a negative value?</div>
+    <div class="quiz-opts">
+      <div class="qopt" data-correct="false" data-fb="NOT NULL only prevents NULL values. A price of -99 would still be accepted — it's a valid (non-null) number."><span class="ok">A</span>NOT NULL</div>
+      <div class="qopt" data-correct="false" data-fb="UNIQUE ensures no two rows share the same price. It says nothing about the value range — a price of -500 would be accepted if unique."><span class="ok">B</span>UNIQUE</div>
+      <div class="qopt" data-correct="true"  data-fb="Correct! CHECK lets you define a custom rule: CHECK (price >= 0). Any INSERT or UPDATE that violates this rule is rejected by the database."><span class="ok">C</span>CHECK (price &gt;= 0)</div>
+      <div class="qopt" data-correct="false" data-fb="DEFAULT 0 sets the fallback value when none is provided — it doesn't prevent someone from explicitly inserting a negative value."><span class="ok">D</span>DEFAULT 0</div>
+    </div>
+    <div class="q-fb" id="q8-fb"></div>
+  </div>
+</div>
+
+<!-- ================================================================
+     §09 — DML
+     ================================================================ -->
+<div class="section" id="s9">
+  <div class="sec-head">
+    <div class="sec-num">09</div>
+    <div class="sec-info">
+      <div class="sec-title">DML — Inserting, Updating &amp; Deleting</div>
+      <div class="sec-desc">INSERT, UPDATE, DELETE, TRUNCATE — and why WHERE is never optional</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-s">Syntax</span> INSERT — Adding Rows</div>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="cm">-- Named columns (recommended — order-independent)</span>
+<span class="kw">INSERT INTO</span> employees (employee_id, last_name, first_name, title)
+<span class="kw">VALUES</span> (<span class="num">20</span>, <span class="str">'Doe'</span>, <span class="str">'Jane'</span>, <span class="str">'Data Scientist'</span>);
+
+<span class="cm">-- Multiple rows in one statement</span>
+<span class="kw">INSERT INTO</span> employees (employee_id, last_name, first_name)
+<span class="kw">VALUES</span>
+    (<span class="num">21</span>, <span class="str">'Smith'</span>, <span class="str">'Tom'</span>),
+    (<span class="num">22</span>, <span class="str">'Jones'</span>, <span class="str">'Alice'</span>);
+
+<span class="cm">-- Bulk insert from another table</span>
+<span class="kw">INSERT INTO</span> items (item_id, item_name, quantity, price)
+<span class="kw">SELECT</span> product_id, product_name, units_in_stock, unit_price
+<span class="kw">FROM</span>   products;</code></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-s">Syntax</span> UPDATE — Modifying Rows</div>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="cm">-- WHERE is essential — without it EVERY row is updated!</span>
+<span class="kw">UPDATE</span> employees
+<span class="kw">SET</span>    first_name <span class="op">=</span> <span class="str">'Timmy'</span>,
+       title      <span class="op">=</span> <span class="str">'Senior Analyst'</span>
+<span class="kw">WHERE</span>  employee_id <span class="op">=</span> <span class="num">20</span>;
+
+<span class="cm">-- Update based on calculation</span>
+<span class="kw">UPDATE</span> products
+<span class="kw">SET</span>    unit_price <span class="op">=</span> unit_price <span class="op">*</span> <span class="num">1.10</span>  <span class="cm">-- 10% price increase</span>
+<span class="kw">WHERE</span>  category_id <span class="op">=</span> <span class="num">3</span>;</code></pre>
+    </div>
+    <div class="note warn"><span class="note-ico">⚠️</span><div><strong>Never skip WHERE in production UPDATE/DELETE.</strong> An UPDATE without WHERE modifies every single row in the table — a change that can be catastrophic and difficult to reverse.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-s">Syntax</span> DELETE vs TRUNCATE</div>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="cm">-- DELETE: targeted removal, filterable, logged row-by-row</span>
+<span class="kw">DELETE FROM</span> employees
+<span class="kw">WHERE</span>  employee_id <span class="kw">IN</span> (<span class="num">20</span>, <span class="num">21</span>);
+
+<span class="cm">-- TRUNCATE: removes ALL rows instantly
+-- Much faster; cannot be filtered; may not roll back easily</span>
+<span class="kw">TRUNCATE TABLE</span> employees;</code></pre>
+    </div>
+    <table class="dt" style="margin-top:.7rem">
+      <thead><tr><th>Feature</th><th>DELETE</th><th>TRUNCATE</th></tr></thead>
+      <tbody>
+        <tr><td>Row filtering</td><td>✅ Yes (WHERE clause)</td><td>❌ No — all rows removed</td></tr>
+        <tr><td>Speed</td><td>Slower (row by row)</td><td>✅ Instant</td></tr>
+        <tr><td>Rollback</td><td>✅ Fully rollback-able</td><td>Varies by database</td></tr>
+        <tr><td>Triggers</td><td>Fires row-level triggers</td><td>Usually does not</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Editor 5 -->
+  <div class="editor">
+    <div class="ed-top">
+      <div class="ed-dots"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div></div>
+      <div class="ed-name">practice_05_dml.sql</div>
+      <div class="ed-badge">✏ Try It</div>
+    </div>
+    <textarea class="ed-area" id="ed5" spellcheck="false">-- Practice: UPDATE and DELETE with conditions
+-- 1. Promote all Analysts to Senior Analyst
+UPDATE employees
+SET    title = 'Senior Analyst'
+WHERE  title = 'Analyst';
+
+-- 2. Delete employees hired before year 2000
+DELETE FROM employees
+WHERE  hire_date < '2000-01-01';</textarea>
+    <div class="ed-bot">
+      <button class="btn-hint" onclick="toggleHint('h5')">💡 Hint</button>
+      <button class="btn-run" onclick="runQuery('ed5','r5')"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg> Run Query</button>
+    </div>
+    <div class="ed-hint" id="h5">Best practice: test your WHERE clause with a SELECT first — SELECT * FROM employees WHERE title = 'Analyst' — and verify the rows match what you intend to update.</div>
+    <div class="ed-result" id="r5"></div>
+  </div>
+
+  <div class="quiz" id="q9-wrap">
+    <div class="quiz-eyebrow">▸ Quick Check — §09</div>
+    <div class="quiz-q">What happens when you run <code>UPDATE products SET price = 0</code> without a WHERE clause?</div>
+    <div class="quiz-opts">
+      <div class="qopt" data-correct="false" data-fb="SQL does NOT throw an error for a missing WHERE. It silently executes and affects every row. This is one of the most dangerous SQL mistakes."><span class="ok">A</span>SQL throws a syntax error requiring a WHERE clause</div>
+      <div class="qopt" data-correct="false" data-fb="Only the first row is updated is incorrect. Without WHERE, the UPDATE affects every single row in the entire table."><span class="ok">B</span>Only the first row is updated</div>
+      <div class="qopt" data-correct="true"  data-fb="Correct! Without WHERE, the UPDATE applies to every row in products. Every product's price becomes 0. Always verify your WHERE clause with a SELECT first."><span class="ok">C</span>Every row in products has its price set to 0</div>
+      <div class="qopt" data-correct="false" data-fb="SQL does not prompt you for a WHERE clause — it's optional syntax. The danger is that omitting it silently updates all rows."><span class="ok">D</span>SQL prompts you to enter a WHERE condition</div>
+    </div>
+    <div class="q-fb" id="q9-fb"></div>
+  </div>
+</div>
+
+<!-- ================================================================
+     §10 — VIEWS, CASE, UNION
+     ================================================================ -->
+<div class="section" id="s10">
+  <div class="sec-head">
+    <div class="sec-num">10</div>
+    <div class="sec-info">
+      <div class="sec-title">Views, CASE &amp; Set Operations</div>
+      <div class="sec-desc">Virtual tables, conditional logic, UNION / INTERSECT / EXCEPT, and auto-increment keys</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Concept</span> Views — Named Stored Queries</div>
+    <p>A <strong>view</strong> is a named, stored query that behaves like a virtual table. It stores no data — it re-executes its underlying query on every access, so data is always current.</p>
+    <br/>
+    <div class="g2" style="margin-bottom:.8rem">
+      <div class="note info"><span class="note-ico">🔒</span><div><strong>Security:</strong> Exclude sensitive columns (salaries, PII) and restrict users to the view rather than the base table.</div></div>
+      <div class="note idea"><span class="note-ico">🎭</span><div><strong>Abstraction:</strong> Package complex joins and aggregations once. Others query <code>SELECT * FROM view_name</code> without understanding the internals.</div></div>
+    </div>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="kw">DROP VIEW IF EXISTS</span> employee_sales_summary;
+
+<span class="kw">CREATE VIEW</span> employee_sales_summary <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+    e.employee_id,
+    e.first_name || <span class="str">' '</span> || e.last_name <span class="kw">AS</span> full_name,
+    <span class="fn">TO_CHAR</span>(<span class="fn">SUM</span>(od.unit_price <span class="op">*</span> od.quantity), <span class="str">'999,999.00'</span>) <span class="kw">AS</span> total_sales
+<span class="kw">FROM</span>   employees e
+<span class="kw">JOIN</span>   orders o          <span class="kw">ON</span> e.employee_id <span class="op">=</span> o.employee_id
+<span class="kw">JOIN</span>   order_details od  <span class="kw">ON</span> o.order_id    <span class="op">=</span> od.order_id
+<span class="kw">GROUP BY</span> e.employee_id, e.first_name, e.last_name
+<span class="kw">ORDER BY</span> <span class="fn">SUM</span>(od.unit_price <span class="op">*</span> od.quantity) <span class="kw">DESC</span>;
+
+<span class="cm">-- Query the view exactly like a table:</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> employee_sales_summary;</code></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Concept</span> The CASE Expression</div>
+    <p style="margin-bottom:.75rem">SQL has no if-then-else. <code>CASE</code> provides equivalent conditional logic usable anywhere a value is expected: in SELECT, ORDER BY, GROUP BY, and WHERE.</p>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="kw">SELECT</span>
+    product_name, unit_price,
+    <span class="kw">CASE</span>
+        <span class="kw">WHEN</span> unit_price <span class="op">&lt;</span> <span class="num">20</span>  <span class="kw">THEN</span> <span class="str">'Economy'</span>
+        <span class="kw">WHEN</span> unit_price <span class="op">&lt;</span> <span class="num">80</span>  <span class="kw">THEN</span> <span class="str">'Standard'</span>
+        <span class="kw">ELSE</span>                       <span class="str">'Premium'</span>
+    <span class="kw">END</span> <span class="kw">AS</span> price_tier
+<span class="kw">FROM</span> products;
+
+<span class="cm">-- CASE in ORDER BY for custom sort sequence:</span>
+<span class="kw">ORDER BY</span>
+    <span class="kw">CASE</span> status
+        <span class="kw">WHEN</span> <span class="str">'urgent'</span> <span class="kw">THEN</span> <span class="num">1</span>
+        <span class="kw">WHEN</span> <span class="str">'normal'</span> <span class="kw">THEN</span> <span class="num">2</span>
+        <span class="kw">ELSE</span>              <span class="num">3</span>
+    <span class="kw">END</span>;</code></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-s">Syntax</span> UNION and Set Operations</div>
+    <p style="font-size:.83rem;margin-bottom:.7rem">Stacks two result sets vertically. Both queries must return the same column count with compatible types.</p>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="cm">-- UNION: removes duplicates (slightly slower)
+-- UNION ALL: keeps all rows including duplicates (faster)</span>
+<span class="kw">SELECT</span> category_name, <span class="fn">SUM</span>(units_in_stock) <span class="kw">AS</span> total
+<span class="kw">FROM</span>   products
+<span class="kw">GROUP BY</span> category_name
+
+<span class="kw">UNION ALL</span>
+
+<span class="kw">SELECT</span> <span class="str">'Grand Total'</span>, <span class="fn">SUM</span>(units_in_stock)
+<span class="kw">FROM</span>   products
+
+<span class="kw">ORDER BY</span> total <span class="kw">ASC</span>;  <span class="cm">-- applies to the COMBINED result</span>
+
+<span class="cm">-- Other set operations:
+-- INTERSECT: rows present in BOTH queries
+-- EXCEPT:    rows in first query but NOT in second</span></code></pre>
+    </div>
+    <div class="note tip"><span class="note-ico">✅</span><div><code>ORDER BY</code> always goes at the very end of the last query in a UNION and applies to the entire combined result, not individual sub-queries.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Concept</span> Auto-Incrementing Keys (IDENTITY)</div>
+    <p style="font-size:.83rem;margin-bottom:.75rem">When no natural unique identifier exists, use a <strong>surrogate key</strong> — a system-generated integer that auto-assigns on every insert.</p>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="kw">CREATE TABLE</span> customers (
+    customer_id <span class="tb">INT</span> <span class="kw">GENERATED ALWAYS AS IDENTITY PRIMARY KEY</span>,
+    full_name   <span class="tb">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>
+);
+
+<span class="cm">-- Omit customer_id — the database fills it automatically</span>
+<span class="kw">INSERT INTO</span> customers (full_name)
+<span class="kw">VALUES</span> (<span class="str">'Alice'</span>), (<span class="str">'Bob'</span>);
+<span class="cm">-- Alice gets 1, Bob gets 2 automatically</span></code></pre>
+    </div>
+    <div class="note info"><span class="note-ico">💡</span><div>Deleting a row does <strong>not</strong> reuse its identity value. Gaps in the sequence are normal — never try to fill them in. Reset with <code>ALTER TABLE … ALTER COLUMN … RESTART WITH 1</code> if needed.</div></div>
+  </div>
+
+  <!-- Editor 6 -->
+  <div class="editor">
+    <div class="ed-top">
+      <div class="ed-dots"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div></div>
+      <div class="ed-name">practice_06_case_union.sql</div>
+      <div class="ed-badge">✏ Try It</div>
+    </div>
+    <textarea class="ed-area" id="ed6" spellcheck="false">-- Practice: CASE to categorise employees + UNION for totals
+SELECT
+    first_name,
+    last_name,
+    CASE
+        WHEN title LIKE '%Manager%'  THEN 'Management'
+        WHEN title LIKE '%Sales%'    THEN 'Sales'
+        WHEN title LIKE '%Engineer%' THEN 'Technical'
+        ELSE 'Other'
+    END AS department_group
+FROM employees
+
+UNION ALL
+
+SELECT 'TOTAL', 'EMPLOYEES', CAST(COUNT(*) AS VARCHAR)
+FROM employees
+ORDER BY department_group;</textarea>
+    <div class="ed-bot">
+      <button class="btn-hint" onclick="toggleHint('h6')">💡 Hint</button>
+      <button class="btn-run" onclick="runQuery('ed6','r6')"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg> Run Query</button>
+    </div>
+    <div class="ed-hint" id="h6">CASE evaluates top to bottom and returns the first match. For UNION, all SELECT statements must return the same column count with compatible types. Use CAST() to align data types.</div>
+    <div class="ed-result" id="r6"></div>
+  </div>
+
+  <div class="quiz" id="q10-wrap">
+    <div class="quiz-eyebrow">▸ Quick Check — §10</div>
+    <div class="quiz-q">What is the key difference between <code>UNION</code> and <code>UNION ALL</code>?</div>
+    <div class="quiz-opts">
+      <div class="qopt" data-correct="false" data-fb="Both UNION and UNION ALL require the same column count with compatible types. The difference is not about column requirements."><span class="ok">A</span>UNION requires matching column counts; UNION ALL does not</div>
+      <div class="qopt" data-correct="true"  data-fb="Correct! UNION removes duplicate rows from the combined result (slower). UNION ALL retains all rows including duplicates (faster). Prefer UNION ALL when you know there are no duplicates or want them."><span class="ok">B</span>UNION removes duplicate rows; UNION ALL keeps all rows</div>
+      <div class="qopt" data-correct="false" data-fb="UNION ALL does not join tables — it stacks result sets vertically. JOINs combine tables horizontally on a key."><span class="ok">C</span>UNION ALL joins all tables in the database automatically</div>
+      <div class="qopt" data-correct="false" data-fb="Both UNION and UNION ALL combine exactly two query result sets per operator. The difference is duplicate handling only."><span class="ok">D</span>UNION combines two queries; UNION ALL combines three or more</div>
+    </div>
+    <div class="q-fb" id="q10-fb"></div>
+  </div>
+</div>
+
+<!-- ================================================================
+     §11 — EXECUTION ORDER
+     ================================================================ -->
+<div class="section" id="s11">
+  <div class="sec-head">
+    <div class="sec-num">11</div>
+    <div class="sec-info">
+      <div class="sec-title">SQL Clause Execution Order</div>
+      <div class="sec-desc">Why aliases don't work in WHERE, why aggregates fail there, and other "why doesn't this work?" mysteries — explained</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-c">Concept</span> Written Order ≠ Processing Order</div>
+    <p>SQL queries are <em>written</em> in a specific order (SELECT…FROM…WHERE…) but the engine processes clauses in a completely <em>different logical sequence</em>. Understanding this resolves the most common "but why?" SQL errors.</p>
+  </div>
+
+  <div class="exec-list">
+    <div class="exec-row"><div class="estep">01</div><div class="eclause">FROM / JOIN</div><div class="enote">Build the full dataset — join all tables together first</div></div>
+    <div class="exec-row"><div class="estep">02</div><div class="eclause">WHERE</div><div class="enote">Filter individual rows before any grouping</div></div>
+    <div class="exec-row"><div class="estep">03</div><div class="eclause">GROUP BY</div><div class="enote">Partition filtered rows into groups</div></div>
+    <div class="exec-row"><div class="estep">04</div><div class="eclause">HAVING</div><div class="enote">Filter groups — aggregate functions now available</div></div>
+    <div class="exec-row"><div class="estep">05</div><div class="eclause">SELECT</div><div class="enote">Calculate expressions and assign column aliases</div></div>
+    <div class="exec-row"><div class="estep">06</div><div class="eclause">DISTINCT</div><div class="enote">Remove duplicate rows from the result</div></div>
+    <div class="exec-row"><div class="estep">07</div><div class="eclause">ORDER BY</div><div class="enote">Sort final result — SELECT aliases are now available here</div></div>
+    <div class="exec-row"><div class="estep">08</div><div class="eclause">LIMIT</div><div class="enote">Trim to the requested row count</div></div>
+  </div>
+
+  <div class="note info"><span class="note-ico">💡</span><div>
+    <strong>This explains everything:</strong><br/>
+    • <code>WHERE total &gt; 100</code> fails if <code>total</code> is a SELECT alias — aliases don't exist until step 5.<br/>
+    • <code>WHERE COUNT(*) &gt; 5</code> fails — aggregates aren't computed until steps 3–4.<br/>
+    • <code>HAVING country = 'USA'</code> works but is slower than <code>WHERE country = 'USA'</code> — WHERE eliminates rows earlier (step 2).<br/>
+    • <code>ORDER BY total</code> <em>can</em> use a SELECT alias — ORDER BY runs at step 7, after SELECT creates aliases at step 5.
+  </div></div>
+
+  <div class="card">
+    <div class="card-head"><span class="tag tag-e">Example</span> Common Execution Order Mistakes — and Their Fixes</div>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">SQL</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="cm">-- ❌ FAILS: 'total_sales' alias used in WHERE (step 2),
+--    but aliases are created in SELECT (step 5)</span>
+<span class="kw">SELECT</span> employee_id, <span class="fn">SUM</span>(amount) <span class="kw">AS</span> total_sales
+<span class="kw">FROM</span>   sales
+<span class="kw">WHERE</span>  total_sales <span class="op">&gt;</span> <span class="num">1000</span>;   <span class="cm">-- alias doesn't exist yet!</span>
+
+<span class="cm">-- ✅ FIX 1: use HAVING (step 4, after GROUP BY)</span>
+<span class="kw">SELECT</span> employee_id, <span class="fn">SUM</span>(amount) <span class="kw">AS</span> total_sales
+<span class="kw">FROM</span>   sales
+<span class="kw">GROUP BY</span> employee_id
+<span class="kw">HAVING</span> <span class="fn">SUM</span>(amount) <span class="op">&gt;</span> <span class="num">1000</span>;
+
+<span class="cm">-- ✅ FIX 2: wrap in a subquery (alias exists in outer query)</span>
+<span class="kw">SELECT</span> <span class="op">*</span>
+<span class="kw">FROM</span>  (<span class="kw">SELECT</span> employee_id, <span class="fn">SUM</span>(amount) <span class="kw">AS</span> total_sales
+        <span class="kw">FROM</span>   sales
+        <span class="kw">GROUP BY</span> employee_id) <span class="kw">AS</span> sub
+<span class="kw">WHERE</span>  sub.total_sales <span class="op">&gt;</span> <span class="num">1000</span>;</code></pre>
+    </div>
+  </div>
+
+  <!-- Editor 7 -->
+  <div class="editor">
+    <div class="ed-top">
+      <div class="ed-dots"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div></div>
+      <div class="ed-name">practice_07_exec_order.sql</div>
+      <div class="ed-badge">✏ Try It</div>
+    </div>
+    <textarea class="ed-area" id="ed7" spellcheck="false">-- Challenge: This query is broken — fix it
+-- The alias 'total_revenue' cannot be used in WHERE (step 2)
+-- because SELECT aliases are created in step 5.
+
+-- BROKEN:
+-- SELECT product_id, SUM(quantity * unit_price) AS total_revenue
+-- FROM   order_details
+-- WHERE  total_revenue > 500
+-- GROUP BY product_id;
+
+-- FIXED (move the filter to HAVING):
+SELECT product_id,
+       SUM(quantity * unit_price) AS total_revenue
+FROM   order_details
+GROUP BY product_id
+HAVING SUM(quantity * unit_price) > 500
+ORDER BY total_revenue DESC;</textarea>
+    <div class="ed-bot">
+      <button class="btn-hint" onclick="toggleHint('h7')">💡 Hint</button>
+      <button class="btn-run" onclick="runQuery('ed7','r7')"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg> Run Query</button>
+    </div>
+    <div class="ed-hint" id="h7">When filtering on an aggregate value, use HAVING (runs at step 4, after GROUP BY). WHERE (step 2) only sees raw column values — aggregates and SELECT aliases don't exist there yet.</div>
+    <div class="ed-result" id="r7"></div>
+  </div>
+
+  <div class="quiz" id="q11-wrap">
+    <div class="quiz-eyebrow">▸ Quick Check — §11</div>
+    <div class="quiz-q">In the logical execution order, which clause runs immediately after GROUP BY?</div>
+    <div class="quiz-opts">
+      <div class="qopt" data-correct="false" data-fb="SELECT runs at step 5 — after both GROUP BY (step 3) and HAVING (step 4). This is why HAVING can use aggregates, but aliases created in SELECT are not yet available to HAVING."><span class="ok">A</span>SELECT</div>
+      <div class="qopt" data-correct="false" data-fb="WHERE runs at step 2 — BEFORE GROUP BY. This is precisely why WHERE cannot use aggregate functions: the grouping hasn't happened yet."><span class="ok">B</span>WHERE</div>
+      <div class="qopt" data-correct="true"  data-fb="Correct! HAVING runs at step 4, immediately after GROUP BY (step 3). Grouping is already done, so aggregate functions are fully available to HAVING."><span class="ok">C</span>HAVING</div>
+      <div class="qopt" data-correct="false" data-fb="ORDER BY runs at step 7 — near the very end, after SELECT (step 5) has created all aliases. This is why ORDER BY is the only clause other than HAVING that can use SELECT aliases."><span class="ok">D</span>ORDER BY</div>
+    </div>
+    <div class="q-fb" id="q11-fb"></div>
+  </div>
+
+  <!-- Completion card -->
+  <div class="card" style="border-color:var(--border-hi);background:linear-gradient(135deg,rgba(255,92,43,.03),rgba(245,183,49,.03));margin-top:1.5rem">
+    <div class="card-head">🎓 Course Complete</div>
+    <p style="color:var(--text-2);font-size:.87rem;line-height:1.7">You've covered SQL from its mathematical foundations through advanced features. Best next steps: practice on real datasets (Kaggle, PostgreSQL's Northwind), explore <strong>window functions</strong> (<code>ROW_NUMBER()</code>, <code>RANK()</code>, <code>LAG()</code>), and study <strong>indexes</strong> — understanding how they work will make you dramatically better at query optimisation. Every complex SQL query you'll ever write is just a composition of the fundamentals covered here.</p>
+  </div>
+</div>
+
+
+</main><!-- /main -->
+</div><!-- /shell -->
+
+<!-- Floating scroll progress ring -->
+<div class="flt" title="Page progress">
+  <svg width="50" height="50" viewBox="0 0 50 50">
+    <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,92,43,.15)" stroke-width="2"/>
+    <circle id="ring" cx="25" cy="25" r="20" fill="none" stroke="var(--orange)" stroke-width="2"
+            stroke-dasharray="125.66" stroke-dashoffset="125.66" stroke-linecap="round"/>
+  </svg>
+  <div class="flt-inner"><span id="pct">0%</span></div>
+</div>
+
+<!-- ================================================================
+     JAVASCRIPT
+     ================================================================ -->
+<script>
+/* ---------------------------------------------------------------
+   1. INTERSECTION OBSERVER — animate sections on scroll
+--------------------------------------------------------------- */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      setActiveNav(e.target.id);
+    }
+  });
+}, { threshold: 0.07 });
+document.querySelectorAll('.section').forEach(s => io.observe(s));
+
+function setActiveNav(id) {
+  document.querySelectorAll('.nav-item').forEach(n => {
+    const href = n.getAttribute('href');
+    n.classList.toggle('active', href === '#' + id);
+    if (href === '#' + id) n.classList.add('seen');
+  });
+}
+
+/* ---------------------------------------------------------------
+   2. SCROLL PROGRESS
+--------------------------------------------------------------- */
+const ring = document.getElementById('ring');
+const pctEl = document.getElementById('pct');
+const fillEl = document.getElementById('sb-fill');
+const progPct = document.getElementById('prog-pct');
+const CIRCUM = 125.66;
+
+window.addEventListener('scroll', () => {
+  const scrolled = document.documentElement.scrollTop;
+  const total = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  const pct = total > 0 ? Math.round((scrolled / total) * 100) : 0;
+  ring.style.strokeDashoffset = CIRCUM - (pct / 100) * CIRCUM;
+  pctEl.textContent = pct + '%';
+  if (fillEl) fillEl.style.width = pct + '%';
+  if (progPct) progPct.textContent = pct + '%';
+}, { passive: true });
+
+/* ---------------------------------------------------------------
+   3. COPY CODE BUTTON
+--------------------------------------------------------------- */
+function copyCode(btn) {
+  const code = btn.closest('.cb').querySelector('code');
+  const text = code ? code.textContent : '';
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => flash(btn));
+  } else {
+    // Fallback for older browsers
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); flash(btn); } catch(e) {}
+    document.body.removeChild(ta);
+  }
+}
+function flash(btn) {
+  btn.textContent = '✓ copied';
+  btn.classList.add('done');
+  setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('done'); }, 1600);
+}
+
+/* ---------------------------------------------------------------
+   4. HINT TOGGLE
+--------------------------------------------------------------- */
+function toggleHint(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('show');
+}
+
+/* ---------------------------------------------------------------
+   5. COLLAPSIBLE SECTIONS
+--------------------------------------------------------------- */
+function toggleCollapse(id) {
+  const content = document.getElementById(id);
+  if (!content) return;
+  const btn = content.previousElementSibling;
+  const isOpen = content.classList.toggle('open');
+  if (btn && btn.classList.contains('toggle-btn')) btn.classList.toggle('open', isOpen);
+}
+
+/* ---------------------------------------------------------------
+   6. QUIZ LOGIC
+   - Each quiz has a wrapper div with id like "q1-wrap"
+   - Options have data-correct="true|false" and data-fb="..."
+   - Feedback element has id like "q1-fb"
+--------------------------------------------------------------- */
+document.querySelectorAll('.quiz').forEach(quizEl => {
+  const opts = quizEl.querySelectorAll('.qopt');
+  opts.forEach(opt => {
+    opt.addEventListener('click', () => handleAnswer(quizEl, opt));
+  });
+});
+
+function handleAnswer(quizEl, clicked) {
+  // Prevent re-answering
+  if (quizEl.dataset.answered) return;
+  quizEl.dataset.answered = '1';
+
+  const isCorrect = clicked.dataset.correct === 'true';
+  const fb = clicked.dataset.fb || '';
+
+  // Find the feedback element (same .quiz div, has class q-fb)
+  const fbEl = quizEl.querySelector('.q-fb');
+  const opts = quizEl.querySelectorAll('.qopt');
+
+  opts.forEach(opt => {
+    opt.classList.add('locked');
+    if (opt === clicked) {
+      opt.classList.add(isCorrect ? 'correct' : 'wrong');
+    } else {
+      // If the user was wrong, highlight the correct option
+      if (!isCorrect && opt.dataset.correct === 'true') {
+        opt.classList.add('correct');
+      } else {
+        opt.classList.add('dim');
+      }
+    }
+  });
+
+  if (fbEl) {
+    fbEl.innerHTML = (isCorrect ? '✅ ' : '❌ ') + fb;
+    fbEl.className = 'q-fb show ' + (isCorrect ? 'fb-ok' : 'fb-no');
+  }
+}
+
+/* ---------------------------------------------------------------
+   7. SIMULATED SQL RUNNER
+--------------------------------------------------------------- */
+// Canned result sets keyed by pattern
+const RESULTS = {
+  monthly_salary: {
+    headers: ['first_name','last_name','monthly_salary'],
+    rows: [['Alice','Chen','8,333.33'],['Bob','Martinez','7,916.67'],['Clara','Webb','9,166.67'],['Derek','Singh','7,500.00']]
+  },
+  products_like_limit: {
+    headers: ['product_name','unit_price'],
+    rows: [['Côte de Blaye','263.50'],['Thüringer Rostbratwurst','123.79'],['Mishi Kobe Niku','97.00'],['Sir Rodney\'s Marmalade','81.00'],['Carnarvon Tigers','62.50']]
+  },
+  group_country_having: {
+    headers: ['country','customer_count'],
+    rows: [['USA','13'],['Germany','11'],['France','11'],['Brazil','9'],['UK','7'],['Spain','5']]
+  },
+  left_join_employees: {
+    headers: ['employee_id','last_name','first_name','order_id'],
+    rows: [['5','Buchanan','Steven',null],['1','Davolio','Nancy','10258'],['1','Davolio','Nancy','10270'],['2','Fuller','Andrew','10248'],['3','Leverling','Janet','10251']]
+  },
+  dml: {
+    headers: ['operation','rows_affected'],
+    rows: [['UPDATE','3 rows updated — title changed to Senior Analyst'],['DELETE','2 rows deleted — hired before 2000-01-01']]
+  },
+  case_union: {
+    headers: ['first_name','last_name','department_group'],
+    rows: [['Steven','Buchanan','Management'],['Nancy','Davolio','Sales'],['Andrew','Fuller','Management'],['Janet','Leverling','Sales'],['TOTAL','EMPLOYEES','9']]
+  },
+  exec_order_fix: {
+    headers: ['product_id','total_revenue'],
+    rows: [['38','4,901.37'],['29','4,756.00'],['59','4,568.40'],['62','3,922.50'],['17','3,608.07']]
+  },
+  generic_ok: {
+    headers: ['status'],
+    rows: [['✓ Query accepted. In a live database, results would appear here.']]
+  }
+};
+
+function pickResult(sql) {
+  const s = sql.toLowerCase();
+  if (s.includes('monthly_salary') || (s.includes('annual_salary') && s.includes('/') && s.includes('12'))) return RESULTS.monthly_salary;
+  if ((s.includes('like') || s.includes('limit')) && s.includes('unit_price') && !s.includes('group by')) return RESULTS.products_like_limit;
+  if (s.includes('group by') && s.includes('country')) return RESULTS.group_country_having;
+  if (s.includes('left join') && s.includes('employees')) return RESULTS.left_join_employees;
+  if (s.includes('update') || (s.includes('delete') && s.includes('where'))) return RESULTS.dml;
+  if (s.includes('case') && (s.includes('union') || s.includes('employees'))) return RESULTS.case_union;
+  if (s.includes('having') && s.includes('sum') && s.includes('order_details')) return RESULTS.exec_order_fix;
+  return RESULTS.generic_ok;
+}
+
+function runQuery(edId, resId) {
+  const sql  = (document.getElementById(edId) || {}).value || '';
+  const resEl = document.getElementById(resId);
+  if (!resEl) return;
+
+  resEl.classList.add('show');
+  resEl.innerHTML = '<div style="padding:.3rem 0;color:var(--text-3);font-family:\'JetBrains Mono\',monospace;font-size:.74rem"><span class="rt-spin">◌</span> Executing…</div>';
+
+  setTimeout(() => {
+    renderResult(resEl, pickResult(sql));
+  }, 550);
+}
+
+function renderResult(el, data) {
+  let html = '<table class="rt"><thead><tr>';
+  data.headers.forEach(h => html += `<th>${escHtml(h)}</th>`);
+  html += '</tr></thead><tbody>';
+  data.rows.forEach(row => {
+    html += '<tr>';
+    row.forEach(cell => {
+      if (cell === null || cell === undefined) {
+        html += `<td class="rt-null">NULL</td>`;
+      } else {
+        html += `<td>${escHtml(String(cell))}</td>`;
+      }
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  const n = data.rows.length;
+  html += `<div class="rt-msg ok">↳ ${n} row${n !== 1 ? 's' : ''} returned</div>`;
+  el.innerHTML = html;
+}
+
+function escHtml(str) {
+  return str
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
