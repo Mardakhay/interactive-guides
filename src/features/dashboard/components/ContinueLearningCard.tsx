@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Check, Compass } from 'lucide-react';
+import { ArrowRight, BookOpen, Check, Compass } from 'lucide-react';
 import { getCategoryById, getCategoryIcon } from '@/features/content';
 import { getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
 import { Card, Badge, Button } from '@/components/ui';
 import { EmptyState } from '@/components/feedback';
-import { coursePath, lessonPath } from '@/app/router/routes';
+import { coursePath } from '@/app/router/routes';
 import type { ContinueLearningInfo } from '../types';
 
 interface ContinueLearningCardProps {
@@ -31,14 +31,14 @@ export function ContinueLearningCard({ continueLearning }: ContinueLearningCardP
     );
   }
 
-  const CategoryIcon = getCategoryIcon(continueLearning.categoryIcon);
-  const category = getCategoryById(continueLearning.categoryId);
+  const CategoryIcon = continueLearning.kind === 'structured' ? BookOpen : getCategoryIcon(continueLearning.categoryIcon);
+  const category = continueLearning.kind === 'classic' ? getCategoryById(continueLearning.categoryId) : undefined;
   const categoryName = category
     ? getLocalizedCategoryCopy(locale, category.id, category.name, category.description).name
     : continueLearning.categoryName;
 
   return (
-    <Link to={lessonPath(continueLearning.lessonId)}>
+    <Link to={continueLearning.href}>
       <Card interactive className="group flex items-center gap-4 p-5">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
           <CategoryIcon className="h-6 w-6" />

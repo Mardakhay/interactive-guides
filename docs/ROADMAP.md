@@ -26,6 +26,8 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 
 - [x] Add a persistent EN/RU preference, a switch in the shared top bar, and route-aware locale selection for structured lessons.
 - [x] Localize the common shell/navigation, dashboard widgets, catalog/category views, learning paths, bookmarks, notes, lesson controls/metadata/navigation, quiz controls, search and common empty/error states.
+- [x] Keep dashboard progress separate for classic HTML catalog IDs and canonical structured lesson IDs; resume the last-opened lesson through its matching route.
+- [x] Preserve structured lesson bookmarks and notes in their list pages; add bookmark/note controls to the structured reader and resolve structured IDs in dashboard recent activity.
 - [ ] Audit remaining uncommon strings and edge states across every route; verify the browser document language and accessible announcements.
 - [ ] Review and translate legacy lesson bodies where equivalent Russian source content exists; preserve the route-specific language of structured lessons.
 - [ ] Complete the responsive, keyboard and touch-target review across the entire app.
@@ -39,6 +41,8 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 - [x] Implement knowledge-check feedback per answer for the supported question schema.
 - [x] Provide coding-practice scaffolding, locally persisted drafts/checklists, knowledge-check attempt history, hint toggles, and a script-disabled HTML preview; document JavaScript Worker and DOM limitations.
 - [x] Persist self-attested section-read markers separately from lesson completion; do not infer mastery from reading progress.
+- [x] Summarize quiz attempts, self-review criteria and saved exercise drafts as separate activity signals; explicitly state that these are not a mastery score.
+- [x] Regression-test that learning-signal counts are lesson-scoped and reset correctly when navigating to the next lesson; isolate the structured-learning store between page tests.
 - [x] Add an optional authored-example-solution field and explicit reveal/collapse UI. Solutions stay hidden until requested and are labelled as examples, not the only valid implementation; the HTML “About Me” pilot has bilingual authored solutions.
 - [ ] Extend optional solutions selectively after lesson-specific editorial review and verify disclosure behavior with assistive technology.
 - [ ] Gate “mastered” status on required practice evidence where specified.
@@ -538,3 +542,14 @@ A draft field-specific policy now exists in `docs/LOCAL_CLOUD_RECONCILIATION.md`
 - [x] Produce a reviewable candidate map for all 25 classic catalog IDs in [LEGACY_ROUTE_CUTOVER_MATRIX.md](./LEGACY_ROUTE_CUTOVER_MATRIX.md).
 - [ ] Review every candidate against actual EN/RU target content, exercises/answers and unresolved source interactions.
 - [ ] Specify and test per-store learner-state migration or explicit legacy-record retention before redirect; do not use topic overlap as an identity mapping.
+
+
+## Structured learning-path route coverage — 2026-10-28
+
+- [x] Add separate structured Frontend Foundations and React paths using canonical lesson IDs; preserve the existing classic paths and their stored IDs.
+- [x] Resolve classic and structured lesson routes in the detail view, respecting the selected UI locale, existing progress records and bookmark store.
+- [x] Validate that each configured path step references an existing classic or structured lesson; render an explicit unavailable-step state rather than hiding unknown IDs.
+- [x] Add integration/regression tests for path progress, locale-aware links, bookmarks, localization and legacy route preservation. Exact-head CI passed on `1f186fba06e4c37f32cd522d9a256adc344019ae` in [run #40646447483](https://github.com/Mardakhay/interactive-guides/actions/runs/40646447483) (209 tests / 33 files plus production build).
+- [ ] Continue detailed source-to-lesson parity review in syllabus order. Separate IDs and successful route resolution do not establish content equivalence.
+- [ ] Complete real-browser, screen-reader and mobile acceptance; these checks are not covered by CI.
+
