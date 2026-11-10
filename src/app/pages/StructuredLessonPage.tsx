@@ -78,6 +78,17 @@ export default function StructuredLessonPage() {
     };
   }, [lesson?.id]);
 
+  useEffect(() => {
+    if (!lesson || !window.location.hash) return;
+    let anchorId: string;
+    try {
+      anchorId = decodeURIComponent(window.location.hash.slice(1));
+    } catch {
+      return;
+    }
+    document.getElementById(anchorId)?.scrollIntoView?.({ block: 'start' });
+  }, [lesson?.id]);
+
   const week = lesson ? getWeekForLesson(lesson.id, locale) : undefined;
   const supplementaryTrack = lesson && !week ? getSupplementaryTrackForLesson(lesson.id, locale) : undefined;
   const curriculum = getBootcampCurriculum(locale);
@@ -255,7 +266,7 @@ export default function StructuredLessonPage() {
         <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary-700">
           {month && <span>{month.title}</span>}
           {week && <span className="rounded-md bg-primary-100 px-2 py-1">{copy.week} {week.number}</span>}
-          <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-amber-800">{copy.review}</span>
+          {lesson.status !== 'published' && <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-amber-800">{copy.review}</span>}
         </div>
         <h1 className="mt-4 max-w-4xl text-3xl font-semibold tracking-tight text-neutral-950 sm:text-4xl">{lesson.title}</h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-neutral-600 sm:text-lg sm:leading-8">{lesson.description}</p>

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Languages } from 'lucide-react';
-import { getBootcampCurriculum, getStructuredLessonMetadata, SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
+import { getBootcampCurriculum, getStructuredLessonIds, getStructuredLessonMetadata, SUPPORTED_LOCALES, type SupportedLocale } from '@/content/repository';
 
 function isSupportedLocale(value: string | undefined): value is SupportedLocale {
   return SUPPORTED_LOCALES.some((locale) => locale === value);
@@ -27,6 +27,8 @@ export default function StructuredCurriculumPage() {
         supplemental: 'Дополнительные учебные треки',
         supplementalNote: 'Эти темы расширяют программу и не являются неделями исходного буткемпа.',
         start: 'Открыть урок',
+        reviewBannerTitle: 'Pilot curriculum · editorial review in progress',
+        reviewBannerDetail: '{count} lesson records are still marked for review. They are preview content, not an approved production release.',
         language: 'English',
       }
     : {
@@ -43,6 +45,8 @@ export default function StructuredCurriculumPage() {
         supplemental: 'Supplementary learning tracks',
         supplementalNote: 'These topics extend the course; they are not weeks in the original bootcamp syllabus.',
         start: 'Open lesson',
+        reviewBannerTitle: 'Пилотная программа · редакционная проверка продолжается',
+        reviewBannerDetail: '{count} записей уроков всё ещё имеют статус проверки. Это предварительный контент, а не утверждённый production-релиз.',
         language: 'Русский',
       };
 
@@ -56,6 +60,7 @@ export default function StructuredCurriculumPage() {
 
   const otherLocale: SupportedLocale = locale === 'en' ? 'ru' : 'en';
   const coreLessonIds = curriculum.months.flatMap((month) => month.weeks.flatMap((week) => week.lessonIds));
+  const reviewLessonCount = getStructuredLessonIds().filter((id) => getStructuredLessonMetadata(id, locale)?.status === 'review').length;
 
   if (!validLocale) {
     return (
@@ -92,6 +97,13 @@ export default function StructuredCurriculumPage() {
           <span className="rounded-lg bg-white px-3 py-2">{coreLessonIds.length} {copy.lessons}</span>
         </div>
       </header>
+
+      {reviewLessonCount > 0 && (
+        <section role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
+          <h2 className="text-sm font-semibold">{copy.reviewBannerTitle}</h2>
+          <p className="mt-1 text-sm leading-6">{copy.reviewBannerDetail.replace('{count}', String(reviewLessonCount))}</p>
+        </section>
+      )}
 
       <div className="space-y-8">
         {curriculum.months.map((month) => (

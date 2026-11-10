@@ -6,7 +6,7 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 
 This section replaces older status summaries below where they conflict. Chronological checkpoint notes remain a history, not a unique-task count.
 
-- Latest validated code/content/test checkpoint: `4703f4c5b7f387fab29ab25928696631ccc7321e`; exact [Actions run #40885020971](https://github.com/Mardakhay/interactive-guides/actions/runs/40885020971) passed 46 test files / 300 tests, ESLint, TypeScript, production build, bundle budgets across 125 JavaScript chunks, npm audit with 0 reported advisories (informational/non-blocking), and production-preview smoke for 4 deep routes, the entry bundle, manifest, service worker, and 5 PWA assets. It includes the OAuth BCP/auth regression fixes, JS-004 async-concurrency source corrections, and WB-002 HTML-reference accuracy follow-up; it does not close native acceptance or route-cutover gates.
+- Latest validated code/content/test checkpoint: `2ea2401f11fe12f7bb3112b1c7d3eecce1133606`; exact [Actions run #40889174905](https://github.com/Mardakhay/interactive-guides/actions/runs/40889174905) passed 47 test files / 310 tests, ESLint, TypeScript, production build, bundle budgets across 125 JavaScript chunks, npm audit with zero reported advisories, and production-preview smoke for 4 deep routes, the entry bundle, manifest, service worker, and 5 PWA assets. It includes the OAuth BCP/auth fixes, JS-004 async-concurrency corrections, WB-002 native form/ARIA/keyboard-focus clarifications, and the WB-001 network/HTTP/TLS/browser-privacy correction pass with six new source regression tests. Native acceptance and route-cutover gates remain open.
 - `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 is open Draft against `main`.
 - The audit step reports zero advisories but is explicitly informational/non-blocking; lint, typecheck, tests and build remain fail-fast. CI is not a native browser/device, screen-reader or mobile acceptance pass.
 - Registry: 27 core + 17 supplementary = 44 EN/RU lesson pairs (88 JSON locale records).
@@ -17,7 +17,7 @@ This section replaces older status summaries below where they conflict. Chronolo
 ### Remaining work, by dependency
 
 1. **Source parity and cutover:** verify each legacy source against its actual English and Russian target content, including examples, code, quizzes, answer feedback, references and interaction behavior. Record reviewed keep-classic/defer decisions where equivalence is incomplete; do not infer readiness from mappings or CI.
-2. **Learner-state safety:** use [`docs/LEARNER_STATE_MIGRATION_INVENTORY.md`](LEARNER_STATE_MIGRATION_INVENTORY.md) as the store/identity baseline; prove retention for progress, bookmarks, notes, last-opened state, classic quiz IDs, structured block IDs and failure recovery before redirects or source removal.
+2. **Learner-state safety:** use [`docs/LEARNER_STATE_MIGRATION_INVENTORY.md`](LEARNER_STATE_MIGRATION_INVENTORY.md) as the store/identity baseline; prove retention for progress, bookmarks, notes, last-opened state, classic quiz IDs, structured block IDs and failure recovery before redirects or source removal. `ig:last-lesson` is only declared in the scanned app code and is not included in the typed backup; preserve existing values until a retention/portability decision is approved.
 3. **Native acceptance:** run the documented browser/device checklist with synthetic data and record SHA, browser/version, OS/device, network mode and evidence.
 4. **Curriculum and UX sign-off:** map all 24-week outcomes, review bilingual semantics, uncommon UI strings, keyboard/accessibility, responsive layout, and exercise solution disclosure.
 5. **Release and cloud scope:** verify actual deployment/screenshot evidence. Implement Supabase only after scope, local/cloud reconciliation, RLS and account-isolation behavior are approved.
@@ -37,6 +37,7 @@ A task is not complete merely because a destination lesson is registered, the so
 - [x] Define and validate schemas for curriculum, lesson translations and content blocks.
 - [x] Map registered core and supplementary lesson IDs to the 24-week syllabus or a separately labeled track; source-content parity is tracked separately.
 - [x] Add automated schema, repository, curriculum and locale checks for required fields, IDs/order, references and answer keys.
+- [x] Record bilingual publication status in the stable-ID manifest, verify it against both locale records, and exclude draft lessons from learner-facing surfaces.
 - [x] Create bilingual structured lessons and a React authoring/rendering path; source parity and editorial approval remain open.
 - Acceptance: the curriculum can be loaded without an HTML manifest; content validation runs in CI.
 - Suggested commits:
@@ -49,6 +50,7 @@ A task is not complete merely because a destination lesson is registered, the so
 - [x] Add a persistent EN/RU preference, a switch in the shared top bar, and route-aware locale selection for structured lessons.
 - [x] Localize the common shell/navigation, dashboard widgets, catalog/category views, learning paths, bookmarks, notes, lesson controls/metadata/navigation, quiz controls, search and common empty/error states.
 - [x] Keep dashboard progress separate for classic HTML catalog IDs and canonical structured lesson IDs; resume the last-opened lesson through its matching route.
+- [x] Expand search to structured lesson body text/tags/outcomes and canonical core/supplementary curriculum topics through a locale-specific lazy-loaded index.
 - [x] Preserve structured lesson bookmarks and notes in their list pages; add bookmark/note controls to the structured reader and resolve structured IDs in dashboard recent activity.
 - [ ] Audit remaining uncommon strings and edge states across every route; verify the browser document language and accessible announcements.
 - [ ] Review and translate legacy lesson bodies where equivalent Russian source content exists; preserve the route-specific language of structured lessons.
@@ -64,6 +66,7 @@ A task is not complete merely because a destination lesson is registered, the so
 - [x] Provide coding-practice scaffolding, locally persisted drafts/checklists, knowledge-check attempt history, hint toggles, and a script-disabled HTML preview; document JavaScript Worker and DOM limitations.
 - [x] Persist self-attested section-read markers separately from lesson completion; do not infer mastery from reading progress.
 - [x] Summarize quiz attempts, self-review criteria and saved exercise drafts as separate activity signals; explicitly state that these are not a mastery score.
+- [x] Add a bilingual Practice Center that aggregates structured coding exercises, displays saved-draft/self-review activity, and deep-links to the exact exercise without changing learner-state storage or claiming automated mastery.
 - [x] Regression-test that learning-signal counts are lesson-scoped and reset correctly when navigating to the next lesson; isolate the structured-learning store between page tests.
 - [x] Add an optional authored-example-solution field and explicit reveal/collapse UI. Solutions stay hidden until requested and are labelled as examples, not the only valid implementation; the HTML “About Me” pilot has bilingual authored solutions.
 - [ ] Extend optional solutions selectively after lesson-specific editorial review and verify disclosure behavior with assistive technology.
