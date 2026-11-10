@@ -32,13 +32,15 @@ export function localizedPath(path: string, locale: AppLocale): string {
   return unprefixedPath === '/' ? '/' + locale : '/' + locale + unprefixedPath;
 }
 
-export function coursePath(_categoryId: string): string {
-  // Kept as a compatibility helper for stale bookmarks/links; all catalog links use the structured curriculum.
+export function coursePath(categoryId: string): string {
+  // The legacy category is intentionally ignored after consolidating the catalog.
+  void categoryId;
   return '/structured-lessons';
 }
 
-export function lessonPath(_lessonId: string): string {
+export function lessonPath(lessonId: string): string {
   // Standalone legacy lesson URLs no longer resolve to HTML lesson documents.
+  void lessonId;
   return '/structured-lessons';
 }
 
