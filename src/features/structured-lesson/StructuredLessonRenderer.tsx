@@ -104,10 +104,25 @@ function CommandReference({
   locale: SupportedLocale;
 }) {
   const [copyStates, setCopyStates] = useState<Record<string, 'copied' | 'failed'>>({});
+  const [query, setQuery] = useState('');
   const copyLabel = locale === 'ru' ? 'Копировать команду' : 'Copy command';
   const copiedLabel = locale === 'ru' ? 'Скопировано' : 'Copied';
   const failedLabel = locale === 'ru' ? 'Не удалось скопировать' : 'Copy failed';
   const statusLabel = locale === 'ru' ? 'Статус копирования команды' : 'Command copy status';
+  const searchLabel = locale === 'ru' ? 'Поиск команд Git' : 'Search Git commands';
+  const searchPlaceholder = locale === 'ru' ? 'Команда, описание или категория…' : 'Command, description or category…';
+  const noResults = locale === 'ru' ? 'Команды не найдены. Измени поисковый запрос.' : 'No commands found. Try a different search.';
+
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  const visibleCategories = block.categories.map((category) => ({
+    ...category,
+    items: category.items.filter((item) => {
+      if (!normalizedQuery) return true;
+      return [category.title, item.command, item.description]
+        .some((value) => value.toLocaleLowerCase().includes(normalizedQuery));
+    }),
+  })).filter((category) => category.items.length > 0);
+  const visibleCommandCount = visibleCategories.reduce((total, category) => total + category.items.length, 0);
 
   const copyCommand = async (itemId: string, command: string) => {
     try {
@@ -123,65 +138,80 @@ function CommandReference({
   };
 
   return (
-    <div className="my-6 space-y-4">
-      {block.categories.map((category) => (
-        <section
-          key={category.id}
-          aria-labelledby={`${block.id}-${category.id}-heading`}
-          className="overflow-hidden rounded-xl border border-neutral-200 bg-white"
-        >
-          <h3
-            id={`${block.id}-${category.id}-heading`}
-            className="border-b border-neutral-200 bg-neutral-50 px-4 py-3 text-sm font-semibold text-neutral-900"
+    <div className="my-6 space-y-4" data-command-reference={block.id}>
+      <label className="block">
+        <span className="sr-only">{searchLabel}</span>
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          aria-label={searchLabel}
+          placeholder={searchPlaceholder}
+          className="min-h-10 w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+        />
+      </label>
+      {visibleCommandCount === 0 ? (
+        <p role="status" className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600">{noResults}</p>
+      ) : (
+        visibleCategories.map((category) => (
+          <section
+            key={category.id}
+            aria-labelledby={`${block.id}-${category.id}-heading`}
+            className="overflow-hidden rounded-xl border border-neutral-200 bg-white"
           >
-            {category.title}
-          </h3>
-          <ul className="divide-y divide-neutral-100">
-            {category.items.map((item) => {
-              const state = copyStates[item.id] ?? 'idle';
-              const buttonText = state === 'copied'
-                ? copiedLabel
-                : state === 'failed'
-                  ? failedLabel
-                  : (locale === 'ru' ? 'Копировать' : 'Copy');
-              const buttonLabel = `${state === 'copied' ? copiedLabel : state === 'failed' ? failedLabel : copyLabel}: ${item.command}`;
+            <h3
+              id={`${block.id}-${category.id}-heading`}
+              className="border-b border-neutral-200 bg-neutral-50 px-4 py-3 text-sm font-semibold text-neutral-900"
+            >
+              {category.title}
+            </h3>
+            <ul className="divide-y divide-neutral-100">
+              {category.items.map((item) => {
+                const state = copyStates[item.id] ?? 'idle';
+                const buttonText = state === 'copied'
+                  ? copiedLabel
+                  : state === 'failed'
+                    ? failedLabel
+                    : (locale === 'ru' ? 'Копировать' : 'Copy');
+                const buttonLabel = `${state === 'copied' ? copiedLabel : state === 'failed' ? failedLabel : copyLabel}: ${item.command}`;
 
-              return (
-                <li key={item.id} className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-4">
-                  <div className="min-w-0">
-                    <code className="block max-w-full overflow-x-auto whitespace-pre rounded-md bg-neutral-100 px-2.5 py-1.5 font-mono text-sm text-neutral-900">
-                      {item.command}
-                    </code>
-                    <p className="mt-2 text-sm leading-6 text-neutral-600">{item.description}</p>
-                  </div>
-                  <div className="flex items-center justify-start gap-2 sm:justify-end">
-                    <button
-                      type="button"
-                      onClick={() => void copyCommand(item.id, item.command)}
-                      aria-label={buttonLabel}
-                      className="inline-flex min-h-9 shrink-0 items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-xs font-semibold text-neutral-700 transition hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
-                    >
-                      {state === 'copied'
-                        ? <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                        : <Clipboard className="h-3.5 w-3.5" aria-hidden="true" />}
-                      {buttonText}
-                    </button>
-                    {state !== 'idle' && (
-                      <span
-                        className="sr-only"
-                        role="status"
-                        aria-label={`${statusLabel}: ${item.command}`}
+                return (
+                  <li key={item.id} className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-4">
+                    <div className="min-w-0">
+                      <code className="block max-w-full overflow-x-auto whitespace-pre rounded-md bg-neutral-100 px-2.5 py-1.5 font-mono text-sm text-neutral-900">
+                        {item.command}
+                      </code>
+                      <p className="mt-2 text-sm leading-6 text-neutral-600">{item.description}</p>
+                    </div>
+                    <div className="flex items-center justify-start gap-2 sm:justify-end">
+                      <button
+                        type="button"
+                        onClick={() => void copyCommand(item.id, item.command)}
+                        aria-label={buttonLabel}
+                        className="inline-flex min-h-9 shrink-0 items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-xs font-semibold text-neutral-700 transition hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
                       >
-                        {state === 'copied' ? `${copiedLabel}: ${item.command}` : `${failedLabel}: ${item.command}`}
-                      </span>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      ))}
+                        {state === 'copied'
+                          ? <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                          : <Clipboard className="h-3.5 w-3.5" aria-hidden="true" />}
+                        {buttonText}
+                      </button>
+                      {state !== 'idle' && (
+                        <span
+                          className="sr-only"
+                          role="status"
+                          aria-label={`${statusLabel}: ${item.command}`}
+                        >
+                          {state === 'copied' ? `${copiedLabel}: ${item.command}` : `${failedLabel}: ${item.command}`}
+                        </span>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ))
+      )}
     </div>
   );
 }
