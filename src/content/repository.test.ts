@@ -171,6 +171,24 @@ describe('structured content repository', () => {
       expect(russian?.blocks.some((block) => block.type === 'knowledgeCheck')).toBe(true);
       expect(english?.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
       expect(russian?.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+      expect(english?.blocks.filter((block) => block.type === 'references')).toHaveLength(1);
+      expect(russian?.blocks.filter((block) => block.type === 'references')).toHaveLength(1);
+
+      for (const lesson of [english, russian]) {
+        const referenceBlocks = lesson?.blocks.filter((block) => block.type === 'references') ?? [];
+        for (const referenceBlock of referenceBlocks) {
+          if (referenceBlock.type !== 'references') continue;
+          for (const reference of referenceBlock.items) {
+            expect(reference.url.startsWith('https://')).toBe(true);
+          }
+        }
+
+        const questions = lesson?.blocks.filter((block) => block.type === 'knowledgeCheck') ?? [];
+        for (const question of questions) {
+          if (question.type !== 'knowledgeCheck') continue;
+          expect(question.options.every((option) => option.feedback.trim().length > 0)).toBe(true);
+        }
+      }
     }
   });
 

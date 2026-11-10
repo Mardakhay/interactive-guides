@@ -1,8 +1,7 @@
 import { create } from 'zustand';
-import { loadJSON, saveJSON } from '@/lib/storage';
+import { readStructuredLearningState, saveStructuredLearningState } from './persistence';
 import {
   EMPTY_STRUCTURED_LEARNING_STATE,
-  STRUCTURED_LEARNING_STORAGE_KEY,
   structuredLearningStateSchema,
   type CodeDraft,
   type PracticeChecklist,
@@ -11,8 +10,6 @@ import {
 } from './schemas';
 
 type PersistedState = StructuredLearningState;
-const STORAGE_KEY = STRUCTURED_LEARNING_STORAGE_KEY;
-
 interface StructuredLearningStore extends PersistedState {
   recordQuizAttempt: (
     lessonId: string,
@@ -28,14 +25,13 @@ interface StructuredLearningStore extends PersistedState {
     criterionIndex: number,
     checked: boolean,
   ) => void;
+  setSectionComplete: (lessonId: string, sectionId: string, completed: boolean) => void;
 }
 
 const EMPTY_STATE: PersistedState = EMPTY_STRUCTURED_LEARNING_STATE;
 
 function loadInitialState(): PersistedState {
-  const raw = loadJSON<PersistedState>(STORAGE_KEY, EMPTY_STATE);
-  const parsed = structuredLearningStateSchema.safeParse(raw);
-  return parsed.success ? parsed.data : EMPTY_STATE;
+  return readStructuredLearningState().state;
 }
 
 function entryKey(lessonId: string, blockId: string): string {
@@ -43,7 +39,7 @@ function entryKey(lessonId: string, blockId: string): string {
 }
 
 function persist(state: PersistedState): void {
-  saveJSON(STORAGE_KEY, state);
+  saveStructuredLearningState(state);
 }
 
 export const useStructuredLearningStore = create<StructuredLearningStore>((set) => ({
@@ -65,6 +61,7 @@ export const useStructuredLearningStore = create<StructuredLearningStore>((set) 
         },
         codeDrafts: state.codeDrafts,
         practiceChecklists: state.practiceChecklists,
+        sectionProgress: state.sectionProgress,
       };
       persist(next);
       return next;
@@ -81,6 +78,7 @@ export const useStructuredLearningStore = create<StructuredLearningStore>((set) 
           [key]: { code, updatedAt: new Date().toISOString() },
         },
         practiceChecklists: state.practiceChecklists,
+        sectionProgress: state.sectionProgress,
       };
       persist(next);
       return next;
@@ -96,6 +94,7 @@ export const useStructuredLearningStore = create<StructuredLearningStore>((set) 
         quizAttempts: state.quizAttempts,
         codeDrafts,
         practiceChecklists: state.practiceChecklists,
+        sectionProgress: state.sectionProgress,
       };
       persist(next);
       return next;
@@ -116,6 +115,31 @@ export const useStructuredLearningStore = create<StructuredLearningStore>((set) 
           ...state.practiceChecklists,
           [key]: {
             checkedCriteria: [...criteria].sort((a, b) => a - b),
+            updatedAt: new Date().toISOString(),
+          },
+        },
+        sectionProgress: state.sectionProgress,
+      };
+      persist(next);
+      return next;
+    });
+  },
+
+  setSectionComplete: (lessonId, sectionId, completed) => {
+    set((state) => {
+      const current = state.sectionProgress[lessonId]?.completedBlockIds ?? [];
+      const sectionIds = new Set(current);
+      if (completed) sectionIds.add(sectionId);
+      else sectionIds.delete(sectionId);
+
+      const next: PersistedState = {
+        quizAttempts: state.quizAttempts,
+        codeDrafts: state.codeDrafts,
+        practiceChecklists: state.practiceChecklists,
+        sectionProgress: {
+          ...state.sectionProgress,
+          [lessonId]: {
+            completedBlockIds: [...sectionIds],
             updatedAt: new Date().toISOString(),
           },
         },
