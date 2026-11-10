@@ -100,11 +100,9 @@ describe('LearningPathDetailPage', () => {
     expect(screen.getAllByRole('link').filter((link) => link.getAttribute('href') === firstLessonHref)).toHaveLength(3);
   });
 
-  it('keeps classic learning-path lesson IDs on locale-prefixed lesson routes', () => {
+  it('does not expose learning paths that depend on retired standalone HTML lessons', () => {
     renderPath('frontend-foundations');
-
-    const classicStep = screen.getAllByRole('link').find((link) => link.getAttribute('href') === '/en/lessons/sh-001');
-    expect(classicStep).toBeTruthy();
-    expect(classicStep?.getAttribute('href')).toBe('/en/lessons/sh-001');
+    expect(screen.queryByRole('heading', { name: 'Frontend Foundations' })).toBeNull();
+    expect(screen.queryByRole('link', { name: /sh-001/ })).toBeNull();
   });
 });

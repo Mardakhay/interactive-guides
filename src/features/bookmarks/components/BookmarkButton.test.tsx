@@ -24,9 +24,9 @@ describe('bookmarks', () => {
 
   it('shows a bookmarked lesson on the Bookmarks page', async () => {
     const user = userEvent.setup();
-    render(<MemoryRouter><BookmarkButton lessonId="sh-001" /><BookmarksPage /></MemoryRouter>);
+    render(<MemoryRouter><BookmarkButton lessonId="html.document-structure" /><BookmarksPage /></MemoryRouter>);
     await user.click(screen.getByRole('button', { name: 'Bookmark' }));
-    expect(await screen.findByText('Frontend Engineering Handbook')).toBeInTheDocument();
+    expect(await screen.findByText('HTML document structure and semantic page regions')).toBeInTheDocument();
   });
 
   it('keeps structured lesson bookmarks visible and links to the localized reader', () => {

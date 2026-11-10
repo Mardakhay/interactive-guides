@@ -14,7 +14,7 @@ export interface ActivityItem {
   readonly notePreview?: string;
 }
 
-export type RecommendationKind = 'continue-path' | 'start-path' | 'continue-category' | 'start-category';
+export type RecommendationKind = 'continue-path' | 'start-path';
 
 export interface RecommendedItem {
   readonly kind: RecommendationKind;
@@ -26,7 +26,7 @@ export interface RecommendedItem {
 }
 
 export interface ContinueLearningInfo {
-  readonly kind: 'classic' | 'structured';
+  readonly kind: 'structured';
   readonly href: string;
   readonly lessonId: string;
   readonly lessonTitle: string;
@@ -37,12 +37,11 @@ export interface ContinueLearningInfo {
 }
 
 export interface DashboardData {
-  /** Progress for the classic 25-entry HTML catalog, tracked in its own ID namespace. */
+  /** Progress counts only the text-based structured lesson curriculum. */
   readonly completed: number;
   readonly inProgress: number;
   readonly total: number;
   readonly percent: number;
-  /** Canonical structured lesson IDs; intentionally separate from classic catalog stats. */
   readonly structuredProgress: ProgressStats;
   readonly continueLearning: ContinueLearningInfo | null;
   readonly recentActivity: readonly ActivityItem[];

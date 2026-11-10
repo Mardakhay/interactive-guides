@@ -2,9 +2,7 @@ export type AppLocale = 'en' | 'ru';
 
 export const ROUTES = {
   DASHBOARD: '/',
-  COURSES: '/courses',
-  COURSE_DETAIL: '/courses/:categoryId',
-  LESSON_VIEWER: '/lessons/:lessonId',
+  COURSES: '/structured-lessons',
   LEARNING_PATHS: '/paths',
   LEARNING_PATH_DETAIL: '/paths/:pathId',
   BOOKMARKS: '/bookmarks',
@@ -17,7 +15,7 @@ export const ROUTES = {
 
 export const ROUTE_PATHS = {
   DASHBOARD: '/',
-  COURSES: '/courses',
+  COURSES: '/structured-lessons',
   LEARNING_PATHS: '/paths',
   BOOKMARKS: '/bookmarks',
   NOTES: '/notes',
@@ -35,11 +33,15 @@ export function localizedPath(path: string, locale: AppLocale): string {
 }
 
 export function coursePath(categoryId: string): string {
-  return `/courses/${categoryId}`;
+  // The legacy category is intentionally ignored after consolidating the catalog.
+  void categoryId;
+  return '/structured-lessons';
 }
 
 export function lessonPath(lessonId: string): string {
-  return `/lessons/${lessonId}`;
+  // Standalone legacy lesson URLs no longer resolve to HTML lesson documents.
+  void lessonId;
+  return '/structured-lessons';
 }
 
 export function learningPathDetailPath(pathId: string): string {

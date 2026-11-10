@@ -14,16 +14,16 @@ describe('localized application navigation', () => {
   it('keeps desktop and mobile navigation inside the active locale and marks the current route', () => {
     useLocaleStore.setState({ locale: 'en' });
     render(
-      <MemoryRouter initialEntries={['/ru/courses']}>
+      <MemoryRouter initialEntries={['/ru/structured-lessons']}>
         <Routes>
-          <Route path="/:locale/courses" element={<><Sidebar /><MobileNav /></>} />
+          <Route path="/:locale/structured-lessons" element={<><Sidebar /><MobileNav /></>} />
         </Routes>
       </MemoryRouter>,
     );
 
     const courseLinks = screen.getAllByRole('link', { name: 'Курсы' });
     expect(courseLinks).toHaveLength(2);
-    expect(courseLinks.every((link) => link.getAttribute('href') === '/ru/courses')).toBe(true);
+    expect(courseLinks.every((link) => link.getAttribute('href') === '/ru/structured-lessons')).toBe(true);
     expect(courseLinks.every((link) => link.className.includes('primary'))).toBe(true);
 
     expect(screen.getAllByRole('link', { name: 'Практика' }).every((link) => link.getAttribute('href') === '/ru/practice')).toBe(true);

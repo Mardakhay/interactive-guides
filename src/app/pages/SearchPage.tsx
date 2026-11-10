@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Search as SearchIcon } from 'lucide-react';
-import { getCategories, getLessons, getLessonById, getCategoryById } from '@/features/content';
 import { getBootcampCurriculum, getStructuredLessonMetadata, getStructuredLessonSearchDocuments } from '@/content/repository';
 import { useNoteStore } from '@/features/notes';
 import { useSearchStore, search, getResultCounts } from '@/features/search';
@@ -61,31 +60,11 @@ export default function SearchPage() {
   }, [locale, searchIndexNeeded, searchIndexRetry]);
 
   const searchableContent = useMemo<SearchableContent>(() => {
-    const categories = getCategories();
-    const categoryMap = new Map(categories.map((category) => [category.id, category.name]));
     const structuredCategoryName = locale === 'ru' ? 'Структурированная программа' : 'Structured curriculum';
-
-    const lessons: SearchableLesson[] = [
-      ...getLessons().map((lesson) => ({
-        id: lesson.id,
-        title: lesson.title,
-        description: lesson.description,
-        categoryId: lesson.categoryId,
-        category: categoryMap.get(lesson.categoryId) ?? '',
-        difficulty: lesson.difficulty,
-        durationMinutes: lesson.durationMinutes,
-      })),
-      ...(structuredSearchLessons ?? []),
-    ];
-
+    const lessons = structuredSearchLessons ?? [];
     const curriculum = getBootcampCurriculum(locale);
     const curriculumPath = '/' + locale + '/structured-lessons';
     const courses: SearchableCourse[] = [
-      ...categories.map((category) => ({
-        id: category.id,
-        name: category.name,
-        description: category.description,
-      })),
       {
         id: 'structured-curriculum',
         name: structuredCategoryName,
@@ -119,31 +98,20 @@ export default function SearchPage() {
       })),
     ];
 
+    // Notes attached to removed legacy HTML lessons remain in local storage but are not searchable.
     const notes: SearchableNote[] = Object.entries(noteLessons)
-      .map(([lessonId, entry]) => {
-        const lesson = getLessonById(lessonId);
-        if (lesson) {
-          const category = getCategoryById(lesson.categoryId);
-          return {
-            lessonId,
-            lessonTitle: lesson.title,
-            categoryId: lesson.categoryId,
-            category: category?.name ?? '',
-            content: entry.content,
-          } satisfies SearchableNote;
-        }
+      .flatMap(([lessonId, entry]) => {
         const structured = getStructuredLessonMetadata(lessonId, locale);
-        if (!structured) return null;
-        return {
+        if (!structured) return [];
+        return [{
           lessonId,
           lessonTitle: structured.title,
           categoryId: 'structured-curriculum',
           category: structuredCategoryName,
           content: entry.content,
           path: '/' + locale + '/structured-lessons/' + structured.id,
-        } satisfies SearchableNote;
-      })
-      .filter((note): note is SearchableNote => note !== null);
+        }];
+      });
 
     return { lessons, courses, notes };
   }, [noteLessons, locale, structuredSearchLessons]);
