@@ -67,7 +67,7 @@ export function NoteEditor({ lessonId }: NoteEditorProps) {
         aria-label={translate(locale, 'lessonNotesAria')}
       />
 
-      <p className="text-xs text-neutral-500">
+      <p role="status" aria-live="polite" aria-atomic="true" className="text-xs text-neutral-500">
         {updatedAt
           ? translate(locale, 'savedAt', { date: new Date(updatedAt).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US', {
               dateStyle: 'medium',

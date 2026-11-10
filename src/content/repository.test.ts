@@ -111,6 +111,20 @@ describe('structured content repository', () => {
     expect(englishHtml?.searchText.toLowerCase()).toContain('doctype');
     expect(russianHtml?.searchText).toMatch(/[А-Яа-яЁё]/);
     expect(englishHtml?.searchText).toContain('semantic');
+
+    const gitLesson = await getStructuredLesson('git.fundamentals', 'en');
+    const gitSearch = english.find((document) => document.id === 'git.fundamentals');
+    if (!gitLesson || !gitSearch) throw new Error('Git lesson/index pair is missing');
+    const quiz = gitLesson.blocks.find((block) => block.type === 'knowledgeCheck');
+    const exercise = gitLesson.blocks.find((block) => block.type === 'codingExercise');
+    if (!quiz || quiz.type !== 'knowledgeCheck' || !exercise || exercise.type !== 'codingExercise') {
+      throw new Error('Git lesson does not contain the expected quiz and coding exercise fixtures');
+    }
+    expect(gitSearch.searchText).toContain(quiz.prompt);
+    expect(gitSearch.searchText).not.toContain(quiz.explanation);
+    expect(gitSearch.searchText).not.toContain(quiz.options[0]!.feedback);
+    if (exercise.hints[0]) expect(gitSearch.searchText).not.toContain(exercise.hints[0]);
+    if (exercise.solution?.code) expect(gitSearch.searchText).not.toContain(exercise.solution.code);
   });
 
   it('indexes coding exercises in both locales without exposing solution or hint fields', async () => {
@@ -118,8 +132,8 @@ describe('structured content repository', () => {
       getStructuredPracticeExercises('en'),
       getStructuredPracticeExercises('ru'),
     ]);
-    expect(english.length).toBeGreaterThan(0);
-    expect(russian).toHaveLength(english.length);
+    expect(english).toHaveLength(118);
+    expect(russian).toHaveLength(118);
     const aboutMe = english.find((exercise) => exercise.lessonId === 'html.document-structure' && exercise.exerciseId === 'practice-about-me');
     const russianAboutMe = russian.find((exercise) => exercise.lessonId === 'html.document-structure' && exercise.exerciseId === 'practice-about-me');
     expect(aboutMe?.title).toBe('Build an About Me page');
@@ -129,6 +143,7 @@ describe('structured content repository', () => {
     expect(aboutMe).not.toHaveProperty('hints');
     expect(aboutMe?.successCriteria.length).toBeGreaterThan(0);
     expect(aboutMe).not.toHaveProperty('starterCode');
+    expect(aboutMe).not.toHaveProperty('searchText');
   });
 
   it('keeps visible Russian metadata and learning outcomes localized across the full registry', async () => {
