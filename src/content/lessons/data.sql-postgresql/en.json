@@ -1,0 +1,698 @@
+{
+  "id": "data.sql-postgresql",
+  "locale": "en",
+  "version": 2,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-23",
+  "moduleId": "supplement-data",
+  "supplementaryTrackId": "supplement-data",
+  "order": 1,
+  "title": "SQL and PostgreSQL for Frontend Developers",
+  "description": "Query relational data safely and understand joins, aggregation, NULL, constraints, and access control.",
+  "estimatedMinutes": 135,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "web.internet-http",
+    "typescript.fundamentals"
+  ],
+  "learningOutcomes": [
+    "Write SELECT, JOIN, subquery, and aggregate queries.",
+    "Handle NULL's three-valued logic, including NOT IN edge cases.",
+    "Explain join grain, constraints, transactions, and parameterized values.",
+    "Distinguish frontend filtering from trusted authorization."
+  ],
+  "tags": [
+    "sql",
+    "postgresql",
+    "relational-data",
+    "security"
+  ],
+  "blocks": [
+    {
+      "id": "sql-intro",
+      "type": "heading",
+      "level": 2,
+      "text": "Think in relations before writing SQL"
+    },
+    {
+      "id": "sql-model",
+      "type": "paragraph",
+      "text": "Tables contain rows and columns; keys connect related rows and constraints protect invariants. SQL is declarative: describe the result and let the database choose a plan. Understand the relationship between records before joining tables or adding aggregates."
+    },
+    {
+      "id": "sql-query",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "SELECT c.id, c.name, COUNT(o.id) AS order_count\nFROM customers AS c\nLEFT JOIN orders AS o ON o.customer_id = c.id\nWHERE c.active = TRUE\nGROUP BY c.id, c.name\nHAVING COUNT(o.id) >= 2\nORDER BY order_count DESC\nLIMIT 20;",
+      "steps": [
+        {
+          "title": "Join related tables",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "LEFT JOIN preserves customers without matching orders. COUNT(o.id) counts matched order IDs; COUNT(*) counts joined rows."
+        },
+        {
+          "title": "Filter rows and groups at different stages",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "WHERE filters rows before grouping. HAVING filters groups after aggregate values are calculated."
+        },
+        {
+          "title": "Sort and limit results",
+          "lineStart": 7,
+          "lineEnd": 8,
+          "explanation": "LIMIT bounds the result; stable pagination often also requires a unique ordering key."
+        }
+      ]
+    },
+    {
+      "id": "sql-null",
+      "type": "heading",
+      "level": 2,
+      "text": "NULL, constraints, and safe query construction"
+    },
+    {
+      "id": "sql-lab-boundary",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Know what the practice editor actually does",
+      "text": "The legacy SQL page's Run Query control selects canned sample results using simple text-pattern checks; it does not parse or execute arbitrary SQL against a database. Treat those tables as illustrations, not evidence that your query is correct. Validate queries in a disposable PostgreSQL database with a known schema, and never practice destructive statements on production data."
+    },
+    {
+      "id": "sql-null-text",
+      "type": "paragraph",
+      "text": "Use IS NULL or IS NOT NULL to test SQL NULL; it is not an ordinary value and = NULL is not the correct predicate. PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK and NOT NULL constraints enforce integrity beyond the frontend. Parameterize user-supplied values through a trusted API/server instead of concatenating them into SQL."
+    },
+    {
+      "id": "sql-warning",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Do not expose database credentials to the browser",
+      "text": "Database access should go through a trusted server or a platform whose public client access is restricted by enforced row-level security. A frontend filter does not restrict which rows an attacker can request."
+    },
+    {
+      "id": "sql-select-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Read the query in logical stages"
+    },
+    {
+      "id": "sql-dialect-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "SQL dialects and version-specific behavior"
+    },
+    {
+      "id": "sql-dialect-note",
+      "type": "paragraph",
+      "text": "This lesson uses PostgreSQL syntax unless stated otherwise. SQL dialects differ in row-limiting syntax, date functions, quoting rules, identity columns, and text comparison/collation. In MySQL, CHECK constraints were not enforced before 8.0.16; from 8.0.16 they are enforced by default unless explicitly declared NOT ENFORCED. Check the actual server version and constraint metadata instead of repeating a blanket claim. LIKE case sensitivity depends on the engine and collation."
+    },
+    {
+      "id": "sql-dialect-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A legacy guide says MySQL ignores CHECK constraints. Your team uses MySQL 8.4. What should you do before relying on a price constraint?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Assume CHECK never works in any MySQL version",
+          "correct": false,
+          "feedback": "MySQL added enforced CHECK constraints in 8.0.16; older compatibility advice must be qualified by version."
+        },
+        {
+          "id": "b",
+          "text": "Verify the actual server version and whether the constraint is enforced",
+          "correct": true,
+          "feedback": "MySQL 8.4 supports and enforces CHECK by default, but constraints can be explicitly marked NOT ENFORCED."
+        },
+        {
+          "id": "c",
+          "text": "Assume every CHECK is enforced because the server is recent",
+          "correct": false,
+          "feedback": "Check the constraint definition and enforcement status; NOT ENFORCED is an explicit supported option."
+        },
+        {
+          "id": "d",
+          "text": "Replace the database constraint with client-side form validation only",
+          "correct": false,
+          "feedback": "Frontend validation improves feedback but cannot enforce data integrity for all clients and direct database writes."
+        }
+      ],
+      "explanation": "Dialect and version matter. Confirm the deployed server version and actual constraint metadata before relying on a rule."
+    },
+    {
+      "id": "sql-select-body",
+      "type": "paragraph",
+      "text": "SQL is declarative: the text is written SELECT-first, but a useful mental model is FROM/JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT. This explains why a SELECT alias is usually unavailable in WHERE, and why filtering an aggregate belongs in HAVING. The database optimizer may execute a different physical plan; logical order is for reasoning, not a promise about execution."
+    },
+    {
+      "id": "sql-select-example",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "SELECT id, email\nFROM customers\nWHERE active = TRUE\n  AND created_at >= DATE '2026-01-01'\nORDER BY created_at DESC, id ASC\nLIMIT 20;",
+      "steps": [
+        {
+          "title": "Choose rows from a relation",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "FROM names the relation; WHERE keeps rows that satisfy the predicate. Multiple predicates can be composed with AND/OR—use parentheses when precedence would be unclear."
+        },
+        {
+          "title": "Sort deterministically and bound the result",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "ORDER BY sorts after filtering. Adding id as a tie-breaker makes equal timestamps deterministic; LIMIT without an order does not promise which rows appear."
+        }
+      ]
+    },
+    {
+      "id": "sql-null-edge-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "NULL uses three-valued logic"
+    },
+    {
+      "id": "sql-null-edge-body",
+      "type": "paragraph",
+      "text": "A predicate involving NULL can be TRUE, FALSE, or UNKNOWN. WHERE retains only TRUE, so comparisons such as score > 0 silently discard NULL rows. Use IS NULL for missing values and COALESCE only when substituting a deliberate display/calculation default. Watch NOT IN: if its set contains NULL, the result may be UNKNOWN for every candidate; a correlated NOT EXISTS is often safer."
+    },
+    {
+      "id": "sql-null-edge-example",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "SELECT c.id\nFROM customers AS c\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM blocked_customers AS b\n  WHERE b.customer_id = c.id\n);",
+      "steps": [
+        {
+          "title": "Correlate the inner query to the current row",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "The inner query tests whether a matching blocked-customer row exists for this customer."
+        },
+        {
+          "title": "Keep only rows with no match",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "NOT EXISTS is boolean and avoids the NULL trap of NOT IN. If customer_id can itself be NULL, decide explicitly whether such rows should be included."
+        }
+      ]
+    },
+    {
+      "id": "sql-join-grain-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Join grain and row multiplication"
+    },
+    {
+      "id": "sql-join-grain-body",
+      "type": "paragraph",
+      "text": "Before joining, state what one row represents on each side. A one-to-many join repeats the parent row; joining two one-to-many tables can multiply both child sets. COUNT(DISTINCT ...) may correct a count, but it is not a universal repair for sums or incorrect data modeling. Aggregate each child relation to the required grain first when needed."
+    },
+    {
+      "id": "sql-join-grain-example",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "SELECT c.id,\n       COUNT(DISTINCT o.id) AS orders,\n       COUNT(DISTINCT r.id) AS reviews\nFROM customers AS c\nLEFT JOIN orders AS o ON o.customer_id = c.id\nLEFT JOIN reviews AS r ON r.customer_id = c.id\nGROUP BY c.id;",
+      "steps": [
+        {
+          "title": "Notice the two independent one-to-many joins",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "A customer with two orders and three reviews produces six joined rows before grouping."
+        },
+        {
+          "title": "Count identities, not multiplied rows",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "DISTINCT avoids double-counting these IDs. For sums or larger queries, pre-aggregate orders and reviews in separate subqueries/CTEs instead of relying on DISTINCT."
+        }
+      ]
+    },
+    {
+      "id": "sql-subqueries-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Subqueries and conditional results"
+    },
+    {
+      "id": "sql-subqueries-body",
+      "type": "paragraph",
+      "text": "Use EXISTS when the question is whether a related row exists; use a join when columns from the related relation are needed. A scalar subquery must return at most one row. CASE expresses conditional values in the result and can make reports clearer, but it does not replace filtering or constraints."
+    },
+    {
+      "id": "sql-subqueries-example",
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT id,\n       CASE WHEN total >= 100 THEN 'large' ELSE 'standard' END AS order_size\nFROM orders\nWHERE customer_id = $1;"
+    },
+    {
+      "id": "sql-views-set-ops-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Views, conditional values, and set operations"
+    },
+    {
+      "id": "sql-views-set-ops",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "A view stores a query definition that can be queried like a table; whether results are materialized is a separate, database-specific feature.",
+        "CASE returns the value from the first matching branch and is useful for derived labels or explicit sort priority.",
+        "UNION combines compatible result sets and removes duplicate rows; UNION ALL keeps duplicates and is usually the better fit when duplicates are meaningful.",
+        "Set-operation queries need compatible column counts/types. Put a final ORDER BY after the complete set expression when sorting the combined result.",
+        "DDL defines structure (CREATE, ALTER, DROP); DML changes rows (INSERT, UPDATE, DELETE). TRUNCATE is a broader table-clearing operation whose transactional and trigger behavior must be checked for the target database.",
+        "Identity/sequence values are identifiers, not gap-free counters. Rollbacks and deletions may leave gaps; do not make business logic depend on consecutive IDs."
+      ]
+    },
+    {
+      "id": "sql-views-set-ops-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You need to combine the results of two compatible SELECT statements and preserve duplicate rows. Which operator should you use?",
+      "options": [
+        {
+          "id": "a",
+          "text": "UNION",
+          "correct": false,
+          "feedback": "UNION removes duplicate result rows after combining the inputs."
+        },
+        {
+          "id": "b",
+          "text": "UNION ALL",
+          "correct": true,
+          "feedback": "UNION ALL concatenates compatible result sets without removing duplicates."
+        },
+        {
+          "id": "c",
+          "text": "INTERSECT",
+          "correct": false,
+          "feedback": "INTERSECT returns rows present in both result sets, not all rows from both."
+        },
+        {
+          "id": "d",
+          "text": "EXCEPT",
+          "correct": false,
+          "feedback": "EXCEPT returns rows from the first result set that are absent from the second."
+        }
+      ],
+      "explanation": "Choose set operators by the intended result: UNION deduplicates, UNION ALL preserves duplicates, INTERSECT keeps common rows, and EXCEPT subtracts the second set from the first."
+    },
+    {
+      "id": "sql-schema-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Пусть ограничения защищают данные"
+    },
+    {
+      "id": "sql-schema-body",
+      "type": "paragraph",
+      "text": "PRIMARY KEY identifies a row; FOREIGN KEY requires a related parent row; NOT NULL rejects missing values; UNIQUE prevents duplicate keys; CHECK enforces a row-level rule. Constraints protect writes from every client, unlike form validation. Choose ON DELETE behavior deliberately: cascading deletion can be correct for dependent data, but dangerous for shared records."
+    },
+    {
+      "id": "sql-schema-example",
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE TABLE orders (\n  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  customer_id BIGINT NOT NULL REFERENCES customers(id),\n  total NUMERIC(12, 2) NOT NULL CHECK (total >= 0),\n  status TEXT NOT NULL,\n  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),\n  UNIQUE (customer_id, created_at)\n);"
+    },
+    {
+      "id": "sql-schema-note",
+      "type": "callout",
+      "tone": "important",
+      "title": "A constraint is part of the data contract",
+      "text": "Application checks improve feedback; database constraints are the final integrity gate. Handle constraint errors as expected outcomes, not impossible crashes."
+    },
+    {
+      "id": "sql-dml-safety-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Write safely with DML and transactions"
+    },
+    {
+      "id": "sql-dml-safety-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "BEGIN;\n\n-- Preview the target rows first.\nSELECT product_id, unit_price\nFROM products\nWHERE category_id = 3\nORDER BY product_id;\n\n-- Run the update only after reviewing the preview.\nUPDATE products\nSET unit_price = unit_price * 1.10\nWHERE category_id = 3\nRETURNING product_id, unit_price;\n\n-- Inspect returned rows and the affected-row count.\n-- Then run exactly one: COMMIT; or ROLLBACK;",
+      "steps": [
+        {
+          "title": "Open a transaction",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "explanation": "In PostgreSQL a transaction lets you discard uncommitted changes with ROLLBACK. A transaction does not replace verifying the predicate and affected-row count."
+        },
+        {
+          "title": "Preview the target rows",
+          "lineStart": 3,
+          "lineEnd": 7,
+          "explanation": "Use the same predicate as the UPDATE. Compare the IDs and row count with the intended change before writing."
+        },
+        {
+          "title": "Scope and inspect the UPDATE",
+          "lineStart": 9,
+          "lineEnd": 13,
+          "explanation": "The explicit WHERE scopes the write, and PostgreSQL RETURNING shows the rows actually changed. Do not remove the predicate or rely only on frontend checks."
+        },
+        {
+          "title": "Choose COMMIT or ROLLBACK",
+          "lineStart": 15,
+          "lineEnd": 16,
+          "explanation": "Inspect the result before finalizing. If it is unexpected, run ROLLBACK instead of COMMIT; BEGIN alone does not make a write safe."
+        }
+      ]
+    },
+    {
+      "id": "sql-dml-safety-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "You need to increase prices for category 3, but must confirm exactly which rows changed. Which workflow is safest?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Run UPDATE without WHERE and filter the displayed rows afterward",
+          "correct": false,
+          "feedback": "A missing WHERE updates every row; filtering displayed results cannot undo an unintended write."
+        },
+        {
+          "id": "b",
+          "text": "Preview the target rows, use a transaction and matching WHERE, inspect RETURNING, then commit or roll back",
+          "correct": true,
+          "feedback": "The preview validates scope, RETURNING reports actual changes, and the transaction preserves a rollback decision before commit."
+        },
+        {
+          "id": "c",
+          "text": "Change the values in the frontend and assume the database will reject any wrong rows",
+          "correct": false,
+          "feedback": "Client-side state does not constrain direct SQL or other clients; scope and database integrity must be enforced at the database boundary."
+        },
+        {
+          "id": "d",
+          "text": "Immediately TRUNCATE the products table and re-import the expected rows",
+          "correct": false,
+          "feedback": "TRUNCATE removes all rows and is not a targeted update; it is inappropriate for a category price change."
+        }
+      ],
+      "explanation": "For data-changing SQL, preview the predicate, scope the write, inspect the affected rows, and choose COMMIT or ROLLBACK before leaving the transaction."
+    },
+    {
+      "id": "sql-dml-safety-practice",
+      "type": "codingExercise",
+      "title": "Plan a safe PostgreSQL price update",
+      "language": "sql",
+      "context": "A test database needs a 10% price increase for products in category 3. You must confirm the affected products and avoid touching other categories.",
+      "instructions": [
+        "Write a SELECT using the exact predicate to preview product IDs and current prices.",
+        "Write an UPDATE with the same predicate and RETURNING product IDs and new prices.",
+        "Put the write inside a PostgreSQL transaction and state how you will decide between COMMIT and ROLLBACK.",
+        "Describe what to inspect in the returned rows and how to verify the affected-row count.",
+        "Explain why the same change should be tested in a disposable/test database rather than first run against production."
+      ],
+      "requirements": [
+        "The preview SELECT and UPDATE use the same category predicate.",
+        "The UPDATE has a restrictive WHERE clause and returns affected rows.",
+        "The transaction has an explicit COMMIT/ROLLBACK decision based on observed results.",
+        "The plan verifies product IDs, new values and affected-row count.",
+        "The plan excludes production data from first-run experimentation.",
+        "The response explains that frontend validation is not a database safety boundary."
+      ],
+      "starterCode": "BEGIN;\n\n-- TODO: preview exactly the intended product rows\nSELECT product_id, unit_price\nFROM products\nWHERE category_id = 3\nORDER BY product_id;\n\n-- TODO: update the same rows and inspect RETURNING\nUPDATE products\nSET unit_price = unit_price * 1.10\nWHERE category_id = 3\nRETURNING product_id, unit_price;\n\n-- Inspect results before running exactly one:\n-- COMMIT;\n-- ROLLBACK;",
+      "hints": [
+        "Use the same WHERE predicate in the preview and update so the intended scope is visible.",
+        "PostgreSQL RETURNING shows the rows changed by the statement; compare actual results with the requirement.",
+        "Do not run both COMMIT and ROLLBACK; choose after reviewing the returned rows, and never practice destructive changes on production."
+      ],
+      "successCriteria": [
+        "The SELECT preview demonstrates the intended scope.",
+        "The UPDATE changes only the intended category and returns changed values.",
+        "The transaction outcome is chosen from actual returned rows/count.",
+        "The plan includes a rollback path for any unexpected result.",
+        "The learner can explain why the database—not only the frontend—must enforce integrity."
+      ]
+    },
+    {
+      "id": "sql-transactions-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Use transactions for related writes"
+    },
+    {
+      "id": "sql-transactions-body",
+      "type": "paragraph",
+      "text": "A transaction groups database changes so they succeed or fail together. Keep it short, check the returned rows, and roll back when a required step fails. A transaction does not automatically solve concurrent updates: use a suitable constraint, lock, or isolation level for the invariant."
+    },
+    {
+      "id": "sql-transactions-example",
+      "type": "codeWalkthrough",
+      "language": "sql",
+      "code": "BEGIN;\nUPDATE inventory\nSET quantity = quantity - 1\nWHERE product_id = $1 AND quantity > 0\nRETURNING product_id, quantity;\n-- Commit only if one row was returned\nCOMMIT;",
+      "steps": [
+        {
+          "title": "Guard the update in the database",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "The predicate prevents a negative quantity in this statement; RETURNING lets the caller verify whether a row changed."
+        },
+        {
+          "title": "Commit or roll back based on the result",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "The comment is an application decision point: if no row was returned, issue ROLLBACK instead. Parameter $1 must be bound through the driver."
+        }
+      ]
+    },
+    {
+      "id": "sql-parameterization-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Parameterize values at the trusted boundary"
+    },
+    {
+      "id": "sql-parameterization-body",
+      "type": "paragraph",
+      "text": "Bind data values separately from SQL syntax. Parameters prevent a value from changing the query structure; they do not authorize the caller, validate business rules, or make dynamic identifiers safe. For table/column names that cannot be parameters, choose from a strict allowlist. Never concatenate untrusted input into a query."
+    },
+    {
+      "id": "sql-parameterized-example",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "const customerId = request.params.customerId;\nconst result = await db.query(\n  'SELECT id, name FROM customers WHERE id = $1',\n  [customerId],\n);\nreturn result.rows;",
+      "steps": [
+        {
+          "title": "Keep query structure fixed",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The SQL text contains a placeholder; the driver binds the value separately rather than interpolating it into SQL."
+        },
+        {
+          "title": "Apply authorization independently",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "explanation": "A safe parameterized query can still expose another user's row. Check the authenticated user's permission on the server/database policy."
+        }
+      ]
+    },
+    {
+      "id": "sql-security-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does parameterization guarantee?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The caller can only read their own rows",
+          "correct": false,
+          "feedback": "Authorization is a separate rule enforced by a trusted server or database policy."
+        },
+        {
+          "id": "b",
+          "text": "The supplied value is treated as data, not SQL syntax",
+          "correct": true,
+          "feedback": "Bound parameters separate values from query structure; they do not grant or restrict access."
+        },
+        {
+          "id": "c",
+          "text": "All dynamic table names are safe",
+          "correct": false,
+          "feedback": "Identifiers usually need strict allowlisting rather than value parameters."
+        },
+        {
+          "id": "d",
+          "text": "The query always uses an index",
+          "correct": false,
+          "feedback": "Parameterization is a safety property, not a query-plan guarantee."
+        }
+      ],
+      "explanation": "SQL safety, authorization, validation and performance are separate concerns."
+    },
+    {
+      "id": "sql-having-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Where should a filter such as COUNT(order_id) >= 2 go?",
+      "options": [
+        {
+          "id": "a",
+          "text": "WHERE, before grouping",
+          "correct": false,
+          "feedback": "WHERE filters input rows; it cannot filter the aggregate result."
+        },
+        {
+          "id": "b",
+          "text": "HAVING, after grouping",
+          "correct": true,
+          "feedback": "HAVING filters groups using aggregate values."
+        },
+        {
+          "id": "c",
+          "text": "ORDER BY",
+          "correct": false,
+          "feedback": "ORDER BY changes presentation order, not which groups qualify."
+        },
+        {
+          "id": "d",
+          "text": "LIMIT",
+          "correct": false,
+          "feedback": "LIMIT bounds output rows but does not express an aggregate condition."
+        }
+      ],
+      "explanation": "Separate row filters (WHERE) from group filters (HAVING)."
+    },
+    {
+      "id": "sql-practice-query-design",
+      "type": "codingExercise",
+      "title": "Design a query from a reporting requirement",
+      "language": "sql",
+      "context": "A dashboard needs one row per active customer, including those with zero purchases, plus the most recent purchase date.",
+      "instructions": [
+        "Write a query that preserves active customers without purchase rows.",
+        "Return the number of purchases and latest timestamp.",
+        "Add a second version that returns only customers with at least three purchases.",
+        "Explain the result when a customer has no purchases and MAX(purchased_at) is NULL."
+      ],
+      "requirements": [
+        "The result grain is one row per customer.",
+        "The join type preserves zero-purchase customers.",
+        "COUNT counts matched purchase IDs rather than the null-extended row.",
+        "HAVING is used only for the aggregate threshold."
+      ],
+      "starterCode": "SELECT c.id, COUNT(p.id) AS purchase_count, MAX(p.purchased_at) AS latest_purchase\nFROM customers AS c\n-- TODO: preserve customers with zero purchases\n-- TODO: group by the customer key\n;",
+      "hints": [
+        "Use LEFT JOIN and COUNT(p.id), not COUNT(*), for the zero-match case.",
+        "MAX ignores NULL inputs and returns NULL when there are no non-NULL values.",
+        "Put purchase_count >= 3 in HAVING."
+      ],
+      "successCriteria": [
+        "The output has one row per active customer.",
+        "Zero-purchase customers have count 0 and latest_purchase NULL.",
+        "The threshold version uses HAVING correctly.",
+        "You explain the LEFT JOIN/COUNT distinction."
+      ]
+    },
+    {
+      "id": "sql-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Which predicate finds rows where deleted_at is missing?",
+      "options": [
+        {
+          "id": "a",
+          "text": "deleted_at = NULL",
+          "correct": false,
+          "feedback": "Ordinary equality is not how SQL tests NULL."
+        },
+        {
+          "id": "b",
+          "text": "deleted_at IS NULL",
+          "correct": true,
+          "feedback": "IS NULL is the SQL predicate for a missing/unknown value."
+        },
+        {
+          "id": "c",
+          "text": "deleted_at == undefined",
+          "correct": false,
+          "feedback": "undefined is a JavaScript value, not SQL syntax."
+        },
+        {
+          "id": "d",
+          "text": "deleted_at = ''",
+          "correct": false,
+          "feedback": "An empty string is different from NULL."
+        }
+      ],
+      "explanation": "NULL handling changes query logic; do not replace it with empty strings or JavaScript values."
+    },
+    {
+      "id": "sql-practice",
+      "type": "codingExercise",
+      "title": "Query a small commerce schema safely",
+      "language": "sql",
+      "context": "Use customers(id, name, active) and orders(id, customer_id, total, created_at) in a PostgreSQL practice database.",
+      "instructions": [
+        "Return active customers and order counts including customers with zero orders.",
+        "Find customers with at least two orders and sort by count descending.",
+        "Select orders whose created_at value is NULL.",
+        "Describe how an API server should parameterize a user-provided customer ID.",
+        "Name an integrity constraint for orders.customer_id and explain why frontend filtering is not authorization."
+      ],
+      "requirements": [
+        "The aggregate query uses an explicit join and grouping.",
+        "Zero-order customers are preserved when required.",
+        "NULL is tested with IS NULL/IS NOT NULL.",
+        "User input is parameterized, not concatenated into SQL.",
+        "Integrity constraints and authorization are distinguished."
+      ],
+      "starterCode": "SELECT c.id, c.name, COUNT(o.id) AS order_count\nFROM customers AS c\n-- TODO: choose a join that retains customers with no orders\n-- TODO: filter active customers and group the result\n;",
+      "hints": [
+        "Use LEFT JOIN if unmatched rows must remain.",
+        "COUNT(column) ignores NULL values in that column.",
+        "Parameterization does not replace authorization."
+      ],
+      "successCriteria": [
+        "Returns the intended rows.",
+        "Uses WHERE and HAVING at the right stage.",
+        "Handles NULL correctly.",
+        "Explains parameterization and authorization.",
+        "Names an appropriate relational constraint."
+      ]
+    },
+    {
+      "id": "sql-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use JOIN and aggregation based on the schema relationships.",
+        "Handle NULL explicitly and use constraints to preserve integrity.",
+        "Parameterize input and enforce row access on the trusted server/data layer."
+      ]
+    },
+    {
+      "id": "sql-references",
+      "type": "references",
+      "items": [
+        {
+          "title": "PostgreSQL: The SQL Language",
+          "url": "https://www.postgresql.org/docs/current/tutorial.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "PostgreSQL: Constraints",
+          "url": "https://www.postgresql.org/docs/current/ddl-constraints.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "OWASP: SQL Injection Prevention",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Supabase: Row Level Security",
+          "url": "https://supabase.com/docs/guides/database/postgres/row-level-security",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MySQL 8.4: CHECK Constraints",
+          "url": "https://dev.mysql.com/doc/refman/8.4/en/create-table-check-constraints.html",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

@@ -1,16 +1,16 @@
 {
   "id": "ui.design-systems",
   "locale": "en",
-  "version": 1,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-5-week-17",
   "week": 17,
   "order": 1,
   "title": "UI Kits, Design Tokens, and Reusable Components",
   "description": "Build a small and consistent component system with clear APIs, semantic tokens, documented variants, and accessibility built into shared primitives.",
-  "estimatedMinutes": 60,
+  "estimatedMinutes": 105,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -23,7 +23,8 @@
     "Create reusable components with explicit types, variants, and states.",
     "Choose composition rather than a sprawling set of boolean props.",
     "Build accessibility requirements into shared buttons, fields, and alerts.",
-    "Document a small UI kit and refactor feature screens to consume it."
+    "Document a small UI kit and refactor feature screens to consume it.",
+    "Build accessible fields and choose a ref pattern for the installed React version."
   ],
   "tags": [
     "ui-kit",
@@ -31,7 +32,9 @@
     "design-tokens",
     "react",
     "components",
-    "accessibility"
+    "accessibility",
+    "accessible-fields",
+    "component-contracts"
   ],
   "blocks": [
     {
@@ -267,6 +270,229 @@
       ]
     },
     {
+      "id": "ui-field-accessibility-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Build a field with an accessible error contract"
+    },
+    {
+      "id": "ui-field-accessibility-model",
+      "type": "paragraph",
+      "text": "A reusable field should connect its label, helper text, invalid state, and error message. Use `htmlFor`/`id`, `aria-invalid`, and `aria-describedby` so meaning is not conveyed by color alone. Keep keyboard focus visible with `:focus-visible`; do not remove the browser outline without an equally visible replacement."
+    },
+    {
+      "id": "ui-accessible-field-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type FieldProps = {\n  id: string;\n  label: string;\n  value: string;\n  onChange: (value: string) => void;\n  helpText?: string;\n  error?: string;\n};\n\nexport function Field({ id, label, value, onChange, helpText, error }: FieldProps) {\n  const helpId = `${id}-help`;\n  const errorId = `${id}-error`;\n  const describedBy = [helpText ? helpId : null, error ? errorId : null]\n    .filter(Boolean).join(' ') || undefined;\n  return (\n    <div>\n      <label htmlFor={id}>{label}</label>\n      <input id={id} value={value}\n        onChange={(event) => onChange(event.target.value)}\n        aria-invalid={Boolean(error)} aria-describedby={describedBy} />\n      {helpText && <p id={helpId}>{helpText}</p>}\n      {error && <p id={errorId} role=\"alert\">{error}</p>}\n    </div>\n  );\n}\n\n/* CSS companion: input:focus-visible { outline: 3px solid var(--color-action-primary); outline-offset: 2px; } */\n/* Never remove the browser outline without a visible replacement. */",
+      "steps": [
+        {
+          "title": "Define the field contract",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "explanation": "The API names the label, value, change handler, help text, and optional error."
+        },
+        {
+          "title": "Create description IDs",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "explanation": "The input references helper/error text rendered for this instance. IDs should be unique, and `aria-describedby` should only list rendered IDs."
+        },
+        {
+          "title": "Connect label and error semantics",
+          "lineStart": 15,
+          "lineEnd": 26,
+          "explanation": "`htmlFor` connects label and input; `aria-invalid` exposes the invalid state and `aria-describedby` connects descriptions. Error meaning must not rely on color alone."
+        },
+        {
+          "title": "Keep focus visible",
+          "lineStart": 27,
+          "lineEnd": 28,
+          "explanation": "The code comments show a clear `:focus-visible` ring. Never suppress the outline unless an equally visible focus indicator replaces it."
+        }
+      ]
+    },
+    {
+      "id": "ui-advanced-composition-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Advanced component patterns are contracts, not badges"
+    },
+    {
+      "id": "ui-advanced-composition-model",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Compound components such as `Card.Header`, `Card.Body`, and `Card.Footer` can express shared structure with flexible children; use them when composition improves the consumer API.",
+        "In React 18 and earlier, `forwardRef` can expose a DOM node for focus, measurement, or library integration. React 19 lets function components receive `ref` as a prop; match the pattern to the installed version.",
+        "A polymorphic `as` prop changes the rendered element and valid attributes/ref types. Add it only when real consumers need it; preserve link-versus-button semantics and avoid generic typing complexity without a use case.",
+        "Loading/disabled feedback and visible focus belong in the shared component contract. Loading icons should not create duplicate accessible names.",
+        "Atomic Design (atoms/molecules/organisms/pages) is one organizing vocabulary, not a required folder hierarchy."
+      ]
+    },
+    {
+      "id": "ui-component-api-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "The project uses React 18. A parent form needs to focus the native input inside a reusable custom field. Which guidance is correct?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Expose the DOM node with `forwardRef` when needed and preserve accessible label/error relationships",
+          "correct": true,
+          "feedback": "In React 18 and earlier, `forwardRef` is the standard pattern when a function component needs to receive and forward a ref."
+        },
+        {
+          "id": "b",
+          "text": "Add `role=\"textbox\"` to a div and pass a ref without forwarding it",
+          "correct": false,
+          "feedback": "A role does not create native input behavior or forward the ref to the actual DOM node."
+        },
+        {
+          "id": "c",
+          "text": "Use `forwardRef` for every component whether consumers need a ref or not",
+          "correct": false,
+          "feedback": "Expose refs when consumers have a real focus, measurement or integration need; extra API surface has maintenance cost."
+        },
+        {
+          "id": "d",
+          "text": "Ignore the React version because `forwardRef` is required in every version",
+          "correct": false,
+          "feedback": "React 19 allows `ref` as a prop for function components, so the pattern is version-sensitive."
+        }
+      ],
+      "explanation": "React 18 and earlier use `forwardRef` when ref forwarding is needed; React 19 supports `ref` as a prop for function components. Preserve semantic controls and accessible descriptions in either version."
+    },
+    {
+      "id": "deep-design-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: tokens, component contracts, and accessible variants"
+    },
+    {
+      "id": "deep-design-model",
+      "type": "paragraph",
+      "text": "A design system is a set of decisions that should remain consistent as the product grows: tokens name visual values, components encode repeated behavior, and usage guidance explains which component belongs to which job. A reusable component needs a constrained public API. A prop such as `variant: string` admits misspellings and unknown values; a union limits the contract. Avoid a single 'god component' with many unrelated boolean props."
+    },
+    {
+      "id": "deep-design-trace",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type ButtonVariant = 'primary' | 'secondary' | 'danger';\ntype ButtonSize = 'sm' | 'md' | 'lg';\n\ntype ButtonProps = {\n  variant?: ButtonVariant;\n  size?: ButtonSize;\n  disabled?: boolean;\n  loading?: boolean;\n  children: React.ReactNode;\n};\n\nfunction Button({ variant = 'primary', size = 'md', disabled = false, loading = false, children }: ButtonProps) {\n  return (\n    <button type=\"button\" className={`button button--${variant} button--${size}`}\n      disabled={disabled || loading} aria-busy={loading || undefined}>\n      {loading ? 'Loading…' : children}\n    </button>\n  );\n}",
+      "steps": [
+        {
+          "title": "Restrict public choices with union types",
+          "lineStart": 1,
+          "lineEnd": 9,
+          "explanation": "The supported variants and sizes are explicit, and consumers cannot pass arbitrary misspelled strings without a type error."
+        },
+        {
+          "title": "Encode behavior, not only visuals",
+          "lineStart": 11,
+          "lineEnd": 12,
+          "explanation": "Disabled and loading have meaningful behavior. A loading action cannot be submitted repeatedly, and aria-busy can communicate the pending state to assistive technology."
+        },
+        {
+          "title": "Keep semantic HTML and a small API",
+          "lineStart": 13,
+          "lineEnd": 18,
+          "explanation": "A native button supplies keyboard behavior and activation semantics. Prefer a clear variant/size contract over unrelated props that change the component into multiple hidden components."
+        }
+      ]
+    },
+    {
+      "id": "deep-design-decisions",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Tokens centralize color, spacing, type scale, radii and elevation so themes and global tuning do not require editing every component.",
+        "Variants should describe a small, intentional set of semantic choices (`primary`, `danger`), not arbitrary style strings that let each caller invent new design language.",
+        "Use native button/link semantics; icon-only controls need an accessible name, disabled/loading states need visible feedback, and focus indicators must remain visible.",
+        "Composition often scales better than a component with many unrelated boolean props; use slots or subcomponents when the structure itself is meaningful.",
+        "Adopting MUI or another library is a product trade-off: consider accessibility, theming, bundle impact, version churn, customization cost and the team's existing patterns."
+      ]
+    },
+    {
+      "id": "deep-design-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why is `variant: 'primary' | 'secondary' | 'danger'` a better component contract than `variant: string`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It guarantees the component can never render incorrectly at runtime",
+          "correct": false,
+          "feedback": "Types catch many authoring mistakes at compile time, but runtime values and visual/accessibility bugs still need testing."
+        },
+        {
+          "id": "b",
+          "text": "It documents and constrains the supported variants, catching misspellings during type checking",
+          "correct": true,
+          "feedback": "A finite union makes the public API explicit and allows the compiler to reject unsupported variants."
+        },
+        {
+          "id": "c",
+          "text": "It makes CSS selectors unnecessary",
+          "correct": false,
+          "feedback": "The component still needs styling rules for each supported variant."
+        },
+        {
+          "id": "d",
+          "text": "It automatically implements dark mode",
+          "correct": false,
+          "feedback": "Theme support comes from design tokens and theme architecture, not the variant type alone."
+        }
+      ],
+      "explanation": "A component's type is part of its API and should constrain choices rather than accepting any string."
+    },
+    {
+      "id": "deep-design-practice",
+      "type": "codingExercise",
+      "title": "Design a Button API and a token set",
+      "language": "tsx",
+      "context": "Create a small reusable component contract that handles visual variants and interaction/accessibility consistently.",
+      "instructions": [
+        "Define design tokens for brand, danger, spacing and radii instead of duplicating values.",
+        "Create a ButtonVariant union and a ButtonSize union.",
+        "Implement disabled and loading behavior with a native button element.",
+        "Add a visible focus state and an accessible name for icon-only usage.",
+        "Write usage examples and explain when a link should be used instead of a button.",
+        "Implement a TextField with label/help/error association via `aria-describedby`, `aria-invalid`, and visible `:focus-visible` styling."
+      ],
+      "requirements": [
+        "Component props restrict variants and sizes to supported values.",
+        "Design values are named tokens rather than repeated unexplained literals.",
+        "Disabled/loading states prevent inappropriate repeated actions and communicate status.",
+        "Keyboard focus remains visible and controls have accessible names.",
+        "Navigation is represented with a link; an in-page action is represented with a button.",
+        "A field's label, helper text and error are programmatically associated; keyboard focus remains visible."
+      ],
+      "starterCode": "type ButtonVariant = 'primary' | 'secondary' | 'danger';\ntype ButtonSize = 'sm' | 'md' | 'lg';\n\ntype ButtonProps = {\n  variant?: ButtonVariant;\n  size?: ButtonSize;\n  disabled?: boolean;\n  loading?: boolean;\n  children: React.ReactNode;\n};\n\n// TODO: implement the native button and matching token-based CSS.",
+      "hints": [
+        "A union catches misspellings that string does not.",
+        "Choose a semantic native control first, then add visual variants.",
+        "Token names express a role (`color-danger`) rather than an isolated hex value."
+      ],
+      "successCriteria": [
+        "Invalid variant/size values fail type checking.",
+        "The component has sensible defaults and a small API.",
+        "Loading/disabled/focus behavior is accessible.",
+        "Tokens are centrally named and reused.",
+        "The usage explanation distinguishes navigation from actions.",
+        "A screen reader can discover the label and error description, and keyboard users can see focus."
+      ]
+    },
+    {
+      "id": "deep-design-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Tokens preserve design consistency; component contracts preserve consistent behavior.",
+        "Constrain variants and prefer composition over many unrelated boolean props.",
+        "Accessibility and semantics are part of the component API, not optional polish added at the end."
+      ]
+    },
+    {
       "id": "ui-references",
       "type": "references",
       "items": [
@@ -294,6 +520,11 @@
           "title": "W3C WAI: Focus Appearance",
           "url": "https://www.w3.org/WAI/WCAG22/Understanding/focus-appearance.html",
           "kind": "guide"
+        },
+        {
+          "title": "React: forwardRef and React 19 ref prop",
+          "url": "https://react.dev/reference/react/forwardRef",
+          "kind": "official-docs"
         }
       ]
     }

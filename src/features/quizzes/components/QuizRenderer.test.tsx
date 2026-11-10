@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import { QuizRenderer } from './QuizRenderer';
 import type { Quiz } from '../types';
 
@@ -9,9 +10,13 @@ const quiz: Quiz = { id: 'quiz-1', lessonId: 'sh-001', title: 'Quick check', que
 describe('QuizRenderer', () => {
   it('persists an answered quiz and displays its result', async () => {
     const user = userEvent.setup();
-    render(<QuizRenderer quiz={quiz} />);
+    render(
+      <MemoryRouter>
+        <QuizRenderer quiz={quiz} />
+      </MemoryRouter>,
+    );
     await user.click(screen.getByLabelText('Correct'));
-    await user.click(screen.getByRole('button', { name: 'Submit Quiz' }));
+    await user.click(screen.getByRole('button', { name: 'Submit quiz' }));
     expect(await screen.findByText('1 / 1 correct · 100%')).toBeInTheDocument();
   });
 });

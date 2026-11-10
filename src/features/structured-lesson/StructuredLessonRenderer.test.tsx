@@ -13,7 +13,7 @@ describe('StructuredLessonRenderer', () => {
     expect(screen.getByRole('heading', { name: 'Why document structure matters' })).toBeTruthy();
     expect(screen.getByText(/A useful mental model/)).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Build an About Me page' })).toBeTruthy();
-    expect(screen.getByLabelText('Your code')).toBeTruthy();
+    expect(screen.getAllByLabelText('Your code').length).toBeGreaterThan(0);
   });
 
   it('gives feedback when a learner submits a knowledge-check answer', () => {
@@ -48,7 +48,7 @@ describe('StructuredLessonRenderer', () => {
     render(<StructuredLessonRenderer lesson={lesson} />);
 
     expect(screen.getAllByRole('heading', { name: 'Run JavaScript' }).length).toBeGreaterThan(0);
-    expect(screen.getByText(/common network APIs are deliberately blocked/i)).toBeTruthy();
+    expect(screen.getAllByText(/common network APIs are deliberately blocked/i).length).toBeGreaterThan(0);
   });
 
   it('explains that DOM-dependent exercises need a local browser project', () => {
@@ -57,6 +57,6 @@ describe('StructuredLessonRenderer', () => {
 
     render(<StructuredLessonRenderer lesson={lesson} />);
 
-    expect(screen.getByText(/This exercise requires the browser DOM/)).toBeTruthy();
+    expect(screen.getAllByText(/This exercise requires the browser DOM/).length).toBeGreaterThan(0);
     expect(screen.queryByRole('heading', { name: 'Run JavaScript' })).toBeNull();
   });

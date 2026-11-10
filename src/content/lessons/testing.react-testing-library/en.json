@@ -1,16 +1,16 @@
 {
   "id": "testing.react-testing-library",
   "locale": "en",
-  "version": 1,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-5-week-19",
   "week": 19,
   "order": 1,
   "title": "Testing React Components with Testing Library",
   "description": "Write behavior-focused component tests, query the UI through accessible roles and names, handle asynchronous updates, and keep test scope aligned with the project's actual runner.",
-  "estimatedMinutes": 70,
+  "estimatedMinutes": 120,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.components-jsx-state",
@@ -24,7 +24,9 @@
     "Choose Testing Library queries by role, accessible name, label, and intended query semantics.",
     "Use userEvent and async queries to represent real interaction and asynchronous UI updates.",
     "Keep test data, network boundaries, and assertions deterministic.",
-    "Write meaningful tests in the project's Vitest + React Testing Library setup and understand what changes if Jest is used."
+    "Write meaningful tests in the project's Vitest + React Testing Library setup and understand what changes if Jest is used.",
+    "Control API success and failure behavior with isolated Vitest mocks while asserting user-visible UI outcomes.",
+    "Distinguish mock call history, reset behavior, and restoring a spied method in Vitest."
   ],
   "tags": [
     "testing",
@@ -33,7 +35,10 @@
     "jest",
     "user-event",
     "accessibility",
-    "testing-library"
+    "testing-library",
+    "mocking",
+    "mock-cleanup",
+    "test-isolation"
   ],
   "blocks": [
     {
@@ -137,6 +142,220 @@
       "language": "tsx",
       "caption": "Wait for observable asynchronous success",
       "code": "render(<PostsPage />);\n\nexpect(screen.getByText(/loading posts/i)).toBeTruthy();\nexpect(await screen.findByRole(\"heading\", { name: \"A sample post\" })).toBeTruthy();\nexpect(screen.queryByText(/could not load/i)).toBeNull();"
+    },
+    {
+      "id": "mocking-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Control external behavior with Vitest mocks"
+    },
+    {
+      "id": "mocking-explanation",
+      "type": "paragraph",
+      "text": "A mock replaces one dependency boundary with a predictable function, so a test can observe calls and choose a success or failure response without reaching a live API. In this project, use Vitest's `vi.fn()` rather than copying Jest-only setup from the legacy guide. Prefer passing a service into a component or mocking the narrow API boundary; avoid replacing React internals. A mock with no implementation returns `undefined`, so configure its result. `mockResolvedValue` and `mockRejectedValue` represent different promise outcomes. Keep mocks isolated: clearing call history does not necessarily reset the implementation, and global stubs must be restored unless the test configuration does so."
+    },
+    {
+      "id": "mocking-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { expect, it, vi } from \"vitest\";\nimport { render, screen } from \"@testing-library/react\";\n\ntype Post = { id: string; title: string };\ntype LoadPosts = () => Promise<Post[]>;\n\nit(\"renders posts from a controlled service\", async () => {\n  const loadPosts = vi.fn<LoadPosts>().mockResolvedValue([\n    { id: \"1\", title: \"A sample post\" },\n  ]);\n\n  render(<PostsPage loadPosts={loadPosts} />);\n\n  expect(await screen.findByRole(\"heading\", { name: \"A sample post\" }))\n    .toBeInTheDocument();\n  expect(loadPosts).toHaveBeenCalledTimes(1);\n});",
+      "steps": [
+        {
+          "title": "Mock a narrow boundary with the runner the app uses",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "explanation": "This project configures Vitest and Testing Library. `vi.fn<LoadPosts>()` creates a typed function mock; inject the service rather than coupling the test to private component details."
+        },
+        {
+          "title": "Choose a predictable asynchronous outcome",
+          "lineStart": 8,
+          "lineEnd": 10,
+          "explanation": "`mockResolvedValue` makes the returned promise resolve with controlled data. For an error-state test, use a separate mock configured with `mockRejectedValue(new Error(...))`; do not share mutable mock behavior across tests."
+        },
+        {
+          "title": "Assert the rendered contract and the boundary call",
+          "lineStart": 12,
+          "lineEnd": 17,
+          "explanation": "Render the real component, wait with `findByRole` for asynchronously displayed content, then verify the injected service was called. The test proves user-visible behavior as well as the interaction with the boundary."
+        }
+      ]
+    },
+    {
+      "id": "mocking-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A React page needs to display a network error reliably in a component test. Which approach best fits this project's configured stack?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use Vitest `vi.fn()` at the API/service boundary and configure it to reject, then assert the visible error",
+          "correct": true,
+          "feedback": "A controlled rejection makes the error path deterministic while the assertion stays focused on what the user sees."
+        },
+        {
+          "id": "b",
+          "text": "Call the production API and hope it is unavailable",
+          "correct": false,
+          "feedback": "A test should not depend on external availability or timing to reach a failure path."
+        },
+        {
+          "id": "c",
+          "text": "Mock a private React state Hook and assert its internal value",
+          "correct": false,
+          "feedback": "That couples the test to implementation details and does not prove an error appears in the interface."
+        },
+        {
+          "id": "d",
+          "text": "Use Jest globals and leave the mock implementation shared across tests",
+          "correct": false,
+          "feedback": "This repository runs Vitest, and shared mutable mock behavior can make tests order-dependent."
+        }
+      ],
+      "explanation": "Mock one external boundary with the configured test runner, then verify the user-visible error state."
+    },
+    {
+      "id": "mocking-practice",
+      "type": "codingExercise",
+      "title": "Mock success and failure without a live API",
+      "language": "tsx",
+      "context": "Extend a component test for a page that accepts an injected `loadPosts` service and renders loading, posts, an empty state, or an error.",
+      "instructions": [
+        "Create a typed Vitest mock for the service and configure a successful posts response.",
+        "Render the page and wait for a post heading with `findByRole`; verify the service call.",
+        "Add an empty-success test and assert its dedicated empty-state message.",
+        "Add a rejected-promise test and assert an accessible error message or alert.",
+        "Keep each mock local to its test and do not call the real network."
+      ],
+      "requirements": [
+        "The mock uses Vitest `vi.fn()` and a correctly configured promise result.",
+        "Success, empty success, and rejection are distinct cases.",
+        "Assertions check user-visible DOM rather than component state.",
+        "Asynchronous outcomes are awaited with Testing Library queries, not fixed delays.",
+        "The tests do not use the live API and can run in any order."
+      ],
+      "starterCode": "import { expect, it, vi } from \"vitest\";\nimport { render, screen } from \"@testing-library/react\";\nimport type { Post } from \"./types\";\n\nit(\"renders the success response\", async () => {\n  const loadPosts = vi.fn<() => Promise<Post[]>>();\n  // TODO: configure a response, render <PostsPage loadPosts={loadPosts} />,\n  // await a visible result, and assert the service call.\n});\n\nit(\"renders empty and error states\", async () => {\n  // TODO: create isolated mocks for [] and a rejected Promise.\n});",
+      "hints": [
+        "A bare `vi.fn()` returns undefined until you configure it with a return value or promise result.",
+        "Use `mockResolvedValue([])` for a successful empty response and `mockRejectedValue(new Error(...))` for a rejected request.",
+        "Use `findByRole` for content that appears after async work and assert an accessible error or empty message."
+      ],
+      "successCriteria": [
+        "The success test renders returned content.",
+        "Empty data has a distinct visible empty state.",
+        "A rejected request produces accessible error feedback.",
+        "Each scenario owns an isolated mock and awaits its UI outcome.",
+        "No test depends on external network access or arbitrary sleep."
+      ]
+    },
+    {
+      "id": "test-mock-lifecycle-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Keep mocks isolated between tests"
+    },
+    {
+      "id": "test-mock-lifecycle-model",
+      "type": "paragraph",
+      "text": "Mocks have call history and behavior. `vi.clearAllMocks()` clears recorded calls but keeps implementations. `vi.resetAllMocks()` clears history and resets mock behavior. `vi.restoreAllMocks()` restores original methods replaced by `vi.spyOn`. A global stub made with `vi.stubGlobal` has separate cleanup through `vi.unstubAllGlobals`. Use the APIs supported by this repository's Vitest version and inspect `vitest.config`; do not assume defaults from another major version or copy Jest-only setup."
+    },
+    {
+      "id": "test-mock-lifecycle-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { afterEach, expect, it, vi } from \"vitest\";\n\nconst auditLog = { save: (id: number) => `saved:${id}` };\n\nafterEach(() => {\n  vi.restoreAllMocks();\n});\n\nit(\"controls one scenario and restores the method\", () => {\n  const spy = vi.spyOn(auditLog, \"save\").mockReturnValue(\"mocked\");\n  expect(auditLog.save(7)).toBe(\"mocked\");\n  expect(spy).toHaveBeenCalledWith(7);\n});\n\n// clearAllMocks: clear calls, keep implementation.\n// resetAllMocks: clear calls and reset implementation.\n// restoreAllMocks: restore original methods for spies.\n// vi.stubGlobal needs its own cleanup: vi.unstubAllGlobals().",
+      "steps": [
+        {
+          "title": "Spy on one object method",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "`vi.spyOn` replaces one method so the test can control its result and inspect arguments; keep the mock at a narrow boundary."
+        },
+        {
+          "title": "Restore the real method after the test",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "explanation": "`afterEach` restores spies created with `vi.spyOn`, preventing the replacement from leaking into later tests."
+        },
+        {
+          "title": "Choose cleanup by what changed",
+          "lineStart": 9,
+          "lineEnd": 13,
+          "explanation": "The test stubs `save`, verifies its visible result and argument, then relies on cleanup to restore the original method."
+        },
+        {
+          "title": "Know the scope of each reset API",
+          "lineStart": 15,
+          "lineEnd": 18,
+          "explanation": "Call history, implementation and the original method are separate concerns. Stubbed globals have their own cleanup."
+        }
+      ]
+    },
+    {
+      "id": "test-mock-lifecycle-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A test uses `vi.spyOn(service, \"save\").mockResolvedValue(...)`. The next test must call the real `service.save`. Which cleanup best matches that goal?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`vi.clearAllMocks()`; it always restores the original method",
+          "correct": false,
+          "feedback": "Clearing removes recorded calls but keeps the mock implementation, so the method can remain replaced."
+        },
+        {
+          "id": "b",
+          "text": "`vi.restoreAllMocks()` after the test",
+          "correct": true,
+          "feedback": "Restore returns original implementations/descriptors for methods replaced using `vi.spyOn`."
+        },
+        {
+          "id": "c",
+          "text": "`screen.cleanup()`; it restores all service methods",
+          "correct": false,
+          "feedback": "DOM cleanup and mock cleanup are separate; unmounting does not restore an object spy."
+        },
+        {
+          "id": "d",
+          "text": "Reset every mock without checking what the next test needs",
+          "correct": false,
+          "feedback": "Reset and restore differ; choose the operation that matches the changed dependency."
+        }
+      ],
+      "explanation": "Use restore for a spy when the next test must call the real object method. Clearing call history and resetting mock behavior solve different problems."
+    },
+    {
+      "id": "test-mock-lifecycle-practice",
+      "type": "codingExercise",
+      "title": "Make a mocked-service test deterministic and isolated",
+      "language": "tsx",
+      "context": "A component test sometimes fails depending on test order because a spy implementation or API response leaks into later tests.",
+      "instructions": [
+        "Create each `vi.fn()` in the test or local setup where it belongs, and configure its response explicitly.",
+        "Choose clear, reset or restore based on whether call history, behavior or the real object method must be restored.",
+        "Add `afterEach` cleanup for spies, and restore global values stubbed with `vi.stubGlobal`.",
+        "Assert the user-visible result while using the mock only to control the external service boundary.",
+        "Explain why a test should not depend on execution order, a live API or a fixed sleep timer."
+      ],
+      "requirements": [
+        "Mocks have explicit return, resolved or rejected behavior when required.",
+        "Call history and implementation are treated as separate state.",
+        "Object spies are restored so later tests can call the original method.",
+        "Stubbed globals are explicitly restored where used.",
+        "The assertion checks visible behavior without relying on test order or network timing."
+      ],
+      "starterCode": "import { afterEach, expect, it, vi } from \"vitest\";\n\nconst service = { load: async () => [\"real value\"] };\nafterEach(() => {\n  // TODO: choose correct spy/global cleanup.\n});\n\nit(\"shows the mocked result\", async () => {\n  const loadSpy = vi.spyOn(service, \"load\");\n  // TODO: configure a deterministic resolved value.\n  // TODO: render and await the visible result.\n  // TODO: assert the service call without reading private component state.\n});",
+      "hints": [
+        "`clearAllMocks` clears observations; it does not restore the original implementation.",
+        "`resetAllMocks` also resets configured mock behavior; a plain `vi.fn()` may then return `undefined`.",
+        "`restoreAllMocks` restores spies; `vi.stubGlobal` uses `vi.unstubAllGlobals` for cleanup."
+      ],
+      "successCriteria": [
+        "The test outcome does not depend on test ordering.",
+        "Mock cleanup matches the state that must be cleared or restored.",
+        "The visible result is asserted with an accessible query and proper async waiting.",
+        "Responses are controlled in the test rather than by a live service.",
+        "Every global stub or spy is restored after the scenario."
+      ]
     },
     {
       "id": "test-runner",
@@ -295,6 +514,139 @@
       ]
     },
     {
+      "id": "deep-testing-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: test user-visible contracts and choose the right query"
+    },
+    {
+      "id": "deep-testing-model",
+      "type": "paragraph",
+      "text": "A useful UI test protects a behavior a user or another part of the app depends on, not the component's private implementation. Testing Library encourages queries that resemble how people find controls—role and accessible name first. Query choice communicates timing: `getBy` expects an immediate match, `queryBy` is useful to assert absence, and `findBy` waits for an asynchronous appearance. In this repository use its Vitest setup rather than copying Jest-only setup commands from older reference material."
+    },
+    {
+      "id": "deep-testing-trace",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "it('shows the loaded profile', async () => {\n  render(<ProfilePage userId=\"42\" />);\n\n  expect(screen.getByRole('status')).toHaveTextContent(/loading/i);\n\n  expect(\n    await screen.findByRole('heading', { name: 'Ada Lovelace' })\n  ).toBeInTheDocument();\n\n  expect(screen.queryByRole('alert')).not.toBeInTheDocument();\n});",
+      "steps": [
+        {
+          "title": "Assert the observable loading state",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The test renders the public component and checks a visible/accessibly exposed status rather than inspecting a private state variable."
+        },
+        {
+          "title": "Wait for asynchronous UI with findBy",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "The heading appears only after the request completes, so findByRole waits for it. An immediate getByRole here would be timing-sensitive."
+        },
+        {
+          "title": "Use queryBy to verify absence",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "explanation": "queryBy returns null when no match exists, making it suitable for absence assertions. getBy would throw before the assertion could check absence."
+        }
+      ]
+    },
+    {
+      "id": "deep-testing-query-guide",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`getByRole` is a strong default for accessible controls; include the accessible name when multiple controls share a role.",
+        "`getBy...` throws when there is no match now; `queryBy...` returns null and is useful for absence; `findBy...` retries while waiting for an asynchronous match.",
+        "Use `userEvent.setup()` and await user interactions when the action can cause asynchronous behavior.",
+        "Assert outcomes such as error text, disabled controls, navigation or submitted content rather than internal Hook calls or exact implementation details.",
+        "Mock external boundaries intentionally. Tests should cover loading, success, empty and error behavior without depending on live third-party services."
+      ]
+    },
+    {
+      "id": "deep-testing-warning",
+      "type": "callout",
+      "tone": "important",
+      "title": "An async UI test needs to await the condition, not sleep",
+      "text": "Avoid fixed timeouts like `await new Promise(resolve => setTimeout(resolve, 1000))` as a general solution. Wait for the expected element/state with the proper async query or waitFor, so the test is both faster and less timing-sensitive."
+    },
+    {
+      "id": "deep-testing-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A heading appears only after a mocked API request finishes. Which Testing Library query is the best fit to wait for it?",
+      "options": [
+        {
+          "id": "a",
+          "text": "getByRole immediately",
+          "correct": false,
+          "feedback": "getBy queries synchronously and throws if the heading is not present at the time of the call."
+        },
+        {
+          "id": "b",
+          "text": "findByRole",
+          "correct": true,
+          "feedback": "findBy queries retry while waiting for the matching element to appear asynchronously."
+        },
+        {
+          "id": "c",
+          "text": "queryByRole only",
+          "correct": false,
+          "feedback": "queryBy is useful for checking absence without throwing; it does not wait for an element to appear."
+        },
+        {
+          "id": "d",
+          "text": "document.querySelector in a fixed one-second timeout",
+          "correct": false,
+          "feedback": "Direct DOM queries and fixed sleeps are usually brittle and bypass Testing Library's user-facing query strategy."
+        }
+      ],
+      "explanation": "Choose a query based on expected presence and timing, then assert the behavior visible to the user."
+    },
+    {
+      "id": "deep-testing-practice",
+      "type": "codingExercise",
+      "title": "Test loading, success, empty and error states",
+      "language": "tsx",
+      "context": "Use the repository's Vitest and React Testing Library setup. Keep the network mocked so the suite is deterministic.",
+      "instructions": [
+        "Write a test that confirms the loading status appears while a request is pending.",
+        "Resolve the mocked request and wait for a user-visible heading/list with findByRole.",
+        "Add a successful empty-array case and assert that an empty-state message appears.",
+        "Add an error case and assert an understandable error message or alert is rendered.",
+        "Use an accessible query, await userEvent interactions, and avoid fixed sleeps or assertions about internal Hook calls."
+      ],
+      "requirements": [
+        "The tests do not call a live external API.",
+        "Async UI assertions wait for the actual expected condition.",
+        "Empty success differs from loading and error.",
+        "Queries prefer semantic role and accessible name.",
+        "Tests cover user-visible behavior rather than component internals."
+      ],
+      "starterCode": "it('shows a loaded profile', async () => {\n  render(<ProfilePage userId=\"42\" />);\n  // TODO: assert loading; wait for the result with findByRole.\n});\n\nit('shows an empty state', async () => {\n  // TODO: mock a successful empty response and assert user-visible text.\n});\n\nit('shows an error', async () => {\n  // TODO: mock a rejected request and assert accessible feedback.\n});",
+      "hints": [
+        "Use getByRole for a present synchronous status, findByRole for asynchronous appearance, and queryByRole to assert absence.",
+        "Mock the API boundary so tests do not depend on third-party availability.",
+        "Make error and empty messages visible and accessible before asserting them."
+      ],
+      "successCriteria": [
+        "Loading state is asserted while the request is pending.",
+        "Success, empty and error paths are tested separately.",
+        "Async assertions are awaited without fixed delays.",
+        "Selectors use semantic roles/names where possible.",
+        "Tests assert the user-visible result."
+      ]
+    },
+    {
+      "id": "deep-testing-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Test the public behavior a user depends on instead of the component's private implementation.",
+        "Choose getBy/queryBy/findBy based on whether the element should exist now, be absent, or appear asynchronously.",
+        "Mock external boundaries and cover loading, success, empty and error as distinct UI states."
+      ]
+    },
+    {
       "id": "testing-references",
       "type": "references",
       "items": [
@@ -321,6 +673,26 @@
         {
           "title": "Jest: Getting Started",
           "url": "https://jestjs.io/docs/getting-started",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vitest: Mock Functions",
+          "url": "https://vitest.dev/guide/learn/mock-functions",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Testing Library: React Testing Library",
+          "url": "https://testing-library.com/docs/react-testing-library/intro/",
+          "kind": "guide"
+        },
+        {
+          "title": "Vitest: Mock Functions and cleanup",
+          "url": "https://vitest.dev/guide/learn/mock-functions",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vitest: Mock API",
+          "url": "https://vitest.dev/api/mock",
           "kind": "official-docs"
         }
       ]

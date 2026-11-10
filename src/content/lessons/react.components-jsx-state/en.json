@@ -1,16 +1,16 @@
 {
   "id": "react.components-jsx-state",
   "locale": "en",
-  "version": 1,
+  "version": 2,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-3-week-11",
   "week": 11,
   "order": 1,
   "title": "React Components, JSX, Props, and State",
   "description": "Learn to describe UI declaratively, compose reusable function components, pass read-only props, and update state with useState.",
-  "estimatedMinutes": 70,
+  "estimatedMinutes": 95,
   "difficulty": "beginner",
   "prerequisites": [
     "typescript.fundamentals",
@@ -335,6 +335,131 @@
         "Props are read-only inputs; state represents values that change over time.",
         "useState setters schedule rendering; they do not directly mutate the DOM or current render snapshot.",
         "Update arrays and objects immutably, and use functional updaters when the next value depends on previous state."
+      ]
+    },
+    {
+      "id": "deep-react-state-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: state snapshots, queued updates, and immutable objects"
+    },
+    {
+      "id": "deep-react-state-model",
+      "type": "paragraph",
+      "text": "A render observes a snapshot of state. Calling a setter schedules a future render; it does not mutate the state variable inside the currently running event handler. When the next value depends on the previous one, use the functional updater form. For objects and arrays, return a new reference instead of mutating the previous snapshot."
+    },
+    {
+      "id": "deep-react-state-trace",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "function Counter() {\n  const [count, setCount] = useState(0);\n\n  function addThree() {\n    setCount(count + 1);\n    setCount(count + 1);\n    setCount(count + 1);\n  }\n\n  function addThreeCorrectly() {\n    setCount(n => n + 1);\n    setCount(n => n + 1);\n    setCount(n => n + 1);\n  }\n\n  return <button onClick={addThreeCorrectly}>{count}</button>;\n}",
+      "steps": [
+        {
+          "title": "The handler captures the current render snapshot",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "If count is 0, all three `count + 1` expressions read 0 and request the value 1. These calls do not read a freshly mutated local variable after each setter."
+        },
+        {
+          "title": "Functional updaters are processed in the queue",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "explanation": "Each updater receives the result of the preceding queued update, so the three increments produce an increase of three."
+        },
+        {
+          "title": "Keep state updates immutable",
+          "lineStart": 16,
+          "lineEnd": 16,
+          "explanation": "The button renders the current snapshot and calls the event handler when clicked. For nested objects, copy the object levels you change so React receives a new reference."
+        }
+      ]
+    },
+    {
+      "id": "deep-react-state-patterns",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use `setCount(n => n + 1)` when the next state depends on the previous state, especially for multiple queued updates.",
+        "Treat state values as read-only snapshots. Do not call `push`, mutate an object in place, or rely on assigning to a local variable to trigger render.",
+        "Store the minimum source of truth. Derive filtered lists, totals and display labels during render unless measuring shows a computation is genuinely expensive.",
+        "Controlled inputs render their value from React state; update the state in `onChange`. Use a suitable initial value to avoid switching between uncontrolled and controlled modes.",
+        "Props are inputs from a parent, not a second copy of local state by default. If a value must remain shared, decide explicitly where its owner lives."
+      ]
+    },
+    {
+      "id": "deep-react-state-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "If count is 0 when `addThree()` runs, what value do three calls to `setCount(count + 1)` typically request in the same handler?",
+      "options": [
+        {
+          "id": "a",
+          "text": "3, because each setter updates count immediately",
+          "correct": false,
+          "feedback": "The local count variable is the snapshot from the current render and is not changed immediately by calling a setter."
+        },
+        {
+          "id": "b",
+          "text": "1, because each expression reads the same render snapshot",
+          "correct": true,
+          "feedback": "Each `count + 1` is evaluated against the same snapshot. Functional updaters are used when each queued update should build on the previous queued result."
+        },
+        {
+          "id": "c",
+          "text": "undefined, because React batches state",
+          "correct": false,
+          "feedback": "Batching does not make the state undefined; it schedules updates so React can process them together."
+        },
+        {
+          "id": "d",
+          "text": "The code always throws a runtime error",
+          "correct": false,
+          "feedback": "This code is valid. Its surprising behavior comes from state snapshots, not a runtime exception."
+        }
+      ],
+      "explanation": "A setter schedules a state update; it does not rewrite the variable captured by the current handler."
+    },
+    {
+      "id": "deep-react-state-practice",
+      "type": "codingExercise",
+      "title": "Fix a stale state update and immutable profile editor",
+      "language": "tsx",
+      "context": "Use this task in a React project because the lesson playground does not compile TSX.",
+      "instructions": [
+        "Implement a button that increments a counter three times in one event.",
+        "Use functional updater callbacks to make the three increments accumulate.",
+        "Implement a profile update that changes one nested field without mutating the original state.",
+        "Explain why the handler reads a snapshot and why a derived total need not be stored in state.",
+        "Initialize controlled inputs with a defined value and update them from onChange."
+      ],
+      "requirements": [
+        "One click increases the count by three.",
+        "Previous state is read through the updater callback for dependent updates.",
+        "Object updates preserve untouched fields and create new references along the changed path.",
+        "Derived values are computed from source state rather than synchronized redundantly.",
+        "Controlled input values do not switch between undefined and defined unexpectedly."
+      ],
+      "starterCode": "function Counter() {\n  const [count, setCount] = useState(0);\n\n  function addThree() {\n    // TODO: queue three increments based on previous state.\n  }\n\n  return <button onClick={addThree}>{count}</button>;\n}\n\nfunction updateCity(user, city) {\n  // TODO: return an immutable nested update for user.profile.city.\n}",
+      "hints": [
+        "The current handler sees the state values from the render that created it.",
+        "Use the callback form of the setter when calculating a new value from an old one.",
+        "Copy every nested object on the path to a property you change."
+      ],
+      "successCriteria": [
+        "One click increases count by exactly three.",
+        "The updater is based on previous state.",
+        "The original user/profile object is unchanged.",
+        "Derived state and controlled input ownership are explained."
+      ]
+    },
+    {
+      "id": "deep-react-state-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "React state is read as a render snapshot; setters schedule future work.",
+        "Functional updaters compose when next state depends on previous state.",
+        "Immutability and one clear owner for each piece of state simplify rendering and debugging."
       ]
     },
     {

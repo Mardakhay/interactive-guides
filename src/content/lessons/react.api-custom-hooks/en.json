@@ -1,16 +1,16 @@
 {
   "id": "react.api-custom-hooks",
   "locale": "en",
-  "version": 1,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-4-week-16",
   "week": 16,
   "order": 1,
   "title": "API Layers, Custom Hooks, and Reliable Data Loading",
   "description": "Separate HTTP concerns from UI, encapsulate reusable request state in custom hooks, handle concurrent API calls and failures, and reason about safe retry strategies.",
-  "estimatedMinutes": 75,
+  "estimatedMinutes": 105,
   "difficulty": "intermediate",
   "prerequisites": [
     "react.effects-lists-composition",
@@ -24,7 +24,8 @@
     "Explain why Hooks must be called unconditionally at the top level.",
     "Handle multiple requests without making the UI state ambiguous.",
     "Use cancellation and stale-request protection to avoid outdated results overwriting current state.",
-    "Choose retry behavior based on the failure and operation rather than retrying every error automatically."
+    "Choose retry behavior based on the failure and operation rather than retrying every error automatically.",
+    "Debounce search input while separately cancelling requests or ignoring stale responses."
   ],
   "tags": [
     "react",
@@ -319,6 +320,353 @@
         "Expose explicit loading, success, and error states, and cancel outdated work when appropriate.",
         "Choose Promise.all versus Promise.allSettled according to all-or-nothing or partial-result UX.",
         "Retry only appropriate operations with bounded attempts, delay, cancellation, and clear rules."
+      ]
+    },
+    {
+      "id": "deep-api-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: service boundaries, discriminated request state, and retry safety"
+    },
+    {
+      "id": "deep-api-model",
+      "type": "paragraph",
+      "text": "A maintainable data flow separates responsibilities: a service owns the HTTP contract and parsing; a custom Hook connects that service to React state/lifecycle; a component renders loading, empty, success and error states. Model mutually exclusive request states as a discriminated union rather than unrelated booleans that can accidentally produce impossible combinations. Retry only when the failure is plausibly transient and repeating the operation is safe."
+    },
+    {
+      "id": "deep-api-trace",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "type RequestState<T> =\n  | { status: 'idle' }\n  | { status: 'loading' }\n  | { status: 'success'; data: T }\n  | { status: 'error'; message: string };\n\nasync function requestJson<T>(url: string, signal?: AbortSignal): Promise<T> {\n  const response = await fetch(url, { signal });\n  if (!response.ok) throw new Error(`HTTP ${response.status}`);\n  return (await response.json()) as T;\n}\n\n// In a Hook/component:\nconst [state, setState] = useState<RequestState<User[]>>({ status: 'idle' });\n// Render each status explicitly; an empty successful array is not an error.",
+      "steps": [
+        {
+          "title": "Represent exclusive outcomes explicitly",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "A discriminated union means a success state must include data and an error state must include a message. Code that switches on status can narrow the allowed fields safely."
+        },
+        {
+          "title": "Keep HTTP handling in the service boundary",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "The helper owns fetch, response.ok checking and body parsing. A service function can use this helper and return a typed domain result, keeping components from repeating networking details."
+        },
+        {
+          "title": "Keep UI state transitions intentional",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "The component or Hook decides how the request status maps to UI. A successful empty list should render an empty state, while rejected requests render an error state."
+        }
+      ]
+    },
+    {
+      "id": "deep-api-failure-matrix",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Transport failure: Fetch rejects before a usable Response is received; a retry may help if the error is transient.",
+        "HTTP failure: Fetch usually resolves with a Response for 404/500; check response.ok/status and map the status to an actionable UI/service error.",
+        "Body parsing or schema failure: response.json() can reject for invalid JSON, and valid JSON can still have an unexpected shape. Treat parsing and runtime validation as separate steps.",
+        "Cancellation: AbortError often reflects an intentional lifecycle change, not a user-facing failure.",
+        "Empty success: a valid response containing [] is a successful request with no records, not a failed request."
+      ]
+    },
+    {
+      "id": "deep-api-warning",
+      "type": "callout",
+      "tone": "important",
+      "title": "A TypeScript assertion does not validate server data",
+      "text": "`await response.json() as T` tells the compiler to trust the author; it does not check the runtime payload. For data crossing a network boundary, use a runtime schema/validator or explicit parsing. Never put tokens or privileged secrets in a frontend bundle. Automatic retry should be limited by operation safety, retryable status/errors, attempt count and backoff."
+    },
+    {
+      "id": "deep-api-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "An API returns HTTP 200 with a valid JSON body `[]`. Which UI state is normally appropriate for a list page?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Error, because the list contains no records",
+          "correct": false,
+          "feedback": "An empty result can be a valid successful response and should not be confused with request failure."
+        },
+        {
+          "id": "b",
+          "text": "Success with an empty-state message",
+          "correct": true,
+          "feedback": "The request succeeded and supplied no records; the UI can explain that there is nothing to display yet."
+        },
+        {
+          "id": "c",
+          "text": "Loading forever because there is no item to render",
+          "correct": false,
+          "feedback": "Loading represents a request that has not settled, not a successful empty result."
+        },
+        {
+          "id": "d",
+          "text": "Retry automatically until the array has data",
+          "correct": false,
+          "feedback": "An empty response is not inherently transient; repeated requests may not change the result and can waste resources."
+        }
+      ],
+      "explanation": "Model transport, HTTP, parsing, cancellation and empty success as distinct outcomes."
+    },
+    {
+      "id": "deep-api-practice",
+      "type": "codingExercise",
+      "title": "Build a typed service and reliable request-state Hook",
+      "language": "typescript",
+      "context": "Extend a basic Fetch example into a reviewable feature with a service boundary, validated data and complete UI states.",
+      "instructions": [
+        "Create a `getUsers(signal)` service that calls Fetch, checks response.ok and parses the body.",
+        "Represent idle/loading/success/error as one discriminated union.",
+        "Add a separate empty state when successful data is an empty array.",
+        "Describe where runtime validation should happen before untrusted JSON is treated as a User type.",
+        "Specify which error classes are retryable and why a create/update mutation must not be blindly repeated."
+      ],
+      "requirements": [
+        "HTTP status is checked explicitly before declaring success.",
+        "Service/network logic is not duplicated in every component.",
+        "State representation prevents impossible combinations such as both loading and error being true.",
+        "Empty success is distinct from error and loading.",
+        "Runtime data validation and retry-safety decisions are documented."
+      ],
+      "starterCode": "type RequestState<T> =\n  | { status: 'idle' }\n  | { status: 'loading' }\n  | { status: 'success'; data: T }\n  | { status: 'error'; message: string };\n\nasync function getUsers(signal?: AbortSignal): Promise<User[]> {\n  // TODO: fetch, check response.ok, parse and validate payload.\n}\n\n// TODO: connect request status to React and render an empty state.",
+      "hints": [
+        "Fetch resolves for many HTTP error statuses; inspect response.ok/status.",
+        "Do not use separate loading/error booleans if they can describe impossible combinations.",
+        "Type assertions are erased at runtime; validate external JSON before trusting its shape."
+      ],
+      "successCriteria": [
+        "Service returns parsed users or a meaningful error.",
+        "Request state is represented as mutually exclusive statuses.",
+        "An empty array renders an intentional empty state.",
+        "Validation at the network boundary is explicit.",
+        "Retry behavior has a safety and failure-classification rule."
+      ]
+    },
+    {
+      "id": "api-fetch-axios-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Fetch, Axios, and the service boundary"
+    },
+    {
+      "id": "api-fetch-axios-body",
+      "type": "paragraph",
+      "text": "Fetch is built into browsers and does not reject its Promise for an HTTP 404/500; inspect response.ok/status before parsing. Axios typically rejects non-2xx responses and offers request/response interceptors, but adds a dependency and its exact APIs follow the installed version. An interceptor can centralize cross-cutting behavior, yet hidden global mutation/retry logic makes requests harder to reason about. Keep the service contract explicit. This project does not depend on Axios, so examples should not require it."
+    },
+    {
+      "id": "api-fetch-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "async function requestJson(url, { signal } = {}) {\n  const response = await fetch(url, {\n    signal,\n    headers: { Accept: 'application/json' }\n  });\n\n  if (!response.ok) {\n    throw new Error(`HTTP ${response.status}`);\n  }\n\n  return response.json();\n}\n\n// Example for a JSON endpoint with a response body:\nconst users = await requestJson('/api/users', { signal });",
+      "steps": [
+        {
+          "title": "Keep cancellation explicit",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Passing AbortSignal lets the caller cancel obsolete work, such as a request for an unmounted view or superseded search."
+        },
+        {
+          "title": "Separate transport failure from HTTP failure",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "explanation": "Fetch rejects for network/abort problems, not merely because the server returned 404/500. The service checks ok and turns an unsuccessful status into a rejected operation."
+        },
+        {
+          "title": "Parse only when the endpoint promises JSON",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "explanation": "This helper is for JSON responses that have a body. Handle 204 No Content or non-JSON endpoints with a different parser/return contract; JSON.parse failure is a distinct response-format error."
+        }
+      ]
+    },
+    {
+      "id": "api-fetch-status-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "`await fetch('/api/users')` resolves with status 404. What is normally true before you check response.ok?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The Fetch Promise rejects automatically for every non-2xx status",
+          "correct": false,
+          "feedback": "Fetch normally resolves with a Response for HTTP errors; network failures and aborts reject."
+        },
+        {
+          "id": "b",
+          "text": "The Promise resolved with a Response, so service code must inspect status/ok",
+          "correct": true,
+          "feedback": "A fulfilled fetch does not mean the HTTP operation succeeded. Check response.ok/status before treating the body as success."
+        },
+        {
+          "id": "c",
+          "text": "The browser silently changes the status to 200",
+          "correct": false,
+          "feedback": "The response retains the server's HTTP status."
+        },
+        {
+          "id": "d",
+          "text": "response.json() changes 404 into a network rejection",
+          "correct": false,
+          "feedback": "Body parsing is separate from status handling and may itself fail if the body is absent or invalid JSON."
+        }
+      ],
+      "explanation": "Keep transport errors, HTTP status errors, and response parsing errors distinguishable in the service/API policy."
+    },
+    {
+      "id": "api-client-choice-practice",
+      "type": "codingExercise",
+      "title": "Choose and test an API client policy",
+      "language": "javascript",
+      "context": "A project has a shared service module and is considering whether to keep native Fetch or add Axios for interceptors and request conveniences.",
+      "instructions": [
+        "Document the project’s current client and confirm whether Axios is actually installed before copying Axios snippets.",
+        "Implement or review a service that passes AbortSignal, checks HTTP status, parses the expected body, and distinguishes network, HTTP, and parse failures.",
+        "Explain how cross-cutting headers or logging would be composed in a Fetch wrapper and what an Axios interceptor would centralize.",
+        "Add cases for 200 JSON, 204 empty response, 404 response, invalid JSON, network failure and abort.",
+        "Make retries explicit, bounded and safe for the operation rather than placing blanket retries in a global interceptor."
+      ],
+      "requirements": [
+        "Client choice is based on installed dependencies and application needs.",
+        "HTTP non-success, transport/abort and parse failures are not conflated.",
+        "Endpoint response contracts include whether a body is expected.",
+        "Cross-cutting behavior has a clear owner and does not silently mutate unrelated requests.",
+        "Test cases cover success and each distinct failure class."
+      ],
+      "starterCode": "// Current project uses browser Fetch unless a dependency decision says otherwise.\nasync function getUser(id, { signal } = {}) {\n  // TODO: request /api/users/:id\n  // TODO: pass signal and Accept header\n  // TODO: check response.ok before parsing\n  // TODO: handle endpoints with no response body separately\n}\n\n// Policy questions:\n// - What belongs in a shared request wrapper?\n// - Which failures may be retried safely?",
+      "hints": [
+        "Fetch fulfills for HTTP 404/500; the Response still needs a status check.",
+        "AbortError should not be presented as an ordinary server failure if cancellation was intentional.",
+        "Axios interceptors are optional; a small explicit wrapper may be easier to follow for a small app.",
+        "Do not parse JSON for a 204 response with no body."
+      ],
+      "successCriteria": [
+        "Correctly handles success, HTTP error, network error, invalid body and abort.",
+        "Does not require an uninstalled client library.",
+        "Documents body/no-body endpoint contracts.",
+        "Uses bounded retry only where operation semantics make repetition safe."
+      ]
+    },
+    {
+      "id": "api-debounce-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Debouncing search without confusing it with cancellation"
+    },
+    {
+      "id": "api-debounce-model",
+      "type": "paragraph",
+      "text": "Debouncing waits until input has been quiet for a short interval before publishing a value to the request effect. It can reduce requests while someone types, but does not make any individual response faster and does not cancel a request that has already started. Pair it with AbortController or stale-result protection when newer searches supersede older ones. Avoid debounce for actions where every change must be processed immediately."
+    },
+    {
+      "id": "api-debounce-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "typescript",
+      "code": "import { useEffect, useState } from 'react';\n\nfunction useDebouncedValue<T>(value: T, delayMs: number): T {\n  const [debouncedValue, setDebouncedValue] = useState(value);\n\n  useEffect(() => {\n    const timeoutId = window.setTimeout(() => setDebouncedValue(value), delayMs);\n    return () => window.clearTimeout(timeoutId);\n  }, [value, delayMs]);\n\n  return debouncedValue;\n}\n\nconst debouncedQuery = useDebouncedValue(query, 300);\n// Use debouncedQuery as the search effect dependency.\n// Clear/abort an already-started request separately.",
+      "steps": [
+        {
+          "title": "Keep the last published value",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "The Hook returns the previous debounced value while the user is still typing; it does not mutate the caller's input."
+        },
+        {
+          "title": "Start a timer for each value or delay",
+          "lineStart": 7,
+          "lineEnd": 8,
+          "explanation": "When the value changes, the effect schedules a later state update. Changing the delay also restarts the timer because it is a real dependency."
+        },
+        {
+          "title": "Clean up pending work",
+          "lineStart": 9,
+          "lineEnd": 10,
+          "explanation": "Before the next effect or unmount, cleanup clears the pending timeout. This prevents an obsolete timer from publishing an intermediate query."
+        },
+        {
+          "title": "Separate timer cleanup from request cleanup",
+          "lineStart": 14,
+          "lineEnd": 16,
+          "explanation": "Debouncing only delays when a request effect begins. Once a fetch has started, use AbortController or ignore stale results to prevent older responses replacing newer ones."
+        }
+      ]
+    },
+    {
+      "id": "api-debounce-check",
+      "type": "knowledgeCheck",
+      "options": [
+        {
+          "id": "a",
+          "text": "It aborts every network request that has already started.",
+          "correct": false,
+          "feedback": "A timeout is not a network request controller; an AbortSignal or stale-result guard handles in-flight requests."
+        },
+        {
+          "id": "b",
+          "text": "It prevents an obsolete pending timer from publishing an intermediate query.",
+          "correct": true,
+          "feedback": "Clearing the pending timeout prevents the delayed state update from running after a newer value arrives."
+        },
+        {
+          "id": "c",
+          "text": "It makes the server response arrive faster.",
+          "correct": false,
+          "feedback": "Debounce can reduce how many requests are made, but it adds waiting time before a request starts."
+        },
+        {
+          "id": "d",
+          "text": "It guarantees that the final query succeeds.",
+          "correct": false,
+          "feedback": "The request can still fail or be superseded; debounce is scheduling, not reliability or error handling."
+        }
+      ],
+      "explanation": "Timer cleanup cancels a scheduled callback. It cannot cancel work that has already started, and debounce trades a short intentional wait for fewer requests.",
+      "questionType": "single-choice",
+      "prompt": "A debounced search sends one request after the user pauses. What does the debounce timer cleanup guarantee by itself?"
+    },
+    {
+      "id": "api-debounce-practice",
+      "type": "codingExercise",
+      "title": "Add debounce and race-safe search to a results panel",
+      "language": "typescript",
+      "context": "A search page currently calls the API for every keystroke and sometimes displays an older response after a newer one.",
+      "instructions": [
+        "Implement a typed useDebouncedValue(value, delayMs) Hook and clear each pending timeout in effect cleanup.",
+        "Use the debounced value as the dependency for the search effect; keep the visible input value immediate.",
+        "Pass an AbortSignal to Fetch or ignore stale responses when a newer query starts.",
+        "Render loading, empty-success, error and results states separately.",
+        "Explain why reducing request count does not guarantee the newest response wins."
+      ],
+      "requirements": [
+        "The timer is restarted when either value or delay changes.",
+        "Effect cleanup prevents a pending obsolete timer from firing.",
+        "In-flight requests are cancelled or stale results are ignored independently of debounce.",
+        "The request effect handles HTTP failures and query changes.",
+        "UI distinguishes successful empty results from a failed request."
+      ],
+      "starterCode": "function useDebouncedValue<T>(value: T, delayMs: number): T {\n  // TODO: store the published value\n  // TODO: schedule an update in an effect\n  // TODO: clear the previous timeout in cleanup\n}\n\n// TODO: search when the debounced query changes.\n// TODO: abort or ignore an obsolete in-flight request.",
+      "hints": [
+        "A timer ID is enough to cancel a callback that has not run yet.",
+        "AbortController belongs to the request, not the debounce timer.",
+        "Also guard against stale results if the request implementation cannot be aborted."
+      ],
+      "successCriteria": [
+        "Rapid typing triggers one search after the quiet interval.",
+        "Changing the query resets the pending timer.",
+        "Unmounting clears the pending timeout.",
+        "A late response for an older query cannot replace newer results.",
+        "Loading, empty, error and non-empty states are distinguishable."
+      ]
+    },
+    {
+      "id": "deep-api-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Keep HTTP contracts in a service boundary and UI lifecycle in a Hook/component.",
+        "Use explicit mutually exclusive request states and distinguish empty success from error.",
+        "Validate external data at runtime and retry only when both the failure and operation make it safe."
       ]
     },
     {

@@ -1,16 +1,16 @@
 {
   "id": "js.functions-arrays-objects",
   "locale": "en",
-  "version": 1,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "moduleId": "month-2-week-6",
   "week": 6,
   "order": 0,
   "title": "Functions, Arrays and Objects",
   "description": "Learn to compose small functions and transform datasets predictably. Understand function declarations, expressions and arrows; choose map, filter, reduce, find, some or every by their result; and work with objects using destructuring and spread without accidental mutation.",
-  "estimatedMinutes": 85,
+  "estimatedMinutes": 110,
   "difficulty": "beginner",
   "prerequisites": [
     "js.basics-types-control-flow"
@@ -579,6 +579,83 @@
       ]
     },
     {
+      "id": "nested-destructuring-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Nested object and function-parameter destructuring"
+    },
+    {
+      "id": "nested-destructuring-intro",
+      "type": "paragraph",
+      "text": "Object patterns follow property names, including nested paths. `{ info: { contact: { email } } }` creates local bindings for the names listed in the pattern; it does not create bindings named `info` or `contact` unless you bind them separately. Functions can destructure an object in their parameter list and set defaults for individual properties. Array destructuring can also swap existing variables without a temporary variable. These patterns assume the object path exists: a missing or null nested object can still throw unless it is validated first."
+    },
+    {
+      "id": "nested-destructuring-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const user = {\n  id: 1,\n  info: {\n    name: \"John\",\n    contact: { email: \"john@example.com\", phone: \"555-1234\" },\n  },\n};\nconst { info: { name, contact: { email } } } = user;\nconsole.log(name, email); // \"John\", \"john@example.com\"\n\nconst person = { name: \"Sarah\", age: 28 };\nfunction displayUser({ name, age, city = \"Unknown\" }) {\n  return `${name}, ${age}, from ${city}`;\n}\nconsole.log(displayUser(person)); // \"Sarah, 28, from Unknown\"\n\nlet x = 1;\nlet y = 2;\n[x, y] = [y, x];\nconsole.log(x, y); // 2, 1",
+      "steps": [
+        {
+          "title": "Read a nested property path",
+          "lineStart": 1,
+          "lineEnd": 10,
+          "explanation": "The path is nested under `info.contact`, but the local bindings are `name` and `email`. The example input has the required shape."
+        },
+        {
+          "title": "Destructure function arguments",
+          "lineStart": 11,
+          "lineEnd": 16,
+          "explanation": "`displayUser` receives one object and extracts its properties in the parameter list. The `city` default applies when that property is absent or undefined, not when it is null."
+        },
+        {
+          "title": "Swap variables with an array pattern",
+          "lineStart": 17,
+          "lineEnd": 20,
+          "explanation": "The right-hand array is evaluated before assignment, so both old values are available for the swap without a temporary variable."
+        }
+      ]
+    },
+    {
+      "id": "nested-destructuring-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Given `function displayUser({ name, age, city = \"Unknown\" }) { ... }`, which call uses the expected parameter shape?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`displayUser({ name: \"Sarah\", age: 28 })`",
+          "correct": true,
+          "feedback": "The function receives one object whose properties are destructured; the missing city property uses its default."
+        },
+        {
+          "id": "b",
+          "text": "`displayUser(\"Sarah\", 28)`",
+          "correct": false,
+          "feedback": "The function expects one object argument, not separate positional name and age arguments."
+        },
+        {
+          "id": "c",
+          "text": "`displayUser({ fullName: \"Sarah\", years: 28 })`",
+          "correct": false,
+          "feedback": "The provided keys do not match the parameter names, so name and age would be undefined."
+        },
+        {
+          "id": "d",
+          "text": "`displayUser(null)`",
+          "correct": false,
+          "feedback": "Destructuring a parameter from null throws; property defaults do not make a null argument safe."
+        }
+      ],
+      "explanation": "Parameter destructuring defines the expected object shape at the function boundary. Defaults fill missing/undefined properties, but do not validate the root object or remap different property names automatically."
+    },
+    {
+      "id": "nested-destructuring-caveat",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Nested patterns still need a valid shape",
+      "text": "Destructuring is not optional chaining. If `user.info` or `contact` is null/undefined, the nested pattern throws. Validate the path first or use optional chaining where appropriate; a property default handles undefined, not null."
+    },
+    {
       "id": "spread-shallow",
       "type": "heading",
       "level": 3,
@@ -763,6 +840,351 @@
         "sumPaidTotals returns 200 for the supplied dataset and 0 when no orders are paid.",
         "hasLargePaidOrder returns true for the supplied dataset.",
         "allPricesValid returns true for the supplied dataset and false if a total is negative or not finite."
+      ]
+    },
+    {
+      "id": "deep-functions-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Deep dive: closures, object identity, and immutable updates"
+    },
+    {
+      "id": "deep-functions-model",
+      "type": "paragraph",
+      "text": "A closure retains access to the lexical environment where a function was created, even after the outer call returns. Each factory call can create a different private binding. Separately, assigning an object to another variable copies its reference, not a recursively independent value. Spread creates a shallow copy; nested references can remain shared. These facts explain state leaks and mutation bugs in frontend code."
+    },
+    {
+      "id": "deep-functions-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function makeCounter() {\n  let count = 0;\n  return () => ++count;\n}\n\nconst first = makeCounter();\nconst second = makeCounter();\nconsole.log(first());  // 1\nconsole.log(first());  // 2\nconsole.log(second()); // 1\n\nconst source = { profile: { city: 'Baku' } };\nconst copy = { ...source };\ncopy.profile.city = 'Ganja';\nconsole.log(source.profile.city); // Ganja",
+      "steps": [
+        {
+          "title": "The returned function closes over a binding",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "The inner function keeps access to the count binding from this call to makeCounter. That binding remains reachable while the returned function can use it."
+        },
+        {
+          "title": "Separate factory calls mean separate counters",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "explanation": "first and second close over bindings created by different calls. Reusing the same function factory does not mean its internal state is shared."
+        },
+        {
+          "title": "Spread only copies the outer object",
+          "lineStart": 12,
+          "lineEnd": 15,
+          "explanation": "copy and source are different outer objects, but both profile properties point to the same nested object. Mutating its city is visible through both references."
+        }
+      ]
+    },
+    {
+      "id": "deep-functions-warning",
+      "type": "callout",
+      "tone": "warning",
+      "title": "For nested state, copy every changed level",
+      "text": "If you update `{ profile: { city } }`, copying only the outer object is insufficient. Create a new profile object too. In React, mutating an existing state object and passing the same reference back makes change detection and debugging unreliable."
+    },
+    {
+      "id": "deep-functions-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Why does changing `copy.profile.city` also change what `source.profile.city` reads?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Spread recursively clones nested objects",
+          "correct": false,
+          "feedback": "Object spread copies own enumerable properties one level deep; nested object references are preserved."
+        },
+        {
+          "id": "b",
+          "text": "Both outer objects still reference the same nested profile object",
+          "correct": true,
+          "feedback": "The top-level objects are different, but their profile properties point at the same object, so the mutation is visible through both."
+        },
+        {
+          "id": "c",
+          "text": "A closure merges all objects created in one file",
+          "correct": false,
+          "feedback": "Closures preserve access to lexical bindings; they do not merge objects."
+        },
+        {
+          "id": "d",
+          "text": "JavaScript objects cannot be mutated",
+          "correct": false,
+          "feedback": "Ordinary JavaScript objects are mutable unless you impose a separate restriction."
+        }
+      ],
+      "explanation": "Object identity and shallow copying matter when you update arrays and nested data."
+    },
+    {
+      "id": "deep-functions-practice",
+      "type": "codingExercise",
+      "title": "Implement independent counters and an immutable nested update",
+      "language": "javascript",
+      "context": "Practice closure reasoning and safe updates to nested objects, both common in interviews and React state code.",
+      "instructions": [
+        "Implement `makeCounter(initialValue)` to return a function that increments and returns private state.",
+        "Create two counters and demonstrate that they do not share their count.",
+        "Implement `updateCity(user, city)` without mutating the supplied user.",
+        "Copy every object along the path to `user.profile.city` and show that the original remains unchanged."
+      ],
+      "requirements": [
+        "Counter state is kept in a closure, not exposed as a writable external variable.",
+        "Two counter instances keep independent values.",
+        "updateCity returns new outer-user and profile references.",
+        "The original argument still has its original city."
+      ],
+      "starterCode": "function makeCounter(initialValue = 0) {\n  // TODO: return a function that increments private state.\n}\n\nfunction updateCity(user, city) {\n  // TODO: immutably update user.profile.city.\n}\n\nconst user = { name: 'Ada', profile: { city: 'Baku' } };",
+      "hints": [
+        "A closure is formed when the returned function uses a variable from its outer call.",
+        "Call makeCounter twice to test independence rather than only calling one counter repeatedly.",
+        "For a nested update, copy every object along the path to the changed value."
+      ],
+      "successCriteria": [
+        "Counter calls return an incrementing sequence.",
+        "Separate counters do not affect one another.",
+        "Updated user and profile have new references.",
+        "The original nested city stays unchanged."
+      ]
+    },
+    {
+      "id": "deep-functions-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "A closure keeps access to lexical bindings from the function's creation environment.",
+        "Each stateful factory call can create independent private state.",
+        "Spread is shallow; copy nested objects explicitly when changing nested data."
+      ]
+    },
+    {
+      "id": "array-destructure-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "5.2. Array destructuring and rest"
+    },
+    {
+      "id": "array-destructure-explainer",
+      "type": "paragraph",
+      "text": "An array pattern reads values in order from an iterable; a comma skips a position, a default applies only when the value is undefined, and a rest binding creates a new array from the remaining values and must come last. This is not name-based lookup as in an object pattern."
+    },
+    {
+      "id": "array-destructure-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const values = [10, 20, undefined, 40, 50];\nconst [first, , third = 99, ...remaining] = values;\n\nconsole.log(first);\nconsole.log(third);\nconsole.log(remaining);",
+      "steps": [
+        {
+          "title": "Match positions",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "first receives position 0; the empty slot skips position 1. third reads position 2."
+        },
+        {
+          "title": "Apply the default and rest",
+          "lineStart": 2,
+          "lineEnd": 2,
+          "explanation": "Position 2 is undefined, so third becomes 99. rest collects the remaining [40, 50]. If the value were null, the default would not run."
+        },
+        {
+          "title": "Check the values",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "explanation": "The output is 10, then 99, then [40, 50]. A missing position in a shorter iterable becomes undefined."
+        }
+      ]
+    },
+    {
+      "id": "array-default-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What is assigned to first by `const [first = \"fallback\"] = [null]`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "\"fallback\", because null means the value is missing.",
+          "correct": false,
+          "feedback": "null is an explicit value; a destructuring default runs only for undefined."
+        },
+        {
+          "id": "b",
+          "text": "null.",
+          "correct": true,
+          "feedback": "Correct. To replace null too, apply nullish coalescing after extraction."
+        },
+        {
+          "id": "c",
+          "text": "undefined.",
+          "correct": false,
+          "feedback": "The array contains null at this position, so null is assigned to first."
+        },
+        {
+          "id": "d",
+          "text": "A TypeError because arrays cannot be destructured.",
+          "correct": false,
+          "feedback": "An array is iterable and can be used with array destructuring."
+        }
+      ],
+      "explanation": "A destructuring default triggers only for undefined; null, 0, false, and an empty string are preserved."
+    },
+    {
+      "id": "rest-parameters-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Rest gathers arguments; spread passes elements"
+    },
+    {
+      "id": "rest-parameters-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function total(label, ...amounts) {\n  const sum = amounts.reduce((total, amount) => total + amount, 0);\n  return label + \": \" + sum;\n}\n\nconst values = [4, 6];\nconsole.log(total(\"points\", ...values));",
+      "steps": [
+        {
+          "title": "Gather the remaining arguments",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "The rest parameter gathers every argument after label into the amounts array; it must be the final parameter."
+        },
+        {
+          "title": "Expand an iterable at the call site",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "Spread passes 4 and 6 separately. The function receives them just like total(\"points\", 4, 6) and prints points: 10."
+        }
+      ]
+    },
+    {
+      "id": "rest-spread-callout",
+      "type": "callout",
+      "tone": "tip",
+      "title": "Same `...`, opposite direction",
+      "text": "In parameters or destructuring, rest gathers values; in a function call or literal, spread expands an iterable/properties. Spread copies an array/object shallowly: nested references remain shared."
+    },
+    {
+      "id": "nullish-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Optional chaining and nullish coalescing"
+    },
+    {
+      "id": "nullish-trace",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "const user = { score: 0, profile: { nickname: \"\" } };\nconst nickname = user?.profile?.nickname ?? \"Anonymous\";\nconst score = user?.score ?? 10;\nconst legacyScore = user?.score || 10;\n\nconsole.log(nickname, score, legacyScore);",
+      "steps": [
+        {
+          "title": "Guard a chain against nullish values",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "?. stops access when the previous part is null/undefined. The chain returns the empty nickname because user and profile exist."
+        },
+        {
+          "title": "Choose a fallback rule intentionally",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "explanation": "?? replaces only null/undefined, so score remains 0. || replaces any falsy value, so legacyScore becomes 10."
+        },
+        {
+          "title": "Compare the result",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "explanation": "The output is an empty string, 0, and 10. Do not use || as a universal default when 0, false, or an empty string is valid."
+        }
+      ]
+    },
+    {
+      "id": "nullish-limits",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Optional chaining does not fix every data error",
+      "text": "If a variable was never declared, `unknownUser?.name` still throws ReferenceError. And `response?.user.name` guards response but not a null user; add ?. at each potentially nullish link deliberately and validate external data."
+    },
+    {
+      "id": "nullish-quiz",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does `const count = 0; count ?? 5` return, and how does it differ from `count || 5`?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Both expressions return 5.",
+          "correct": false,
+          "feedback": "|| treats 0 as falsy, but ?? replaces only null and undefined."
+        },
+        {
+          "id": "b",
+          "text": "?? returns 0, while || returns 5.",
+          "correct": true,
+          "feedback": "Correct. The right choice depends on whether 0 is a real value or means absent."
+        },
+        {
+          "id": "c",
+          "text": "?? returns undefined, while || returns 0.",
+          "correct": false,
+          "feedback": "The operators behave the other way around: ?? preserves 0."
+        },
+        {
+          "id": "d",
+          "text": "Both expressions are syntax errors.",
+          "correct": false,
+          "feedback": "Both operators are valid JavaScript; mixing ?? directly with &&/|| requires parentheses."
+        }
+      ],
+      "explanation": "Nullish coalescing is for null/undefined, while logical OR uses the full falsy set. They cannot be mixed directly with &&/|| without explicit parentheses."
+    },
+    {
+      "id": "modern-syntax-practice",
+      "type": "codingExercise",
+      "title": "Normalize an incomplete API response",
+      "language": "javascript",
+      "context": "A profile card receives a partial API response. Fields may be absent or null, but score=0 and an empty string must remain valid user values.",
+      "instructions": [
+        "Implement summarizeProfile(response), safely handling null/undefined response and missing/null profile.",
+        "Use object destructuring for fields and array destructuring with default/rest for tags.",
+        "Use ?? and optional chaining for theme/name/score so that score=0 is preserved.",
+        "Return { displayName, score, primaryTag, otherTags, theme } without mutating the source response.",
+        "Check an empty response, null profile, score 0, empty name and multiple tags; explain defaults vs ??.",
+        "Extract a nested contact field only after guarding the nullable object path, and add a helper with destructured object parameters and a property default.",
+        "Show a separate array-destructuring swap and explain why defaults replace undefined but not null."
+      ],
+      "requirements": [
+        "No error for null/undefined response or profile.",
+        "Missing name becomes Guest, but an empty string is preserved.",
+        "Score 0 is preserved; missing/null score becomes 0.",
+        "No tags produces primaryTag general and empty otherTags.",
+        "Array rest preserves later tags in source order.",
+        "Function does not mutate input and explains destructuring defaults vs ??.",
+        "Nested destructuring is applied only after the path is known to exist; no unsafe access is hidden in the helper.",
+        "The helper uses object parameter destructuring; property defaults and nullish checks are explained distinctly."
+      ],
+      "starterCode": "function summarizeProfile(response) {\n  const { profile: rawProfile } = response ?? {};\n  const profile = rawProfile ?? {};\n  const { displayName, score, tags, preferences } = profile;\n  const [primaryTag = \"general\", ...otherTags] = tags ?? [];\n\n  return {\n    displayName: displayName ?? \"Guest\",\n    score: score ?? 0,\n    primaryTag,\n    otherTags,\n    theme: preferences?.theme ?? \"system\",\n  };\n}\n\nconsole.log(summarizeProfile({ profile: { displayName: \"\", score: 0, tags: [\"ui\", \"react\"] } }));",
+      "hints": [
+        "Fallback a nullable root object before destructuring; a binding-pattern default handles undefined, not null.",
+        "Use ?? when 0 or an empty string is valid; use || only if every falsy value means missing.",
+        "Array rest belongs last and returns a new array of the remaining values.",
+        "Optional-chain each nested field that may independently be nullish."
+      ],
+      "successCriteria": [
+        "Null/missing input returns Guest, score 0, general tag, no remaining tags, and system theme.",
+        "Explicit empty displayName and numeric score 0 are preserved.",
+        "Two or more tags yield a first primaryTag and ordered otherTags.",
+        "No nested access throws for the stated nullable shapes.",
+        "Input objects and arrays are unchanged.",
+        "Nested contact access and parameter-default behavior are tested for present and absent/nullable paths."
+      ]
+    },
+    {
+      "id": "modern-syntax-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Array destructuring consumes an iterable by position; holes skip, defaults replace only undefined, and rest collects the remainder.",
+        "Rest gathers values at a binding/parameter site; spread expands them at a call or literal site.",
+        "Optional chaining short-circuits null/undefined access; nullish coalescing preserves valid falsy values such as 0 and ''.",
+        "Treat external data as untrusted and choose fallback semantics deliberately."
       ]
     },
     {

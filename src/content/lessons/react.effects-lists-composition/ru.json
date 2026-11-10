@@ -1,16 +1,16 @@
 {
   "id": "react.effects-lists-composition",
   "locale": "ru",
-  "version": 1,
+  "version": 4,
   "status": "review",
   "translationStatus": "translated",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-26",
   "moduleId": "month-3-week-12",
   "week": 12,
   "order": 1,
   "title": "Эффекты React, композиция компонентов и списки",
   "description": "Разберись, когда нужен useEffect, как зависимости управляют синхронизацией, зачем спискам нужны key и как создать список постов с API, состояниями загрузки и ошибки.",
-  "estimatedMinutes": 70,
+  "estimatedMinutes": 110,
   "difficulty": "beginner",
   "prerequisites": [
     "react.components-jsx-state",
@@ -22,7 +22,8 @@
     "Объяснять массив зависимостей и почему пропущенные зависимости могут привести к устаревшим значениям.",
     "Компоновать родительские и дочерние компоненты вместо размещения всего UI в одном компоненте.",
     "Отображать массивы со стабильными key, идентифицирующими элементы при вставке, удалении и сортировке.",
-    "Создавать список постов на основе API с явными состояниями loading, success, empty и error."
+    "Создавать список постов на основе API с явными состояниями loading, success, empty и error.",
+    "Вычислять отфильтрованные и отсортированные списки без мутации исходных данных."
   ],
   "tags": [
     "react",
@@ -335,6 +336,391 @@
         "Компоненты стоит компоновать вокруг понятных задач и передавать только нужные props.",
         "Стабильные keys идентифицируют элементы списка; это не обычные props.",
         "Для данных API явно представляй состояния загрузки, успеха, пустого результата и ошибки."
+      ]
+    },
+    {
+      "id": "deep-effects-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Глубокое погружение: жизненный цикл Effect, гонки запросов и стабильная идентичность списков"
+    },
+    {
+      "id": "deep-effects-model",
+      "type": "paragraph",
+      "text": "Effect синхронизирует зафиксированный render с внешней системой; он не является стандартным местом для вычисления значений, которые можно получить прямо во время render. При изменении зависимостей React сначала очищает предыдущий Effect, затем запускает новый setup; при размонтировании также выполняется cleanup. Все реактивные значения, которые читает Effect, должны учитываться в его зависимостях. Для запросов отмена и защита от устаревшего результата не позволяют медленному ответу для старого prop перезаписать актуальный экран."
+    },
+    {
+      "id": "deep-effects-trace",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "useEffect(() => {\n  const controller = new AbortController();\n  let ignore = false;\n\n  async function loadUser() {\n    setStatus('loading');\n    try {\n      const response = await fetch(`/api/users/${userId}`, { signal: controller.signal });\n      if (!response.ok) throw new Error(`HTTP ${response.status}`);\n      const data = await response.json();\n      if (!ignore) { setUser(data); setStatus('success'); }\n    } catch (error) {\n      const aborted = error instanceof Error && error.name === 'AbortError';\n      if (!ignore && !aborted) setStatus('error');\n    }\n  }\n\n  void loadUser();\n  return () => { ignore = true; controller.abort(); };\n}, [userId]);",
+      "steps": [
+        {
+          "title": "Создай контроллер для конкретного экземпляра Effect",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "При изменении userId React очищает старый Effect и запускает новый setup. Новый controller представляет жизненный цикл нового запроса."
+        },
+        {
+          "title": "Проверь HTTP-статус и разбери ответ",
+          "lineStart": 5,
+          "lineEnd": 11,
+          "explanation": "Fetch не отклоняется только из-за статуса 404/500, поэтому требуется response.ok. Тело разбирается асинхронно, а состояние обновляется только если запрос всё ещё актуален."
+        },
+        {
+          "title": "Игнорируй отмену, не скрывая реальные ошибки",
+          "lineStart": 12,
+          "lineEnd": 15,
+          "explanation": "Отмена ожидаема при cleanup и не должна показываться пользователю как обычная ошибка. Остальные ошибки переводят актуальный Effect в error."
+        },
+        {
+          "title": "Очисти запрос при смене входа или размонтировании",
+          "lineStart": 18,
+          "lineEnd": 20,
+          "explanation": "Abort просит Fetch остановиться, а ignore не позволяет устаревшему продолжению изменить состояние. userId в зависимостях явно указывает реактивный вход для нового запроса."
+        }
+      ]
+    },
+    {
+      "id": "deep-effects-debugging",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Недостающие зависимости могут оставить Effect с устаревшим замыканием; добавление зависимостей иногда показывает, что нужно переделать логику синхронизации, а не подавлять lint.",
+        "Пустой массив зависимостей означает, что Effect не повторяется при дальнейшей смене props; это не гарантия, что колбэк во всех средах разработки выполняется буквально один раз.",
+        "Производные данные вроде `visibleItems = items.filter(...)` обычно вычисляются во время render, а не хранятся в состоянии, синхронизируемом Effect.",
+        "Ключи списка определяют идентичность элемента при вставке, удалении и перестановке. Индексы рискованны, когда элементы могут перемещаться или удаляться: состояние компонента может прикрепиться не к тому элементу."
+      ]
+    },
+    {
+      "id": "deep-effects-callout",
+      "type": "callout",
+      "tone": "important",
+      "title": "Cleanup не означает, что каждый Effect плох",
+      "text": "Effect полезен для синхронизации подписок, таймеров, браузерных API и сетевых запросов. Не используй его для зеркалирования props в state или вычисления значения, доступного из текущих props/state. При повторном setup в development пара setup/cleanup должна оставаться корректной и обратимой."
+    },
+    {
+      "id": "deep-effects-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Пользователь быстро переходит с `/users/1` на `/users/2`. Как не дать позднему ответу для user 1 заменить данные user 2 на экране?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Выполнять fetch во время render, чтобы последний render всегда побеждал",
+          "correct": false,
+          "feedback": "Fetch во время render повторяет работу при рендеринге и не обеспечивает надёжный контроль гонки запросов."
+        },
+        {
+          "id": "b",
+          "text": "В cleanup Effect отменить или игнорировать старый запрос и менять state только для актуального запроса",
+          "correct": true,
+          "feedback": "Отмена сокращает лишнюю работу, а проверка актуальности защищает состояние от позднего продолжения."
+        },
+        {
+          "id": "c",
+          "text": "Убрать userId из списка зависимостей",
+          "correct": false,
+          "feedback": "Так Effect может остаться синхронизированным со старым user ID вместо текущего маршрута."
+        },
+        {
+          "id": "d",
+          "text": "Использовать индекс массива как key страницы пользователя",
+          "correct": false,
+          "feedback": "Ключи определяют идентичность элементов списка и не управляют порядком ответов сети."
+        }
+      ],
+      "explanation": "Жизненный цикл запроса и идентичность элементов — разные задачи; для асинхронной работы используй cleanup и контроль актуальности."
+    },
+    {
+      "id": "deep-effects-practice",
+      "type": "codingExercise",
+      "title": "Исправь гонку в Effect и нестабильный список",
+      "language": "tsx",
+      "context": "Выполни задание в React-проекте. Песочница урока не компилирует TSX, поэтому проверь реализацию в приложении по критериям.",
+      "instructions": [
+        "Реализуй загрузку пользователя, которая повторяется при изменении userId.",
+        "Проверь response.ok и раздели состояния loading, success и error.",
+        "Отмени или игнорируй старый запрос при cleanup; не показывай AbortError как обычную ошибку.",
+        "Замени key-индексы на стабильные ID в списке, который можно сортировать, фильтровать или удалять.",
+        "Перенеси чисто производные отображаемые данные из Effect-состояния."
+      ],
+      "requirements": [
+        "Все реактивные зависимости, используемые Effect, объявлены.",
+        "При cleanup предыдущая работа отменяется или игнорируется.",
+        "HTTP-ошибки и отмена запроса обрабатываются по-разному.",
+        "Ключи используют стабильные ID из данных, если они доступны.",
+        "Производные значения вычисляются из текущих props/state, а не дублируются в state без причины."
+      ],
+      "starterCode": "useEffect(() => {\n  // TODO: запроси текущий userId и защити состояние от старого ответа.\n  // TODO: верни cleanup при смене userId или размонтировании компонента.\n}, [userId]);\n\nconst visibleItems = items.filter(item => item.active);\nreturn visibleItems.map((item, index) => (\n  <Row key={index} item={item} />\n));",
+      "hints": [
+        "Изучи каждую переменную внутри Effect и реши, является ли она реактивной.",
+        "Используй AbortController для Fetch и ignore/freshness-проверку для обновлений state.",
+        "Для key используй стабильный id элемента: индекс не обозначает идентичность после сортировки."
+      ],
+      "successCriteria": [
+        "Изменение userId запускает синхронизацию с новым пользователем.",
+        "Старый результат не может перезаписать UI актуального пользователя.",
+        "Состояния loading/success/error различаются с отменой.",
+        "После перестановки/удаления элементы сохраняют правильную идентичность компонента.",
+        "Производные данные не дублируются в state без необходимости."
+      ]
+    },
+    {
+      "id": "effect-external-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Effects синхронизируют React с внешними системами"
+    },
+    {
+      "id": "effect-external-body",
+      "type": "paragraph",
+      "text": "Используйте Effect, когда компонент должен синхронизироваться с системой, которой не управляет React: browser subscription, timer, imperative widget или внешнее соединение. Настройка выполняется в effect; cleanup отменяет её при изменении зависимостей или размонтировании компонента. Не используйте Effect только для вычисления одного состояния из другого — вычисляйте derived values во время render. Держите imperative-библиотеки внутри выделенного ref-контейнера, чтобы React не конкурировал с ними за управление одними и теми же дочерними узлами."
+    },
+    {
+      "id": "effect-widget-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useEffect, useRef } from 'react';\n\nfunction ChartPanel({ createChart }: { createChart: (host: HTMLDivElement) => { destroy: () => void } }) {\n  const hostRef = useRef<HTMLDivElement>(null);\n\n  useEffect(() => {\n    const host = hostRef.current;\n    if (!host) return;\n\n    const chart = createChart(host);\n    return () => chart.destroy();\n  }, [createChart]);\n\n  return <div ref={hostRef} role=\"region\" aria-label=\"Встроенный график\" />;\n}",
+      "steps": [
+        {
+          "title": "Выделите внешней системе собственный контейнер",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "explanation": "Ref указывает на DOM-узел, который служит контейнером widget. Chart-библиотека может управлять его потомками; React не должен одновременно рендерить там конкурирующие элементы."
+        },
+        {
+          "title": "Создайте widget после commit и проверьте наличие узла",
+          "lineStart": 7,
+          "lineEnd": 10,
+          "explanation": "Effects запускаются после commit DOM от React. Ref может быть null в типовом/runtime edge case, поэтому до создания внешнего ресурса выйдите из функции."
+        },
+        {
+          "title": "Сопоставьте настройку с очисткой и укажите reactive dependencies",
+          "lineStart": 12,
+          "lineEnd": 14,
+          "explanation": "Если createChart меняется, React очистит прежний chart до создания нового. У factory должна быть стабильная identity, если пересоздание не нужно; в подходящем владельце используйте функцию уровня модуля или memoization."
+        }
+      ]
+    },
+    {
+      "id": "effect-storage-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useEffect } from 'react';\n\nconst THEME_KEY = 'guide-theme';\n\nfunction useThemeFromOtherTabs(setTheme: (value: 'light' | 'dark') => void) {\n  useEffect(() => {\n    function handleStorage(event: StorageEvent) {\n      if (event.key !== THEME_KEY) return;\n      if (event.newValue === 'light' || event.newValue === 'dark') {\n        setTheme(event.newValue);\n      }\n    }\n\n    window.addEventListener('storage', handleStorage);\n    return () => window.removeEventListener('storage', handleStorage);\n  }, [setTheme]);\n}",
+      "steps": [
+        {
+          "title": "Подпишитесь на событие браузера",
+          "lineStart": 3,
+          "lineEnd": 7,
+          "explanation": "storage сообщает об изменении ключа из другого документа, использующего то же хранилище. Проверьте строковое значение перед передачей в узкий union темы."
+        },
+        {
+          "title": "Добавьте listener для стабильного callback и удалите ту же функцию",
+          "lineStart": 9,
+          "lineEnd": 11,
+          "explanation": "Cleanup должен получить ту же ссылку listener, что использовалась в addEventListener. При изменении identity setTheme React удалит старую подписку и добавит новую."
+        },
+        {
+          "title": "Учитывайте границы события",
+          "lineStart": 11,
+          "lineEnd": 13,
+          "explanation": "storage не срабатывает в том же документе, который выполнил запись. Вкладка-источник обновляет собственный React state напрямую; событие нужно для уведомления других документов, а не вместо владения состоянием."
+        }
+      ]
+    },
+    {
+      "id": "effect-cleanup-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Chart подключается к внешней библиотеке в useEffect. Почему отсутствие cleanup может казаться нормальным, но проявить ошибку при development-проверках React Strict Mode?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Strict Mode может выполнить дополнительный цикл setup/cleanup, выявляя эффекты, которые не отменяют подписки или ресурсы",
+          "correct": true,
+          "feedback": "Корректный cleanup делает настройку безопасной при повторе и предотвращает двойные listener/widget при изменении зависимостей или размонтировании."
+        },
+        {
+          "id": "b",
+          "text": "Strict Mode навсегда удаляет все DOM refs до запуска приложения",
+          "correct": false,
+          "feedback": "Цель не в постоянном удалении refs; development-проверки помогают обнаружить ошибки жизненного цикла."
+        },
+        {
+          "id": "c",
+          "text": "Cleanup нужен только для сетевых запросов, но никогда для widget или listener",
+          "correct": false,
+          "feedback": "Подписки, таймеры, widget и соединения также владеют ресурсами, которые иногда нужно освобождать."
+        },
+        {
+          "id": "d",
+          "text": "Effects выполняются при серверном рендеринге и должны удалять серверный DOM",
+          "correct": false,
+          "feedback": "Effects не выполняются во время server rendering; cleanup отменяет клиентскую синхронизацию."
+        }
+      ],
+      "explanation": "Рассматривайте effect как пару setup/cleanup: это помогает переживать изменения зависимостей, unmount и development lifecycle checks."
+    },
+    {
+      "id": "effect-external-practice",
+      "type": "codingExercise",
+      "title": "Подключите внешний widget без утечки в lifecycle",
+      "language": "tsx",
+      "context": "React-экран встраивает imperative chart/map-библиотеку и реагирует на обновление пользовательской настройки в другой вкладке.",
+      "instructions": [
+        "Создайте выделенный ref-контейнер и запускайте внешний widget после commit этого узла.",
+        "Верните cleanup, который уничтожает именно созданный экземпляр; проверьте, что изменение зависимостей заменяет его без дублей.",
+        "Подпишитесь на storage стабильным обработчиком, проверьте ключ/значение и удалите именно эту функцию при cleanup.",
+        "При записи в storage обновляйте React state текущей вкладки напрямую; storage используйте для других документов.",
+        "Проверьте mount/unmount и Strict Mode development поведение с spies, включая повторные setup и teardown."
+      ],
+      "requirements": [
+        "React и imperative-библиотека не управляют одновременно одними потомками widget.",
+        "Каждый ресурс/подписка имеет соответствующий cleanup.",
+        "Effect содержит reactive dependencies; нестабильные factory стабилизируются намеренно, а не скрываются отключением lint.",
+        "Значения storage проверяются до попадания в типизированное состояние приложения.",
+        "Тесты подтверждают cleanup и отсутствие дублирующего ресурса после повторного lifecycle."
+      ],
+      "starterCode": "function MapPanel({ createMap, theme }) {\n  const hostRef = useRef(null);\n\n  useEffect(() => {\n    // TODO: создайте map в готовом host-узле.\n    // TODO: при необходимости синхронизируйте внешний widget с theme.\n    // TODO: в cleanup уничтожьте подписки/widget.\n  }, [createMap, theme]);\n\n  return <div ref={hostRef} />;\n}",
+      "hints": [
+        "Effects синхронизируют с внешними системами; derived JSX обычно не требует Effect.",
+        "Cleanup выполняется до повторной настройки при изменении зависимости и при размонтировании.",
+        "Development-проверки React Strict Mode помогают выявить неидемпотентную настройку; не отключайте cleanup, чтобы скрыть дубли.",
+        "storage доставляется другим same-origin документам, но не документу, который записал ключ."
+      ],
+      "successCriteria": [
+        "Widget создаётся только после появления host и очищается для каждого setup.",
+        "Изменение зависимостей не оставляет утечек и дублей.",
+        "Storage listener удаляется с той же ссылкой функции.",
+        "Обновление между вкладками отличено от обновления state текущей вкладки.",
+        "Проверка включает повторную последовательность mount/cleanup."
+      ]
+    },
+    {
+      "id": "list-pipeline-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Вычисляй представление списка: filter → sort → map"
+    },
+    {
+      "id": "list-pipeline-model",
+      "type": "paragraph",
+      "text": "Фильтр, сортировка и JSX-элементы списка обычно являются производным представлением исходных данных, а не отдельным состоянием. Вычисляйте их из props/state во время render, чтобы избежать рассинхронизации. `filter()` создаёт новый массив, поэтому сортировка его результата не мутирует входные данные; вызов `products.sort()` напрямую мутировал бы массив props/state. Пустая строка поиска обычно совпадает со всеми названиями. Если вычисление заметно дорого, сначала измерьте его, а затем рассмотрите `useMemo`; мемоизация не заменяет корректность."
+    },
+    {
+      "id": "list-pipeline-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "interface Product {\n  id: string;\n  name: string;\n  category: string;\n  price: number;\n}\n\nfunction ProductList({\n  products,\n  query,\n  category,\n  sortBy,\n}: {\n  products: Product[];\n  query: string;\n  category: string;\n  sortBy: 'name' | 'price';\n}) {\n  const normalizedQuery = query.trim().toLocaleLowerCase();\n\n  const visibleProducts = products\n    .filter((product) => {\n      const matchesQuery = product.name.toLocaleLowerCase().includes(normalizedQuery);\n      const matchesCategory = category === 'all' || product.category === category;\n      return matchesQuery && matchesCategory;\n    })\n    .sort((a, b) =>\n      sortBy === 'price' ? a.price - b.price : a.name.localeCompare(b.name),\n    );\n\n  return (\n    <ul>\n      {visibleProducts.map((product) => (\n        <li key={product.id}>{product.name} — {product.price}</li>\n      ))}\n    </ul>\n  );\n}",
+      "steps": [
+        {
+          "title": "Определите входные данные",
+          "lineStart": 1,
+          "lineEnd": 18,
+          "explanation": "Список получает записи и критерии отображения через props. Для сортировки используются только явно выбранные варианты, поэтому поведение предсказуемо."
+        },
+        {
+          "title": "Нормализуйте запрос поиска",
+          "lineStart": 19,
+          "lineEnd": 19,
+          "explanation": "Обрезаем пробелы по краям и приводим строку к одному регистру. Пустой запрос — это пустая подстрока, которая совпадает с любым именем."
+        },
+        {
+          "title": "Отфильтруйте без изменения оригинала",
+          "lineStart": 21,
+          "lineEnd": 26,
+          "explanation": "filter создаёт новый массив. Обе проверки независимы, а `&&` оставляет только записи, соответствующие поиску и выбранной категории."
+        },
+        {
+          "title": "Сортируйте копию и используйте стабильный ключ",
+          "lineStart": 27,
+          "lineEnd": 29,
+          "explanation": "sort изменяет массив, на котором вызывается, но здесь это массив-результат filter, а не исходные props. `product.id` сохраняет идентичность строки при сортировке."
+        },
+        {
+          "title": "Проверьте граничные случаи",
+          "lineStart": 31,
+          "lineEnd": 38,
+          "explanation": "При пустом запросе видны все категории, а при пустом совпадении список остаётся валидным пустым списком. Для больших списков измерьте стоимость render прежде, чем вводить useMemo."
+        }
+      ]
+    },
+    {
+      "id": "list-pipeline-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "Почему `products.filter(...).sort(...)` не изменяет исходный массив products?",
+      "options": [
+        {
+          "id": "a",
+          "text": "sort никогда не изменяет массив.",
+          "feedback": "Array.prototype.sort изменяет массив, на котором вызван, и возвращает ту же ссылку.",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "filter создаёт новый массив, поэтому последующий sort меняет этот результат.",
+          "feedback": "filter возвращает новый массив, так что изменяющая сортировка применяется к копии, а не к исходным props.",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "React автоматически замораживает все массивы props.",
+          "feedback": "Не полагайтесь на заморозку React. Мутация props/state остаётся ошибкой даже если иногда её сложно заметить.",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "sort в цепочке методов превращается в чистую функцию.",
+          "feedback": "Синтаксис цепочки не меняет семантику метода: sort всё равно мутирует массив-ресивер.",
+          "correct": false
+        }
+      ],
+      "explanation": "Array.prototype.sort изменяет получателя. filter возвращает новый массив, поэтому сортируется копия; прямой products.sort() изменил бы входные данные."
+    },
+    {
+      "id": "list-pipeline-practice",
+      "type": "codingExercise",
+      "title": "Создай вычисляемый список каталога без мутации",
+      "language": "tsx",
+      "context": "Нужно отобразить товары по поисковой строке, категории и сортировке. Исходный массив может повторно использовать родительский экран.",
+      "instructions": [
+        "Реализуй вычисляемое представление из props, не сохраняя отфильтрованный список в отдельном state.",
+        "Сделай поиск без учёта регистра и обрежь пробелы по краям; пустой запрос должен показывать все названия.",
+        "Совмести фильтрацию по строке и категории, затем отсортируй копию по имени или цене.",
+        "Рендери элементы с ключом из стабильного ID, а не с индексом позиции.",
+        "Объясни, почему прямой products.sort() мутирует props и когда имеет смысл измерить необходимость useMemo."
+      ],
+      "requirements": [
+        "Исходный массив и объекты не мутируются.",
+        "Пустой и пробельный запрос обрабатываются как отсутствие фильтра по имени.",
+        "Совпадения по имени и категории соединены логическим И.",
+        "Сортировка детерминирована и не меняет порядок исходного массива.",
+        "Используются стабильные ID и отдельный сценарий пустого списка."
+      ],
+      "starterCode": "type Product = { id: string; name: string; category: string; price: number };\n\nfunction selectProducts(\n  products: Product[], query: string, category: string, sortBy: 'name' | 'price'\n): Product[] {\n  // TODO: normalize query\n  // TODO: filter into a new array\n  // TODO: sort the copy without mutating products\n}",
+      "hints": [
+        "Пустая строка включена в любую строку через includes('').",
+        "filter возвращает новый массив; не заменяй его исходным products перед sort.",
+        "Не добавляй отдельное состояние для отображаемого списка, если оно полностью выводится из входных данных."
+      ],
+      "successCriteria": [
+        "Результат пересчитывается при изменении любого входа.",
+        "Исходный массив сохраняет порядок и не мутируется.",
+        "Поиск, категория и сортировка работают в указанном порядке.",
+        "Каждый элемент UI использует стабильный ID.",
+        "Пустое совпадение показывает осмысленное пустое состояние."
+      ]
+    },
+    {
+      "id": "deep-effects-summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Effect синхронизируется с внешними системами; производные данные обычно вычисляются при render.",
+        "Cleanup нужен, когда прежнюю синхронизацию нужно остановить или отменить.",
+        "Защищай асинхронное состояние от устаревших ответов и используй стабильные ключи для идентичности элементов."
       ]
     },
     {

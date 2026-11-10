@@ -29,7 +29,7 @@ describe('local storage helper', () => {
       if (event instanceof CustomEvent) events.push(event.detail as StorageErrorDetail);
     };
     window.addEventListener(STORAGE_ERROR_EVENT, listener);
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
       throw new DOMException('Quota exceeded', 'QuotaExceededError');
     });
 
@@ -45,7 +45,7 @@ describe('local storage helper', () => {
       if (event instanceof CustomEvent) events.push(event.detail as StorageErrorDetail);
     };
     window.addEventListener(STORAGE_ERROR_EVENT, listener);
-    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+    vi.spyOn(localStorage, 'removeItem').mockImplementation(() => {
       throw new DOMException('Storage unavailable', 'SecurityError');
     });
 

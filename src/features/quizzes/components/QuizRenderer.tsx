@@ -3,8 +3,7 @@ import { ClipboardCheck, CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
 import { useQuizResultsStore } from '../store';
 import { Button, Badge, Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import { useLocaleStore } from '@/stores/localeStore';
-import { UI_COPY, formatQuizAnswered, formatQuizScore } from '@/lib/i18n';
+import { translate, useUiLocale } from '@/features/localization';
 import type { Quiz, QuizAttempt } from '../types';
 
 interface QuizRendererProps {
@@ -18,8 +17,7 @@ function scoreBadgeVariant(percent: number): 'success' | 'warning' | 'error' {
 }
 
 export function QuizRenderer({ quiz }: QuizRendererProps) {
-  const locale = useLocaleStore((state) => state.locale);
-  const copy = UI_COPY[locale].quizRenderer;
+  const locale = useUiLocale();
   const attempt = useQuizResultsStore((s) => s.quizzes[quiz.id]);
   const saveAttempt = useQuizResultsStore((s) => s.saveAttempt);
   const clearAttempt = useQuizResultsStore((s) => s.clearAttempt);
@@ -66,11 +64,11 @@ export function QuizRenderer({ quiz }: QuizRendererProps) {
           </div>
           <div className="flex items-center gap-3">
             <Badge variant={scoreBadgeVariant(percent)}>
-              {formatQuizScore(locale, attempt.score, attempt.total, percent)}
+              {translate(locale, 'quizScore', { score: attempt.score, total: attempt.total, percent })}
             </Badge>
             <Button variant="outline" size="sm" onClick={handleRetry}>
               <RotateCcw className="h-4 w-4" />
-              {copy.retry}
+              {translate(locale, 'retryQuiz')}
             </Button>
           </div>
         </div>
@@ -112,7 +110,7 @@ export function QuizRenderer({ quiz }: QuizRendererProps) {
                       >
                         {option}
                         {isSelected && !isCorrectOption && (
-                          <span className="ml-2 text-xs font-medium">{copy.yourAnswer}</span>
+                          <span className="ml-2 text-xs font-medium">{translate(locale, 'yourAnswer')}</span>
                         )}
                       </li>
                     );
@@ -178,10 +176,10 @@ export function QuizRenderer({ quiz }: QuizRendererProps) {
 
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs text-neutral-500">
-          {formatQuizAnswered(locale, Object.keys(answers).length, quiz.questions.length)}
+          {translate(locale, 'answeredCount', { answered: Object.keys(answers).length, total: quiz.questions.length })}
         </p>
         <Button variant="primary" size="sm" onClick={handleSubmit} disabled={!allAnswered}>
-          {copy.submit}
+          {translate(locale, 'submitQuiz')}
         </Button>
       </div>
     </div>
