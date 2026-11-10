@@ -8,6 +8,7 @@ export const ROUTES = {
   BOOKMARKS: '/bookmarks',
   NOTES: '/notes',
   SEARCH: '/search',
+  BACKUP: '/backup',
 } as const;
 
 export const ROUTE_PATHS = {
@@ -17,6 +18,7 @@ export const ROUTE_PATHS = {
   BOOKMARKS: '/bookmarks',
   NOTES: '/notes',
   SEARCH: '/search',
+  BACKUP: '/backup',
 } as const;
 
 export function coursePath(categoryId: string): string {

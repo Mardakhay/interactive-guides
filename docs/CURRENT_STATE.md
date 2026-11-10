@@ -1,21 +1,21 @@
 # Current-State Audit
 
-**Audit date:** 2026-10-23  
+**Audit date:** 2026-10-27  
 **Repository:** [Mardakhay/interactive-guides](https://github.com/Mardakhay/interactive-guides)  
 **Default branch observed:** `main`
 
 This audit is based on the repository root, source directory listings, current package/config files, the lesson catalog, the renderer and progress-store implementation, selected full HTML lesson files, and recent commit history available through GitHub. It is not a local test run; no claim is made that the current build or tests were executed during this remote audit.
 
-## Authoritative implementation snapshot — 2026-10-23
+## Authoritative implementation snapshot — 2026-10-27
 
-- **Latest validated application/content snapshot:** `64dea28924aed5701452ae60b121cb57fc747598` (subsequent branch commits in this continuation are documentation-only).
-- **Validation:** GitHub Actions [run #40008331627](https://github.com/Mardakhay/interactive-guides/actions/runs/40008331627) passed `npm ci`, ESLint, TypeScript typecheck, all 102 tests across 22 test files, and production build on this exact SHA.
+- **Latest validated application/content snapshot before this documentation sync:** `73a47b96b1c0fc00d454c0cd955f24514bb32024` (the local-data backup/restore implementation).
+- **Validation:** GitHub Actions [run #40487424471](https://github.com/Mardakhay/interactive-guides/actions/runs/40487424471) passed the CI workflow, including install, lint, typecheck, tests and production build, on this exact code SHA. This doc-only sync needs its own exact-head CI check.
 - **Branch safety:** PR [#1](https://github.com/Mardakhay/interactive-guides/pull/1) remains open and Draft. `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; this implementation work targets `feat/learning-platform-foundation`.
 - **Structured curriculum:** 26 core and 11 supplementary lesson IDs are registered in English and Russian (74 JSON files). The React reader and curriculum routes are integrated. All 25 legacy HTML files remain as source material; registration/schema validation does not mean source parity or editorial review is complete.
 - **Recent source-focused content work:** `css.fundamentals` is version 3 (53 blocks, 110 minutes, 5 knowledge checks, 5 walkthroughs, 3 coding exercises per locale); `git.fundamentals` is version 3 (38 blocks, 95 minutes per locale); `git.workflow-ci` is version 3 (37 blocks, 110 minutes per locale). EN/RU structures are checked in CI, while all three remain in editorial review and their legacy interaction parity is incomplete.
 - **UI localization:** English/Russian preference and route-aware locale support are implemented. Localization covers the shared shell, dashboard, catalog/category views, learning paths, bookmarks, notes, lesson metadata/navigation, quiz controls, search and common feedback states. This is broad partial coverage—not a guarantee that every string, source lesson body, edge state or legacy HTML page has been translated.
 - **PWA:** manifest, PNG icons, Netlify-compatible SPA fallback, scoped asset caching and a learner-approved service-worker update flow are implemented. Real-browser/device install/offline/update acceptance is still outstanding.
-- **Persistence/cloud:** progress, notes, bookmarks and quiz results remain primarily local-first. A reviewed migration/export-import flow is not complete. Supabase auth/sync is not implemented or listed as a package dependency.
+- **Persistence/cloud:** local-first progress, notes, bookmarks, quiz results and structured-lesson state remain the source of truth. Versioned JSON backup/restore v1 is available at `/backup`, with schema validation, preview, explicit replace confirmation and best-effort rollback. Full repository versioning/migration and browser download/import smoke tests remain open. Supabase auth/sync is not implemented or listed as a package dependency.
 - **Release warnings:** the latest `npm ci` reported 13 dependency audit findings (8 moderate, 3 high, 2 critical). The CI build also emits the existing large-chunk warning, and React Router prints v7 future-flag warnings. These did not fail the workflow but should be triaged.
 
 This snapshot is the authoritative status for this document; earlier checkpoint sections below are chronological history and should not override it.
@@ -668,3 +668,11 @@ Completed the full content/interaction review of `internet-fundamentals.html` (s
 - `js.runtime-memory` v4 adds async TTL cache code, shared in-flight Promise, success-based expiry, failure eviction, invalidation/clear and a stale-settlement guard. New tests validate both locale structures, walkthrough ranges, checks, practice rubric and MDN Promise reference.
 - The prior audit gap for a runnable TTL/async cache is addressed in lesson content; endpoint-specific network freshness and hard max-size eviction remain distinct concerns. Notion Advanced JS remains `verification.state=unverified`.
 - Current source-audit parent was `58937a07b244ea14baade28cc5fc7341f3e99864`, whose exact-head CI passed run [40480941117](https://github.com/Mardakhay/interactive-guides/actions/runs/40480941117).
+
+
+## Local-data backup/export-restore checkpoint — 2026-10-27
+
+- Added the bilingual `/backup` route and sidebar entry. JSON backup format v1 covers progress, bookmarks, notes, classic quiz results and structured-lesson attempts/code drafts/practice checklists/section progress; locale/theme preferences are intentionally excluded.
+- Export refuses to silently omit malformed stored records. Import validates the entire payload before mutation, previews counts and requires explicit replacement confirmation. The restore writes canonical structured-learning v2 data and removes the legacy record only after the earlier writes succeed; failed writes trigger best-effort rollback of all affected keys.
+- Unit tests cover data round-trip, missing datasets/defaults, non-mutating legacy reads, invalid stored JSON, unsupported format, replacement behavior, canonical record writing, rollback and preview summary.
+- Code commit `73a47b96b1c0fc00d454c0cd955f24514bb32024` passed exact-head CI run [40487424471](https://github.com/Mardakhay/interactive-guides/actions/runs/40487424471). The documentation-only follow-up needs its own exact-head CI check. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397` and PR #1 remains Draft.
