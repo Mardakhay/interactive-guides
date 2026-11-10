@@ -1,7 +1,7 @@
 {
   "id": "js.object-prototypes",
   "locale": "en",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "original",
   "updatedAt": "2026-11-03",
@@ -89,6 +89,82 @@
       "id": "object-model-new-text",
       "type": "paragraph",
       "text": "For an ordinary constructor call, new creates an object, links its prototype to Constructor.prototype, calls the constructor with this bound to the new object, then returns an explicitly returned object if there is one or otherwise returns the new object. Class constructors add stricter rules, including requiring new."
+    },
+    {
+      "id": "object-model-new-algorithm-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Constructor return values and prototype fallback"
+    },
+    {
+      "id": "object-model-new-algorithm-text",
+      "type": "paragraph",
+      "text": "For an ordinary constructable function, `new` returns the newly created instance unless the constructor explicitly returns a non-null object. A returned object—including a function—replaces that instance; a primitive return is ignored. The new instance normally links to the object in `Constructor.prototype`. If that property is not an object (including `null`), the new instance uses `Object.prototype` as its prototype. These are ordinary constructor-function rules; derived class constructors have additional `super()` and return constraints."
+    },
+    {
+      "id": "object-model-new-algorithm-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "javascript",
+      "code": "function User(name) {\n  this.name = name;\n  this.createdByConstructor = true;\n}\n\nfunction ReturnObject() {\n  this.keptOnCreatedInstance = true;\n  return { name: 'replacement' };\n}\n\nfunction ReturnFunction() {\n  this.keptOnCreatedInstance = true;\n  return function replacement() {};\n}\n\nfunction ReturnPrimitive() {\n  this.keptOnCreatedInstance = true;\n  return 7;\n}\n\nconst normal = new User('Ada');\nconst objectResult = new ReturnObject();\nconst functionResult = new ReturnFunction();\nconst primitiveResult = new ReturnPrimitive();\n\nconsole.log(normal.name, normal.createdByConstructor); // Ada true\nconsole.log(objectResult.name, objectResult.keptOnCreatedInstance); // replacement undefined\nconsole.log(typeof functionResult); // function\nconsole.log(primitiveResult.keptOnCreatedInstance); // true\n\nfunction NonObjectPrototype() {}\nNonObjectPrototype.prototype = 42;\nconst fallback = new NonObjectPrototype();\nconsole.log(Object.getPrototypeOf(fallback) === Object.prototype); // true",
+      "steps": [
+        {
+          "title": "Keep the default constructed instance",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "When the constructor does not return an object, the instance created by new is returned with the properties assigned through this."
+        },
+        {
+          "title": "An explicitly returned object replaces the instance",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "explanation": "ReturnObject creates the default instance and then returns a different object. The returned object's name is visible, while the property assigned to the discarded instance is not."
+        },
+        {
+          "title": "Functions also count as returned objects",
+          "lineStart": 11,
+          "lineEnd": 14,
+          "explanation": "A function is an object in JavaScript. Returning one from an ordinary constructor makes new evaluate to that function."
+        },
+        {
+          "title": "Primitive returns are ignored; invalid prototype falls back",
+          "lineStart": 16,
+          "lineEnd": 34,
+          "explanation": "The number 7 does not replace the new instance. If Constructor.prototype is not an object, the instance's prototype falls back to Object.prototype. Derived class constructors follow additional rules."
+        }
+      ]
+    },
+    {
+      "id": "object-model-new-algorithm-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "An ordinary constructor function returns `function replacement() {}`. What does `new Constructor()` evaluate to?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The default instance created before the constructor body runs",
+          "correct": false,
+          "feedback": "The default instance is returned only when the constructor does not explicitly return a non-null object."
+        },
+        {
+          "id": "b",
+          "text": "The returned function object",
+          "correct": true,
+          "feedback": "Functions are objects, so an explicitly returned function replaces the instance created by new for an ordinary constructor function."
+        },
+        {
+          "id": "c",
+          "text": "The primitive value `undefined`",
+          "correct": false,
+          "feedback": "A function return is an object return, not a missing or primitive return."
+        },
+        {
+          "id": "d",
+          "text": "A TypeError because constructors cannot return functions",
+          "correct": false,
+          "feedback": "Ordinary constructor functions may return any object, including a function. Derived class constructors have additional restrictions."
+        }
+      ],
+      "explanation": "The ordinary constructor return rule distinguishes object values (including functions) from primitives. A returned object replaces the default instance; primitive returns are ignored."
     },
     {
       "id": "object-model-this",
@@ -295,7 +371,7 @@
       "id": "object-static-methods-walkthrough",
       "type": "codeWalkthrough",
       "language": "javascript",
-      "code": "const profile = { name: 'Ada', role: 'editor', preferences: { theme: 'dark' } };\\n\\nconsole.log(Object.keys(profile));\\n// ['name', 'role', 'preferences']\\nconsole.log(Object.values(profile));\\n// ['Ada', 'editor', { theme: 'dark' }]\\nconsole.log(Object.entries(profile));\\n// [['name', 'Ada'], ['role', 'editor'], ['preferences', { theme: 'dark' }]]\\n\\nconst publicProfile = Object.fromEntries(\\n  Object.entries(profile).filter(([key]) => key !== 'preferences'),\\n);\\nconst assigned = Object.assign({}, profile, { role: 'admin' });\\nconst spread = { ...profile, role: 'admin' };\\nconsole.log(assigned.preferences === profile.preferences); // true\\nconsole.log(spread.preferences === profile.preferences);   // true\\n\\nconst frozen = Object.freeze({ settings: { theme: 'dark' } });\\nfrozen.settings.theme = 'light'; // nested object is still mutable\\nconsole.log(frozen.settings.theme); // 'light'",
+      "code": "const profile = { name: 'Ada', role: 'editor', preferences: { theme: 'dark' } };\n\nconsole.log(Object.keys(profile));\n// ['name', 'role', 'preferences']\nconsole.log(Object.values(profile));\n// ['Ada', 'editor', { theme: 'dark' }]\nconsole.log(Object.entries(profile));\n// [['name', 'Ada'], ['role', 'editor'], ['preferences', { theme: 'dark' }]]\n\nconst publicProfile = Object.fromEntries(\n  Object.entries(profile).filter(([key]) => key !== 'preferences'),\n);\nconst assigned = Object.assign({}, profile, { role: 'admin' });\nconst spread = { ...profile, role: 'admin' };\nconsole.log(assigned.preferences === profile.preferences); // true\nconsole.log(spread.preferences === profile.preferences);   // true\n\nconst frozen = Object.freeze({ settings: { theme: 'dark' } });\nfrozen.settings.theme = 'light'; // nested object is still mutable\nconsole.log(frozen.settings.theme); // 'light'",
       "steps": [
         {
           "title": "Inspect only own enumerable string keys",
@@ -375,7 +451,7 @@
         "The nested preferences copy policy is explicit and tested.",
         "The explanation distinguishes own enumerable properties, shallow copies, and Object.freeze()."
       ],
-      "starterCode": "const settings = {\\n  theme: 'dark',\\n  locale: 'en',\\n  apiToken: 'do-not-expose',\\n  preferences: { density: 'compact' },\\n};\\n\\nconst allowedKeys = new Set(['theme', 'locale', 'preferences']);\\n// TODO: create the public object from Object.entries(settings)\\n// TODO: copy preferences separately only if the UI must mutate it independently\\n\\nconsole.log(publicSettings);\\nconsole.log(Object.hasOwn(publicSettings, 'apiToken')); // false",
+      "starterCode": "const settings = {\n  theme: 'dark',\n  locale: 'en',\n  apiToken: 'do-not-expose',\n  preferences: { density: 'compact' },\n};\n\nconst allowedKeys = new Set(['theme', 'locale', 'preferences']);\n// TODO: create the public object from Object.entries(settings)\n// TODO: copy preferences separately only if the UI must mutate it independently\n\nconsole.log(publicSettings);\nconsole.log(Object.hasOwn(publicSettings, 'apiToken')); // false",
       "hints": [
         "Object.entries(settings) produces the top-level key/value pairs; filter them before calling Object.fromEntries().",
         "An allowlist should decide which keys are included, rather than trying to enumerate every key that must be removed.",
@@ -931,6 +1007,11 @@
         {
           "title": "MDN: Object static methods",
           "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+          "kind": "official-docs"
+        },
+        {
+          "title": "MDN: The new operator",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new",
           "kind": "official-docs"
         }
       ]

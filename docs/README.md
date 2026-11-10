@@ -1,29 +1,25 @@
-# Interactive Guides — Project Documentation
+# Documentation
 
-Interactive Guides is evolving from a catalog of standalone HTML reference pages into a bilingual, curriculum-driven learning application. Structured lessons are embedded in the app; legacy HTML remains as source material during migration.
+This folder contains current product and engineering documentation for the structured, bilingual, local-first learning platform.
 
-Read these documents in order:
+## Start here
 
-1. [Current-state audit](./CURRENT_STATE.md) — implementation status and verified constraints.
-2. [Curriculum and lesson model](./CURRICULUM_AND_CONTENT.md) — canonical 24-week sequence and content expectations.
-3. [Full source content audit](./FULL_SOURCE_CONTENT_AUDIT.md) — Notion/HTML inventory, source-to-lesson mapping, coverage depth and open gaps.
-4. [Structured content audit](./CONTENT_AUDIT.md) — registered lesson catalog and schema guarantees versus editorial limits.
-5. [Git Reference source-to-block review](./TL001_SOURCE_PARITY.md) — focused content and interaction crosswalk; cutover remains blocked.
-6. [Git Workflow & CI/CD source-to-block review](./TL002_SOURCE_PARITY.md) — bilingual branch graph, pipeline and sequential quiz crosswalk; seven-tab shell and native acceptance remain open.
-7. [Legacy HTML inventory](./LEGACY_CONTENT_INVENTORY.md) — all original HTML source files and migration notes.
-8. [Week 14–15 source parity review](./CONTENT_PARITY_REVIEW_WEEK14-15.md) — focused React forms/shared-state review.
-9. [Product requirements](./PRODUCT_REQUIREMENTS.md), [architecture](./ARCHITECTURE.md), [persistence](./PERSISTENCE_AND_SUPABASE.md), [PWA/mobile](./PWA_AND_MOBILE.md), and [current roadmap](./ROADMAP.md). Historical dated roadmap/checkpoint notes are preserved in [ROADMAP_HISTORY.md](./ROADMAP_HISTORY.md).
-10. [Browser/device smoke-test checklist](./BROWSER_SMOKE_TEST_CHECKLIST.md) — reproducible local-storage, backup/restore and PWA acceptance steps; results must be recorded, not inferred from CI.
-11. [Content authoring guide](./CONTENT_AUTHORING_GUIDE.md) — lesson schema, bilingual editing, learning-path notes, and validation workflow.
-12. [Session handoff](./SESSION_HANDOFF.md) — latest verified branch/CI checkpoint and next action.
+1. [Current state](./CURRENT_STATE.md) — active product scope, catalog, persistence, routing, and acceptance boundary.
+2. [Architecture](./ARCHITECTURE.md) — current application structure and data flow.
+3. [Product requirements](./PRODUCT_REQUIREMENTS.md) — included and excluded product behavior.
+4. [Roadmap](./ROADMAP.md) — remaining engineering and manual acceptance work.
+5. [Decision log](./DECISIONS.md) — product decisions that contributors must preserve.
 
-## Working rules
+## Content
 
-- Preserve useful existing behavior and course content while migrating it.
-- Teach concepts with mechanisms, worked examples, mistakes, edge cases, practice and actionable feedback.
-- Keep English and Russian lessons structurally and pedagogically equivalent.
-- Keep supplementary topics outside the original bootcamp sequence.
-- Do not treat registration, schema validation or CI success as proof of full source parity or editorial approval.
-- Preserve legacy sources until source-to-block mapping and translation review are complete.
-- Update the audit and handoff at every material implementation/CI checkpoint.
-undefined
+- [Curriculum and content model](./CURRICULUM_AND_CONTENT.md)
+- [Structured lesson authoring guide](./CONTENT_AUTHORING_GUIDE.md)
+- [Structured content audit](./CONTENT_AUDIT.md)
+
+## Engineering and quality
+
+- [Local persistence and backup](./LOCAL_PERSISTENCE_AND_BACKUP.md)
+- [PWA and mobile behavior](./PWA_AND_MOBILE.md)
+- [Browser/device acceptance checklist](./BROWSER_SMOKE_TEST_CHECKLIST.md)
+
+Historical inventories and reports about the retired standalone HTML lesson catalog have been removed. The current content repository and automated checks are the source of truth for active lessons.

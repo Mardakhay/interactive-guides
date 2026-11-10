@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, fireEvent } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import NotesPage from './NotesPage';
@@ -6,7 +6,7 @@ import { useNoteStore } from '@/features/notes';
 import { useLocaleStore } from '@/features/localization/localeStore';
 import { STORAGE_KEYS } from '@/lib/constants';
 
-describe('NotesPage structured lesson support', () => {
+describe('NotesPage text-only lesson support', () => {
   beforeEach(() => {
     localStorage.removeItem(STORAGE_KEYS.NOTES);
     useNoteStore.setState({ lessons: {} });
@@ -20,12 +20,16 @@ describe('NotesPage structured lesson support', () => {
     useLocaleStore.setState({ locale: 'en' });
   });
 
-  it('shows structured notes, filters them separately, links to the reader and deletes by stable lesson ID', () => {
+  it('shows structured notes and hides old standalone HTML notes without deleting stored data', () => {
     useNoteStore.setState({
       lessons: {
         'html.document-structure': {
           content: 'Review semantic regions and landmarks.',
           updatedAt: '2026-10-28T11:00:00.000Z',
+        },
+        'wb-001': {
+          content: 'This note belongs to a retired standalone HTML lesson.',
+          updatedAt: '2026-10-28T12:00:00.000Z',
         },
       },
     });
@@ -35,14 +39,11 @@ describe('NotesPage structured lesson support', () => {
     const lessonLink = screen.getByRole('link', { name: 'HTML document structure and semantic page regions' });
     expect(lessonLink.getAttribute('href')).toBe('/en/structured-lessons/html.document-structure');
     expect(screen.getByText('Review semantic regions and landmarks.')).toBeTruthy();
-
-    fireEvent.change(screen.getByRole('combobox', { name: 'Filter by course' }), {
-      target: { value: 'structured-curriculum' },
-    });
-    expect(screen.getByRole('link', { name: 'HTML document structure and semantic page regions' })).toBeTruthy();
+    expect(screen.queryByText('This note belongs to a retired standalone HTML lesson.')).toBeNull();
+    expect(useNoteStore.getState().lessons['wb-001']).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
     expect(useNoteStore.getState().lessons['html.document-structure']).toBeUndefined();
-    expect(screen.queryByText('Review semantic regions and landmarks.')).toBeNull();
+    expect(useNoteStore.getState().lessons['wb-001']).toBeTruthy();
   });
 });

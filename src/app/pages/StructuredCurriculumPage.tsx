@@ -76,7 +76,7 @@ export default function StructuredCurriculumPage() {
   return (
     <main className="mx-auto w-full max-w-6xl space-y-8 px-4 pb-16 pt-6 sm:px-6 lg:px-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Link to="/courses" className="inline-flex min-h-10 items-center gap-2 rounded-xl px-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-950">
+        <Link to={'/' + locale} className="inline-flex min-h-10 items-center gap-2 rounded-xl px-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-950">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           {copy.catalog}
         </Link>

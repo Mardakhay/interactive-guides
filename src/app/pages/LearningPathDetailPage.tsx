@@ -2,48 +2,31 @@ import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowRight, Check, Clock, ArrowLeft, BookOpen } from 'lucide-react';
 import { getLearningPathById } from '@/features/learning-paths';
-import { getLessonById, getCategoryById } from '@/features/content';
 import { getStructuredLessonMetadata, type SupportedLocale } from '@/content/repository';
 import { useProgressStore, computeProgressStats, STATUS_BADGE_VARIANTS } from '@/features/progress';
 import { BookmarkButton } from '@/features/bookmarks';
 import { Card, Badge, ProgressBar } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { EmptyState } from '@/components/feedback';
-import { ROUTE_PATHS, lessonPath, localizedPath } from '@/app/router/routes';
+import { ROUTE_PATHS, localizedPath } from '@/app/router/routes';
 import { DIFFICULTY_COLORS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { formatLessonCount, getLocalizedCategoryCopy, getLocalizedDifficulty, getLocalizedLearningPathCopy, getLocalizedLearningPathStepNote, translate, useUiLocale } from '@/features/localization';
+import { formatLessonCount, getLocalizedDifficulty, getLocalizedLearningPathCopy, getLocalizedLearningPathStepNote, translate, useUiLocale } from '@/features/localization';
 
 interface ResolvedPathLesson {
   readonly id: string;
   readonly title: string;
   readonly href: string;
   readonly categoryName: string;
-  readonly difficulty?: string;
-  readonly durationMinutes?: number;
 }
 
 function resolvePathLesson(id: string, locale: SupportedLocale): ResolvedPathLesson | undefined {
-  const classicLesson = getLessonById(id);
-  if (classicLesson) {
-    const category = getCategoryById(classicLesson.categoryId);
-    return {
-      id: classicLesson.id,
-      title: classicLesson.title,
-      href: lessonPath(classicLesson.id),
-      categoryName: category
-        ? getLocalizedCategoryCopy(locale, category.id, category.name, category.description).name
-        : locale === 'ru' ? 'Классический каталог' : 'Classic catalog',
-      difficulty: classicLesson.difficulty,
-      durationMinutes: classicLesson.durationMinutes,
-    };
-  }
-  const structuredLesson = getStructuredLessonMetadata(id, locale);
-  if (!structuredLesson) return undefined;
+  const lesson = getStructuredLessonMetadata(id, locale);
+  if (!lesson) return undefined;
   return {
-    id: structuredLesson.id,
-    title: structuredLesson.title,
-    href: `/${locale}/structured-lessons/${structuredLesson.id}`,
+    id: lesson.id,
+    title: lesson.title,
+    href: `/${locale}/structured-lessons/${lesson.id}`,
     categoryName: locale === 'ru' ? 'Структурированная программа' : 'Structured curriculum',
   };
 }
@@ -179,10 +162,7 @@ export default function LearningPathDetailPage() {
                 {step.note && <p className="text-sm text-neutral-600">{getLocalizedLearningPathStepNote(locale, path.id, step.lessonId, step.note)}</p>}
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <span className="relative z-10 flex items-center gap-1 text-xs text-neutral-500"><BookOpen className="h-3 w-3" />{lesson.categoryName}</span>
-                  {lesson.difficulty ? (
-                    <span className={cn('relative z-10 inline-flex rounded-full px-2 py-0.5 text-xs font-medium', DIFFICULTY_COLORS[lesson.difficulty] ?? DIFFICULTY_COLORS.beginner)}>{getLocalizedDifficulty(locale, lesson.difficulty)}</span>
-                  ) : <Badge variant="neutral">{locale === 'ru' ? 'Структурированный урок' : 'Structured lesson'}</Badge>}
-                  {lesson.durationMinutes !== undefined && <span className="relative z-10 flex items-center gap-1 text-xs text-neutral-500"><Clock className="h-3 w-3" />{lesson.durationMinutes}{translate(locale, 'minuteUnit')}</span>}
+                  <Badge variant="neutral">{locale === 'ru' ? 'Структурированный урок' : 'Structured lesson'}</Badge>
                   {status !== 'not-started' && <Badge variant={STATUS_BADGE_VARIANTS[status]}>{translate(locale, status === 'completed' ? 'completed' : 'inProgress')}</Badge>}
                 </div>
               </div>

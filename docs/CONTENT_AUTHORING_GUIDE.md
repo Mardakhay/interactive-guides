@@ -1,89 +1,57 @@
-# Structured content authoring guide
+# Structured Content Authoring Guide
 
-This guide describes how to edit the bilingual structured curriculum without breaking its runtime contracts or overstating source parity.
+This guide covers the active bilingual JSON curriculum. Standalone HTML lesson files and their former renderer are not part of the authoring workflow.
 
 ## Where content lives
 
-- `src/content/lessons/<lesson-id>/en.json` and `ru.json`: complete English and Russian lesson records.
-- `src/content/lessonManifest.ts`: compact EN/RU titles used in navigation while full lesson bodies are lazy-loaded.
-- `src/content/repository.ts`: lesson registry, dynamic loading, parsing, and validation.
-- `src/content/schemas/lessonContent.ts`: the authoritative Zod content contract.
-- `src/content/curriculum/bootcamp-core.en.json` and `bootcamp-core.ru.json`: core curriculum metadata.
-- `src/data/learning-paths.json`: ordered classic and structured paths, including each step's English note.
-- `src/features/localization/translations.ts`: application copy and Russian translations for path titles, descriptions, and step notes.
+- \`src/content/lessons/<lesson-id>/en.json\` and \`ru.json\`: English and Russian lesson records.
+- \`src/content/lessonManifest.ts\`: stable lesson IDs, folder names, translated titles, and publication/review status.
+- \`src/content/repository.ts\`: lesson registry, dynamic loading, parsing, and search/practice document generation.
+- \`src/content/schemas/lessonContent.ts\`: authoritative Zod lesson contract.
+- \`src/content/curriculum/bootcamp-core.en.json\` and \`bootcamp-core.ru.json\`: six-month, 24-week core curriculum.
+- \`src/data/learning-paths.json\`: structured learning paths and ordered step notes.
+- \`src/features/localization/translations.ts\`: UI copy and Russian learning-path translations.
 
-Use the canonical lesson ID in both locale files and in the manifest. The English and Russian files are loaded as separate locale variants of the same stable ID.
+## Required invariants
 
-## Required lesson contract
+Every lesson translation must satisfy the Zod schema and include:
 
-Every locale file must satisfy the Zod schema. Important fields include:
+- A stable lesson ID, matching locale, positive version, update date, and review metadata.
+- Exactly one placement: a core week or a supplementary track.
+- A title, description, estimated time, difficulty, prerequisites, tags, and learning outcomes.
+- A non-empty block list with unique block IDs.
 
-- `id`, `locale`, positive integer `version`, `updatedAt` in `YYYY-MM-DD` format, and review metadata.
-- Exactly one curriculum placement: a core `week` or a `supplementaryTrackId`.
-- `moduleId`, nonnegative `order`, `title`, `description`, `estimatedMinutes`, `difficulty`, prerequisites, tags, and at least one learning outcome.
-- A non-empty `blocks` array with unique block IDs.
+The English and Russian files must use the same lesson ID, placement, and ordered block identities/types. Keep walkthrough line references within the code sample. Knowledge-check answer cardinality must match the question type, and all options need meaningful feedback.
 
-Supported block types are `heading`, `paragraph`, `list`, `callout`, `code`, `codeWalkthrough`, `knowledgeCheck`, `codingExercise`, and `references`. Use the schema rather than inventing custom block shapes. Walkthrough line ranges must fit the code sample; knowledge-check option IDs must be unique and the answer cardinality must match the question type.
+Supported blocks are headings, paragraphs, lists, callouts, code, code walkthroughs, knowledge checks, coding exercises, and references.
 
-## Editing an existing lesson
+## Editing a lesson
 
-1. Read the relevant source lesson and the matching entry in `docs/FULL_SOURCE_CONTENT_AUDIT.md` or `docs/LEGACY_CONTENT_INVENTORY.md`.
-2. Update the English source and Russian translation as a pair when semantics change; keep IDs and ordering aligned unless a migration is explicitly intended.
-3. Explain mechanisms and trade-offs, not only definitions. Include a worked example, at least one realistic failure mode or edge case, a practice task, and feedback that explains why an answer is right or wrong when appropriate.
-4. Keep code samples executable or clearly label them as partial/pseudocode. Do not translate language keywords, API names, CLI commands, URLs, or identifiers.
-5. Update the lesson manifest title in both locales if the visible title changes.
-6. Update regression tests for schema validity, locale parity, unique IDs, exercise answer behavior, and source-specific claims that the change is meant to protect.
+1. Read both locale records and the relevant schema before editing.
+2. Make the semantic change in English and Russian together.
+3. Keep block IDs stable where possible so saved section activity and exercise drafts continue to refer to the intended content.
+4. Explain mechanisms and trade-offs; include examples, edge cases, practice, and useful feedback.
+5. Keep code examples executable or clearly label pseudocode. Do not translate language keywords, API names, identifiers, CLI commands, or URLs.
+6. Update manifest titles/status when learner-facing metadata changes.
+7. Add or update tests for schema validity, EN/RU parity, answer behavior, and the specific claim or example being protected.
 
 ## Adding a lesson
 
-1. Choose a stable, namespaced ID such as `topic.lesson-name`; do not reuse classic catalog IDs to represent structured lessons.
-2. Create `en.json` and `ru.json` under `src/content/lessons/<lesson-id>/`. Both records must use the same ID and curriculum placement.
-3. Register the ID and both display titles in `src/content/lessonManifest.ts`; ensure the dynamic-loader folder matches the registered folder.
-4. If it belongs in the core course, update both core curriculum metadata files. If it is a supplement, use the existing supplementary-track mechanism and keep it separate from the 24-week sequence.
-5. Add the ID to relevant learning paths only when it is an appropriate prerequisite/progression step. Add an English step note in `src/data/learning-paths.json` and a Russian translation keyed by `<path-id>.<lesson-id>` in `src/features/localization/translations.ts`.
-6. Add tests that prove the lesson ID resolves, the selected locale is rendered, path notes are localized, and the relevant user flow remains navigable.
-
-## Learning paths and localization
-
-Learning-path titles and descriptions are translated in `learningPathTranslations`. English step notes live in the JSON path data; the helper `getLocalizedLearningPathStepNote(locale, pathId, lessonId, fallbackNote)` resolves Russian copy by the composite key `<path-id>.<lesson-id>`. Use a composite key because the same lesson can appear in multiple paths with different instructional context.
-
-When adding or changing a path:
-
-- Keep the ordered step IDs stable unless a reviewed content migration requires otherwise.
-- Confirm every step resolves to a classic catalog lesson or registered structured lesson.
-- Add one Russian note for every step that has an English note.
-- Test the route and title in both locales and keep structured routes under `/:locale/structured-lessons/:lessonId`.
-- Preserve classic path IDs and `/lessons/:lessonId` routes; do not imply the legacy-to-structured crosswalk is approved.
+1. Choose a stable namespaced ID such as \`topic.lesson-name\`.
+2. Create \`en.json\` and \`ru.json\` under \`src/content/lessons/<lesson-id>/\`.
+3. Add the ID, folder, translated titles, and status to \`src/content/lessonManifest.ts\`.
+4. Assign it to one core week or one supplementary track in both curriculum locale files.
+5. Add it to a learning path only when the sequence is pedagogically justified. Keep the English step note in \`src/data/learning-paths.json\` and add its Russian translation in \`src/features/localization/translations.ts\`.
+6. Add tests that prove the ID loads in both locales and that the curriculum and learning-path references resolve.
 
 ## Validation
 
-From the repository root:
-
-```bash
-npm ci
+\`\`\`bash
+npm run content:index
 npm run lint
 npm run typecheck
 npm test
 npm run build
-npm run smoke:preview
-```
+\`\`\`
 
-For focused checks, run `npx vitest run src/features/learning-paths/api.test.ts src/app/pages/LearningPathDetailPage.test.tsx src/content/repository.test.ts`. `npm run smoke:preview` builds no files itself: it starts the existing production `dist/` preview, checks app-shell HTTP fallback and PWA static assets, and stops the preview server. Run `npm run build` first. It does not replace native browser/device acceptance.
-
-The additional `src/content/lessonQuality.test.ts` checks four content invariants:
-- every registered structured lesson in both locales has no duplicate URL within an individual `references` block;
-- all 44 EN/RU lesson pairs keep visible Russian titles/descriptions and aligned learning-outcome counts, with outcomes not copied verbatim from English;
-- a reviewed set of 23 Russian prose fields stays localized, guarding against regressions in audited prompts, feedback, explanations and paragraphs;
-- long user-facing prose is compared by matching EN/RU block and field path, rejecting verbatim English copied into Russian. This pass found and corrected 52 copied-English strings across eight RU lesson files.
-
-The copy scan deliberately excludes code blocks/reference blocks, starter code, CSS property quick-reference lists, event-loop traces, and explicitly identified code-shaped answer options. Keep code examples and technical identifiers intact. The scan is designed to catch obvious omissions; it is not a general language detector, semantic translator, or replacement for human editorial review. Continue to record unresolved source-parity gaps until a claim-by-claim review is complete.
-## Pull-request checklist
-
-- [ ] English and Russian records validate and communicate the same learning outcomes.
-- [ ] Manifest titles and curriculum placement match the lesson files.
-- [ ] IDs are stable, unique, and referenced only by valid links/paths.
-- [ ] Code, line ranges, quiz answer keys, and feedback are checked.
-- [ ] Path notes, route labels, and common UI copy are localized.
-- [ ] Relevant tests, lint, typecheck, and production build pass.
-- [ ] Browser, screen-reader, mobile, deployment, and offline claims reflect evidence actually collected.
-- [ ] Documentation records remaining gaps; CI success is not presented as proof of content parity.
+A green test suite validates machine-readable contracts; it does not replace technical fact-checking or human review of Russian and English teaching quality.

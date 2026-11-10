@@ -132,8 +132,8 @@ describe('structured content repository', () => {
       getStructuredPracticeExercises('en'),
       getStructuredPracticeExercises('ru'),
     ]);
-    expect(english).toHaveLength(118);
-    expect(russian).toHaveLength(118);
+    expect(english).toHaveLength(119);
+    expect(russian).toHaveLength(119);
     const aboutMe = english.find((exercise) => exercise.lessonId === 'html.document-structure' && exercise.exerciseId === 'practice-about-me');
     const russianAboutMe = russian.find((exercise) => exercise.lessonId === 'html.document-structure' && exercise.exerciseId === 'practice-about-me');
     expect(aboutMe?.title).toBe('Build an About Me page');
