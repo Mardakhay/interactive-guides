@@ -10,6 +10,44 @@ import englishJsBasics from './lessons/js.basics-types-control-flow/en.json';
 import russianJsBasics from './lessons/js.basics-types-control-flow/ru.json';
 import englishFunctionsArrays from './lessons/js.functions-arrays-objects/en.json';
 import russianFunctionsArrays from './lessons/js.functions-arrays-objects/ru.json';
+import englishDom from './lessons/js.dom-events/en.json';
+import russianDom from './lessons/js.dom-events/ru.json';
+import englishAsync from './lessons/js.async-fetch/en.json';
+import russianAsync from './lessons/js.async-fetch/ru.json';
+import englishGit from './lessons/git.fundamentals/en.json';
+import russianGit from './lessons/git.fundamentals/ru.json';
+import englishTooling from './lessons/tooling.node-npm-vite/en.json';
+import russianTooling from './lessons/tooling.node-npm-vite/ru.json';
+import englishTypeScript from './lessons/typescript.fundamentals/en.json';
+import russianTypeScript from './lessons/typescript.fundamentals/ru.json';
+import englishReactBasics from './lessons/react.components-jsx-state/en.json';
+import russianReactBasics from './lessons/react.components-jsx-state/ru.json';
+import englishReactEffects from './lessons/react.effects-lists-composition/en.json';
+import russianReactEffects from './lessons/react.effects-lists-composition/ru.json';
+import englishRouter from './lessons/react.router-spa/en.json';
+import russianRouter from './lessons/react.router-spa/ru.json';
+import englishReactForms from './lessons/react.forms-validation/en.json';
+import russianReactForms from './lessons/react.forms-validation/ru.json';
+import englishContext from './lessons/react.context-shared-state/en.json';
+import russianContext from './lessons/react.context-shared-state/ru.json';
+import englishApiHooks from './lessons/react.api-custom-hooks/en.json';
+import russianApiHooks from './lessons/react.api-custom-hooks/ru.json';
+import englishDesignSystem from './lessons/ui.design-systems/en.json';
+import russianDesignSystem from './lessons/ui.design-systems/ru.json';
+import englishPerformance from './lessons/performance.accessibility/en.json';
+import russianPerformance from './lessons/performance.accessibility/ru.json';
+import englishTesting from './lessons/testing.react-testing-library/en.json';
+import russianTesting from './lessons/testing.react-testing-library/ru.json';
+import englishGitWorkflow from './lessons/git.workflow-ci/en.json';
+import russianGitWorkflow from './lessons/git.workflow-ci/ru.json';
+import englishCapstoneRequirements from './lessons/capstone.requirements-discovery/en.json';
+import russianCapstoneRequirements from './lessons/capstone.requirements-discovery/ru.json';
+import englishCapstoneDesign from './lessons/capstone.design-architecture-planning/en.json';
+import russianCapstoneDesign from './lessons/capstone.design-architecture-planning/ru.json';
+import englishCapstoneImplementation from './lessons/capstone.implementation/en.json';
+import russianCapstoneImplementation from './lessons/capstone.implementation/ru.json';
+import englishCapstoneReview from './lessons/capstone.review-demo/en.json';
+import russianCapstoneReview from './lessons/capstone.review-demo/ru.json';
 import englishCurriculum from './curriculum/bootcamp-core.en.json';
 import russianCurriculum from './curriculum/bootcamp-core.ru.json';
 import { bootcampCurriculumSchema } from './schemas/curriculum';
@@ -31,6 +69,44 @@ const lessonTranslations = [
   lessonTranslationSchema.parse(russianJsBasics),
   lessonTranslationSchema.parse(englishFunctionsArrays),
   lessonTranslationSchema.parse(russianFunctionsArrays),
+  lessonTranslationSchema.parse(englishDom),
+  lessonTranslationSchema.parse(russianDom),
+  lessonTranslationSchema.parse(englishAsync),
+  lessonTranslationSchema.parse(russianAsync),
+  lessonTranslationSchema.parse(englishGit),
+  lessonTranslationSchema.parse(russianGit),
+  lessonTranslationSchema.parse(englishTooling),
+  lessonTranslationSchema.parse(russianTooling),
+  lessonTranslationSchema.parse(englishTypeScript),
+  lessonTranslationSchema.parse(russianTypeScript),
+  lessonTranslationSchema.parse(englishReactBasics),
+  lessonTranslationSchema.parse(russianReactBasics),
+  lessonTranslationSchema.parse(englishReactEffects),
+  lessonTranslationSchema.parse(russianReactEffects),
+  lessonTranslationSchema.parse(englishRouter),
+  lessonTranslationSchema.parse(russianRouter),
+  lessonTranslationSchema.parse(englishReactForms),
+  lessonTranslationSchema.parse(russianReactForms),
+  lessonTranslationSchema.parse(englishContext),
+  lessonTranslationSchema.parse(russianContext),
+  lessonTranslationSchema.parse(englishApiHooks),
+  lessonTranslationSchema.parse(russianApiHooks),
+  lessonTranslationSchema.parse(englishDesignSystem),
+  lessonTranslationSchema.parse(russianDesignSystem),
+  lessonTranslationSchema.parse(englishPerformance),
+  lessonTranslationSchema.parse(russianPerformance),
+  lessonTranslationSchema.parse(englishTesting),
+  lessonTranslationSchema.parse(russianTesting),
+  lessonTranslationSchema.parse(englishGitWorkflow),
+  lessonTranslationSchema.parse(russianGitWorkflow),
+  lessonTranslationSchema.parse(englishCapstoneRequirements),
+  lessonTranslationSchema.parse(russianCapstoneRequirements),
+  lessonTranslationSchema.parse(englishCapstoneDesign),
+  lessonTranslationSchema.parse(russianCapstoneDesign),
+  lessonTranslationSchema.parse(englishCapstoneImplementation),
+  lessonTranslationSchema.parse(russianCapstoneImplementation),
+  lessonTranslationSchema.parse(englishCapstoneReview),
+  lessonTranslationSchema.parse(russianCapstoneReview),
 ] as const;
 
 const curricula = {

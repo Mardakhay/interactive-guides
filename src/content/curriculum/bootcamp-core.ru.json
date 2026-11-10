@@ -158,7 +158,9 @@
           "practice": [
             "Создать To-do-приложение с массивом в памяти и отображением DOM"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "js.dom-events"
+          ]
         },
         {
           "id": "month-2-week-8",
@@ -233,7 +235,9 @@
           "practice": [
             "Создать Counter и To-do-компоненты, переписав предыдущие задачи на React"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.components-jsx-state"
+          ]
         },
         {
           "id": "month-3-week-12",
@@ -344,7 +348,9 @@
           "practice": [
             "Создать небольшой UI-kit из Button, Input и Card"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "ui.design-systems"
+          ]
         },
         {
           "id": "month-5-week-18",
@@ -358,7 +364,9 @@
           "practice": [
             "Оптимизировать существующий проект и изучить размер bundle или ленивую загрузку маршрутов"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "performance.accessibility"
+          ]
         },
         {
           "id": "month-5-week-19",
@@ -372,7 +380,9 @@
           "practice": [
             "Написать 2–3 компонентных теста, например на клик кнопки и отправку формы"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "testing.react-testing-library"
+          ]
         },
         {
           "id": "month-5-week-20",
@@ -386,7 +396,9 @@
           "practice": [
             "Смоделировать процесс: задача → ветка → коммит → MR → review"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "git.workflow-ci"
+          ]
         }
       ]
     },
@@ -408,7 +420,9 @@
           "practice": [
             "Определить проблему, целевых пользователей, основные user stories и критерии приёмки"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.requirements-discovery"
+          ]
         },
         {
           "id": "month-6-week-22",
@@ -422,7 +436,9 @@
           "practice": [
             "Подготовить wireframes, черновик API-контракта, карту страниц и план спринтов"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.design-architecture-planning"
+          ]
         },
         {
           "id": "month-6-week-23",
@@ -436,7 +452,9 @@
           "practice": [
             "Реализовать основные пользовательские сценарии проекта целиком"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.implementation"
+          ]
         },
         {
           "id": "month-6-week-24",
@@ -452,7 +470,9 @@
             "Представить приложение и объяснить архитектуру, компромиссы и качество кода"
           ],
           "project": "Итоговый capstone-проект и Demo Day",
-          "lessonIds": []
+          "lessonIds": [
+            "capstone.review-demo"
+          ]
         }
       ]
     }

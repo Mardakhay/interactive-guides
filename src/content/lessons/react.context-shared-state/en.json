@@ -156,7 +156,7 @@
     },
     {
       "id": "knowledge-check-1",
-      "type": "single-choice",
+      "type": "knowledgeCheck",
       "questionType": "single-choice",
       "prompt": "When is lifting state up a good fit?",
       "options": [
@@ -189,7 +189,7 @@
     },
     {
       "id": "knowledge-check-2",
-      "type": "true-false",
+      "type": "knowledgeCheck",
       "questionType": "true-false",
       "prompt": "React Context automatically persists its value after a page reload.",
       "options": [
@@ -210,7 +210,7 @@
     },
     {
       "id": "knowledge-check-3",
-      "type": "multi-select",
+      "type": "knowledgeCheck",
       "questionType": "multi-select",
       "prompt": "Which statements about shared state and Context are accurate? Select all that apply.",
       "options": [

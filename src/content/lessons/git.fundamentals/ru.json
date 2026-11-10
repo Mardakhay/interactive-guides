@@ -275,7 +275,7 @@
     },
     {
       "id": "knowledge-check-3",
-      "type": "multi-select",
+      "type": "knowledgeCheck",
       "questionType": "multi-select",
       "prompt": "Which commands are part of a common workflow to prepare, record, and publish a change? Select all that apply.",
       "options": [

@@ -1,0 +1,362 @@
+{
+  "id": "capstone.review-demo",
+  "locale": "en",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-22",
+  "moduleId": "month-6-week-24",
+  "week": 24,
+  "order": 1,
+  "title": "Capstone Part 4: Refactoring, Release Readiness, and Demo Day",
+  "description": "Verify acceptance criteria, refactor safely, audit accessibility and performance, prepare reliable deployment and documentation, and tell a clear technical story during the final demo.",
+  "estimatedMinutes": 85,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "capstone.requirements-discovery",
+    "capstone.design-architecture-planning",
+    "capstone.implementation",
+    "testing.react-testing-library",
+    "performance.accessibility",
+    "git.workflow-ci"
+  ],
+  "learningOutcomes": [
+    "Run a final acceptance review against the product brief rather than judging the capstone only by appearance.",
+    "Refactor duplicated or confusing code while preserving tested behavior and avoiding premature abstraction.",
+    "Perform a practical accessibility, responsive-layout, performance, and error-recovery audit.",
+    "Prepare production configuration, build checks, deployment steps, and a truthful project README.",
+    "Plan a concise demo that follows the main user journey and explains architecture and trade-offs.",
+    "Answer technical questions using evidence from the implementation, tests, and known limitations.",
+    "Create a prioritized follow-up list for unresolved defects and out-of-scope improvements."
+  ],
+  "tags": [
+    "capstone",
+    "refactoring",
+    "release-checklist",
+    "deployment",
+    "accessibility",
+    "performance",
+    "demo",
+    "readme"
+  ],
+  "blocks": [
+    {
+      "id": "final-review",
+      "type": "heading",
+      "level": 2,
+      "text": "Judge the capstone against its acceptance criteria"
+    },
+    {
+      "id": "final-review-body",
+      "type": "paragraph",
+      "text": "A polished screenshot is not proof that a project meets its goals. Revisit the Week 21 product brief and walk through each must-have story with its acceptance criteria. Mark each item as verified, partially verified, or not done, and attach evidence where appropriate: a test, a manual browser check, a screenshot, or a known limitation. Do not quietly redefine a failed criterion near the end; either fix it, explicitly renegotiate the scope, or document the gap."
+    },
+    {
+      "id": "acceptance-matrix",
+      "type": "code",
+      "language": "markdown",
+      "caption": "Example final acceptance matrix",
+      "code": "| Story / criterion | Evidence | Status | Follow-up |\n|---|---|---|---|\n| User can find an item | Search + empty-result test | Verified | None |\n| Invalid form shows field feedback | Component test + manual check | Verified | None |\n| Progress survives reload | Manual check on target browser | Partial | Verify storage edge case |\n| Shared progress syncs to account | Not implemented in MVP | Out of scope | Capture as next phase |"
+    },
+    {
+      "id": "refactor-safely",
+      "type": "heading",
+      "level": 2,
+      "text": "Refactor around evidence and stable behavior"
+    },
+    {
+      "id": "refactor-safely-body",
+      "type": "paragraph",
+      "text": "Refactoring changes internal structure without intentionally changing external behavior. Useful candidates include duplicated validation rules, unclear component responsibilities, mixed API/UI concerns, repeated formatting logic, and unsafe assumptions at data boundaries. Start with tests or a reproducible manual scenario, make a small change, run the same checks again, and inspect the diff. Do not introduce a universal abstraction merely to remove a few repeated lines; abstraction has a maintenance cost and should represent a stable pattern."
+    },
+    {
+      "id": "refactor-checklist",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Remove genuinely duplicated logic or values, especially when the copies can drift.",
+        "Give components, services, and validators one clear responsibility.",
+        "Prefer descriptive names and explicit contracts over clever generic helpers.",
+        "Preserve accessible labels, keyboard behavior, loading/error states, and focus behavior.",
+        "Run tests before and after the refactor; update a test only when the intended contract changed.",
+        "Keep changes small enough that a reviewer can understand why behavior remains the same."
+      ]
+    },
+    {
+      "id": "final-audit",
+      "type": "heading",
+      "level": 2,
+      "text": "Audit real user paths, not just isolated screens"
+    },
+    {
+      "id": "final-audit-body",
+      "type": "paragraph",
+      "text": "Walk the application from a fresh load through its core journey and recovery paths. Test the actual deployed or production-like build when possible, because dev mode does not prove the final bundle or routing fallback works. Verify empty/invalid/error responses, browser refresh on nested routes, and the effect of clearing or losing persisted data. Use the same realistic viewport, browser, and data conditions that the intended user is likely to encounter."
+    },
+    {
+      "id": "release-audit",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Functional: each must-have story and acceptance criterion passes.",
+        "Responsive: main flows work at narrow mobile width, tablet, and desktop without horizontal overflow.",
+        "Accessibility: keyboard-only operation, visible focus, headings, accessible names, linked errors, and contrast.",
+        "Performance: inspect a representative slow route, large asset, long task, and unnecessary network request.",
+        "Reliability: distinguish loading, empty, validation, network, server, and authorization outcomes.",
+        "Security/privacy: no committed credentials, no private server key in the client, correct access rules for remote data.",
+        "Browser/deployment: production build succeeds, deep links work, environment variables are configured, and critical assets load.",
+        "Data: refresh and account/session changes do not silently lose or mix data beyond the documented behavior."
+      ]
+    },
+    {
+      "id": "release-readiness",
+      "type": "heading",
+      "level": 2,
+      "text": "Prepare a repeatable release and a truthful README"
+    },
+    {
+      "id": "release-readiness-body",
+      "type": "paragraph",
+      "text": "A README should let another developer understand the product and reproduce the project without guessing. Include the problem and core features, prerequisites, setup commands, environment variable names (not values), development/test/build commands, data or auth setup, deployment notes, and known limitations. Verify the actual command names in package.json. Before release, perform a clean dependency install, run the configured quality checks, and build the production assets. Explain if any service or feature still uses mock data."
+    },
+    {
+      "id": "release-template",
+      "type": "code",
+      "language": "markdown",
+      "caption": "A README and release checklist outline",
+      "code": "# Project name\n\n## Problem and core journey\n## Features and explicit non-goals\n## Tech stack and architecture\n## Prerequisites\n## Local setup\n## Environment variables (names and purpose only)\n## Commands: dev, lint, typecheck, test, build\n## Data/API/auth configuration\n## Deployment and SPA routing notes\n## Accessibility and test coverage\n## Known limitations and next steps\n\nRelease checks:\n- [ ] Clean install\n- [ ] Quality checks and production build\n- [ ] Manual core journey + failure path\n- [ ] Responsive and keyboard check\n- [ ] No secrets in repository or client bundle"
+    },
+    {
+      "id": "deployment",
+      "type": "heading",
+      "level": 2,
+      "text": "Deployment is another environment to verify"
+    },
+    {
+      "id": "deployment-body",
+      "type": "paragraph",
+      "text": "A deployment is not complete just because the provider reports success. Open the live URL, refresh a nested route, check environment-dependent integrations, inspect the browser console/network panel, and verify asset paths and redirects. A client-routed SPA often needs a hosting fallback from deep paths to its entry document. Client-side route guards are not authorization; remote services must enforce data access. Document the expected environment variables and ensure private credentials are server-side only."
+    },
+    {
+      "id": "demo-story",
+      "type": "heading",
+      "level": 2,
+      "text": "Tell a clear demo story"
+    },
+    {
+      "id": "demo-story-body",
+      "type": "paragraph",
+      "text": "A final demo should prove the project's main value, not enumerate every component. Start with the user problem, then walk through one happy path, one carefully chosen edge/error case, and the outcome. Explain the architecture only where it helps the audience understand how the workflow is built. Keep a backup plan for a flaky network or unavailable API—preloaded demo data or screenshots are acceptable when transparently labelled, but they should not be presented as a live integration."
+    },
+    {
+      "id": "demo-agenda",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Problem and target user: what need is being solved?",
+        "Main flow: demonstrate the highest-value user journey from start to completion.",
+        "Quality: show a relevant test, accessibility behavior, or error-recovery decision.",
+        "Architecture: explain feature boundaries, data flow, and one important technical trade-off.",
+        "Status: state what is complete, what is mocked/deferred, and what would come next.",
+        "Questions: answer from evidence and acknowledge uncertainty rather than inventing an implementation detail."
+      ]
+    },
+    {
+      "id": "technical-questions",
+      "type": "heading",
+      "level": 2,
+      "text": "Prepare to explain your decisions"
+    },
+    {
+      "id": "technical-questions-body",
+      "type": "paragraph",
+      "text": "Be ready to explain why the app is organized by feature, where state lives, how requests and errors flow, how input/data are validated, what is tested, how access is enforced, and how a production build is deployed. For each major decision, prepare the alternatives considered, why you chose this option for the capstone constraints, and what trade-off remains. A strong answer is specific and honest; naming a library is not the same as explaining the underlying decision."
+    },
+    {
+      "id": "tradeoff-template",
+      "type": "code",
+      "language": "markdown",
+      "caption": "A concise trade-off note",
+      "code": "Decision: keep the first release local-first\n\nWhy:\n- Lets the core user journey work without account setup\n- Reduces setup and security scope for the MVP\n\nTrade-off:\n- Progress does not sync across devices\n\nRevisit when:\n- Cross-device continuity becomes a must-have requirement\n\nEvidence:\n- Acceptance criteria and tests for local persistence"
+    },
+    {
+      "id": "known-gaps",
+      "type": "callout",
+      "tone": "important",
+      "title": "Document gaps instead of hiding them",
+      "text": "An honest “not implemented” or “mocked in this milestone” note is better than implying a feature is production-ready. For each gap, state the impact, whether it blocks the core journey, and the next validation or implementation step. Do not claim security, performance, accessibility, or cross-device sync is complete without evidence."
+    },
+    {
+      "id": "final-quiz-1",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What is the strongest way to report capstone acceptance status?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Mark each must-have criterion with evidence and identify partial or missing items",
+          "correct": true,
+          "feedback": "This makes project status auditable and distinguishes verified behavior from assumptions."
+        },
+        {
+          "id": "b",
+          "text": "Say everything is complete because the main screen looks finished",
+          "correct": false,
+          "feedback": "Visual polish alone does not prove acceptance criteria, error handling, or deployment behavior."
+        },
+        {
+          "id": "c",
+          "text": "Delete failing tests so the final test command is green",
+          "correct": false,
+          "feedback": "Removing evidence conceals defects instead of demonstrating a correct outcome."
+        },
+        {
+          "id": "d",
+          "text": "Report future roadmap items as complete to show ambition",
+          "correct": false,
+          "feedback": "The demo should distinguish shipped behavior from proposed future work."
+        }
+      ],
+      "explanation": "Tie completion claims to explicit criteria and repeatable evidence."
+    },
+    {
+      "id": "final-quiz-2",
+      "type": "knowledgeCheck",
+      "questionType": "true-false",
+      "prompt": "A successful deployment-provider status proves that nested routes, environment configuration, and the user journey work in production.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "The provider status proves a deployment step completed, not that all live behaviors were checked."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "Open the live app and verify deep links, environment integrations, assets, and core workflows directly."
+        }
+      ],
+      "explanation": "Production verification must include the deployed behavior, not only the build/deploy log."
+    },
+    {
+      "id": "final-quiz-3",
+      "type": "knowledgeCheck",
+      "questionType": "multi-select",
+      "prompt": "Which evidence belongs in a credible final capstone handoff? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "A README with reproducible setup and actual script names",
+          "correct": true,
+          "feedback": "This lets another developer run and verify the project."
+        },
+        {
+          "id": "b",
+          "text": "A record of acceptance criteria, tests, and manual checks",
+          "correct": true,
+          "feedback": "It documents what was verified and how."
+        },
+        {
+          "id": "c",
+          "text": "A list of known limitations and deferred requirements",
+          "correct": true,
+          "feedback": "Explicit limitations help others understand the real release scope."
+        },
+        {
+          "id": "d",
+          "text": "Private API credentials copied into the README to simplify setup",
+          "correct": false,
+          "feedback": "Document variable names and how to obtain secrets safely; never publish secret values."
+        }
+      ],
+      "explanation": "A good handoff gives reproducibility, verification evidence, and transparent scope without exposing credentials."
+    },
+    {
+      "id": "capstone-demo-exercise",
+      "type": "codingExercise",
+      "title": "Complete the release checklist and demo plan",
+      "language": "markdown",
+      "context": "Use the deployed or production-like capstone. The lesson editor keeps your checklist draft; you must perform the checks in the actual project and environment.",
+      "instructions": [
+        "Walk through every must-have story and mark it verified, partially verified, or not done, with evidence.",
+        "Run a clean dependency install and the project's real lint, typecheck, tests, and production build scripts.",
+        "Manually test the primary journey plus a meaningful empty/error/recovery path.",
+        "Check responsive layout, keyboard-only operation, visible focus, labels, error announcements, and contrast.",
+        "Open the production URL, refresh a nested route, and verify the configured API/auth/environment path.",
+        "Review the repository and built client bundle for exposed credentials or secret configuration.",
+        "Finalize README setup, scripts, architecture, data/auth notes, deployment behavior, test coverage, and known limitations.",
+        "Plan a 3–5 minute demo and prepare answers for state ownership, service boundaries, validation, testing, authorization, and trade-offs.",
+        "List remaining issues by impact and define one concrete next step for each important gap."
+      ],
+      "requirements": [
+        "Every must-have acceptance criterion has a status and evidence.",
+        "The actual configured project checks and production build are run.",
+        "At least one failure/empty/recovery path is manually verified.",
+        "Responsive layout, keyboard interaction, visible focus, and accessible errors are checked.",
+        "The deployed environment and deep links are verified where deployment exists.",
+        "README is sufficient for another developer to reproduce setup and checks.",
+        "Known limitations and future work are clearly separated from completed features.",
+        "The demo shows user value, quality evidence, one technical decision, and a truthful status report."
+      ],
+      "starterCode": "# Capstone release and demo checklist\n\n## Acceptance review\n- Story / criterion:\n- Evidence:\n- Status: verified / partial / not done\n\n## Automated checks\n- [ ] Clean install\n- [ ] Lint\n- [ ] Typecheck\n- [ ] Tests\n- [ ] Production build\n\n## Manual quality review\n- [ ] Core happy path\n- [ ] Error/empty/recovery path\n- [ ] Responsive layout\n- [ ] Keyboard-only operation and visible focus\n- [ ] Labels, error associations and contrast\n- [ ] Direct route refresh / deployment integration\n- [ ] No exposed credentials\n\n## Handoff\n- [ ] README setup and exact commands\n- [ ] Architecture/data/auth explanation\n- [ ] Test evidence\n- [ ] Known limitations\n- [ ] Next steps\n\n## 3–5 minute demo\n1. Problem / user\n2. Main journey\n3. Quality evidence\n4. Architecture / trade-off\n5. Completed, deferred, next",
+      "hints": [
+        "Run the configured commands from package.json rather than copying command names from a different repository.",
+        "Verify the deployed build directly; dev-server behavior is not enough for deep links or production environment variables.",
+        "For every known gap, record impact and one next step rather than claiming it does not matter."
+      ],
+      "successCriteria": [
+        "The acceptance review includes evidence rather than status labels alone.",
+        "Lint, typecheck, tests, and build have current results.",
+        "A core workflow and a relevant failure/recovery case are verified in the browser.",
+        "Responsive/accessibility and deployment checks are recorded.",
+        "README and known limitations describe the actual implementation truthfully.",
+        "The demo can be delivered without implying mocked or deferred features are complete."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Verify each must-have story against acceptance criteria and keep evidence.",
+        "Refactor in small steps with behavior tests and avoid premature abstractions.",
+        "Audit functional flows, failure recovery, accessibility, responsiveness, performance, privacy, and deployment behavior.",
+        "Use a clean install and the actual project quality scripts before release.",
+        "Demo the main user journey and explain architecture, evidence, trade-offs, known gaps, and next steps truthfully."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "GitHub Docs: About README files",
+          "url": "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vite: Deploying a Static Site",
+          "url": "https://vite.dev/guide/static-deploy.html",
+          "kind": "official-docs"
+        },
+        {
+          "title": "W3C WAI: Easy Checks — A First Review of Web Accessibility",
+          "url": "https://www.w3.org/WAI/test-evaluate/preliminary/",
+          "kind": "guide"
+        },
+        {
+          "title": "web.dev: Learn Performance",
+          "url": "https://web.dev/learn/performance",
+          "kind": "guide"
+        },
+        {
+          "title": "OWASP: Secrets Management Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
+          "kind": "guide"
+        }
+      ]
+    }
+  ]
+}

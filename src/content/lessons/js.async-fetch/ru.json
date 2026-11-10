@@ -443,7 +443,7 @@
         {
           "title": "JSONPlaceholder public API",
           "url": "https://jsonplaceholder.typicode.com/",
-          "kind": "api"
+          "kind": "guide"
         }
       ]
     }

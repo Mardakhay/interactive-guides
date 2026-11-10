@@ -9,6 +9,44 @@ import englishLayout from '../lessons/css.flexbox-grid-responsive/en.json';
 import russianLayout from '../lessons/css.flexbox-grid-responsive/ru.json';
 import englishJsBasics from '../lessons/js.basics-types-control-flow/en.json';
 import russianJsBasics from '../lessons/js.basics-types-control-flow/ru.json';
+import englishDom from '../lessons/js.dom-events/en.json';
+import russianDom from '../lessons/js.dom-events/ru.json';
+import englishAsync from '../lessons/js.async-fetch/en.json';
+import russianAsync from '../lessons/js.async-fetch/ru.json';
+import englishGit from '../lessons/git.fundamentals/en.json';
+import russianGit from '../lessons/git.fundamentals/ru.json';
+import englishTooling from '../lessons/tooling.node-npm-vite/en.json';
+import russianTooling from '../lessons/tooling.node-npm-vite/ru.json';
+import englishTypeScript from '../lessons/typescript.fundamentals/en.json';
+import russianTypeScript from '../lessons/typescript.fundamentals/ru.json';
+import englishReactEffects from '../lessons/react.effects-lists-composition/en.json';
+import russianReactEffects from '../lessons/react.effects-lists-composition/ru.json';
+import englishRouter from '../lessons/react.router-spa/en.json';
+import russianRouter from '../lessons/react.router-spa/ru.json';
+import englishReactForms from '../lessons/react.forms-validation/en.json';
+import russianReactForms from '../lessons/react.forms-validation/ru.json';
+import englishContext from '../lessons/react.context-shared-state/en.json';
+import russianContext from '../lessons/react.context-shared-state/ru.json';
+import englishApiHooks from '../lessons/react.api-custom-hooks/en.json';
+import russianApiHooks from '../lessons/react.api-custom-hooks/ru.json';
+import englishReactBasics from '../lessons/react.components-jsx-state/en.json';
+import russianReactBasics from '../lessons/react.components-jsx-state/ru.json';
+import englishDesignSystem from '../lessons/ui.design-systems/en.json';
+import russianDesignSystem from '../lessons/ui.design-systems/ru.json';
+import englishPerformance from '../lessons/performance.accessibility/en.json';
+import russianPerformance from '../lessons/performance.accessibility/ru.json';
+import englishTesting from '../lessons/testing.react-testing-library/en.json';
+import russianTesting from '../lessons/testing.react-testing-library/ru.json';
+import englishGitWorkflow from '../lessons/git.workflow-ci/en.json';
+import russianGitWorkflow from '../lessons/git.workflow-ci/ru.json';
+import englishCapstoneRequirements from '../lessons/capstone.requirements-discovery/en.json';
+import russianCapstoneRequirements from '../lessons/capstone.requirements-discovery/ru.json';
+import englishCapstoneDesign from '../lessons/capstone.design-architecture-planning/en.json';
+import russianCapstoneDesign from '../lessons/capstone.design-architecture-planning/ru.json';
+import englishCapstoneImplementation from '../lessons/capstone.implementation/en.json';
+import russianCapstoneImplementation from '../lessons/capstone.implementation/ru.json';
+import englishCapstoneReview from '../lessons/capstone.review-demo/en.json';
+import russianCapstoneReview from '../lessons/capstone.review-demo/ru.json';
 import { lessonTranslationSchema } from './lessonContent';
 
 describe('structured lesson content', () => {
@@ -228,5 +266,125 @@ describe('React API and custom hooks lesson translation', () => {
     );
     expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
     expect(russianApiHooks.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('DOM and events lesson translation', () => {
+  it('keeps stable identity and block structure in both locales', () => {
+    expect(englishDom.id).toBe(russianDom.id);
+    expect(englishDom.moduleId).toBe('month-2-week-7');
+    expect(englishDom.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianDom.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianDom.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('React fundamentals lesson translation', () => {
+  it('keeps stable identity and block structure in both locales', () => {
+    expect(englishReactBasics.id).toBe(russianReactBasics.id);
+    expect(englishReactBasics.moduleId).toBe('month-3-week-11');
+    expect(englishReactBasics.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianReactBasics.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishReactBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianReactBasics.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('UI design system lesson translation', () => {
+  it('validates both locales and preserves equivalent block structure', () => {
+    expect(lessonTranslationSchema.safeParse(englishDesignSystem).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianDesignSystem).success).toBe(true);
+    expect(englishDesignSystem.id).toBe(russianDesignSystem.id);
+    expect(englishDesignSystem.moduleId).toBe('month-5-week-17');
+    expect(englishDesignSystem.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianDesignSystem.blocks.map(({ id, type }) => ({ id, type })),
+    );
+  });
+});
+
+describe('Performance and accessibility lesson translation', () => {
+  it('validates both locales and preserves equivalent block structure', () => {
+    expect(lessonTranslationSchema.safeParse(englishPerformance).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianPerformance).success).toBe(true);
+    expect(englishPerformance.id).toBe(russianPerformance.id);
+    expect(englishPerformance.moduleId).toBe('month-5-week-18');
+    expect(englishPerformance.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianPerformance.blocks.map(({ id, type }) => ({ id, type })),
+    );
+  });
+});
+
+describe('React component testing lesson translation', () => {
+  it('validates both locales and preserves equivalent block structure', () => {
+    expect(lessonTranslationSchema.safeParse(englishTesting).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianTesting).success).toBe(true);
+    expect(englishTesting.id).toBe(russianTesting.id);
+    expect(englishTesting.moduleId).toBe('month-5-week-19');
+    expect(englishTesting.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianTesting.blocks.map(({ id, type }) => ({ id, type })),
+    );
+  });
+});
+
+describe('Git workflow lesson translation', () => {
+  it('validates both locales and preserves equivalent block structure', () => {
+    expect(lessonTranslationSchema.safeParse(englishGitWorkflow).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianGitWorkflow).success).toBe(true);
+    expect(englishGitWorkflow.id).toBe(russianGitWorkflow.id);
+    expect(englishGitWorkflow.moduleId).toBe('month-5-week-20');
+    expect(englishGitWorkflow.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianGitWorkflow.blocks.map(({ id, type }) => ({ id, type })),
+    );
+  });
+});
+
+describe('Capstone requirements discovery lesson translation', () => {
+  it('validates both locales and preserves equivalent block structure', () => {
+    expect(lessonTranslationSchema.safeParse(englishCapstoneRequirements).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianCapstoneRequirements).success).toBe(true);
+    expect(englishCapstoneRequirements.id).toBe(russianCapstoneRequirements.id);
+    expect(englishCapstoneRequirements.moduleId).toBe('month-6-week-21');
+    expect(englishCapstoneRequirements.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianCapstoneRequirements.blocks.map(({ id, type }) => ({ id, type })),
+    );
+  });
+});
+
+describe('Capstone design and architecture lesson translation', () => {
+  it('validates both locales and preserves equivalent block structure', () => {
+    expect(lessonTranslationSchema.safeParse(englishCapstoneDesign).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianCapstoneDesign).success).toBe(true);
+    expect(englishCapstoneDesign.id).toBe(russianCapstoneDesign.id);
+    expect(englishCapstoneDesign.moduleId).toBe('month-6-week-22');
+    expect(englishCapstoneDesign.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianCapstoneDesign.blocks.map(({ id, type }) => ({ id, type })),
+    );
+  });
+});
+
+describe('Capstone implementation lesson translation', () => {
+  it('validates both locales and preserves equivalent block structure', () => {
+    expect(lessonTranslationSchema.safeParse(englishCapstoneImplementation).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianCapstoneImplementation).success).toBe(true);
+    expect(englishCapstoneImplementation.id).toBe(russianCapstoneImplementation.id);
+    expect(englishCapstoneImplementation.moduleId).toBe('month-6-week-23');
+    expect(englishCapstoneImplementation.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianCapstoneImplementation.blocks.map(({ id, type }) => ({ id, type })),
+    );
+  });
+});
+
+describe('Capstone review and demo lesson translation', () => {
+  it('validates both locales and preserves equivalent block structure', () => {
+    expect(lessonTranslationSchema.safeParse(englishCapstoneReview).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianCapstoneReview).success).toBe(true);
+    expect(englishCapstoneReview.id).toBe(russianCapstoneReview.id);
+    expect(englishCapstoneReview.moduleId).toBe('month-6-week-24');
+    expect(englishCapstoneReview.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianCapstoneReview.blocks.map(({ id, type }) => ({ id, type })),
+    );
   });
 });
