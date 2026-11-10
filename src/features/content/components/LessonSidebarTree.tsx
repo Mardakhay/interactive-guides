@@ -59,9 +59,9 @@ export function LessonSidebarTree({ currentLessonId, currentCategoryId }: Lesson
             >
               <Icon className="h-4 w-4 shrink-0" />
               <span className="flex-1 text-left">{category.name}</span>
-              <span className="text-xs text-neutral-400">{lessons.length}</span>
+              <span className="text-xs text-neutral-500">{lessons.length}</span>
               <ChevronDown
-                className={cn('h-4 w-4 shrink-0 text-neutral-400 transition-transform', isExpanded && 'rotate-180')}
+                className={cn('h-4 w-4 shrink-0 text-neutral-500 transition-transform', isExpanded && 'rotate-180')}
               />
             </button>
             {isExpanded && (

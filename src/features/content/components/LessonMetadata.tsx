@@ -18,13 +18,13 @@ export function LessonMetadata({ lesson, category, statusBadge }: LessonMetadata
     <div className="space-y-4 rounded-xl border border-neutral-200 bg-white p-4">
       {statusBadge && (
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">Status</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Status</p>
           <div className="mt-1">{statusBadge}</div>
         </div>
       )}
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">Difficulty</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Difficulty</p>
         <span
           className={cn(
             'mt-1 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium',
@@ -36,15 +36,15 @@ export function LessonMetadata({ lesson, category, statusBadge }: LessonMetadata
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">Duration</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Duration</p>
         <p className="mt-1 flex items-center gap-1.5 text-sm text-neutral-700">
-          <Clock className="h-4 w-4 text-neutral-400" />
+          <Clock className="h-4 w-4 text-neutral-500" />
           {lesson.durationMinutes} minutes
         </p>
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">Category</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Category</p>
         <Link
           to={coursePath(category.id)}
           className="mt-1 flex items-center gap-1.5 text-sm text-primary-600 transition-colors hover:text-primary-700"
@@ -56,7 +56,7 @@ export function LessonMetadata({ lesson, category, statusBadge }: LessonMetadata
 
       {lesson.tags.length > 0 && (
         <div>
-          <p className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-neutral-400">
+          <p className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-neutral-500">
             <Tag className="h-3 w-3" />
             Tags
           </p>

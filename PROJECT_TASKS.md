@@ -171,5 +171,5 @@
 | 3     | M6–M9      | User Features            |
 | 4     | M10–M13    | Discovery & Polish       |
 
-**Current Milestone:** Complete — All MVP milestones done
+**Current Milestone:** MVP complete — all M1–M13 milestones shipped
 **Last Completed:** M13 — Accessibility & Performance

@@ -44,7 +44,7 @@ export function NoteEditor({ lessonId }: NoteEditorProps) {
     <div className="space-y-3 rounded-xl border border-neutral-200 bg-white p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
-          <StickyNote className="h-4 w-4 text-neutral-400" />
+          <StickyNote className="h-4 w-4 text-neutral-500" />
           My Notes
         </div>
         {draft.trim().length > 0 && (
@@ -63,7 +63,7 @@ export function NoteEditor({ lessonId }: NoteEditorProps) {
         aria-label="Lesson notes"
       />
 
-      <p className="text-xs text-neutral-400">
+      <p className="text-xs text-neutral-500">
         {updatedAt
           ? `Saved \u00b7 ${new Date(updatedAt).toLocaleString(undefined, {
               dateStyle: 'medium',

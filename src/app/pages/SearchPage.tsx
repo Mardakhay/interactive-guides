@@ -92,7 +92,7 @@ export default function SearchPage() {
           <FilterTabs filter={filter} counts={counts} onChange={setFilter} />
 
           {isDebouncing ? (
-            <p className="py-8 text-center text-sm text-neutral-400">Searching…</p>
+            <p className="py-8 text-center text-sm text-neutral-500">Searching…</p>
           ) : results.length === 0 ? (
             <EmptyState
               title="No results found"

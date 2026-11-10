@@ -114,7 +114,7 @@ export default function NotesPage() {
                       >
                         {lesson.title}
                       </Link>
-                      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-neutral-400">
+                      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-neutral-500">
                         {category && (
                           <Link to={coursePath(category.id)} className="hover:text-primary-600">
                             <Badge variant="neutral">{category.name}</Badge>

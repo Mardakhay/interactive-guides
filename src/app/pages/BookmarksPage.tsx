@@ -79,7 +79,7 @@ export default function BookmarksPage() {
                       <Link
                         to={coursePath(category.id)}
                         onClick={(e) => e.stopPropagation()}
-                        className="mt-1 inline-block text-xs text-neutral-400 hover:text-primary-600"
+                        className="mt-1 inline-block text-xs text-neutral-500 hover:text-primary-600"
                       >
                         {category.name}
                       </Link>
@@ -99,7 +99,7 @@ export default function BookmarksPage() {
                     >
                       {DIFFICULTY_LABELS[lesson.difficulty] ?? lesson.difficulty}
                     </span>
-                    <span className="hidden items-center gap-1 text-xs text-neutral-400 sm:flex">
+                    <span className="hidden items-center gap-1 text-xs text-neutral-500 sm:flex">
                       <Clock className="h-3.5 w-3.5" />
                       {lesson.durationMinutes}m
                     </span>

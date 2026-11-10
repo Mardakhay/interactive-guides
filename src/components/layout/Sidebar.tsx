@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -32,6 +33,20 @@ const navItems: NavEntry[] = [
 export function Sidebar() {
   const sidebarOpen = useUIStore((s) => s.sidebarOpen);
   const setSidebarOpen = useUIStore((s) => s.setSidebarOpen);
+
+  // Keyboard-equivalent for the mobile overlay's click-to-dismiss gesture.
+  useEffect(() => {
+    if (!sidebarOpen) return;
+
+    function handleKeyDown(event: KeyboardEvent): void {
+      if (event.key === 'Escape') {
+        setSidebarOpen(false);
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [sidebarOpen, setSidebarOpen]);
 
   return (
     <>
@@ -88,7 +103,7 @@ export function Sidebar() {
         </nav>
 
         <div className="border-t border-neutral-200 p-4">
-          <p className="text-xs text-neutral-400">Interactive Guides MVP</p>
+          <p className="text-xs text-neutral-500">Interactive Guides MVP</p>
         </div>
       </aside>
     </>

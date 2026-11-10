@@ -11,7 +11,7 @@ interface SearchBarProps {
 export function SearchBar({ value, onChange, placeholder = 'Search lessons, courses, notes\u2026', autoFocus }: SearchBarProps) {
   return (
     <div className="relative">
-      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -25,7 +25,7 @@ export function SearchBar({ value, onChange, placeholder = 'Search lessons, cour
           type="button"
           onClick={() => onChange('')}
           aria-label="Clear search"
-          className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-neutral-400 transition-colors hover:text-neutral-700"
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-neutral-500 transition-colors hover:text-neutral-700"
         >
           <X className="h-4 w-4" />
         </button>

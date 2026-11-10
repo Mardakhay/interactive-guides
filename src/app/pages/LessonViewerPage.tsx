@@ -169,7 +169,7 @@ export default function LessonViewerPage() {
           statusBadge={<Badge variant={STATUS_BADGE_VARIANTS[status]}>{STATUS_LABELS[status]}</Badge>}
         />
         <div className="rounded-xl border border-neutral-200 bg-white p-3">
-          <p className="px-3 py-2 text-xs font-medium uppercase tracking-wide text-neutral-400">All Lessons</p>
+          <p className="px-3 py-2 text-xs font-medium uppercase tracking-wide text-neutral-500">All Lessons</p>
           <LessonSidebarTree currentLessonId={lesson.id} currentCategoryId={category.id} />
         </div>
       </aside>
