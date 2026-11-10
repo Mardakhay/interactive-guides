@@ -128,11 +128,11 @@
 ## Phase 4 — Discovery & Polish
 
 ### M10: Search
-- [ ] Create search feature: store, types
-- [ ] Build SearchBar with debounce
-- [ ] Build SearchPage with results across lessons, courses, notes
-- [ ] Add result type filters
-- [ ] Highlight matching terms
+- [x] Create search feature: store, types
+- [x] Build SearchBar with debounce
+- [x] Build SearchPage with results across lessons, courses, notes
+- [x] Add result type filters
+- [x] Highlight matching terms
 - [ ] Git commit: `feat: implement search functionality`
 
 ### M11: Learning Paths
@@ -171,5 +171,5 @@
 | 3     | M6–M9      | User Features            |
 | 4     | M10–M13    | Discovery & Polish       |
 
-**Current Milestone:** M10 — Search
-**Last Completed:** M9 — Quiz Engine
+**Current Milestone:** M11 — Learning Paths
+**Last Completed:** M10 — Search
