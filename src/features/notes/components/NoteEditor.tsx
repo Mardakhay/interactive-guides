@@ -24,6 +24,7 @@ export function NoteEditor({ lessonId }: NoteEditorProps) {
   // overwrite in-flight typing when the debounced save lands.
   useEffect(() => {
     setDraft(savedContent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Changing saved content during autosave must not overwrite the active draft.
   }, [lessonId]);
 
   // Persist the debounced draft once it settles and actually differs from what's saved.
@@ -33,6 +34,7 @@ export function NoteEditor({ lessonId }: NoteEditorProps) {
     if (debouncedDraft !== savedContent) {
       setNote(lessonId, debouncedDraft);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Store updates caused by autosave must not retrigger it.
   }, [debouncedDraft]);
 
   const handleDelete = () => {
