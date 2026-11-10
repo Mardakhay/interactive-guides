@@ -65,7 +65,9 @@
             "Build login and registration form layouts",
             "Connect labels to controls and test keyboard access"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "html.forms-accessibility"
+          ]
         },
         {
           "id": "month-1-week-3",
@@ -80,7 +82,9 @@
           "practice": [
             "Build a small landing page with header, content and footer"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "css.fundamentals"
+          ]
         },
         {
           "id": "month-1-week-4",
@@ -95,7 +99,9 @@
             "Build a responsive landing page for desktop and mobile"
           ],
           "project": "Month 1 project: Responsive Landing Page",
-          "lessonIds": []
+          "lessonIds": [
+            "css.flexbox-grid-responsive"
+          ]
         }
       ]
     },
@@ -119,7 +125,9 @@
           "practice": [
             "Solve 5–10 small tasks covering arrays, conditions and loops"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "js.basics-types-control-flow"
+          ]
         },
         {
           "id": "month-2-week-6",

@@ -65,7 +65,9 @@
             "Создать макеты форм входа и регистрации",
             "Связать подписи с полями и проверить работу с клавиатурой"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "html.forms-accessibility"
+          ]
         },
         {
           "id": "month-1-week-3",
@@ -80,7 +82,9 @@
           "practice": [
             "Создать небольшую посадочную страницу с header, основным содержимым и footer"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "css.fundamentals"
+          ]
         },
         {
           "id": "month-1-week-4",
@@ -95,7 +99,9 @@
             "Создать адаптивную посадочную страницу для desktop и mobile"
           ],
           "project": "Проект месяца 1: адаптивная посадочная страница",
-          "lessonIds": []
+          "lessonIds": [
+            "css.flexbox-grid-responsive"
+          ]
         }
       ]
     },
@@ -119,7 +125,9 @@
           "practice": [
             "Решить 5–10 небольших задач на массивы, условия и циклы"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "js.basics-types-control-flow"
+          ]
         },
         {
           "id": "month-2-week-6",
