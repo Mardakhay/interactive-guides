@@ -77,6 +77,15 @@
 - [x] Verify typecheck and build pass
 - [x] Git commit: `feat: create html lesson engine`
 
+### M4.5: Import Real HTML Lessons (Phase 2)
+- [x] Delete duplicate lesson files (dev-guide.html, master-npm-typescript-react.html)
+- [x] Move 25 real HTML lesson files to public/lessons/ for static serving
+- [x] Replace all 30 mock lessons in lessons.json with 25 real lessons across 9 categories
+- [x] Wire every lesson into manifestRegistry in lessonLoader.ts (external-html source)
+- [x] Update categories.json descriptions to match real lesson content
+- [x] Verify typecheck and build pass with all 25 lessons
+- [x] Git commit: `chore: finalize real lesson import`
+
 ---
 
 ## Phase 3 — User Features
