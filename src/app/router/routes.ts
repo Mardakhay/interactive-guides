@@ -26,3 +26,7 @@ export function coursePath(categoryId: string): string {
 export function lessonPath(lessonId: string): string {
   return `/lessons/${lessonId}`;
 }
+
+export function learningPathDetailPath(pathId: string): string {
+  return `/paths/${pathId}`;
+}
