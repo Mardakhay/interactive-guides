@@ -109,7 +109,7 @@ function buildRecentActivity(
  * 3. Started-but-incomplete categories, ordered by lowest completion first.
  * 4. Not-yet-started categories, to fill remaining recommendation slots.
  */
-function buildRecommendations(progressLessons: Record<string, LessonProgressEntry>): RecommendedItem[] {
+export function buildRecommendations(progressLessons: Record<string, LessonProgressEntry>): RecommendedItem[] {
   const recommendations: RecommendedItem[] = [];
 
   const pathsWithStats = getLearningPaths().map((path) => ({
