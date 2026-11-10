@@ -1,10 +1,9 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, BookOpen, Check, Compass } from 'lucide-react';
-import { getCategoryById, getCategoryIcon } from '@/features/content';
-import { getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
-import { Card, Badge, Button } from '@/components/ui';
+import { ArrowRight, BookOpen, Check } from 'lucide-react';
+import { translate, useUiLocale } from '@/features/localization';
+import { Card, Badge } from '@/components/ui';
 import { EmptyState } from '@/components/feedback';
-import { coursePath, localizedPath } from '@/app/router/routes';
+import { ROUTE_PATHS, localizedPath } from '@/app/router/routes';
 import type { ContinueLearningInfo } from '../types';
 
 interface ContinueLearningCardProps {
@@ -19,32 +18,24 @@ export function ContinueLearningCard({ continueLearning }: ContinueLearningCardP
       <EmptyState
         title={translate(locale, 'noLessonsStartedTitle')}
         message={translate(locale, 'noLessonsStartedMessage')}
-        icon={Compass}
+        icon={BookOpen}
         action={
-          <Link to={localizedPath(coursePath('start-here'), locale)}>
-            <Button variant="primary" size="sm">
-              {translate(locale, 'startHere')}
-            </Button>
+          <Link to={localizedPath(ROUTE_PATHS.COURSES, locale)} className="text-sm font-medium text-primary-600 hover:text-primary-700">
+            {translate(locale, 'browseCatalog')}
           </Link>
         }
       />
     );
   }
 
-  const CategoryIcon = continueLearning.kind === 'structured' ? BookOpen : getCategoryIcon(continueLearning.categoryIcon);
-  const category = continueLearning.kind === 'classic' ? getCategoryById(continueLearning.categoryId) : undefined;
-  const categoryName = category
-    ? getLocalizedCategoryCopy(locale, category.id, category.name, category.description).name
-    : continueLearning.categoryName;
-
   return (
     <Link to={localizedPath(continueLearning.href, locale)}>
       <Card interactive className="group flex items-center gap-4 p-5">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
-          <CategoryIcon className="h-6 w-6" />
+          <BookOpen className="h-6 w-6" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs text-neutral-500">{categoryName}</p>
+          <p className="text-xs text-neutral-500">{continueLearning.categoryName}</p>
           <h3 className="truncate text-sm font-semibold text-neutral-900 group-hover:text-primary-700">
             {continueLearning.lessonTitle}
           </h3>

@@ -1,11 +1,11 @@
 # Interactive Guides
 
-Interactive Guides is a bilingual (English/Russian), local-first learning platform for frontend development. It combines a structured curriculum with retained legacy HTML lessons while source content is reviewed and migrated.
+Interactive Guides is a bilingual (English/Russian), local-first learning platform for frontend development. Its active catalog contains only structured text lessons authored as EN/RU JSON content; standalone legacy HTML lesson pages are retired.
 
 ## What is included
 
 - Structured lessons with typed content blocks, knowledge checks, coding exercises, and EN/RU lesson files.
-- Classic lesson catalog and legacy HTML fallbacks retained during migration.
+- A single text-based curriculum for lesson browsing, reading, practice and progress. HTML topics remain available as ordinary structured text lessons.
 - Curated learning paths, including a guided frontend capstone from requirements through demo/review.
 - Lesson progress, bookmarks, notes, quiz history, structured content search, and dashboard activity.
 - Structured search across lesson text, curriculum topics and notes, with section-outline search that can match body content and Git command references. Search uses six bounded generated EN/RU index chunks; Practice downloads a separate compact exercise index. Full lesson bodies remain lazy-loaded when a learner opens a lesson.

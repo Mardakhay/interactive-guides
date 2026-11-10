@@ -2,9 +2,8 @@ import { Link } from 'react-router-dom';
 import { Bookmark, StickyNote } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { EmptyState } from '@/components/feedback';
-import { getCategoryById } from '@/features/content';
 import { localizedPath } from '@/app/router/routes';
-import { getLocalizedCategoryCopy, translate, useUiLocale } from '@/features/localization';
+import { translate, useUiLocale } from '@/features/localization';
 import type { ActivityItem } from '../types';
 
 interface RecentActivityProps {
@@ -38,7 +37,7 @@ export function RecentActivity({ items }: RecentActivityProps) {
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-neutral-500">{item.categoryId === 'structured-curriculum' ? item.categoryName : getLocalizedCategoryCopy(locale, item.categoryId, getCategoryById(item.categoryId)?.name ?? item.categoryName, getCategoryById(item.categoryId)?.description ?? '').name}</p>
+                <p className="text-xs text-neutral-500">{item.categoryName}</p>
                 <h4 className="truncate text-sm font-semibold text-neutral-900 group-hover:text-primary-700">
                   {item.lessonTitle}
                 </h4>

@@ -2,9 +2,7 @@ export type AppLocale = 'en' | 'ru';
 
 export const ROUTES = {
   DASHBOARD: '/',
-  COURSES: '/courses',
-  COURSE_DETAIL: '/courses/:categoryId',
-  LESSON_VIEWER: '/lessons/:lessonId',
+  COURSES: '/structured-lessons',
   LEARNING_PATHS: '/paths',
   LEARNING_PATH_DETAIL: '/paths/:pathId',
   BOOKMARKS: '/bookmarks',
@@ -17,7 +15,7 @@ export const ROUTES = {
 
 export const ROUTE_PATHS = {
   DASHBOARD: '/',
-  COURSES: '/courses',
+  COURSES: '/structured-lessons',
   LEARNING_PATHS: '/paths',
   BOOKMARKS: '/bookmarks',
   NOTES: '/notes',
@@ -34,12 +32,14 @@ export function localizedPath(path: string, locale: AppLocale): string {
   return unprefixedPath === '/' ? '/' + locale : '/' + locale + unprefixedPath;
 }
 
-export function coursePath(categoryId: string): string {
-  return `/courses/${categoryId}`;
+export function coursePath(_categoryId: string): string {
+  // Kept as a compatibility helper for stale bookmarks/links; all catalog links use the structured curriculum.
+  return '/structured-lessons';
 }
 
-export function lessonPath(lessonId: string): string {
-  return `/lessons/${lessonId}`;
+export function lessonPath(_lessonId: string): string {
+  // Standalone legacy lesson URLs no longer resolve to HTML lesson documents.
+  return '/structured-lessons';
 }
 
 export function learningPathDetailPath(pathId: string): string {

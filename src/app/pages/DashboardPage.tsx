@@ -3,7 +3,6 @@ import { ArrowRight } from 'lucide-react';
 import {
   useDashboardData,
   ContinueLearningCard,
-  ProgressSummary,
   StructuredProgressSummary,
   RecentActivity,
   RecommendedNext,
@@ -21,13 +20,6 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-semibold text-neutral-900">{translate(locale, 'dashboard')}</h1>
         <p className="text-neutral-600">{translate(locale, 'dashboardDescription')}</p>
       </div>
-
-      <ProgressSummary
-        completed={data.completed}
-        inProgress={data.inProgress}
-        total={data.total}
-        percent={data.percent}
-      />
 
       <StructuredProgressSummary {...data.structuredProgress} />
 
