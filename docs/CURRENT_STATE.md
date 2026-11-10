@@ -100,7 +100,7 @@ The sections above record the original audit of `main` and remain useful as a ba
 
 - `src/features/structured-lesson/store.ts` persists quiz attempts, code drafts, and checked self-review criteria locally in a dedicated versioned key.
 - Coding exercises save drafts and expose hints/rubrics. The only live preview is HTML in an iframe with scripts disabled. **JavaScript and TypeScript exercises are not executable in the current UI.**
-- The generic storage helper still silently catches localStorage write failures. Versioned migration of the existing legacy progress/notes/bookmarks/quizzes, user-friendly quota errors and export/import remain outstanding.
+- A bilingual Data Management page and `src/features/data-portability/backup.ts` implement versioned JSON export/import for progress, bookmarks, notes, legacy quiz results, structured quiz attempts, code drafts, practice checklists, last lesson and theme. Import validates before writing, previews a summary, merges instead of clearing, uses per-record conflict rules, and attempts rollback if storage writes fail; `backup.test.ts` covers these cases. Remaining gaps are migration functions for future persisted-schema changes and visible recovery feedback for ordinary autosave/quota failures, since the generic storage helper still catches write errors silently.
 
 ### PWA, deployment, account sync
 
