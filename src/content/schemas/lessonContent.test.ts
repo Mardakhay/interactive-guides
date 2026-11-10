@@ -242,12 +242,37 @@ describe('CSS fundamentals lesson translation', () => {
     expect(englishCss.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianCss.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishCss.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(englishCss.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
     expect(russianCss.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     expect(englishCss.blocks.map((block) => block.id)).toContain('css-color-values');
     expect(englishCss.blocks.map((block) => block.id)).toContain('css-accessibility');
     expect(englishCss.blocks.map((block) => block.id)).toContain('css-accessible-theme-card');
-    expect(englishCss.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
+    expect(englishCss.version).toBe(5);
+    expect(russianCss.version).toBe(5);
+    for (const lesson of [englishCss, russianCss]) {
+      expect(lesson.updatedAt).toBe('2026-10-28');
+      const positioning = lesson.blocks.find((block) => block.id === 'css-positioning-walkthrough');
+      expect(positioning?.type).toBe('codeWalkthrough');
+      if (positioning?.type !== 'codeWalkthrough') return;
+      expect(positioning.code).toContain('position: relative');
+      expect(positioning.code).toContain('position: absolute');
+      expect(positioning.code).toContain('position: sticky');
+      expect(positioning.code).toContain('z-index:');
+      const lineCount = positioning.code.split('\n').length;
+      expect(positioning.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
+      const check = lesson.blocks.find((block) => block.id === 'css-positioning-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') return;
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['container']);
+      expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.id === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type === 'references') {
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/CSS/position')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/CSS/z-index')).toBe(true);
+      }
+    }
+    expect(englishCss.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(7);
     expect(englishCss.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
     expect(englishCss.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
@@ -323,8 +348,8 @@ describe('Git fundamentals lesson translation', () => {
     );
     expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
-    expect(englishGit.version).toBe(5);
-    expect(russianGit.version).toBe(5);
+    expect(englishGit.version).toBe(7);
+    expect(russianGit.version).toBe(7);
     const remoteExample = englishGit.blocks.find((block) => block.id === 'remote-example');
     expect(remoteExample?.type).toBe('codeWalkthrough');
     if (remoteExample?.type !== 'codeWalkthrough') return;
@@ -937,14 +962,14 @@ describe('Git workflow lesson translation', () => {
     expect(englishGitWorkflow.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGitWorkflow.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
-    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(3);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(3);
-    expect(englishGitWorkflow.version).toBe(5);
-    expect(russianGitWorkflow.version).toBe(5);
+    expect(englishGitWorkflow.version).toBe(6);
+    expect(russianGitWorkflow.version).toBe(6);
     for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
       const ciExample = lesson.blocks.find((block) => block.id === 'ci-example');
       expect(ciExample?.type).toBe('code');
@@ -967,6 +992,24 @@ describe('Git workflow lesson translation', () => {
         'git-pipeline-simulation',
       ]),
     );
+    expect(englishGitWorkflow.blocks.map((block) => block.id)).toEqual(
+      expect.arrayContaining(['ci-failure-diagnosis-heading', 'ci-failure-diagnosis-matrix', 'ci-failure-diagnosis-check']),
+    );
+    const diagnosisByLocale = [englishGitWorkflow, russianGitWorkflow].map((lesson) => {
+      const matrix = lesson.blocks.find((candidate) => candidate.id === 'ci-failure-diagnosis-matrix');
+      expect(matrix?.type).toBe('list');
+      if (matrix?.type !== 'list') throw new Error('CI diagnostic matrix is missing');
+      expect(matrix.items.length).toBeGreaterThanOrEqual(5);
+      const block = lesson.blocks.find((candidate) => candidate.id === 'ci-failure-diagnosis-check');
+      expect(block?.type).toBe('knowledgeCheck');
+      if (block?.type !== 'knowledgeCheck') throw new Error('CI diagnosis check is missing');
+      expect(block.questionType).toBe('single-choice');
+      expect(block.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['build-log']);
+      expect(block.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      return block;
+    });
+    expect(diagnosisByLocale[0]?.prompt).toContain('npm run build');
+    expect(diagnosisByLocale[1]?.prompt).toContain('npm run build');
     const pipelineSimulation = englishGitWorkflow.blocks.find(
       (block) => block.id === 'git-pipeline-simulation',
     );

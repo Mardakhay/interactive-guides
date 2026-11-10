@@ -183,4 +183,73 @@ describe('structured content repository', () => {
     expect(getSupplementaryTrackForLesson('browser.realtime-workers', 'ru')?.lessonIds).toContain('browser.realtime-workers');
     expect(getWeekForLesson('browser.realtime-workers', 'ru')).toBeUndefined();
   });
+  it('explains the .gitignore syntax used in the bilingual Git fundamentals lesson', async () => {
+    const [english, russian] = await Promise.all([
+      getStructuredLesson('git.fundamentals', 'en'),
+      getStructuredLesson('git.fundamentals', 'ru'),
+    ]);
+    expect(english).toBeDefined();
+    expect(russian).toBeDefined();
+    if (!english || !russian) throw new Error('Bilingual Git fundamentals lesson is missing');
+
+    const getPatternList = (lesson: NonNullable<typeof english>) => {
+      const block = lesson.blocks.find((candidate) => candidate.id === 'gitignore-pattern-reference');
+      expect(block?.type).toBe('list');
+      if (block?.type !== 'list') throw new Error('The .gitignore pattern reference must be a list');
+      return block.items.join('\n');
+    };
+
+    expect(english.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russian.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(getPatternList(english)).toContain('one `*` does not cross a `/`');
+    expect(getPatternList(english)).toContain('the last matching pattern');
+    expect(getPatternList(english)).toContain('`!.env.example`');
+    expect(getPatternList(russian)).toContain('не пересекает `/`');
+    expect(getPatternList(russian)).toContain('последнее совпавшее правило');
+    expect(getPatternList(russian)).toContain('`!.env.example`');
+  });
+
+  it('provides a practical README walkthrough and deployment checklist in both locales', async () => {
+    const [english, russian] = await Promise.all([
+      getStructuredLesson('git.fundamentals', 'en'),
+      getStructuredLesson('git.fundamentals', 'ru'),
+    ]);
+    expect(english).toBeDefined();
+    expect(russian).toBeDefined();
+    if (!english || !russian) throw new Error('Bilingual Git fundamentals lesson is missing');
+
+    expect(english.version).toBe(7);
+    expect(russian.version).toBe(7);
+    expect(english.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russian.blocks.map(({ id, type }) => ({ id, type })),
+    );
+
+    for (const [lesson, locale] of [[english, 'en'], [russian, 'ru']] as const) {
+      const example = lesson.blocks.find((block) => block.id === 'readme-example');
+      expect(example?.type).toBe('codeWalkthrough');
+      if (example?.type !== 'codeWalkthrough') throw new Error('README example must be a walkthrough');
+      expect(example.language).toBe('markdown');
+      expect(example.code.split('\n')).toHaveLength(40);
+      expect(example.steps.map(({ lineStart, lineEnd }) => [lineStart, lineEnd])).toEqual([
+        [1, 10], [12, 14], [16, 20], [22, 28], [30, 40],
+      ]);
+      expect(example.code).toContain('npm run build');
+      expect(example.code).toContain('## Deployment');
+
+      const checklist = lesson.blocks.find((block) => block.id === 'readme-publishing-checklist');
+      expect(checklist?.type).toBe('list');
+      if (checklist?.type !== 'list') throw new Error('README checklist must be a list');
+      const copy = checklist.items.join(' ');
+      expect(copy.toLowerCase()).toContain('base path');
+      expect(copy.toLowerCase()).toContain(locale === 'en' ? 'deployment status' : 'статус deploy');
+      expect(copy.toLowerCase()).toContain(locale === 'en' ? 'api tokens' : 'api-токены');
+
+      const references = lesson.blocks.find((block) => block.id === 'references');
+      expect(references?.type).toBe('references');
+      if (references?.type !== 'references') throw new Error('Git references block is missing');
+      expect(references.items.some((item) => item.url.includes('basic-writing-and-formatting-syntax'))).toBe(true);
+    }
+  });
+
 });

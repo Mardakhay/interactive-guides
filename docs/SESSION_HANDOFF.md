@@ -5,7 +5,42 @@
 **Base branch:** `main`  
 **Working branch created:** `feat/learning-platform-foundation`
 
-## Current continuation — PWA runtime-cache hardening — 2026-10-28
+## Current continuation — CI failure diagnosis in the structured Git workflow lesson — 2026-10-28
+
+- Latest verified code/test HEAD: `ccf839c806369d9e151e4f24b430ac24f3c4c936`; exact-head GitHub Actions [run #40653842673](https://github.com/Mardakhay/interactive-guides/actions/runs/40653842673) passed install, audit diagnostics, lint, typecheck, all 215 tests across 34 files, production build, and bundle-budget checks across 125 JavaScript chunks.
+- Updated `git.workflow-ci` EN/RU to v6 with a diagnosis matrix distinguishing install/lockfile, lint/typecheck, test, production build and deploy-stage failures. Added a localized knowledge check that requires inspecting the failed build log, fixing the concrete cause and validating the new SHA rather than bypassing a failed gate.
+- Kept the legacy Git route, stored user data and lesson identity unchanged. The exercise is structured explanatory content, not a replica of the legacy canvas/failure-injection simulator.
+- The Git Reference README and `.gitignore` work remains documented in the previous continuation. Exact-head CI for it passed on [run #40653287307](https://github.com/Mardakhay/interactive-guides/actions/runs/40653287307).
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft. No local checkout/test or real-browser/device/screen-reader acceptance is claimed.
+- Next: continue source-parity batches and route/accessibility checks; do not redirect old lesson IDs or discard learner state until equivalence and per-store retention have been reviewed. Supabase remains gated by approved reconciliation and RLS isolation tests.
+
+## Previous continuation — Git README and ignore-pattern parity (superseded) — 2026-10-28
+
+- Latest verified code/test HEAD: `b920e1ef34bf292bde155bc18d203dc03db7827a`; exact-head GitHub Actions [run #40653287307](https://github.com/Mardakhay/interactive-guides/actions/runs/40653287307) passed install, audit diagnostics, lint, typecheck, all 215 tests across 34 files, production build and bundle-budget checks across 125 JavaScript chunks.
+- Updated `git.fundamentals` EN/RU to v7 without changing its canonical lesson ID or route. The new `.gitignore` reference explains leading comments, glob and bracket-range patterns, directory suffixes, negation/re-inclusion limits and last-match precedence.
+- Added a bilingual 40-line README walkthrough covering purpose, features, technology, requirements, reproducible setup/check commands, contributing, deployment, license and credits. The publishing checklist qualifies GitHub Pages behavior and asks learners to verify the configured source/workflow, build output, base path and deployment status.
+- Regression tests verify EN/RU block parity, `.gitignore` semantics, README line ranges, deployment guidance and the official GitHub Markdown documentation reference. The earlier v6 schema/version correction separately passed [run #40652795308](https://github.com/Mardakhay/interactive-guides/actions/runs/40652795308).
+- Remaining on this source: the classic reference's searchable command catalogue, copy buttons and accordion presentation are not reproduced one-to-one. The legacy route/state cutover stays blocked; no saved learner data has been migrated or discarded.
+- `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft. No local checkout/test, real-browser/device, or screen-reader acceptance is claimed.
+- Next: continue targeted source-to-block review in syllabus order and address the highest-value content/interaction gaps. Keep legacy routes and records until equivalence and per-store retention decisions are reviewed. Supabase remains gated by approved reconciliation and RLS isolation tests.
+
+## Previous continuation — CSS positioning parity (superseded) — 2026-10-28
+
+- Latest verified code HEAD: `ecb1c8e5546ec543428af241a4f7eb59fe00d4cb`; exact-head GitHub Actions [run #40649649155](https://github.com/Mardakhay/interactive-guides/actions/runs/40649649155) passed npm ci, audit diagnostics, lint, typecheck, tests and production build.
+- Updated `css.fundamentals` EN/RU to v5. The positioning section explains static, relative, absolute, fixed and sticky, containing-block selection and stacking-context limits; its walkthrough shows an absolute badge anchored to a relative card and a sticky banner. Tests check line ranges, the correct answer and official MDN references.
+- PWA work is also code-verified: runtime cache restricted to `/assets/` under cache v6; the service-worker update prompt offers localized Later without activating/reloading and re-prompts when the tab becomes visible. Exact-head CI for that defer flow passed in [run #40649159828](https://github.com/Mardakhay/interactive-guides/actions/runs/40649159828).
+- Still open: legacy CSS interactive Flexbox/Grid/transition demos are not reproduced one-to-one; responsive layout and service-worker lifecycle require real-browser/device acceptance, which has not been executed or recorded.
+- Legacy route mappings remain provisional, learner-state migration policy remains open, Notion pages remain `verification.state=unverified`, and Supabase is gated on approved reconciliation and RLS testing. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
+
+## Previous continuation — learner-controlled PWA update deferral (superseded) — 2026-10-28
+
+- Latest verified code HEAD: `caaea3fdff52a420ebd64f3e4c1ff55eea58b36e`; exact-head GitHub Actions [run #40649159828](https://github.com/Mardakhay/interactive-guides/actions/runs/40649159828) passed npm ci, audit diagnostics, lint, typecheck, tests and production build.
+- The service-worker prompt now offers localized `Update now` and `Later`. Later hides the prompt without sending `SKIP_WAITING`, activating the waiting worker or reloading; when the tab becomes visible later, the component rechecks the waiting registration and presents the choice again. Added tests for defer, non-activation, re-prompt, explicit activation messaging and Russian copy.
+- Runtime caching is restricted to Vite assets under `/assets/`; cache namespace v6 clears older v5 entries on activation. These code contracts have CI coverage but have not been checked in a real browser/device.
+- Still open: perform W-01 through W-05 on supported desktop/mobile browsers, including online-to-offline revisit, unvisited-lesson offline behavior, deferral while a note/draft is unsaved, and reload only after controllerchange. No browser/device evidence is recorded.
+- Content parity remains focused, not complete; all 25 legacy mappings are provisional, learner-state migration decisions remain open, Notion pages remain `verification.state=unverified`, and Supabase is gated on approved reconciliation and RLS testing. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
+
+## Previous continuation — PWA runtime-cache hardening (superseded) — 2026-10-28
 
 - Latest verified code HEAD: `b5a0f8fbcac903eaea3d415b1698eadc659521d0`; exact-head GitHub Actions [run #40648789939](https://github.com/Mardakhay/interactive-guides/actions/runs/40648789939) passed `npm ci`, audit diagnostics, lint, typecheck, all tests, and production build.
 - Fixed an over-broad service-worker runtime cache rule: non-navigation requests must now be under `/assets/` before the extension allowlist is considered. This prevents arbitrary same-origin paths that happen to end in `.json`, `.js`, `.png` and similar extensions from being runtime-cached. Cache namespace bumped v5 → v6 so older entries are cleared during activation.
