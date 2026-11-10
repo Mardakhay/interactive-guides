@@ -1,10 +1,10 @@
 {
   "id": "react.api-custom-hooks",
   "locale": "en",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-4-week-16",
   "week": 16,
   "order": 1,
@@ -25,7 +25,8 @@
     "Handle multiple requests without making the UI state ambiguous.",
     "Use cancellation and stale-request protection to avoid outdated results overwriting current state.",
     "Choose retry behavior based on the failure and operation rather than retrying every error automatically.",
-    "Debounce search input while separately cancelling requests or ignoring stale responses."
+    "Debounce search input while separately cancelling requests or ignoring stale responses.",
+    "Explain how effect cleanup prevents stale fetch results and what a generic response type can and cannot guarantee."
   ],
   "tags": [
     "react",
@@ -516,6 +517,72 @@
       "explanation": "Keep transport errors, HTTP status errors, and response parsing errors distinguishable in the service/API policy."
     },
     {
+      "id": "api-fetch-cleanup-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A `useFetch(url)` effect starts a request for one URL, then the URL changes or the component unmounts. Why should the effect return a cleanup function?",
+      "options": [
+        {
+          "id": "cleanup",
+          "text": "To abort or ignore the previous request so a late result cannot overwrite the state for the current URL or a no-longer-mounted component.",
+          "correct": true,
+          "feedback": "Correct. Cleanup runs before the effect re-synchronizes and when the component unmounts. Abort the request where supported or ignore its stale result before setting state."
+        },
+        {
+          "id": "await",
+          "text": "To make the request resolve faster and guarantee the server always returns data.",
+          "correct": false,
+          "feedback": "Cleanup cannot make a server respond faster or guarantee success. It manages the lifecycle of the work owned by the effect."
+        },
+        {
+          "id": "types",
+          "text": "To make TypeScript validate the JSON response at runtime.",
+          "correct": false,
+          "feedback": "Cleanup handles lifecycle and stale work; runtime data validation is a separate concern."
+        },
+        {
+          "id": "mount-only",
+          "text": "Only to clear a timeout on unmount; dependencies changing never invoke cleanup.",
+          "correct": false,
+          "feedback": "React runs the previous cleanup before setting up the effect again when dependencies change, and also on unmount."
+        }
+      ],
+      "explanation": "A request belongs to the effect's lifecycle. Abort it or guard against stale results when dependencies change/unmount so an outdated response cannot replace current UI state."
+    },
+    {
+      "id": "api-generic-type-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "In `async function useFetch<T>(url: string): Promise<T>`, what does generic `T` provide?",
+      "options": [
+        {
+          "id": "shape",
+          "text": "A compile-time type relationship so callers can use the result as T, but it does not validate the actual JSON payload.",
+          "correct": true,
+          "feedback": "Correct. The generic carries a static type through the API. A server may still return malformed data, so validate untrusted JSON at runtime."
+        },
+        {
+          "id": "http",
+          "text": "A runtime conversion that forces every response to match T and throws if any property is missing.",
+          "correct": false,
+          "feedback": "A TypeScript generic does not inspect network data at runtime or convert it into a validated object."
+        },
+        {
+          "id": "method",
+          "text": "It chooses the HTTP method, retry policy and request URL automatically.",
+          "correct": false,
+          "feedback": "T describes a type relationship; URL, method, retries and response parsing are separate request behavior."
+        },
+        {
+          "id": "cache",
+          "text": "It causes all components calling the hook to share one cached state instance.",
+          "correct": false,
+          "feedback": "A generic parameter does not share state or cache requests. Each Hook call has its own state unless a shared store/cache is explicitly used."
+        }
+      ],
+      "explanation": "Generics preserve compile-time information about the expected result shape. They do not change the response or validate external data at runtime."
+    },
+    {
       "id": "api-client-choice-practice",
       "type": "codingExercise",
       "title": "Choose and test an API client policy",
@@ -696,6 +763,16 @@
         {
           "title": "MDN: Fetch API",
           "url": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React reference: useEffect",
+          "url": "https://react.dev/reference/react/useEffect",
+          "kind": "official-docs"
+        },
+        {
+          "title": "TypeScript Handbook: Generics",
+          "url": "https://www.typescriptlang.org/docs/handbook/2/generics.html",
           "kind": "official-docs"
         }
       ]

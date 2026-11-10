@@ -1,10 +1,10 @@
 {
   "id": "deployment.production-hosting",
   "locale": "en",
-  "version": 3,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-29",
   "moduleId": "supplement-deployment",
   "supplementaryTrackId": "supplement-deployment",
   "order": 1,
@@ -23,7 +23,8 @@
     "Resolve Vite mode-specific env values without committing local secrets.",
     "Verify direct-route refresh and provider-specific SPA fallback.",
     "Plan preview, smoke tests, monitoring and rollback.",
-    "Compare hosting models and relate CPU, memory, storage/I/O, and bandwidth to the component that consumes them."
+    "Compare hosting models and relate CPU, memory, storage/I/O, and bandwidth to the component that consumes them.",
+    "Distinguish provider-level deployment rollback from a source-control revert and verify recovery safely."
   ],
   "tags": [
     "deployment",
@@ -152,6 +153,82 @@
         "Includes deployed direct-route verification.",
         "Defines clear rollback criteria and responsibility."
       ]
+    },
+    {
+      "id": "deploy-rollback-heading",
+      "type": "heading",
+      "level": 2,
+      "text": "Recover from a bad production deployment"
+    },
+    {
+      "id": "deploy-rollback-body",
+      "type": "paragraph",
+      "text": "A deployment rollback restores a previously published version at the hosting layer; `git revert` changes source history by adding a new commit, which still needs checks and a deployment before users receive the fix. During an incident, prioritize restoring service through the provider's documented control when a known-good deployment is available and compatible with current data and backend APIs. Confirm that environment configuration, scheduled jobs, database migrations and external contracts will still work. Provider behavior is not identical: a rollback may not rebuild client variables and may change whether automatic production promotion continues. Preserve the failed deployment's logs and SHA, verify service after rollback, then create a source-level fix and release it through the normal checks."
+    },
+    {
+      "id": "deploy-rollback-walkthrough",
+      "type": "codeWalkthrough",
+      "language": "text",
+      "code": "Production error rate rises after release\n        ↓\nConfirm the affected deployment and inspect logs / health signals\n        ↓\nCheck whether the previous known-good deployment is compatible with current data and APIs\n        ↓\nRestore that deployment using the host's documented rollback / promote control\n        ↓\nVerify critical routes, API calls, assets and error rate\n        ↓\nPreserve failed SHA + logs; prepare a source-level fix, run checks, test preview and release",
+      "steps": [
+        {
+          "title": "Confirm the incident and capture evidence",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "explanation": "Verify that the regression aligns with the release using error rates, deployment status and logs. Record the failed deployment and commit rather than immediately destroying evidence."
+        },
+        {
+          "title": "Check whether rollback is safe",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "explanation": "An older frontend may be incompatible with a newly migrated database or changed API. Confirm compatibility and the provider's available rollback target before changing production traffic."
+        },
+        {
+          "title": "Restore service through the hosting provider",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "explanation": "Use the provider's documented rollback or promotion path. This may serve an existing artifact without rebuilding; do not assume new environment settings are applied to that artifact."
+        },
+        {
+          "title": "Verify recovery, then fix the source",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "explanation": "Recheck critical user journeys, direct routes, assets, API behavior and logs. Once the incident is contained, prepare a source-level fix, rerun checks and validate the preview before the next release."
+        }
+      ]
+    },
+    {
+      "id": "deploy-rollback-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "A production release causes a sharp rise in 500 responses. The previous deployment is known to be healthy and confirmed compatible with the current database and API. What is the best immediate recovery action?",
+      "options": [
+        {
+          "id": "restore-known-good",
+          "text": "Use the hosting provider's documented rollback or promotion control to restore the known-good deployment, then verify recovery",
+          "correct": true,
+          "feedback": "Correct. Restore service through the supported deployment mechanism, verify the result, and preserve evidence from the failed release. Follow up with a source fix and the normal checks."
+        },
+        {
+          "id": "git-reset-force",
+          "text": "Run `git reset --hard HEAD~1` and force-push the production branch",
+          "correct": false,
+          "feedback": "This rewrites source history and does not by itself restore the artifact currently serving production. It can also discard work or disrupt collaborators."
+        },
+        {
+          "id": "revert-only",
+          "text": "Create `git revert` and assume the production site immediately returns to the previous version",
+          "correct": false,
+          "feedback": "A revert creates a new source commit. The fix still has to pass required checks and go through the configured build/deployment process."
+        },
+        {
+          "id": "ignore",
+          "text": "Leave production running until the next scheduled release so logs remain consistent",
+          "correct": false,
+          "feedback": "Evidence matters, but a confirmed incident requires an explicit mitigation or recovery decision rather than ignoring user impact."
+        }
+      ],
+      "explanation": "A provider rollback changes the deployment being served, while `git revert` changes source history and generally requires another release. First restore service when rollback is safe, verify it, then fix forward through the normal release path."
     },
     {
       "id": "deploy-summary",
@@ -565,6 +642,16 @@
         {
           "title": "Netlify: Custom domains and DNS setup",
           "url": "https://docs.netlify.com/domains-https/custom-domains/",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Vercel: Rolling back a production deployment",
+          "url": "https://vercel.com/docs/deployments/rollback-production-deployment",
+          "kind": "official-docs"
+        },
+        {
+          "title": "Netlify: Manage deploys and rollbacks",
+          "url": "https://docs.netlify.com/deploy/manage-deploys/manage-deploys-overview/",
           "kind": "official-docs"
         }
       ]

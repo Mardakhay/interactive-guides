@@ -47,6 +47,8 @@ import englishApiHooks from '../lessons/react.api-custom-hooks/en.json';
 import russianApiHooks from '../lessons/react.api-custom-hooks/ru.json';
 import englishReactBasics from '../lessons/react.components-jsx-state/en.json';
 import russianReactBasics from '../lessons/react.components-jsx-state/ru.json';
+import englishArchitectureBoundaries from '../lessons/frontend.architecture-boundaries/en.json';
+import russianArchitectureBoundaries from '../lessons/frontend.architecture-boundaries/ru.json';
 import englishDesignSystem from '../lessons/ui.design-systems/en.json';
 import russianDesignSystem from '../lessons/ui.design-systems/ru.json';
 import englishUiEcosystem from '../lessons/ui.bootstrap-mui/en.json';
@@ -410,8 +412,68 @@ describe('Node.js and project tooling lesson translation', () => {
     expect(englishTooling.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianTooling.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishTooling.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishTooling.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
     expect(russianTooling.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    expect(lessonTranslationSchema.safeParse(englishTooling).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianTooling).success).toBe(true);
+    expect(englishTooling.version).toBe(5);
+    expect(russianTooling.version).toBe(5);
+    for (const lesson of [englishTooling, russianTooling]) {
+      expect(lesson.updatedAt).toBe('2026-10-29');
+      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
+      const walkthrough = lesson.blocks.find((block) => block.id === 'npm-command-vs-exec-walkthrough');
+      expect(walkthrough?.type).toBe('codeWalkthrough');
+      if (walkthrough?.type !== 'codeWalkthrough') throw new Error('npm CLI walkthrough is missing');
+      expect(walkthrough.code).toContain('npm exec -- vite --version');
+      expect(walkthrough.code).toContain('npm create vite@latest my-app -- --template react-ts');
+      expect(walkthrough.code.split(String.fromCharCode(10))).toHaveLength(8);
+      expect(walkthrough.steps.map(({ lineStart, lineEnd }) => [lineStart, lineEnd])).toEqual([[1, 2], [4, 5], [7, 8]]);
+      const quiz = lesson.blocks.find((block) => block.id === 'npm-command-vs-exec-check');
+      expect(quiz?.type).toBe('knowledgeCheck');
+      if (quiz?.type !== 'knowledgeCheck') throw new Error('npm CLI knowledge check is missing');
+      expect(quiz.questionType).toBe('single-choice');
+      expect(quiz.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['cli']);
+      expect(quiz.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
+      const templateCheck = lesson.blocks.find((block) => block.id === 'vite-template-check');
+      expect(templateCheck?.type).toBe('knowledgeCheck');
+      if (templateCheck?.type !== 'knowledgeCheck') throw new Error('Vite template question is missing');
+      expect(templateCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['react-ts']);
+      expect(templateCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
+      const hmrBody = lesson.blocks.find((block) => block.id === 'vite-hmr-body');
+      expect(hmrBody?.type).toBe('paragraph');
+      if (hmrBody?.type !== 'paragraph') throw new Error('HMR explanation is missing');
+      expect(hmrBody.text.toLowerCase()).toContain('hmr');
+      expect(hmrBody.text.toLowerCase()).toMatch(/reload|перезагрузки/);
+      const hmrCheck = lesson.blocks.find((block) => block.id === 'vite-hmr-check');
+      expect(hmrCheck?.type).toBe('knowledgeCheck');
+      if (hmrCheck?.type !== 'knowledgeCheck') throw new Error('HMR knowledge check is missing');
+      expect(hmrCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['hmr-precise']);
+      expect(hmrCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
+      const expectedToolingChecks = [
+        ['dev-dependency-check', 'dev'],
+        ['caret-range-check', 'compatible'],
+        ['vite-dev-server-check', 'esm'],
+        ['lint-format-check', 'pair'],
+      ] as const;
+      for (const [blockId, correctId] of expectedToolingChecks) {
+        const check = lesson.blocks.find((block) => block.id === blockId);
+        expect(check?.type).toBe('knowledgeCheck');
+        if (check?.type !== 'knowledgeCheck') throw new Error(`${blockId} is missing`);
+        expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual([correctId]);
+        expect(check.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      }
+
+      const refs = lesson.blocks.find((block) => block.id === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type !== 'references') throw new Error('tooling references are missing');
+      expect(refs.items.some((item) => item.url === 'https://docs.npmjs.com/cli/v11/commands/npm-exec')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://docs.npmjs.com/cli/v11/commands/npm-init')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://vite.dev/guide/features.html')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://vite.dev/guide/troubleshooting.html')).toBe(true);
+    }
   });
 });
 
@@ -422,8 +484,26 @@ describe('TypeScript fundamentals lesson translation', () => {
     expect(englishTypeScript.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianTypeScript.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishTypeScript.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(englishTypeScript.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
     expect(russianTypeScript.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    for (const lesson of [englishTypeScript, russianTypeScript]) {
+      expect(lesson.version).toBe(4);
+      expect(lesson.updatedAt).toBe('2026-10-29');
+      const strictCheck = lesson.blocks.find((block) => block.id === 'strict-mode-check');
+      expect(strictCheck?.type).toBe('knowledgeCheck');
+      if (strictCheck?.type !== 'knowledgeCheck') throw new Error('TypeScript strict-mode check is missing');
+      expect(strictCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['checks']);
+      expect(strictCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const partialCheck = lesson.blocks.find((block) => block.id === 'partial-utility-check');
+      expect(partialCheck?.type).toBe('knowledgeCheck');
+      if (partialCheck?.type !== 'knowledgeCheck') throw new Error('Partial utility check is missing');
+      expect(partialCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['partial']);
+      expect(partialCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.type === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type !== 'references') throw new Error('TypeScript references are missing');
+      expect(refs.items.some((item) => item.url === 'https://www.typescriptlang.org/tsconfig/#strict')).toBe(true);
+    }
   });
 });
 
@@ -434,8 +514,21 @@ describe('React effects and lists lesson translation', () => {
     expect(englishReactEffects.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianReactEffects.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
-    expect(russianReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    expect(russianReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    for (const lesson of [englishReactEffects, russianReactEffects]) {
+      expect(lesson.version).toBe(5);
+      expect(lesson.updatedAt).toBe('2026-10-29');
+      const dependencyCheck = lesson.blocks.find((block) => block.id === 'effect-dependency-array-check');
+      expect(dependencyCheck?.type).toBe('knowledgeCheck');
+      if (dependencyCheck?.type !== 'knowledgeCheck') throw new Error('Effect dependency check is missing');
+      expect(dependencyCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['count']);
+      expect(dependencyCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.type === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type !== 'references') throw new Error('Effect references are missing');
+      expect(refs.items.some((item) => item.url === 'https://react.dev/reference/react/useEffect')).toBe(true);
+    }
     expect(englishReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
     expect(russianReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
     expect(englishReactEffects.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
@@ -615,8 +708,27 @@ describe('React API and custom hooks lesson translation', () => {
     expect(englishApiHooks.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianApiHooks.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
-    expect(russianApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
+    expect(russianApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
+    for (const lesson of [englishApiHooks, russianApiHooks]) {
+      expect(lesson.version).toBe(5);
+      expect(lesson.updatedAt).toBe('2026-10-29');
+      const cleanupCheck = lesson.blocks.find((block) => block.id === 'api-fetch-cleanup-check');
+      expect(cleanupCheck?.type).toBe('knowledgeCheck');
+      if (cleanupCheck?.type !== 'knowledgeCheck') throw new Error('Fetch cleanup check is missing');
+      expect(cleanupCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['cleanup']);
+      expect(cleanupCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const genericCheck = lesson.blocks.find((block) => block.id === 'api-generic-type-check');
+      expect(genericCheck?.type).toBe('knowledgeCheck');
+      if (genericCheck?.type !== 'knowledgeCheck') throw new Error('Generic response check is missing');
+      expect(genericCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['shape']);
+      expect(genericCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.type === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type !== 'references') throw new Error('API hook references are missing');
+      expect(refs.items.some((item) => item.url === 'https://react.dev/reference/react/useEffect')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://www.typescriptlang.org/docs/handbook/2/generics.html')).toBe(true);
+    }
     expect(englishApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(russianApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(englishApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
@@ -710,10 +822,10 @@ describe('DOM and events lesson translation', () => {
     expect(englishDom.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianDom.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(12);
-    expect(russianDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(12);
-    expect(englishDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(17);
-    expect(russianDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(17);
+    expect(englishDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(13);
+    expect(russianDom.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(13);
+    expect(englishDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(18);
+    expect(russianDom.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(18);
     expect(englishDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(russianDom.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(englishDom.blocks.map((block) => block.id)).toEqual(
@@ -729,13 +841,17 @@ describe('DOM and events lesson translation', () => {
         'dom-throttle-walkthrough',
         'dom-throttle-check',
         'dom-rate-control',
+        'dom-live-collections-heading',
+        'dom-live-collections-body',
+        'dom-live-collections-walkthrough',
+        'dom-live-collections-check',
         'dom-advanced-practice',
       ]),
     );
     const advancedPractice = englishDom.blocks.find((block) => block.id === 'dom-advanced-practice');
     for (const lesson of [englishDom, russianDom]) {
-      expect(lesson.version).toBe(6);
-      expect(lesson.blocks).toHaveLength(67);
+      expect(lesson.version).toBe(7);
+      expect(lesson.blocks).toHaveLength(71);
       const resize = lesson.blocks.find((block) => block.id === 'dom-resize-observer-walkthrough');
       expect(resize?.type).toBe('codeWalkthrough');
       if (resize?.type !== 'codeWalkthrough') return;
@@ -785,6 +901,23 @@ describe('DOM and events lesson translation', () => {
         expect(exercise.instructions.some((instruction) => /throttled scroll handler/.test(instruction))).toBe(true);
         expect(exercise.requirements.some((requirement) => lesson.locale === 'en' ? /callback reference/.test(requirement) : /той же ссылкой на callback/.test(requirement))).toBe(true);
       }
+      const collectionWalkthrough = lesson.blocks.find((block) => block.id === 'dom-live-collections-walkthrough');
+      expect(collectionWalkthrough?.type).toBe('codeWalkthrough');
+      if (collectionWalkthrough?.type !== 'codeWalkthrough') throw new Error('Live collection walkthrough is missing');
+      expect(collectionWalkthrough.code).toContain('querySelectorAll');
+      expect(collectionWalkthrough.code).toContain('getElementsByClassName');
+      expect(collectionWalkthrough.code).toContain('Array.from(liveItems)');
+      const collectionLineCount = collectionWalkthrough.code.split('\n').length;
+      expect(collectionWalkthrough.steps.every((step) =>
+        step.lineStart >= 1 && step.lineEnd >= step.lineStart && step.lineEnd <= collectionLineCount
+      )).toBe(true);
+
+      const collectionCheck = lesson.blocks.find((block) => block.id === 'dom-live-collections-check');
+      expect(collectionCheck?.type).toBe('knowledgeCheck');
+      if (collectionCheck?.type !== 'knowledgeCheck') throw new Error('Live collection check is missing');
+      expect(collectionCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['snapshot-live']);
+      expect(collectionCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
       const refs = lesson.blocks.find((block) => block.id === 'dom-references');
       expect(refs?.type).toBe('references');
       if (refs?.type === 'references') expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener')).toBe(true);
@@ -799,12 +932,12 @@ describe('DOM and events lesson translation', () => {
   it('teaches traversal, content properties and state-driven rendering in both locales', () => {
     for (const lesson of [englishDom, russianDom]) {
       expect(lessonTranslationSchema.safeParse(lesson).success).toBe(true);
-      expect(lesson.version).toBe(6);
+      expect(lesson.version).toBe(7);
       for (const id of ['dom-traversal-walkthrough', 'dom-content-walkthrough', 'dom-state-render-walkthrough']) {
         const walkthrough = lesson.blocks.find((block) => block.id === id);
         expect(walkthrough?.type).toBe('codeWalkthrough');
         if (walkthrough?.type !== 'codeWalkthrough') return;
-        const lineCount = walkthrough.code.split('\n').length;
+        const lineCount = walkthrough.code.split(String.fromCharCode(10)).length;
         expect(walkthrough.steps.every((step) => (step.lineEnd ?? 1) <= lineCount)).toBe(true);
       }
       const traversal = lesson.blocks.find((block) => block.id === 'dom-traversal-walkthrough');
@@ -850,11 +983,60 @@ describe('React fundamentals lesson translation', () => {
     expect(englishReactBasics.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianReactBasics.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishReactBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishReactBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
     expect(russianReactBasics.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+    for (const lesson of [englishReactBasics, russianReactBasics]) {
+      expect(lesson.version).toBe(4);
+      expect(lesson.updatedAt).toBe('2026-10-29');
+      const propsCheck = lesson.blocks.find((block) => block.id === 'react-props-contract-check');
+      expect(propsCheck?.type).toBe('knowledgeCheck');
+      if (propsCheck?.type !== 'knowledgeCheck') throw new Error('Props contract check is missing');
+      expect(propsCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['parent-data']);
+      expect(propsCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.type === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type !== 'references') throw new Error('React state references are missing');
+      expect(refs.items.some((item) => item.url === 'https://react.dev/learn/passing-props-to-a-component')).toBe(true);
+      const stateCheck = lesson.blocks.find((block) => block.id === 'react-usestate-return-check');
+      expect(stateCheck?.type).toBe('knowledgeCheck');
+      if (stateCheck?.type !== 'knowledgeCheck') throw new Error('useState return check is missing');
+      expect(stateCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['pair']);
+      expect(stateCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const stateRefs = lesson.blocks.find((block) => block.type === 'references');
+      expect(stateRefs?.type).toBe('references');
+      if (stateRefs?.type !== 'references') throw new Error('React state references are missing');
+      expect(stateRefs.items.some((item) => item.url === 'https://react.dev/reference/react/useState')).toBe(true);
+    }
   });
 });
 
+describe('Frontend architecture type-colocation lesson', () => {
+  it('teaches feature ownership instead of treating one central types folder as universal', () => {
+    expect(lessonTranslationSchema.safeParse(englishArchitectureBoundaries).success).toBe(true);
+    expect(lessonTranslationSchema.safeParse(russianArchitectureBoundaries).success).toBe(true);
+    expect(englishArchitectureBoundaries.id).toBe(russianArchitectureBoundaries.id);
+    expect(englishArchitectureBoundaries.version).toBe(5);
+    expect(russianArchitectureBoundaries.version).toBe(5);
+    expect(englishArchitectureBoundaries.updatedAt).toBe('2026-10-29');
+    expect(russianArchitectureBoundaries.updatedAt).toBe('2026-10-29');
+    expect(englishArchitectureBoundaries.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianArchitectureBoundaries.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishArchitectureBoundaries.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    expect(russianArchitectureBoundaries.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
+    for (const lesson of [englishArchitectureBoundaries, russianArchitectureBoundaries]) {
+      const check = lesson.blocks.find((block) => block.id === 'arch-type-colocation-check');
+      expect(check?.type).toBe('knowledgeCheck');
+      if (check?.type !== 'knowledgeCheck') throw new Error('Type-colocation check is missing');
+      expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['colocate']);
+      expect(check.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      const refs = lesson.blocks.find((block) => block.type === 'references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type !== 'references') throw new Error('Architecture references are missing');
+      expect(refs.items.some((item) => item.url === 'https://www.typescriptlang.org/docs/handbook/2/objects.html')).toBe(true);
+    }
+  });
+});
 describe('UI design system lesson translation', () => {
   it('validates both locales and preserves equivalent block structure', () => {
     expect(lessonTranslationSchema.safeParse(englishDesignSystem).success).toBe(true);
@@ -921,10 +1103,41 @@ describe('React component testing lesson translation', () => {
   it('keeps Vitest mock history, implementation, and spy restoration distinct', () => {
     expect(lessonTranslationSchema.safeParse(englishTesting).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianTesting).success).toBe(true);
-    expect(englishTesting.version).toBe(4);
-    expect(englishTesting.blocks).toHaveLength(39);
+    expect(englishTesting.version).toBe(6);
+    expect(russianTesting.version).toBe(6);
+    expect(englishTesting.blocks).toHaveLength(45);
+    expect(russianTesting.blocks).toHaveLength(45);
+    expect(englishTesting.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(9);
+    expect(russianTesting.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(9);
+    expect(englishTesting.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(russianTesting.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(englishTesting.learningOutcomes).toHaveLength(11);
+    expect(russianTesting.learningOutcomes).toHaveLength(11);
     expect(englishTesting.blocks.map(({ id, type }) => ({ id, type }))).toEqual(russianTesting.blocks.map(({ id, type }) => ({ id, type })));
     for (const lesson of [englishTesting, russianTesting]) {
+      expect(lesson.updatedAt).toBe('2026-10-29');
+
+      const matcherBody = lesson.blocks.find((block) => block.id === 'matcher-equality-body');
+      expect(matcherBody?.type).toBe('paragraph');
+      if (matcherBody?.type !== 'paragraph') throw new Error('Equality matcher explanation is missing');
+      expect(matcherBody.text).toContain('Object.is');
+      expect(matcherBody.text).toContain('toEqual');
+
+      const matcherWalkthrough = lesson.blocks.find((block) => block.id === 'matcher-equality-walkthrough');
+      expect(matcherWalkthrough?.type).toBe('codeWalkthrough');
+      if (matcherWalkthrough?.type !== 'codeWalkthrough') throw new Error('Equality matcher walkthrough is missing');
+      expect(matcherWalkthrough.language).toBe('typescript');
+      expect(matcherWalkthrough.code).toContain('.toEqual(');
+      expect(matcherWalkthrough.code).toContain('.not.toBe(');
+      expect(matcherWalkthrough.code).toContain('sameReference');
+      const matcherLineCount = matcherWalkthrough.code.split('\n').length;
+      expect(matcherWalkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd >= step.lineStart && step.lineEnd <= matcherLineCount)).toBe(true);
+
+      const matcherCheck = lesson.blocks.find((block) => block.id === 'matcher-equality-check');
+      expect(matcherCheck?.type).toBe('knowledgeCheck');
+      if (matcherCheck?.type !== 'knowledgeCheck') throw new Error('Equality matcher knowledge check is missing');
+      expect(matcherCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['to-equal']);
+      expect(matcherCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
       const model = lesson.blocks.find((block) => block.id === 'test-mock-lifecycle-model');
       expect(model?.type).toBe('paragraph');
       if (model?.type === 'paragraph') {
@@ -949,6 +1162,18 @@ describe('React component testing lesson translation', () => {
       expect(practice.requirements.length).toBeGreaterThanOrEqual(5);
       expect(practice.hints.length).toBeGreaterThanOrEqual(3);
       expect(practice.successCriteria.length).toBeGreaterThanOrEqual(5);
+      const absenceCheck = lesson.blocks.find((block) => block.id === 'query-absence-check');
+      expect(absenceCheck?.type).toBe('knowledgeCheck');
+      if (absenceCheck?.type !== 'knowledgeCheck') throw new Error('Query absence check is missing');
+      expect(absenceCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['query-by-role']);
+      expect(absenceCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
+      const aaaCheck = lesson.blocks.find((block) => block.id === 'aaa-pattern-check');
+      expect(aaaCheck?.type).toBe('knowledgeCheck');
+      if (aaaCheck?.type !== 'knowledgeCheck') throw new Error('AAA pattern check is missing');
+      expect(aaaCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['arrange-act-assert']);
+      expect(aaaCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
       const refs = lesson.blocks.find((block) => block.id === 'testing-references');
       expect(refs?.type).toBe('references');
       if (refs?.type === 'references') {
@@ -967,14 +1192,16 @@ describe('Git workflow lesson translation', () => {
     expect(englishGitWorkflow.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGitWorkflow.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
-    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
+    expect(englishGitWorkflow.learningOutcomes).toHaveLength(10);
+    expect(russianGitWorkflow.learningOutcomes).toHaveLength(10);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
-    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
-    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
-    expect(englishGitWorkflow.version).toBe(7);
-    expect(russianGitWorkflow.version).toBe(7);
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
+    expect(englishGitWorkflow.version).toBe(9);
+    expect(russianGitWorkflow.version).toBe(9);
     for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
       expect(lesson.updatedAt).toBe('2026-10-29');
       const ciExample = lesson.blocks.find((block) => block.id === 'ci-example');
@@ -984,11 +1211,23 @@ describe('Git workflow lesson translation', () => {
       expect(ciExample.code).toContain('npm install --global npm@11.21.1');
       expect(ciExample.code).toContain('permissions:');
       expect(ciExample.code).toContain('contents: read');
-      expect(ciExample.code).toContain('continue-on-error: true');
-      expect(ciExample.code).toContain('npm run lint');
-      expect(ciExample.code).toContain('npm run typecheck');
-      expect(ciExample.code).toContain('npm test');
-      expect(ciExample.code).toContain('npm run build');
+
+      const auditStart = ciExample.code.indexOf('- name: Report npm audit advisories (informational)');
+      const lintStart = ciExample.code.indexOf('- run: npm run lint');
+      expect(auditStart).toBeGreaterThanOrEqual(0);
+      expect(lintStart).toBeGreaterThan(auditStart);
+      const optionalAuditStep = ciExample.code.slice(auditStart, lintStart);
+      expect(optionalAuditStep).toContain('continue-on-error: true');
+      expect(optionalAuditStep).toContain('npm audit --json');
+      expect(optionalAuditStep).toContain('|| true');
+
+      const requiredChecks = ciExample.code.slice(lintStart);
+      expect(requiredChecks).toContain('- run: npm run lint');
+      expect(requiredChecks).toContain('- run: npm run typecheck');
+      expect(requiredChecks).toContain('- run: npm test');
+      expect(requiredChecks).toContain('- run: npm run build');
+      expect(requiredChecks).not.toContain('continue-on-error: true');
+      expect(requiredChecks).not.toContain('|| true');
     }
     expect(englishGitWorkflow.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
@@ -1053,7 +1292,7 @@ describe('Git workflow lesson translation', () => {
       for (const walkthrough of [mergeWalkthrough, rebaseWalkthrough]) {
         expect(walkthrough?.type).toBe('codeWalkthrough');
         if (walkthrough?.type !== 'codeWalkthrough') throw new Error('Conflict command walkthrough is missing');
-        const lineCount = walkthrough.code.split('\\n').length;
+        const lineCount = walkthrough.code.split(String.fromCharCode(10)).length;
         for (const step of walkthrough.steps) {
           expect(step.lineStart).toBeGreaterThan(0);
           expect(step.lineEnd).toBeLessThanOrEqual(lineCount);
@@ -1065,6 +1304,56 @@ describe('Git workflow lesson translation', () => {
       expect(conflictExercise.requirements.length).toBeGreaterThanOrEqual(4);
       expect(conflictExercise.hints.length).toBeGreaterThanOrEqual(3);
       expect(conflictExercise.successCriteria.length).toBeGreaterThanOrEqual(4);
+      const branchStrategies = lesson.blocks.find((block) => block.id === 'git-branch-strategy-choices');
+      expect(branchStrategies?.type).toBe('list');
+      if (branchStrategies?.type !== 'list') throw new Error('Branch strategy comparison is missing');
+      const gitFlowChoice = branchStrategies.items.find((item) => item.includes('Git Flow'));
+      expect(gitFlowChoice).toBeDefined();
+      if (!gitFlowChoice) throw new Error('Git Flow branch destinations are missing');
+      expect(gitFlowChoice).toContain('develop');
+      expect(gitFlowChoice).toContain('main');
+      expect(gitFlowChoice.toLowerCase()).toMatch(
+        lesson.locale === 'en' ? /feature branches.*merge/ : /feature-ветки.*сливаются/,
+      );
+
+      const labels = lesson.blocks.find((block) => block.id === 'review-comment-labels');
+      expect(labels?.type).toBe('list');
+      if (labels?.type !== 'list') throw new Error('Review comment labels are missing');
+      const labelText = labels.items.join(' ');
+      for (const label of ['BLOCKING', 'SUGGESTION', 'QUESTION', 'NITPICK']) {
+        expect(labelText).toContain(label);
+      }
+      expect(labelText).toMatch(/universal|universelle|универсальн/i);
+
+      const reviewQuiz = lesson.blocks.find((block) => block.id === 'review-comment-label-check');
+      expect(reviewQuiz?.type).toBe('knowledgeCheck');
+      if (reviewQuiz?.type !== 'knowledgeCheck') throw new Error('Review comment knowledge check is missing');
+      expect(reviewQuiz.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['blocking']);
+      expect(reviewQuiz.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
+      const reviewPractice = lesson.blocks.find((block) => block.id === 'review-comment-practice');
+      expect(reviewPractice?.type).toBe('codingExercise');
+      if (reviewPractice?.type !== 'codingExercise') throw new Error('Review comment practice is missing');
+      expect(reviewPractice.requirements.length).toBeGreaterThanOrEqual(5);
+      expect(reviewPractice.hints.length).toBeGreaterThanOrEqual(4);
+      expect(reviewPractice.successCriteria.length).toBeGreaterThanOrEqual(5);
+
+      const backMergeGuidance = lesson.blocks.find((block) => block.id === 'hotfix-back-merge-guidance');
+      expect(backMergeGuidance?.type).toBe('paragraph');
+      if (backMergeGuidance?.type !== 'paragraph') throw new Error('Hotfix back-merge guidance is missing');
+      expect(backMergeGuidance.text).toContain('develop');
+      expect(backMergeGuidance.text).toMatch(/back-merge|обратно влить/i);
+
+      const backMergeCheck = lesson.blocks.find((block) => block.id === 'hotfix-back-merge-check');
+      expect(backMergeCheck?.type).toBe('knowledgeCheck');
+      if (backMergeCheck?.type !== 'knowledgeCheck') throw new Error('Hotfix back-merge check is missing');
+      expect(backMergeCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['back-merge']);
+      expect(backMergeCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+
+      const references = lesson.blocks.find((block) => block.id === 'git-workflow-references');
+      expect(references?.type).toBe('references');
+      if (references?.type !== 'references') throw new Error('Git workflow references are missing');
+      expect(references.items.some((item) => item.url === 'https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows')).toBe(true);
     }
   });
 });

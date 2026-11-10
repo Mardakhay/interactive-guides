@@ -1,10 +1,10 @@
 {
   "id": "react.components-jsx-state",
   "locale": "en",
-  "version": 2,
+  "version": 4,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-29",
   "moduleId": "month-3-week-11",
   "week": 11,
   "order": 1,
@@ -22,7 +22,9 @@
     "Read JSX expressions and conditionally render elements.",
     "Pass data with props and treat props as read-only.",
     "Use useState for values that change over time and should update the UI.",
-    "Update arrays and objects immutably and use functional state updates when appropriate."
+    "Update arrays and objects immutably and use functional state updates when appropriate.",
+    "Describe the value/setter pair returned by useState and how it requests updates.",
+    "Explain how parent-provided props configure a child and why child components should treat props as read-only."
   ],
   "tags": [
     "react",
@@ -118,6 +120,39 @@
       "text": "Props let a parent pass strings, numbers, booleans, objects, arrays, and callbacks to a child. Treat these values as read-only. If a child needs to ask for a change, it can invoke a callback supplied by the parent or manage appropriate local state. A component should render from current props, not assume the values never change."
     },
     {
+      "id": "react-props-contract-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What is the normal role of props in a React component?",
+      "options": [
+        {
+          "id": "parent-data",
+          "text": "They carry values or callbacks from a parent to configure a child; the child treats them as read-only.",
+          "correct": true,
+          "feedback": "Correct. Props describe the inputs supplied by the parent. When the child needs a change, it can call a callback supplied by the parent or update its own local state as appropriate."
+        },
+        {
+          "id": "child-owned",
+          "text": "They are local state owned and mutated directly by the child.",
+          "correct": false,
+          "feedback": "Local component state is a different mechanism. Mutating a prop can break assumptions about parent-driven rendering."
+        },
+        {
+          "id": "global",
+          "text": "They are globally shared values automatically visible to every component.",
+          "correct": false,
+          "feedback": "Props are passed through the component tree; global sharing requires an explicit shared-state mechanism."
+        },
+        {
+          "id": "immutable-state",
+          "text": "They can never change after the first render, even when the parent changes inputs.",
+          "correct": false,
+          "feedback": "Props are read-only from the child's perspective, but their values can change when the parent renders with different inputs."
+        }
+      ],
+      "explanation": "Props are parent-provided inputs, including data and callbacks. Components should not mutate them; the parent owns the inputs and decides how changes flow through the tree."
+    },
+    {
       "id": "props-example",
       "type": "code",
       "language": "tsx",
@@ -134,6 +169,39 @@
       "id": "state-body",
       "type": "paragraph",
       "text": "A local variable inside a component function is recreated when React calls that function again. Changing such a variable does not notify React that the UI needs an update. useState gives React a value to retain between renders and a setter that schedules an update. The state value observed by the currently executing render is a snapshot; calling the setter does not change that snapshot in place."
+    },
+    {
+      "id": "react-usestate-return-check",
+      "type": "knowledgeCheck",
+      "questionType": "single-choice",
+      "prompt": "What does `useState(initialValue)` return?",
+      "options": [
+        {
+          "id": "pair",
+          "text": "A pair containing the current state value and a setter function that requests an update.",
+          "correct": true,
+          "feedback": "Correct. The returned value belongs to the current render snapshot; calling the setter schedules a future render when React processes the update."
+        },
+        {
+          "id": "value",
+          "text": "Only the current state value; React detects any local-variable assignment automatically.",
+          "correct": false,
+          "feedback": "A local variable assignment does not notify React. `useState` returns both the value and a setter function."
+        },
+        {
+          "id": "ref",
+          "text": "A mutable ref object whose `.current` changes without rendering.",
+          "correct": false,
+          "feedback": "That describes `useRef` more closely. `useState` gives a value and a setter that can schedule rendering."
+        },
+        {
+          "id": "promise",
+          "text": "A Promise that resolves to the next state value after the DOM is updated.",
+          "correct": false,
+          "feedback": "The setter does not return a Promise for the next state. State updates are scheduled and the next render receives a new snapshot."
+        }
+      ],
+      "explanation": "`useState` returns the current value and its setter. The setter requests an update; it does not mutate the value captured by the currently executing render."
     },
     {
       "id": "counter-example",
@@ -489,6 +557,11 @@
         {
           "title": "React: Updating Arrays in State",
           "url": "https://react.dev/learn/updating-arrays-in-state",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React reference: useState",
+          "url": "https://react.dev/reference/react/useState",
           "kind": "official-docs"
         }
       ]
