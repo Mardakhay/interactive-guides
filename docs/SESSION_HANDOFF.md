@@ -31,31 +31,45 @@ Lessons must be deep but understandable: explain concepts and mechanisms, show w
 
 ## Current structured lessons
 
-All entries below have English and Russian JSON, stable block IDs/types and editorial status `review`; they are not yet fully editorial-approved or published.
+All 25 canonical course lesson IDs have registered English and Russian JSON translations. The lessons are marked `review` and should not be treated as editorially approved/published. The full curriculum sequence is:
 
-| Week | Lesson ID | Scope |
+| Week | Lesson ID | Main scope |
 |---|---|---|
-| 1 | `html.document-structure` | HTML shell, metadata, semantics, walkthrough and About Me page practice |
-| 2 | `html.forms-accessibility` | Form semantics, labels, native validation, fieldset/legend, accessible errors and registration form practice |
-| 3 | `css.fundamentals` | Stylesheet placement, selectors, cascade/specificity, box model and display |
-| 4 | `css.flexbox-grid-responsive` | Flexbox axes, Grid tracks, responsive layouts and mobile-first media queries |
-| 5 | `js.basics-types-control-flow` | let/const, primitive types, operators/coercion, branches and loops |
-| 6 | `js.functions-arrays-objects` | Function forms, callbacks, array methods, objects, destructuring and shallow spread |
-| 7 | `js.dom-events` | DOM tree/selectors, safe manipulation, events, forms, delegation and to-do app architecture |
-| 8 | `js.async-fetch` | Promise states, then/catch/finally, async/await, fetch, HTTP errors and UI request states |
-| 8 | `git.fundamentals` | Working tree, staging, commits, remotes, push, .gitignore and publish workflow |
+| 1 | `html.document-structure` | HTML shell, metadata, semantics, About Me practice |
+| 2 | `html.forms-accessibility` | Forms, labels, native validation, fieldsets and accessible errors |
+| 3 | `css.fundamentals` | Selectors, cascade/specificity, box model and display |
+| 4 | `css.flexbox-grid-responsive` | Flexbox, Grid, responsive layouts and mobile-first media queries |
+| 5 | `js.basics-types-control-flow` | Variables, types, coercion, branches and loops |
+| 6 | `js.functions-arrays-objects` | Functions, callbacks, array methods, objects, destructuring and spread |
+| 7 | `js.dom-events` | DOM tree, selectors, safe manipulation, events and a to-do list |
+| 8 | `js.async-fetch` | Promises, async/await, Fetch, HTTP failures and request states |
+| 8 | `git.fundamentals` | Staging, commits, remotes, push and .gitignore |
+| 9 | `tooling.node-npm-vite` | Node.js, npm, package.json, lockfiles, Vite, ESLint and Prettier |
+| 10 | `typescript.fundamentals` | Annotations, inference, unknown, unions, object types and generics |
+| 11 | `react.components-jsx-state` | Function components, JSX, props and useState |
+| 12 | `react.effects-lists-composition` | useEffect, cleanup, composition, keys and request states |
+| 13 | `react.router-spa` | SPA navigation, nested routes, URL parameters and not-found paths |
+| 14 | `react.forms-validation` | Controlled/uncontrolled forms, validation and accessible errors |
+| 15 | `react.context-shared-state` | Lifting state, prop drilling and Context API |
+| 16 | `react.api-custom-hooks` | API services, request lifecycle and custom Hooks |
+| 17 | `ui.design-systems` | Design tokens, reusable UI components and consistency |
+| 18 | `performance.accessibility` | Performance patterns, keyboard support and ARIA |
+| 19 | `testing.react-testing-library` | Vitest/Jest-style tests, Testing Library and user interactions |
+| 20 | `git.workflow-ci` | Branches, pull requests, reviews and CI |
+| 21 | `capstone.requirements-discovery` | User stories, requirements and acceptance criteria |
+| 22 | `capstone.design-architecture-planning` | Wireframes, component architecture, data flows and planning |
+| 23 | `capstone.implementation` | Integrated capstone implementation and tests |
+| 24 | `capstone.review-demo` | Refactoring, quality review, demo and release readiness |
 
-Every lesson includes metadata, outcomes, detailed explanations, worked examples, knowledge checks, relevant independent practice, hints/success criteria, and primary-reference links. Content depth and translation quality still need editorial review against Notion and the legacy HTML sources.
+Lessons live in `src/content/lessons/<lesson-id>/en.json` and `ru.json`, with the first HTML-document lesson retaining its hyphenated directory name. The repository and curriculum tests register all canonical lesson IDs and verify localized routing/order; individual content tests cover schemas, quiz rules, references and EN/RU block structure. More systematic whole-course parity tests and editorial source review remain useful next steps.
 
-## Learner state and practice runner
+## Learner state and practice
 
-- Lesson reader has language switching, dynamic `document.lang`, table of contents, curriculum context and previous/next links ordered by the syllabus.
-- Completion is a self-attested marker, explicitly distinct from quiz results and code mastery.
-- `src/features/structured-lesson/store.ts` keeps quiz attempts, drafts and practice self-review checklist state separate from the legacy progress status.
-- HTML preview is an iframe with scripts disabled.
-- `src/features/structured-lesson/JavaScriptPlayground.tsx` has been added as a learning runner in a sandboxed iframe without `allow-same-origin`; the frame CSP blocks outbound network requests. It captures console output/errors, limits source length/output, replaces the iframe on timeout, stores local drafts, and is intended to support async snippets.
-- **Important limitation:** browser iframe sandboxing plus a timeout is not a production-grade hostile-code execution isolation boundary; CPU/memory isolation cannot be guaranteed. Keep the visible warning, do not run secrets in the sandbox, and do not claim it safely handles arbitrary malicious code. The current runner deliberately blocks network access, so Fetch exercises are code-writing/reasoning tasks rather than live network-run tasks.
-- Confirm the latest CI for runner integration before relying on it.
+- `src/app/pages/StructuredLessonPage.tsx` renders a locale-aware reader at `/:locale/structured-lessons/:lessonId`, with TOC, EN/RU switching, document language, and previous/next navigation.
+- Completion is a self-attested marker, distinct from quiz results and code mastery.
+- `src/features/structured-lesson/store.ts` tracks quiz attempts, code drafts and practice self-review checklists separately from the legacy lesson status.
+- The coding exercise editor saves drafts locally and reveals hints/self-review criteria. **JavaScript/TypeScript execution is not currently implemented.** The only live preview is for HTML and uses an iframe with scripts disabled.
+- Before adding execution, design the sandbox intentionally. A same-tab synchronous infinite loop cannot reliably be stopped by a parent-page timer; an in-page iframe runner must not be described as a secure arbitrary-code service. A Worker can be terminated for hard time limits but still needs careful capability/network restrictions and an explicit threat model.
 
 ## PWA foundation
 
@@ -69,7 +83,7 @@ The connected account has projects named `kaelig` and `Mardakhay's Project`; nei
 
 ## Latest CI check
 
-Current branch-head CI was last queried at `667b81e3fc52d3ccf7a5408c88f9c56d3cd8ed20`: run #59 is `completed` / `failure` ([open run](https://github.com/Mardakhay/interactive-guides/actions/runs/39758607304)). Verify this after the documentation commit as GitHub starts a new workflow.
+Current branch HEAD verified: `6ebcb88d9f6fff97e323966193c48933f9e3cdcb`. GitHub Actions run [#134](https://github.com/Mardakhay/interactive-guides/actions/runs/39772187993) completed successfully: install, lint, typecheck, tests and production build all passed. The Netlify deploy preview reports ready at https://deploy-preview-1--interactive-guides.netlify.app. Recheck the exact HEAD after subsequent commits.n run](https://github.com/Mardakhay/interactive-guides/actions/runs/39758607304)). Verify this after the documentation commit as GitHub starts a new workflow.
 
 The GitHub Actions workflow runs `npm ci`, ESLint, TypeScript typecheck, tests and production build. Check the exact current branch head after every substantial change; an earlier successful run does not validate later commits.
 
@@ -79,15 +93,14 @@ See `docs/README.md`. Key living docs include `CURRENT_STATE.md`, `ARCHITECTURE.
 
 ## Next actions
 
-1. Verify GitHub Actions for the exact latest branch head and fix failures before further implementation.
-2. Review the JavaScript runner's tests and UI integration; retain its explicit non-production-grade security warning.
-3. Continue into Week 9 — Node.js, npm/package managers, Vite, ESLint and Prettier — without skipping the rest of the syllabus.
-4. Fully review the Notion and legacy HTML sources for lessons already migrated; the current lessons are content pilots, not finished editorial deliverables.
-5. Localize the whole existing app shell, consolidate styling, and verify mobile accessibility.
-6. Add versioned local-storage migrations plus export/import before cloud sync.
-7. Validate PWA install/offline behavior on real supported devices.
-8. Add Supabase only after local contracts stabilize and dedicated project/cost intent is agreed.
-9. Keep PR #1 in draft until editorial review, tests and scope are sufficient.
+1. Add/verify a whole-course EN/RU structure-parity test covering every registered lesson, questions, coding tasks and walkthrough references.
+2. Improve the coding practice workflow: draft persistence is present, but only HTML preview exists; decide on a Worker-based JavaScript playground with explicit network limits and correct timeout semantics.
+3. Fully review the 25 structured lessons against the Notion notes and legacy HTML sources; all current lessons remain editorial pilots in `review` state.
+4. Localize the remaining legacy app shell and continue mobile/accessibility verification using the existing tests and preview deployment.
+5. Add versioned local-storage migrations and user-owned export/import before cloud sync; clarify storage failures instead of silently dropping drafts.
+6. Validate PWA install/offline behavior and service-worker update lifecycle on supported real devices/browsers.
+7. Add Supabase only after local contracts stabilize and dedicated project/cost intent is agreed.
+8. Keep PR #1 in draft until editorial review, tests and scope are sufficient.
 
 ## Commit conventions
 
