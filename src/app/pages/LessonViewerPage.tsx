@@ -13,6 +13,7 @@ import { LessonRenderer, resolveLessonSource } from '@/features/lesson-renderer'
 import { useProgressStore, STATUS_LABELS, STATUS_BADGE_VARIANTS } from '@/features/progress';
 import { BookmarkButton } from '@/features/bookmarks';
 import { NoteEditor } from '@/features/notes';
+import { getQuizByLessonId, QuizRenderer } from '@/features/quizzes';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { EmptyState } from '@/components/feedback';
 import { Button, Badge } from '@/components/ui';
@@ -33,6 +34,7 @@ export default function LessonViewerPage() {
     () => (lessonId ? getAdjacentLessons(lessonId) : { previous: null, next: null }),
     [lessonId],
   );
+  const quiz = useMemo(() => (lessonId ? getQuizByLessonId(lessonId) : undefined), [lessonId]);
 
   const markLessonOpened = useProgressStore((s) => s.markLessonOpened);
   const markLessonCompleted = useProgressStore((s) => s.markLessonCompleted);
@@ -127,6 +129,8 @@ export default function LessonViewerPage() {
         <div className="rounded-xl border border-neutral-200 bg-white p-6 lg:p-8">
           <LessonRenderer source={resolveLessonSource(lesson)} title={lesson.title} />
         </div>
+
+        {quiz && <QuizRenderer quiz={quiz} />}
 
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-4">
           {status === 'completed' ? (
