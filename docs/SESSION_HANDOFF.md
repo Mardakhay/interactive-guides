@@ -31,10 +31,11 @@ Lessons must be deep but understandable: explain concepts and mechanisms, show w
 
 ## Current structured lessons
 
-All 25 canonical course lesson IDs have registered English and Russian JSON translations. The lessons are marked `review` and should not be treated as editorially approved/published. The full curriculum sequence is:
+All 26 canonical course lesson IDs have registered English and Russian JSON translations. The lessons are marked `review` and should not be treated as editorially approved/published. The full curriculum sequence is:
 
 | Week | Lesson ID | Main scope |
 |---|---|---|
+| 1 | `web.internet-http` | Internet/Web, URL anatomy, DNS, HTTP requests/responses, status codes, HTTPS/TLS, Network DevTools |
 | 1 | `html.document-structure` | HTML shell, metadata, semantics, About Me practice |
 | 2 | `html.forms-accessibility` | Forms, labels, native validation, fieldsets and accessible errors |
 | 3 | `css.fundamentals` | Selectors, cascade/specificity, box model and display |
@@ -61,7 +62,7 @@ All 25 canonical course lesson IDs have registered English and Russian JSON tran
 | 23 | `capstone.implementation` | Integrated capstone implementation and tests |
 | 24 | `capstone.review-demo` | Refactoring, quality review, demo and release readiness |
 
-Lessons live in `src/content/lessons/<lesson-id>/en.json` and `ru.json`, with the first HTML-document lesson retaining its hyphenated directory name. The repository and curriculum tests register all canonical lesson IDs and verify localized routing/order; individual content tests cover schemas, quiz rules, references and EN/RU block structure. More systematic whole-course parity tests and editorial source review remain useful next steps.
+Lessons live in `src/content/lessons/<lesson-id>/en.json` and `ru.json`, with the first HTML-document lesson retaining its hyphenated directory name. The repository and curriculum tests register all canonical lesson IDs and verify localized routing/order; individual content tests cover schemas, quiz rules, references and EN/RU block structure. The repository test now checks EN/RU block structure, knowledge checks and coding exercises across the full canonical lesson set. Editorial/source parity review remains incomplete.
 
 ## Learner state and practice
 
@@ -93,9 +94,9 @@ See `docs/README.md`. Key living docs include `CURRENT_STATE.md`, `ARCHITECTURE.
 
 ## Next actions
 
-1. Add/verify a whole-course EN/RU structure-parity test covering every registered lesson, questions, coding tasks and walkthrough references.
+1. Run and inspect CI for the latest Week 1 content/test changes.
 2. Improve the coding practice workflow: draft persistence is present, but only HTML preview exists; decide on a Worker-based JavaScript playground with explicit network limits and correct timeout semantics.
-3. Fully review the 25 structured lessons against the Notion notes and legacy HTML sources; all current lessons remain editorial pilots in `review` state.
+3. Fully review the 26 structured lessons against the Notion notes and legacy HTML sources; all current lessons remain editorial pilots in `review` state.
 4. Localize the remaining legacy app shell and continue mobile/accessibility verification using the existing tests and preview deployment.
 5. Keep the existing validated JSON export/import workflow; add explicit schema-version migrations and visible autosave/quota-failure recovery before cloud sync.
 6. Validate PWA install/offline behavior and service-worker update lifecycle on supported real devices/browsers.

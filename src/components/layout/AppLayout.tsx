@@ -6,6 +6,7 @@ import { MobileNav } from './MobileNav';
 import { Spinner } from '@/components/ui';
 import { useRouteFocus } from '@/hooks/useRouteFocus';
 import { NetworkStatusBanner } from '@/components/feedback/NetworkStatusBanner';
+import { StorageWarningBanner } from '@/components/feedback/StorageWarningBanner';
 import { PWAInstallPrompt } from '@/components/feedback/PWAInstallPrompt';
 import { getLocaleFromPathname } from '@/lib/i18n';
 import { useLocaleStore } from '@/stores/localeStore';
@@ -29,6 +30,7 @@ export function AppLayout() {
       <div className="lg:pl-64">
         <TopBar />
         <NetworkStatusBanner />
+        <StorageWarningBanner />
         <PWAInstallPrompt />
         <main id="main-content" className="min-h-[calc(100vh-4rem)] p-4 pb-20 lg:p-6 lg:pb-6">
           <div className="mx-auto max-w-6xl">

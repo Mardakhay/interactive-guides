@@ -8,7 +8,7 @@
 
 | Legacy HTML | Proposed subject area | Canonical track mapping | Notes |
 |---|---|---|---|
-| `internet-fundamentals.html` | Browser, network, HTTP, DNS, TLS | Month 1 / Week 1 | Start here; align to syllabus outcomes and current web standards |
+| `internet-fundamentals.html` | Browser, network, HTTP, DNS, TLS | Month 1 / Week 1 | Structured bilingual lesson `web.internet-http` now covers the Week 1 foundation; line-by-line parity review of this legacy source remains pending |
 | `html-reference.html` | HTML structure, semantics, forms and accessibility | Month 1 / Weeks 1–2 | Split reference depth into sequential lessons |
 | `css-reference.html` | CSS syntax, selectors, box model, layout | Month 1 / Weeks 3–4 | Split foundational CSS from advanced reference sections |
 | `dom-masterclass.html` | DOM, events, browser APIs | Month 2 / Week 7 | Practical DOM module |

@@ -14,7 +14,7 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Define typed lesson translation/content-block schemas.
 - [x] Define the canonical six-month / 24-week syllabus with supplementary tracks separate.
 - [x] Add structured bilingual pilot lessons for Weeks 1–4.
-- [x] Add structured bilingual lessons for all 24 core weeks (25 lesson IDs, because Week 8 contains separate async/Fetch and Git lessons).
+- [x] Add structured bilingual lessons for all 24 core weeks (26 lesson IDs: Week 1 splits web fundamentals and HTML; Week 8 splits async/Fetch and Git).
 - [x] Add tests for schema invariants, bilingual lesson structure, curriculum order, repository lookups and walkthrough line references.
 - [x] Add a full-course EN/RU block-structure and knowledge-check presence invariant.
 - [ ] Map all legacy lesson files to exact curriculum/sub-track lesson IDs.
@@ -49,12 +49,12 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Build a first-pass inventory of 25 legacy HTML files and likely syllabus mappings.
 - [x] Create an initial Week 1 pilot and add structured Week 2–4 content in both locales.
 - [ ] Fully audit each HTML file including headings, code, diagrams, hidden answers, links and interactions.
-- [ ] Review and fact-check the new Week 8 async/Fetch and Git lessons, including EN/RU equivalence.
+- [ ] Review and fact-check the new Week 1 web fundamentals and Week 8 async/Fetch/Git lessons, including EN/RU equivalence.
 - [ ] Review source accuracy and translation parity for the four pilots.
 - [x] Create structured bilingual content for the complete 24-week core syllabus.
 - [ ] Review each mapped legacy HTML source line-by-line and reconcile it against the replacement lesson; implementation is not proof of source parity.
 - [ ] Keep all source HTML until both locales of its replacement pass review.
-- All 24 core weeks now have structured bilingual content (25 lesson IDs). Editorial approval and line-by-line source parity remain pending.
+- All 24 core weeks now have structured bilingual content (26 lesson IDs); Week 1 now separately teaches Internet/URL/HTTP/DevTools before HTML. Editorial approval and line-by-line source parity remain pending.
 - Acceptance: a topic is only marked migrated when source checks, language parity, navigation, code and exercises pass.
 
 ## Phase 5 — Local-first persistence
