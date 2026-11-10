@@ -35,38 +35,32 @@
 - [x] Create shared hooks (useMediaQuery, useDebounce)
 - [x] Git commit: `feat: initialize project architecture`
 
-### M2: Static Data Layer
-- [ ] Define content type schemas (Course, Lesson, Quiz, LearningPath)
-- [ ] Create sample course JSON with lessons
-- [ ] Create data loader utilities (lib/)
-- [ ] Git commit: `feat: add static content data layer`
+### M2: Content Foundation
+- [x] Define TypeScript types (Category, Lesson, LessonDifficulty, LessonStatus)
+- [x] Create Zod validation schemas for categories and lessons
+- [x] Create categories.json with 9 categories (Start Here, Web Basics, JavaScript, React, UI/Design, Tooling, Quality, Security, Data)
+- [x] Create lessons.json with 30 realistic sample lessons across all categories
+- [x] Create data access utilities (getCategories, getCategoryById, getLessons, getLessonById, getLessonsByCategory, getCatalog)
+- [x] Create content feature module (src/features/content/)
+- [x] Build catalog page displaying categories with lesson counts and descriptions
+- [x] Git commit: `feat: create content foundation and catalog`
 
 ---
 
 ## Phase 2 — Content & Viewing
 
-### M3: Course Catalog
-- [ ] Create course feature: types, api, store, hooks
-- [ ] Build CoursesPage with course grid
-- [ ] Build CourseCard component
-- [ ] Add category and difficulty filters
-- [ ] Add loading and empty states
-- [ ] Git commit: `feat: implement lesson catalog`
-
-### M4: Course Detail
-- [ ] Build CourseDetailPage with course metadata header
-- [ ] Build lesson list with order, duration, completion indicators
-- [ ] Show overall course progress bar
-- [ ] Navigate to lesson viewer on click
-- [ ] Git commit: `feat: add course detail page`
-
-### M5: Lesson Viewer
-- [ ] Create lesson feature: types, api, store, hooks
-- [ ] Build LessonViewerPage rendering interactive HTML content
-- [ ] Build lesson navigation (prev/next, table of contents)
-- [ ] Show lesson metadata (duration, course context, breadcrumb)
-- [ ] Sanitize HTML content for safe rendering
-- [ ] Git commit: `feat: add lesson viewer`
+### M3: Lesson Viewer Infrastructure
+- [x] Create category route (/courses/:categoryId) and lesson route (/lessons/:lessonId)
+- [x] Create route helper functions (coursePath, lessonPath)
+- [x] Build CourseDetailPage with category header, lesson list, difficulty badges, durations
+- [x] Build LessonViewerPage with breadcrumb, title, description, placeholder content
+- [x] Create lesson navigation component (previous/next within category)
+- [x] Create getAdjacentLessons() logic for next/previous lesson
+- [x] Create Breadcrumbs component with multi-level trail
+- [x] Create LessonSidebarTree with expandable categories and lesson links
+- [x] Create LessonMetadata panel (difficulty, duration, category link, tags)
+- [x] Create lesson not-found state with EmptyState
+- [x] Git commit: `feat: create lesson viewer infrastructure`
 
 ---
 
@@ -153,5 +147,5 @@
 | 3     | M6–M9      | User Features            |
 | 4     | M10–M13    | Discovery & Polish       |
 
-**Current Milestone:** M2 — Static Data Layer
-**Last Completed:** M1 — Project Initialization
+**Current Milestone:** M4 — Lesson Content Rendering
+**Last Completed:** M3 — Lesson Viewer Infrastructure
