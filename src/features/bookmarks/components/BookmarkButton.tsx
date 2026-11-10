@@ -2,6 +2,8 @@ import { Bookmark } from 'lucide-react';
 import { useBookmarkStore } from '../store';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { useLocaleStore } from '@/stores/localeStore';
+import { UI_COPY } from '@/lib/i18n';
 
 interface BookmarkButtonProps {
   lessonId: string;
@@ -11,6 +13,8 @@ interface BookmarkButtonProps {
 }
 
 export function BookmarkButton({ lessonId, variant = 'button', className }: BookmarkButtonProps) {
+  const locale = useLocaleStore((state) => state.locale);
+  const copy = UI_COPY[locale].bookmarkButton;
   const isBookmarked = useBookmarkStore((s) => !!s.lessons[lessonId]);
   const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
 
@@ -21,7 +25,7 @@ export function BookmarkButton({ lessonId, variant = 'button', className }: Book
     toggleBookmark(lessonId);
   };
 
-  const label = isBookmarked ? 'Remove bookmark' : 'Add bookmark';
+  const label = isBookmarked ? copy.remove : copy.add;
 
   if (variant === 'icon') {
     return (
@@ -57,7 +61,7 @@ export function BookmarkButton({ lessonId, variant = 'button', className }: Book
       className={className}
     >
       <Bookmark className={cn('h-4 w-4', isBookmarked && 'fill-current')} />
-      {isBookmarked ? 'Bookmarked' : 'Bookmark'}
+      {isBookmarked ? copy.bookmarked : copy.bookmark}
     </Button>
   );
 }

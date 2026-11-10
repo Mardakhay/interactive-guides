@@ -8,6 +8,7 @@ export interface SearchableLesson {
   readonly category: string;
   readonly difficulty: string;
   readonly durationMinutes: number;
+  readonly path?: string;
 }
 
 export interface SearchableCourse {
@@ -111,7 +112,7 @@ export function search({ content, query, filter }: SearchEngineInput): SearchRes
           id: lesson.id,
           title: lesson.title,
           snippet: snippet || lesson.description,
-          path: `/lessons/${lesson.id}`,
+          path: lesson.path ?? `/lessons/${lesson.id}`,
           matchedFields: matched,
         });
       }

@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { getLocaleFromPathname, getOtherLocale, isAppLocale, LOCALE_STORAGE_KEY, UI_COPY } from './i18n';
+import { formatCatalogDescription, formatDurationMinutes, formatLessonCount, formatOverallProgress, formatQuizAnswered, formatQuizScore, getCategoryCopy, getCategoryCopyByName, getDifficultyLabel, getLearningPathCopy, getLearningPathStepNote, getLocaleFromPathname, getOtherLocale, isAppLocale, LOCALE_STORAGE_KEY, UI_COPY } from './i18n';
 
 describe('application localization utilities', () => {
   afterEach(() => window.localStorage.clear());
 
-  it('recognizes only the supported interface locales', () => {
+  it('recognizes only supported interface locales', () => {
     expect(isAppLocale('en')).toBe(true);
     expect(isAppLocale('ru')).toBe(true);
     expect(isAppLocale('az')).toBe(false);
@@ -18,7 +18,37 @@ describe('application localization utilities', () => {
     expect(getLocaleFromPathname('/russian/courses')).toBeUndefined();
   });
 
-  it('keeps language switch labels consistent', () => {
+  it('localizes lesson counts and catalog/progress text', () => {
+    expect(formatLessonCount('en', 1)).toBe('1 lesson');
+    expect(formatLessonCount('en', 3)).toBe('3 lessons');
+    expect(formatLessonCount('ru', 1)).toBe('1 урок');
+    expect(formatLessonCount('ru', 3)).toBe('3 урока');
+    expect(formatLessonCount('ru', 11)).toBe('11 уроков');
+    expect(formatOverallProgress('ru', 2, 8)).toBe('Общий прогресс — 2 из 8 уроков');
+    expect(formatCatalogDescription('en', 100, 9)).toContain('100 interactive lessons');
+    expect(getDifficultyLabel('ru', 'beginner')).toBe('Начальный');
+    expect(formatDurationMinutes('en', 1)).toBe('1 minute');
+    expect(formatDurationMinutes('en', 3)).toBe('3 minutes');
+    expect(formatDurationMinutes('ru', 1)).toBe('1 минута');
+    expect(formatDurationMinutes('ru', 4)).toBe('4 минуты');
+    expect(formatDurationMinutes('ru', 15)).toBe('15 минут');
+    expect(formatQuizScore('ru', 3, 4, 75)).toBe('3 из 4 верно · 75%');
+    expect(formatQuizAnswered('ru', 2, 4)).toBe('Ответов: 2 из 4');
+  });
+
+  it('localizes learning path names and step notes', () => {
+    expect(getLearningPathCopy('ru', 'frontend-foundations')?.title).toBe('Основы frontend-разработки');
+    expect(getLearningPathCopy('en', 'frontend-foundations')?.title).toBe('Frontend Foundations');
+    expect(getLearningPathCopy('ru', 'missing-path')).toBeUndefined();
+    expect(getLearningPathStepNote('ru', 'frontend-foundations', 'wb-001')).toBe('Разберись, как работают интернет и браузеры.');
+    expect(getLearningPathStepNote('ru', 'missing-path', 'wb-001', 'Fallback')).toBe('Fallback');
+  });
+
+  it('provides translations for known categories and switch labels', () => {
+    expect(getCategoryCopy('ru', 'javascript')?.name).toBe('JavaScript');
+    expect(getCategoryCopy('ru', 'web-basics')?.name).toBe('Основы веба');
+    expect(getCategoryCopy('ru', 'missing-category')).toBeUndefined();
+    expect(getCategoryCopyByName('ru', 'Web Basics')?.name).toBe('Основы веба');
     expect(UI_COPY.en.language.shortLabel).toBe('RU');
     expect(UI_COPY.ru.language.shortLabel).toBe('EN');
     expect(getOtherLocale('en')).toBe('ru');
