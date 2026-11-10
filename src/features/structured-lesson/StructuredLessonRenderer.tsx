@@ -361,7 +361,7 @@ function CodingExercise({
   );
 }
 
-function renderBlock(block: LessonContentBlock, locale: SupportedLocale) {
+function renderBlock(block: LessonContentBlock, locale: SupportedLocale, lessonId: string) {
   switch (block.type) {
     case 'heading':
       if (block.level === 2) return <h2 key={block.id} id={block.id} className="mb-3 mt-10 scroll-mt-24 text-2xl font-semibold tracking-tight text-neutral-950 sm:text-3xl">{block.text}</h2>;
@@ -416,9 +416,9 @@ function renderBlock(block: LessonContentBlock, locale: SupportedLocale) {
         </div>
       );
     case 'knowledgeCheck':
-      return <KnowledgeCheck key={block.id} block={block} locale={locale} lessonId={lesson.id} />;
+      return <KnowledgeCheck key={block.id} block={block} locale={locale} lessonId={lessonId} />;
     case 'codingExercise':
-      return <CodingExercise key={block.id} block={block} locale={locale} lessonId={lesson.id} />;
+      return <CodingExercise key={block.id} block={block} locale={locale} lessonId={lessonId} />;
     case 'references':
       return (
         <section key={block.id} className="mt-10 border-t border-neutral-200 pt-6">
@@ -446,7 +446,7 @@ export function StructuredLessonRenderer({ lesson }: StructuredLessonRendererPro
 
   return (
     <article className="structured-lesson min-w-0">
-      {lesson.blocks.map((block) => renderBlock(block, locale))}
+      {lesson.blocks.map((block) => renderBlock(block, locale, lesson.id))}
     </article>
   );
 }
