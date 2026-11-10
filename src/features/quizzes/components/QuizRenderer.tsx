@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ClipboardCheck, CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
+import { ClipboardCheck, CircleCheck as CheckCircle2, Circle as XCircle, RotateCcw } from 'lucide-react';
 import { useQuizResultsStore } from '../store';
 import { Button, Badge, Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -135,7 +135,7 @@ export function QuizRenderer({ quiz }: QuizRendererProps) {
 
       <div className="space-y-3">
         {quiz.questions.map((question, index) => (
-          <fieldset key={question.id} className="rounded-lg border border-neutral-200 p-4">
+          <fieldset key={question.id} className="rounded-lg border border-neutral-200 p-4" role="radiogroup" aria-label={`Question ${index + 1}: ${question.prompt}`}>
             <legend className="px-1 text-sm font-medium text-neutral-900">
               {index + 1}. {question.prompt}
             </legend>
@@ -160,6 +160,7 @@ export function QuizRenderer({ quiz }: QuizRendererProps) {
                       type="radio"
                       name={question.id}
                       checked={isSelected}
+                      aria-checked={isSelected}
                       onChange={() => handleSelect(question.id, optionIndex)}
                       className="h-4 w-4 accent-primary-600"
                     />

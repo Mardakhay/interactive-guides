@@ -401,5 +401,549 @@
         "explanation": "Normalization reduces redundancy by splitting data into related tables — the opposite of duplication."
       }
     ]
+  },
+  {
+    "id": "quiz-wb-002",
+    "lessonId": "wb-002",
+    "title": "HTML Reference Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "Which HTML element represents the most important heading on a page?",
+        "options": ["<h6>", "<header>", "<h1>", "<title>"],
+        "correctIndex": 2,
+        "explanation": "<h1> is the highest-level heading; <title> is metadata, not a visible heading."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "Semantic HTML elements like <article>, <nav>, and <section> improve accessibility by conveying meaning to assistive technologies.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "Semantic tags expose implicit ARIA roles, helping screen readers navigate the page structure."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "Which attribute on a <label> element associates it with a form control?",
+        "options": ["name", "for", "id", "value"],
+        "correctIndex": 1,
+        "explanation": "The 'for' attribute must match the input's id to programmatically associate the label."
+      }
+    ]
+  },
+  {
+    "id": "quiz-wb-003",
+    "lessonId": "wb-003",
+    "title": "CSS Reference Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "Which CSS property is used to set the space between an element's content and its border?",
+        "options": ["margin", "padding", "border-spacing", "gap"],
+        "correctIndex": 1,
+        "explanation": "Padding is the inner space between content and border; margin is the outer space outside the border."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "The CSS box model consists of content, padding, border, and margin layers.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "These four layers, from inside out, define the total space an element occupies."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "Which display value makes an element behave like a flexible container?",
+        "options": ["inline-block", "table", "flex", "block"],
+        "correctIndex": 2,
+        "explanation": "display: flex enables the Flexbox layout model on the element's children."
+      }
+    ]
+  },
+  {
+    "id": "quiz-wb-004",
+    "lessonId": "wb-004",
+    "title": "DOM Masterclass Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "Which method selects a single element by its ID?",
+        "options": ["document.querySelectorAll('#id')", "document.getElementById('id')", "document.getElementsByClass('id')", "document.find('id')"],
+        "correctIndex": 1,
+        "explanation": "getElementById returns the element with the matching id attribute, or null."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "A NodeList returned by querySelectorAll is always live — it updates automatically when the DOM changes.",
+        "options": ["True", "False"],
+        "correctIndex": 1,
+        "explanation": "querySelectorAll returns a static NodeList; only getElementsByClassName/TagName return live collections."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "Which method adds a child element as the last child of a parent?",
+        "options": ["appendChild()", "prependChild()", "insertBefore()", "addChild()"],
+        "correctIndex": 0,
+        "explanation": "appendChild inserts the node as the last child of the parent element."
+      },
+      {
+        "id": "q4",
+        "type": "true-false",
+        "prompt": "Event bubbling means an event fired on a child element also triggers on its ancestors.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "In the bubbling phase, events propagate upward from the target to the document root."
+      }
+    ]
+  },
+  {
+    "id": "quiz-js-001",
+    "lessonId": "js-001",
+    "title": "JavaScript Fundamentals Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "Which operator checks both value and type equality?",
+        "options": ["==", "===", "=", "!="],
+        "correctIndex": 1,
+        "explanation": "Strict equality (===) compares value and type without coercion; == performs type coercion."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "In JavaScript, 'let' declares a block-scoped variable that can be reassigned.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "let is block-scoped and reassignable; const is block-scoped but not reassignable."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "What does 'typeof null' return in JavaScript?",
+        "options": ["'null'", "'object'", "'undefined'", "'number'"],
+        "correctIndex": 1,
+        "explanation": "This is a well-known JavaScript quirk — typeof null returns 'object' due to a legacy implementation detail."
+      },
+      {
+        "id": "q4",
+        "type": "true-false",
+        "prompt": "Arrow functions have their own 'this' binding separate from the enclosing scope.",
+        "options": ["True", "False"],
+        "correctIndex": 1,
+        "explanation": "Arrow functions inherit 'this' from the enclosing lexical scope; they don't bind their own."
+      }
+    ]
+  },
+  {
+    "id": "quiz-js-002",
+    "lessonId": "js-002",
+    "title": "Objects, Prototypes & Classes Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "How do you access a property named 'key' on an object 'obj' using bracket notation?",
+        "options": ["obj->key", "obj.key", "obj['key']", "obj::key"],
+        "correctIndex": 2,
+        "explanation": "Bracket notation obj['key'] works for any property name, including those with spaces or special characters."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "Every JavaScript object has a prototype, which it inherits properties and methods from.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "Objects inherit from their prototype via the prototype chain, up to Object.prototype."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "What keyword is used to define a class in modern JavaScript?",
+        "options": ["struct", "class", "prototype", "type"],
+        "correctIndex": 1,
+        "explanation": "ES6 introduced the 'class' keyword as syntactic sugar over the prototype-based inheritance system."
+      },
+      {
+        "id": "q4",
+        "type": "true-false",
+        "prompt": "The 'extends' keyword allows a class to inherit from another class.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "extends creates a subclass that inherits methods and properties from its parent class."
+      }
+    ]
+  },
+  {
+    "id": "quiz-js-003",
+    "lessonId": "js-003",
+    "title": "JS Memory Mastery Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "Where are primitive values stored during execution?",
+        "options": ["Heap", "Call Stack", "Web API queue", "Event Loop"],
+        "correctIndex": 1,
+        "explanation": "Primitives are stored on the call stack along with function frames and references."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "When you assign an object to a new variable, the object itself is copied.",
+        "options": ["True", "False"],
+        "correctIndex": 1,
+        "explanation": "Objects are passed by reference — only the reference to the heap-allocated object is copied."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "What mechanism automatically frees memory that is no longer referenced?",
+        "options": ["Manual deallocation", "Garbage collection", "Memory pooling", "Stack unwinding"],
+        "correctIndex": 1,
+        "explanation": "JavaScript uses garbage collection (typically mark-and-sweep) to reclaim unreachable memory."
+      },
+      {
+        "id": "q4",
+        "type": "true-false",
+        "prompt": "A shallow copy duplicates nested objects so changes to the copy don't affect the original.",
+        "options": ["True", "False"],
+        "correctIndex": 1,
+        "explanation": "A shallow copy only copies the top level — nested objects are still shared by reference."
+      }
+    ]
+  },
+  {
+    "id": "quiz-re-002",
+    "lessonId": "re-002",
+    "title": "React Hooks & Patterns Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "Which hook lets you perform side effects after render?",
+        "options": ["useState", "useEffect", "useMemo", "useRef"],
+        "correctIndex": 1,
+        "explanation": "useEffect runs side effects after the component paints; the other hooks serve different purposes."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "useReducer is preferable to useState when state transitions follow complex logic involving multiple sub-values.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "useReducer centralizes transition logic in a reducer function, which is cleaner for complex state."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "What does the dependency array [count] in useEffect mean?",
+        "options": ["The effect runs once on mount", "The effect runs whenever count changes", "The effect never re-runs", "The effect runs every render"],
+        "correctIndex": 1,
+        "explanation": "A non-empty dependency array re-runs the effect when any listed value changes."
+      },
+      {
+        "id": "q4",
+        "type": "true-false",
+        "prompt": "useContext allows a component to subscribe to a context without prop drilling.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "useContext reads the nearest Provider value directly, bypassing intermediate components."
+      }
+    ]
+  },
+  {
+    "id": "quiz-re-003",
+    "lessonId": "re-003",
+    "title": "React Forms & Validation Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "In a controlled component, where does the input's value come from?",
+        "options": ["The DOM directly", "React state", "The browser's form cache", "A ref"],
+        "correctIndex": 1,
+        "explanation": "Controlled inputs derive their value from state; every keystroke updates state, which re-renders the input."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "Uncontrolled components use a ref to read the input's value at submit time rather than on every change.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "Uncontrolled inputs let the DOM own the state; you read the value via a ref when needed."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "When should you validate form input?",
+        "options": ["Only after submit", "Only on mount", "Both on change and on submit, depending on UX needs", "Never — validation is unnecessary"],
+        "correctIndex": 2,
+        "explanation": "A common pattern is light validation on change for immediate feedback and full validation on submit."
+      }
+    ]
+  },
+  {
+    "id": "quiz-re-004",
+    "lessonId": "re-004",
+    "title": "API Integration & Custom Hooks Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "What is the main benefit of extracting data-fetching logic into a custom hook?",
+        "options": ["It reduces bundle size", "Reusable, testable logic that separates data concerns from UI", "It automatically caches responses", "It removes the need for error handling"],
+        "correctIndex": 1,
+        "explanation": "Custom hooks encapsulate data logic so components stay focused on presentation and the hook is reusable."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "A custom hook that fetches data should handle loading, error, and success states.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "Exposing all three states lets the consuming component render appropriate UI for each."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "What pattern helps when an API request fails temporarily?",
+        "options": ["Immediately throw to the user", "Retry with backoff", "Delete the component", "Silently ignore the error"],
+        "correctIndex": 1,
+        "explanation": "Retry with exponential backoff handles transient failures gracefully before surfacing an error."
+      }
+    ]
+  },
+  {
+    "id": "quiz-re-005",
+    "lessonId": "re-005",
+    "title": "React Ecosystem: Routing Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "What distinguishes a single-page application (SPA) from a traditional website?",
+        "options": ["SPAs reload the full page on every navigation", "SPAs update only the content that changes without full page reloads", "SPAs cannot use URLs", "SPAs require a server for routing"],
+        "correctIndex": 1,
+        "explanation": "SPAs fetch a single HTML shell and update the DOM via JavaScript, giving a fluid, app-like experience."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "React Router's <Link> component prevents full page reloads and uses client-side navigation instead.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "Link intercepts clicks and updates the URL via the History API, avoiding a server round-trip."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "How do you define a route parameter like :lessonId in React Router?",
+        "options": ["In the path string, e.g. '/lessons/:lessonId'", "As a query parameter only", "In the element prop", "You cannot define route parameters"],
+        "correctIndex": 0,
+        "explanation": "Dynamic segments in the path string become parameters accessible via useParams()."
+      }
+    ]
+  },
+  {
+    "id": "quiz-re-006",
+    "lessonId": "re-006",
+    "title": "React Performance & Accessibility Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "What does React.memo do?",
+        "options": ["Caches the component in localStorage", "Prevents re-renders when props haven't changed", "Removes unused CSS", "Automatically lazy-loads the component"],
+        "correctIndex": 1,
+        "explanation": "React.memo wraps a component and skips re-renders when its props are shallowly equal to the previous props."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "useMemo should be used to memoize every expensive computation, even if it runs only once.",
+        "options": ["True", "False"],
+        "correctIndex": 1,
+        "explanation": "useMemo has its own overhead; it's only worth it when the computation is genuinely expensive and re-runs frequently."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "Which attribute on an <img> element is essential for accessibility?",
+        "options": ["src", "alt", "width", "loading"],
+        "correctIndex": 1,
+        "explanation": "The alt attribute provides text alternatives for screen readers; decorative images use alt=\"\"."
+      }
+    ]
+  },
+  {
+    "id": "quiz-ui-002",
+    "lessonId": "ui-002",
+    "title": "Material UI Masterclass Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "What component is used to apply a custom theme in Material UI?",
+        "options": ["ThemeProvider", "ThemeContext", "MuiTheme", "StyledProvider"],
+        "correctIndex": 0,
+        "explanation": "ThemeProvider wraps the app and injects the theme object into all MUI components via context."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "Material UI's sx prop allows inline styling with theme-aware values.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "The sx prop accepts a style object that can reference theme tokens like spacing, colors, and breakpoints."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "Which MUI component is used to collect single-line text input?",
+        "options": ["TextInput", "TextField", "InputField", "FormInput"],
+        "correctIndex": 1,
+        "explanation": "TextField is MUI's primary text input component, supporting labels, helpers, and validation states."
+      }
+    ]
+  },
+  {
+    "id": "quiz-tl-002",
+    "lessonId": "tl-002",
+    "title": "Git Workflow & CI/CD Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "What is a pull request primarily used for?",
+        "options": ["To directly push to production", "To propose changes for review before merging into a target branch", "To delete a branch", "To create a new repository"],
+        "correctIndex": 1,
+        "explanation": "A PR initiates code review and discussion before changes are merged into the main branch."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "GitHub Actions workflows are defined in YAML files stored in the .github/workflows directory.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "Workflows are YAML files in .github/workflows; each defines triggers, jobs, and steps."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "Which branching strategy uses 'feature/', 'bugfix/', and 'main' branches?",
+        "options": ["Git Flow", "Trunk-Based Development", "GitHub Flow", "No branching strategy"],
+        "correctIndex": 0,
+        "explanation": "Git Flow uses structured branch prefixes and separate develop/release branches for organized workflow."
+      }
+    ]
+  },
+  {
+    "id": "quiz-tl-003",
+    "lessonId": "tl-003",
+    "title": "Dev Environment Setup Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "What is npm primarily used for?",
+        "options": ["Writing HTML", "Installing and managing JavaScript packages", "Compiling CSS", "Hosting websites"],
+        "correctIndex": 1,
+        "explanation": "npm is the Node Package Manager — it installs dependencies listed in package.json."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "Node.js is required to run a Vite-based React development server.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "Vite runs on Node.js; you need it installed to use npm and start the dev server."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "Which file in a Vite project specifies the single HTML entry point?",
+        "options": ["package.json", "index.html", "vite.config.ts", "tsconfig.json"],
+        "correctIndex": 1,
+        "explanation": "index.html is the entry HTML file that loads the main.tsx script via a module tag."
+      }
+    ]
+  },
+  {
+    "id": "quiz-tl-004",
+    "lessonId": "tl-004",
+    "title": "Deployment Learning Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "What does the 'npm run build' command typically produce?",
+        "options": ["A development server", "A production-ready dist/ folder with optimized assets", "A new package.json", "A database migration"],
+        "correctIndex": 1,
+        "explanation": "The build step bundles, minifies, and outputs static files to dist/ ready for deployment."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "Environment variables prefixed with VITE_ are exposed to the client-side code in a Vite project.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "Vite only exposes env vars prefixed with VITE_ to the browser; others remain server-only."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "What is DNS configuration used for in deployment?",
+        "options": ["Compressing JavaScript files", "Pointing a domain name to the hosting server's IP address", "Running CI/CD pipelines", "Installing npm dependencies"],
+        "correctIndex": 1,
+        "explanation": "DNS records map your custom domain to the host's IP so visitors reach your deployed site."
+      }
+    ]
+  },
+  {
+    "id": "quiz-qa-002",
+    "lessonId": "qa-002",
+    "title": "Testing Guide Check",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "prompt": "Which type of test verifies that individual functions or components work correctly in isolation?",
+        "options": ["End-to-end test", "Integration test", "Unit test", "Manual test"],
+        "correctIndex": 2,
+        "explanation": "Unit tests focus on the smallest pieces of code, testing each function or component independently."
+      },
+      {
+        "id": "q2",
+        "type": "true-false",
+        "prompt": "End-to-end (E2E) tests simulate real user interactions across the entire application stack.",
+        "options": ["True", "False"],
+        "correctIndex": 0,
+        "explanation": "E2E tests drive a real browser to click, type, and navigate, verifying the full user flow."
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "prompt": "What is the purpose of mocking in tests?",
+        "options": ["To speed up compilation", "To replace real dependencies with controlled fakes for predictable testing", "To add new features", "To deploy the app faster"],
+        "correctIndex": 1,
+        "explanation": "Mocks substitute external dependencies (APIs, modules) so tests remain deterministic and isolated."
+      },
+      {
+        "id": "q4",
+        "type": "true-false",
+        "prompt": "A test pyramid recommends more E2E tests than unit tests.",
+        "options": ["True", "False"],
+        "correctIndex": 1,
+        "explanation": "The test pyramid favors many fast unit tests at the base, fewer integration tests, and very few slow E2E tests at the top."
+      }
+    ]
   }
 ]

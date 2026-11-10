@@ -133,7 +133,7 @@
 - [x] Build SearchPage with results across lessons, courses, notes
 - [x] Add result type filters
 - [x] Highlight matching terms
-- [ ] Git commit: `feat: implement search functionality`
+- [x] Git commit: `feat: implement search functionality`
 
 ### M11: Learning Paths
 - [x] Create learning paths feature: types, api, data, schemas
@@ -143,22 +143,22 @@
 - [x] Git commit: `feat: add guided learning paths`
 
 ### M12: Dashboard
-- [ ] Create dashboard feature: components, hooks
-- [ ] Show "Continue Learning" with last in-progress lesson
-- [ ] Show overall progress summary
-- [ ] Show recent bookmarks and notes
-- [ ] Show recommended next courses/paths
-- [ ] Git commit: `feat: add dashboard overview`
+- [x] Create dashboard feature: components, hooks
+- [x] Show "Continue Learning" with last in-progress lesson
+- [x] Show overall progress summary
+- [x] Show recent bookmarks and notes
+- [x] Show recommended next courses/paths
+- [x] Git commit: `feat: add dashboard overview`
 
 ### M13: Accessibility & Performance
-- [ ] Keyboard navigation audit
-- [ ] ARIA labels on interactive elements
-- [ ] Focus management for modals and route transitions
-- [ ] Color contrast verification (WCAG AA)
-- [ ] Lazy-load route components
-- [ ] Add skeleton loaders and error boundaries
-- [ ] Responsive design audit
-- [ ] Git commit: `feat: improve accessibility and performance`
+- [x] Keyboard navigation audit
+- [x] ARIA labels on interactive elements
+- [x] Focus management for modals and route transitions
+- [x] Color contrast verification (WCAG AA)
+- [x] Lazy-load route components
+- [x] Add skeleton loaders and error boundaries
+- [x] Responsive design audit
+- [x] Git commit: `feat: improve accessibility and performance`
 
 ---
 
@@ -171,5 +171,5 @@
 | 3     | M6–M9      | User Features            |
 | 4     | M10–M13    | Discovery & Polish       |
 
-**Current Milestone:** M11 — Learning Paths
-**Last Completed:** M10 — Search
+**Current Milestone:** Complete — All MVP milestones done
+**Last Completed:** M13 — Accessibility & Performance

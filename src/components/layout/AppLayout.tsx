@@ -4,8 +4,14 @@ import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { MobileNav } from './MobileNav';
 import { Spinner } from '@/components/ui';
+import { useRouteFocus } from '@/hooks/useRouteFocus';
+import { useRouteFocus } from '@/hooks/useRouteFocus';
+
+  useRouteFocus();
 
 export function AppLayout() {
+  useRouteFocus();
+
   return (
     <div className="min-h-screen bg-neutral-50">
       <a href="#main-content" className="skip-link">Skip to content</a>
