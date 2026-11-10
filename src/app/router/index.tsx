@@ -10,6 +10,7 @@ const CoursesPage = lazy(() => import('@/app/pages/CoursesPage'));
 const CourseDetailPage = lazy(() => import('@/app/pages/CourseDetailPage'));
 const LessonViewerPage = lazy(() => import('@/app/pages/LessonViewerPage'));
 const StructuredLessonPage = lazy(() => import('@/app/pages/StructuredLessonPage'));
+const DataManagementPage = lazy(() => import('@/app/pages/DataManagementPage'));
 const LearningPathsPage = lazy(() => import('@/app/pages/LearningPathsPage'));
 const LearningPathDetailPage = lazy(() => import('@/app/pages/LearningPathDetailPage'));
 const BookmarksPage = lazy(() => import('@/app/pages/BookmarksPage'));
@@ -30,6 +31,8 @@ export const router = createBrowserRouter([
       { path: ROUTES.COURSE_DETAIL, element: <CourseDetailPage />, errorElement: <RouteErrorBoundary /> },
       { path: ROUTES.LESSON_VIEWER, element: <LessonViewerPage />, errorElement: <RouteErrorBoundary /> },
       { path: '/:locale/structured-lessons/:lessonId', element: <StructuredLessonPage />, errorElement: <RouteErrorBoundary /> },
+      { path: ROUTES.DATA_MANAGEMENT, element: <DataManagementPage />, errorElement: <RouteErrorBoundary /> },
+      { path: '/:locale/settings/data', element: <DataManagementPage />, errorElement: <RouteErrorBoundary /> },
       { path: ROUTES.LEARNING_PATHS, element: <LearningPathsPage />, errorElement: <RouteErrorBoundary /> },
       {
         path: ROUTES.LEARNING_PATH_DETAIL,

@@ -14,6 +14,7 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Define typed lesson translation/content-block schemas.
 - [x] Define the canonical six-month / 24-week syllabus with supplementary tracks separate.
 - [x] Add structured bilingual pilot lessons for Weeks 1–4.
+- [x] Add structured Week 5 JavaScript basics lesson (pending exact latest CI validation at handoff time).
 - [x] Add tests for schema invariants, stable translation block structure, curriculum order, repository lookups and walkthrough line references.
 - [ ] Map all legacy lesson files to exact curriculum/sub-track lesson IDs.
 - [ ] Add a content editorial/review/publishing checklist and workflow.
@@ -48,6 +49,7 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [ ] Review source accuracy and translation parity for the four pilots.
 - [ ] Migrate remaining topics incrementally in syllabus order, splitting large HTML files where appropriate.
 - [ ] Keep all source HTML until both locales of its replacement pass review.
+- Week 1–5 structured pilot lesson records now exist. Editorial review and complete legacy-source parity checks remain pending.
 - Acceptance: a topic is only marked migrated when source checks, language parity, navigation, code and exercises pass.
 
 ## Phase 5 — Local-first persistence

@@ -1,35 +1,17 @@
 import { create } from 'zustand';
-import { z } from 'zod';
 import { loadJSON, saveJSON } from '@/lib/storage';
+import {
+  EMPTY_STRUCTURED_LEARNING_STATE,
+  STRUCTURED_LEARNING_STORAGE_KEY,
+  structuredLearningStateSchema,
+  type CodeDraft,
+  type PracticeChecklist,
+  type QuizAttempt,
+  type StructuredLearningState,
+} from './schemas';
 
-const STORAGE_KEY = 'interactive-guides:structured-learning:v1';
-
-const quizAttemptSchema = z.object({
-  selectedOptionIds: z.array(z.string()),
-  isCorrect: z.boolean(),
-  submittedAt: z.string(),
-});
-
-const codeDraftSchema = z.object({
-  code: z.string(),
-  updatedAt: z.string(),
-});
-
-const practiceChecklistSchema = z.object({
-  checkedCriteria: z.array(z.number().int().nonnegative()),
-  updatedAt: z.string(),
-});
-
-const persistedStateSchema = z.object({
-  quizAttempts: z.record(z.string(), z.array(quizAttemptSchema)),
-  codeDrafts: z.record(z.string(), codeDraftSchema),
-  practiceChecklists: z.record(z.string(), practiceChecklistSchema),
-});
-
-type QuizAttempt = z.infer<typeof quizAttemptSchema>;
-type CodeDraft = z.infer<typeof codeDraftSchema>;
-type PracticeChecklist = z.infer<typeof practiceChecklistSchema>;
-type PersistedState = z.infer<typeof persistedStateSchema>;
+type PersistedState = StructuredLearningState;
+const STORAGE_KEY = STRUCTURED_LEARNING_STORAGE_KEY;
 
 interface StructuredLearningStore extends PersistedState {
   recordQuizAttempt: (
@@ -48,15 +30,11 @@ interface StructuredLearningStore extends PersistedState {
   ) => void;
 }
 
-const EMPTY_STATE: PersistedState = {
-  quizAttempts: {},
-  codeDrafts: {},
-  practiceChecklists: {},
-};
+const EMPTY_STATE: PersistedState = EMPTY_STRUCTURED_LEARNING_STATE;
 
 function loadInitialState(): PersistedState {
   const raw = loadJSON<PersistedState>(STORAGE_KEY, EMPTY_STATE);
-  const parsed = persistedStateSchema.safeParse(raw);
+  const parsed = structuredLearningStateSchema.safeParse(raw);
   return parsed.success ? parsed.data : EMPTY_STATE;
 }
 

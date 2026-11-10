@@ -236,7 +236,7 @@
         {
           "title": "Branch order matters",
           "lineStart": 3,
-          "lineEnd": 10,
+          "lineEnd": 9,
           "explanation": "The first matching branch wins. If the conditions were reordered carelessly, a broad condition could capture values intended for a more specific case."
         }
       ]
