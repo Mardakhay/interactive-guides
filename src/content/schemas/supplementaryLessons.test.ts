@@ -397,13 +397,13 @@ describe('frontend authentication security and lifecycle', () => {
   it('covers status codes, JWT limits, OAuth roles and concurrent token refresh', () => {
     expect(lessonTranslationSchema.safeParse(englishAuth).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianAuth).success).toBe(true);
-    expect(englishAuth.version).toBe(3);
-    expect(englishAuth.blocks).toHaveLength(23);
+    expect(englishAuth.version).toBe(5);
+    expect(englishAuth.blocks).toHaveLength(25);
     expect(englishAuth.blocks.map(({ id, type }) => [id, type])).toEqual(
       russianAuth.blocks.map(({ id, type }) => [id, type]),
     );
     for (const lesson of [englishAuth, russianAuth]) {
-      for (const id of ['auth-http-status-check', 'auth-jwt-validation-check', 'auth-oauth-flow-check', 'auth-refresh-race-check']) {
+      for (const id of ['auth-http-status-check', 'auth-jwt-validation-check', 'auth-oauth-flow-check', 'auth-oauth-security-check', 'auth-refresh-race-check']) {
         const check = lesson.blocks.find((block) => block.id === id);
         expect(check?.type).toBe('knowledgeCheck');
         if (check?.type !== 'knowledgeCheck') return;
@@ -428,11 +428,20 @@ describe('frontend authentication security and lifecycle', () => {
       expect(practice.requirements.length).toBeGreaterThanOrEqual(7);
       expect(practice.hints.length).toBeGreaterThanOrEqual(4);
       expect(practice.successCriteria.length).toBeGreaterThanOrEqual(6);
+      const jwtModel = lesson.blocks.find((block) => block.id === 'auth-jwt-validation-model');
+      expect(jwtModel?.type).toBe('paragraph');
+      if (jwtModel?.type === 'paragraph') {
+        expect(jwtModel.text.toLowerCase()).toContain(
+          lesson.locale === 'en' ? 'synthetic/example tokens' : 'синтетические примеры',
+        );
+        expect(jwtModel.text).toContain('`exp`');
+      }
       const refs = lesson.blocks.find((block) => block.id === 'auth-references');
       expect(refs?.type).toBe('references');
       if (refs?.type === 'references') {
         expect(refs.items.some((item) => item.url === 'https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/401')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://www.rfc-editor.org/rfc/rfc7519.html')).toBe(true);
       }
     }
   });
@@ -518,12 +527,28 @@ describe('Advanced package workflow toolchain coverage', () => {
   it('separates bundling, transformation, checking, and test-runner responsibilities', () => {
     expect(lessonTranslationSchema.safeParse(englishAdvancedTooling).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianAdvancedTooling).success).toBe(true);
-    expect(englishAdvancedTooling.version).toBe(2);
-    expect(englishAdvancedTooling.blocks).toHaveLength(17);
+    expect(englishAdvancedTooling.version).toBe(3);
+    expect(russianAdvancedTooling.version).toBe(3);
+    expect(englishAdvancedTooling.blocks).toHaveLength(18);
+    expect(russianAdvancedTooling.blocks).toHaveLength(18);
     expect(englishAdvancedTooling.blocks.map(({ id, type }) => [id, type])).toEqual(
       russianAdvancedTooling.blocks.map(({ id, type }) => [id, type]),
     );
     for (const lesson of [englishAdvancedTooling, russianAdvancedTooling]) {
+      const updateRangeCheck = lesson.blocks.find((block) => block.id === 'pkg-update-range-check');
+      expect(updateRangeCheck?.type).toBe('knowledgeCheck');
+      if (updateRangeCheck?.type !== 'knowledgeCheck') return;
+      expect(updateRangeCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['npm-update']);
+      expect(updateRangeCheck.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+      expect(updateRangeCheck.explanation).toContain('npm update');
+      expect(updateRangeCheck.prompt).toMatch(lesson.locale === 'en' ? /SemVer ranges/ : /SemVer-диапазонах/);
+
+      const packageReferences = lesson.blocks.find((block) => block.id === 'pkg-references');
+      expect(packageReferences?.type).toBe('references');
+      if (packageReferences?.type === 'references') {
+        expect(packageReferences.items.some((item) => item.url === 'https://docs.npmjs.com/cli/v11/commands/npm-update/')).toBe(true);
+      }
+
       const workflow = lesson.blocks.find((block) => block.id === 'pkg-toolchain-walkthrough');
       expect(workflow?.type).toBe('codeWalkthrough');
       if (workflow?.type !== 'codeWalkthrough') return;

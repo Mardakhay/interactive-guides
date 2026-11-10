@@ -55,6 +55,38 @@ describe('StructuredLessonPage', () => {
     expect(await screen.findByRole('link', { name: /Next lesson HTML Forms and Accessibility Basics/ })).toBeTruthy();
   });
 
+  it('searches section titles across the mobile and desktop outlines in English', async () => {
+    renderLesson('/en/structured-lessons/html.document-structure');
+
+    const searchFields = await screen.findAllByRole('searchbox', { name: 'Search sections' });
+    expect(searchFields).toHaveLength(2);
+    fireEvent.change(searchFields[0]!, { target: { value: 'metadata' } });
+
+    expect(searchFields.every((field) => (field as HTMLInputElement).value === 'metadata')).toBe(true);
+    const matchingLinks = screen.getAllByRole('link', { name: 'Links, metadata, and global attributes' });
+    const nonMatchingLinks = screen.getAllByRole('link', { name: 'Why document structure matters' });
+    expect(matchingLinks).toHaveLength(2);
+    expect(matchingLinks.every((link) => link.className.includes('opacity-100'))).toBe(true);
+    expect(nonMatchingLinks.every((link) => link.className.includes('opacity-40'))).toBe(true);
+
+    fireEvent.change(searchFields[1]!, { target: { value: '' } });
+    expect(searchFields.every((field) => (field as HTMLInputElement).value === '')).toBe(true);
+    expect(screen.getAllByRole('link', { name: 'Why document structure matters' }).every((link) => link.className.includes('opacity-100'))).toBe(true);
+  });
+
+  it('localizes section search and preserves Russian outline links', async () => {
+    renderLesson('/ru/structured-lessons/html.document-structure');
+
+    const searchFields = await screen.findAllByRole('searchbox', { name: 'Поиск по разделам' });
+    expect(searchFields).toHaveLength(2);
+    fireEvent.change(searchFields[1]!, { target: { value: 'метаданные' } });
+
+    const matchingLinks = screen.getAllByRole('link', { name: 'Ссылки, метаданные и глобальные атрибуты' });
+    const nonMatchingLinks = screen.getAllByRole('link', { name: 'Почему структура документа важна' });
+    expect(matchingLinks.every((link) => link.className.includes('opacity-100'))).toBe(true);
+    expect(nonMatchingLinks.every((link) => link.className.includes('opacity-40'))).toBe(true);
+  });
+
   it('updates the accessible reading-progress indicator as the learner scrolls', async () => {
     renderLesson('/en/structured-lessons/html.document-structure');
 

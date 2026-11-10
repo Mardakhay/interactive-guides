@@ -6,9 +6,9 @@ Follow this sequence. Each phase should land as a small reviewed change; avoid o
 
 This section replaces older status summaries below where they conflict. Chronological checkpoint notes remain a history, not a unique-task count.
 
-- Latest validated code/content checkpoint: `6a0f9dbc888d713762096aac6074ed01a928336c`.
+- Latest validated code/content/test checkpoint: `4703f4c5b7f387fab29ab25928696631ccc7321e`; exact [Actions run #40885020971](https://github.com/Mardakhay/interactive-guides/actions/runs/40885020971) passed 46 test files / 300 tests, ESLint, TypeScript, production build, bundle budgets across 125 JavaScript chunks, npm audit with 0 reported advisories (informational/non-blocking), and production-preview smoke for 4 deep routes, the entry bundle, manifest, service worker, and 5 PWA assets. It includes the OAuth BCP/auth regression fixes, JS-004 async-concurrency source corrections, and WB-002 HTML-reference accuracy follow-up; it does not close native acceptance or route-cutover gates.
 - `main` remains at `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 is open Draft against `main`.
-- Exact-head Actions run [#40837078455](https://github.com/Mardakhay/interactive-guides/actions/runs/40837078455) passed on `6a0f9dbc888d713762096aac6074ed01a928336c`: lint, typecheck, 36 test files / 227 tests, production build/bundle checks, informational audit report and production preview smoke. It is not a native browser/device pass.
+- The audit step reports zero advisories but is explicitly informational/non-blocking; lint, typecheck, tests and build remain fail-fast. CI is not a native browser/device, screen-reader or mobile acceptance pass.
 - Registry: 27 core + 17 supplementary = 44 EN/RU lesson pairs (88 JSON locale records).
 - 25 legacy HTML source reviews are documented, but all 25 route-cutover rows remain **Blocked**. Source-to-block parity, interaction dispositions and learner-state retention are still release gates.
 - 21 mapped Notion sources remain `verification.state=unverified`.
@@ -17,7 +17,7 @@ This section replaces older status summaries below where they conflict. Chronolo
 ### Remaining work, by dependency
 
 1. **Source parity and cutover:** verify each legacy source against its actual English and Russian target content, including examples, code, quizzes, answer feedback, references and interaction behavior. Record reviewed keep-classic/defer decisions where equivalence is incomplete; do not infer readiness from mappings or CI.
-2. **Learner-state safety:** define and test retention for progress, bookmarks, notes, last-opened state and classic quiz keys before redirects or source removal.
+2. **Learner-state safety:** use [`docs/LEARNER_STATE_MIGRATION_INVENTORY.md`](LEARNER_STATE_MIGRATION_INVENTORY.md) as the store/identity baseline; prove retention for progress, bookmarks, notes, last-opened state, classic quiz IDs, structured block IDs and failure recovery before redirects or source removal.
 3. **Native acceptance:** run the documented browser/device checklist with synthetic data and record SHA, browser/version, OS/device, network mode and evidence.
 4. **Curriculum and UX sign-off:** map all 24-week outcomes, review bilingual semantics, uncommon UI strings, keyboard/accessibility, responsive layout, and exercise solution disclosure.
 5. **Release and cloud scope:** verify actual deployment/screenshot evidence. Implement Supabase only after scope, local/cloud reconciliation, RLS and account-isolation behavior are approved.
@@ -704,3 +704,92 @@ Current authoritative split after the week-17 mapping fix: 27 core lesson IDs + 
 - [x] Update tooling tests to validate both locale schemas and identical block ordering, version/date, seven knowledge checks, the CLI walkthrough line ranges, correct `react-ts` and HMR answers, and npm/Vite reference URLs.
 - [x] Exact code/content SHA `0b20e7cf499c21d8ca3a879a104e11c11d1882f5` passed [CI #40832351304](https://github.com/Mardakhay/interactive-guides/actions/runs/40832351304): 36 test files / 226 tests, lint, typecheck, production build, 125 JS chunk budgets, zero npm audit advisories and preview smoke over four routes and five PWA assets.
 - [ ] `tl-003` remains blocked on full bilingual source/interaction parity; the legacy 20-question / 10-exercise interaction set is not recreated one-for-one. Preserve the source and classic route pending content, state-migration and browser/device acceptance.
+
+
+## Git Workflow original quiz and CI-stage assessment parity — 2026-10-29
+
+- [x] Re-read `public/lessons/git-workflow-cicd-guide.html` and map its ten quiz concepts against both `git.workflow-ci` locale bodies. Keep the original classic HTML in place.
+- [x] Upgrade `git.workflow-ci` EN/RU to v10: 69 aligned blocks and 19 scored knowledge checks per locale. Added explicit checks for hotfix origin, branch-protection enforcement vs CI reporting, the Git Flow feature target, CI purpose, actionable review feedback, SemVer MINOR, continuous deployment, focused PR review, and `npm ci`; retain the existing hotfix back-merge check to cover the full source quiz concept set.
+- [x] Expand the bilingual `ci-failure-diagnosis-matrix` to address checkout, dependency install, lint/typecheck, tests, build, security/audit, deployment and exact-SHA reruns. Add regression coverage for answer IDs, per-option feedback, explanatory copy, stage coverage and localized English/Russian test terminology.
+- [x] Verify source/content/test checkpoint `b9a59af8780e3dd6f9f2187cc70dc4c022ad288e` in [CI #40842019192](https://github.com/Mardakhay/interactive-guides/actions/runs/40842019192): 37 test files / 230 tests, lint, typecheck, production build, 125 JavaScript chunks within budgets, zero reported npm audit advisories and production-preview smoke.
+- [ ] Keep `tl-002` **Blocked**: the branch canvas, tabs, click-to-inject seven-stage simulator and original sequential quiz scoring/restart UI are not reproduced one-to-one. Do not treat concept checks as interactive source equivalence.
+- [ ] Keep real-browser/device, screen-reader, mobile/offline/PWA and learner-state-retention acceptance open. No route redirection, HTML deletion, data fan-out or Supabase cutover is approved by this content batch.
+
+
+## Git Reference Guide safe-rebase operational parity — 2026-10-29
+
+- [x] Re-read the legacy `public/lessons/git-reference.html` Rebase section and compare it with the existing `git.fundamentals` EN/RU lesson. The old source explains merge vs rebase and warns that rebase rewrites history, but the structured lesson lacked a focused safe update sequence.
+- [x] Upgrade `git.fundamentals` EN/RU to v9 with 61 aligned blocks, 8 knowledge checks and 7 code walkthroughs per locale. Add a command-level flow for `git status`, `git fetch origin`, switching to an owned feature branch, `git rebase origin/main`, conditional conflict resolution and `git rebase --continue`; explain `git rebase --abort` as the alternative when the active rebase cannot be resolved safely.
+- [x] Add the scored rebase-safety check, answer/feedback and walkthrough line-range regression assertions, update the repository-level version expectations, and add the official `git-rebase` documentation reference.
+- [x] Exact content/test checkpoint `caf410e47427e62cc3c409b0e89f9a4a50f6b54f` passed [CI #40842971009](https://github.com/Mardakhay/interactive-guides/actions/runs/40842971009): 37 test files / 230 tests, lint, typecheck, production build, 125 JS chunks within budgets, zero reported npm audit advisories and preview smoke.
+- [ ] Keep `tl-001` **Blocked**: original search/copy/sidebar/accordion/quick-reference presentation and interaction behavior are not replicated one-to-one.
+- [ ] Keep real-browser/device, mobile, keyboard/screen-reader, install/offline/PWA and learner-state-retention acceptance open; content parity alone is not approval for redirects, HTML deletion or state migration.
+
+
+## Structured lesson outline search parity — 2026-10-29
+
+- [x] Reinspect the classic Git Reference Guide search behavior. It fades nonmatching sidebar-navigation labels and does not filter lesson body text or command snippets.
+- [x] Add bilingual Search sections / Поиск по разделам inputs to the structured lesson page's mobile and desktop outlines, sharing one query state; perform case-insensitive heading-text matching and dim nonmatching links instead of removing them from keyboard/assistive navigation.
+- [x] Add regression coverage for EN/RU labels, match/mismatch styling, mobile/desktop synchronized value and query clearing.
+- [x] Fix the reading-progress edge case that incorrectly marked a zero-height, not-yet-measured root as 100% complete.
+- [x] Verify exact HEAD 703b09911f3da04ff6eb239102ee814918a13dc7 in CI #40843816941: 37 test files / 232 tests, lint, typecheck, production build, 125-chunk budgets and production-preview smoke.
+- [ ] Keep tl-001 **Blocked**: query covers section titles only; command/body search and full legacy sidebar/accordion/quick-reference interaction and layout parity remain incomplete.
+- [ ] Keep the real-browser/device, keyboard/screen-reader, responsive/mobile, install/offline/PWA and learner-state retention gates open.
+
+
+## Typed bilingual, copyable Git quick reference — 2026-10-29
+
+- [x] Replace the ten sentence-style quick-reference bullets in `git.fundamentals` with a schema-validated `commandReference` containing 25 command entries in four categories (basic workflow, inspect/undo, branching and remote collaboration), preserving the same EN/RU block IDs and item order.
+- [x] Add individual copy buttons and localized success/failure status announcements per command; test successful clipboard copy in English and Russian.
+- [x] Validate unique category/item IDs, expect lesson version v10, and test the four-category / 25-entry contract. Prefer `git restore --staged` for unstaging, warn before destructive `git restore <file>` and history-rewriting `git commit --amend`, and avoid promoting unconditional `git reset --hard` as a normal remedy.
+- [x] Verify exact checkpoint `dcb85b2c20234c4d6bd57d8b5b976464cd297113` in [CI #40844593467](https://github.com/Mardakhay/interactive-guides/actions/runs/40844593467): 37 test files / 234 tests, lint, typecheck, build, 125-chunk budgets, zero npm audit advisories and production-preview smoke.
+- [ ] Keep `tl-001` **Blocked**: outline query is limited to section labels; original sidebar accordion and responsive page layout still require detailed comparison and manual browser acceptance.
+- [ ] Keep all browser/device/screen-reader and learner-state retention gates open; do not redirect routes or delete the legacy HTML.
+
+
+## GitHub Flow pull-request review lifecycle — 2026-10-29
+
+- [x] Add bilingual guidance distinguishing local Git commands from opening a hosted pull request: branch, test, commit, push, open PR, describe check evidence, request review, update the same branch after feedback, and merge only when policy-required approvals/checks pass.
+- [x] Add a ten-line code walkthrough with step ranges and a scored question about handling reviewer change requests. Link the official GitHub Flow documentation.
+- [x] Upgrade `git.fundamentals` to v11 (65 aligned blocks, 9 knowledge checks, 8 walkthroughs in both locales) and update schema/repository/source parity assertions for version and line-range safety.
+- [x] Validate exact checkpoint `13de653ac575836ab2d0d63a482cf35792271d83` in [CI #40845507742](https://github.com/Mardakhay/interactive-guides/actions/runs/40845507742): 37 test files / 235 tests, lint, typecheck, production build, 125-chunk budgets, zero reported npm audit advisories and production-preview smoke.
+- [ ] Keep `tl-001` **Blocked** until the original sidebar accordion, responsive layout and interaction disposition are reviewed in real browsers and learner-state safety is signed off.
+
+
+## Secret-leak response and least-privilege repository roles — 2026-10-29
+
+- [x] Add a bilingual, assessed response for an already-pushed secret: revoke/rotate with the provider first, alert the owner/security contact, review logs, remove the tracked file while preserving a local copy, and coordinate any necessary history cleanup.
+- [x] Add bilingual least-privilege repository-role guidance and a scored mapping from issue/PR management without code push to the Triage role.
+- [x] Validate source/content answer IDs and references in the Git parity suite. `git.fundamentals` is now v13 with 72 aligned blocks, 11 knowledge checks and 9 walkthroughs per locale.
+- [ ] Keep `tl-001` **Blocked** until exact interaction/layout parity, browser/device acceptance, learner-state disposition and screen-reader checks are complete.
+
+## npm update range semantics — 2026-10-29
+
+- [x] Upgrade `tooling.advanced-package-workflows` EN/RU to v3 with 18 aligned blocks and a scored `pkg-update-range-check`.
+- [x] Explain the decision between `npm update` (refresh within declared ranges by default), `npm ci` (reproduce locked resolution), and targeted `npm install react@latest` (not equivalent and may change the direct range); require lockfile diff review and project checks.
+- [x] Update the schema regression expectations to v3/18 blocks and assert the single correct answer, feedback/explanation, and official npm update URL.
+- [x] Verify exact checkpoint `fabe0f1c40bd30fbcc4563a50364fa803b085f64` in [CI #40848460443](https://github.com/Mardakhay/interactive-guides/actions/runs/40848460443): 37 test files / 240 tests, lint, typecheck, production build, 125-chunk budgets, zero npm audit advisories and production-preview smoke.
+
+
+## React Effect cleanup accuracy and legacy Vite-config exercise — 2026-10-29
+
+- [x] Correct the broad legacy q14 wording with an EN/RU callout: after unmount, a Promise settling later does not by itself prove a memory leak; cleanup should release external resources, cancel requests when appropriate, and guard stale responses. Link the official React 18 upgrade guide.
+- [x] Upgrade `react.effects-lists-composition` to v6; assert the cleanup accuracy note, AbortController/freshness code, line ranges and official React 18 reference.
+- [x] Close the identified gap from legacy Exercise 10 in `intro.dev.html`: add bilingual Vite config with React plugin, `@` source alias, port 4000, auto-open and `/api` dev proxy to port 3001.
+- [x] Explain that TypeScript may require an equivalent `compilerOptions.paths` entry and that Vite `server.proxy` does not configure production-host routing. Add a scored knowledge check and official Vite config/server-options references.
+- [x] Upgrade `tooling.node-npm-vite` to v6 (52 aligned blocks, 12 checks and 5 walkthroughs per locale); exact checkpoint `ea9ec62fd7bb9d5895c4969ace95779ce93ac6d0` passed [CI #40850154495](https://github.com/Mardakhay/interactive-guides/actions/runs/40850154495): 37 test files / 240 tests, lint, typecheck, build, 125-chunk budgets, zero npm audit advisories and production-preview smoke.
+- [ ] Keep `tl-003` **Blocked**: the original 20-question/10-exercise UI and full source interaction parity remain incomplete. Review remaining legacy exercise examples/version-specific commands; preserve the classic route and learner data until formal cutover gates pass.
+
+
+## tl-003 source fidelity follow-up — 2026-10-29
+
+- [x] Map all 20 legacy quiz concepts and 10 coding exercises to actual structured EN/RU blocks, with evidence and caveats in `docs/TL003_SOURCE_PARITY.md`.
+- [x] Correct outdated React Effect cleanup, Vite development/production bundling, Vitest versus Jest mock API, shared type-location advice, and ESM Vite alias examples in `public/lessons/intro.dev.html`.
+- [x] Add bilingual Product/generic-filter, accessible Toggle, typed/searchable list and defensive localStorage Hook examples where missing.
+- [x] Add a regression test for legacy inventory, source claims and EN/RU lesson alignment; update the existing lesson-version assertions to the extended content.
+- [ ] Keep `tl-003` **Blocked** until the original navigation/quiz/solution UI, learner-state disposition and browser/device/screen-reader acceptance are evidenced.
+
+
+## Focused js-003 memory source review — 2026-10-29
+
+The current source pass and its remaining gates are documented in [JS003_SOURCE_PARITY.md](JS003_SOURCE_PARITY.md). The structured EN/RU destination `js.runtime-memory` already has an implementation-caveat callout, GC/reachability guidance and memory-profiling references; this pass aligns the legacy page with those semantics and adds source regression coverage. Route cutover remains blocked.

@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getStructuredLesson } from '@/content/repository';
 import { useStructuredLearningStore } from './store';
 import { LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, STRUCTURED_LEARNING_STORAGE_KEY } from './schemas';
@@ -131,6 +131,48 @@ describe('StructuredLessonRenderer', () => {
     fireEvent.click(reveal);
     expect(screen.getByText(/Это один из возможных полных вариантов/)).toBeTruthy();
     expect(screen.getByRole('group', { name: 'html: пример кода — Пример решения' })).toBeTruthy();
+  });
+
+  it('copies an individual English Git quick-reference command and announces success', async () => {
+    const lesson = await getStructuredLesson('git.fundamentals', 'en');
+    if (!lesson) throw new Error('English Git fundamentals lesson is missing');
+    const clipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+    const writeText = vi.fn().mockResolvedValue(undefined);
+
+    try {
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+      render(<StructuredLessonRenderer lesson={lesson} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Copy command: git status -sb' }));
+
+      expect(writeText).toHaveBeenCalledWith('git status -sb');
+      expect(await screen.findByRole('button', { name: 'Copied: git status -sb' })).toBeTruthy();
+      expect(await screen.findByRole('status', { name: 'Command copy status: git status -sb' })).toHaveTextContent('Copied: git status -sb');
+    } finally {
+      cleanup();
+      if (clipboardDescriptor) Object.defineProperty(navigator, 'clipboard', clipboardDescriptor);
+      else Reflect.deleteProperty(navigator, 'clipboard');
+    }
+  });
+
+  it('localizes and copies a Russian Git quick-reference command', async () => {
+    const lesson = await getStructuredLesson('git.fundamentals', 'ru');
+    if (!lesson) throw new Error('Russian Git fundamentals lesson is missing');
+    const clipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+    const writeText = vi.fn().mockResolvedValue(undefined);
+
+    try {
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+      render(<StructuredLessonRenderer lesson={lesson} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Копировать команду: git status -sb' }));
+
+      expect(writeText).toHaveBeenCalledWith('git status -sb');
+      expect(await screen.findByRole('button', { name: 'Скопировано: git status -sb' })).toBeTruthy();
+      expect(await screen.findByRole('status', { name: 'Статус копирования команды: git status -sb' })).toHaveTextContent('Скопировано: git status -sb');
+    } finally {
+      cleanup();
+      if (clipboardDescriptor) Object.defineProperty(navigator, 'clipboard', clipboardDescriptor);
+      else Reflect.deleteProperty(navigator, 'clipboard');
+    }
   });
 
   it('announces a failed copy attempt to assistive technology', async () => {

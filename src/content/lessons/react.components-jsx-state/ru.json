@@ -1,7 +1,7 @@
 {
   "id": "react.components-jsx-state",
   "locale": "ru",
-  "version": 4,
+  "version": 5,
   "status": "review",
   "translationStatus": "translated",
   "updatedAt": "2026-10-29",
@@ -160,6 +160,26 @@
       "code": "type LessonCardProps = {\n  title: string;\n  durationMinutes: number;\n  onOpen: () => void;\n};\n\nfunction LessonCard({ title, durationMinutes, onOpen }: LessonCardProps) {\n  return (\n    <article>\n      <h2>{title}</h2>\n      <p>{durationMinutes} min</p>\n      <button onClick={onOpen}>Open lesson</button>\n    </article>\n  );\n}"
     },
     {
+      "id": "legacy-typed-list-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type Task = { id: string; title: string; completed: boolean };\n\ntype TaskListProps = { items: Task[] };\n\nfunction TaskList({ items }: TaskListProps) {\n  if (items.length === 0) return <p>No tasks yet.</p>;\n\n  return (\n    <ul>\n      {items.map((item) => (\n        <li key={item.id}>\n          <span>{item.title}</span>\n          {item.completed && <span> (completed)</span>}\n        </li>\n      ))}\n    </ul>\n  );\n}",
+      "steps": [
+        {
+          "title": "Опиши данные задачи и props компонента",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "explanation": "Именованный тип Task задаёт поля задачи, а TaskListProps описывает массив, который принимает компонент."
+        },
+        {
+          "title": "Отобрази пустой и заполненный список",
+          "lineStart": 5,
+          "lineEnd": 18,
+          "explanation": "Компонент обрабатывает пустой список и использует стабильный id задачи в key, сохраняя идентичность при изменении списка."
+        }
+      ]
+    },
+    {
       "id": "state",
       "type": "heading",
       "level": 2,
@@ -226,6 +246,46 @@
           "lineStart": 7,
           "lineEnd": 7,
           "explanation": "Setter планирует обновление состояния. React координирует новый рендер и изменение DOM; это не прямая DOM-операция."
+        }
+      ]
+    },
+    {
+      "id": "legacy-toggle-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { useState } from \"react\";\n\nfunction Toggle() {\n  const [isOn, setIsOn] = useState(false);\n\n  return (\n    <button\n      type=\"button\"\n      aria-pressed={isOn}\n      onClick={() => setIsOn((current) => !current)}\n    >\n      {isOn ? \"On\" : \"Off\"}\n    </button>\n  );\n}",
+      "steps": [
+        {
+          "title": "Храни состояние переключателя в React state",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "explanation": "Boolean — единый источник для видимой подписи и состояния кнопки."
+        },
+        {
+          "title": "Сделай состояние элемента управления доступным",
+          "lineStart": 6,
+          "lineEnd": 15,
+          "explanation": "Нативная button поддерживает клавиатуру, aria-pressed сообщает состояние, а функциональный updater переключает актуальное значение."
+        }
+      ]
+    },
+    {
+      "id": "legacy-searchable-list-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "type Item = { id: string; name: string };\n\ntype SearchableListProps = { items: Item[] };\n\nfunction SearchableList({ items }: SearchableListProps) {\n  const [query, setQuery] = useState(\"\");\n  const normalizedQuery = query.trim().toLocaleLowerCase();\n  const visibleItems = items.filter((item) =>\n    item.name.toLocaleLowerCase().includes(normalizedQuery),\n  );\n\n  return (\n    <section>\n      <label>\n        Search items\n        <input\n          value={query}\n          onChange={(event) => setQuery(event.currentTarget.value)}\n        />\n      </label>\n      <ul>\n        {visibleItems.map((item) => (\n          <li key={item.id}>{item.name}</li>\n        ))}\n      </ul>\n    </section>\n  );\n}",
+      "steps": [
+        {
+          "title": "Свяжи поле ввода с состоянием",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "explanation": "У элементов есть стабильные ID, а изменяемое состояние хранит только поисковый запрос. Перед фильтрацией запрос нормализуется."
+        },
+        {
+          "title": "Вычисли видимый список и используй стабильные keys",
+          "lineStart": 8,
+          "lineEnd": 28,
+          "explanation": "Видимый список вычисляется при рендере, а не дублируется в state. Поиск не зависит от регистра, а строки используют ID элементов."
         }
       ]
     },

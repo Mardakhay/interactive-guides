@@ -162,6 +162,8 @@ describe('HTML forms and accessibility lesson translation', () => {
       if (check?.type !== 'knowledgeCheck') return;
       expect(check.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['filter']);
       expect(check.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+
+
       const refs = lesson.blocks.find((block) => block.id === 'references');
       expect(refs?.type).toBe('references');
       if (refs?.type === 'references') {
@@ -348,10 +350,10 @@ describe('Git fundamentals lesson translation', () => {
     expect(englishGit.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGit.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
+    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
     expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
-    expect(englishGit.version).toBe(8);
-    expect(russianGit.version).toBe(8);
+    expect(englishGit.version).toBe(13);
+    expect(russianGit.version).toBe(13);
     const remoteExample = englishGit.blocks.find((block) => block.id === 'remote-example');
     expect(remoteExample?.type).toBe('codeWalkthrough');
     if (remoteExample?.type !== 'codeWalkthrough') return;
@@ -374,14 +376,61 @@ describe('Git fundamentals lesson translation', () => {
       expect(lesson.updatedAt).toBe('2026-10-29');
 
       const quickReference = lesson.blocks.find((block) => block.id === 'git-command-reference-list');
-      expect(quickReference?.type).toBe('list');
-      if (quickReference?.type !== 'list') return;
-      expect(quickReference.items.join(' ')).toContain('git clone <repository-url>');
-      expect(quickReference.items.join(' ')).toContain('git branch -d <branch>');
-      expect(quickReference.items.join(' ')).toContain('git merge <branch>');
-      expect(quickReference.items.join(' ')).toContain('git fetch origin');
-      expect(quickReference.items.join(' ')).toContain('git pull --ff-only');
-      expect(quickReference.items.join(' ')).toContain('git revert <commit>');
+      expect(quickReference?.type).toBe('commandReference');
+      if (quickReference?.type !== 'commandReference') return;
+      expect(quickReference.categories).toHaveLength(4);
+      const commands = quickReference.categories.flatMap((category) => category.items.map((item) => item.command));
+      const commandIds = quickReference.categories.flatMap((category) => category.items.map((item) => item.id));
+      expect(commands).toHaveLength(25);
+      expect(new Set(commandIds).size).toBe(25);
+      expect(commands).toContain('git clone <repository-url>');
+      expect(commands).toContain('git branch -d <merged-branch>');
+      expect(commands).toContain('git merge <branch>');
+      expect(commands).toContain('git fetch origin');
+      expect(commands).toContain('git pull --ff-only');
+      expect(commands).toContain('git restore --staged <file>');
+      expect(commands).toContain('git revert <commit>');
+      expect(commands).not.toContain('git reset --hard <SHA>');
+
+      const duplicateCommandIds = structuredClone(lesson);
+      const duplicateReference = duplicateCommandIds.blocks.find((block) => block.id === 'git-command-reference-list');
+      if (duplicateReference?.type === 'commandReference') {
+        duplicateReference.categories[1]!.items[0]!.id = duplicateReference.categories[0]!.items[0]!.id;
+      }
+      expect(lessonTranslationSchema.safeParse(duplicateCommandIds).success).toBe(false);
+
+      const secretResponse = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-body');
+      expect(secretResponse?.type).toBe('paragraph');
+      if (secretResponse?.type !== 'paragraph') throw new Error('Git secret remediation guidance is missing');
+      expect(secretResponse.text).toMatch(lesson.locale === 'en' ? /revoke or rotate/ : /отзови или замени/);
+      expect(secretResponse.text).toMatch(lesson.locale === 'en' ? /history|forks|caches/ : /истории|fork|кеш/);
+
+      const secretWalkthrough = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-walkthrough');
+      expect(secretWalkthrough?.type).toBe('codeWalkthrough');
+      if (secretWalkthrough?.type !== 'codeWalkthrough') throw new Error('Git secret remediation walkthrough is missing');
+      expect(secretWalkthrough.code).toContain('git rm --cached -- .env');
+      expect(secretWalkthrough.code).toContain('git diff --cached --stat');
+      expect(secretWalkthrough.code).toContain('git diff --cached -- .gitignore');
+      expect(secretWalkthrough.code).not.toContain('git diff --cached -- .env');
+
+      const secretCheck = lesson.blocks.find((block) => block.id === 'gitignore-secret-response-check');
+      expect(secretCheck?.type).toBe('knowledgeCheck');
+      if (secretCheck?.type !== 'knowledgeCheck') throw new Error('Git secret remediation check is missing');
+      expect(secretCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['revoke-first']);
+      expect(secretCheck.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+
+      const accessGuidance = lesson.blocks.find((block) => block.id === 'repository-access-body');
+      expect(accessGuidance?.type).toBe('paragraph');
+      if (accessGuidance?.type !== 'paragraph') throw new Error('Repository access guidance is missing');
+      expect(accessGuidance.text).toMatch(lesson.locale === 'en' ? /least privilege/ : /минимальных привилегий/);
+      expect(accessGuidance.text).toContain('Triage');
+      expect(accessGuidance.text).toMatch(/ruleset|protection/);
+
+      const accessCheck = lesson.blocks.find((block) => block.id === 'repository-access-role-check');
+      expect(accessCheck?.type).toBe('knowledgeCheck');
+      if (accessCheck?.type !== 'knowledgeCheck') throw new Error('Repository access question is missing');
+      expect(accessCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['triage-role']);
+      expect(accessCheck.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
 
       const fetchCheck = lesson.blocks.find((block) => block.id === 'fetch-pull-check');
       expect(fetchCheck?.type).toBe('knowledgeCheck');
@@ -389,11 +438,44 @@ describe('Git fundamentals lesson translation', () => {
       expect(fetchCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['fetch']);
       expect(fetchCheck.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
 
-      const refs = lesson.blocks.find((block) => block.id === 'references');
+      
+      const rebaseGuidance = lesson.blocks.find((block) => block.id === 'git-rebase-safe-update-body');
+      expect(rebaseGuidance?.type).toBe('paragraph');
+      if (rebaseGuidance?.type !== 'paragraph') throw new Error('Safe rebase guidance is missing');
+      expect(rebaseGuidance.text).toContain('git fetch origin');
+      expect(rebaseGuidance.text).toContain('git rebase --abort');
+      expect(rebaseGuidance.text).toContain('git rebase --continue');
+      expect(rebaseGuidance.text).toMatch(lesson.locale === 'en' ? /unpublished|teammates/ : /неопубликован|коллеги/);
+
+      const rebaseWalkthrough = lesson.blocks.find((block) => block.id === 'git-rebase-safe-update-walkthrough');
+      expect(rebaseWalkthrough?.type).toBe('codeWalkthrough');
+      if (rebaseWalkthrough?.type !== 'codeWalkthrough') throw new Error('Safe rebase walkthrough is missing');
+      expect(rebaseWalkthrough.code).toContain('git fetch origin');
+      expect(rebaseWalkthrough.code).toContain('git rebase origin/main');
+      expect(rebaseWalkthrough.code).toContain('git rebase --continue');
+      for (const step of rebaseWalkthrough.steps) {
+        expect(step.lineStart).toBeGreaterThan(0);
+        expect(step.lineEnd).toBeLessThanOrEqual(rebaseWalkthrough.code.split('\n').length);
+      }
+
+      const rebaseCheck = lesson.blocks.find((block) => block.id === 'git-rebase-safety-check');
+      expect(rebaseCheck?.type).toBe('knowledgeCheck');
+      if (rebaseCheck?.type !== 'knowledgeCheck') throw new Error('Safe rebase knowledge check is missing');
+      expect(rebaseCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['rebase-own-feature']);
+      expect(rebaseCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+      expect(rebaseCheck.explanation).toContain('git fetch origin');
+
+const refs = lesson.blocks.find((block) => block.id === 'references');
       expect(refs?.type).toBe('references');
       if (refs?.type === 'references') {
         expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-fetch')).toBe(true);
         expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-pull')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://git-scm.com/docs/git-rebase')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/code-security/tutorials/remediate-leaked-secrets/remediating-a-leaked-secret')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/get-started/learning-about-github/access-permissions-on-github')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles')).toBe(true);
+        expect(refs.items.some((item) => item.url === 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository')).toBe(true);
       }
     }
     expect(russianGit.blocks.find((block) => block.id === 'knowledge-check-3')?.type).toBe('knowledgeCheck');
@@ -412,15 +494,17 @@ describe('Node.js and project tooling lesson translation', () => {
     expect(englishTooling.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianTooling.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishTooling.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
+    expect(englishTooling.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(12);
     expect(russianTooling.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     expect(lessonTranslationSchema.safeParse(englishTooling).success).toBe(true);
     expect(lessonTranslationSchema.safeParse(russianTooling).success).toBe(true);
-    expect(englishTooling.version).toBe(5);
-    expect(russianTooling.version).toBe(5);
+    expect(englishTooling.version).toBe(6);
+    expect(englishTooling.blocks).toHaveLength(52);
+    expect(russianTooling.blocks).toHaveLength(52);
+    expect(russianTooling.version).toBe(6);
     for (const lesson of [englishTooling, russianTooling]) {
       expect(lesson.updatedAt).toBe('2026-10-29');
-      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(11);
+      expect(lesson.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(12);
       const walkthrough = lesson.blocks.find((block) => block.id === 'npm-command-vs-exec-walkthrough');
       expect(walkthrough?.type).toBe('codeWalkthrough');
       if (walkthrough?.type !== 'codeWalkthrough') throw new Error('npm CLI walkthrough is missing');
@@ -452,6 +536,23 @@ describe('Node.js and project tooling lesson translation', () => {
       expect(hmrCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['hmr-precise']);
       expect(hmrCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
 
+      const configWalkthrough = lesson.blocks.find((block) => block.id === 'vite-config-alias-proxy-walkthrough');
+      expect(configWalkthrough?.type).toBe('codeWalkthrough');
+      if (configWalkthrough?.type !== 'codeWalkthrough') throw new Error('Vite config walkthrough is missing');
+      expect(configWalkthrough.code).toContain("fileURLToPath(new URL('./src', import.meta.url))");
+      expect(configWalkthrough.code).toContain('port: 4000');
+      expect(configWalkthrough.code).toContain('open: true');
+      expect(configWalkthrough.code).toContain("'/api': { target: 'http://localhost:3001', changeOrigin: true }");
+      expect(configWalkthrough.code.split(String.fromCharCode(10))).toHaveLength(21);
+      expect(configWalkthrough.steps.map(({ lineStart, lineEnd }) => [lineStart, lineEnd])).toEqual([[1, 6], [8, 12], [14, 21]]);
+
+      const configCheck = lesson.blocks.find((block) => block.id === 'vite-proxy-dev-only-check');
+      expect(configCheck?.type).toBe('knowledgeCheck');
+      if (configCheck?.type !== 'knowledgeCheck') throw new Error('Vite proxy development-only check is missing');
+      expect(configCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['dev-only']);
+      expect(configCheck.options.every((option) => option.feedback.trim().length > 35)).toBe(true);
+      expect(configCheck.explanation).toMatch(lesson.locale === 'en' ? /production routing/i : /production-маршрутизац/i);
+
       const expectedToolingChecks = [
         ['dev-dependency-check', 'dev'],
         ['caret-range-check', 'compatible'],
@@ -473,6 +574,8 @@ describe('Node.js and project tooling lesson translation', () => {
       expect(refs.items.some((item) => item.url === 'https://docs.npmjs.com/cli/v11/commands/npm-init')).toBe(true);
       expect(refs.items.some((item) => item.url === 'https://vite.dev/guide/features.html')).toBe(true);
       expect(refs.items.some((item) => item.url === 'https://vite.dev/guide/troubleshooting.html')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://vite.dev/config/')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://vite.dev/config/server-options')).toBe(true);
     }
   });
 });
@@ -487,7 +590,7 @@ describe('TypeScript fundamentals lesson translation', () => {
     expect(englishTypeScript.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
     expect(russianTypeScript.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     for (const lesson of [englishTypeScript, russianTypeScript]) {
-      expect(lesson.version).toBe(4);
+      expect(lesson.version).toBe(5);
       expect(lesson.updatedAt).toBe('2026-10-29');
       const strictCheck = lesson.blocks.find((block) => block.id === 'strict-mode-check');
       expect(strictCheck?.type).toBe('knowledgeCheck');
@@ -517,8 +620,23 @@ describe('React effects and lists lesson translation', () => {
     expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
     expect(russianReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(7);
     for (const lesson of [englishReactEffects, russianReactEffects]) {
-      expect(lesson.version).toBe(5);
+      expect(lesson.version).toBe(6);
       expect(lesson.updatedAt).toBe('2026-10-29');
+      const cleanupAccuracyNote = lesson.blocks.find((block) => block.id === 'effect-cleanup-memory-leak-note');
+      expect(cleanupAccuracyNote?.type).toBe('callout');
+      if (cleanupAccuracyNote?.type !== 'callout') throw new Error('Cleanup accuracy note is missing');
+      expect(cleanupAccuracyNote.text).toMatch(lesson.locale === 'en' ? /not necessarily a leak|not.*memory leak/ : /не означает утечку/);
+      expect(cleanupAccuracyNote.text).toMatch(lesson.locale === 'en' ? /stale|obsolete response/ : /устаревш.*ответ/);
+
+      const requestTrace = lesson.blocks.find((block) => block.id === 'deep-effects-trace');
+      expect(requestTrace?.type).toBe('codeWalkthrough');
+      if (requestTrace?.type !== 'codeWalkthrough') throw new Error('Request race walkthrough is missing');
+      expect(requestTrace.code).toContain('new AbortController()');
+      expect(requestTrace.code).toContain('let ignore = false');
+      expect(requestTrace.code).toContain('controller.abort()');
+      expect(requestTrace.code).toContain('if (!ignore)');
+      expect(requestTrace.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= requestTrace.code.split('\n').length)).toBe(true);
+
       const dependencyCheck = lesson.blocks.find((block) => block.id === 'effect-dependency-array-check');
       expect(dependencyCheck?.type).toBe('knowledgeCheck');
       if (dependencyCheck?.type !== 'knowledgeCheck') throw new Error('Effect dependency check is missing');
@@ -528,6 +646,7 @@ describe('React effects and lists lesson translation', () => {
       expect(refs?.type).toBe('references');
       if (refs?.type !== 'references') throw new Error('Effect references are missing');
       expect(refs.items.some((item) => item.url === 'https://react.dev/reference/react/useEffect')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://react.dev/blog/2022/03/08/react-18-upgrade-guide')).toBe(true);
     }
     expect(englishReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
     expect(russianReactEffects.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
@@ -711,7 +830,7 @@ describe('React API and custom hooks lesson translation', () => {
     expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
     expect(russianApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(8);
     for (const lesson of [englishApiHooks, russianApiHooks]) {
-      expect(lesson.version).toBe(5);
+      expect(lesson.version).toBe(6);
       expect(lesson.updatedAt).toBe('2026-10-29');
       const cleanupCheck = lesson.blocks.find((block) => block.id === 'api-fetch-cleanup-check');
       expect(cleanupCheck?.type).toBe('knowledgeCheck');
@@ -729,10 +848,10 @@ describe('React API and custom hooks lesson translation', () => {
       expect(refs.items.some((item) => item.url === 'https://react.dev/reference/react/useEffect')).toBe(true);
       expect(refs.items.some((item) => item.url === 'https://www.typescriptlang.org/docs/handbook/2/generics.html')).toBe(true);
     }
-    expect(englishApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
-    expect(russianApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
-    expect(englishApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
-    expect(russianApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
+    expect(russianApiHooks.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(6);
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
+    expect(russianApiHooks.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(englishApiHooks.blocks.map((block) => block.id)).toEqual(
       expect.arrayContaining([
         'api-fetch-axios-body',
@@ -986,7 +1105,7 @@ describe('React fundamentals lesson translation', () => {
     expect(englishReactBasics.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(6);
     expect(russianReactBasics.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
     for (const lesson of [englishReactBasics, russianReactBasics]) {
-      expect(lesson.version).toBe(4);
+      expect(lesson.version).toBe(5);
       expect(lesson.updatedAt).toBe('2026-10-29');
       const propsCheck = lesson.blocks.find((block) => block.id === 'react-props-contract-check');
       expect(propsCheck?.type).toBe('knowledgeCheck');
@@ -1192,16 +1311,16 @@ describe('Git workflow lesson translation', () => {
     expect(englishGitWorkflow.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
       russianGitWorkflow.blocks.map(({ id, type }) => ({ id, type })),
     );
-    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
-    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(10);
+    expect(englishGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(19);
+    expect(russianGitWorkflow.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(19);
     expect(englishGitWorkflow.learningOutcomes).toHaveLength(10);
     expect(russianGitWorkflow.learningOutcomes).toHaveLength(10);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
     expect(englishGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
     expect(russianGitWorkflow.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(5);
-    expect(englishGitWorkflow.version).toBe(9);
-    expect(russianGitWorkflow.version).toBe(9);
+    expect(englishGitWorkflow.version).toBe(10);
+    expect(russianGitWorkflow.version).toBe(10);
     for (const lesson of [englishGitWorkflow, russianGitWorkflow]) {
       expect(lesson.updatedAt).toBe('2026-10-29');
       const ciExample = lesson.blocks.find((block) => block.id === 'ci-example');
@@ -1255,7 +1374,14 @@ describe('Git workflow lesson translation', () => {
       const matrix = lesson.blocks.find((candidate) => candidate.id === 'ci-failure-diagnosis-matrix');
       expect(matrix?.type).toBe('list');
       if (matrix?.type !== 'list') throw new Error('CI diagnostic matrix is missing');
-      expect(matrix.items.length).toBeGreaterThanOrEqual(5);
+      expect(matrix.items.length).toBeGreaterThanOrEqual(8);
+      const stageCoverage = matrix.items.join(' ').toLowerCase();
+      const localizedStageSignals = lesson.locale === 'en'
+        ? ['checkout', 'npm ci', 'lint', 'typecheck', 'test', 'build', 'security', 'audit', 'deploy', 'sha']
+        : ['checkout', 'npm ci', 'lint', 'typecheck', 'тест', 'build', 'security', 'audit', 'deploy', 'sha'];
+      for (const stageSignal of localizedStageSignals) {
+        expect(stageCoverage).toContain(stageSignal);
+      }
       const block = lesson.blocks.find((candidate) => candidate.id === 'ci-failure-diagnosis-check');
       expect(block?.type).toBe('knowledgeCheck');
       if (block?.type !== 'knowledgeCheck') throw new Error('CI diagnosis check is missing');
@@ -1350,6 +1476,30 @@ describe('Git workflow lesson translation', () => {
       expect(backMergeCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['back-merge']);
       expect(backMergeCheck.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
 
+      const sourceQuizAnswers: Record<string, string> = {
+        'hotfix-origin-check': 'hotfix-from-production',
+        'branch-protection-check': 'branch-rules-enforce',
+        'git-flow-feature-target-check': 'feature-to-develop',
+        'ci-basics-check': 'automated-checks-on-change',
+        'review-comment-specificity-check': 'specific-actionable',
+        'git-semver-minor-check': 'minor-1-5-0',
+        'continuous-deployment-check': 'automatic-production',
+        'small-pr-review-check': 'focused-review',
+        'npm-ci-lockfile-check': 'clean-lockfile-install',
+      };
+      expect(lesson.blocks.map((block) => block.id)).toEqual(
+        expect.arrayContaining(['source-quiz-parity-heading', ...Object.keys(sourceQuizAnswers)]),
+      );
+      for (const [questionId, answerId] of Object.entries(sourceQuizAnswers)) {
+        const question = lesson.blocks.find((block) => block.id === questionId);
+        expect(question?.type).toBe('knowledgeCheck');
+        if (question?.type !== 'knowledgeCheck') throw new Error(`Missing source quiz question: ${questionId}`);
+        expect(question.questionType).toBe('single-choice');
+        expect(question.options.filter((option) => option.correct).map((option) => option.id)).toEqual([answerId]);
+        expect(question.options.every((option) => option.feedback.trim().length > 30)).toBe(true);
+        expect(question.explanation.trim().length).toBeGreaterThan(40);
+      }
+
       const references = lesson.blocks.find((block) => block.id === 'git-workflow-references');
       expect(references?.type).toBe('references');
       if (references?.type !== 'references') throw new Error('Git workflow references are missing');
@@ -1365,13 +1515,15 @@ describe('deployment and production hosting lesson translation', () => {
     expect(englishDeployment.id).toBe('deployment.production-hosting');
     expect(englishDeployment.id).toBe(russianDeployment.id);
     expect(englishDeployment.moduleId).toBe(russianDeployment.moduleId);
-    expect(englishDeployment.version).toBe(3);
+    expect(englishDeployment.version).toBe(4);
     expect(englishDeployment.blocks.map(({ id, type }) => ({ id, type }))).toEqual(russianDeployment.blocks.map(({ id, type }) => ({ id, type })));
-    expect(englishDeployment.blocks).toHaveLength(30);
-    expect(englishDeployment.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(4);
-    expect(englishDeployment.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(englishDeployment.blocks).toHaveLength(34);
+    expect(englishDeployment.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(russianDeployment.blocks.filter((block) => block.type === 'codeWalkthrough')).toHaveLength(5);
+    expect(englishDeployment.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
+    expect(russianDeployment.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(5);
     expect(englishDeployment.blocks.filter((block) => block.type === 'codingExercise')).toHaveLength(4);
-    expect(englishDeployment.blocks.map((block) => block.id)).toEqual(expect.arrayContaining(['deploy-domain-heading', 'deploy-domain-walkthrough', 'deploy-domain-check', 'deploy-domain-practice']));
+    expect(englishDeployment.blocks.map((block) => block.id)).toEqual(expect.arrayContaining(['deploy-domain-heading', 'deploy-domain-walkthrough', 'deploy-domain-check', 'deploy-domain-practice', 'deploy-rollback-heading', 'deploy-rollback-body', 'deploy-rollback-walkthrough', 'deploy-rollback-check']));
     for (const walkthrough of englishDeployment.blocks.filter((block) => block.type === 'codeWalkthrough')) {
       const lineCount = walkthrough.code.split('\n').length;
       expect(walkthrough.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= lineCount)).toBe(true);
@@ -1394,6 +1546,33 @@ describe('deployment and production hosting lesson translation', () => {
     if (references?.type !== 'references') return;
     expect(references.items.some((item) => item.url === 'https://vercel.com/docs/domains/set-up-custom-domain')).toBe(true);
     expect(references.items.some((item) => item.url === 'https://docs.netlify.com/domains-https/custom-domains/')).toBe(true);
+
+    for (const lesson of [englishDeployment, russianDeployment]) {
+      expect(lesson.version).toBe(4);
+      expect(lesson.updatedAt).toBe('2026-10-29');
+      expect(lesson.learningOutcomes).toHaveLength(8);
+      const rollbackBody = lesson.blocks.find((block) => block.id === 'deploy-rollback-body');
+      expect(rollbackBody?.type).toBe('paragraph');
+      if (rollbackBody?.type !== 'paragraph') throw new Error('Deployment rollback explanation is missing');
+      expect(rollbackBody.text).toMatch(/git revert/);
+      expect(rollbackBody.text.toLowerCase()).toMatch(/rollback/);
+      const rollbackFlow = lesson.blocks.find((block) => block.id === 'deploy-rollback-walkthrough');
+      expect(rollbackFlow?.type).toBe('codeWalkthrough');
+      if (rollbackFlow?.type !== 'codeWalkthrough') throw new Error('Deployment rollback walkthrough is missing');
+      const rollbackLineCount = rollbackFlow.code.split('\n').length;
+      expect(rollbackFlow.steps.every((step) => step.lineStart >= 1 && step.lineEnd <= rollbackLineCount)).toBe(true);
+      const rollbackCheck = lesson.blocks.find((block) => block.id === 'deploy-rollback-check');
+      expect(rollbackCheck?.type).toBe('knowledgeCheck');
+      if (rollbackCheck?.type !== 'knowledgeCheck') throw new Error('Deployment rollback check is missing');
+      expect(rollbackCheck.options.filter((option) => option.correct).map((option) => option.id)).toEqual(['restore-known-good']);
+      expect(rollbackCheck.options.every((option) => option.feedback.trim().length > 20)).toBe(true);
+      expect(rollbackCheck.explanation.trim().length).toBeGreaterThan(0);
+      const refs = lesson.blocks.find((block) => block.id === 'deploy-references');
+      expect(refs?.type).toBe('references');
+      if (refs?.type !== 'references') throw new Error('Deployment references are missing');
+      expect(refs.items.some((item) => item.url === 'https://vercel.com/docs/deployments/rollback-production-deployment')).toBe(true);
+      expect(refs.items.some((item) => item.url === 'https://docs.netlify.com/deploy/manage-deploys/manage-deploys-overview/')).toBe(true);
+    }
   });
 });
 describe('Capstone requirements discovery lesson translation', () => {
