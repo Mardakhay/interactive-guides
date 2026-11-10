@@ -7,7 +7,13 @@ import { useBookmarkStore } from '@/features/bookmarks';
 import { useNoteStore } from '@/features/notes';
 import { STORAGE_KEYS } from '@/lib/constants';
 import { useStructuredLearningStore } from '@/features/structured-lesson/store';
+import htmlDocumentStructure from '@/content/lessons/html-document-structure/en.json';
+import htmlFormsAccessibility from '@/content/lessons/html.forms-accessibility/en.json';
 import { LEGACY_STRUCTURED_LEARNING_STORAGE_KEY, STRUCTURED_LEARNING_STORAGE_KEY } from '@/features/structured-lesson/schemas';
+
+const htmlDocumentKnowledgeCheckCount = htmlDocumentStructure.blocks.filter((block) => block.type === 'knowledgeCheck').length;
+const htmlDocumentSectionCount = htmlDocumentStructure.blocks.filter((block) => block.type === 'heading' && block.level === 2).length;
+const htmlFormKnowledgeCheckCount = htmlFormsAccessibility.blocks.filter((block) => block.type === 'knowledgeCheck').length;
 
 function renderLesson(path: string) {
   return render(
@@ -73,7 +79,7 @@ describe('StructuredLessonPage', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Mark section read: Why document structure matters' }));
 
     expect(sectionReadProgress[0]?.getAttribute('aria-valuenow')).toBe('1');
-    expect(sectionReadProgress[0]?.getAttribute('aria-valuemax')).toBe('9');
+    expect(sectionReadProgress[0]?.getAttribute('aria-valuemax')).toBe(String(htmlDocumentSectionCount));
   });
 
   it('reports quiz attempts, self-review and drafts as separate non-mastery signals', async () => {
@@ -82,14 +88,14 @@ describe('StructuredLessonPage', () => {
     const checksGroup = await screen.findByRole('group', { name: 'Knowledge checks submitted' });
     const practiceGroup = screen.getByRole('group', { name: 'Practice criteria self-reviewed' });
     const draftsGroup = screen.getByRole('group', { name: 'Exercise drafts saved' });
-    expect(within(checksGroup).getByText('0 / 7')).toBeTruthy();
+    expect(within(checksGroup).getByText(`0 / ${htmlDocumentKnowledgeCheckCount}`)).toBeTruthy();
     expect(within(practiceGroup).getByText(/^0 \/ \d+$/)).toBeTruthy();
     expect(within(draftsGroup).getByText('0 / 5')).toBeTruthy();
     expect(screen.getByText(/These counts describe activity, not mastery/)).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /In a title element inside head/ }));
     fireEvent.click(screen.getAllByRole('button', { name: 'Check answer' })[0]!);
-    expect(within(checksGroup).getByText('1 / 7')).toBeTruthy();
+    expect(within(checksGroup).getByText(`1 / ${htmlDocumentKnowledgeCheckCount}`)).toBeTruthy();
 
     const exerciseHeading = screen.getByRole('heading', { name: 'Build an About Me page' });
     const exercise = exerciseHeading.closest('section');
@@ -116,13 +122,13 @@ describe('StructuredLessonPage', () => {
       target: { value: '<!doctype html>\n<html lang="en"></html>' },
     });
 
-    expect(within(screen.getByRole('group', { name: 'Knowledge checks submitted' })).getByText('1 / 7')).toBeTruthy();
+    expect(within(screen.getByRole('group', { name: 'Knowledge checks submitted' })).getByText(`1 / ${htmlDocumentKnowledgeCheckCount}`)).toBeTruthy();
     expect(within(screen.getByRole('group', { name: 'Exercise drafts saved' })).getByText('1 / 5')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('link', { name: /Next lesson HTML Forms and Accessibility Basics/ }));
     expect(await screen.findByRole('heading', { name: 'HTML Forms and Accessibility Basics' })).toBeTruthy();
 
-    expect(within(screen.getByRole('group', { name: 'Knowledge checks submitted' })).getByText('0 / 4')).toBeTruthy();
+    expect(within(screen.getByRole('group', { name: 'Knowledge checks submitted' })).getByText(`0 / ${htmlFormKnowledgeCheckCount}`)).toBeTruthy();
     expect(within(screen.getByRole('group', { name: 'Practice criteria self-reviewed' })).getByText('0 / 11')).toBeTruthy();
     expect(within(screen.getByRole('group', { name: 'Exercise drafts saved' })).getByText('0 / 2')).toBeTruthy();
     expect(screen.getByText(/These counts describe activity, not mastery/)).toBeTruthy();

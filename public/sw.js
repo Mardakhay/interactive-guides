@@ -1,7 +1,7 @@
 /* global self, caches, URL, fetch, Response */
 /* App-shell offline fallback; never cache cross-origin or private API responses. */
 const CACHE_PREFIX = 'interactive-guides';
-const VERSION = 'v5';
+const VERSION = 'v6';
 const SHELL_CACHE = `${CACHE_PREFIX}-shell-${VERSION}`;
 const ASSET_CACHE = `${CACHE_PREFIX}-assets-${VERSION}`;
 const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/pwa-icon.svg', '/pwa-180.png', '/pwa-192.png', '/pwa-512.png'];
@@ -52,8 +52,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Restrict runtime caching to static build assets. Do not intercept arbitrary
-  // same-origin document/data requests that may contain private learner state.
+  // Vite emits runtime chunks/assets under /assets/. Keep the runtime cache
+  // inside that directory so a same-origin route ending in .json or .js cannot
+  // be cached merely because its extension resembles a static asset.
+  if (!url.pathname.startsWith('/assets/')) return;
   if (!/\.(?:js|css|svg|png|jpe?g|webp|ico|woff2?|ttf|otf|json)$/i.test(url.pathname)) return;
 
   event.respondWith(
