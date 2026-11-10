@@ -9,7 +9,7 @@ import { BookmarkButton } from '@/features/bookmarks';
 import { Card, Badge, ProgressBar } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { EmptyState } from '@/components/feedback';
-import { ROUTE_PATHS, lessonPath } from '@/app/router/routes';
+import { ROUTE_PATHS, lessonPath, localizedPath } from '@/app/router/routes';
 import { DIFFICULTY_COLORS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { formatLessonCount, getLocalizedCategoryCopy, getLocalizedDifficulty, getLocalizedLearningPathCopy, getLocalizedLearningPathStepNote, translate, useUiLocale } from '@/features/localization';
@@ -78,7 +78,7 @@ export default function LearningPathDetailPage() {
           title={translate(locale, 'pathNotFoundTitle')}
           message={translate(locale, 'pathNotFoundMessage')}
           action={
-            <Link to={ROUTE_PATHS.LEARNING_PATHS} className="text-sm font-medium text-primary-600 hover:text-primary-700">
+            <Link to={localizedPath(ROUTE_PATHS.LEARNING_PATHS, locale)} className="text-sm font-medium text-primary-600 hover:text-primary-700">
               {translate(locale, 'browseAllPaths')}
             </Link>
           }
@@ -131,7 +131,7 @@ export default function LearningPathDetailPage() {
       )}
 
       {nextLesson && !isComplete && (
-        <Link to={nextLesson.href}>
+        <Link to={localizedPath(nextLesson.href, locale)}>
           <Card interactive className="group flex items-center justify-between p-4 bg-primary-50/50 border-primary-200">
             <div>
               <p className="text-xs font-medium text-primary-600">{translate(locale, 'continueLearning')}</p>
@@ -174,7 +174,7 @@ export default function LearningPathDetailPage() {
               </div>
               <div className="min-w-0 flex-1 space-y-1">
                 <h3 className="text-sm font-semibold text-neutral-900 group-hover:text-primary-700">
-                  <Link to={lesson.href} className="after:absolute after:inset-0 after:content-['']">{lesson.title}</Link>
+                  <Link to={localizedPath(lesson.href, locale)} className="after:absolute after:inset-0 after:content-['']">{lesson.title}</Link>
                 </h3>
                 {step.note && <p className="text-sm text-neutral-600">{getLocalizedLearningPathStepNote(locale, path.id, step.lessonId, step.note)}</p>}
                 <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -197,7 +197,7 @@ export default function LearningPathDetailPage() {
 
       <div className="flex justify-between pt-4">
         <Link
-          to={ROUTE_PATHS.LEARNING_PATHS}
+          to={localizedPath(ROUTE_PATHS.LEARNING_PATHS, locale)}
           className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -205,7 +205,7 @@ export default function LearningPathDetailPage() {
         </Link>
         {nextLesson && !isComplete && (
           <Link
-            to={nextLesson.href}
+            to={localizedPath(nextLesson.href, locale)}
             className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
           >
             {translate(locale, 'continueWith', { title: nextLesson.title })}

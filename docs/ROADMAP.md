@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-**Last reconciled:** 2026-10-30  
+**Last reconciled:** 2026-11-03  
 **Working branch:** `feat/learning-platform-foundation`  
 **Pull request:** [#1 — open Draft against main](https://github.com/Mardakhay/interactive-guides/pull/1)
 
@@ -8,7 +8,7 @@ This is the one authoritative task list. Dated progress notes and superseded che
 
 ## Verified baseline
 
-- Last validated code checkpoint: `867c86f67a562bed3f803a92aae55a088337dfcb`; [exact feature-branch CI run #41045918696](https://github.com/Mardakhay/interactive-guides/actions/runs/41045918696) passed install, ESLint, TypeScript, **56 test files / 338 tests**, production build, 141 JavaScript chunk budgets and preview smoke for 13 deep routes, entry bundle, manifest, service worker, 5 PWA assets and 14 generated content chunks. npm audit reported zero advisories.
+- Latest validated code HEAD: [`66bdcb81d524a82a9b8dfed12c831c8890c57a11`](https://github.com/Mardakhay/interactive-guides/commit/66bdcb81d524a82a9b8dfed12c831c8890c57a11); exact [Actions run #41066740505 (run #890)](https://github.com/Mardakhay/interactive-guides/actions/runs/41066740505) passed dependency installation, ESLint, TypeScript, Vitest, production build, bundle-budget checks and production-preview HTTP smoke. No test count or native-browser acceptance is inferred from that run. Git Fundamentals EN/RU is v14 (72 blocks); Git Workflow/CI is v14 (73 blocks) with seven source-aligned tabs, pipeline and branch-flow simulators, and the sequential ten-question quiz.
 - The preview smoke covers 13 deep routes, including `/en`, `/ru`, locale-prefixed application routes and legacy aliases, as well as the entry bundle, manifest, service worker, five PWA assets and all 14 generated content chunks. The generated search data totals 269,738 bytes gzip EN / 340,328 bytes gzip RU; Practice has a separate 59,527-byte EN / 75,293-byte RU payload. Native browser latency and mobile transfer remain unmeasured. Structured lesson outline search also now matches authored section text and command-reference examples, including Git commands.
 - Current branch also contains documentation reconciliation after that code checkpoint. `main` remains `b13af92576e8a73753a6e3f3d26765d9f9c44397`; PR #1 remains Draft.
 - Curriculum inventory: 27 core + 17 supplementary = 44 bilingual lesson pairs (88 locale JSON records).
@@ -35,6 +35,10 @@ This is the one authoritative task list. Dated progress notes and superseded che
 - [x] Make Search filter controls a correctly labelled group of mutually exclusive pressed buttons instead of tabs without associated tab panels; add visible focus to the clear-search button.
 - [x] Announce classic quiz result summaries and structured knowledge-check feedback with focus moved to the result; make note autosave status politely announced without changing debounce or persistence.
 - [x] Associate structured HTML preview, hints and example-solution disclosures with their controlled panels and verify hidden/expanded state.
+- [x] Add a bilingual, keyboard-operable seven-stage Git Workflow pipeline simulator with deterministic failure injection, required/informational/post-merge gate semantics, new-commit retry and deployment rollback.
+- [x] Add a bilingual interactive Git Flow branch graph with develop/feature/hotfix pointers, commit parents, feature merge, hotfix production merge/back-merge and release tags.
+- [x] Add the seven source-aligned Git Workflow tabs in EN/RU with tab/tabpanel semantics, ArrowLeft/ArrowRight/Home/End keyboard navigation and visited-panel retention so in-progress quiz state survives tab switches.
+- [x] Add a localized ten-question Git Workflow quiz using existing knowledge-check blocks and per-question persistence, with Previous/Next, answer restoration, progress, live score, final percentage and restart; preserve its in-progress component state when switching between visited topic tabs.
 
 ## P0 — Content parity, publication and migration safety
 

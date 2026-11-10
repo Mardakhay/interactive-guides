@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Lesson } from '@/features/content/types';
-import { lessonPath } from '@/app/router/routes';
+import { lessonPath, localizedPath } from '@/app/router/routes';
 import { translate, useUiLocale } from '@/features/localization';
 
 interface LessonNavigationProps {
@@ -17,7 +17,7 @@ export function LessonNavigation({ previous, next }: LessonNavigationProps) {
     <nav className="flex items-stretch justify-between gap-4 border-t border-neutral-200 pt-6" aria-label={translate(locale, 'lessonNavigationAria')}>
       {previous ? (
         <Link
-          to={lessonPath(previous.id)}
+          to={localizedPath(lessonPath(previous.id), locale)}
           className="group flex flex-1 items-center gap-3 rounded-lg border border-neutral-200 px-4 py-3 transition-colors hover:border-primary-300 hover:bg-primary-50"
         >
           <ChevronLeft className="h-5 w-5 shrink-0 text-neutral-500 transition-transform group-hover:-translate-x-0.5 group-hover:text-primary-600" />
@@ -34,7 +34,7 @@ export function LessonNavigation({ previous, next }: LessonNavigationProps) {
 
       {next ? (
         <Link
-          to={lessonPath(next.id)}
+          to={localizedPath(lessonPath(next.id), locale)}
           className="group flex flex-1 items-center justify-end gap-3 rounded-lg border border-neutral-200 px-4 py-3 text-right transition-colors hover:border-primary-300 hover:bg-primary-50"
         >
           <div className="flex flex-col items-end">

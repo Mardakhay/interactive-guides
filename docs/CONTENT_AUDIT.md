@@ -1,8 +1,16 @@
 # Structured Content Audit
 
-**Updated:** 2026-10-30  
+**Updated:** 2026-11-03  
 **Branch:** `feat/learning-platform-foundation`  
 **Scope:** the embedded, bilingual structured lesson catalog and curriculum registry.
+
+## Authoritative feature-branch checkpoint — 2026-11-03
+
+The current working branch is `feat/learning-platform-foundation` at [`66bdcb81d524a82a9b8dfed12c831c8890c57a11`](https://github.com/Mardakhay/interactive-guides/commit/66bdcb81d524a82a9b8dfed12c831c8890c57a11). Exact-head [Actions run #41066740505 (run #890)](https://github.com/Mardakhay/interactive-guides/actions/runs/41066740505) passed dependency installation, lint, typecheck, tests, production build, bundle-budget checks and production-preview HTTP smoke.
+
+The registry contains 27 core + 17 supplementary lesson IDs (44 EN/RU pairs, 88 locale JSON records). `git.fundamentals` is v14 with 72 blocks per locale. `git.workflow-ci` is v14 with 73 blocks per locale, including seven source-aligned tabs, tab keyboard navigation, visited-panel state retention, the branch-flow and pipeline simulators, and the ten-question sequential quiz. Both Git lesson pairs remain in editorial `review` status.
+
+All 25 classic route cutover rows remain **Blocked**. The 25 HTML files have an inventory and documented content/code/interaction review trail; that milestone does not certify line-by-line claim/example parity, complete widget equivalence or editorial approval. The 21 fetched/mapped Notion sources remain `verification.state=unverified`. Preserve classic routes and HTML sources until content, learner-state and manual-acceptance gates are closed.
 
 ## Inventory
 
@@ -16,7 +24,7 @@ Supplementary IDs: `js.runtime-memory`, `js.object-prototypes`, `js.iterators-ge
 
 The lesson schema/tests cover required lesson structure, stable unique block IDs, line ranges, quiz answer/feedback shape, coding-exercise scaffolding, locale block parity and curriculum/repository links. The stable-ID manifest now records publication status and is checked against both locale records; draft content is excluded from learner-facing metadata/search, and published lessons cannot be marked translation-review-needed. Review content is explicitly labelled as pilot material. These checks establish machine-readable consistency, not that all source explanations are correct, that examples execute, or that translations are editorially equivalent. Current inventory: 27 core + 17 supplementary pairs (44 EN/RU pairs, 88 locale JSON records); editorial status remains review.
 
-## Current app feature checkpoint — 2026-10-30
+## Practice Center implementation checkpoint — 2026-10-30 (historical implementation milestone; superseded by the authoritative branch checkpoint above)
 
 At feature HEAD `8b450e8890c2598bf23aee26d8d3acf1cda262a5`, the application includes a bilingual Practice Center at `/practice`. It aggregates 118 structured coding exercises from the 44 lesson pairs, shows saved-draft and self-review activity from the existing `lessonId::blockId` keys, and deep-links to each exercise anchor. The center does not expose hints/solutions or claim automated grading/mastery; no new learner-state storage format was introduced.
 
@@ -35,7 +43,7 @@ This separates the Practice first-load payload from the larger search corpus whi
 
 ## Source parity status
 
-This file does not claim complete parity. The full source inventory and Notion/HTML evidence matrix are maintained in [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md). At the latest repository checkpoint, 21 Notion pages had been fetched (all marked unverified by the connector) and 25 HTML files were inventoried and structurally surveyed. Two React HTML sources were read in full in an earlier pass; the API material received targeted factual review; and the CSS reference plus Git reference/workflow pages received focused source-content, heading/control and structured-target comparisons. Most other HTML bodies, code samples, hidden answers and interactions still require full review against the structured blocks.
+This file does not claim complete parity. The detailed source inventory and Notion/HTML evidence matrix are maintained in [FULL_SOURCE_CONTENT_AUDIT.md](./FULL_SOURCE_CONTENT_AUDIT.md). The current handoff records an inventory and documented content/code/interaction review trail for all 25 legacy HTML files. That is a review-coverage milestone, not a one-to-one line-by-line mapping of every claim, code example, hidden answer, feedback message and widget. Claim-level and example-level parity, technical sign-off and EN/RU editorial equivalence remain open. The 21 fetched/mapped Notion pages still carry connector status `verification.state=unverified`.
 
 Keep standalone HTML files as sources until each relevant subsection has block-level mapping, a depth assessment (explanation, walkthrough, reasoning, pitfalls, practice, feedback), technical verification, and EN/RU review. CI green alone is not a publication approval.
 

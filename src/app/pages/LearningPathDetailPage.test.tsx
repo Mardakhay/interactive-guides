@@ -100,10 +100,11 @@ describe('LearningPathDetailPage', () => {
     expect(screen.getAllByRole('link').filter((link) => link.getAttribute('href') === firstLessonHref)).toHaveLength(3);
   });
 
-  it('keeps the existing classic learning paths on their original lesson routes', () => {
+  it('keeps classic learning-path lesson IDs on locale-prefixed lesson routes', () => {
     renderPath('frontend-foundations');
 
-    const legacyStep = screen.getAllByRole('link').find((link) => link.getAttribute('href') === '/lessons/sh-001');
-    expect(legacyStep).toBeTruthy();
+    const classicStep = screen.getAllByRole('link').find((link) => link.getAttribute('href') === '/en/lessons/sh-001');
+    expect(classicStep).toBeTruthy();
+    expect(classicStep?.getAttribute('href')).toBe('/en/lessons/sh-001');
   });
 });

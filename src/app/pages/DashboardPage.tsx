@@ -8,7 +8,7 @@ import {
   RecentActivity,
   RecommendedNext,
 } from '@/features/dashboard';
-import { ROUTE_PATHS } from '@/app/router/routes';
+import { ROUTE_PATHS, localizedPath } from '@/app/router/routes';
 import { translate, useUiLocale } from '@/features/localization';
 
 export default function DashboardPage() {
@@ -36,7 +36,7 @@ export default function DashboardPage() {
         <ContinueLearningCard continueLearning={data.continueLearning} />
         {!data.continueLearning && (
           <Link
-            to={ROUTE_PATHS.COURSES}
+            to={localizedPath(ROUTE_PATHS.COURSES, locale)}
             className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
           >
             {translate(locale, 'browseCatalog')}

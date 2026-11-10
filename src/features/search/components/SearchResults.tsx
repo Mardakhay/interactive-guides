@@ -4,6 +4,7 @@ import type { SearchResult, SearchResultType } from '../types';
 import { Highlight } from './Highlight';
 import { Card } from '@/components/ui';
 import { translate, type Locale, type TranslationKey } from '@/features/localization';
+import { localizedPath } from '@/app/router/routes';
 
 interface SearchResultsProps {
   results: readonly SearchResult[];
@@ -25,7 +26,7 @@ export function SearchResults({ results, terms, locale = 'en' }: SearchResultsPr
         const Icon = meta.icon;
 
         return (
-          <Link key={`${result.type}-${result.id}`} to={result.path}>
+          <Link key={`${result.type}-${result.id}`} to={localizedPath(result.path, locale)}>
             <Card interactive className="group flex items-start gap-4 p-4">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500">
                 <Icon className="h-4 w-4" />
