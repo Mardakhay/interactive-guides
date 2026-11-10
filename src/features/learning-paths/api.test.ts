@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { getLessons } from '@/features/content';
 import { getStructuredLessonIds } from '@/content/repository';
 import { getLocalizedLearningPathStepNote } from '@/features/localization';
 import { getLearningPathLessonIds, getLearningPaths } from './api';
@@ -12,8 +11,8 @@ describe('learning path progress inputs', () => {
     expect(getLearningPathLessonIds(path.id)).toHaveLength(path.lessonCount);
     expect(getLearningPathLessonIds('missing')).toEqual([]);
   });
-  it('keeps legacy paths intact and exposes separate structured-curriculum paths', () => {
-    expect(getLearningPathLessonIds('frontend-foundations')[0]).toBe('sh-001');
+  it('exposes only structured text-based learning paths', () => {
+    expect(getLearningPathLessonIds('frontend-foundations')).toEqual([]);
     expect(getLearningPathLessonIds('structured-frontend-foundations')).toEqual([
       'web.internet-http',
       'html.document-structure',
@@ -50,7 +49,7 @@ describe('learning path progress inputs', () => {
 
   it('provides Russian step notes for every learning path without English fallback', () => {
     const allPaths = getLearningPaths();
-    expect(allPaths.reduce((total, path) => total + path.steps.length, 0)).toBe(46);
+    expect(allPaths.reduce((total, path) => total + path.steps.length, 0)).toBe(24);
 
     for (const path of allPaths) {
       for (const step of path.steps) {
@@ -63,16 +62,15 @@ describe('learning path progress inputs', () => {
     }
   });
 
-  it('resolves every step against either the classic catalog or the structured manifest', () => {
-    const classicIds = new Set(getLessons().map((lesson) => lesson.id));
+  it('resolves every visible path step against the structured text-only manifest', () => {
     const structuredIds = new Set(getStructuredLessonIds());
 
     for (const path of getLearningPaths()) {
       expect(path.steps.length).toBeGreaterThan(0);
       for (const step of path.steps) {
         expect(
-          classicIds.has(step.lessonId) || structuredIds.has(step.lessonId),
-          `Unresolved lesson ID "${step.lessonId}" in path "${path.id}"`,
+          structuredIds.has(step.lessonId),
+          `Unresolved structured lesson ID "${step.lessonId}" in path "${path.id}"`,
         ).toBe(true);
       }
     }
