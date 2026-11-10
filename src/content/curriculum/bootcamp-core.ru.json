@@ -141,7 +141,9 @@
           "practice": [
             "Решить задачи на преобразование наборов данных с помощью методов массивов и объектов"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "js.functions-arrays-objects"
+          ]
         },
         {
           "id": "month-2-week-7",
@@ -172,7 +174,10 @@
             "Опубликовать проект в личном Git-репозитории"
           ],
           "project": "Проект месяца 2: мини-приложение с API и историей Git",
-          "lessonIds": []
+          "lessonIds": [
+            "js.async-fetch",
+            "git.fundamentals"
+          ]
         }
       ]
     },
@@ -195,7 +200,9 @@
           "practice": [
             "Создать React-проект и настроить линтинг и форматирование"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "tooling.node-npm-vite"
+          ]
         },
         {
           "id": "month-3-week-10",
@@ -210,7 +217,9 @@
           "practice": [
             "Создать модуль списка пользователей с типами"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "typescript.fundamentals"
+          ]
         },
         {
           "id": "month-3-week-11",
@@ -239,7 +248,9 @@
             "Создать список новостей/постов из API с состояниями загрузки и ошибки"
           ],
           "project": "Проект месяца 3: список новостей / постов",
-          "lessonIds": []
+          "lessonIds": [
+            "react.effects-lists-composition"
+          ]
         }
       ]
     },
@@ -260,7 +271,9 @@
           "practice": [
             "Создать SPA из 2–3 страниц: Home, About и Posts"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.router-spa"
+          ]
         },
         {
           "id": "month-4-week-14",
@@ -274,7 +287,9 @@
           "practice": [
             "Создать форму регистрации/входа с сообщениями валидации"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.forms-validation"
+          ]
         },
         {
           "id": "month-4-week-15",
@@ -288,7 +303,9 @@
           "practice": [
             "Создать переключатель темы и пример глобального состояния пользователя"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.context-shared-state"
+          ]
         },
         {
           "id": "month-4-week-16",
@@ -303,7 +320,9 @@
             "Создать dashboard с несколькими API-вызовами, фильтрами и поиском"
           ],
           "project": "Проект месяца 4: dashboard с API",
-          "lessonIds": []
+          "lessonIds": [
+            "react.api-custom-hooks"
+          ]
         }
       ]
     },

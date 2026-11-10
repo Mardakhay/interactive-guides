@@ -122,3 +122,111 @@ describe('JavaScript basics lesson translation', () => {
     expect(russianJsBasics.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
   });
 });
+
+describe('Async JavaScript and Fetch lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishAsync.id).toBe(russianAsync.id);
+    expect(englishAsync.moduleId).toBe('month-2-week-8');
+    expect(englishAsync.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianAsync.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishAsync.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(4);
+    expect(russianAsync.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('Git fundamentals lesson translation', () => {
+  it('keeps equivalent block structure in both locales', () => {
+    expect(englishGit.id).toBe(russianGit.id);
+    expect(englishGit.moduleId).toBe('month-2-week-8');
+    expect(englishGit.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianGit.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishGit.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianGit.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('Node.js and project tooling lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishTooling.id).toBe(russianTooling.id);
+    expect(englishTooling.moduleId).toBe('month-3-week-9');
+    expect(englishTooling.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianTooling.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishTooling.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianTooling.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('TypeScript fundamentals lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishTypeScript.id).toBe(russianTypeScript.id);
+    expect(englishTypeScript.moduleId).toBe('month-3-week-10');
+    expect(englishTypeScript.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianTypeScript.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishTypeScript.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianTypeScript.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('React effects and lists lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishReactEffects.id).toBe(russianReactEffects.id);
+    expect(englishReactEffects.moduleId).toBe('month-3-week-12');
+    expect(englishReactEffects.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianReactEffects.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishReactEffects.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianReactEffects.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('React Router lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishRouter.id).toBe(russianRouter.id);
+    expect(englishRouter.moduleId).toBe('month-4-week-13');
+    expect(englishRouter.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianRouter.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishRouter.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianRouter.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('React forms and validation lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishReactForms.id).toBe(russianReactForms.id);
+    expect(englishReactForms.moduleId).toBe('month-4-week-14');
+    expect(englishReactForms.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianReactForms.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishReactForms.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianReactForms.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('React shared state and Context lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishContext.id).toBe(russianContext.id);
+    expect(englishContext.moduleId).toBe('month-4-week-15');
+    expect(englishContext.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianContext.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishContext.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianContext.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});
+
+describe('React API and custom hooks lesson translation', () => {
+  it('keeps equivalent content structure in both locales', () => {
+    expect(englishApiHooks.id).toBe(russianApiHooks.id);
+    expect(englishApiHooks.moduleId).toBe('month-4-week-16');
+    expect(englishApiHooks.blocks.map(({ id, type }) => ({ id, type }))).toEqual(
+      russianApiHooks.blocks.map(({ id, type }) => ({ id, type })),
+    );
+    expect(englishApiHooks.blocks.filter((block) => block.type === 'knowledgeCheck')).toHaveLength(3);
+    expect(russianApiHooks.blocks.some((block) => block.type === 'codingExercise')).toBe(true);
+  });
+});

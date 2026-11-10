@@ -1,0 +1,321 @@
+{
+  "id": "react.context-shared-state",
+  "locale": "ru",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "translated",
+  "updatedAt": "2026-10-22",
+  "moduleId": "month-4-week-15",
+  "week": 15,
+  "order": 1,
+  "title": "Общее состояние, lifting state up и Context API",
+  "description": "Выбирай владельца общего состояния, поднимай его к ближайшему общему родителю и используй React Context, чтобы передавать сквозные значения без прокидывания props через каждый промежуточный слой.",
+  "estimatedMinutes": 60,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "react.components-jsx-state",
+    "react.effects-lists-composition"
+  ],
+  "learningOutcomes": [
+    "Определять владельца состояния по тому, какие компоненты читают и меняют значение.",
+    "Поднимать состояние к ближайшему общему предку, если нескольким соседним компонентам нужна координация.",
+    "Объяснять prop drilling и когда явные props всё ещё являются самым простым решением.",
+    "Создавать типизированный Context и Provider для общего значения и функции обновления.",
+    "Понимать, что Context распространяет значение, но не устраняет автоматически все задачи проектирования состояния.",
+    "Создавать пример переключения темы и общего состояния пользователя с понятным владением и логикой обновления."
+  ],
+  "tags": [
+    "react",
+    "context-api",
+    "useContext",
+    "state-management",
+    "lifting-state",
+    "prop-drilling"
+  ],
+  "blocks": [
+    {
+      "id": "state-ownership",
+      "type": "heading",
+      "level": 2,
+      "text": "Состояние должно находиться там, где им можно координировать"
+    },
+    {
+      "id": "state-ownership-body",
+      "type": "paragraph",
+      "text": "Прежде чем выбирать библиотеку состояния, реши, кто владеет значением. Состояние может оставаться локальным, если оно нужно одному компоненту. Если соседним компонентам нужно читать или менять одно и то же значение, подними его к ближайшему общему предку и передавай вниз значение/callback. Это называется lifting state up. Цель — один понятный источник истины для общего состояния, а не две компонента с конкурирующими копиями."
+    },
+    {
+      "id": "lifting-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "function SearchPage() {\n  const [query, setQuery] = useState(\"\");\n\n  return (\n    <>\n      <SearchInput value={query} onChange={setQuery} />\n      <SearchSummary query={query} />\n    </>\n  );\n}\n\nfunction SearchInput({ value, onChange }: Props) {\n  return <input value={value} onChange={(event) => onChange(event.target.value)} />;\n}\n\nfunction SearchSummary({ query }: { query: string }) {\n  return <p>Searching for: {query || \"(nothing yet)\"}</p>;\n}",
+      "steps": [
+        {
+          "title": "Держи общее состояние в родителе",
+          "lineStart": 2,
+          "lineEnd": 2,
+          "explanation": "И поле ввода, и сводка зависят от query, поэтому SearchPage логично владеет состоянием в этом примере."
+        },
+        {
+          "title": "Передай значение и callback для обновления",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "SearchInput получает текущее значение и callback, который запрашивает изменение. Ему не нужно хранить вторую копию query."
+        },
+        {
+          "title": "Передай сводке тот же источник истины",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "SearchSummary получает query от того же родителя, поэтому отображаемая сводка остаётся согласованной с полем."
+        }
+      ]
+    },
+    {
+      "id": "prop-drilling",
+      "type": "heading",
+      "level": 2,
+      "text": "Prop drilling: неудобно — не обязательно неправильно"
+    },
+    {
+      "id": "prop-drilling-body",
+      "type": "paragraph",
+      "text": "Prop drilling — передача значения через промежуточные компоненты, которые сами его не используют, только чтобы более глубокий потомок получил prop. Несколько уровней часто понятны и явны. Когда значение нужно многим потомкам, например тема, текущий пользователь или язык, Context сокращает объём связующего кода. Не используй Context, чтобы скрыть любую зависимость: локальные явные props проще увидеть, тестировать и переиспользовать."
+    },
+    {
+      "id": "context-purpose",
+      "type": "heading",
+      "level": 2,
+      "text": "Context распространяет значение по поддереву"
+    },
+    {
+      "id": "context-purpose-body",
+      "type": "paragraph",
+      "text": "Context позволяет родителю сделать значение доступным потомкам без передачи через каждый промежуточный компонент. Provider задаёт текущее значение, а useContext читает ближайший соответствующий Provider. Значением может быть состояние, конфигурация или стабильный сервис. Context — механизм доставки, а не база данных и не замена решению о владельце состояния."
+    },
+    {
+      "id": "context-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { createContext, useContext, useState } from \"react\";\n\ntype Theme = \"light\" | \"dark\";\ntype ThemeContextValue = { theme: Theme; toggleTheme: () => void };\nconst ThemeContext = createContext<ThemeContextValue | null>(null);\n\nfunction ThemeProvider({ children }: { children: React.ReactNode }) {\n  const [theme, setTheme] = useState<Theme>(\"light\");\n  const value = {\n    theme,\n    toggleTheme: () => setTheme((current) => current === \"light\" ? \"dark\" : \"light\"),\n  };\n  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;\n}\n\nfunction useTheme() {\n  const value = useContext(ThemeContext);\n  if (!value) throw new Error(\"useTheme must be used within ThemeProvider\");\n  return value;\n}",
+      "steps": [
+        {
+          "title": "Определи типизированный контракт Context",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "Значение Context описывает тему и функцию её изменения. Null позволяет обнаружить отсутствие соответствующего Provider."
+        },
+        {
+          "title": "Храни фактическое состояние в Provider",
+          "lineStart": 7,
+          "lineEnd": 11,
+          "explanation": "ThemeProvider владеет состоянием. Потомки получают значение и действие, а не заводят независимые копии темы."
+        },
+        {
+          "title": "Читай значение ближайшего Provider",
+          "lineStart": 14,
+          "lineEnd": 17,
+          "explanation": "UseContext читает ближайший подходящий Provider. Явная ошибка помогает понять, что hook случайно вызван вне ThemeProvider."
+        }
+      ]
+    },
+    {
+      "id": "context-rerenders",
+      "type": "heading",
+      "level": 2,
+      "text": "Обновления Context могут перерендерить потребителей"
+    },
+    {
+      "id": "context-rerenders-body",
+      "type": "paragraph",
+      "text": "Когда значение Provider меняется, компоненты, читающие Context, могут повторно отрендериться с новым значением. Если Provider создаёт новый объект при каждом рендере, его идентичность может измениться, даже когда смысловые поля те же. Начни с простого корректного дизайна и используй стабильные значения или memoization, когда профилирование или реальные сценарии покажут пользу. Не разбивай заранее каждый Context на множество мелких Provider без реальной необходимости."
+    },
+    {
+      "id": "global-state-choice",
+      "type": "heading",
+      "level": 2,
+      "text": "Context, локальное состояние и специализированные средства"
+    },
+    {
+      "id": "global-state-choice-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Локальный useState: значение принадлежит одному компоненту или небольшому поддереву.",
+        "Поднятое состояние и props: соседним компонентам нужно общее значение, а поток данных остаётся понятным.",
+        "Context: значения, которые нужны многим потомкам, например тема, язык или текущий аутентифицированный пользователь.",
+        "Специализированная библиотека состояния или внешний store может помочь, когда обновления, selectors, persistence или производное глобальное состояние становятся сложнее.",
+        "Выбирай самый простой инструмент, который выполняет реальные требования. Context автоматически не обеспечивает сохранение, синхронизацию с сервером, инвалидирование кеша или авторизацию."
+      ]
+    },
+    {
+      "id": "context-auth-note",
+      "type": "callout",
+      "tone": "warning",
+      "title": "Клиентский Context — не система авторизации",
+      "text": "Размещение пользователя или роли в Context может изменить отображение UI, но не защищает API endpoint или строки базы. Проверяй доступ на сервере и в слое данных."
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "single-choice",
+      "questionType": "single-choice",
+      "prompt": "When is lifting state up a good fit?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Когда соседним компонентам нужно читать или менять одно значение",
+          "correct": true,
+          "feedback": "Перенос состояния в ближайшего общего родителя создаёт один источник истины, который можно передавать соседям через props."
+        },
+        {
+          "id": "b",
+          "text": "Всегда, когда компонент содержит любое состояние",
+          "correct": false,
+          "feedback": "Состояние может оставаться локальным, если оно нужно только компоненту или небольшому поддереву."
+        },
+        {
+          "id": "c",
+          "text": "Только после установки глобальной state-библиотеки",
+          "correct": false,
+          "feedback": "Lifting state up использует обычное состояние React и props; библиотека не нужна."
+        },
+        {
+          "id": "d",
+          "text": "Когда значение нужно навсегда сохранить в базе данных",
+          "correct": false,
+          "feedback": "Поднятие состояния определяет владение в дереве компонентов; постоянное хранение требует отдельного решения."
+        }
+      ],
+      "explanation": "Подними состояние к ближайшему общему владельцу, если нескольким компонентам нужно координировать одно значение."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "true-false",
+      "questionType": "true-false",
+      "prompt": "React Context automatically persists its value after a page reload.",
+      "options": [
+        {
+          "id": "true",
+          "text": "Верно",
+          "correct": false,
+          "feedback": "Context только распространяет значение, предоставленное текущим React-деревом; для сохранения нужны хранилище или backend."
+        },
+        {
+          "id": "false",
+          "text": "Неверно",
+          "correct": true,
+          "feedback": "После перезагрузки React-дерево создаётся заново; долговременные значения восстанавливают из хранилища или с сервера."
+        }
+      ],
+      "explanation": "Context — механизм доставки значений, а не слой persistence."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "multi-select",
+      "questionType": "multi-select",
+      "prompt": "Which statements about shared state and Context are accurate? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Provider делает значение доступным потомкам",
+          "correct": true,
+          "feedback": "UseContext читает значение ближайшего подходящего Provider в дереве компонентов."
+        },
+        {
+          "id": "b",
+          "text": "Несколько уровней явных props всегда являются архитектурной ошибкой",
+          "correct": false,
+          "feedback": "Явные props бывают понятными и переиспользуемыми; prop drilling — компромисс, а не автоматический дефект."
+        },
+        {
+          "id": "c",
+          "text": "Context подходит для темы или языка, которые нужны многим потомкам",
+          "correct": true,
+          "feedback": "Такие сквозные значения — типичные сценарии Context, когда они нужны разным компонентам."
+        },
+        {
+          "id": "d",
+          "text": "Context сам по себе обеспечивает backend-авторизацию",
+          "correct": false,
+          "feedback": "Backend API и политики данных должны независимо проверять разрешения."
+        }
+      ],
+      "explanation": "Context помогает распространять значения; выбирай его область исходя из владения данными и сценариев доступа."
+    },
+    {
+      "id": "practice-theme-user",
+      "type": "codingExercise",
+      "title": "Создай общее состояние темы и пользователя",
+      "language": "tsx",
+      "context": "Реализуй пример в React-проекте. Редактор урока сохраняет черновик, но не компилирует и не выполняет TSX.",
+      "instructions": [
+        "Создай ThemeContext с типизированным значением theme и toggleTheme.",
+        "Создай ThemeProvider, который хранит theme через useState.",
+        "Создай custom hook useTheme, выдающий понятную ошибку, если вызван вне Provider.",
+        "Создай UserContext для простого объекта пользователя и действия входа/выхода или изменения пользователя.",
+        "Используй Provider в app shell и прочитай значения в отдельных потомках.",
+        "Объясни, какие данные остаются локальным состоянием и почему тема/пользователь общие в этом примере.",
+        "Укажи, где должна проверяться настоящая аутентификация и авторизация за пределами Context.",
+        "Не копируй значения Context в дублирующее локальное состояние без конкретной причины."
+      ],
+      "requirements": [
+        "Типы значений Context заданы явно и точно.",
+        "Provider-компоненты владеют состоянием и предоставляют понятные действия.",
+        "Потребители используют useContext через ясные hooks или компоненты.",
+        "Отсутствие Provider вызывает понятную ошибку или имеет документированный fallback.",
+        "Пример различает распространение состояния, persistence и авторизацию.",
+        "Ученик может объяснить, когда props предпочтительнее."
+      ],
+      "starterCode": "import { createContext, useContext, useState } from \"react\";\n\ntype Theme = \"light\" | \"dark\";\ntype ThemeContextValue = { theme: Theme; toggleTheme: () => void };\nconst ThemeContext = createContext<ThemeContextValue | null>(null);\n\nfunction ThemeProvider({ children }: { children: React.ReactNode }) {\n  // TODO: храни состояние темы и предоставь действие переключения.\n}\n\nfunction useTheme() {\n  // TODO: прочитай контекст и обработай отсутствие Provider.\n}\n\n// TODO: создай user context/provider и используй оба контекста в двух компонентах.",
+      "hints": [
+        "Храни состояние в Provider; Context распространяет его, а не заменяет владельца.",
+        "Определи тип значения Context явно, чтобы компоненты-потребители знали доступные значения и действия.",
+        "Context не переживает перезагрузку и не защищает данные сервера; этим занимаются другие слои."
+      ],
+      "successCriteria": [
+        "Изменение темы видно в компонентах, потребляющих Context.",
+        "Состояние пользователя можно читать или менять из нескольких потомков.",
+        "Значения Context типизированы и имеют предсказуемую границу Provider.",
+        "Отсутствие Provider обрабатывается осознанно.",
+        "Ты можешь объяснить local state, lifting state up и Context."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Определи одного понятного владельца общего состояния; подними состояние к ближайшему общему предку, когда соседним компонентам нужна координация.",
+        "Prop drilling — компромисс, а не всегда ошибка; явные props полезны при локальных зависимостях.",
+        "Context доставляет значение потомкам и может быть полезен для темы, языка и состояния текущего пользователя.",
+        "Context не сохраняет данные, не синхронизирует их с сервером и не обеспечивает серверную авторизацию.",
+        "Выбирай простейший инструмент состояния, подходящий текущим требованиям, и усложняй архитектуру только при реальной необходимости."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "React: Sharing State Between Components",
+          "url": "https://react.dev/learn/sharing-state-between-components",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Passing Data Deeply with Context",
+          "url": "https://react.dev/learn/passing-data-deeply-with-context",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Scaling Up with Reducer and Context",
+          "url": "https://react.dev/learn/scaling-up-with-reducer-and-context",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: useContext",
+          "url": "https://react.dev/reference/react/useContext",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}

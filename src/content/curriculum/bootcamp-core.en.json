@@ -141,7 +141,9 @@
           "practice": [
             "Solve dataset exercises with array methods and object transformations"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "js.functions-arrays-objects"
+          ]
         },
         {
           "id": "month-2-week-7",
@@ -172,7 +174,10 @@
             "Publish the project in a personal Git repository"
           ],
           "project": "Month 2 project: API-driven mini app with Git history",
-          "lessonIds": []
+          "lessonIds": [
+            "js.async-fetch",
+            "git.fundamentals"
+          ]
         }
       ]
     },
@@ -195,7 +200,9 @@
           "practice": [
             "Create a React project and configure linting and formatting"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "tooling.node-npm-vite"
+          ]
         },
         {
           "id": "month-3-week-10",
@@ -210,7 +217,9 @@
           "practice": [
             "Build a typed user-list module"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "typescript.fundamentals"
+          ]
         },
         {
           "id": "month-3-week-11",
@@ -239,7 +248,9 @@
             "Build an API-powered News/Posts list with loading and error states"
           ],
           "project": "Month 3 project: News / Posts List",
-          "lessonIds": []
+          "lessonIds": [
+            "react.effects-lists-composition"
+          ]
         }
       ]
     },
@@ -260,7 +271,9 @@
           "practice": [
             "Build a 2–3 page SPA with Home, About and Posts routes"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.router-spa"
+          ]
         },
         {
           "id": "month-4-week-14",
@@ -274,7 +287,9 @@
           "practice": [
             "Build a registration/login form with validation messages"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.forms-validation"
+          ]
         },
         {
           "id": "month-4-week-15",
@@ -288,7 +303,9 @@
           "practice": [
             "Build a theme toggle and a global user-state example"
           ],
-          "lessonIds": []
+          "lessonIds": [
+            "react.context-shared-state"
+          ]
         },
         {
           "id": "month-4-week-16",
@@ -303,7 +320,9 @@
             "Build a dashboard with multiple API calls, filters and search"
           ],
           "project": "Month 4 project: API dashboard",
-          "lessonIds": []
+          "lessonIds": [
+            "react.api-custom-hooks"
+          ]
         }
       ]
     },

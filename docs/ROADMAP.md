@@ -46,6 +46,7 @@ Use small, reversible phases; keep useful current behavior working while migrati
 - [x] Build a first-pass inventory of 25 legacy HTML files and likely syllabus mappings.
 - [x] Create an initial Week 1 pilot and add structured Week 2–4 content in both locales.
 - [ ] Fully audit each HTML file including headings, code, diagrams, hidden answers, links and interactions.
+- [ ] Review and fact-check the new Week 8 async/Fetch and Git lessons, including EN/RU equivalence.
 - [ ] Review source accuracy and translation parity for the four pilots.
 - [ ] Migrate remaining topics incrementally in syllabus order, splitting large HTML files where appropriate.
 - [ ] Keep all source HTML until both locales of its replacement pass review.

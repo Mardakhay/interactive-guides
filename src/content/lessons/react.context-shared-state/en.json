@@ -1,0 +1,321 @@
+{
+  "id": "react.context-shared-state",
+  "locale": "en",
+  "version": 1,
+  "status": "review",
+  "translationStatus": "original",
+  "updatedAt": "2026-10-22",
+  "moduleId": "month-4-week-15",
+  "week": 15,
+  "order": 1,
+  "title": "Shared State, Lifting State Up, and Context API",
+  "description": "Choose a clear owner for shared state, lift it to the nearest common parent, and use React Context to make cross-cutting values available without threading every prop through every layer.",
+  "estimatedMinutes": 60,
+  "difficulty": "intermediate",
+  "prerequisites": [
+    "react.components-jsx-state",
+    "react.effects-lists-composition"
+  ],
+  "learningOutcomes": [
+    "Identify which component should own a piece of state based on who reads and changes it.",
+    "Lift state to the nearest common ancestor when sibling components need to coordinate.",
+    "Explain prop drilling and when explicit props are still the simplest option.",
+    "Create a typed Context and Provider for a shared value and update function.",
+    "Understand that context distributes a value but does not automatically make all state design concerns disappear.",
+    "Build a theme toggle and shared user state example with clear ownership and update behavior."
+  ],
+  "tags": [
+    "react",
+    "context-api",
+    "useContext",
+    "state-management",
+    "lifting-state",
+    "prop-drilling"
+  ],
+  "blocks": [
+    {
+      "id": "state-ownership",
+      "type": "heading",
+      "level": 2,
+      "text": "State should live where it can be coordinated"
+    },
+    {
+      "id": "state-ownership-body",
+      "type": "paragraph",
+      "text": "Before choosing a state library, decide who owns the value. State can stay local when only one component needs it. If sibling components need to read or update the same value, move it to their nearest common ancestor and pass values/callbacks down. This is lifting state up. The goal is one clear source of truth for a shared piece of state, rather than two components maintaining competing copies."
+    },
+    {
+      "id": "lifting-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "function SearchPage() {\n  const [query, setQuery] = useState(\"\");\n\n  return (\n    <>\n      <SearchInput value={query} onChange={setQuery} />\n      <SearchSummary query={query} />\n    </>\n  );\n}\n\nfunction SearchInput({ value, onChange }: Props) {\n  return <input value={value} onChange={(event) => onChange(event.target.value)} />;\n}\n\nfunction SearchSummary({ query }: { query: string }) {\n  return <p>Searching for: {query || \"(nothing yet)\"}</p>;\n}",
+      "steps": [
+        {
+          "title": "Keep shared state in the common parent",
+          "lineStart": 2,
+          "lineEnd": 2,
+          "explanation": "Both the input and summary depend on query, so SearchPage is the natural owner in this example."
+        },
+        {
+          "title": "Pass the value and update callback",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "explanation": "SearchInput receives the current value and a callback that requests an update. It does not need to own a second copy of query."
+        },
+        {
+          "title": "Pass the same source of truth to the summary",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "explanation": "SearchSummary receives query from the same parent, so the displayed summary stays consistent with the input."
+        }
+      ]
+    },
+    {
+      "id": "prop-drilling",
+      "type": "heading",
+      "level": 2,
+      "text": "Prop drilling: inconvenient is not automatically wrong"
+    },
+    {
+      "id": "prop-drilling-body",
+      "type": "paragraph",
+      "text": "Prop drilling describes passing a value through intermediate components that do not use it, only so a deeper child can receive it. A few layers are often explicit and easy to follow. When a value is genuinely cross-cutting—such as the active theme, current user, or locale—Context can reduce the amount of plumbing. Do not use Context to hide every dependency; explicit props are easier to see, test, and reuse when the dependency is local."
+    },
+    {
+      "id": "context-purpose",
+      "type": "heading",
+      "level": 2,
+      "text": "Context distributes a value through a subtree"
+    },
+    {
+      "id": "context-purpose-body",
+      "type": "paragraph",
+      "text": "Context lets a parent make a value available to descendant components without passing it through every intermediate component. A Provider supplies the current value, and useContext reads the closest matching provider. The value can be state, configuration, or a stable service. Context is a delivery mechanism, not a database and not a replacement for deciding where state lives."
+    },
+    {
+      "id": "context-example",
+      "type": "codeWalkthrough",
+      "language": "tsx",
+      "code": "import { createContext, useContext, useState } from \"react\";\n\ntype Theme = \"light\" | \"dark\";\ntype ThemeContextValue = { theme: Theme; toggleTheme: () => void };\nconst ThemeContext = createContext<ThemeContextValue | null>(null);\n\nfunction ThemeProvider({ children }: { children: React.ReactNode }) {\n  const [theme, setTheme] = useState<Theme>(\"light\");\n  const value = {\n    theme,\n    toggleTheme: () => setTheme((current) => current === \"light\" ? \"dark\" : \"light\"),\n  };\n  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;\n}\n\nfunction useTheme() {\n  const value = useContext(ThemeContext);\n  if (!value) throw new Error(\"useTheme must be used within ThemeProvider\");\n  return value;\n}",
+      "steps": [
+        {
+          "title": "Define a typed context contract",
+          "lineStart": 3,
+          "lineEnd": 5,
+          "explanation": "The context value describes both the theme and the function that changes it. null makes the absence of a matching provider detectable."
+        },
+        {
+          "title": "Keep the actual state in the provider",
+          "lineStart": 7,
+          "lineEnd": 11,
+          "explanation": "ThemeProvider owns the state. Descendants receive a value and an action; they do not duplicate the theme state independently."
+        },
+        {
+          "title": "Read the closest provider value",
+          "lineStart": 14,
+          "lineEnd": 17,
+          "explanation": "useContext reads the nearest matching provider. Throwing a clear error makes accidental use outside ThemeProvider easier to diagnose."
+        }
+      ]
+    },
+    {
+      "id": "context-rerenders",
+      "type": "heading",
+      "level": 2,
+      "text": "Context updates can re-render consumers"
+    },
+    {
+      "id": "context-rerenders-body",
+      "type": "paragraph",
+      "text": "When the provider's value changes, components that read that context can re-render with the new value. If the provider creates a new object every render, identity may change even when the meaningful fields did not. Start with a simple, correct design and use stable values or memoization when profiling or real usage shows it matters. Avoid prematurely splitting every context into many tiny providers without a real need."
+    },
+    {
+      "id": "global-state-choice",
+      "type": "heading",
+      "level": 2,
+      "text": "Context, local state, and dedicated state tools"
+    },
+    {
+      "id": "global-state-choice-list",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Local useState: values owned by one component or a small subtree.",
+        "Lifted state plus props: siblings need a shared value and the data flow remains easy to follow.",
+        "Context: values many descendants need, such as theme, locale, or current authenticated user.",
+        "A dedicated state library or external store can help when updates, selectors, persistence, or derived global state become more complex.",
+        "Choose the simplest tool that meets the actual requirements. Context does not provide persistence, server synchronization, cache invalidation, or authorization automatically."
+      ]
+    },
+    {
+      "id": "context-auth-note",
+      "type": "callout",
+      "tone": "warning",
+      "title": "A client context is not an authorization system",
+      "text": "Putting a user or role in Context can change what the interface displays, but it does not secure API endpoints or database rows. Enforce access control on the server and data layer as well."
+    },
+    {
+      "id": "knowledge-check-1",
+      "type": "single-choice",
+      "questionType": "single-choice",
+      "prompt": "When is lifting state up a good fit?",
+      "options": [
+        {
+          "id": "a",
+          "text": "When sibling components need to read or update the same value",
+          "correct": true,
+          "feedback": "Moving state to the nearest common parent creates one source of truth that siblings can share through props."
+        },
+        {
+          "id": "b",
+          "text": "Whenever a component contains any state at all",
+          "correct": false,
+          "feedback": "State can remain local when the value is only needed by that component or its small subtree."
+        },
+        {
+          "id": "c",
+          "text": "Only after installing a global state library",
+          "correct": false,
+          "feedback": "Lifting state up uses ordinary React state and props; it does not require a library."
+        },
+        {
+          "id": "d",
+          "text": "When the value must be stored permanently in a database",
+          "correct": false,
+          "feedback": "Lifting state up decides component ownership; durable persistence requires a separate storage design."
+        }
+      ],
+      "explanation": "Lift state to the nearest common owner when multiple components need to coordinate around the same value."
+    },
+    {
+      "id": "knowledge-check-2",
+      "type": "true-false",
+      "questionType": "true-false",
+      "prompt": "React Context automatically persists its value after a page reload.",
+      "options": [
+        {
+          "id": "true",
+          "text": "True",
+          "correct": false,
+          "feedback": "Context only distributes the value provided by the current React tree; persistence needs storage or a backend."
+        },
+        {
+          "id": "false",
+          "text": "False",
+          "correct": true,
+          "feedback": "After reload the React tree is recreated; restore durable values from storage or the server if needed."
+        }
+      ],
+      "explanation": "Context is a value-delivery mechanism, not a persistence layer."
+    },
+    {
+      "id": "knowledge-check-3",
+      "type": "multi-select",
+      "questionType": "multi-select",
+      "prompt": "Which statements about shared state and Context are accurate? Select all that apply.",
+      "options": [
+        {
+          "id": "a",
+          "text": "A Context Provider makes its value available to descendants",
+          "correct": true,
+          "feedback": "useContext reads the nearest matching provider value in the component tree."
+        },
+        {
+          "id": "b",
+          "text": "A few levels of explicit props are always an architecture error",
+          "correct": false,
+          "feedback": "Explicit props can be clear and reusable; prop drilling is a trade-off rather than an automatic defect."
+        },
+        {
+          "id": "c",
+          "text": "Context can be useful for a theme or locale needed by many descendants",
+          "correct": true,
+          "feedback": "These cross-cutting values are typical Context use cases when multiple components need them."
+        },
+        {
+          "id": "d",
+          "text": "Context alone enforces backend authorization",
+          "correct": false,
+          "feedback": "Backend APIs and data policies must enforce permissions independently of the client UI."
+        }
+      ],
+      "explanation": "Context helps distribute values; choose its scope based on data ownership and access patterns."
+    },
+    {
+      "id": "practice-theme-user",
+      "type": "codingExercise",
+      "title": "Create shared theme and user state",
+      "language": "tsx",
+      "context": "Implement the example in your React project. The lesson editor stores your draft but does not compile or execute TSX.",
+      "instructions": [
+        "Create a ThemeContext with a typed value containing theme and toggleTheme.",
+        "Create a ThemeProvider that owns the theme via useState.",
+        "Create a custom useTheme hook that throws a clear error if used outside the provider.",
+        "Create a UserContext for a simple user object and a sign-in/sign-out or set-user action.",
+        "Use the providers in the app shell and consume the values in separate descendant components.",
+        "Explain which state belongs in local component state and why theme/user are shared here.",
+        "State where real authentication and authorization must be enforced beyond Context.",
+        "Avoid copying context values into duplicate local state without a specific reason."
+      ],
+      "requirements": [
+        "Context value types are explicit and accurate.",
+        "Provider components own the actual state and expose deliberate actions.",
+        "Consumers use useContext through clear hooks or components.",
+        "A missing provider produces an understandable failure or a documented fallback.",
+        "The example distinguishes state distribution from persistence and authorization.",
+        "The learner can explain when props are still preferable."
+      ],
+      "starterCode": "import { createContext, useContext, useState } from \"react\";\n\ntype Theme = \"light\" | \"dark\";\ntype ThemeContextValue = { theme: Theme; toggleTheme: () => void };\nconst ThemeContext = createContext<ThemeContextValue | null>(null);\n\nfunction ThemeProvider({ children }: { children: React.ReactNode }) {\n  // TODO: own the theme state and provide a toggle action.\n}\n\nfunction useTheme() {\n  // TODO: read context and handle missing provider.\n}\n\n// TODO: create a user context/provider and consume both contexts in two components.",
+      "hints": [
+        "Keep the state in the provider; Context distributes that state instead of replacing its owner.",
+        "Type the context value explicitly so consumer components know which values/actions are available.",
+        "Context does not survive reloads or secure server data; those concerns need separate layers."
+      ],
+      "successCriteria": [
+        "Theme changes are visible in components that consume the context.",
+        "User state can be read or updated by more than one descendant.",
+        "Context values have explicit types and a predictable provider boundary.",
+        "A missing provider is handled intentionally.",
+        "You can explain local state versus lifted state versus Context."
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Choose one clear owner for shared state; lift it to the nearest common ancestor when siblings coordinate.",
+        "Prop drilling is a trade-off, not always a bug; explicit props remain useful when dependencies are local.",
+        "Context delivers a value to descendants and can be useful for theme, locale, and current user state.",
+        "Context does not persist data, synchronize with a server, or enforce backend access permissions.",
+        "Use the simplest state tool that meets current requirements and improve it when actual complexity warrants."
+      ]
+    },
+    {
+      "id": "references",
+      "type": "references",
+      "items": [
+        {
+          "title": "React: Sharing State Between Components",
+          "url": "https://react.dev/learn/sharing-state-between-components",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Passing Data Deeply with Context",
+          "url": "https://react.dev/learn/passing-data-deeply-with-context",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: Scaling Up with Reducer and Context",
+          "url": "https://react.dev/learn/scaling-up-with-reducer-and-context",
+          "kind": "official-docs"
+        },
+        {
+          "title": "React: useContext",
+          "url": "https://react.dev/reference/react/useContext",
+          "kind": "official-docs"
+        }
+      ]
+    }
+  ]
+}
