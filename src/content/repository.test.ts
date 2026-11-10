@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { STRUCTURED_LESSON_MANIFEST } from './lessonManifest';
 import {
   getAdjacentStructuredLessons,
   getBootcampCurriculum,
@@ -21,6 +22,20 @@ function getCurriculumLessonIds(locale: 'en' | 'ru') {
 }
 
 const expectedIds = getCurriculumLessonIds('en');
+
+describe('structured lesson manifest', () => {
+  it('keeps every lesson ID unique and every locale title non-empty', () => {
+    const ids = STRUCTURED_LESSON_MANIFEST.map((entry) => entry.id);
+    expect(ids).toHaveLength(44);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const entry of STRUCTURED_LESSON_MANIFEST) {
+      expect(entry.id.trim().length).toBeGreaterThan(0);
+      expect(entry.folder.trim().length).toBeGreaterThan(0);
+      expect(entry.titles.en.trim().length).toBeGreaterThan(0);
+      expect(entry.titles.ru.trim().length).toBeGreaterThan(0);
+    }
+  });
+});
 
 describe('structured content repository', () => {
   it('registers every bilingual lesson exactly once by stable ID and metadata', async () => {

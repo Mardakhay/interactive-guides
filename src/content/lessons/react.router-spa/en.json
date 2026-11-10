@@ -1,16 +1,16 @@
 {
   "id": "react.router-spa",
   "locale": "en",
-  "version": 2,
+  "version": 3,
   "status": "review",
   "translationStatus": "original",
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-27",
   "moduleId": "month-4-week-13",
   "week": 13,
   "order": 1,
   "title": "Single-Page Applications and React Router",
   "description": "Understand client-side routing, map URL patterns to React components, navigate without full-page reloads, read route parameters, and handle unknown routes.",
-  "estimatedMinutes": 85,
+  "estimatedMinutes": 90,
   "difficulty": "beginner",
   "prerequisites": [
     "react.components-jsx-state",
@@ -52,9 +52,20 @@
       "text": "Define route patterns"
     },
     {
+      "id": "router-installed-version-heading",
+      "type": "heading",
+      "level": 3,
+      "text": "Installed-version note: React Router v7"
+    },
+    {
+      "id": "router-installed-version",
+      "type": "paragraph",
+      "text": "This repository now uses React Router 7.18.0. Its current documentation shows public APIs imported from `react-router`; this app still imports from `react-router-dom`, which re-exports the public router APIs for v6-to-v7 compatibility. Both declarative `Routes`/`Route` and data-router `createBrowserRouter`/`RouterProvider` patterns remain supported. Keep the package and documentation version aligned, and follow one import style consistently within a new codebase."
+    },
+    {
       "id": "router-setup-body",
       "type": "paragraph",
-      "text": "React Router v6 uses Routes and Route to match the current URL to elements. A route path can be static, such as /about, or dynamic, such as /posts/:postId. Dynamic segments are extracted as route parameters. Route matching and rendered components are separate from the contents of a page; keep route setup in one understandable place instead of scattering path parsing across UI components."
+      "text": "React Router v7 uses Routes and Route to match the current URL to elements. A route path can be static, such as /about, or dynamic, such as /posts/:postId. Dynamic segments are extracted as route parameters. Route matching and rendered components are separate from the contents of a page; keep route setup in one understandable place instead of scattering path parsing across UI components."
     },
     {
       "id": "router-example",
@@ -258,7 +269,7 @@
       "type": "codingExercise",
       "title": "Build a three-page learning SPA",
       "language": "tsx",
-      "context": "Implement this route setup inside a React Router v6 project. The lesson editor saves the source but does not compile TSX.",
+      "context": "Implement this route setup inside a React Router v7 project. The lesson editor saves the source but does not compile TSX.",
       "instructions": [
         "Create Home, About, and Posts components.",
         "Configure BrowserRouter and map /, /about, and /posts to the correct components.",
@@ -442,23 +453,23 @@
       "type": "references",
       "items": [
         {
-          "title": "React Router v6: Declarative Routing",
-          "url": "https://reactrouter.com/en/v6/start/overview",
+          "title": "React Router v7: Routing",
+          "url": "https://reactrouter.com/start/declarative/routing",
           "kind": "official-docs"
         },
         {
-          "title": "React Router v6: useParams",
-          "url": "https://reactrouter.com/en/v6/hooks/use-params",
+          "title": "React Router v7: useParams",
+          "url": "https://reactrouter.com/api/hooks/useParams",
           "kind": "official-docs"
         },
         {
-          "title": "React Router v6: Link",
-          "url": "https://reactrouter.com/en/v6/components/link",
+          "title": "React Router v7: Link",
+          "url": "https://reactrouter.com/api/components/Link",
           "kind": "official-docs"
         },
         {
-          "title": "React Router v6: Outlet",
-          "url": "https://reactrouter.com/en/v6/components/outlet",
+          "title": "React Router v7: Outlet",
+          "url": "https://reactrouter.com/api/components/Outlet",
           "kind": "official-docs"
         },
         {
