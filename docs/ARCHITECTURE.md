@@ -1,160 +1,68 @@
-# Architecture: implemented foundation and target direction
+# Application Architecture
 
-**Status:** this document combines a snapshot of the implemented application with a proposed target direction. The target structure below is not a claim that every suggested folder, repository adapter or cloud service already exists.
+## Runtime overview
 
-## Implemented architecture snapshot — 2026-11-03
+Interactive Guides is a client-side React application built with TypeScript and Vite. It uses React Router for locale-prefixed navigation, Zustand for local application state, and Zod for validation at content and persistence boundaries.
 
-The current application uses React 18, TypeScript and Vite 8 with React Router 7, Zustand and Zod. The codebase is organized by app and feature areas; structured lesson data is stored as bilingual JSON, validated through schemas and rendered by reusable lesson-block components. Local learner state uses versioned browser storage with backup/restore workflows. Search and Practice indexes are generated at build time; lesson bodies are lazy-loaded. The PWA shell and service-worker update flow are implemented.
+The active application is local-first. There is no API server, user-account layer, Supabase dependency, or cloud synchronization service.
 
-Current code areas include `src/app`, `src/features`, `src/content`, `src/lib`, `src/pwa` and `src/styles`. The exact implementation should be read from the feature branch, not inferred from the illustrative target tree below.
+## Main code areas
 
-Supabase authentication, SQL migrations, RLS policies, cloud repositories/adapters and local/cloud synchronization are **not implemented**. The `entities` / `infrastructure` / `repositories` directories shown later are architectural proposals, not existing layers that should be assumed by contributors. The current project remains local-first; cloud work is gated by approved reconciliation and security requirements.
-
-## Principles
-
-- Feature-oriented modular architecture with explicit boundaries.
-- Curriculum and lesson content are data, rendered by reusable React components.
-- UI components do not read `localStorage` or call Supabase directly.
-- Local-first repositories enable anonymous/offline reading; Supabase is an optional authenticated synchronization adapter.
-- Stable domain IDs, schema validation at data boundaries, and tested migrations.
-- Avoid an over-engineered “clean architecture” ceremony. Add abstractions where there are real separate responsibilities or replaceable implementations.
-
-## Suggested project shape
-
-```text
+\`\`\`text
 src/
   app/
-    providers/
-    router/
-    layouts/
-    pages/
+    pages/                 # routed pages
+    router/                # locale-aware routes and legacy URL redirects
   components/
-    ui/                    # design-system primitives
-    feedback/              # errors, empty, loading, offline
-    lesson/                # reusable content block renderers
-  features/
-    curriculum/
-      model/               # curriculum hierarchy + queries
-      components/
-    lesson-reader/
-      model/
-      components/
-    exercises/
-      model/
-      components/
-    quizzes/
-    progress/
-    bookmarks/
-    notes/
-    search/
-    learning-paths/
-    settings/
-    auth/
-    sync/
-  entities/
-    course/
-    lesson/
-    learner/
+    feedback/              # loading, empty, error, storage feedback
+    layout/                # app shell, navigation, breadcrumbs
+    ui/                    # reusable primitives
   content/
-    curriculum/
-      curriculum.en.json
-      curriculum.ru.json
-    lessons/
-      <lesson-id>/
-        en.json
-        ru.json
-    schemas/
-  infrastructure/
-    storage/
-      local/
-      migrations/
-    supabase/
-      client.ts
-      repositories/
-  shared/
-    i18n/
-    config/
-    lib/
-    types/
+    curriculum/            # EN/RU 24-week curriculum metadata
+    lessons/               # EN/RU structured lesson JSON
+    schemas/               # lesson and curriculum contracts
+    lessonManifest.ts      # lightweight navigation metadata
+    repository.ts          # lesson loading, parsing, and lookup
+  features/
+    backup/
+    bookmarks/
+    dashboard/
+    learning-paths/
+    localization/
+    notes/
+    persistence/
+    progress/
+    search/
+    structured-lesson/
+  lib/
+    storage.ts
+    versionedStorage.ts
+  pwa/
   styles/
-    tokens.css
-    index.css
-public/
-  icons/
-  manifest.webmanifest
-  legacy-lessons/           # temporary migration inputs only
-docs/
-supabase/
-  migrations/
-.github/
-  workflows/
-```
+\`\`\`
 
-This is a target direction, not a mandate to create every directory immediately. Reuse current `src/features`, `src/app`, and existing UI modules when they fit. Introduce boundaries incrementally.
+## Content flow
 
-## Curriculum and content domain
+1. The curriculum and lesson manifest provide stable IDs and small navigation labels.
+2. Full English or Russian lesson bodies are loaded from their corresponding JSON records when needed.
+3. Zod schemas validate the lesson structure and the content repository exposes typed records to the reader.
+4. Reusable renderers present headings, explanations, code, walkthroughs, knowledge checks, coding exercises, and references.
+5. Search and Practice indexes are generated from structured lesson content; answer feedback, hidden hints, and solutions are excluded from public search/practice summaries where required by the index contract.
 
-Recommended domain objects:
+## Learner-state flow
 
-- CurriculumStage: stable ID, order, localized title/summary, duration or month range.
-- CurriculumModule: stage ID, order, week/range, localized title/summary, outcomes.
-- Lesson: stable ID, module ID, order, difficulty, format, prerequisites, estimated minutes, tags and completion policy.
-- LessonTranslation: `lessonId + locale`, localized metadata, ordered typed content blocks, references, translation/review status.
-- Quiz: stable ID, lesson ID, localized prompt/options/explanations, question type, answer key stored with content; do not expose answers in progress records.
-- Exercise: stable ID, lesson ID, task statement, starter code, constraints, checks/rubric, optional hints and solution reveal policy.
-- ContentVersion: revision/version metadata used to identify material changes and avoid applying stale completion blindly.
+Feature stores use browser storage through shared persistence utilities. The backup feature validates a versioned JSON payload and restores a snapshot with best-effort rollback if a storage write fails. Structured lesson activity has its own versioned state contract for attempts, drafts, checklists, and section progress.
 
-Use schemas (existing Zod is a natural fit) and compile-time TypeScript types derived from or kept synchronized with schemas. Validate all content during CI and preferably at app load boundaries.
+Old records with retired lesson IDs are retained locally but are filtered out of active lesson surfaces. The application does not automatically map those IDs to structured lessons.
 
-## Typed lesson content
+## Quality boundaries
 
-Do not embed full HTML documents as strings. Render a safe, finite set of supported blocks, for example:
+ESLint, TypeScript, Vitest, the Vite production build, bundle budgets, and preview HTTP smoke tests run in CI. They do not replace human review for content accuracy, EN/RU editorial quality, keyboard/screen-reader behavior, mobile layouts, PWA installation, or native file interactions.
 
-- `heading`, `paragraph`, `list`, `callout`
-- `code`, `codeWalkthrough`, `comparisonTable`
-- `diagram`, `image`, `link`, `definition`
-- `knowledgeCheck`, `codingExercise`, `reflectionPrompt`
-- `sourceList`
+## Key principles
 
-Every renderer has a schema and accessible markup. Unknown block types should fail content validation rather than silently disappearing. Do not use arbitrary `dangerouslySetInnerHTML` for lesson content.
-
-For code snippets, keep exact source code separate from localized prose. Provide copy controls, language labels, accessible output and mobile overflow handling.
-
-## Rendering and routing
-
-- Locale is explicit in route and context, e.g. `/:locale/curriculum/:stageId/:moduleId` and `/:locale/lessons/:lessonId`.
-- A locale-aware route helper should generate links. Unknown locale redirects to the remembered default; unknown lesson produces a useful not-found page.
-- Course/module/lesson routes load localized metadata and typed content by stable ID.
-- Existing routes can be temporarily redirected or retained to avoid needless breakage during migration.
-- Reader should show an in-page table of contents on wide screens and a compact drawer on small screens.
-- Add previous/next based on curriculum order, not alphabetical category order.
-- Section progress may be tracked, but should not overstate mastery.
-
-## State and repositories
-
-Keep Zustand for client state where useful, but split durable domain data from transient UI state. Use repository interfaces only where multiple implementations exist (local and Supabase).
-
-Candidate contracts:
-- `ProgressRepository`: progress summaries, section status, quiz attempts, exercise attempts.
-- `BookmarkRepository`
-- `NoteRepository`
-- `SettingsRepository`
-- `SyncService`
-
-Local adapters must preserve current data during schema migration. Add versioned local storage with migrations and an export/import escape hatch. Persistence failures should be visible via non-blocking UI instead of silently losing data.
-
-## Supabase integration boundaries
-
-Supabase client only in `infrastructure/supabase`. Feature logic depends on repository contracts. Use Auth + Postgres + Row Level Security; do not ship service role credentials in the browser. Keep anonymous local-first use working with no Supabase environment variables.
-
-## Reliability
-
-- Error boundaries around route and interactive exercise widgets.
-- Abort/cancel fetches and handle loading/error/empty states.
-- Schema-check remote and local JSON before use.
-- Stable lesson IDs and content-version-aware sync.
-- Automated test coverage for domain invariants, migrations, authorization/RLS assumptions (where possible), and conflict handling.
-
-## Architecture decision gate
-
-Do not add a backend or migrate data solely because it seems more “production-ready.” First land a content model and local adapter; then add Supabase as an independent sync capability.
+- Keep stable lesson IDs and equivalent EN/RU block structures.
+- Keep content data separate from reusable rendering components.
+- Keep state access behind feature stores and persistence utilities.
+- Keep local-only functionality useful without a connection or account.
+- Avoid speculative service layers and backend abstractions that have no current consumer.

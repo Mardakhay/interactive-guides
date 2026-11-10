@@ -1,63 +1,70 @@
 # Interactive Guides
 
-Interactive Guides is a bilingual (English/Russian), local-first learning platform for frontend development. Its active catalog contains only structured text lessons authored as EN/RU JSON content; standalone legacy HTML lesson pages are retired.
+Interactive Guides is a bilingual (English/Russian), local-first learning platform for frontend development. The active learning experience uses structured text lessons; there is no account service, hosted backend, or cloud synchronization.
 
-## What is included
+## Learning experience
 
-- Structured lessons with typed content blocks, knowledge checks, coding exercises, and EN/RU lesson files.
-- A single text-based curriculum for lesson browsing, reading, practice and progress. HTML topics remain available as ordinary structured text lessons.
-- Curated learning paths, including a guided frontend capstone from requirements through demo/review.
-- Lesson progress, bookmarks, notes, quiz history, structured content search, and dashboard activity.
-- Structured search across lesson text, curriculum topics and notes, with section-outline search that can match body content and Git command references. Search uses six bounded generated EN/RU index chunks; Practice downloads a separate compact exercise index. Full lesson bodies remain lazy-loaded when a learner opens a lesson.
-- A bilingual Practice Center that aggregates structured coding exercises and reconnects saved drafts/self-review to the original lesson exercise.
-- A bilingual Settings page for UI language, browser connectivity signal, local-data counts, and backup access; cloud sync and theme switching are not configured.
-- Locale-prefixed, shareable routes across the application (`/en/...`, `/ru/...`); older unprefixed URLs redirect to the saved language.
-- Versioned local learning data with JSON backup and restore. Restore replaces the current local learning-data snapshot; it is not a merge.
-- PWA manifest, icons, SPA deep-link fallback, and a service worker with scoped runtime asset caching and user-controlled updates.
+- Six-month, 24-week frontend curriculum with 27 core topics and 17 supplementary topics.
+- 44 stable lesson IDs, each maintained in English and Russian.
+- Structured lessons with explanations, examples, code walkthroughs, knowledge checks, coding exercises, and references.
+- Guided learning paths, including a frontend capstone.
+- Lesson progress, bookmarks, personal notes, practice drafts, self-review checklists, and saved learning activity.
+- Search across lesson content and curriculum topics; a separate Practice Center indexes 119 coding exercises.
+- JSON backup and restore for browser-local learner data.
+- PWA manifest, app icons, service-worker caching, and a user-controlled update prompt.
 
-**Offline limitation:** dynamically loaded lesson chunks are cached after they have been successfully fetched. A lesson never opened online is not guaranteed to work offline. PWA install, offline, update, and native backup-file interactions still require acceptance in real browsers and devices; see the [browser/device checklist](./docs/BROWSER_SMOKE_TEST_CHECKLIST.md).
+HTML remains part of the curriculum: semantic HTML and accessible forms are taught as structured lessons. The former standalone HTML lesson-file catalog and its renderer have been retired. Old \`/courses\` and \`/lessons/:id\` URLs redirect to the structured curriculum.
 
-## Stack
+## Technology
 
 - React 18, TypeScript, Vite 8, Tailwind CSS
-- Zustand, React Router 7, Zod
+- React Router 7, Zustand, Zod
 - Vitest, Testing Library, ESLint
-- GitHub Actions CI (Node.js 22, npm 11.21.1)
+- GitHub Actions for lint, typecheck, tests, production build, and preview smoke checks
+- Netlify for deploy previews and production hosting
 
-## Getting started
+## Requirements
 
-Use Node.js 22 and the npm version pinned in CI when possible:
+Use Node.js 22 and npm 11.21.1, matching the CI toolchain.
 
-```bash
+## Run locally
+
+\`\`\`bash
 npm install --global npm@11.21.1
 npm ci
 npm run dev
-```
+\`\`\`
 
-Open the local URL printed by Vite.
+Vite prints the local development URL.
 
 ## Quality checks
 
-Run the same checks used by CI before submitting a change:
-
-```bash
+\`\`\`bash
 npm run lint
 npm run typecheck
 npm test
 npm run build
 npm run smoke:preview
-```
+\`\`\`
 
-The build includes TypeScript project checks, the production Vite build, and JavaScript bundle-budget enforcement. `npm run smoke:preview` starts the production preview and checks HTTP deep-route fallback, the built entry bundle, manifest, service worker, and PWA icon assets. It does not execute JavaScript in a real browser or verify native install/offline behavior. GitHub Actions runs on pull requests targeting `main` and pushes to `main`. A green automated run is necessary but does not certify source parity, screen-reader behavior, mobile layouts, deployment behavior, or offline acceptance.
+The build generates the lesson search/practice indexes, runs TypeScript checks, creates the production Vite bundle, and enforces bundle budgets. The preview smoke script checks HTTP deep-route fallback and the built entry, manifest, service worker, and PWA assets. It is not a substitute for manual browser, accessibility, or device acceptance.
+
+## Local data and offline behavior
+
+Learner data stays in the browser. Backup restore replaces the current local learning-data snapshot; it is not a merge. Backup files may contain personal notes and code drafts, so keep them private.
+
+Lesson bodies are loaded on demand and can be cached after a successful fetch. A lesson that has never been opened while online is not guaranteed to be available offline. See the [browser/device acceptance checklist](./docs/BROWSER_SMOKE_TEST_CHECKLIST.md).
 
 ## Documentation
 
-- [Project status and constraints](./docs/CURRENT_STATE.md)
-- [Implementation roadmap](./docs/ROADMAP.md)
+- [Current state and scope](./docs/CURRENT_STATE.md)
 - [Architecture](./docs/ARCHITECTURE.md)
-- [Curriculum/content model](./docs/CURRICULUM_AND_CONTENT.md)
-- [Content authoring guide](./docs/CONTENT_AUTHORING_GUIDE.md)
-- [Persistence and backup/Supabase plan](./docs/PERSISTENCE_AND_SUPABASE.md)
+- [Product requirements](./docs/PRODUCT_REQUIREMENTS.md)
+- [24-week curriculum and content model](./docs/CURRICULUM_AND_CONTENT.md)
+- [Structured lesson authoring guide](./docs/CONTENT_AUTHORING_GUIDE.md)
+- [Structured content audit](./docs/CONTENT_AUDIT.md)
+- [Local persistence and backup](./docs/LOCAL_PERSISTENCE_AND_BACKUP.md)
 - [PWA and mobile behavior](./docs/PWA_AND_MOBILE.md)
 - [Browser/device acceptance checklist](./docs/BROWSER_SMOKE_TEST_CHECKLIST.md)
-- [Session handoff](./docs/SESSION_HANDOFF.md)
+- [Implementation roadmap](./docs/ROADMAP.md)
+- [Decision log](./docs/DECISIONS.md)
