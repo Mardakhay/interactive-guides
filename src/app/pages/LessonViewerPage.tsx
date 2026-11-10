@@ -12,6 +12,7 @@ import {
 import { LessonRenderer, resolveLessonSource } from '@/features/lesson-renderer';
 import { useProgressStore, STATUS_LABELS, STATUS_BADGE_VARIANTS } from '@/features/progress';
 import { BookmarkButton } from '@/features/bookmarks';
+import { NoteEditor } from '@/features/notes';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { EmptyState } from '@/components/feedback';
 import { Button, Badge } from '@/components/ui';
@@ -151,6 +152,8 @@ export default function LessonViewerPage() {
             </>
           )}
         </div>
+
+        <NoteEditor lessonId={lesson.id} />
 
         <LessonNavigation previous={adjacent.previous} next={adjacent.next} />
       </div>

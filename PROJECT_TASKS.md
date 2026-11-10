@@ -108,11 +108,11 @@
 - [x] Git commit: `feat: add bookmarks system`
 
 ### M8: Notes
-- [ ] Create notes feature: store (localStorage), types
-- [ ] Add notes panel in lesson viewer (create, edit, delete)
-- [ ] Build NotesPage with all notes, filterable by lesson/course
-- [ ] Show note timestamps and lesson context
-- [ ] Git commit: `feat: add notes feature`
+- [x] Create notes feature: store (localStorage), types
+- [x] Add notes panel in lesson viewer (create, edit, delete)
+- [x] Build NotesPage with all notes, filterable by lesson/course
+- [x] Show note timestamps and lesson context
+- [x] Git commit: `feat: add notes feature`
 
 ### M9: Quiz Engine
 - [ ] Create quiz feature: types, store (localStorage), components
@@ -171,5 +171,5 @@
 | 3     | M6–M9      | User Features            |
 | 4     | M10–M13    | Discovery & Polish       |
 
-**Current Milestone:** M8 — Notes
-**Last Completed:** M7 — Bookmarks
+**Current Milestone:** M9 — Quiz Engine
+**Last Completed:** M8 — Notes
